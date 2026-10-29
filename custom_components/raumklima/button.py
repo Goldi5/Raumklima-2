@@ -1,0 +1,34 @@
+"""Jetzt kalibrieren."""
+
+from __future__ import annotations
+
+from homeassistant.components.button import ButtonEntity
+from homeassistant.const import EntityCategory
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+
+from . import RaumklimaConfigEntry
+from .const import CAL_NONE
+from .entity import RaumklimaEntity
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: RaumklimaConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    if entry.runtime_data.cal_mode != CAL_NONE:
+        async_add_entities([CalibrateButton(entry.runtime_data)])
+
+
+class CalibrateButton(RaumklimaEntity, ButtonEntity):
+    """Offset sofort neu berechnen und senden."""
+
+    _attr_translation_key = "calibrate"
+    _attr_entity_category = EntityCategory.CONFIG
+
+    def __init__(self, controller) -> None:
+        super().__init__(controller, "calibrate")
+
+    async def async_press(self) -> None:
+        await self.controller.async_calibrate(force=True)

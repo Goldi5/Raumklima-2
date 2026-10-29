@@ -1,0 +1,32 @@
+{
+  "entity": {
+    "sensor": {
+      "status": {
+        "default": "mdi:radiator",
+        "state": {
+          "heating": "mdi:fire",
+          "idle": "mdi:radiator",
+          "window_open": "mdi:window-open-variant",
+          "off": "mdi:radiator-off",
+          "sensor_unavailable": "mdi:thermometer-alert",
+          "trv_unavailable": "mdi:lan-disconnect"
+        }
+      },
+      "sync": {
+        "default": "mdi:sync",
+        "state": {
+          "ok": "mdi:check-circle-outline",
+          "pending": "mdi:sync",
+          "failed": "mdi:sync-alert"
+        }
+      },
+      "offset": { "default": "mdi:thermometer-plus" }
+    },
+    "switch": {
+      "window_logic": { "default": "mdi:window-shutter-auto" }
+    },
+    "button": {
+      "calibrate": { "default": "mdi:tune-variant" }
+    }
+  }
+}

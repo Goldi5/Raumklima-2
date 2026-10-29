@@ -1,0 +1,181 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add room",
+        "description": "Choose thermostat, sensor and window contacts.",
+        "data": {
+          "name": "Room name",
+          "trv": "Radiator thermostat (TRV)",
+          "temperature_sensor": "External temperature sensor",
+          "humidity_sensor": "Humidity sensor (optional)",
+          "window_sensors": "Window/door contacts (optional)"
+        },
+        "data_description": {
+          "trv": "The real thermostat on the radiator.",
+          "temperature_sensor": "Used for control instead of the sensor at the radiator.",
+          "window_sensors": "If any is open, heating is paused."
+        }
+      },
+      "calibration": {
+        "title": "Calibration",
+        "data": {
+          "calibration_mode": "Calibration type",
+          "calibration_entity": "TRV calibration/offset entity",
+          "off_method": "How to switch the TRV off"
+        },
+        "data_description": {
+          "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
+          "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
+          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'."
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "data": {
+          "window_open_delay": "Window open delay",
+          "window_close_delay": "Window close delay",
+          "offset_threshold": "Send offset only if change is at least",
+          "offset_min_interval": "Minimum time between calibrations",
+          "sensor_stale_minutes": "Sensor considered stale after",
+          "sync_verify_delay": "Verify command after",
+          "sync_max_retries": "Retries before notification",
+          "follow_trv_changes": "Adopt changes made on the TRV",
+          "notify_on_failure": "Notify if the TRV does not respond"
+        },
+        "data_description": {
+          "sync_verify_delay": "Then it is checked whether the TRV applied the command; otherwise it is repeated with growing intervals. Helps with short connection drops.",
+          "follow_trv_changes": "Off: changes on the device are reverted (like a child lock).",
+          "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
+        }
+      }
+    },
+    "error": {
+      "calibration_entity_required": "The offset calibration type needs a calibration entity.",
+      "same_entity": "Sensor and thermostat must differ."
+    },
+    "abort": {
+      "already_configured": "This thermostat is already assigned to a room."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Devices",
+        "data": {
+          "trv": "Radiator thermostat (TRV)",
+          "temperature_sensor": "External temperature sensor",
+          "humidity_sensor": "Humidity sensor (optional)",
+          "window_sensors": "Window/door contacts (optional)"
+        },
+        "data_description": {
+          "trv": "The real thermostat on the radiator.",
+          "temperature_sensor": "Used for control instead of the sensor at the radiator.",
+          "window_sensors": "If any is open, heating is paused."
+        }
+      },
+      "calibration": {
+        "title": "Calibration",
+        "data": {
+          "calibration_mode": "Calibration type",
+          "calibration_entity": "TRV calibration/offset entity",
+          "off_method": "How to switch the TRV off"
+        },
+        "data_description": {
+          "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
+          "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
+          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'."
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "data": {
+          "window_open_delay": "Window open delay",
+          "window_close_delay": "Window close delay",
+          "offset_threshold": "Send offset only if change is at least",
+          "offset_min_interval": "Minimum time between calibrations",
+          "sensor_stale_minutes": "Sensor considered stale after",
+          "sync_verify_delay": "Verify command after",
+          "sync_max_retries": "Retries before notification",
+          "follow_trv_changes": "Adopt changes made on the TRV",
+          "notify_on_failure": "Notify if the TRV does not respond"
+        },
+        "data_description": {
+          "sync_verify_delay": "Then it is checked whether the TRV applied the command; otherwise it is repeated with growing intervals. Helps with short connection drops.",
+          "follow_trv_changes": "Off: changes on the device are reverted (like a child lock).",
+          "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
+        }
+      }
+    },
+    "error": {
+      "calibration_entity_required": "The offset calibration type needs a calibration entity.",
+      "same_entity": "Sensor and thermostat must differ."
+    }
+  },
+  "selector": {
+    "calibration_mode": {
+      "options": {
+        "offset": "Offset (recommended)",
+        "target": "Adjust setpoint",
+        "none": "No calibration"
+      }
+    },
+    "off_method": {
+      "options": {
+        "auto": "Automatic",
+        "preset": "Preset 'off'",
+        "hvac": "HVAC mode 'off'",
+        "min_temp": "Minimum temperature"
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "raumklima": {
+        "name": "Thermostat"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "heating": "Heating",
+          "idle": "Target reached",
+          "window_open": "Paused – window open",
+          "off": "Off",
+          "sensor_unavailable": "Sensor unavailable",
+          "trv_unavailable": "Thermostat unavailable"
+        }
+      },
+      "sync": {
+        "name": "Sync",
+        "state": {
+          "ok": "OK",
+          "pending": "Pending",
+          "failed": "Failed"
+        }
+      },
+      "offset": {
+        "name": "Calibration offset"
+      }
+    },
+    "binary_sensor": {
+      "window": {
+        "name": "Window"
+      },
+      "problem": {
+        "name": "Problem"
+      }
+    },
+    "switch": {
+      "window_logic": {
+        "name": "Window logic"
+      }
+    },
+    "button": {
+      "calibrate": {
+        "name": "Calibrate now"
+      }
+    }
+  }
+}
