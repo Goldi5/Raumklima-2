@@ -657,12 +657,17 @@ class RaumklimaController:
         if not self.sensor_ok or not self.trv_available():
             return
         cal_state = self.hass.states.get(self.cal_entity)
-        if cal_state is None or not is_valid(cal_state.state):
-            return
-        if not force and not self._cal_interval_passed():
+        if cal_state is None or cal_state.state == "unavailable":
             return
         if self.sync.is_pending("offset"):
             return  # vorherigen Offset erst bestätigen lassen
+        if cal_state.state == "unknown":
+            # Tuya-TRVs melden den Offset erst nach dem ersten Setzen. Einmal 0
+            # senden, damit ein bekannter Ausgangswert für die Rechnung existiert.
+            await self._send_offset(0.0)
+            return
+        if not force and not self._cal_interval_passed():
+            return
 
         low = max(OFFSET_MIN, to_float(cal_state.attributes.get("min")) or OFFSET_MIN)
         high = min(OFFSET_MAX, to_float(cal_state.attributes.get("max")) or OFFSET_MAX)
@@ -686,6 +691,11 @@ class RaumklimaController:
             self._ext_value,
             self.trv_temperature,
         )
+        await self._send_offset(new)
+
+    async def _send_offset(self, new: float) -> None:
+        if not self.cal_entity:
+            return
         self._last_cal_send = dt_util.utcnow()
         self._last_cal_value = new
         entity = self.cal_entity
