@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.4 – 2026-10-30
+
+### Neu
+- **Verlaufskarte** `custom:raumklima-history-card` im Stil der Raumkarten:
+  Raumtemperatur, Luftfeuchte oder Zeitleiste „Heizung & Fenster“; Zeitraum
+  6 h / 24 h / 7 Tage umschaltbar, Wohlfühlbereich als Band, Raum-Chips mit
+  aktuellem Wert zum Ein-/Ausblenden, Tooltip mit allen Räumen.
+- Die Dashboard-Strategie nutzt im Reiter „Verlauf“ jetzt diese Karte statt der
+  Standard-Diagramme.
+
 ## 0.2.3 – 2026-10-30
 
 ### Behoben

@@ -8,7 +8,7 @@ Verbindungsabbrüchen (z. B. über VPN).
 Entwickelt und gedacht für Tuya-TRVs über Zigbee2MQTT (z. B. TRV602Z / TS0601),
 funktioniert aber mit jedem `climate`-Thermostat.
 
-**Aktuelle Version: 0.2.3** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
+**Aktuelle Version: 0.2.4** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
 
 ## Funktionen
 
@@ -99,7 +99,17 @@ title: Heizung
 ---
 type: custom:raumklima-card            # ein Raum
 entity: climate.finja_berlin_wohnzimmer
+---
+type: custom:raumklima-history-card    # Verlauf aller Räume (ab 0.2.4)
+mode: temperature                      # temperature | humidity | timeline
+hours: 24                              # Start-Zeitraum, in der Karte umschaltbar (6 h / 24 h / 7 T)
+strip_prefix: Finja Berlin             # optional: Präfix aus den Raumnamen entfernen
 ```
+
+Die Verlaufskarte findet alle Raumklima-Räume automatisch: glatte Kurven je Raum,
+Wohlfühlbereich als Band (19–22 °C bzw. 40–60 %), Raum-Chips zum Ein-/Ausblenden,
+mitlaufende Anzeige beim Überfahren. `timeline` zeigt pro Raum, wann geheizt wurde,
+die Temperatur erreicht war, das Fenster offen oder der Raum aus war.
 
 ## Entitäten pro Raum
 
