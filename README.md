@@ -8,7 +8,9 @@ Verbindungsabbrüchen (z. B. über VPN).
 Entwickelt und gedacht für Tuya-TRVs über Zigbee2MQTT (z. B. TRV602Z / TS0601),
 funktioniert aber mit jedem `climate`-Thermostat.
 
-## Funktionen (v0.1)
+**Aktuelle Version: 0.1.2** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
+
+## Funktionen
 
 - **Automatischer Offset:** Das TRV bekommt laufend einen Korrekturwert
   (`local_temperature_calibration`), damit es die echte Raumtemperatur „sieht“.
@@ -32,6 +34,13 @@ funktioniert aber mit jedem `climate`-Thermostat.
   (Kindersicherung).
 - Erkennt automatisch, wie das TRV ausgeschaltet wird (Preset `off`,
   HVAC `off` oder Minimaltemperatur).
+- **Preset zum Heizen** wird automatisch gewählt (`manual` → `heat` → `eco` →
+  `comfort`) und ist pro Raum einstellbar. Presets wie `on`, `auto` oder
+  `antifrost` werden gemieden, weil das TRV darin nicht auf den Sollwert regelt.
+- **Preset-Wechsel am TRV** (z. B. jemand drückt am Gerät auf Eco) überschreibt
+  die Solltemperatur nicht: Raumklima stellt Preset und Sollwert wieder her.
+- **Offset-Startwert:** Meldet das TRV noch keinen Offset (`unknown`, typisch bei
+  Tuya), sendet Raumklima einmalig 0 und kalibriert danach normal.
 
 ## Entitäten pro Raum
 
@@ -60,7 +69,8 @@ kopieren und neu starten.
 
 1. **Raum:** Name, TRV, externer Fühler, optional Luftfeuchte und Fensterkontakte.
 2. **Kalibrierung:** Die Offset-Entität des TRV wird automatisch gesucht
-   (meist `number.…_local_temperature_calibration`).
+   (meist `number.…_local_temperature_calibration`). Außerdem: wie das TRV
+   ausgeschaltet wird und welches Preset zum Heizen dient (Standard: automatisch).
 3. **Einstellungen:** Verzögerungen, Schwellen, Prüf- und Wiederholungszeiten.
 
 Alles lässt sich später über **Konfigurieren** ändern.
@@ -71,6 +81,27 @@ Alles lässt sich später über **Konfigurieren** ändern.
   steuern zwei Systeme dasselbe TRV.
 - Die eingebaute Fenstererkennung des TRV (`window_detection`) ausschalten.
 - Ab jetzt nur noch `climate.<raum>` bedienen (Dashboard, Sprachassistent).
+
+## Hinweise zum Tuya TRV602Z (TS0601)
+
+Im echten Betrieb getestet. Wichtig zu wissen:
+
+| Preset | Verhalten am TRV602Z | Für Raumklima |
+|---|---|---|
+| `on` | **Ventil dauerhaft offen**, ignoriert den Sollwert | ❌ nie verwenden |
+| `eco` | Regelt auf den gesendeten Sollwert (lädt beim Umschalten kurz `eco_temperature`) | ✅ empfohlen (Automatik wählt es) |
+| `comfort` | Regelt, lädt beim Umschalten `comfort_temperature` | ✅ möglich |
+| `auto` | Folgt dem Wochenprogramm im Gerät | ❌ |
+| `off` / `antifrost` | Aus bzw. Frostschutz | nur zum Ausschalten |
+
+Weitere Empfehlungen:
+
+- **Hysterese** (`select.…_hysteresis`) auf `comfort` stellen: Das Ventil öffnet
+  stufenlos statt nur ganz auf/zu.
+- Die eingebaute Fenstererkennung (`window_detection`) ausschalten.
+- Der Treiber kennt keinen echten „manuellen“ Modus – Zuordnung laut
+  [zigbee-herdsman-converters](https://github.com/Koenkk/zigbee-herdsman-converters):
+  `0 off · 1 antifrost · 2 eco · 3 comfort · 4 auto · 5 on`.
 
 ## Hinweis zu Zigbee2MQTT
 
@@ -98,7 +129,7 @@ logger:
 
 ## Fahrplan
 
-- v0.2: eigene Lovelace-Karte, Presets (Eco/Komfort/Abwesend/Boost), Ventilpflege
+- v0.2: Dashboard/Lovelace-Karte, Presets (Eco/Komfort/Abwesend/Boost), Ventilpflege
 - v0.3: Lüftungsassistent (Luftfeuchte/Taupunkt), Benachrichtigungen bei langem
   Lüften, Außentemperatur-Abschaltung
 - v0.4: PID-Regelung, Zeitpläne, Mehrraum-Übersicht, Statistik
