@@ -1,0 +1,52 @@
+name: Release
+
+# Erstellt automatisch ein GitHub-Release, sobald sich die Version in der
+# manifest.json ändert (Tag vX.Y.Z, Text aus CHANGELOG.md).
+on:
+  push:
+    branches: [main]
+    paths:
+      - custom_components/raumklima/manifest.json
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Version lesen
+        id: v
+        run: echo "version=$(jq -r .version custom_components/raumklima/manifest.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Schon veröffentlicht?
+        id: check
+        run: |
+          if git rev-parse "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Text aus dem Changelog
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          awk -v v="${{ steps.v.outputs.version }}" 'index($0, "## " v " ") == 1 {f=1; next} /^## / && f {exit} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Siehe CHANGELOG.md" > notes.md
+          cat notes.md
+
+      - name: Release erstellen
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.v.outputs.version }}" \
+            --title "Raumklima v${{ steps.v.outputs.version }}" \
+            --notes-file notes.md \
+            --target "${{ github.sha }}"
