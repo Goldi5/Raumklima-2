@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.6 – 2026-10-30
+
+### Geändert
+- Einstellungskarte größer und luftiger (größere Schrift, Regler, Schalter);
+  Reiter „Einstellungen“ der Strategie nutzt die volle Breite.
+- Ruhezeiten ohne Sekunden (22:00 statt 22:00:00).
+- Strategie „Verlauf“: Wettervorhersage oben über die ganze Breite.
+
 ## 0.2.5 – 2026-10-30
 
 ### Neu

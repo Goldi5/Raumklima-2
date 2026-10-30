@@ -8,7 +8,7 @@ Verbindungsabbrüchen (z. B. über VPN).
 Entwickelt und gedacht für Tuya-TRVs über Zigbee2MQTT (z. B. TRV602Z / TS0601),
 funktioniert aber mit jedem `climate`-Thermostat.
 
-**Aktuelle Version: 0.2.5** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
+**Aktuelle Version: 0.2.6** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
 
 ## Funktionen
 

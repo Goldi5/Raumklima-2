@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.2.5";
+const RK_VERSION = "0.2.6";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -699,56 +699,56 @@ function rkPretty(target) {
 const SETTINGS_STYLES = `
   .tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:14px -4px 4px; padding:2px 4px 6px; }
   .tabs::-webkit-scrollbar { display:none; }
-  .tab { all:unset; cursor:pointer; white-space:nowrap; padding:8px 14px; border-radius:999px; font-size:.85rem; font-weight:600; color:var(--secondary-text-color);
+  .tab { all:unset; cursor:pointer; white-space:nowrap; padding:10px 18px; border-radius:999px; font-size:.98rem; font-weight:600; color:var(--secondary-text-color);
     background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); display:inline-flex; align-items:center; gap:6px; }
   .tab ha-icon { --mdc-icon-size:16px; }
   .tab.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
   .tab .dot { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-ok)); }
   ha-card.settings { container-type: inline-size; }
-  .groups { display:grid; grid-template-columns: 1fr; gap:14px; margin-top:12px; }
+  .groups { display:grid; grid-template-columns: 1fr; gap:18px; margin-top:14px; }
   @container (min-width: 720px) { .groups { grid-template-columns: 1fr 1fr; } }
-  .grp { border-radius:22px; padding:16px 18px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); }
+  .grp { border-radius:24px; padding:20px 22px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); }
   .grp.span { grid-column: 1 / -1; }
   .gh { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-  .gh .ic { width:34px; height:34px; border-radius:12px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); }
-  .gh .ic ha-icon { --mdc-icon-size:19px; }
-  .gh b { font-size:.98rem; color:var(--primary-text-color); flex:1; }
+  .gh .ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); }
+  .gh .ic ha-icon { --mdc-icon-size:22px; }
+  .gh b { font-size:1.15rem; color:var(--primary-text-color); flex:1; }
   .gh small { color:var(--secondary-text-color); font-size:.75rem; }
-  .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); min-height:30px; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); min-height:30px; }
   .row:first-of-type { border-top:0; }
-  .row .l { font-size:.87rem; color:var(--primary-text-color); }
-  .row .l small { display:block; color:var(--secondary-text-color); font-size:.74rem; margin-top:1px; }
-  .row .v { font-size:.87rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
+  .row .l { font-size:1rem; color:var(--primary-text-color); }
+  .row .l small { display:block; color:var(--secondary-text-color); font-size:.84rem; margin-top:1px; }
+  .row .v { font-size:1rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
   .row .v.mute { color:var(--secondary-text-color); font-weight:500; }
   .stepper { display:inline-flex; align-items:center; gap:4px; background: var(--ha-card-background, var(--card-background-color)); border-radius:999px; padding:3px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .stepper button { all:unset; cursor:pointer; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:1.05rem; font-weight:700; color:var(--g); background: color-mix(in srgb, var(--g) 12%, transparent); }
+  .stepper button { all:unset; cursor:pointer; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:1.2rem; font-weight:700; color:var(--g); background: color-mix(in srgb, var(--g) 12%, transparent); }
   .stepper button:active { transform: scale(.92); }
-  .stepper span { min-width:58px; text-align:center; font-weight:650; font-variant-numeric:tabular-nums; font-size:.9rem; color:var(--primary-text-color); }
-  .tgl { all:unset; cursor:pointer; width:44px; height:26px; border-radius:999px; position:relative; background: color-mix(in srgb, var(--primary-text-color) 18%, transparent); transition: background .2s; flex:none; }
-  .tgl::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+  .stepper span { min-width:70px; text-align:center; font-weight:650; font-variant-numeric:tabular-nums; font-size:1.05rem; color:var(--primary-text-color); }
+  .tgl { all:unset; cursor:pointer; width:52px; height:30px; border-radius:999px; position:relative; background: color-mix(in srgb, var(--primary-text-color) 18%, transparent); transition: background .2s; flex:none; }
+  .tgl::after { content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
   .tgl.on { background: var(--g, var(--rk-ok)); }
-  .tgl.on::after { transform: translateX(18px); }
+  .tgl.on::after { transform: translateX(22px); }
   .chips { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
-  .chip2 { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:.78rem; font-weight:600; background: color-mix(in srgb, var(--c, var(--rk-air)) 14%, transparent); color: var(--primary-text-color); }
+  .chip2 { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.9rem; font-weight:600; background: color-mix(in srgb, var(--c, var(--rk-air)) 14%, transparent); color: var(--primary-text-color); }
   .chip2 i { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-air)); }
   .chip2.off { opacity:.45; text-decoration: line-through; }
-  .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:10px; }
-  .person { display:flex; gap:12px; align-items:flex-start; padding:12px; border-radius:18px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  .av { width:40px; height:40px; border-radius:14px; flex:none; display:grid; place-items:center; font-weight:700; color:#fff; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 60%, #000)); }
+  .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:14px; }
+  .person { display:flex; gap:14px; align-items:flex-start; padding:16px; border-radius:18px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .av { width:48px; height:48px; font-size:1.2rem; border-radius:14px; flex:none; display:grid; place-items:center; font-weight:700; color:#fff; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 60%, #000)); }
   .av ha-icon { --mdc-icon-size:20px; }
-  .person b { display:block; font-size:.92rem; color:var(--primary-text-color); }
-  .person small { display:block; font-size:.75rem; color:var(--secondary-text-color); margin:1px 0 7px; }
+  .person b { display:block; font-size:1.08rem; color:var(--primary-text-color); }
+  .person small { display:block; font-size:.86rem; color:var(--secondary-text-color); margin:1px 0 7px; }
   .person .chips { justify-content:flex-start; }
-  .msgs { display:grid; gap:8px; }
-  .msg { display:grid; grid-template-columns: 34px 1fr auto; gap:12px; align-items:center; padding:10px 12px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  .msg .e { font-size:1.25rem; text-align:center; }
-  .msg b { font-size:.88rem; color:var(--primary-text-color); display:block; }
-  .msg small { font-size:.76rem; color:var(--secondary-text-color); }
-  .msg .tag { font-size:.7rem; font-weight:700; padding:3px 8px; border-radius:999px; background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) 75%, var(--primary-text-color)); white-space:nowrap; }
-  .tbl { width:100%; border-collapse:separate; border-spacing:0 6px; font-size:.84rem; }
+  .msgs { display:grid; gap:10px; }
+  .msg { display:grid; grid-template-columns: 40px 1fr auto; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .msg .e { font-size:1.5rem; text-align:center; }
+  .msg b { font-size:1.02rem; color:var(--primary-text-color); display:block; }
+  .msg small { font-size:.88rem; color:var(--secondary-text-color); }
+  .msg .tag { font-size:.8rem; font-weight:700; padding:3px 8px; border-radius:999px; background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) 75%, var(--primary-text-color)); white-space:nowrap; }
+  .tbl { width:100%; border-collapse:separate; border-spacing:0 8px; font-size:1rem; }
   .tblwrap { overflow-x:auto; margin: 0 -4px; padding: 0 4px; }
-  .tbl th { text-align:left; font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--secondary-text-color); padding:0 10px 2px; white-space:nowrap; }
-  .tbl td { padding:10px; background: var(--ha-card-background, var(--card-background-color)); white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--primary-text-color); }
+  .tbl th { text-align:left; font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--secondary-text-color); padding:0 10px 2px; white-space:nowrap; }
+  .tbl td { padding:14px 12px; background: var(--ha-card-background, var(--card-background-color)); white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--primary-text-color); }
   .tbl tr td:first-child { border-radius:14px 0 0 14px; font-weight:650; }
   .tbl tr td:last-child { border-radius:0 14px 14px 0; }
   .tbl tbody tr { cursor:pointer; }
@@ -757,12 +757,17 @@ const SETTINGS_STYLES = `
   .tbl .rn i { width:9px; height:9px; border-radius:50%; background: var(--c); }
   .ok { color: var(--rk-ok); } .no { color: var(--secondary-text-color); }
   .foot { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
-  .btn { all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:14px; font-weight:600; font-size:.86rem;
+  .btn { all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:16px; font-weight:600; font-size:1rem;
     background: color-mix(in srgb, var(--c, var(--primary-text-color)) 9%, transparent); color: var(--primary-text-color); }
   .btn ha-icon { --mdc-icon-size:18px; color: var(--c, var(--primary-text-color)); }
   .btn.primary { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
   .btn.primary ha-icon { color: inherit; }
-  .hint { font-size:.78rem; color:var(--secondary-text-color); margin-top:12px; line-height:1.45; }
+  .hint { font-size:.9rem; color:var(--secondary-text-color); margin-top:12px; line-height:1.45; }
+  @container (min-width: 1000px) { .grp.cols .rws { columns: 2; column-gap: 56px; } .grp.cols .row { break-inside: avoid; } }
+  ha-card.settings { padding: 26px 28px; max-width: 1500px; margin: 12px auto; }
+  @media (max-width: 600px) { ha-card.settings { padding: 18px 16px; margin: 0; } }
+  ha-card.settings .htitle { font-size:1.45rem; }
+  ha-card.settings .htitle ha-icon { --mdc-icon-size:28px; }
 `;
 
 class RaumklimaSettingsCard extends HTMLElement {
@@ -805,7 +810,7 @@ class RaumklimaSettingsCard extends HTMLElement {
   _row(label, value, sub) { return `<div class="row"><div class="l">${label}${sub ? `<small>${sub}</small>` : ""}</div>${value}</div>`; }
   _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${text}</span>`; }
   _grp(title, icon, tone, rows, extra = "", cls = "") {
-    return `<div class="grp ${cls}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${title}</b>${extra}</div>${rows}</div>`;
+    return `<div class="grp ${cls}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${title}</b>${extra}</div><div class="rws">${rows}</div></div>`;
   }
 
   _recipients() {
@@ -846,7 +851,8 @@ class RaumklimaSettingsCard extends HTMLElement {
     const rec = uniq((r) => r.attrs.recommended_minutes);
     const out = rooms.find((r) => r.attrs.outdoor_temperature !== undefined && r.attrs.outdoor_temperature !== null);
     const recTxt = rec.length ? `aktuell ${rec[0]} min${out ? ` bei ${fmt(out.attrs.outdoor_temperature)} °C draußen` : ""}` : "";
-    const quiet = uniq((r) => S(r).quiet_start && `${S(r).quiet_start}–${S(r).quiet_end}`);
+    const hm = (t) => String(t || "").slice(0, 5);
+    const quiet = uniq((r) => S(r).quiet_start && `${hm(S(r).quiet_start)}–${hm(S(r).quiet_end)}`);
     const repeat = uniq((r) => S(r).repeat_minutes);
     const msgs = [
       ["💧", "Bitte lüften", `Luftfeuchte ${humTxt} seit 15 min – nur wenn Lüften auch trocknet`, "Push", "air"],
@@ -913,7 +919,7 @@ class RaumklimaSettingsCard extends HTMLElement {
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
         this._row("Push an", targets(s.notify_targets, notifOff)),
         this._row("Sprachansage", targets(s.tts_targets, notifOff)),
-        this._row("Ruhezeit", this._v(s.quiet_start ? `${s.quiet_start}–${s.quiet_end} Uhr` : "–")),
+        this._row("Ruhezeit", this._v(s.quiet_start ? `${String(s.quiet_start).slice(0, 5)}–${String(s.quiet_end).slice(0, 5)} Uhr` : "–")),
         this._row("Erinnern alle", this._v(s.repeat_minutes ? `${fmt(s.repeat_minutes, 0)} min` : "–")),
         this._row("Thermostat-Fehler melden", this._v(s.notify_on_failure ? "ja (Glocke)" : "nein", !s.notify_on_failure)),
       ].join(""))}
@@ -926,7 +932,7 @@ class RaumklimaSettingsCard extends HTMLElement {
         this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
         this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? "ja" : "nein")),
         this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, `prüft nach ${s.sync_verify_delay ?? "–"} s · bis zu ${s.sync_max_retries ?? "–"} Wiederholungen`),
-      ].join(""), "", "span")}
+      ].join(""), "", "span cols")}
     </div>
     <div class="foot">
       ${sib.calibrate ? `<button class="btn" data-press="${sib.calibrate}" style="--c:var(--rk-heat)"><ha-icon icon="mdi:tune-vertical"></ha-icon>Jetzt kalibrieren</button>` : ""}
@@ -1002,18 +1008,16 @@ class RaumklimaDashboardStrategy extends HTMLElement {
     const historyView = {
       title: "Verlauf", path: "verlauf", icon: "mdi:chart-line", type: "sections", max_columns: 2,
       sections: [
+        ...(weather ? [{ type: "grid", column_span: 2, cards: [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] }] : []),
         { type: "grid", column_span: 2, cards: [hist("temperature")] },
         { type: "grid", cards: [hist("humidity")] },
-        { type: "grid", cards: [
-          hist("timeline"),
-          ...(weather ? [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] : []),
-        ] },
+        { type: "grid", cards: [hist("timeline")] },
       ],
     };
 
     const settingsView = {
-      title: "Einstellungen", path: "einstellungen", icon: "mdi:tune-variant", type: "sections", max_columns: 2,
-      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-settings-card", strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+      title: "Einstellungen", path: "einstellungen", icon: "mdi:tune-variant", type: "panel",
+      cards: [{ type: "custom:raumklima-settings-card", strip_prefix: prefix }],
     };
 
     return { title: config.title || "Heizung", views: [roomsView, historyView, settingsView] };
