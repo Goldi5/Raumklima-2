@@ -31,10 +31,39 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         await hass.http.async_register_static_paths(
             [StaticPathConfig(CARD_URL, str(card), cache_headers=False)]
         )
-        add_extra_js_url(hass, f"{CARD_URL}?v={VERSION}")
     except RuntimeError as err:  # bereits registriert (z. B. nach Reload)
         _LOGGER.debug("Karte schon registriert: %s", err)
+    await _async_register_resource(hass)
     return True
+
+
+async def _async_register_resource(hass: HomeAssistant) -> None:
+    """Karte als Dashboard-Ressource eintragen (nötig für die Dashboard-Strategie).
+
+    Extra-Module lädt HA erst nach dem Dashboard-Aufbau – zu spät für
+    Strategien. Ressourcen lädt HA vorher. Bei YAML-Ressourcen: Rückfall.
+    """
+    url = f"{CARD_URL}?v={VERSION}"
+    data = hass.data.get("lovelace")
+    resources = getattr(data, "resources", None)
+    if (
+        resources is None
+        or getattr(data, "resource_mode", "storage") != "storage"
+        or not hasattr(resources, "async_create_item")
+    ):
+        add_extra_js_url(hass, url)
+        return
+    try:
+        await resources.async_get_info()  # lädt die Sammlung bei Bedarf
+        for item in resources.async_items():
+            if str(item.get("url", "")).split("?")[0] == CARD_URL:
+                if item.get("url") != url:
+                    await resources.async_update_item(item["id"], {"res_type": "module", "url": url})
+                return
+        await resources.async_create_item({"res_type": "module", "url": url})
+    except Exception as err:  # noqa: BLE001 – interne API, lieber Rückfall als Absturz
+        _LOGGER.warning("Ressource konnte nicht eingetragen werden (%s) – nutze Extra-Modul", err)
+        add_extra_js_url(hass, url)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> bool:

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3 – 2026-10-30
+
+### Behoben
+- Dashboard-Strategie „Raumklima“ meldete „Timeout waiting for strategy element“:
+  Die Karte wird jetzt automatisch als **Dashboard-Ressource** eingetragen (und bei
+  Updates mit neuer Version aktualisiert), damit HA sie vor dem Dashboard-Aufbau lädt.
+
 ## 0.2.2 – 2026-10-30
 
 ### Neu
