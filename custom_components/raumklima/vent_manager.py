@@ -96,8 +96,10 @@ class VentilationManager:
         """Gespeicherte Reglerwerte übernehmen."""
         if not stored:
             return
-        self.humidity_limit = float(stored.get("humidity_limit", self.humidity_limit))
-        self.min_temp = float(stored.get("min_temp", self.min_temp))
+        # Raumtyp geändert? Dann gelten dessen Standardwerte statt der alten
+        if stored.get("room_type", self.room_type) == self.room_type:
+            self.humidity_limit = float(stored.get("humidity_limit", self.humidity_limit))
+            self.min_temp = float(stored.get("min_temp", self.min_temp))
         self.max_drop = float(stored.get("max_drop", self.max_drop))
         self.enabled = bool(stored.get("enabled", self.enabled))
 
@@ -121,6 +123,7 @@ class VentilationManager:
 
     def export(self) -> dict[str, Any]:
         return {
+            "room_type": self.room_type,
             "humidity_limit": self.humidity_limit,
             "min_temp": self.min_temp,
             "max_drop": self.max_drop,
@@ -362,6 +365,7 @@ class VentilationManager:
         setattr(self, key, float(value))
         self.c.save()
         self.update()
+        self.c.notify_listeners()
 
     def set_enabled(self, enabled: bool) -> None:
         self.enabled = enabled

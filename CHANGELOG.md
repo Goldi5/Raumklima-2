@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 – 2026-10-30
+
+### Behoben
+- Regler (Feuchtegrenze, Mindesttemperatur, max. Abkühlung) zeigten nach dem
+  Ändern weiter den alten Wert an.
+- Wird der Raumtyp geändert, gelten jetzt dessen Standardwerte (z. B. Bad 75 %,
+  Schlafzimmer 16 °C) statt der zuvor gespeicherten.
+
 ## 0.2.0 – 2026-10-30
 
 ### Neu
