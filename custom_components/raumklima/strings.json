@@ -55,6 +55,7 @@
         "title": "Airing & notifications",
         "data": {
           "room_type": "Room type",
+          "comfort_temperature": "Preferred temperature (optional)",
           "weather_entity": "Outdoor climate (weather or outdoor sensor)",
           "notify_targets": "Send notifications to",
           "tts_targets": "Voice announcements on (optional)",
@@ -64,6 +65,7 @@
         },
         "data_description": {
           "room_type": "Sets sensible defaults; fine-tune later with the device's number controls.",
+          "comfort_temperature": "Empty = room type default. Used on first start and when switching on a room that was off.",
           "weather_entity": "Used for recommended airing time and whether airing actually dries the room.",
           "notify_targets": "e.g. notify.mobile_app_… — iOS messages get action buttons.",
           "tts_targets": "Announcement only when the room cools down or after repeated reminders, never in quiet hours.",
@@ -133,6 +135,7 @@
         "title": "Airing & notifications",
         "data": {
           "room_type": "Room type",
+          "comfort_temperature": "Preferred temperature (optional)",
           "weather_entity": "Outdoor climate (weather or outdoor sensor)",
           "notify_targets": "Send notifications to",
           "tts_targets": "Voice announcements on (optional)",
@@ -142,6 +145,7 @@
         },
         "data_description": {
           "room_type": "Sets sensible defaults; fine-tune later with the device's number controls.",
+          "comfort_temperature": "Empty = room type default. Used on first start and when switching on a room that was off.",
           "weather_entity": "Used for recommended airing time and whether airing actually dries the room.",
           "notify_targets": "e.g. notify.mobile_app_… — iOS messages get action buttons.",
           "tts_targets": "Announcement only when the room cools down or after repeated reminders, never in quiet hours.",

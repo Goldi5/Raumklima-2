@@ -96,6 +96,10 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "offset": c.offset,
             "sync": c.sync.state,
             "valve_position": c.valve_position,
+            "comfort_temperature": c.comfort_temp,
+            "temperature_sensor": c.temp_sensor,
+            "humidity_entity": c.humidity_sensor,
+            "window_entities": c.windows,
             "humidity_sensor": bool(c.humidity_sensor),
             **(c.vent.attributes() if c.vent else {}),
         }

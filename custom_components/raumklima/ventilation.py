@@ -28,6 +28,24 @@ ROOM_TYPES = {
 }
 DEFAULT_ROOM_TYPE = "living"
 
+# Wunschtemperatur je Raumtyp (UBA-Empfehlungen)
+COMFORT_BY_ROOM = {
+    "living": 20.0,
+    "children": 20.0,
+    "kitchen": 19.0,
+    "bathroom": 22.0,
+    "bedroom": 17.0,
+    "rarely_used": 17.0,
+}
+MIN_USEFUL_TARGET = 12.0  # darunter gilt ein Sollwert als "aus"-Rest (z. B. 5 °C)
+
+
+def comfort_temperature(configured: float | None, room_type: str | None) -> float:
+    """Wunschtemperatur: eingestellt oder Standard des Raumtyps."""
+    if configured not in (None, "", 0):
+        return float(configured)
+    return COMFORT_BY_ROOM.get(room_type or DEFAULT_ROOM_TYPE, 20.0)
+
 VENT_OK = "ok"
 VENT_PLEASE_OPEN = "please_open"
 VENT_AIRING = "airing"

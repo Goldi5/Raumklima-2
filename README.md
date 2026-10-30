@@ -8,7 +8,7 @@ Verbindungsabbrüchen (z. B. über VPN).
 Entwickelt und gedacht für Tuya-TRVs über Zigbee2MQTT (z. B. TRV602Z / TS0601),
 funktioniert aber mit jedem `climate`-Thermostat.
 
-**Aktuelle Version: 0.2.1** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
+**Aktuelle Version: 0.2.2** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
 
 ## Funktionen
 
@@ -65,6 +65,29 @@ Grundlagen: Umweltbundesamt, co2online, LAUG.
 Für eigene Automationen feuert Raumklima das Ereignis `raumklima_event`
 (`type: ventilation`, `state`, `room`).
 
+## Dashboard „Raumklima“ – baut sich selbst (ab 0.2.2, HA 2026.5+)
+
+Einstellungen → Dashboards → **Dashboard hinzufügen** → unter *Community* **„Raumklima“**
+wählen. Das Dashboard erzeugt automatisch drei Ansichten aus allen Raumklima-Räumen
+und wächst mit, wenn neue Räume dazukommen:
+
+- **Räume:** Übersicht (Kachelraster + Außenklima) und eine Karte pro Raum
+- **Verlauf:** Raumtemperatur und Luftfeuchte aller Räume in je einem Diagramm
+  (feste Farbe pro Raum), Zeitleisten „Was die Heizung gemacht hat“ und Fenster,
+  Wettervorhersage
+- **Einstellungen:** pro Raum Feuchtegrenze, Mindesttemperatur, max. Abkühlung,
+  Hinweise, Fensterlogik, Kalibrieren
+
+Manuell (YAML):
+
+```yaml
+strategy:
+  type: custom:raumklima
+  title: Heizung
+  strip_prefix: "Finja Berlin"   # optional: Präfix in Raumnamen ausblenden
+  weather: weather.pirateweather_2   # optional
+```
+
 ## Raumklima-Karte (ab 0.2)
 
 Wird mit der Integration ausgeliefert und automatisch geladen – keine extra
@@ -109,6 +132,10 @@ kopieren und neu starten.
 
 ## Einrichtung
 
+0. **Wunschtemperatur** (Schritt „Lüften & Benachrichtigungen“): leer = Standard des
+   Raumtyps (Wohnraum/Kinderzimmer 20 °C, Küche 19 °C, Bad 22 °C,
+   Schlafzimmer/selten genutzt 17 °C). Gilt beim ersten Start und beim Einschalten
+   eines Raums, der aus war.
 1. **Raum:** Name, TRV, externer Fühler, optional Luftfeuchte und Fensterkontakte.
 2. **Kalibrierung:** Die Offset-Entität des TRV wird automatisch gesucht
    (meist `number.…_local_temperature_calibration`). Außerdem: wie das TRV

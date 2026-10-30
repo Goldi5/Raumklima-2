@@ -28,6 +28,8 @@ from .const import (
     CALIBRATION_INTERVAL,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
+    CONF_COMFORT_TEMP,
+    CONF_ROOM_TYPE,
     CONF_FOLLOW_TRV,
     CONF_HUMIDITY_SENSOR,
     CONF_NAME,
@@ -85,6 +87,7 @@ from .logic import (
 )
 from .sync import SyncJob, SyncManager
 from .vent_manager import VentilationManager
+from .ventilation import MIN_USEFUL_TARGET, comfort_temperature
 
 _LOGGER = logging.getLogger(__name__)
 STORAGE_VERSION = 1
@@ -160,10 +163,8 @@ class RaumklimaController:
             self.window_logic = bool(stored.get("window_logic", self.window_logic))
             self.trv_on_preset = stored.get("trv_on_preset")
         elif self.trv_available():
-            # Erster Start: aktuelle TRV-Einstellung übernehmen statt zu überschreiben
-            trv_target = to_float(self._trv_attr(ATTR_TEMPERATURE))
-            if trv_target is not None:
-                self.target_temp = trv_target
+            # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
+            self.target_temp = self.comfort_temp
             self.hvac_on = not self._is_trv_off(self._trv_state(), self._off_method())
             preset = self._trv_attr("preset_mode")
             if preset and preset != "off":
@@ -388,7 +389,17 @@ class RaumklimaController:
         self._notify()
         await self._apply()
 
+    @property
+    def comfort_temp(self) -> float:
+        """Wunschtemperatur (eingestellt oder Standard des Raumtyps)."""
+        return comfort_temperature(
+            self.config.get(CONF_COMFORT_TEMP), self.config.get(CONF_ROOM_TYPE)
+        )
+
     async def async_set_hvac_on(self, on: bool) -> None:
+        if on and not self.hvac_on and self.target_temp < MIN_USEFUL_TARGET:
+            # Raum war aus (Sollwert-Rest wie 5 °C) → mit Wunschtemperatur starten
+            self.target_temp = self.comfort_temp
         self.hvac_on = on
         self._save()
         self._notify()

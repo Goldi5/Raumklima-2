@@ -34,6 +34,7 @@ from .const import (
     CALIBRATION_MODES,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
+    CONF_COMFORT_TEMP,
     CONF_FOLLOW_TRV,
     CONF_HUMIDITY_SENSOR,
     CONF_NAME,
@@ -225,6 +226,10 @@ def _vent_schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
                 )
             ),
             vol.Optional(
+                CONF_COMFORT_TEMP,
+                description={"suggested_value": defaults.get(CONF_COMFORT_TEMP)},
+            ): _number(12, 26, 0.5, "°C"),
+            vol.Optional(
                 CONF_WEATHER, description={"suggested_value": defaults.get(CONF_WEATHER)}
             ): EntitySelector(EntitySelectorConfig(domain=["weather", "sensor"])),
             vol.Optional(
@@ -396,6 +401,7 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
     ) -> ConfigFlowResult:
         if user_input is not None:
             user_input.setdefault(CONF_WEATHER, None)
+            user_input.setdefault(CONF_COMFORT_TEMP, None)
             user_input.setdefault(CONF_NOTIFY_TARGETS, [])
             user_input.setdefault(CONF_TTS_TARGETS, [])
             self._options.update(user_input)

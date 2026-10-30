@@ -55,6 +55,7 @@
         "title": "Lüften & Benachrichtigungen",
         "data": {
           "room_type": "Raumtyp",
+          "comfort_temperature": "Wunschtemperatur (optional)",
           "weather_entity": "Außenklima (Wetter oder Außensensor)",
           "notify_targets": "Benachrichtigungen an",
           "tts_targets": "Sprachansagen auf (optional)",
@@ -64,6 +65,7 @@
         },
         "data_description": {
           "room_type": "Setzt passende Standards: Wohnraum 18 °C / 70 %, Schlafzimmer und selten genutzt 16 °C, Bad 75 %. Feinjustierung später über die Regler am Gerät.",
+          "comfort_temperature": "Leer lassen = Standard des Raumtyps: Wohnraum/Kinderzimmer 20 °C, Küche 19 °C, Bad 22 °C, Schlafzimmer/selten genutzt 17 °C. Gilt beim ersten Start und beim Einschalten eines Raums, der aus war.",
           "weather_entity": "Für empfohlene Lüftdauer und die Prüfung, ob Lüften überhaupt trocknet (absolute Feuchte draußen vs. drinnen).",
           "notify_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
           "tts_targets": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",
@@ -133,6 +135,7 @@
         "title": "Lüften & Benachrichtigungen",
         "data": {
           "room_type": "Raumtyp",
+          "comfort_temperature": "Wunschtemperatur (optional)",
           "weather_entity": "Außenklima (Wetter oder Außensensor)",
           "notify_targets": "Benachrichtigungen an",
           "tts_targets": "Sprachansagen auf (optional)",
@@ -142,6 +145,7 @@
         },
         "data_description": {
           "room_type": "Setzt passende Standards: Wohnraum 18 °C / 70 %, Schlafzimmer und selten genutzt 16 °C, Bad 75 %. Feinjustierung später über die Regler am Gerät.",
+          "comfort_temperature": "Leer lassen = Standard des Raumtyps: Wohnraum/Kinderzimmer 20 °C, Küche 19 °C, Bad 22 °C, Schlafzimmer/selten genutzt 17 °C. Gilt beim ersten Start und beim Einschalten eines Raums, der aus war.",
           "weather_entity": "Für empfohlene Lüftdauer und die Prüfung, ob Lüften überhaupt trocknet (absolute Feuchte draußen vs. drinnen).",
           "notify_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
           "tts_targets": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",

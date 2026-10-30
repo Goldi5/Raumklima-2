@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.2.1";
+const RK_VERSION = "0.2.2";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -46,7 +46,10 @@ const STYLES = `
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }
   .fill { stroke: var(--tone); transition: stroke-dasharray .6s ease, stroke .6s; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--tone) 55%, transparent)); }
-  .knob { fill: var(--ha-card-background, var(--card-background-color)); stroke: var(--primary-text-color); stroke-width:3; transition: cx .6s, cy .6s; }
+  .knob { fill: var(--ha-card-background, var(--card-background-color)); stroke: var(--tone); stroke-width:3; filter: drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
+  .fill.muted { stroke: var(--rk-off); filter:none; opacity:.5; }
+  .scale { font-size:10px; fill: var(--secondary-text-color); }
+  .tlabel { font-size:11px; font-weight:600; fill: var(--tone); }
   .center { text-align:center; z-index:1; margin-top:-6px; }
   .now { font-size:3.2rem; font-weight:300; letter-spacing:-.04em; line-height:1; font-variant-numeric: tabular-nums; color:var(--primary-text-color); }
   .now small { font-size:1.2rem; vertical-align: super; margin-left:2px; color:var(--secondary-text-color); }
@@ -160,19 +163,29 @@ class RaumklimaCard extends HTMLElement {
     if (bar) bar.style.width = `${Math.min(100, (passed / total) * 100)}%`;
   }
 
-  _arc(cur, target, min, max) {
+  _arc(cur, target, off) {
+    // Skala 14–26 °C, bei Bedarf erweitert, damit Ist und Ziel sichtbar sind
+    const vals = [cur, target].filter((v) => v !== null && v !== undefined);
+    const min = Math.min(14, ...vals.map((v) => Math.floor(v - 1)));
+    const max = Math.max(26, ...vals.map((v) => Math.ceil(v + 1)));
     const R = 100, cx = 120, cy = 112, start = 135, sweep = 270;
     const pos = (v) => start + (Math.min(max, Math.max(min, v)) - min) / (max - min) * sweep;
-    const pt = (deg) => { const r = (deg * Math.PI) / 180; return [cx + R * Math.cos(r), cy + R * Math.sin(r)]; };
+    const pt = (deg, r = R) => { const a = (deg * Math.PI) / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
     const path = (a, b) => { const [x1, y1] = pt(a), [x2, y2] = pt(b); return `M ${x1} ${y1} A ${R} ${R} 0 ${b - a > 180 ? 1 : 0} 1 ${x2} ${y2}`; };
-    const t = pos(target ?? min), c = pos(cur ?? min);
-    const [kx, ky] = pt(t);
-    const [nx, ny] = pt(c);
+    const c = cur === null || cur === undefined ? start : pos(cur);
+    let knob = "";
+    if (!off && target !== null && target !== undefined) {
+      const t = pos(target);
+      const [kx, ky] = pt(t);
+      knob = `<circle class="knob" cx="${kx}" cy="${ky}" r="11"/><circle cx="${kx}" cy="${ky}" r="4.5" fill="var(--tone)"/>`;
+    }
+    const [ax, ay] = pt(start, R + 18), [bx, by] = pt(start + sweep, R + 18);
     return `<svg viewBox="0 0 240 200" aria-hidden="true">
       <path class="track" d="${path(start, start + sweep)}" stroke-width="14" fill="none" stroke-linecap="round"/>
-      <path class="fill" d="${path(start, Math.max(start + 0.01, t))}" stroke-width="14" fill="none" stroke-linecap="round"/>
-      <circle cx="${nx}" cy="${ny}" r="4" fill="var(--primary-text-color)" opacity=".55"/>
-      <circle class="knob" cx="${kx}" cy="${ky}" r="10"/>
+      ${cur === null || cur === undefined ? "" : `<path class="fill ${off ? "muted" : ""}" d="${path(start, Math.max(start + 0.5, c))}" stroke-width="14" fill="none" stroke-linecap="round"/>`}
+      ${knob}
+      <text x="${ax}" y="${ay}" text-anchor="middle" class="scale">${min}°</text>
+      <text x="${bx}" y="${by}" text-anchor="middle" class="scale">${max}°</text>
     </svg>`;
   }
 
@@ -232,7 +245,7 @@ class RaumklimaCard extends HTMLElement {
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
         </div>
         <div class="dial">
-          ${this._arc(a.current_temperature, isOff ? null : target, a.min_temp ?? 5, Math.min(a.max_temp ?? 30, 28))}
+          ${this._arc(a.current_temperature, target, isOff)}
           <div class="center">
             <div class="now">${fmt(a.current_temperature)}<small>°C</small></div>
             <div class="target">${isOff ? "Heizung aus" : `Ziel <b>${fmt(target)} °C</b>`}</div>
@@ -298,11 +311,18 @@ class RaumklimaOverviewCard extends HTMLElement {
       const v = VENT[a.ventilation];
       const off = r.state === "off";
       const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;
+      const label = v && a.ventilation !== "ok" ? v.label : s.label;
+      const prefix = this._config.strip_prefix ?? "";
+      const name = (a.friendly_name || "").replace(new RegExp("^" + prefix + "\\s*"), "");
       return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
-        <div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
-        <div class="rn">${(a.friendly_name || "").replace(/^Finja Berlin\s*/, "")}<span>${v && a.ventilation !== "ok" ? v.label : s.label}</span></div>
-        <div class="rt">${fmt(a.current_temperature)}°<span>${off ? "aus" : `→ ${fmt(a.temperature)}°`}</span></div>
-        <div class="rh" style="--st:${toneVar(humTone(a.current_humidity))}">${a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : ""}</div>
+        <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
+          ${a.window_open ? `<ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>` : ""}</div>
+        <div class="rn">${name}</div>
+        <div class="rs">${label}</div>
+        <div class="rbottom">
+          <div class="rt">${fmt(a.current_temperature)}°</div>
+          <div class="rmeta">${off ? "aus" : `Ziel ${fmt(a.temperature)}°`}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
+        </div>
       </div>`;
     };
 
@@ -314,16 +334,21 @@ class RaumklimaOverviewCard extends HTMLElement {
       .out b { font-size:1.6rem; font-weight:300; letter-spacing:-.03em; }
       .out span { display:block; font-size:.78rem; color:var(--secondary-text-color); }
       .kpis { display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap; }
-      .rooms { display:grid; gap:6px; }
-      .room { display:grid; grid-template-columns: 40px 1fr auto 56px; align-items:center; gap:12px; padding:10px 12px; border-radius:18px; cursor:pointer;
-        background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); transition: background .2s; }
-      .room:hover { background: color-mix(in srgb, var(--tone) 10%, transparent); }
-      .dot { width:40px; height:40px; border-radius:14px; display:grid; place-items:center; color:var(--tone); background: color-mix(in srgb, var(--tone) 15%, transparent); }
+      .rooms { display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+      .room { display:flex; flex-direction:column; gap:2px; padding:14px; border-radius:20px; cursor:pointer; min-height:130px;
+        background: color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
+        border: 1px solid color-mix(in srgb, var(--tone) 18%, transparent); transition: transform .15s, background .2s; }
+      .room:hover { transform: translateY(-2px); background: color-mix(in srgb, var(--tone) 12%, transparent); }
+      .rtop { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+      .dot { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:var(--tone); background: color-mix(in srgb, var(--tone) 16%, transparent); }
       .dot ha-icon { --mdc-icon-size:20px; }
-      .rn { font-weight:600; color:var(--primary-text-color); }
-      .rn span, .rt span { display:block; font-weight:400; font-size:.78rem; color:var(--secondary-text-color); }
-      .rt { text-align:right; font-weight:600; font-size:1.1rem; font-variant-numeric: tabular-nums; color:var(--primary-text-color); }
-      .rh { text-align:right; font-weight:600; color: var(--st); font-variant-numeric: tabular-nums; }
+      .win { color: var(--rk-air); --mdc-icon-size:20px; }
+      .rn { font-weight:650; color:var(--primary-text-color); }
+      .rs { font-size:.78rem; color: var(--tone); font-weight:600; }
+      .rbottom { margin-top:auto; display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
+      .rt { font-size:1.7rem; font-weight:300; letter-spacing:-.03em; font-variant-numeric: tabular-nums; color:var(--primary-text-color); line-height:1; }
+      .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }
+      .rmeta b { color: var(--st); font-weight:650; }
     </style>
     <ha-card style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
       <div class="head">
@@ -344,6 +369,85 @@ class RaumklimaOverviewCard extends HTMLElement {
   }
 }
 
+
+// ---------------------------------------------------------------- Dashboard-Strategie
+const ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
+
+class RaumklimaDashboardStrategy extends HTMLElement {
+  static async generate(config, hass) {
+    const prefix = config.strip_prefix ?? "";
+    const reg = Object.values(hass.entities || {});
+    const rooms = reg
+      .filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate."))
+      .map((e) => {
+        const st = hass.states[e.entity_id];
+        const sib = {};
+        reg.forEach((x) => { if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id; });
+        const full = (st && st.attributes.friendly_name) || e.entity_id;
+        const name = prefix ? full.replace(new RegExp("^" + prefix + "\\s*"), "") : full;
+        return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+    rooms.forEach((r, i) => { r.color = ROOM_COLORS[i % ROOM_COLORS.length]; });
+    const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? undefined);
+
+    const roomsView = {
+      title: "Räume", path: "raeume", icon: "mdi:home-thermometer", type: "sections", max_columns: 3,
+      sections: [
+        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", title: config.title || "Heizung", weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
+        ...rooms.map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] })),
+      ],
+    };
+
+    const statGraph = (title, icon, key, unit) => {
+      const ents = rooms.filter((r) => r.attrs[key]).map((r) => ({ entity: r.attrs[key], name: r.name, color: r.color }));
+      if (!ents.length) return [];
+      return [
+        { type: "heading", heading: title, icon },
+        { type: "statistics-graph", entities: ents, chart_type: "line", period: "5minute", days_to_show: 1, stat_types: ["mean"], hide_legend: false, unit, grid_options: { columns: "full", rows: 5 } },
+      ];
+    };
+    const timeline = rooms.flatMap((r) => [r.sib.status ? { entity: r.sib.status, name: r.name } : null]).filter(Boolean);
+    const winTimeline = rooms.map((r) => (r.sib.window ? { entity: r.sib.window, name: r.name } : null)).filter(Boolean);
+    const historyView = {
+      title: "Verlauf", path: "verlauf", icon: "mdi:chart-line", type: "sections", max_columns: 2,
+      sections: [
+        { type: "grid", cards: [
+          ...statGraph("Raumtemperatur · 24 h", "mdi:thermometer", "temperature_sensor", "°C"),
+          ...statGraph("Luftfeuchte · 24 h", "mdi:water-percent", "humidity_entity", "%"),
+        ] },
+        { type: "grid", cards: [
+          { type: "heading", heading: "Was die Heizung gemacht hat · 24 h", icon: "mdi:radiator" },
+          { type: "history-graph", hours_to_show: 24, entities: timeline, grid_options: { columns: "full", rows: Math.max(3, timeline.length) } },
+          { type: "heading", heading: "Fenster · 24 h", icon: "mdi:window-open-variant" },
+          { type: "history-graph", hours_to_show: 24, entities: winTimeline, grid_options: { columns: "full", rows: Math.max(3, winTimeline.length) } },
+          ...(weather ? [{ type: "heading", heading: "Außen", icon: "mdi:weather-partly-cloudy" }, { type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] : []),
+        ] },
+      ],
+    };
+
+    const num = (id, name) => (id ? { type: "tile", entity: id, name, hide_state: true, features_position: "inline", features: [{ type: "numeric-input", style: "buttons" }], grid_options: { columns: 12 } } : null);
+    const sw = (id, name) => (id ? { type: "tile", entity: id, name, grid_options: { columns: 6 } } : null);
+    const settingsView = {
+      title: "Einstellungen", path: "einstellungen", icon: "mdi:tune-variant", type: "sections", max_columns: 3,
+      sections: rooms.map((r) => ({
+        type: "grid",
+        cards: [
+          { type: "heading", heading: r.name, icon: "mdi:door", badges: r.sib.problem ? [{ type: "entity", entity: r.sib.problem, show_state: false }] : [] },
+          num(r.sib.humidity_limit, "Feuchtegrenze"),
+          num(r.sib.min_temp, "Mindesttemperatur"),
+          num(r.sib.max_drop, "Max. Abkühlung"),
+          sw(r.sib.notifications, "Hinweise"),
+          sw(r.sib.window_logic, "Fensterlogik"),
+          r.sib.calibrate ? { type: "tile", entity: r.sib.calibrate, name: "Jetzt kalibrieren", grid_options: { columns: 12 } } : null,
+        ].filter(Boolean),
+      })),
+    };
+
+    return { title: config.title || "Heizung", views: [roomsView, historyView, settingsView] };
+  }
+}
+
 if (!customElements.get("raumklima-card")) customElements.define("raumklima-card", RaumklimaCard);
 if (!customElements.get("raumklima-overview-card")) customElements.define("raumklima-overview-card", RaumklimaOverviewCard);
 window.customCards = window.customCards || [];
@@ -352,5 +456,16 @@ if (!window.customCards.find((c) => c.type === "raumklima-card")) {
     { type: "raumklima-card", name: "Raumklima – Raum", description: "Thermostat, Lüften und Klima eines Raums", preview: true },
     { type: "raumklima-overview-card", name: "Raumklima – Übersicht", description: "Alle Räume und Außenklima auf einen Blick", preview: true },
   );
+}
+if (!customElements.get("ll-strategy-dashboard-raumklima")) customElements.define("ll-strategy-dashboard-raumklima", RaumklimaDashboardStrategy);
+window.customStrategies = window.customStrategies || [];
+if (!window.customStrategies.find((x) => x.type === "raumklima")) {
+  window.customStrategies.push({
+    type: "raumklima",
+    strategyType: "dashboard",
+    name: "Raumklima",
+    description: "Heizung, Lüften und Klima aller Raumklima-Räume – baut sich automatisch auf",
+    documentationURL: "https://github.com/Goldi5/Raumklima-2",
+  });
 }
 console.info(`%c RAUMKLIMA-CARD %c ${RK_VERSION} `, "background:#ff7a45;color:#fff;border-radius:4px 0 0 4px;padding:2px 6px", "background:#2ec4a6;color:#fff;border-radius:0 4px 4px 0;padding:2px 6px");

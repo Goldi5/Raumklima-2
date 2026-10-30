@@ -36,6 +36,7 @@ CONF_TTS_TARGETS: Final = "tts_targets"
 CONF_QUIET_START: Final = "quiet_start"
 CONF_QUIET_END: Final = "quiet_end"
 CONF_REPEAT_MINUTES: Final = "repeat_minutes"
+CONF_COMFORT_TEMP: Final = "comfort_temperature"
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
 EVENT_RAUMKLIMA: Final = "raumklima_event"
 ROOM_TYPE_OPTIONS: Final = ["living", "kitchen", "bedroom", "bathroom", "children", "rarely_used"]

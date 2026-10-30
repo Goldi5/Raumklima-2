@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.2 – 2026-10-30
+
+### Neu
+- **Wunschtemperatur** pro Raum (optional, sonst Standard des Raumtyps). Gilt beim
+  ersten Start und beim Einschalten eines Raums, der aus war (statt 5 °C o. Ä.).
+- **Dashboard-Strategie „Raumklima“**: im Dialog „Dashboard hinzufügen“ wählbar
+  (HA 2026.5+), baut Räume/Verlauf/Einstellungen automatisch auf.
+
+### Geändert
+- Raumkarte: Skala 14–26 °C (erweitert sich bei Bedarf), Bogen zeigt Ist-Temperatur,
+  Knopf das Ziel, bei „Aus“ kein Ziel-Knopf.
+- Übersichtskarte: Kachelraster statt langer Zeilen, Option `strip_prefix`.
+- Verlauf: ein Diagramm für alle Raumtemperaturen bzw. Feuchten statt einzelner
+  Kurven, Zeitleisten statt Ventil-Strichen.
+
 ## 0.2.1 – 2026-10-30
 
 ### Behoben

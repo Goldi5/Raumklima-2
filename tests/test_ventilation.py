@@ -81,3 +81,14 @@ def test_quiet_hours_over_midnight() -> None:
     assert in_quiet_hours(6, 59, "22:00:00", "07:00:00")
     assert not in_quiet_hours(12, 0, "22:00", "07:00")
     assert in_quiet_hours(13, 0, "12:00", "14:00")
+
+
+from rk.ventilation import comfort_temperature  # noqa: E402
+
+
+def test_comfort_temperature_defaults() -> None:
+    assert comfort_temperature(None, "living") == 20.0
+    assert comfort_temperature(None, "bathroom") == 22.0
+    assert comfort_temperature("", "bedroom") == 17.0
+    assert comfort_temperature(21.5, "bedroom") == 21.5
+    assert comfort_temperature(None, None) == 20.0
