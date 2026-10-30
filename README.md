@@ -8,7 +8,7 @@ Verbindungsabbrüchen (z. B. über VPN).
 Entwickelt und gedacht für Tuya-TRVs über Zigbee2MQTT (z. B. TRV602Z / TS0601),
 funktioniert aber mit jedem `climate`-Thermostat.
 
-**Aktuelle Version: 0.2.6** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
+**Aktuelle Version: 0.2.7** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
 
 ## Funktionen
 
@@ -104,6 +104,7 @@ type: custom:raumklima-history-card    # Verlauf aller Räume (ab 0.2.4)
 mode: temperature                      # temperature | humidity | timeline
 hours: 24                              # Start-Zeitraum, in der Karte umschaltbar (6 h / 24 h / 7 T)
 strip_prefix: Finja Berlin             # optional: Präfix aus den Raumnamen entfernen
+min_segment_seconds: 120               # nur Zeitleiste: kürzere Wechsel zusammenfassen
 ```
 
 ```yaml

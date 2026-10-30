@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.7 – 2026-10-30
+
+### Geändert
+- Zeitleiste „Heizung & Fenster“ ruhiger: Pro Abschnitt (mind. 2 min, einstellbar über
+  `min_segment_seconds`, bei langen Zeiträumen automatisch größer) wird der überwiegende
+  Zustand gezeigt – kein Flackern mehr durch kurzes Heizt ↔ Erreicht beim Regeln.
+- Strategie „Verlauf“: Luftfeuchte und Zeitleiste über die ganze Breite.
+
 ## 0.2.6 – 2026-10-30
 
 ### Geändert

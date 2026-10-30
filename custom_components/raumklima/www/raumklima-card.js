@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.2.6";
+const RK_VERSION = "0.2.7";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -431,7 +431,7 @@ const HISTORY_STYLES = `
   .tl { display:grid; grid-template-columns: 110px 1fr; gap:10px 14px; align-items:center; margin-top:14px; }
   .tl .n { font-weight:600; font-size:.88rem; color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .tl .bar { position:relative; height:22px; border-radius:8px; overflow:hidden; background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); }
-  .tl .bar > i { position:absolute; top:0; bottom:0; }
+  .tl .bar > i { position:absolute; top:0; bottom:0; border-radius:0; }
   .tl .bar > em { position:absolute; top:-2px; bottom:-2px; border-radius:4px; outline: 2px solid var(--rk-air); outline-offset:-2px; background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--rk-air) 22%, transparent) 0 4px, transparent 4px 8px); }
   .tlx { display:flex; justify-content:space-between; margin:6px 0 0 124px; font-size:10.5px; color: var(--secondary-text-color); }
   .tleg { display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; font-size:.78rem; color: var(--secondary-text-color); }
@@ -451,6 +451,7 @@ class RaumklimaHistoryCard extends HTMLElement {
         { name: "title", selector: { text: {} } },
         { name: "hours", selector: { number: { min: 1, max: 168, step: 1 } } },
         { name: "strip_prefix", selector: { text: {} } },
+        { name: "min_segment_seconds", selector: { number: { min: 0, max: 3600, step: 15, unit_of_measurement: "s" } } },
       ],
     };
   }
@@ -655,15 +656,38 @@ class RaumklimaHistoryCard extends HTMLElement {
     }
     const [t0, t1] = this._range;
     const pct = (t) => ((Math.max(t0, Math.min(t1, t)) - t0) / (t1 - t0)) * 100;
-    const spans = (id, map) => {
+    // Ruhige Zeitleiste: pro Abschnitt den überwiegenden Zustand zeigen.
+    // Abschnitt = mind. 2 min (einstellbar), bei langen Zeiträumen automatisch größer.
+    const bucket = Math.max((this._config.min_segment_seconds ?? 120) * 1000, (t1 - t0) / 200);
+    const spans = (id, map, merge) => {
       const raw = (this._data[id] || []).map((p) => [(p.lu ?? p.lc ?? 0) * 1000, p.s]);
       const now = this._hass.states[id];
       if (now) raw.push([Date.now(), now.state]);
-      const out = [];
+      let out = [];
       for (let i = 0; i < raw.length; i++) {
         const [t, s] = raw[i];
         const end = i + 1 < raw.length ? raw[i + 1][0] : t1;
         if (end > t0) out.push([Math.max(t, t0), end, s]);
+      }
+      if (merge && out.length) {
+        const m = [];
+        const start = out[0][0];
+        let k = 0;
+        for (let bs = start; bs < t1; bs += bucket) {
+          const be = Math.min(bs + bucket, t1);
+          const tally = {};
+          while (k < out.length && out[k][1] <= bs) k++;
+          for (let j = k; j < out.length && out[j][0] < be; j++) {
+            const ov = Math.min(be, out[j][1]) - Math.max(bs, out[j][0]);
+            if (ov > 0) tally[out[j][2]] = (tally[out[j][2]] || 0) + ov;
+          }
+          const st = Object.keys(tally).sort((x, y) => tally[y] - tally[x])[0];
+          if (!st) continue;
+          const last = m[m.length - 1];
+          if (last && last[2] === st && last[1] >= bs - 1) last[1] = be;
+          else m.push([bs, be, st]);
+        }
+        out = m;
       }
       return out.map(([a, b, s]) => map(a, b, s)).join("");
     };
@@ -671,7 +695,7 @@ class RaumklimaHistoryCard extends HTMLElement {
       const status = r.sib.status ? spans(r.sib.status, (a, b, s) => {
         const seg = SEG[s];
         return seg ? `<i style="left:${pct(a)}%;width:${Math.max(0.3, pct(b) - pct(a))}%;background:${seg.c}" title="${seg.l}"></i>` : "";
-      }) : "";
+      }, true) : "";
       const wins = (r.attrs.window_entities || []).map((w) => spans(w, (a, b, s) => (s === "on" ? `<em style="left:${pct(a)}%;width:${Math.max(0.4, pct(b) - pct(a))}%" title="Fenster offen"></em>` : ""))).join("");
       return `<div class="n">${r.name}</div><div class="bar">${status}${wins}</div>`;
     }).join("");
@@ -1010,8 +1034,8 @@ class RaumklimaDashboardStrategy extends HTMLElement {
       sections: [
         ...(weather ? [{ type: "grid", column_span: 2, cards: [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] }] : []),
         { type: "grid", column_span: 2, cards: [hist("temperature")] },
-        { type: "grid", cards: [hist("humidity")] },
-        { type: "grid", cards: [hist("timeline")] },
+        { type: "grid", column_span: 2, cards: [hist("humidity")] },
+        { type: "grid", column_span: 2, cards: [hist("timeline")] },
       ],
     };
 
