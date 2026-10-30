@@ -12,6 +12,8 @@ Choose per recipient which messages they get (Settings → General → Who gets 
 | 🏠 Absence & preheating | all away, away longer, "X is coming – preheating", welcome | off |
 | 🍂 Heating season | season starts, pause, cold snap | push |
 | ⚠️ Thermostat not responding | command not confirmed after all retries | push + HA bell |
+| 🩺 Heating health | low battery, room not warming despite open valve, sensor stuck, flaky radio, silent window contact – at most once a day per problem | push (quiet) |
+| 📊 Weekly report | Sundays 18:00: heating hours, weather-adjusted comparison, setback, humid rooms | push (quiet) |
 
 Recipients are `notify` services (mobile app, Alexa Media, …). **Test** sends a sample message.
 Push actions: *Done*, *Remind in 15 min*, *Not today*. Messages clear themselves when resolved.

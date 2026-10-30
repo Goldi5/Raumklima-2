@@ -20,6 +20,34 @@
 - **Raumtemperatur** und **Luftfeuchte** als Kurven je Raum, Wohlfühlbereich als Band (19–22 °C bzw. 40–60 %). Räume per Chip ein-/ausblenden, Zeitraum 6 h / 24 h / 7 Tage, Werte beim Überfahren.
 - **Heizung & Fenster:** Zeitleiste je Raum – heizt, erreicht, abgesenkt, Fenster offen, aus, Heizpause. Kurze Wechsel beim Regeln werden zusammengefasst.
 
+## Reiter „Bericht“
+
+![Bericht](../images/bericht.png)
+
+Jede Minute merkt sich die Integration, was jeder Raum tut – klein zusammengefasst pro Tag, über 400 Tage, ohne die HA-Datenbank zu belasten. Der Bericht zeigt **diese Woche** oder **diesen Monat**:
+
+- **Heizstunden** und wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).
+- **Wetterbereinigt:** Heizbedarf je Heizgradtag gegenüber Vorwoche/Vormonat. Ein kalter Monat macht die Zahl also nicht schlechter; bei sehr mildem Wetter (unter 5 Heizgradtagen) gibt es keinen Vergleich.
+- **Abgesenkt** (Stunden und um wie viel Grad) und **Gespart** – geschätzt mit der Faustregel ≈ 6 % je Grad.
+- **Wohlfühlzeit:** Anteil der Zeit, in der der Raum ±1 °C am Ziel war.
+- **Heizbedarf pro Tag:** gestapelte Balken je Raum, Punkte = Heizgradtage.
+- **Räume:** geheizt, abgesenkt, Ø Temperatur und Feuchte, Stunden zu feucht oder mit Schimmelrisiko, warm bei Ankunft.
+- **Gesundheit:** offene Probleme (siehe unten).
+
+### Gesundheitscheck
+
+Alle 10 Minuten prüft die Integration jeden Raum:
+
+| Prüfung | Meldet, wenn … |
+|---|---|
+| Batterie | Thermostat, Fühler oder Kontakt unter 20 % (dringend unter 10 %) |
+| Raum wird nicht warm | Ventil 2 h im Schnitt ≥ 60 % offen, Raum aber < 0,3 °C wärmer und noch unter Ziel – Heizkörper entlüften, Ventilstift oder Vorlauf prüfen |
+| Fühler hängt | Fühlerwert 12 h unverändert, obwohl das Thermostat ≥ 1,5 °C Änderung misst |
+| Funk | Befehle nicht bestätigt (dringend) oder ≥ 3 Aussetzer in 24 h |
+| Fensterkontakt | 2 h nicht erreichbar; Hinweis, wenn ein Fenster über 24 h offen ist |
+
+Probleme erscheinen im Bericht, unter *Einstellungen → Allgemein → Gesundheit der Heizung*, im Raum-Reiter (mit Warnsymbol), im Sensor **Raumklima Allgemein Gesundheit** (Anzahl offener Probleme) und am Problem-Sensor des Raums. Wer „🩺 Gesundheit“ abonniert hat, bekommt eine Push – je Problem höchstens einmal am Tag.
+
 ## Reiter „Einstellungen“
 
 ![Einstellungen](../images/einstellungen.png)
@@ -55,6 +83,8 @@ strip_prefix: Finja Berlin             # optional: Präfix aus den Namen entfern
 ---
 type: custom:raumklima-card            # ein Raum
 entity: climate.finja_berlin_wohnzimmer
+---
+type: custom:raumklima-report-card     # Heizbericht
 ---
 type: custom:raumklima-history-card    # Verlauf
 mode: temperature                      # temperature | humidity | timeline

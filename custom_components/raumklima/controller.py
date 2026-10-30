@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections import deque
 from collections.abc import Callable
 from datetime import datetime, timedelta
 import logging
@@ -18,6 +19,7 @@ from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_interval,
 )
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
@@ -79,7 +81,17 @@ from .const import (
     STATUS_TRV,
     STATUS_WINDOW,
 )
+from .health import (
+    HistoryPoint,
+    Issue,
+    check_battery,
+    check_not_warming,
+    check_radio,
+    check_sensor_frozen,
+    check_window,
+)
 from .hub import RaumklimaHub, domain_data, get_hub
+from .stats import RoomSample
 from .planning import (
     AWAY_STAGES,
     mold_safe_min_temp,
@@ -160,6 +172,13 @@ class RaumklimaController:
         self._manual_until: datetime | None = None
         self._valve_care_until: datetime | None = None
         self._started = False
+        # Gesundheitscheck
+        self.health_hist: deque[HistoryPoint] = deque(maxlen=150)
+        self._unavail_events: deque[datetime] = deque(maxlen=50)
+        self._ext_changed_at: datetime | None = None
+        self._trv_at_ext_change: float | None = None
+        self._window_unavail_since: dict[str, datetime] = {}
+        self._batteries: dict[str, str] = {}
         self._store: Store[dict[str, Any]] = Store(
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
@@ -197,6 +216,7 @@ class RaumklimaController:
 
         self.vent.load((stored or {}).get("vent"))
         self.valve_sensor = self._find_valve_sensor()
+        self._batteries = self._find_batteries()
 
         tracked = [self.trv, self.temp_sensor, *self.windows]
         if self.humidity_sensor:
@@ -328,6 +348,24 @@ class RaumklimaController:
             ):
                 return entry.entity_id
         return None
+
+    def _find_batteries(self) -> dict[str, str]:
+        """Batterie-Sensoren der beteiligten Geräte (TRV, Fühler, Kontakte): Gerätename → Entität."""
+        ents = er.async_get(self.hass)
+        devs = dr.async_get(self.hass)
+        found: dict[str, str] = {}
+        for entity_id in [self.trv, self.temp_sensor, self.humidity_sensor, *self.windows]:
+            entry = ents.async_get(entity_id) if entity_id else None
+            if entry is None or entry.device_id is None:
+                continue
+            device = devs.async_get(entry.device_id)
+            name = (device.name_by_user or device.name) if device else entity_id
+            for cand in er.async_entries_for_device(ents, entry.device_id):
+                dclass = cand.device_class or cand.original_device_class
+                if cand.domain == "sensor" and dclass == "battery" and not cand.disabled_by:
+                    found.setdefault(name or cand.entity_id, cand.entity_id)
+                    break
+        return found
 
     @property
     def valve_position(self) -> float | None:
@@ -528,6 +566,71 @@ class RaumklimaController:
             return STATUS_HEATING
         return STATUS_IDLE
 
+    # ================================================================ Bericht & Gesundheit
+    def stats_sample(self) -> RoomSample:
+        on, target, reason = self.plan()
+        return RoomSample(
+            heating=self.status == STATUS_HEATING,
+            valve=self.valve_position,
+            reason=reason,
+            target=self.target_temp,
+            effective=target,
+            plan_on=on and self.hvac_on,
+            paused=self.paused,
+            temp=self.current_temperature,
+            humidity=self.current_humidity,
+            humidity_limit=self.vent.humidity_limit if self.humidity_sensor else None,
+            mold=self.vent.mold_risk,
+            window_open=self.window_open,
+        )
+
+    def record_history(self, now: datetime) -> None:
+        on, target, _reason = self.plan()
+        self.health_hist.append(
+            HistoryPoint(
+                when=now,
+                valve=self.valve_position,
+                temp=self.current_temperature,
+                target=target,
+                regulating=on and self.hvac_on and not self.paused and self.trv_available(),
+            )
+        )
+
+    def health_issues(self, now: datetime) -> list[Issue]:
+        issues: list[Issue] = []
+        levels = {}
+        for name, entity in self._batteries.items():
+            state = self.hass.states.get(entity)
+            value = to_float(state.state) if state else None
+            if value is not None:
+                levels[name] = value
+        issues += check_battery(levels)
+        for check in (
+            check_not_warming(list(self.health_hist), now),
+            check_sensor_frozen(
+                (now - self._ext_changed_at).total_seconds() / 3600 if self._ext_changed_at else None,
+                (self.trv_temperature - self._trv_at_ext_change)
+                if self.trv_temperature is not None and self._trv_at_ext_change is not None
+                else None,
+            ),
+            check_radio(
+                sum(1 for t in self._unavail_events if now - t <= timedelta(hours=24)),
+                self.sync.state == "failed",
+            ),
+            check_window(
+                self.vent.open_minutes / 60 if self.window_open else None,
+                max(((now - t).total_seconds() / 3600 for t in self._window_unavail_since.values()), default=None),
+            ),
+        ):
+            if check is not None:
+                issues.append(check)
+        return issues
+
+    @property
+    def issues(self) -> list[Issue]:
+        hub = self.hub
+        return hub.insights.issues.get(self.entry.entry_id, []) if hub else []
+
     # ================================================================ Bedienung
     async def async_set_target(self, temperature: float) -> None:
         new = clamp(float(temperature), self.trv_min, self.trv_max)
@@ -604,13 +707,18 @@ class RaumklimaController:
                 self._ext_candidate = value
                 return False
         self._ext_candidate = None
+        if value != self._ext_value:
+            self._ext_changed_at = now
+            self._trv_at_ext_change = self.trv_temperature
         self._ext_value = value
         self._ext_time = now
         return True
 
     def _on_window(self, entity_id: str, new: State | None) -> None:
         if new is None or not is_valid(new.state):
+            self._window_unavail_since.setdefault(entity_id, dt_util.utcnow())
             return  # Verbindungsabbruch: letzten echten Zustand behalten
+        self._window_unavail_since.pop(entity_id, None)
         self._last_valid_windows[entity_id] = new.state
         self._evaluate_windows()
 
@@ -646,6 +754,8 @@ class RaumklimaController:
     def _on_trv(self, old: State | None, new: State | None) -> None:
         was_ok = old is not None and is_valid(old.state)
         is_ok = new is not None and is_valid(new.state)
+        if was_ok and not is_ok:
+            self._unavail_events.append(dt_util.utcnow())
         if is_ok and not was_ok:
             _LOGGER.info("%s: TRV wieder erreichbar – sende Ausstehendes", self.name)
             self.hass.async_create_task(self.sync.retry_all_now())

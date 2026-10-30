@@ -279,7 +279,9 @@
         "window_away": "🚪 Fenster offen, niemand da",
         "presence": "🏠 Abwesenheit & Vorheizen",
         "season": "🍂 Heizsaison Start/Ende",
-        "trv_failure": "⚠️ Thermostat reagiert nicht"
+        "trv_failure": "⚠️ Thermostat reagiert nicht",
+        "health": "🩺 Gesundheit der Heizung",
+        "report": "📊 Wochenbericht"
       }
     },
     "off_method": {
@@ -334,6 +336,9 @@
       },
       "outdoor_mean": {
         "name": "Außen-Tagesmittel"
+      },
+      "health": {
+        "name": "Gesundheit"
       },
       "sync": {
         "name": "Synchronisierung",

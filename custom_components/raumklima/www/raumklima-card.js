@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.3.1";
+const RK_VERSION = "0.4.0";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -776,8 +776,30 @@ const RK_KINDS = {
   presence: ["🏠", "Abwesenheit & Vorheizen"],
   season: ["🍂", "Heizsaison Start/Ende"],
   trv_failure: ["⚠️", "Thermostat reagiert nicht"],
+  health: ["🩺", "Gesundheit der Heizung"],
+  report: ["📊", "Wochenbericht"],
 };
-const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure"];
+const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report"];
+const RK_SEV = { alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Prüfen"], info: ["air", "mdi:information-outline", "Hinweis"] };
+function rkIssueList(issues, withRoom, prefix) {
+  if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.</div>`;
+  const order = { alert: 0, warn: 1, info: 2 };
+  return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
+    const sv = RK_SEV[i.severity] || RK_SEV.info;
+    return `<div class="issue" style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.replace(new RegExp("^" + prefix + "\\s*"), "") : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
+  }).join("")}</div>`;
+}
+const ISSUE_STYLES = `
+  .issues { display:grid; gap:10px; }
+  .issue { display:grid; grid-template-columns: 26px 1fr auto; gap:12px; align-items:center; padding:12px 14px; border-radius:16px;
+    background: color-mix(in srgb, var(--c) 9%, var(--ha-card-background, var(--card-background-color))); border:1px solid color-mix(in srgb, var(--c) 22%, transparent); }
+  .issue > ha-icon { color: var(--c); --mdc-icon-size:24px; }
+  .issue b { display:block; font-size:1rem; color:var(--primary-text-color); }
+  .issue small { display:block; font-size:.88rem; color:var(--secondary-text-color); margin-top:2px; line-height:1.35; }
+  .issue .tag { font-size:.78rem; font-weight:700; padding:3px 9px; border-radius:999px; background: color-mix(in srgb, var(--c) 18%, transparent); color: color-mix(in srgb, var(--c) 70%, var(--primary-text-color)); }
+  .hok { display:flex; align-items:center; gap:10px; font-size:.98rem; color:var(--primary-text-color); }
+  .hok ha-icon { color: var(--rk-ok); }
+`;
 
 function rkPretty(target) {
   const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
@@ -1130,7 +1152,12 @@ class RaumklimaSettingsCard extends HTMLElement {
         <td>${yes(wl)}</td><td>${yes(notif)}</td></tr>`;
     }).join("");
 
+    const issues = st.issues || [];
+    const bad = issues.filter((i) => i.severity !== "info").length;
+    const healthTone = issues.some((i) => i.severity === "alert") ? "cold" : bad ? "warn" : "ok";
+    const healthExtra = `<span class="chip" style="--tone:${toneVar(healthTone)}">${bad ? `${bad} offen` : "ok"}</span>`;
     return `<div class="groups">
+      ${this._grp("Gesundheit der Heizung", "mdi:heart-pulse", healthTone, rkIssueList(issues, true, this._config.strip_prefix) + `<div class="hint">Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.</div>`, "span", healthExtra)}
       ${this._grp("Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows)}
       ${this._grp("Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
       ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `<div class="people">${cards}</div>${addRow}`, "span")}
@@ -1158,7 +1185,9 @@ class RaumklimaSettingsCard extends HTMLElement {
     const editable = this._admin && cfgRoom;
     const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
     const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : null;
+    const rIssues = ((this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues) || []).filter((i) => i.entry_id === id);
     return `<div class="groups">
+      ${rIssues.length ? this._grp("Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : ""}
       ${this._grp("Temperatur", "mdi:thermometer", "heat", [
         plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
         this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
@@ -1207,11 +1236,14 @@ class RaumklimaSettingsCard extends HTMLElement {
     const rooms = this._rooms;
     if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
     const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>Allgemein</button>` +
-      rooms.map((r) => `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}</button>`).join("");
+      rooms.map((r) => {
+        const sick = ((this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues) || []).some((i) => i.entry_id === (r.attrs.settings || {}).entry_id && i.severity !== "info");
+        return `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}${sick ? ` <ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)"></ha-icon>` : ""}</button>`;
+      }).join("");
     const room = rooms.find((r) => r.id === this._tab);
     const body = room ? this._room(room) : this._general();
     const scrollY = this.shadowRoot.host ? window.scrollY : 0;
-    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}</style>
+    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || "Einstellungen")}</div>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">Nur Ansicht – Ändern erfordert Admin</span>`}</div>
         <div class="tabs">${tabs}</div>
@@ -1304,6 +1336,185 @@ class RaumklimaSettingsCard extends HTMLElement {
   }
 }
 
+// ---------------------------------------------------------------- Heizbericht
+const REPORT_STYLES = `
+  ha-card.report { container-type: inline-size; padding: 24px 26px; }
+  @media (max-width: 600px) { ha-card.report { padding: 18px 16px; } }
+  .rsub { font-size:.9rem; color:var(--secondary-text-color); margin-top:2px; }
+  .tiles { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; margin-top:18px; }
+  @container (min-width: 640px) { .tiles { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+  @container (min-width: 980px) { .tiles { grid-template-columns: repeat(6, minmax(0,1fr)); } }
+  .tile { border-radius:20px; padding:16px; background: color-mix(in srgb, var(--c) 9%, transparent); border:1px solid color-mix(in srgb, var(--c) 16%, transparent); min-width:0; }
+  .tile .k { font-size:.82rem; font-weight:600; color:var(--secondary-text-color); display:flex; align-items:center; gap:6px; }
+  .tile .k ha-icon { --mdc-icon-size:16px; color: var(--c); }
+  .tile .n { font-size:1.9rem; font-weight:700; letter-spacing:-.02em; color:var(--primary-text-color); margin-top:6px; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .tile .n small { font-size:.95rem; font-weight:600; color:var(--secondary-text-color); margin-left:2px; }
+  .tile .d { font-size:.82rem; color:var(--secondary-text-color); margin-top:4px; }
+  .tile .d.good { color: var(--rk-ok); font-weight:650; } .tile .d.bad { color: var(--rk-cold); font-weight:650; }
+  .rsec { margin-top:26px; }
+  .rsec h3 { margin:0 0 12px; font-size:1.05rem; font-weight:650; color:var(--primary-text-color); display:flex; align-items:center; gap:8px; }
+  .rsec h3 ha-icon { --mdc-icon-size:20px; color:var(--secondary-text-color); }
+  .days { display:flex; align-items:flex-end; gap:3px; height:150px; padding-top:8px; }
+  .day { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; height:100%; position:relative; }
+  .day .stk { display:flex; flex-direction:column-reverse; border-radius:5px 5px 2px 2px; overflow:hidden; min-height:2px; background: color-mix(in srgb, var(--rk-off) 15%, transparent); }
+  .day .stk i { display:block; background: var(--c); }
+  .day.today .stk { outline:2px solid var(--primary-text-color); outline-offset:1px; }
+  .day .hdd { position:absolute; left:50%; width:6px; height:6px; margin-left:-3px; border-radius:50%; background: var(--rk-air); box-shadow:0 0 0 2px var(--ha-card-background, var(--card-background-color)); }
+  .daylab { display:flex; gap:3px; margin-top:6px; }
+  .daylab span { flex:1; min-width:0; text-align:center; font-size:.7rem; color:var(--secondary-text-color); overflow:hidden; }
+  .lg { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; font-size:.84rem; color:var(--secondary-text-color); }
+  .lg span { display:inline-flex; align-items:center; gap:6px; }
+  .lg i { width:10px; height:10px; border-radius:3px; background: var(--c); }
+  .lg i.dot { border-radius:50%; }
+  .rrows { display:grid; gap:10px; }
+  .rrow { display:grid; grid-template-columns: minmax(90px, 160px) 1fr; gap:14px; align-items:center; padding:12px 14px; border-radius:16px; background: color-mix(in srgb, var(--primary-text-color) 3.5%, transparent); }
+  .rrow .nm { font-weight:650; color:var(--primary-text-color); display:flex; align-items:center; gap:8px; min-width:0; }
+  .rrow .nm i { width:10px; height:10px; border-radius:50%; background: var(--c); flex:none; }
+  .rrow .nm span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rbar { height:12px; border-radius:999px; background: color-mix(in srgb, var(--rk-off) 14%, transparent); overflow:hidden; display:flex; }
+  .rbar i { display:block; height:100%; }
+  .facts { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:8px; font-size:.84rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .facts b { color:var(--primary-text-color); font-weight:650; }
+  .facts .w { color: var(--rk-warn); font-weight:650; }
+  @container (max-width: 520px) { .rrow { grid-template-columns: 1fr; gap:8px; } }
+  .empty { padding:24px 0 8px; color:var(--secondary-text-color); line-height:1.5; }
+`;
+
+class RaumklimaReportCard extends HTMLElement {
+  static getConfigForm() {
+    return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }] };
+  }
+  static getStubConfig() { return {}; }
+  setConfig(config) {
+    this._config = { ...config };
+    this._period = this._period || "week";
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+  }
+  getCardSize() { return 10; }
+  getGridOptions() { return { columns: "full", rows: "auto" }; }
+  connectedCallback() {
+    this.style.display = "block";
+    this._poll = setInterval(() => this._load(), 10 * 60 * 1000);
+  }
+  disconnectedCallback() { clearInterval(this._poll); }
+  set hass(hass) {
+    const first = !this._hass;
+    this._hass = hass;
+    if (first) { this._colors(); this._load(); this._render(); }
+  }
+  _colors() {
+    const rooms = rkRooms(this._hass, this._config.strip_prefix || "");
+    this._roomColor = (name) => {
+      const r = rooms.find((x) => x.name === name) || rooms.find((x) => x.name.endsWith(" " + name) || name.endsWith(" " + x.name));
+      return r ? r.color : null;
+    };
+  }
+  async _load() {
+    if (!this._hass) return;
+    try {
+      this._data = await this._hass.callWS({ type: "raumklima/report" });
+      this._err = null;
+    } catch (e) {
+      this._err = e.message || String(e);
+    }
+    this._render();
+  }
+
+  _tile(label, icon, tone, value, unit, detail, detailCls = "") {
+    return `<div class="tile" style="--c:${toneVar(tone)}"><div class="k"><ha-icon icon="${icon}"></ha-icon>${label}</div>
+      <div class="n">${value}${unit ? `<small>${unit}</small>` : ""}</div>${detail ? `<div class="d ${detailCls}">${detail}</div>` : ""}</div>`;
+  }
+
+  _render() {
+    if (!this._hass) return;
+    const d = this._data;
+    const P = this._period;
+    let body;
+    if (this._err) body = `<div class="err">Bericht nicht verfügbar: ${esc(this._err)}</div>`;
+    else if (!d) body = `<div class="empty">Lade Bericht …</div>`;
+    else body = this._body(d, P);
+    const since = d && d.since ? new Date(d.since + "T00:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "long" }) : null;
+    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
+      <ha-card class="report" style="--tone:${toneVar("off")}">
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:chart-box-outline"></ha-icon><div>${esc(this._config.title || "Heizbericht")}${since ? `<div class="rsub">Daten seit ${since}</div>` : ""}</div></div>
+          <div class="segs"><button class="${P === "week" ? "on" : ""}" data-p="week">Diese Woche</button><button class="${P === "month" ? "on" : ""}" data-p="month">Dieser Monat</button></div></div>
+        ${body}
+      </ha-card>`;
+    this.shadowRoot.querySelectorAll("[data-p]").forEach((b) => b.addEventListener("click", () => { this._period = b.dataset.p; this._render(); }));
+  }
+
+  _body(d, P) {
+    const cur = d[P], prev = d[P === "week" ? "prev_week" : "prev_month"], change = d[P === "week" ? "week_change" : "month_change"];
+    const t = cur.total;
+    const vs = P === "week" ? "Vorwoche" : "Vormonat";
+    if (!t.hours) {
+      return `<div class="empty">Der Bericht sammelt ab jetzt jede Minute, was die Heizung tut. Nach ein paar Stunden stehen hier die ersten Werte, aussagekräftig wird es nach einer Woche.</div>`
+        + `<div class="rsec"><h3><ha-icon icon="mdi:heart-pulse"></ha-icon>Gesundheit</h3>${rkIssueList(d.issues, true, this._config.strip_prefix)}</div>`;
+    }
+    const diff = (a, b, unit, dec = 0) => {
+      if (!prev.total.hours || a == null || b == null) return "";
+      const x = a - b;
+      return `${x > 0 ? "+" : x < 0 ? "−" : "±"}${fmt(Math.abs(x), dec)}${unit} ggü. ${vs}`;
+    };
+    const tiles = [
+      this._tile("Heizstunden", "mdi:fire", "heat", fmt(t.heating_h, 0), " h", `Ventil voll offen ≈ ${fmt(t.valve_h, 1)} h`),
+      this._tile("Wetterbereinigt", "mdi:scale-balance", change == null ? "off" : change <= 0 ? "ok" : "cold",
+        change == null ? "–" : `${change > 0 ? "+" : change < 0 ? "−" : "±"}${Math.abs(change)}`, change == null ? "" : " %",
+        change == null ? (cur.hdd < 5 ? "zu mild für einen Vergleich" : `noch keine ${vs}`) : `je Heizgradtag ggü. ${vs}`, change == null ? "" : change <= 0 ? "good" : "bad"),
+      this._tile("Abgesenkt", "mdi:home-export-outline", "eco", fmt(t.setback_h, 0), " h", t.setback_h ? `im Schnitt −${fmt(t.setback_avg_k, 1)} °C` : "alle waren da"),
+      this._tile("Gespart", "mdi:piggy-bank-outline", "ok", t.saving_pct ? "≈ " + fmt(t.saving_pct, 1) : "0", " %", "durch Absenkung (6 % je Grad)"),
+      this._tile("Wohlfühlzeit", "mdi:emoticon-happy-outline", "ok", t.on_target_pct == null ? "–" : t.on_target_pct, t.on_target_pct == null ? "" : " %", "Raum ±1 °C am Ziel"),
+      this._tile("Draußen", "mdi:thermometer", "air", cur.outdoor_avg == null ? "–" : fmt(cur.outdoor_avg, 1), cur.outdoor_avg == null ? "" : " °C", `${fmt(cur.hdd, 0)} Heizgradtage${diff(cur.hdd, prev.hdd, "", 0) ? " · " + diff(cur.hdd, prev.hdd, "", 0) : ""}`),
+    ].join("");
+
+    // Tage
+    const n = P === "week" ? 14 : 31;
+    const days = d.daily.slice(-n);
+    const names = Object.keys(cur.rooms).sort((a, b) => a.localeCompare(b));
+    const color = (nm, i) => this._roomColor(nm) || ROOM_COLORS[i % ROOM_COLORS.length];
+    const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + r.valve_h, 0)));
+    const maxH = Math.max(1, ...days.map((x) => x.hdd || 0));
+    const today = d.daily[d.daily.length - 1].date;
+    const wd = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+    const bars = days.map((x) => {
+      const tot = Object.values(x.rooms).reduce((s, r) => s + r.valve_h, 0);
+      const segs = names.map((nm, i) => { const v = (x.rooms[nm] || {}).valve_h || 0; return v ? `<i style="--c:${color(nm, i)};height:${(100 * v / tot).toFixed(1)}%"></i>` : ""; }).join("");
+      const tip = `${x.date}: Ventil ≈ ${fmt(tot, 1)} h${x.outdoor != null ? ` · außen ${fmt(x.outdoor, 1)} °C` : ""}${x.hdd ? ` · ${fmt(x.hdd, 0)} HGT` : ""}`;
+      return `<div class="day ${x.date === today ? "today" : ""}" title="${esc(tip)}"><div class="stk" style="height:${(100 * tot / maxV).toFixed(1)}%">${segs}</div>${x.hdd ? `<span class="hdd" style="bottom:${(100 * x.hdd / maxH).toFixed(1)}%"></span>` : ""}</div>`;
+    }).join("");
+    const labs = days.map((x, i) => { const dt = new Date(x.date + "T12:00:00"); const show = n <= 14 || i % 3 === 0 || x.date === today; return `<span>${show ? (n <= 14 ? wd[dt.getDay()] : dt.getDate() + ".") : ""}</span>`; }).join("");
+    const legend = names.map((nm, i) => `<span><i style="--c:${color(nm, i)}"></i>${esc(nm)}</span>`).join("") + `<span><i class="dot" style="--c:var(--rk-air)"></i>Heizgradtage (Kälte draußen)</span>`;
+
+    // Räume
+    const maxRoom = Math.max(1, ...names.map((nm) => cur.rooms[nm].valve_h));
+    const rrows = names.map((nm, i) => {
+      const r = cur.rooms[nm];
+      const facts = [
+        `<span><b>${fmt(r.heating_h, 0)} h</b> geheizt</span>`,
+        r.setback_h ? `<span><b>${fmt(r.setback_h, 0)} h</b> abgesenkt</span>` : "",
+        r.temp_avg != null ? `<span>Ø <b>${fmt(r.temp_avg, 1)} °C</b></span>` : "",
+        r.humidity_avg != null ? `<span>Ø <b>${r.humidity_avg} %</b> Feuchte</span>` : "",
+        r.humid_h >= 1 ? `<span class="w">${fmt(r.humid_h, 0)} h zu feucht</span>` : "",
+        r.mold_h >= 1 ? `<span class="w">${fmt(r.mold_h, 0)} h Schimmelrisiko</span>` : "",
+        r.window_pause_h >= 0.5 ? `<span>${fmt(r.window_pause_h, 1)} h Fenster offen</span>` : "",
+        r.arrivals_warm_pct != null ? `<span><b>${r.arrivals_warm_pct} %</b> warm bei Ankunft</span>` : "",
+      ].join("");
+      return `<div class="rrow" style="--c:${color(nm, i)}"><div class="nm"><i></i><span>${esc(nm)}</span></div>
+        <div><div class="rbar" title="Ventil voll offen ≈ ${fmt(r.valve_h, 1)} h"><i style="width:${(100 * r.valve_h / maxRoom).toFixed(1)}%;background:var(--c)"></i></div><div class="facts">${facts}</div></div></div>`;
+    }).join("");
+
+    const arrivals = t.arrivals ? `Bei ${t.arrivals_warm_pct ?? "–"} % der Ankünfte war es schon warm${cur.preheats ? ` · ${cur.preheats}× vorgeheizt` : ""}` : "";
+    return `<div class="tiles">${tiles}</div>
+      ${d.issues && d.issues.length ? `<div class="rsec"><h3><ha-icon icon="mdi:heart-pulse"></ha-icon>Gesundheit</h3>${rkIssueList(d.issues, true, this._config.strip_prefix)}</div>` : ""}
+      <div class="rsec"><h3><ha-icon icon="mdi:calendar-month-outline"></ha-icon>Heizbedarf pro Tag</h3>
+        <div class="days">${bars}</div><div class="daylab">${labs}</div><div class="lg">${legend}</div>
+        <div class="hint">Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge). Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.</div></div>
+      <div class="rsec"><h3><ha-icon icon="mdi:door"></ha-icon>Räume</h3><div class="rrows">${rrows}</div>
+        ${arrivals ? `<div class="hint">${arrivals}.</div>` : ""}</div>
+      <div class="hint">Die Ersparnis ist eine Abschätzung nach der Faustregel der Verbraucherzentrale (≈ 6 % weniger Heizenergie je Grad Absenkung). „Wetterbereinigt“ vergleicht den Heizbedarf je Heizgradtag – ein kalter Monat macht ihn also nicht schlechter.</div>`;
+  }
+}
+
 // ---------------------------------------------------------------- Dashboard-Strategie
 const ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 
@@ -1349,7 +1560,12 @@ class RaumklimaDashboardStrategy extends HTMLElement {
       cards: [{ type: "custom:raumklima-settings-card", strip_prefix: prefix }],
     };
 
-    return { title: config.title || "Heizung", views: [roomsView, historyView, settingsView] };
+    const reportView = {
+      title: "Bericht", path: "bericht", icon: "mdi:chart-box-outline", type: "sections", max_columns: 2,
+      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-report-card", strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+    };
+
+    return { title: config.title || "Heizung", views: [roomsView, historyView, reportView, settingsView] };
   }
 }
 
@@ -1362,10 +1578,12 @@ if (!window.customCards.find((c) => c.type === "raumklima-card")) {
     { type: "raumklima-overview-card", name: "Raumklima – Übersicht", description: "Alle Räume und Außenklima auf einen Blick", preview: true },
     { type: "raumklima-settings-card", name: "Raumklima – Einstellungen", description: "Was eingestellt ist, wer welche Hinweise bekommt – mit Reglern", preview: false },
     { type: "raumklima-history-card", name: "Raumklima – Verlauf", description: "Temperatur, Luftfeuchte oder Zeitleiste aller Räume", preview: false },
+    { type: "raumklima-report-card", name: "Raumklima – Heizbericht", description: "Woche und Monat: Heizstunden, Ersparnis, wetterbereinigter Vergleich, Gesundheit", preview: false },
   );
 }
 if (!customElements.get("raumklima-settings-card")) customElements.define("raumklima-settings-card", RaumklimaSettingsCard);
 if (!customElements.get("raumklima-history-card")) customElements.define("raumklima-history-card", RaumklimaHistoryCard);
+if (!customElements.get("raumklima-report-card")) customElements.define("raumklima-report-card", RaumklimaReportCard);
 if (!customElements.get("ll-strategy-dashboard-raumklima")) customElements.define("ll-strategy-dashboard-raumklima", RaumklimaDashboardStrategy);
 window.customStrategies = window.customStrategies || [];
 if (!window.customStrategies.find((x) => x.type === "raumklima")) {

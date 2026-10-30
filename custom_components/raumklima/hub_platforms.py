@@ -86,6 +86,24 @@ class OutdoorMeanSensor(HubEntity, SensorEntity):
         return self.hub.mean_combined
 
 
+class HealthSensor(HubEntity, SensorEntity):
+    """Anzahl offener Hinweise des Gesundheitschecks."""
+
+    _attr_translation_key = "health"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, hub: RaumklimaHub) -> None:
+        super().__init__(hub, "health")
+
+    @property
+    def native_value(self) -> int:
+        return len([i for i in self.hub.insights.all_issues() if i["severity"] != "info"])
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {"issues": self.hub.insights.all_issues()}
+
+
 class VacationSwitch(HubEntity, SwitchEntity):
     _attr_translation_key = "vacation"
 
@@ -150,7 +168,7 @@ class HeatTodayButton(HubEntity, ButtonEntity):
 
 def hub_entities(platform: str, hub: RaumklimaHub) -> list:
     if platform == "sensor":
-        return [PresenceSensor(hub), SeasonSensor(hub), OutdoorMeanSensor(hub)]
+        return [PresenceSensor(hub), SeasonSensor(hub), OutdoorMeanSensor(hub), HealthSensor(hub)]
     if platform == "switch":
         return [VacationSwitch(hub), GuestsSwitch(hub)]
     if platform == "select":

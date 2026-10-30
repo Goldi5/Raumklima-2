@@ -65,6 +65,12 @@
       },
       "outdoor_mean": {
         "default": "mdi:thermometer-lines"
+      },
+      "health": {
+        "default": "mdi:heart-pulse",
+        "range": {
+          "1": "mdi:alert-circle-outline"
+        }
       }
     },
     "switch": {

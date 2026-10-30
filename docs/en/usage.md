@@ -11,6 +11,13 @@ Each room card has a dial (arc = current, knob = target), −/+ and power button
 
 Weather on top; temperature and humidity curves per room with comfort band, toggle chips, 6 h / 24 h / 7 d and hover values; a timeline per room (heating, reached, lowered, window open, off, pause) with short flips merged.
 
+## Report tab
+![Report](../images/bericht.png)
+
+Every minute the integration records what each room does (compact daily totals, 400 days, outside the recorder). The report shows **this week** or **this month**: heating hours and equivalent full-open valve hours, a **weather-adjusted** comparison (valve hours per heating degree day vs. the previous period; none below 5 degree days), hours set back and the **estimated saving** (≈ 6 % per degree), **comfort time** (room within ±1 °C of target), daily stacked bars per room with degree-day dots, per-room details (avg temperature/humidity, humid or mold-risk hours, warm on arrival) and open health issues.
+
+**Health check** every 10 minutes: battery < 20 % (urgent < 10 %), room not warming (valve ≥ 60 % for 2 h, < 0.3 °C rise, still below target), sensor stuck (12 h unchanged while the TRV moved ≥ 1.5 °C), radio (unconfirmed commands or ≥ 3 dropouts in 24 h), window contact silent for 2 h (info if open > 24 h). Issues show in the report, the settings page, the room tab, the *Health* sensor and the room's problem sensor; subscribers of "🩺 Heating health" get at most one push per problem per day.
+
 ## Settings tab
 ![Settings](../images/einstellungen.png)
 
@@ -24,6 +31,8 @@ type: custom:raumklima-overview-card
 ---
 type: custom:raumklima-card
 entity: climate.living_room
+---
+type: custom:raumklima-report-card
 ---
 type: custom:raumklima-history-card
 mode: temperature   # temperature | humidity | timeline

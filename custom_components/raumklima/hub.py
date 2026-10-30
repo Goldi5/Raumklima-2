@@ -62,6 +62,7 @@ from .planning import (
     season_decision,
     season_step,
 )
+from .insights import Insights
 from .ventilation import in_quiet_hours
 
 if TYPE_CHECKING:
@@ -123,6 +124,7 @@ class RaumklimaHub:
         self.samples: list[tuple[datetime, float]] = []
         self.mean_past: float | None = None
         self.mean_forecast: float | None = None
+        self.insights = Insights(hass, self)
 
     # ------------------------------------------------------------ Konfiguration
     def load_config(self) -> None:
@@ -185,7 +187,9 @@ class RaumklimaHub:
             parsed = _parse(when)
             if parsed and temp is not None:
                 self.samples.append((parsed, float(temp)))
+        self._migrate_kinds()
         self._subscribe()
+        await self.insights.async_start()
         self._evaluate_presence(initial=True)
         self._sample_outdoor()
         self.hass.async_create_task(self._async_update_forecast())
@@ -223,7 +227,25 @@ class RaumklimaHub:
             unsub()
         self._unsubs.clear()
 
+    def _migrate_kinds(self) -> None:
+        """Neue Nachrichtenarten (Gesundheit, Bericht) bei bisherigen Push-Empfängern ergänzen."""
+        if int(self.entry.options.get("kinds_version", 1)) >= 2:
+            return
+        recipients = {
+            t: sorted(set(k or []) | {"health", "report"}) for t, k in (self.opt("recipients") or {}).items()
+        }
+        self.hass.config_entries.async_update_entry(
+            self.entry, options={**self.entry.options, "recipients": recipients, "kinds_version": 2}
+        )
+        self.load_config()
+
+    @callback
+    def notify_entities(self) -> None:
+        """Nur die Entitäten der Zentrale aktualisieren."""
+        self._changed(rooms=False)
+
     async def async_stop(self) -> None:
+        await self.insights.async_stop()
         self._unsubscribe()
         await self._store.async_save(self._stored())
 
@@ -387,6 +409,10 @@ class RaumklimaHub:
             _LOGGER.info("Anwesenheit: %s → %s", old, new)
             if not initial:
                 self._announce_stage(old, new)
+                if new == STAGE_HOME and old in (*AWAY_STAGES, STAGE_PREHEAT):
+                    self.insights.on_arrival()
+                if new == STAGE_PREHEAT:
+                    self.insights.on_preheat()
             self._save()
             self._changed()
         else:
@@ -665,6 +691,7 @@ class RaumklimaHub:
             "heat_today_until": _iso(self.heat_today_until),
             "outdoor_temperature": self.outdoor_temp(),
             "frsi": self.frsi,
+            "issues": self.insights.all_issues(),
         }
 
     def diagnostics(self) -> dict[str, Any]:

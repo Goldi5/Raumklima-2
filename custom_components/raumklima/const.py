@@ -79,6 +79,8 @@ KIND_WINDOW_AWAY: Final = "window_away"
 KIND_PRESENCE: Final = "presence"
 KIND_SEASON: Final = "season"
 KIND_TRV_FAILURE: Final = "trv_failure"
+KIND_HEALTH: Final = "health"
+KIND_REPORT: Final = "report"
 KINDS: Final = [
     KIND_VENT_OPEN,
     KIND_VENT_CLOSE,
@@ -88,6 +90,8 @@ KINDS: Final = [
     KIND_PRESENCE,
     KIND_SEASON,
     KIND_TRV_FAILURE,
+    KIND_HEALTH,
+    KIND_REPORT,
 ]
 DEFAULT_PUSH_KINDS: Final = [k for k in KINDS if k != KIND_PRESENCE]
 DEFAULT_TTS_KINDS: Final = [KIND_TOO_COLD]
@@ -115,6 +119,7 @@ HUB_DEFAULTS: Final = {
     CONF_COLD_SNAP_TEMP: 12.0,
     CONF_FROST_FLOOR: 16.0,
     CONF_VALVE_CARE: True,
+    "kinds_version": 2,
 }
 
 # Karte (Frontend)

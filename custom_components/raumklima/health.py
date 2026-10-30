@@ -1,0 +1,108 @@
+"""Gesundheitscheck der Heizung (ohne Home-Assistant-Abhängigkeit, separat testbar)."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+SEV_INFO = "info"
+SEV_WARN = "warn"
+SEV_ALERT = "alert"
+
+BATTERY_WARN = 20.0
+BATTERY_ALERT = 10.0
+NOT_WARM_WINDOW = timedelta(hours=2)
+NOT_WARM_VALVE = 60.0  # % Ventil im Mittel
+NOT_WARM_RISE = 0.3  # K Anstieg in 2 h
+FROZEN_HOURS = 12.0
+FROZEN_TRV_DELTA = 1.5  # K: TRV hat sich bewegt, der Fühler nicht
+RADIO_EVENTS = 3  # Ausfälle in 24 h
+WINDOW_OPEN_HOURS = 24.0
+WINDOW_UNAVAILABLE_HOURS = 2.0
+
+
+@dataclass(frozen=True)
+class Issue:
+    code: str
+    severity: str
+    title: str
+    message: str
+
+    def as_dict(self) -> dict[str, str]:
+        return {"code": self.code, "severity": self.severity, "title": self.title, "message": self.message}
+
+
+@dataclass
+class HistoryPoint:
+    when: datetime
+    valve: float | None
+    temp: float | None
+    target: float
+    regulating: bool  # Heizung soll arbeiten (an, kein Fenster, keine Heizpause)
+
+
+def check_battery(levels: dict[str, float]) -> list[Issue]:
+    """Batteriestände (Name → %) prüfen."""
+    issues = []
+    for name, level in sorted(levels.items()):
+        if level is None:
+            continue
+        if level < BATTERY_ALERT:
+            issues.append(Issue(f"battery:{name}", SEV_ALERT, "Batterie fast leer", f"{name}: noch {level:.0f} % – bald wechseln."))
+        elif level < BATTERY_WARN:
+            issues.append(Issue(f"battery:{name}", SEV_WARN, "Batterie schwach", f"{name}: noch {level:.0f} %."))
+    return issues
+
+
+def check_not_warming(history: list[HistoryPoint], now: datetime) -> Issue | None:
+    """Ventil lange weit offen, Raum wird trotzdem nicht wärmer → Heizkörper prüfen."""
+    window = [p for p in history if now - p.when <= NOT_WARM_WINDOW]
+    if not window or now - window[0].when < NOT_WARM_WINDOW - timedelta(minutes=10):
+        return None  # noch keine 2 h Daten
+    if not all(p.regulating and p.valve is not None and p.temp is not None for p in window):
+        return None
+    valves = [p.valve for p in window]
+    if sum(valves) / len(valves) < NOT_WARM_VALVE or min(valves) < NOT_WARM_VALVE / 2:
+        return None
+    first, last = window[0], window[-1]
+    if last.target - last.temp < 0.5:
+        return None  # Ziel praktisch erreicht
+    if last.temp - first.temp >= NOT_WARM_RISE:
+        return None
+    return Issue(
+        "not_warming",
+        SEV_WARN,
+        "Raum wird nicht warm",
+        f"Ventil seit 2 h zu {sum(valves) / len(valves):.0f} % offen, Temperatur nur "
+        f"{last.temp - first.temp:+.1f} K. Heizkörper entlüften, Ventilstift oder Vorlauf prüfen.",
+    )
+
+
+def check_sensor_frozen(hours_unchanged: float | None, trv_delta: float | None) -> Issue | None:
+    """Fühlerwert seit Stunden gleich, obwohl sich am Thermostat etwas tut."""
+    if hours_unchanged is None or trv_delta is None:
+        return None
+    if hours_unchanged >= FROZEN_HOURS and abs(trv_delta) >= FROZEN_TRV_DELTA:
+        return Issue(
+            "sensor_frozen",
+            SEV_WARN,
+            "Fühler meldet sich nicht",
+            f"Seit {hours_unchanged:.0f} h derselbe Wert, das Thermostat misst {trv_delta:+.1f} K Änderung. Batterie/Funk des Fühlers prüfen.",
+        )
+    return None
+
+
+def check_radio(unavailable_events_24h: int, sync_failed: bool) -> Issue | None:
+    if sync_failed:
+        return Issue("radio", SEV_ALERT, "Thermostat reagiert nicht", "Befehle werden nicht bestätigt – Funkverbindung oder Batterie prüfen.")
+    if unavailable_events_24h >= RADIO_EVENTS:
+        return Issue("radio", SEV_WARN, "Funk wackelt", f"Thermostat war in 24 h {unavailable_events_24h}× nicht erreichbar.")
+    return None
+
+
+def check_window(open_hours: float | None, unavailable_hours: float | None) -> Issue | None:
+    if unavailable_hours is not None and unavailable_hours >= WINDOW_UNAVAILABLE_HOURS:
+        return Issue("window_sensor", SEV_WARN, "Fensterkontakt meldet sich nicht", f"Seit {unavailable_hours:.0f} h keine Rückmeldung – Batterie prüfen.")
+    if open_hours is not None and open_hours >= WINDOW_OPEN_HOURS:
+        return Issue("window_open_long", SEV_INFO, "Fenster seit über einem Tag offen", f"Seit {open_hours:.0f} h offen – Kontakt verrutscht oder wirklich offen?")
+    return None

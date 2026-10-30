@@ -60,7 +60,13 @@ class ProblemSensor(RaumklimaEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         c = self.controller
-        return c.status in (STATUS_SENSOR, STATUS_TRV) or c.sync.state == SYNC_FAILED
+        if c.status in (STATUS_SENSOR, STATUS_TRV) or c.sync.state == SYNC_FAILED:
+            return True
+        return any(i.severity != "info" for i in c.issues)
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        return {"issues": [i.as_dict() for i in self.controller.issues]}
 
 
 class MoldRiskSensor(RaumklimaEntity, BinarySensorEntity):

@@ -104,7 +104,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action):
+    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -248,3 +248,13 @@ def ws_hub_action(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
     elif action == "guests":
         hub.set_guests(bool(msg.get("value", True)))
     connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/report"})
+@callback
+def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    hub = get_hub(hass)
+    if hub is None:
+        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
+        return
+    connection.send_result(msg["id"], {**hub.insights.report(), "issues": hub.insights.all_issues()})

@@ -279,7 +279,9 @@
         "window_away": "🚪 Window open, nobody home",
         "presence": "🏠 Absence & preheating",
         "season": "🍂 Heating season start/end",
-        "trv_failure": "⚠️ Thermostat not responding"
+        "trv_failure": "⚠️ Thermostat not responding",
+        "health": "🩺 Heating health",
+        "report": "📊 Weekly report"
       }
     },
     "off_method": {
@@ -334,6 +336,9 @@
       },
       "outdoor_mean": {
         "name": "Outdoor daily mean"
+      },
+      "health": {
+        "name": "Health"
       },
       "sync": {
         "name": "Sync",

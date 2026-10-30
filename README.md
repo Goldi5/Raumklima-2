@@ -18,10 +18,13 @@
 | 🧱 **Schimmelschutz** | Absenkung nach DIN 4108-2 – die kälteste Wandstelle bleibt unter 80 % Feuchte |
 | 🍂 **Heizsaison** | Heizgrenze nach Tagesmittel aus Messung + Wettervorhersage, Kälteeinbruch-Regel, „Heute heizen“, Sommerpflege der Ventile |
 | 📱 **Benachrichtigungen** | pro Empfänger wählbar, welche Nachrichten; Push mit Knöpfen, Ruhezeit, optional Sprachansagen |
-| 📊 **Dashboard** | Raumkarten, Verlauf mit Zeitleiste, komplett bearbeitbare Einstellungsseite – automatisch per Strategie |
+| 📈 **Heizbericht** | Woche/Monat: Heizstunden, wetterbereinigter Vergleich, Ersparnis durch Absenkung, Wohlfühlzeit; Wochen-Push sonntags |
+| 🩺 **Gesundheitscheck** | Batterien, „Raum wird nicht warm“, hängender Fühler, Funkaussetzer, stiller Fensterkontakt |
+| 📊 **Dashboard** | Raumkarten, Verlauf mit Zeitleiste, Bericht, komplett bearbeitbare Einstellungsseite – automatisch per Strategie |
 
 <p>
-<img src="docs/images/verlauf.png" width="49%"> <img src="docs/images/einstellungen.png" width="49%">
+<img src="docs/images/verlauf.png" width="49%"> <img src="docs/images/bericht.png" width="49%">
+<img src="docs/images/einstellungen.png" width="49%">
 </p>
 
 ## Installation

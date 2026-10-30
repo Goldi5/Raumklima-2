@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.0 – 2026-10-30
+
+### Neu
+- **Heizbericht:** neuer Reiter „Bericht“ (Karte `raumklima-report-card`) mit Woche/Monat:
+  Heizstunden, wetterbereinigter Vergleich über Heizgradtage, Absenkstunden und geschätzte
+  Ersparnis, Wohlfühlzeit, Heizbedarf pro Tag je Raum, Feuchte- und Schimmelstunden,
+  „warm bei Ankunft“. Daten werden minütlich gesammelt und 400 Tage als Tageswerte gespeichert.
+- **Wochenbericht** als Push sonntags 18 Uhr (Nachrichtenart „📊 Wochenbericht“).
+- **Gesundheitscheck** alle 10 min: Batterien, Raum wird nicht warm, Fühler hängt, Funk,
+  Fensterkontakt. Anzeige in Bericht, Einstellungen und Raum-Reiter; Sensor
+  „Raumklima Allgemein Gesundheit“; Push „🩺 Gesundheit der Heizung“ (max. 1× pro Tag je Problem).
+- Bestehende Push-Empfänger bekommen die beiden neuen Nachrichtenarten automatisch.
+- WebSocket-Befehl `raumklima/report`.
+
+
 ## 0.3.1 – 2026-10-30
 
 ### Geändert
