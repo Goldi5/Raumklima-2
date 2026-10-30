@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.3.0";
+const RK_VERSION = "0.3.1";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -1067,7 +1067,7 @@ class RaumklimaSettingsCard extends HTMLElement {
     const mdToInput = (v) => esc(v || "");
     const seasRows = [
       `<div class="status"><span class="chip" style="--tone:${toneVar(seas.tone)}"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}</span>
-        <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>Ø 24 h ${fmt(st.mean_past)}° · Vorhersage ${fmt(st.mean_forecast)}°</span></div>`,
+        <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>Ø 24 h ${st.mean_past == null ? "sammelt noch" : fmt(st.mean_past) + "°"} · Vorhersage ${st.mean_forecast == null ? "–" : fmt(st.mean_forecast) + "°"}</span></div>`,
       this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
       this._row("Heizgrenze", this._optStepper(H, "heating_limit", this._hubOpt("heating_limit"), " °C", 0.5, 5, 25, 1), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
       this._row("Heizsaison", `<span class="v"><input class="inp short" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> bis <input class="inp short" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Format MM-TT, außerhalb nur bei Kälteeinbruch"),

@@ -580,6 +580,17 @@ class HubOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         return self.async_show_menu(step_id="hub_menu", menu_options=["notifications", "presence", "season"])
 
+    async def async_step_hub_menu(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Rückfall, falls ein Werkzeug die Menüauswahl als Formular schickt."""
+        choice = (user_input or {}).get("next_step_id")
+        if choice == "notifications":
+            return await self.async_step_notifications()
+        if choice == "presence":
+            return await self.async_step_presence()
+        if choice == "season":
+            return await self.async_step_season()
+        return await self.async_step_init()
+
     async def async_step_notifications(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         cur = self._cur()
         if user_input is not None:

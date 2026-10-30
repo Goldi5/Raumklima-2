@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 – 2026-10-30
+
+### Geändert
+- Einstellungsseite: „Ø 24 h sammelt noch“, solange noch keine Messwerte vorliegen.
+- Einstellungsmenü der Zentrale robuster.
+- Dokumentation neu: ausführlich auf Deutsch und Englisch mit Screenshots (`docs/`).
+
 ## 0.3.0 – 2026-10-30
 
 ### Neu
