@@ -3,7 +3,17 @@
     "step": {
       "user": {
         "title": "Raum anlegen",
-        "description": "Wähle Thermostat, Fühler und Fensterkontakte.",
+        "description": "Schritt 1 von 3: Welches Thermostat gehört zum Raum?",
+        "data": {
+          "trv": "Heizkörperthermostat (TRV)"
+        },
+        "data_description": {
+          "trv": "Das echte Thermostat am Heizkörper."
+        }
+      },
+      "devices": {
+        "title": "Fühler & Fenster",
+        "description": "Schritt 2 von 3: Vorschläge aus dem Bereich des Thermostats – bitte prüfen.",
         "data": {
           "name": "Name des Raums",
           "trv": "Heizkörperthermostat (TRV)",
@@ -17,65 +27,66 @@
           "window_sensors": "Ist einer offen, wird die Heizung pausiert."
         }
       },
-      "calibration": {
-        "title": "Kalibrierung",
-        "data": {
-          "calibration_mode": "Kalibrierart",
-          "calibration_entity": "Kalibrier-/Offset-Entität des TRV",
-          "off_method": "Wie wird das TRV ausgeschaltet?",
-          "on_preset": "Preset zum Heizen (An)"
-        },
-        "data_description": {
-          "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
-          "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
-          "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
-          "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen."
-        }
-      },
-      "settings": {
-        "title": "Einstellungen",
-        "data": {
-          "window_open_delay": "Verzögerung Fenster auf",
-          "window_close_delay": "Verzögerung Fenster zu",
-          "offset_threshold": "Offset erst senden ab Änderung von",
-          "offset_min_interval": "Mindestabstand zwischen Kalibrierungen",
-          "sensor_stale_minutes": "Fühler gilt als ausgefallen nach",
-          "sync_verify_delay": "Befehl prüfen nach",
-          "sync_max_retries": "Anzahl Wiederholungen bis Meldung",
-          "follow_trv_changes": "Änderungen direkt am TRV übernehmen",
-          "notify_on_failure": "Benachrichtigen, wenn das TRV nicht reagiert"
-        },
-        "data_description": {
-          "sync_verify_delay": "Danach wird geprüft, ob das TRV den Befehl übernommen hat. Sonst wird wiederholt (Abstand wächst mit jedem Versuch). Hilft bei kurzen Verbindungsabbrüchen.",
-          "follow_trv_changes": "Aus: Änderungen am Gerät werden wieder zurückgesetzt (wie eine Kindersicherung).",
-          "sensor_stale_minutes": "Danach regelt das TRV mit eigenem Sensor weiter und der Status zeigt eine Warnung."
-        }
-      },
-      "ventilation": {
-        "title": "Lüften & Benachrichtigungen",
+      "room": {
+        "title": "Der Raum",
+        "description": "Schritt 3 von 3: Wie soll es hier sein?",
         "data": {
           "room_type": "Raumtyp",
           "comfort_temperature": "Wunschtemperatur (optional)",
-          "weather_entity": "Außenklima (Wetter oder Außensensor)",
-          "notify_targets": "Benachrichtigungen an",
-          "tts_targets": "Sprachansagen auf (optional)",
-          "quiet_start": "Ruhezeit ab",
-          "quiet_end": "Ruhezeit bis",
-          "repeat_minutes": "Erinnerung wiederholen alle"
+          "setback_short": "Absenkung „kurz weg“",
+          "setback_long": "Absenkung „länger weg“"
         },
         "data_description": {
           "room_type": "Setzt passende Standards: Wohnraum 18 °C / 70 %, Schlafzimmer und selten genutzt 16 °C, Bad 75 %. Feinjustierung später über die Regler am Gerät.",
           "comfort_temperature": "Leer lassen = Standard des Raumtyps: Wohnraum/Kinderzimmer 20 °C, Küche 19 °C, Bad 22 °C, Schlafzimmer/selten genutzt 17 °C. Gilt beim ersten Start und beim Einschalten eines Raums, der aus war.",
-          "weather_entity": "Für empfohlene Lüftdauer und die Prüfung, ob Lüften überhaupt trocknet (absolute Feuchte draußen vs. drinnen).",
-          "notify_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
-          "tts_targets": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",
-          "quiet_start": "In der Ruhezeit nur stille Push-Nachrichten, keine Ansagen (Ausnahme: Raum kühlt aus)."
+          "setback_short": "Wenn alle Bewohner weg sind (nach der Wartezeit). Vorschlag nach Verbraucherzentrale: Wohnräume 18 °C, Schlafzimmer 16 °C.",
+          "setback_long": "Ab 24 h Abwesenheit oder im Urlaub. Nicht unter 16 °C empfohlen. Bei feuchter Luft hält der Schimmelschutz den Raum automatisch wärmer."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Erweitert (Technik)",
+            "description": "Wird automatisch erkannt – nur ändern, wenn etwas nicht passt.",
+            "data": {
+              "calibration_mode": "Kalibrierart",
+              "calibration_entity": "Kalibrier-/Offset-Entität des TRV",
+              "off_method": "Wie wird das TRV ausgeschaltet?",
+              "on_preset": "Preset zum Heizen (An)",
+              "window_open_delay": "Verzögerung Fenster auf",
+              "window_close_delay": "Verzögerung Fenster zu",
+              "follow_trv_changes": "Änderungen direkt am TRV übernehmen"
+            },
+            "data_description": {
+              "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
+              "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
+              "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
+              "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen.",
+              "follow_trv_changes": "Aus: Änderungen am Gerät werden wieder zurückgesetzt (wie eine Kindersicherung)."
+            }
+          }
+        }
+      },
+      "hub": {
+        "title": "Für die ganze Wohnung",
+        "description": "Nur beim ersten Raum. Später änderbar unter Raumklima → Allgemein oder im Dashboard.",
+        "data": {
+          "residents": "Wer wohnt hier?",
+          "zone": "Zone der Wohnung",
+          "push_targets": "Benachrichtigungen an",
+          "weather_entity": "Außenklima (Wetter oder Außensensor)",
+          "building_type": "Bauart"
+        },
+        "data_description": {
+          "residents": "Personen, die hier wohnen oder zu Besuch heizen wollen. Sind alle weg, wird abgesenkt.",
+          "zone": "Die Zone, in der die Wohnung liegt (nicht unbedingt „Home“).",
+          "push_targets": "Später je Empfänger einstellbar, welche Nachrichten er bekommt.",
+          "building_type": "Bestimmt, wie vorsichtig der Schimmelschutz bei Abwesenheit rechnet."
         }
       }
     },
     "error": {
       "calibration_entity_required": "Für die Kalibrierart Offset wird eine Kalibrier-Entität benötigt.",
-      "same_entity": "Fühler und Thermostat müssen verschieden sein."
+      "same_entity": "Fühler und Thermostat müssen verschieden sein.",
+      "invalid_date": "Bitte als MM-TT eingeben, z. B. 10-01."
     },
     "abort": {
       "already_configured": "Dieses Thermostat ist schon einem Raum zugeordnet."
@@ -97,65 +108,129 @@
           "window_sensors": "Ist einer offen, wird die Heizung pausiert."
         }
       },
-      "calibration": {
-        "title": "Kalibrierung",
-        "data": {
-          "calibration_mode": "Kalibrierart",
-          "calibration_entity": "Kalibrier-/Offset-Entität des TRV",
-          "off_method": "Wie wird das TRV ausgeschaltet?",
-          "on_preset": "Preset zum Heizen (An)"
-        },
-        "data_description": {
-          "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
-          "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
-          "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
-          "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen."
-        }
-      },
-      "settings": {
-        "title": "Einstellungen",
-        "data": {
-          "window_open_delay": "Verzögerung Fenster auf",
-          "window_close_delay": "Verzögerung Fenster zu",
-          "offset_threshold": "Offset erst senden ab Änderung von",
-          "offset_min_interval": "Mindestabstand zwischen Kalibrierungen",
-          "sensor_stale_minutes": "Fühler gilt als ausgefallen nach",
-          "sync_verify_delay": "Befehl prüfen nach",
-          "sync_max_retries": "Anzahl Wiederholungen bis Meldung",
-          "follow_trv_changes": "Änderungen direkt am TRV übernehmen",
-          "notify_on_failure": "Benachrichtigen, wenn das TRV nicht reagiert"
-        },
-        "data_description": {
-          "sync_verify_delay": "Danach wird geprüft, ob das TRV den Befehl übernommen hat. Sonst wird wiederholt (Abstand wächst mit jedem Versuch). Hilft bei kurzen Verbindungsabbrüchen.",
-          "follow_trv_changes": "Aus: Änderungen am Gerät werden wieder zurückgesetzt (wie eine Kindersicherung).",
-          "sensor_stale_minutes": "Danach regelt das TRV mit eigenem Sensor weiter und der Status zeigt eine Warnung."
-        }
-      },
-      "ventilation": {
-        "title": "Lüften & Benachrichtigungen",
+      "room": {
+        "title": "Der Raum",
         "data": {
           "room_type": "Raumtyp",
           "comfort_temperature": "Wunschtemperatur (optional)",
-          "weather_entity": "Außenklima (Wetter oder Außensensor)",
-          "notify_targets": "Benachrichtigungen an",
-          "tts_targets": "Sprachansagen auf (optional)",
-          "quiet_start": "Ruhezeit ab",
-          "quiet_end": "Ruhezeit bis",
-          "repeat_minutes": "Erinnerung wiederholen alle"
+          "setback_short": "Absenkung „kurz weg“",
+          "setback_long": "Absenkung „länger weg“"
         },
         "data_description": {
           "room_type": "Setzt passende Standards: Wohnraum 18 °C / 70 %, Schlafzimmer und selten genutzt 16 °C, Bad 75 %. Feinjustierung später über die Regler am Gerät.",
           "comfort_temperature": "Leer lassen = Standard des Raumtyps: Wohnraum/Kinderzimmer 20 °C, Küche 19 °C, Bad 22 °C, Schlafzimmer/selten genutzt 17 °C. Gilt beim ersten Start und beim Einschalten eines Raums, der aus war.",
-          "weather_entity": "Für empfohlene Lüftdauer und die Prüfung, ob Lüften überhaupt trocknet (absolute Feuchte draußen vs. drinnen).",
-          "notify_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
-          "tts_targets": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",
-          "quiet_start": "In der Ruhezeit nur stille Push-Nachrichten, keine Ansagen (Ausnahme: Raum kühlt aus)."
+          "setback_short": "Wenn alle Bewohner weg sind (nach der Wartezeit). Vorschlag nach Verbraucherzentrale: Wohnräume 18 °C, Schlafzimmer 16 °C.",
+          "setback_long": "Ab 24 h Abwesenheit oder im Urlaub. Nicht unter 16 °C empfohlen. Bei feuchter Luft hält der Schimmelschutz den Raum automatisch wärmer."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Erweitert (Technik)",
+            "description": "Wird automatisch erkannt – nur ändern, wenn etwas nicht passt.",
+            "data": {
+              "calibration_mode": "Kalibrierart",
+              "calibration_entity": "Kalibrier-/Offset-Entität des TRV",
+              "off_method": "Wie wird das TRV ausgeschaltet?",
+              "on_preset": "Preset zum Heizen (An)",
+              "window_open_delay": "Verzögerung Fenster auf",
+              "window_close_delay": "Verzögerung Fenster zu",
+              "follow_trv_changes": "Änderungen direkt am TRV übernehmen"
+            },
+            "data_description": {
+              "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
+              "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
+              "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
+              "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen.",
+              "follow_trv_changes": "Aus: Änderungen am Gerät werden wieder zurückgesetzt (wie eine Kindersicherung)."
+            }
+          }
+        }
+      },
+      "technical": {
+        "title": "Technik",
+        "data": {
+          "offset_threshold": "Offset erst senden ab Änderung von",
+          "offset_min_interval": "Mindestabstand zwischen Kalibrierungen",
+          "sensor_stale_minutes": "Fühler gilt als ausgefallen nach",
+          "sync_verify_delay": "Befehl prüfen nach",
+          "sync_max_retries": "Anzahl Wiederholungen bis Meldung"
+        },
+        "data_description": {
+          "sync_verify_delay": "Danach wird geprüft, ob das TRV den Befehl übernommen hat. Sonst wird wiederholt (Abstand wächst mit jedem Versuch). Hilft bei kurzen Verbindungsabbrüchen.",
+          "sensor_stale_minutes": "Danach regelt das TRV mit eigenem Sensor weiter und der Status zeigt eine Warnung."
+        }
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "data": {
+          "push_targets": "Push-Nachrichten an",
+          "tts_targets_hub": "Sprachansagen auf (optional)",
+          "quiet_start": "Ruhezeit ab",
+          "quiet_end": "Ruhezeit bis",
+          "repeat_minutes": "Erinnerung wiederholen alle",
+          "weather_entity": "Außenklima (Wetter oder Außensensor)",
+          "notify_on_failure": "Benachrichtigen, wenn das TRV nicht reagiert"
+        },
+        "data_description": {
+          "push_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
+          "tts_targets_hub": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",
+          "quiet_start": "In der Ruhezeit nur stille Push-Nachrichten, keine Ansagen (Ausnahme: Raum kühlt aus).",
+          "weather_entity": "Für Lüftdauer, Heizgrenze und Schimmelschutz.",
+          "notify_on_failure": "Meldung in der Home-Assistant-Glocke."
+        }
+      },
+      "kinds": {
+        "title": "Wer bekommt was?",
+        "description": "Wähle pro Empfänger die Nachrichten."
+      },
+      "presence": {
+        "title": "Anwesenheit",
+        "data": {
+          "residents": "Wer wohnt hier?",
+          "zone": "Zone der Wohnung",
+          "away_delay": "Absenken erst nach",
+          "long_away_hours": "„Länger weg“ ab",
+          "preheat_km": "Vorheizen ab Entfernung",
+          "building_type": "Bauart"
+        },
+        "data_description": {
+          "residents": "Zählt, sobald irgendeins ihrer Handys in der Zone ist. Unmögliche Sprünge (z. B. durch VPN) und ungenaue Ortungen werden ignoriert.",
+          "away_delay": "Damit ein kurzer Einkauf nichts auslöst.",
+          "preheat_km": "Nähert sich jemand und ist näher als das, wird schon vorgeheizt. 0 = aus."
+        }
+      },
+      "season": {
+        "title": "Heizsaison",
+        "data": {
+          "season_mode": "Betriebsart",
+          "season_start": "Heizsaison ab (MM-TT)",
+          "season_end": "Heizsaison bis (MM-TT)",
+          "heating_limit": "Heizgrenze (Tagesmittel außen)",
+          "cold_snap_temp": "Kälteeinbruch unter",
+          "frost_floor": "Sicherung: immer heizen unter",
+          "valve_care": "Sommerpflege der Ventile"
+        },
+        "data_description": {
+          "season_mode": "Automatisch: nach Heizsaison und Außentemperatur. Immer heizen / Heizpause: von Hand.",
+          "heating_limit": "Liegt das Mittel aus letzten 24 h und Vorhersage darüber, pausiert die Heizung (erst nach 2 milden Tagen). Altbau saniert: 14–16 °C, Neubau 12–15 °C (co2online).",
+          "cold_snap_temp": "Außerhalb der Saison wird geheizt, wenn das Tagesmittel 3 Tage darunter liegt.",
+          "frost_floor": "Fällt ein Raum darunter, heizt er auch in der Heizpause.",
+          "valve_care": "Mittwochs 11 Uhr in der Heizpause: Ventile 3 Minuten öffnen, damit sie nicht festsitzen."
+        }
+      },
+      "hub_menu": {
+        "title": "Raumklima Allgemein",
+        "description": "Was möchtest du einstellen? Alles davon geht auch direkt im Dashboard unter Einstellungen.",
+        "menu_options": {
+          "notifications": "Benachrichtigungen – wer bekommt was",
+          "presence": "Anwesenheit & Absenkung",
+          "season": "Heizsaison & Heizgrenze"
         }
       }
     },
     "error": {
       "calibration_entity_required": "Für die Kalibrierart Offset wird eine Kalibrier-Entität benötigt.",
-      "same_entity": "Fühler und Thermostat müssen verschieden sein."
+      "same_entity": "Fühler und Thermostat müssen verschieden sein.",
+      "invalid_date": "Bitte als MM-TT eingeben, z. B. 10-01."
     }
   },
   "selector": {
@@ -179,6 +254,32 @@
     "on_preset": {
       "options": {
         "auto_detect": "Automatisch"
+      }
+    },
+    "building_type": {
+      "options": {
+        "unrenovated": "Altbau unsaniert",
+        "renovated": "Altbau saniert",
+        "new": "Neubau / gut gedämmt"
+      }
+    },
+    "season_mode": {
+      "options": {
+        "auto": "Automatisch",
+        "always": "Immer heizen",
+        "pause": "Heizpause"
+      }
+    },
+    "kind": {
+      "options": {
+        "vent_open": "💧 Bitte lüften",
+        "vent_close": "🪟 Fenster schließen",
+        "too_cold": "🥶 Raum kühlt aus",
+        "vent_done": "✅ Luft ausgetauscht",
+        "window_away": "🚪 Fenster offen, niemand da",
+        "presence": "🏠 Abwesenheit & Vorheizen",
+        "season": "🍂 Heizsaison Start/Ende",
+        "trv_failure": "⚠️ Thermostat reagiert nicht"
       }
     },
     "off_method": {
@@ -205,8 +306,34 @@
           "window_open": "Pausiert – Fenster offen",
           "off": "Aus",
           "sensor_unavailable": "Fühler ausgefallen",
-          "trv_unavailable": "Thermostat nicht erreichbar"
+          "trv_unavailable": "Thermostat nicht erreichbar",
+          "season_off": "Heizpause",
+          "setback": "Abgesenkt – niemand da"
         }
+      },
+      "presence": {
+        "name": "Anwesenheit",
+        "state": {
+          "home": "Jemand da",
+          "guests": "Gäste da",
+          "preheat": "Vorheizen",
+          "away_short": "Kurz weg",
+          "away_long": "Länger weg"
+        }
+      },
+      "heating_mode": {
+        "name": "Heizbetrieb",
+        "state": {
+          "heating": "Heizsaison",
+          "pause": "Heizpause",
+          "cold_snap": "Kälteeinbruch",
+          "heat_today": "Heute heizen",
+          "always": "Immer heizen",
+          "manual_pause": "Heizpause (von Hand)"
+        }
+      },
+      "outdoor_mean": {
+        "name": "Außen-Tagesmittel"
       },
       "sync": {
         "name": "Synchronisierung",
@@ -257,6 +384,22 @@
       },
       "notifications": {
         "name": "Lüftungs-Benachrichtigungen"
+      },
+      "vacation": {
+        "name": "Urlaub"
+      },
+      "guests": {
+        "name": "Gäste da"
+      }
+    },
+    "select": {
+      "season_mode": {
+        "name": "Betriebsart Heizsaison",
+        "state": {
+          "auto": "Automatisch",
+          "always": "Immer heizen",
+          "pause": "Heizpause"
+        }
       }
     },
     "number": {
@@ -273,6 +416,9 @@
     "button": {
       "calibrate": {
         "name": "Jetzt kalibrieren"
+      },
+      "heat_today": {
+        "name": "Heute heizen"
       }
     }
   }

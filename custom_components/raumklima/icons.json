@@ -9,7 +9,9 @@
           "window_open": "mdi:window-open-variant",
           "off": "mdi:radiator-off",
           "sensor_unavailable": "mdi:thermometer-alert",
-          "trv_unavailable": "mdi:lan-disconnect"
+          "trv_unavailable": "mdi:lan-disconnect",
+          "season_off": "mdi:weather-sunny",
+          "setback": "mdi:home-export-outline"
         }
       },
       "sync": {
@@ -42,6 +44,27 @@
       },
       "recommended_duration": {
         "default": "mdi:timer-outline"
+      },
+      "presence": {
+        "default": "mdi:home-account",
+        "state": {
+          "away_short": "mdi:home-export-outline",
+          "away_long": "mdi:bag-suitcase",
+          "preheat": "mdi:car-arrow-right",
+          "guests": "mdi:account-group"
+        }
+      },
+      "heating_mode": {
+        "default": "mdi:radiator",
+        "state": {
+          "pause": "mdi:weather-sunny",
+          "manual_pause": "mdi:radiator-off",
+          "cold_snap": "mdi:snowflake-thermometer",
+          "heat_today": "mdi:fire-circle"
+        }
+      },
+      "outdoor_mean": {
+        "default": "mdi:thermometer-lines"
       }
     },
     "switch": {
@@ -53,11 +76,20 @@
         "state": {
           "off": "mdi:bell-off-outline"
         }
+      },
+      "vacation": {
+        "default": "mdi:bag-suitcase"
+      },
+      "guests": {
+        "default": "mdi:account-group"
       }
     },
     "button": {
       "calibrate": {
         "default": "mdi:tune-variant"
+      },
+      "heat_today": {
+        "default": "mdi:fire"
       }
     },
     "binary_sensor": {
@@ -74,6 +106,11 @@
       },
       "max_drop": {
         "default": "mdi:thermometer-chevron-down"
+      }
+    },
+    "select": {
+      "season_mode": {
+        "default": "mdi:calendar-range"
       }
     }
   }

@@ -20,6 +20,11 @@ from .const import (
     CONF_ROOM_TYPE,
     CONF_TTS_TARGETS,
     CONF_WEATHER,
+    KIND_TOO_COLD,
+    KIND_VENT_CLOSE,
+    KIND_VENT_DONE,
+    KIND_VENT_OPEN,
+    KIND_WINDOW_AWAY,
     NOTIFY_ACTION_EVENT,
 )
 from .logic import to_float
@@ -51,6 +56,14 @@ HUMIDITY_HYSTERESIS = 5.0
 SNOOZE_MINUTES = 15
 PLEASE_OPEN_REPEAT = 30  # min – Erinnerung "bitte lüften"
 TTS_AFTER_REPEATS = 2  # Sprachansage ab der 3. Erinnerung "schließen"
+WINDOW_AWAY_AFTER = 2  # min offen, während niemand da ist
+WINDOW_AWAY_REPEAT = 30  # min
+KIND_OF = {
+    VENT_PLEASE_OPEN: KIND_VENT_OPEN,
+    VENT_PLEASE_CLOSE: KIND_VENT_CLOSE,
+    VENT_TOO_COLD: KIND_TOO_COLD,
+    VENT_DONE: KIND_VENT_DONE,
+}
 
 MESSAGES = {
     VENT_PLEASE_OPEN: ("💧 {room}: Bitte lüften", "Luftfeuchte {hum:.0f} % – bitte ca. {dur} min stoßlüften."),
@@ -75,12 +88,8 @@ class VentilationManager:
         self.max_drop: float = 3.0
         self.enabled: bool = True
         self.load(stored)
-        self.weather: str | None = cfg.get(CONF_WEATHER)
-        self.notify_targets: list[str] = list(cfg.get(CONF_NOTIFY_TARGETS) or [])
-        self.tts_targets: list[str] = list(cfg.get(CONF_TTS_TARGETS) or [])
-        self.quiet_start: str = cfg.get(CONF_QUIET_START) or "22:00"
-        self.quiet_end: str = cfg.get(CONF_QUIET_END) or "07:00"
-        self.repeat_minutes: float = float(cfg.get(CONF_REPEAT_MINUTES) or 5)
+        self._cfg = cfg
+        self._window_away_sent: datetime | None = None
 
         self.state: str = VENT_OK
         self.window_open_since: datetime | None = None
@@ -102,6 +111,49 @@ class VentilationManager:
             self.min_temp = float(stored.get("min_temp", self.min_temp))
         self.max_drop = float(stored.get("max_drop", self.max_drop))
         self.enabled = bool(stored.get("enabled", self.enabled))
+
+    # ------------------------------------------------------------ Zentrale oder Raum
+    def _hub_opt(self, key: str, room_key: str, fallback: Any) -> Any:
+        hub = self.c.hub
+        if hub is not None:
+            value = hub.opt(key)
+            if value not in (None, "", []):
+                return value
+        value = self._cfg.get(room_key)
+        return fallback if value in (None, "") else value
+
+    @property
+    def weather(self) -> str | None:
+        hub = self.c.hub
+        if hub is not None and hub.weather:
+            return hub.weather
+        return self._cfg.get(CONF_WEATHER)
+
+    @property
+    def quiet_start(self) -> str:
+        return str(self._hub_opt("quiet_start", CONF_QUIET_START, "22:00"))
+
+    @property
+    def quiet_end(self) -> str:
+        return str(self._hub_opt("quiet_end", CONF_QUIET_END, "07:00"))
+
+    @property
+    def repeat_minutes(self) -> float:
+        return float(self._hub_opt("repeat_minutes", CONF_REPEAT_MINUTES, 5))
+
+    @property
+    def notify_targets(self) -> list[str]:
+        hub = self.c.hub
+        if hub is not None:
+            return sorted({t for k in KIND_OF.values() for t in hub.targets(k)})
+        return list(self._cfg.get(CONF_NOTIFY_TARGETS) or [])
+
+    @property
+    def tts_targets(self) -> list[str]:
+        hub = self.c.hub
+        if hub is not None:
+            return sorted({t for k in KIND_OF.values() for t in hub.targets(k, "tts")})
+        return list(self._cfg.get(CONF_TTS_TARGETS) or [])
 
     # ------------------------------------------------------------ Lifecycle
     async def async_start(self) -> None:
@@ -244,6 +296,7 @@ class VentilationManager:
         )
         changed = new != self.state
         self.state = new
+        self._check_window_away()
         if new in MESSAGES:
             self._maybe_send(new, changed)
         elif changed and new in (VENT_OK, VENT_AIRING):
@@ -253,8 +306,36 @@ class VentilationManager:
             self.c.notify_listeners()
 
     # ------------------------------------------------------------ Benachrichtigung
+    def _check_window_away(self) -> None:
+        """Fenster offen, aber niemand zu Hause → einmal melden (alle 30 min)."""
+        hub = self.c.hub
+        if hub is None or not self.enabled or not self.c.window_open or not hub.nobody_home:
+            if not self.c.window_open:
+                self._window_away_sent = None
+            return
+        if self.open_minutes < WINDOW_AWAY_AFTER:
+            return
+        now = dt_util.utcnow()
+        if self._window_away_sent and now - self._window_away_sent < timedelta(minutes=WINDOW_AWAY_REPEAT):
+            return
+        self._window_away_sent = now
+        hub.notify(
+            KIND_WINDOW_AWAY,
+            f"🚪 {self.c.name}: Fenster offen",
+            f"Seit {self.open_minutes:.0f} min offen – und niemand ist zu Hause.",
+            data={"tag": f"{self._tag()}_away", "group": "raumklima"},
+        )
+
     def _maybe_send(self, kind: str, changed: bool) -> None:
-        if not self.enabled or not self.notify_targets and not self.tts_targets:
+        hub = self.c.hub
+        if not self.enabled:
+            return
+        if hub is not None:
+            if not hub.has_targets(KIND_OF[kind]):
+                return
+            if hub.nobody_home:
+                return  # niemand da, der lüften oder schließen könnte
+        elif not self.notify_targets and not self.tts_targets:
             return
         now = dt_util.utcnow()
         if self.muted_until and now < self.muted_until:
@@ -297,6 +378,24 @@ class VentilationManager:
         return f"RAUMKLIMA_{action}_{self.c.entry.entry_id}"
 
     async def _send(self, kind: str, title: str, message: str, speak: bool) -> None:
+        hub = self.c.hub
+        if hub is not None:
+            await hub.async_notify(
+                KIND_OF[kind],
+                title,
+                message,
+                data={
+                    "tag": self._tag(),
+                    "group": "raumklima",
+                    "actions": [
+                        {"action": self._action_id("DONE"), "title": "Erledigt"},
+                        {"action": self._action_id("SNOOZE"), "title": f"In {SNOOZE_MINUTES} min erinnern"},
+                        {"action": self._action_id("MUTE"), "title": "Heute nicht mehr"},
+                    ],
+                },
+                speak=speak,
+            )
+            return
         now = dt_util.now()
         quiet = in_quiet_hours(now.hour, now.minute, self.quiet_start, self.quiet_end)
         data: dict[str, Any] = {

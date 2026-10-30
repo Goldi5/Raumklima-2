@@ -37,7 +37,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
     # Einstellungs-Übersicht nicht bei jeder Änderung in die Datenbank schreiben
-    _unrecorded_attributes = frozenset({"settings"})
+    _unrecorded_attributes = frozenset({"settings", "plan_reason", "presence", "heating_mode"})
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.TURN_ON
@@ -105,6 +105,18 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "humidity_sensor": bool(c.humidity_sensor),
             **(c.vent.attributes() if c.vent else {}),
             "settings": c.settings_summary(),
+            **self._plan_attributes(),
+        }
+
+    def _plan_attributes(self) -> dict[str, Any]:
+        c = self.controller
+        on, target, reason = c.plan()
+        hub = c.hub
+        return {
+            "effective_target": target if on else None,
+            "plan_reason": reason,
+            "presence": hub.stage if hub else None,
+            "heating_mode": hub.decision if hub else None,
         }
 
     async def async_set_temperature(self, **kwargs: Any) -> None:

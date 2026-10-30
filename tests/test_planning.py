@@ -1,0 +1,206 @@
+"""Tests für Abwesenheit, Schimmelschutz und Heizsaison."""
+
+from datetime import date, datetime, timedelta
+
+from rk.planning import (
+    STAGE_AWAY_LONG,
+    STAGE_AWAY_SHORT,
+    STAGE_GUESTS,
+    STAGE_HOME,
+    STAGE_PREHEAT,
+    Fix,
+    PresenceInput,
+    SeasonConfig,
+    SeasonState,
+    TrackerFilter,
+    approaching,
+    combined_mean,
+    haversine_km,
+    in_season,
+    mold_safe_min_temp,
+    parse_md,
+    presence_stage,
+    season_allows_heating,
+    season_decision,
+    season_step,
+    setback_target,
+)
+
+BERLIN = (52.5146, 13.4986)  # Lichtenberg
+REMSCHEID = (51.1787, 7.1897)
+T0 = datetime(2026, 11, 2, 12, 0)
+
+
+# ------------------------------------------------------------ Schimmelschutz
+def test_mold_dry_air_allows_deep_setback():
+    # 18 °C / 45 % bei 0 °C draußen → unbedenklich deutlich unter 16 °C
+    m = mold_safe_min_temp(18, 45, 0, frsi=0.70)
+    assert m is not None and m < 15
+
+
+def test_mold_humid_air_blocks_setback():
+    # Bad nach dem Duschen: 22 °C / 88 % → muss warm bleiben
+    m = mold_safe_min_temp(22, 88, 0, frsi=0.70)
+    assert m is not None and m > 22
+
+
+def test_mold_din_reference():
+    # Normfall 20 °C / 50 %, −5 °C, fRsi 0,70 → genau grenzwertig (~20 °C)
+    m = mold_safe_min_temp(20, 50, -5, frsi=0.70)
+    assert 19.0 <= m <= 21.0
+
+
+def test_mold_better_building_allows_lower():
+    old = mold_safe_min_temp(19, 60, 0, frsi=0.60)
+    new = mold_safe_min_temp(19, 60, 0, frsi=0.80)
+    assert new < old
+
+
+def test_mold_missing_values():
+    assert mold_safe_min_temp(None, 50, 0) is None
+    assert mold_safe_min_temp(20, 50, None) is None
+
+
+def test_mold_warm_outside_no_limit():
+    assert mold_safe_min_temp(20, 40, 18) is None
+
+
+# ------------------------------------------------------------ Absenkung
+def test_setback_short_long():
+    assert setback_target(21, STAGE_AWAY_SHORT, 18, 16, None) == 18
+    assert setback_target(21, STAGE_AWAY_LONG, 18, 16, None) == 16
+    assert setback_target(21, STAGE_HOME, 18, 16, None) == 21
+
+
+def test_setback_never_above_wish():
+    assert setback_target(17, STAGE_AWAY_SHORT, 18, 16, None) == 17
+
+
+def test_mold_guard_only_for_long_absence():
+    assert setback_target(21, STAGE_AWAY_SHORT, 18, 16, 20.0) == 18
+
+
+def test_setback_respects_mold_guard_but_not_above_wish():
+    assert setback_target(21, STAGE_AWAY_LONG, 18, 16, 17.2) == 17.5
+    assert setback_target(21, STAGE_AWAY_LONG, 18, 16, 30.0) == 21
+
+
+# ------------------------------------------------------------ Ortung
+def test_haversine_berlin_remscheid():
+    assert 440 < haversine_km(*BERLIN, *REMSCHEID) < 470
+
+
+def test_filter_rejects_vpn_jump():
+    f = TrackerFilter()
+    assert f.feed(Fix(*BERLIN, T0, 20))
+    assert not f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=2), 50))
+    assert f.accepted.lat == BERLIN[0]
+
+
+def test_filter_accepts_persistent_real_travel():
+    f = TrackerFilter()
+    f.feed(Fix(*BERLIN, T0))
+    assert not f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=5)))
+    assert not f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=20)))
+    assert f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=40)))
+
+
+def test_filter_accepts_normal_motion():
+    f = TrackerFilter()
+    f.feed(Fix(52.50, 13.40, T0))
+    assert f.feed(Fix(52.55, 13.45, T0 + timedelta(minutes=15)))  # ~6,6 km in 15 min
+
+
+def test_filter_rejects_inaccurate():
+    f = TrackerFilter()
+    assert not f.feed(Fix(*BERLIN, T0, accuracy=1500))
+
+
+def test_approaching():
+    hist = [(T0, 12.0), (T0 + timedelta(minutes=6), 9.0)]
+    assert approaching(hist, T0 + timedelta(minutes=6))
+    hist = [(T0, 9.0), (T0 + timedelta(minutes=6), 12.0)]
+    assert not approaching(hist, T0 + timedelta(minutes=6))
+
+
+def test_leaving_home_is_not_approaching():
+    # vorher von weit weg gekommen (7 km → 0), jetzt wieder weg (5 km)
+    hist = [(T0, 7.0), (T0 + timedelta(minutes=10), 0.0), (T0 + timedelta(minutes=20), 5.0)]
+    assert not approaching(hist, T0 + timedelta(minutes=20))
+
+
+# ------------------------------------------------------------ Stufen
+def _p(**kw):
+    base = dict(configured=True, anyone_present=False, minutes_since_present=0,
+                away_delay_min=30, long_away_hours=24, vacation=False, guests=False, preheat=False)
+    base.update(kw)
+    return PresenceInput(**base)
+
+
+def test_stages():
+    assert presence_stage(_p(anyone_present=True)) == STAGE_HOME
+    assert presence_stage(_p(minutes_since_present=10)) == STAGE_HOME  # Wartezeit
+    assert presence_stage(_p(minutes_since_present=45)) == STAGE_AWAY_SHORT
+    assert presence_stage(_p(minutes_since_present=60 * 30)) == STAGE_AWAY_LONG
+    assert presence_stage(_p(vacation=True, minutes_since_present=1)) == STAGE_AWAY_LONG
+    assert presence_stage(_p(guests=True, minutes_since_present=999)) == STAGE_GUESTS
+    assert presence_stage(_p(preheat=True, minutes_since_present=999)) == STAGE_PREHEAT
+    assert presence_stage(_p(configured=False)) == STAGE_HOME
+
+
+# ------------------------------------------------------------ Heizsaison
+def test_parse_md():
+    assert parse_md("10-01", (1, 1)) == (10, 1)
+    assert parse_md("01.10.", (1, 1)) == (10, 1)
+    assert parse_md("murks", (4, 30)) == (4, 30)
+
+
+def test_in_season_wraps_year():
+    assert in_season(date(2026, 12, 24), "10-01", "04-30")
+    assert in_season(date(2027, 3, 1), "10-01", "04-30")
+    assert not in_season(date(2027, 7, 1), "10-01", "04-30")
+
+
+def test_combined_mean():
+    assert combined_mean(10, 14) == 12
+    assert combined_mean(None, 14) == 14
+    assert combined_mean(None, None) is None
+
+
+def test_season_switches_off_only_after_48h_mild():
+    cfg = SeasonConfig()
+    st = SeasonState(heating=True)
+    now = datetime(2026, 10, 10, 12)
+    st = season_step(st, now, 18, 18, cfg)
+    assert st.heating
+    st = season_step(st, now + timedelta(hours=47), 18, 18, cfg)
+    assert st.heating
+    st = season_step(st, now + timedelta(hours=49), 18, 18, cfg)
+    assert not st.heating
+
+
+def test_season_switches_on_when_cold():
+    cfg = SeasonConfig()
+    st = SeasonState(heating=False)
+    st = season_step(st, datetime(2026, 10, 10, 12), 13, 14, cfg)
+    assert st.heating
+
+
+def test_season_off_outside_but_cold_snap():
+    cfg = SeasonConfig()
+    st = SeasonState()
+    now = datetime(2027, 5, 10, 12)
+    st = season_step(st, now, 10, 9, cfg)
+    assert not st.heating and not st.cold_snap
+    st = season_step(st, now + timedelta(days=3, minutes=1), 10, 9, cfg)
+    assert st.cold_snap
+    assert season_decision("auto", st, False, False) == "cold_snap"
+
+
+def test_season_decision_modes():
+    st = SeasonState(heating=False)
+    assert season_decision("auto", st, True, True) == "heat_today"
+    assert season_decision("always", st, False, False) == "always"
+    assert season_decision("pause", SeasonState(heating=True), False, True) == "manual_pause"
+    assert not season_allows_heating("pause")
+    assert season_allows_heating("cold_snap")

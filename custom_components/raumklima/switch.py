@@ -9,7 +9,8 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import RaumklimaConfigEntry
+from . import RaumklimaConfigEntry, is_hub_entry
+from .hub_platforms import hub_entities
 from .entity import RaumklimaEntity
 
 
@@ -18,6 +19,9 @@ async def async_setup_entry(
     entry: RaumklimaConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
+    if is_hub_entry(entry):
+        async_add_entities(hub_entities("switch", entry.runtime_data))
+        return
     entities: list[SwitchEntity] = [NotificationSwitch(entry.runtime_data)]
     if entry.runtime_data.windows:
         entities.append(WindowLogicSwitch(entry.runtime_data))

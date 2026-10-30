@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.0 – 2026-10-30
+
+### Neu
+- **Raumklima Allgemein** (Zentrale, wird automatisch angelegt): Empfänger, Ruhezeit,
+  Wetterquelle, Anwesenheit und Heizsaison gelten für alle Räume. Bisherige Einstellungen
+  der Räume werden übernommen.
+- **Wer bekommt was:** pro Empfänger wählbar, welche Nachrichten er bekommt
+  (Lüften, Schließen, Auskühlen, Luft ausgetauscht, Fenster offen bei Abwesenheit,
+  Abwesenheit/Vorheizen, Heizsaison, Thermostat-Fehler); Testnachricht.
+- **Abwesenheit:** Bewohner + Zone der Wohnung; Stufen „kurz weg“ (nach 30 min) und
+  „länger weg“ (ab 24 h oder Urlaub) mit Absenkwerten je Raum; **Schimmelschutz** nach
+  DIN 4108-2 (Temperaturfaktor je Bauart) bei längerer Abwesenheit; **Vorheizen**, wenn sich
+  jemand nähert (Standard 10 km); robuste Ortung (mehrere Handys je Person, Sprungfilter
+  gegen VPN-Ausreißer, Genauigkeitsfilter); Schalter Urlaub/Gäste; Drehen am Regler setzt
+  die Absenkung 3 h aus.
+- **Heizsaison & Heizgrenze:** Saison (Standard 1.10.–30.4.), Heizgrenze nach Tagesmittel
+  aus 24 h Messung + 24 h Vorhersage mit Hysterese, Kälteeinbruch-Regel, Betriebsarten
+  Automatisch/Immer/Pause, „Heute heizen“, 16-°C-Sicherung, Sommerpflege der Ventile.
+- **Neue Hinweise:** „Fenster offen, niemand da“; keine Lüft-Erinnerungen, wenn niemand da ist.
+- **Einstellungsseite** im Dashboard komplett bearbeitbar (Allgemein + je Raum).
+- **Neuer Einrichtungsassistent:** 3 kurze Schritte mit Vorschlägen aus dem Bereich,
+  Technik unter „Erweitert“, Allgemein nur beim ersten Raum.
+- Karten zeigen Anwesenheit, Heizbetrieb und abgesenkte Zieltemperaturen.
+
 ## 0.2.7 – 2026-10-30
 
 ### Geändert

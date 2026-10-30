@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.2.7";
+const RK_VERSION = "0.3.0";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -12,7 +12,48 @@ const STATUS = {
   off: { label: "Aus", icon: "mdi:power", tone: "off" },
   sensor_unavailable: { label: "Fühler ausgefallen", icon: "mdi:thermometer-alert", tone: "warn" },
   trv_unavailable: { label: "Thermostat nicht erreichbar", icon: "mdi:lan-disconnect", tone: "warn" },
+  season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
+  setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
 };
+
+const PRESENCE = {
+  home: { label: "Jemand da", icon: "mdi:home-account", tone: "ok" },
+  guests: { label: "Gäste da", icon: "mdi:account-group", tone: "ok" },
+  preheat: { label: "Vorheizen", icon: "mdi:car-arrow-right", tone: "heat" },
+  away_short: { label: "Alle weg", icon: "mdi:home-export-outline", tone: "eco" },
+  away_long: { label: "Länger weg", icon: "mdi:bag-suitcase", tone: "eco" },
+};
+const SEASON = {
+  heating: { label: "Heizsaison", icon: "mdi:radiator", tone: "heat" },
+  pause: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
+  cold_snap: { label: "Kälteeinbruch", icon: "mdi:snowflake-thermometer", tone: "cold" },
+  heat_today: { label: "Heute heizen", icon: "mdi:fire-circle", tone: "heat" },
+  always: { label: "Immer heizen", icon: "mdi:radiator", tone: "heat" },
+  manual_pause: { label: "Heizpause (Hand)", icon: "mdi:radiator-off", tone: "off" },
+};
+
+// Entitäten der Zentrale „Allgemein“ finden (über translation_key)
+function rkHub(hass) {
+  const out = {};
+  const reg = Object.values(hass.entities || {});
+  const pres = reg.find((e) => e.platform === "raumklima" && e.translation_key === "presence");
+  if (!pres) return out;
+  for (const e of reg) if (e.device_id === pres.device_id && e.translation_key) out[e.translation_key] = e.entity_id;
+  return out;
+}
+
+// Zieltext je nach Plan (Abwesenheit, Heizpause, …)
+function planText(a, off) {
+  if (off) return "Heizung aus";
+  const r = a.plan_reason;
+  if (r === "season") return "Heizpause";
+  if (r === "frost") return `Frostschutz <b>${fmt(a.effective_target)} °C</b>`;
+  if (r === "valve_care") return "Ventilpflege läuft";
+  if ((r === "away_short" || r === "away_long") && a.effective_target != null)
+    return `Abgesenkt <b>${fmt(a.effective_target)} °C</b> · Wunsch ${fmt(a.temperature)}°`;
+  if (r === "manual") return `Ziel <b>${fmt(a.temperature)} °C</b> · von Hand`;
+  return `Ziel <b>${fmt(a.temperature)} °C</b>`;
+}
 
 const VENT = {
   ok: null,
@@ -29,7 +70,7 @@ const fmt = (v, d = 1) =>
 const humTone = (h) => (h === null || h === undefined ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold");
 
 const STYLES = `
-  :host { --rk-heat:#ff7a45; --rk-ok:#2ec4a6; --rk-air:#4f9dff; --rk-warn:#ffb020; --rk-cold:#ff4d6d; --rk-off:#8a94a6; }
+  :host { --rk-heat:#ff7a45; --rk-ok:#2ec4a6; --rk-air:#4f9dff; --rk-warn:#ffb020; --rk-cold:#ff4d6d; --rk-off:#8a94a6; --rk-eco:#8b7cf6; }
   ha-card { display:block; position:relative; box-sizing:border-box; overflow:hidden; border-radius:28px; padding:20px; isolation:isolate;
     background: var(--ha-card-background, var(--card-background-color)); transition: box-shadow .3s; }
   ha-card::before { content:""; position:absolute; inset:-40% -20% auto auto; width:320px; height:320px; z-index:-1;
@@ -248,7 +289,7 @@ class RaumklimaCard extends HTMLElement {
           ${this._arc(a.current_temperature, target, isOff)}
           <div class="center">
             <div class="now">${fmt(a.current_temperature)}<small>°C</small></div>
-            <div class="target">${isOff ? "Heizung aus" : `Ziel <b>${fmt(target)} °C</b>`}</div>
+            <div class="target">${this._pending != null ? `Ziel <b>${fmt(target)} °C</b>` : planText(a, isOff)}</div>
           </div>
         </div>
         <div class="ctrl">
@@ -304,6 +345,12 @@ class RaumklimaOverviewCard extends HTMLElement {
     const outT = w ? w.attributes.temperature : rooms.map((r) => r.attributes.outdoor_temperature).find((v) => v !== undefined && v !== null);
     const outH = w ? w.attributes.humidity : rooms.map((r) => r.attributes.outdoor_humidity).find((v) => v !== undefined && v !== null);
     const allSync = rooms.every((r) => r.attributes.sync === "ok");
+    const hubIds = rkHub(this._hass);
+    const presSt = hubIds.presence ? this._hass.states[hubIds.presence] : null;
+    const seasSt = hubIds.heating_mode ? this._hass.states[hubIds.heating_mode] : null;
+    const pres = presSt ? PRESENCE[presSt.state] : null;
+    const seas = seasSt ? SEASON[seasSt.state] : null;
+    const here = presSt ? Object.values(presSt.attributes.persons || {}).filter((p) => p.present).map((p) => p.name) : [];
 
     const row = (r) => {
       const a = r.attributes;
@@ -321,7 +368,7 @@ class RaumklimaOverviewCard extends HTMLElement {
         <div class="rs">${label}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
-          <div class="rmeta">${off ? "aus" : `Ziel ${fmt(a.temperature)}°`}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
+          <div class="rmeta">${off ? "aus" : a.plan_reason === "season" ? "Pause" : a.effective_target != null && a.effective_target < a.temperature ? `↓ ${fmt(a.effective_target)}° · Wunsch ${fmt(a.temperature)}°` : `Ziel ${fmt(a.temperature)}°`}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
         </div>
       </div>`;
     };
@@ -361,6 +408,8 @@ class RaumklimaOverviewCard extends HTMLElement {
         <span class="chip" style="--tone:${toneVar(windows ? "air" : "off")}"><ha-icon icon="mdi:window-open-variant"></ha-icon>${windows} offen</span>
         <span class="chip" style="--tone:${toneVar(warn ? "warn" : "ok")}"><ha-icon icon="${warn ? "mdi:alert-circle-outline" : "mdi:check-circle-outline"}"></ha-icon>${warn ? `${warn} Hinweis${warn > 1 ? "e" : ""}` : "alles gut"}</span>
         <span class="chip" style="--tone:${toneVar(allSync ? "ok" : "warn")}"><ha-icon icon="mdi:sync"></ha-icon>${allSync ? "synchron" : "sendet …"}</span>
+        ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
+        ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
       </div>
       <div class="rooms">${rooms.map(row).join("")}</div>
     </ha-card>`;
@@ -374,6 +423,8 @@ class RaumklimaOverviewCard extends HTMLElement {
 // ---------------------------------------------------------------- Verlaufskarte
 const RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 const SEG = {
+  season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
+  setback: { c: "var(--rk-eco)", l: "Abgesenkt" },
   heating: { c: "var(--rk-heat)", l: "Heizt" },
   idle: { c: "var(--rk-ok)", l: "Erreicht" },
   window_open: { c: "var(--rk-air)", l: "Fenster offen" },
@@ -701,7 +752,7 @@ class RaumklimaHistoryCard extends HTMLElement {
     }).join("");
     const ticks = this._hours > 48 ? 7 : 6;
     const xl = Array.from({ length: ticks + 1 }, (_, i) => `<span>${i === ticks ? "jetzt" : this._fmtTime(t0 + ((t1 - t0) * i) / ticks)}</span>`).join("");
-    const leg = ["heating", "idle", "window_open", "off"].map((k) => `<span><i style="--c:${SEG[k].c}"></i>${SEG[k].l}</span>`).join("")
+    const leg = ["heating", "idle", "setback", "window_open", "off", "season_off"].map((k) => `<span><i style="--c:${SEG[k].c}"></i>${SEG[k].l}</span>`).join("")
       + `<span><i style="--c:transparent;outline:2px solid var(--rk-air);background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--rk-air) 30%, transparent) 0 3px, transparent 3px 6px)"></i>Fensterkontakt offen</span>`;
     this.shadowRoot.innerHTML = this._shell(`<div class="tl">${rows}</div><div class="tlx">${xl}</div><div class="tleg">${leg}</div>`);
     this._bind();
@@ -714,13 +765,31 @@ const RK_ROOM_TYPES = { living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafz
 const RK_CAL = { offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Keine" };
 const RK_OFF = { auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" };
 const RK_SYNC = { ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] };
+const RK_BUILDING = { unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" };
+const RK_MODES = { auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" };
+const RK_KINDS = {
+  vent_open: ["💧", "Bitte lüften"],
+  vent_close: ["🪟", "Fenster schließen"],
+  too_cold: ["🥶", "Raum kühlt aus"],
+  vent_done: ["✅", "Luft ausgetauscht"],
+  window_away: ["🚪", "Fenster offen, niemand da"],
+  presence: ["🏠", "Abwesenheit & Vorheizen"],
+  season: ["🍂", "Heizsaison Start/Ende"],
+  trv_failure: ["⚠️", "Thermostat reagiert nicht"],
+};
+const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure"];
 
 function rkPretty(target) {
   const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
   return s.split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || target;
 }
+const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 const SETTINGS_STYLES = `
+  ha-card.settings { container-type: inline-size; padding: 26px 28px; max-width: 1500px; margin: 12px auto; }
+  @media (max-width: 600px) { ha-card.settings { padding: 18px 16px; margin: 0; } }
+  ha-card.settings .htitle { font-size:1.45rem; }
+  ha-card.settings .htitle ha-icon { --mdc-icon-size:28px; }
   .tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:14px -4px 4px; padding:2px 4px 6px; }
   .tabs::-webkit-scrollbar { display:none; }
   .tab { all:unset; cursor:pointer; white-space:nowrap; padding:10px 18px; border-radius:999px; font-size:.98rem; font-weight:600; color:var(--secondary-text-color);
@@ -728,47 +797,71 @@ const SETTINGS_STYLES = `
   .tab ha-icon { --mdc-icon-size:16px; }
   .tab.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
   .tab .dot { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-ok)); }
-  ha-card.settings { container-type: inline-size; }
   .groups { display:grid; grid-template-columns: 1fr; gap:18px; margin-top:14px; }
   @container (min-width: 720px) { .groups { grid-template-columns: 1fr 1fr; } }
-  .grp { border-radius:24px; padding:20px 22px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); }
+  @container (min-width: 1000px) { .grp.cols .rws { columns: 2; column-gap: 56px; } .grp.cols .row { break-inside: avoid; } }
+  .grp { border-radius:24px; padding:20px 22px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); min-width:0; }
   .grp.span { grid-column: 1 / -1; }
-  .gh { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-  .gh .ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); }
+  .gh { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .gh .ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); flex:none; }
   .gh .ic ha-icon { --mdc-icon-size:22px; }
   .gh b { font-size:1.15rem; color:var(--primary-text-color); flex:1; }
-  .gh small { color:var(--secondary-text-color); font-size:.75rem; }
   .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); min-height:30px; }
-  .row:first-of-type { border-top:0; }
-  .row .l { font-size:1rem; color:var(--primary-text-color); }
+  .rws > .row:first-child { border-top:0; }
+  .row .l { font-size:1rem; color:var(--primary-text-color); min-width:0; }
   .row .l small { display:block; color:var(--secondary-text-color); font-size:.84rem; margin-top:1px; }
   .row .v { font-size:1rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
   .row .v.mute { color:var(--secondary-text-color); font-weight:500; }
-  .stepper { display:inline-flex; align-items:center; gap:4px; background: var(--ha-card-background, var(--card-background-color)); border-radius:999px; padding:3px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .stepper { display:inline-flex; align-items:center; gap:4px; background: var(--ha-card-background, var(--card-background-color)); border-radius:999px; padding:3px; box-shadow: 0 1px 3px rgba(0,0,0,.08); flex:none; }
   .stepper button { all:unset; cursor:pointer; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:1.2rem; font-weight:700; color:var(--g); background: color-mix(in srgb, var(--g) 12%, transparent); }
   .stepper button:active { transform: scale(.92); }
   .stepper span { min-width:70px; text-align:center; font-weight:650; font-variant-numeric:tabular-nums; font-size:1.05rem; color:var(--primary-text-color); }
+  .stepper.ro button { display:none; }
   .tgl { all:unset; cursor:pointer; width:52px; height:30px; border-radius:999px; position:relative; background: color-mix(in srgb, var(--primary-text-color) 18%, transparent); transition: background .2s; flex:none; }
   .tgl::after { content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
   .tgl.on { background: var(--g, var(--rk-ok)); }
   .tgl.on::after { transform: translateX(22px); }
+  .tgl[disabled] { opacity:.5; cursor:default; }
+  .segs { display:inline-flex; flex-wrap:wrap; gap:4px; padding:3px; border-radius:16px; background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
+  .segs button { all:unset; cursor:pointer; padding:8px 12px; border-radius:13px; font-size:.88rem; font-weight:600; color:var(--secondary-text-color); }
+  .segs button.on { background: var(--ha-card-background, var(--card-background-color)); color: var(--primary-text-color); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
   .chips { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
-  .chip2 { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.9rem; font-weight:600; background: color-mix(in srgb, var(--c, var(--rk-air)) 14%, transparent); color: var(--primary-text-color); }
+  .chip2 { all:unset; display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.9rem; font-weight:600; background: color-mix(in srgb, var(--c, var(--rk-air)) 14%, transparent); color: var(--primary-text-color); }
+  button.chip2 { cursor:pointer; }
   .chip2 i { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-air)); }
-  .chip2.off { opacity:.45; text-decoration: line-through; }
-  .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:14px; }
+  .chip2.off { opacity:.45; }
+  .chip2.strike { opacity:.45; text-decoration: line-through; }
+  .sel, .inp { font: inherit; font-size:.95rem; font-weight:600; padding:8px 12px; border-radius:12px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
+    background: var(--ha-card-background, var(--card-background-color)); color: var(--primary-text-color); max-width: 260px; }
+  .inp.short { width: 86px; text-align:center; }
+  .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap:14px; }
+  @container (max-width: 560px) {
+    .row { flex-wrap: wrap; row-gap: 8px; }
+    .row .l { flex: 1 1 100%; }
+    .row > :last-child { margin-left: auto; }
+    .row .chips { justify-content: flex-start; margin-left: 0; }
+    .segs { width: 100%; }
+    .segs button { flex: 1; text-align: center; }
+    .person { padding: 12px; }
+  }
   .person { display:flex; gap:14px; align-items:flex-start; padding:16px; border-radius:18px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  .av { width:48px; height:48px; font-size:1.2rem; border-radius:14px; flex:none; display:grid; place-items:center; font-weight:700; color:#fff; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 60%, #000)); }
-  .av ha-icon { --mdc-icon-size:20px; }
-  .person b { display:block; font-size:1.08rem; color:var(--primary-text-color); }
-  .person small { display:block; font-size:.86rem; color:var(--secondary-text-color); margin:1px 0 7px; }
+  .av { width:48px; height:48px; border-radius:14px; flex:none; display:grid; place-items:center; font-weight:700; font-size:1.2rem; color:#fff; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 60%, #000)); }
+  .av ha-icon { --mdc-icon-size:22px; }
+  .person .pb { flex:1; min-width:0; }
+  .person .ph { display:flex; align-items:center; gap:8px; }
+  .person .ph b { flex:1; font-size:1.08rem; color:var(--primary-text-color); }
+  .person small { display:block; font-size:.86rem; color:var(--secondary-text-color); margin:1px 0 9px; }
   .person .chips { justify-content:flex-start; }
+  .mini { all:unset; cursor:pointer; padding:5px 10px; border-radius:10px; font-size:.8rem; font-weight:650; color: var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
+  .mini.x { padding:5px 9px; }
+  .addrow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:14px; }
   .msgs { display:grid; gap:10px; }
   .msg { display:grid; grid-template-columns: 40px 1fr auto; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
   .msg .e { font-size:1.5rem; text-align:center; }
   .msg b { font-size:1.02rem; color:var(--primary-text-color); display:block; }
   .msg small { font-size:.88rem; color:var(--secondary-text-color); }
   .msg .tag { font-size:.8rem; font-weight:700; padding:3px 8px; border-radius:999px; background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) 75%, var(--primary-text-color)); white-space:nowrap; }
+  .status { display:flex; flex-wrap:wrap; gap:8px; margin: 2px 0 8px; }
   .tbl { width:100%; border-collapse:separate; border-spacing:0 8px; font-size:1rem; }
   .tblwrap { overflow-x:auto; margin: 0 -4px; padding: 0 4px; }
   .tbl th { text-align:left; font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--secondary-text-color); padding:0 10px 2px; white-space:nowrap; }
@@ -776,7 +869,6 @@ const SETTINGS_STYLES = `
   .tbl tr td:first-child { border-radius:14px 0 0 14px; font-weight:650; }
   .tbl tr td:last-child { border-radius:0 14px 14px 0; }
   .tbl tbody tr { cursor:pointer; }
-  .tbl tbody tr:hover td { background: color-mix(in srgb, var(--primary-text-color) 4%, var(--ha-card-background, var(--card-background-color))); }
   .tbl .rn { display:flex; align-items:center; gap:8px; }
   .tbl .rn i { width:9px; height:9px; border-radius:50%; background: var(--c); }
   .ok { color: var(--rk-ok); } .no { color: var(--secondary-text-color); }
@@ -787,11 +879,7 @@ const SETTINGS_STYLES = `
   .btn.primary { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
   .btn.primary ha-icon { color: inherit; }
   .hint { font-size:.9rem; color:var(--secondary-text-color); margin-top:12px; line-height:1.45; }
-  @container (min-width: 1000px) { .grp.cols .rws { columns: 2; column-gap: 56px; } .grp.cols .row { break-inside: avoid; } }
-  ha-card.settings { padding: 26px 28px; max-width: 1500px; margin: 12px auto; }
-  @media (max-width: 600px) { ha-card.settings { padding: 18px 16px; margin: 0; } }
-  ha-card.settings .htitle { font-size:1.45rem; }
-  ha-card.settings .htitle ha-icon { --mdc-icon-size:28px; }
+  .toast { position:sticky; bottom:8px; margin-top:12px; padding:10px 14px; border-radius:14px; font-size:.9rem; font-weight:600; background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); width:max-content; max-width:100%; }
 `;
 
 class RaumklimaSettingsCard extends HTMLElement {
@@ -801,184 +889,342 @@ class RaumklimaSettingsCard extends HTMLElement {
   static getStubConfig() { return {}; }
   setConfig(config) {
     this._config = { ...config };
-    this._tab = this._tab || "overview";
+    this._tab = this._tab || "general";
+    this._local = this._local || {}; // optimistische Werte bis zur Bestätigung
+    this._timers = this._timers || {};
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
   }
-  getCardSize() { return 12; }
+  getCardSize() { return 14; }
   getGridOptions() { return { columns: "full", rows: "auto" }; }
-  connectedCallback() { this.style.display = "block"; }
+  connectedCallback() {
+    this.style.display = "block";
+    this._poll = setInterval(() => this._load(), 60000);
+  }
+  disconnectedCallback() { clearInterval(this._poll); }
 
   set hass(hass) {
+    const first = !this._hass;
     this._hass = hass;
     this._rooms = rkRooms(hass, this._config.strip_prefix || "");
-    const sig = JSON.stringify(this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)])) + this._tab;
+    if (first) this._load();
+    const hubIds = rkHub(hass);
+    const sig = JSON.stringify([
+      this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)]),
+      Object.values(hubIds).map((id) => hass.states[id] && [hass.states[id].state, hass.states[id].attributes]),
+      this._tab, this._cfgVer, this._toast,
+    ]);
     if (sig === this._sig) return;
     this._sig = sig;
     this._render();
   }
 
+  async _load() {
+    if (!this._hass) return;
+    try {
+      this._cfg = await this._hass.callWS({ type: "raumklima/config" });
+      this._err = null;
+    } catch (e) {
+      this._err = String(e && e.message ? e.message : e);
+    }
+    this._cfgVer = (this._cfgVer || 0) + 1;
+    this._sig = null;
+    this._render();
+  }
+
+  // ---------------------------------------------------------------- Speichern
+  _hubOpt(key) {
+    if (this._local["hub:" + key] !== undefined) return this._local["hub:" + key];
+    return this._cfg && this._cfg.hub ? this._cfg.hub.options[key] : undefined;
+  }
+  _roomOpt(room, key) {
+    const lk = `room:${room.entry_id}:${key}`;
+    if (this._local[lk] !== undefined) return this._local[lk];
+    const r = this._cfgRoom(room);
+    if (!r) return undefined;
+    if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature") return r[key];
+    return r.options[key];
+  }
+  _cfgRoom(room) {
+    const id = (room.attrs.settings || {}).entry_id;
+    return this._cfg ? (this._cfg.rooms || []).find((r) => r.entry_id === id) : null;
+  }
+  _setHub(changes, delay = 700) {
+    for (const [k, v] of Object.entries(changes)) this._local["hub:" + k] = v;
+    this._pendingHub = { ...(this._pendingHub || {}), ...changes };
+    clearTimeout(this._timers.hub);
+    this._timers.hub = setTimeout(() => this._flushHub(), delay);
+    this._sig = null; this._render();
+  }
+  async _flushHub() {
+    const changes = this._pendingHub; this._pendingHub = null;
+    if (!changes) return;
+    try {
+      await this._hass.callWS({ type: "raumklima/hub/update", changes });
+      this._flash("Gespeichert");
+    } catch (e) { this._flash("Fehler: " + (e.message || e)); }
+    await this._load();
+    for (const k of Object.keys(changes)) delete this._local["hub:" + k];
+  }
+  _setRoom(entryId, changes, delay = 1500) {
+    for (const [k, v] of Object.entries(changes)) this._local[`room:${entryId}:${k}`] = v;
+    this._pendingRoom = this._pendingRoom || {};
+    this._pendingRoom[entryId] = { ...(this._pendingRoom[entryId] || {}), ...changes };
+    clearTimeout(this._timers["room:" + entryId]);
+    this._timers["room:" + entryId] = setTimeout(() => this._flushRoom(entryId), delay);
+    this._sig = null; this._render();
+  }
+  async _flushRoom(entryId) {
+    const changes = (this._pendingRoom || {})[entryId];
+    delete this._pendingRoom[entryId];
+    if (!changes) return;
+    try {
+      await this._hass.callWS({ type: "raumklima/room/update", entry_id: entryId, changes });
+      this._flash("Gespeichert – Raum übernimmt die Werte");
+    } catch (e) { this._flash("Fehler: " + (e.message || e)); }
+    await this._load();
+    for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
+  }
+  _flash(text) {
+    this._toast = text;
+    clearTimeout(this._timers.toast);
+    this._timers.toast = setTimeout(() => { this._toast = null; this._sig = null; this._render(); }, 2500);
+    this._sig = null; this._render();
+  }
+  get _admin() { return !this._cfg || this._cfg.admin !== false; }
+
+  // ---------------------------------------------------------------- Bausteine
   _st(id) { return id ? this._hass.states[id] : undefined; }
   _name(id) { const s = this._st(id); return (s && s.attributes.friendly_name) || id || "–"; }
-
-  _stepper(id, unit, dec = 0) {
-    const s = this._st(id);
-    if (!s) return `<span class="v mute">–</span>`;
-    const v = parseFloat(s.state);
-    return `<div class="stepper"><button data-num="${id}" data-d="-1" aria-label="weniger">−</button><span>${isNaN(v) ? "–" : fmt(v, dec)}${unit}</span><button data-num="${id}" data-d="1" aria-label="mehr">+</button></div>`;
-  }
-  _toggle(id) {
-    const s = this._st(id);
-    if (!s) return `<span class="v mute">–</span>`;
-    return `<button class="tgl ${s.state === "on" ? "on" : ""}" data-tgl="${id}" aria-label="umschalten"></button>`;
-  }
   _row(label, value, sub) { return `<div class="row"><div class="l">${label}${sub ? `<small>${sub}</small>` : ""}</div>${value}</div>`; }
   _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${text}</span>`; }
-  _grp(title, icon, tone, rows, extra = "", cls = "") {
+  _grp(title, icon, tone, rows, cls = "", extra = "") {
     return `<div class="grp ${cls}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${title}</b>${extra}</div><div class="rws">${rows}</div></div>`;
   }
-
-  _recipients() {
-    const map = new Map();
-    const add = (key, kind, room, on) => {
-      if (!map.has(key)) map.set(key, { key, kind, rooms: [] });
-      map.get(key).rooms.push({ room, on });
-    };
-    for (const r of this._rooms) {
-      const s = r.attrs.settings || {};
-      const on = !r.sib.notifications || (this._st(r.sib.notifications) || {}).state !== "off";
-      (s.notify_targets || []).forEach((t) => add(t, "push", r, on));
-      (s.tts_targets || []).forEach((t) => add(t, "tts", r, on));
-      if (s.notify_on_failure) add("__ha__", "ha", r, true);
-    }
-    return [...map.values()];
+  _stepper(attrs, value, unit, dec) {
+    const ro = !this._admin;
+    return `<div class="stepper ${ro ? "ro" : ""}"><button ${attrs} data-d="-1" aria-label="weniger">−</button><span>${value == null || isNaN(value) ? "–" : fmt(value, dec)}${unit}</span><button ${attrs} data-d="1" aria-label="mehr">+</button></div>`;
+  }
+  // Stepper für Zahl-Entitäten (number.*)
+  _numStepper(id, unit, dec = 0) {
+    const s = this._st(id);
+    if (!s) return `<span class="v mute">–</span>`;
+    return this._stepper(`data-num="${id}"`, parseFloat(s.state), unit, dec);
+  }
+  // Stepper für Optionen (Zentrale oder Raum)
+  _optStepper(scope, key, value, unit, step, min, max, dec = 0) {
+    return this._stepper(`data-opt="${scope}" data-key="${key}" data-step="${step}" data-min="${min}" data-max="${max}" data-val="${value ?? ""}"`, value, unit, dec);
+  }
+  _toggle(id, on) {
+    const s = this._st(id);
+    if (!s && on === undefined) return `<span class="v mute">–</span>`;
+    const isOn = on !== undefined ? on : s.state === "on";
+    return `<button class="tgl ${isOn ? "on" : ""}" ${id ? `data-tgl="${id}"` : ""} ${this._admin ? "" : "disabled"} aria-label="umschalten"></button>`;
+  }
+  _optToggle(scope, key, on) {
+    return `<button class="tgl ${on ? "on" : ""}" data-optbool="${scope}" data-key="${key}" data-val="${on ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="umschalten"></button>`;
+  }
+  _segs(scope, key, options, current) {
+    return `<div class="segs">${Object.entries(options).map(([v, l]) => `<button class="${v === current ? "on" : ""}" data-seg="${scope}" data-key="${key}" data-val="${v}" ${this._admin ? "" : "disabled"}>${l}</button>`).join("")}</div>`;
+  }
+  _select(scope, key, items, current, empty) {
+    return `<select class="sel" data-sel="${scope}" data-key="${key}" ${this._admin ? "" : "disabled"}>${empty !== undefined ? `<option value="">${empty}</option>` : ""}${items.map((it) => `<option value="${esc(it.id)}" ${it.id === current ? "selected" : ""}>${esc(it.name)}</option>`).join("")}</select>`;
   }
 
-  _overview() {
-    const rooms = this._rooms;
-    const S = (r) => r.attrs.settings || {};
+  // ---------------------------------------------------------------- Allgemein
+  _general() {
+    if (this._err) return `<div class="hint">Einstellungen konnten nicht geladen werden: ${esc(this._err)}</div>`;
+    if (!this._cfg) return `<div class="hint">Lade Einstellungen …</div>`;
+    if (!this._cfg.hub) return `<div class="hint">„Raumklima Allgemein“ wird gerade eingerichtet – bitte die Seite gleich neu laden.</div>`;
+    const ch = this._cfg.choices || {};
+    const st = this._cfg.hub.state || {};
+    const hubIds = rkHub(this._hass);
+    const pres = PRESENCE[st.stage] || PRESENCE.home;
+    const seas = SEASON[st.decision] || SEASON.heating;
+    const residents = this._hubOpt("residents") || [];
+    const persons = st.persons || {};
+    const H = "hub";
+
+    // --- Anwesenheit
+    const personChips = (ch.persons || []).map((p) => {
+      const on = residents.includes(p.id);
+      const info = persons[p.id];
+      const where = info ? (info.present ? "da" : info.distance_km != null ? `${fmt(info.distance_km, info.distance_km < 10 ? 1 : 0)} km` : "unbekannt") : "";
+      return `<button class="chip2 ${on ? "" : "off"}" data-person="${p.id}" style="--c:${on ? (info && info.present ? "var(--rk-ok)" : "var(--rk-eco)") : "var(--rk-off)"}" ${this._admin ? "" : "disabled"}><i></i>${esc(p.name)}${on && where ? ` · ${where}` : ""}</button>`;
+    }).join("");
+    const presRows = [
+      `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>Bewohner und Zone wählen, dann ist es aktiv</span>`}</div>`,
+      this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
+      this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
+      this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
+      this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
+      this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
+      this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
+      this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
+    ].join("");
+
+    // --- Heizsaison
+    const mode = this._hubOpt("season_mode");
+    const mdToInput = (v) => esc(v || "");
+    const seasRows = [
+      `<div class="status"><span class="chip" style="--tone:${toneVar(seas.tone)}"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}</span>
+        <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>Ø 24 h ${fmt(st.mean_past)}° · Vorhersage ${fmt(st.mean_forecast)}°</span></div>`,
+      this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
+      this._row("Heizgrenze", this._optStepper(H, "heating_limit", this._hubOpt("heating_limit"), " °C", 0.5, 5, 25, 1), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
+      this._row("Heizsaison", `<span class="v"><input class="inp short" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> bis <input class="inp short" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Format MM-TT, außerhalb nur bei Kälteeinbruch"),
+      this._row("Kälteeinbruch unter", this._optStepper(H, "cold_snap_temp", this._hubOpt("cold_snap_temp"), " °C", 0.5, 0, 20, 1), "3 Tage darunter → heizt auch außerhalb der Saison"),
+      this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
+      this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen"),
+      this._row("Heute heizen", st.heat_today_until
+        ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>Beenden</button>`
+        : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>24 h heizen</button>`, "für milde, aber kühle Tage"),
+    ].join("");
+
+    // --- Gebäude
+    const frsi = { unrenovated: "0,60", renovated: "0,70", new: "0,80" }[this._hubOpt("building_type")] || "0,70";
+    const buildRows = [
+      this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
+      `<div class="hint">Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor ${frsi} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.</div>`,
+    ].join("");
+
+    // --- Empfänger
+    const push = this._hubOpt("recipients") || {};
+    const tts = this._hubOpt("tts") || {};
     const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
-    const people = this._recipients().map((p, i) => {
-      const isHa = p.kind === "ha";
-      const label = isHa ? "Home Assistant" : rkPretty(p.key);
-      const sub = isHa ? "Glocke in der Seitenleiste · Thermostat-Fehler" : p.kind === "tts" ? "Sprachansage · nur bei Auskühlen & Wiederholungen" : "Push aufs Handy · alle Lüftungshinweise";
-      const c = isHa ? "#8a94a6" : palette[i % palette.length];
-      const av = isHa ? `<ha-icon icon="mdi:home-assistant"></ha-icon>` : p.kind === "tts" ? `<ha-icon icon="mdi:speaker"></ha-icon>` : label[0];
-      const chips = p.rooms.map(({ room, on }) => `<span class="chip2 ${on ? "" : "off"}" style="--c:${room.color}" title="${on ? "aktiv" : "Hinweise aus"}"><i></i>${room.name}</span>`).join("");
-      return `<div class="person"><div class="av" style="--c:${c}">${av}</div><div><b>${label}</b><small>${sub}</small><div class="chips">${chips}</div></div></div>`;
-    }).join("") || `<div class="hint">Noch kein Empfänger eingetragen. Unter „Weitere Einstellungen“ → Lüften &amp; Hinweise kannst du einen hinzufügen.</div>`;
+    const kinds = this._cfg.kinds || Object.keys(RK_KINDS);
+    const card = (target, list, channel, i) => {
+      const chips = kinds.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
+      return `<div class="person"><div class="av" style="--c:${palette[i % palette.length]}">${channel === "tts" ? `<ha-icon icon="mdi:speaker"></ha-icon>` : esc(rkPretty(target)[0] || "?")}</div>
+        <div class="pb"><div class="ph"><b>${esc(rkPretty(target))}</b>${this._admin ? `<button class="mini" data-test="${esc(target)}">Test</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="entfernen">✕</button>` : ""}</div>
+        <small>${channel === "tts" ? "Sprachansage · nie in der Ruhezeit" : "Push aufs Handy"} · ${esc(target)}</small>
+        <div class="chips">${chips}</div></div></div>`;
+    };
+    const cards = [...Object.entries(push).map(([t, l], i) => card(t, l || [], "push", i)), ...Object.entries(tts).map(([t, l], i) => card(t, l || [], "tts", i + 3))].join("")
+      || `<div class="hint">Noch kein Empfänger – unten hinzufügen.</div>`;
+    const avail = (ch.notify || []).filter((t) => !(t in push) && !(t in tts));
+    const addRow = this._admin && avail.length ? `<div class="addrow">
+        <select class="sel" id="addTarget">${avail.map((t) => `<option value="${esc(t)}">${esc(rkPretty(t))} (${esc(t)})</option>`).join("")}</select>
+        <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>Als Push hinzufügen</button>
+        <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>Als Sprachansage</button></div>` : "";
 
-    const uniq = (f) => [...new Set(rooms.map((r) => f(r)).filter((x) => x !== undefined && x !== null && x !== ""))];
-    const hums = uniq((r) => r.attrs.humidity_limit);
-    const humTxt = hums.length === 1 ? `ab ${fmt(hums[0], 0)} %` : hums.length ? `ab ${fmt(Math.min(...hums), 0)}–${fmt(Math.max(...hums), 0)} % je Raum` : "";
-    const drops = uniq((r) => S(r).max_drop);
-    const dropTxt = drops.length === 1 ? `${fmt(drops[0], 1)} °C` : "der eingestellten Abkühlung";
-    const rec = uniq((r) => r.attrs.recommended_minutes);
-    const out = rooms.find((r) => r.attrs.outdoor_temperature !== undefined && r.attrs.outdoor_temperature !== null);
-    const recTxt = rec.length ? `aktuell ${rec[0]} min${out ? ` bei ${fmt(out.attrs.outdoor_temperature)} °C draußen` : ""}` : "";
-    const hm = (t) => String(t || "").slice(0, 5);
-    const quiet = uniq((r) => S(r).quiet_start && `${hm(S(r).quiet_start)}–${hm(S(r).quiet_end)}`);
-    const repeat = uniq((r) => S(r).repeat_minutes);
-    const msgs = [
-      ["💧", "Bitte lüften", `Luftfeuchte ${humTxt} seit 15 min – nur wenn Lüften auch trocknet`, "Push", "air"],
-      ["🪟", "Fenster schließen", `Empfohlene Lüftdauer erreicht (${recTxt || "je nach Außentemperatur"})`, "Push", "air"],
-      ["🥶", "Raum kühlt aus", `Unter Mindesttemperatur oder ${dropTxt} kälter als beim Öffnen – auch in Ruhezeiten`, "Push + Sprache", "cold"],
-      ["✅", "Luft ausgetauscht", "Feuchte wieder unter der Grenze – Fenster kann zu", "Push, leise", "ok"],
-      ["⚠️", "Thermostat reagiert nicht", "Nach allen Wiederholversuchen (z. B. VPN- oder Funkausfall)", "HA-Glocke", "warn"],
-    ].map(([e, t, d, tag, tone]) => `<div class="msg"><div class="e">${e}</div><div><b>${t}</b><small>${d}</small></div><span class="tag" style="--c:${toneVar(tone)}">${tag}</span></div>`).join("");
+    // --- Allgemein Benachrichtigung
+    const hm = (v) => String(v || "").slice(0, 5);
+    const notiRows = [
+      this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+      this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
+      this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? `Draußen gerade ${fmt(st.outdoor_temperature)} °C` : ""),
+      this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
+    ].join("");
 
+    // --- Tabelle
     const yes = (b) => (b ? `<span class="ok">● an</span>` : `<span class="no">○ aus</span>`);
-    const rowsT = rooms.map((r) => {
-      const s = S(r);
+    const rowsT = this._rooms.map((r) => {
+      const s = r.attrs.settings || {};
       const notif = (this._st(r.sib.notifications) || {}).state === "on";
       const wl = (this._st(r.sib.window_logic) || {}).state === "on";
       return `<tr data-tab="${r.id}"><td><span class="rn" style="--c:${r.color}"><i></i>${r.name}</span></td>
         <td>${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</td>
         <td>${fmt(r.attrs.comfort_temperature)} °C</td>
+        <td>${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</td>
         <td>${fmt(r.attrs.min_temp)} °C</td>
-        <td>${fmt(r.attrs.humidity_limit, 0)} %</td>
-        <td>${s.max_drop != null ? fmt(s.max_drop, 1) + " °C" : "–"}</td>
+        <td>${r.attrs.humidity_limit != null ? fmt(r.attrs.humidity_limit, 0) + " %" : "–"}</td>
         <td>${yes(wl)}</td><td>${yes(notif)}</td></tr>`;
     }).join("");
 
     return `<div class="groups">
-      ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `<div class="people">${people}</div>`, "", "span")}
-      ${this._grp("Wann gemeldet wird", "mdi:bell-ring-outline", "heat", `<div class="msgs">${msgs}</div>`)}
-      ${this._grp("Allgemein", "mdi:clock-outline", "ok", [
-        this._row("Ruhezeit", this._v(quiet.length === 1 ? quiet[0] + " Uhr" : quiet.length ? "je Raum verschieden" : "–"), "Nur „Raum kühlt aus“ wird dann gemeldet"),
-        this._row("Erinnern alle", this._v(repeat.length === 1 ? `${fmt(repeat[0], 0)} min` : repeat.length ? "je Raum verschieden" : "–"), "solange das Problem besteht"),
-        this._row("Wetterquelle", this._v(this._name(uniq((r) => S(r).weather_entity)[0])), out ? `Draußen ${fmt(out.attrs.outdoor_temperature)} °C · ${fmt(out.attrs.outdoor_humidity, 0)} %` : ""),
-        this._row("Aktionen in der Push", this._v("Erledigt · Später · Heute nicht mehr", true)),
-      ].join(""))}
-      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>Raum</th><th>Typ</th><th>Wunsch</th><th>Minimum</th><th>Feuchte</th><th>Max. Abkühl.</th><th>Fensterlogik</th><th>Hinweise</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">Tippe auf einen Raum, um seine Einstellungen zu ändern.</div>`, "", "span")}
+      ${this._grp("Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows)}
+      ${this._grp("Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
+      ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `<div class="people">${cards}</div>${addRow}`, "span")}
+      ${this._grp("Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows)}
+      ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
+      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>Raum</th><th>Typ</th><th>Wunsch</th><th>Absenkung kurz / länger</th><th>Minimum Lüften</th><th>Feuchte</th><th>Fensterlogik</th><th>Hinweise</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">Tippe auf einen Raum, um seine Einstellungen zu ändern.</div>`, "span")}
     </div>`;
   }
 
+  // ---------------------------------------------------------------- Raum
   _room(r) {
     const a = r.attrs, s = a.settings || {}, sib = r.sib;
+    const cfgRoom = this._cfgRoom(r);
+    const id = s.entry_id;
+    const scope = `room:${id}`;
     const sync = RK_SYNC[a.sync] || ["–", "off"];
-    const contacts = (a.window_entities || []).map((w) => { const st = this._st(w); const open = st && st.state === "on"; return `<span class="chip2" style="--c:${open ? "var(--rk-air)" : "var(--rk-off)"}"><i></i>${this._name(w).replace(/^.*?(fenster|window)/i, (m, x) => x)} · ${open ? "offen" : "zu"}</span>`; }).join("") || `<span class="v mute">keine</span>`;
-    const targets = (list, off) => (list && list.length ? `<div class="chips">${list.map((t) => `<span class="chip2 ${off ? "off" : ""}"><i></i>${rkPretty(t)}</span>`).join("")}</div>` : this._v("niemand", true));
-    const notifOff = (this._st(sib.notifications) || {}).state === "off";
+    const contacts = (a.window_entities || []).map((w) => { const st = this._st(w); const open = st && st.state === "on"; return `<span class="chip2" style="--c:${open ? "var(--rk-air)" : "var(--rk-off)"}"><i></i>${esc(this._name(w).replace(/^.*?(fenster|window)/i, (m, x) => x))} · ${open ? "offen" : "zu"}</span>`; }).join("") || `<span class="v mute">keine</span>`;
     const offTxt = a.offset !== undefined && a.offset !== null ? `aktuell ${a.offset > 0 ? "+" : ""}${fmt(a.offset, 1)} °C` : "";
+    const comfort = this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature;
+    const roomType = this._roomOpt(r, "room_type") ?? s.room_type;
+    const sbShort = this._roomOpt(r, "setback_short") ?? s.setback_short;
+    const sbLong = this._roomOpt(r, "setback_long") ?? s.setback_long;
+    const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
+    const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
+    const editable = this._admin && cfgRoom;
+    const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
+    const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : null;
     return `<div class="groups">
       ${this._grp("Temperatur", "mdi:thermometer", "heat", [
-        this._row("Wunschtemperatur", this._v(`${fmt(a.comfort_temperature)} °C`), s.comfort_configured ? "selbst festgelegt" : `Standard für ${RK_ROOM_TYPES[s.room_type] || "den Raum"}`),
-        this._row("Mindesttemperatur", this._stepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
-        this._row("Max. Abkühlung beim Lüften", this._stepper(sib.max_drop, " °C", 1)),
-        this._row("Raumtyp", this._v(RK_ROOM_TYPES[s.room_type] || "–")),
+        plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
+        this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
+        this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–")),
+        this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
+        this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
       ].join(""))}
       ${this._grp("Lüften & Feuchte", "mdi:water-percent", "air", [
-        this._row("Feuchtegrenze", this._stepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“"),
+        sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
+        this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
+        this._row("Max. Abkühlung beim Lüften", this._numStepper(sib.max_drop, " °C", 1)),
         this._row("Jetzt", this._v(a.current_humidity != null ? `${fmt(a.current_humidity, 0)} % · Taupunkt ${fmt(a.dew_point)} °C` : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? `bei ${fmt(a.outdoor_temperature)} °C draußen` : ""),
-        this._row("Lüften trocknet gerade", this._v(a.airing_dries === false ? "nein – draußen feuchter" : "ja")),
       ].join(""))}
       ${this._grp("Fenster", "mdi:window-open-variant", "ok", [
         this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
-        this._row("Pause nach", this._v(`${s.window_open_delay ?? "–"} s offen`)),
-        this._row("Weiter nach", this._v(`${s.window_close_delay ?? "–"} s zu`)),
+        this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
+        this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
         this._row("Kontakte", `<div class="chips">${contacts}</div>`),
       ].join(""))}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
-        this._row("Push an", targets(s.notify_targets, notifOff)),
-        this._row("Sprachansage", targets(s.tts_targets, notifOff)),
-        this._row("Ruhezeit", this._v(s.quiet_start ? `${String(s.quiet_start).slice(0, 5)}–${String(s.quiet_end).slice(0, 5)} Uhr` : "–")),
-        this._row("Erinnern alle", this._v(s.repeat_minutes ? `${fmt(s.repeat_minutes, 0)} min` : "–")),
-        this._row("Thermostat-Fehler melden", this._v(s.notify_on_failure ? "ja (Glocke)" : "nein", !s.notify_on_failure)),
+        this._row("Empfänger", push.length ? `<div class="chips">${push.map((t) => `<span class="chip2"><i></i>${esc(rkPretty(t))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was"),
       ].join(""))}
       ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
-        this._row("Thermostat", this._v(this._name(s.trv))),
-        this._row("Temperaturfühler", this._v(this._name(a.temperature_sensor))),
-        this._row("Feuchtefühler", this._v(a.humidity_entity ? this._name(a.humidity_entity) : "keiner", !a.humidity_entity)),
+        this._row("Thermostat", this._v(esc(this._name(s.trv)))),
+        this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
+        this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"), offTxt),
-        this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? "Automatisch" : `Preset „${s.on_preset}“`)),
+        this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? "Automatisch" : `Preset „${esc(s.on_preset)}“`)),
         this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
         this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? "ja" : "nein")),
         this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, `prüft nach ${s.sync_verify_delay ?? "–"} s · bis zu ${s.sync_max_retries ?? "–"} Wiederholungen`),
-      ].join(""), "", "span cols")}
+      ].join(""), "span cols")}
     </div>
     <div class="foot">
       ${sib.calibrate ? `<button class="btn" data-press="${sib.calibrate}" style="--c:var(--rk-heat)"><ha-icon icon="mdi:tune-vertical"></ha-icon>Jetzt kalibrieren</button>` : ""}
-      <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>Weitere Einstellungen ändern</button>
+      <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>Geräte & Technik ändern</button>
     </div>
-    <div class="hint">Wunschtemperatur, Raumtyp, Empfänger, Ruhezeiten und Geräte änderst du unter „Weitere Einstellungen“ → Zahnrad beim Raum „${r.name}“.</div>`;
+    <div class="hint">Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „${esc(r.name)}“.</div>`;
   }
 
+  // ---------------------------------------------------------------- Rendern
   _render() {
+    if (!this._hass || !this._rooms) return;
     const rooms = this._rooms;
-    if (this._tab !== "overview" && !rooms.find((r) => r.id === this._tab)) this._tab = "overview";
-    const tabs = `<button class="tab ${this._tab === "overview" ? "on" : ""}" data-tab="overview"><ha-icon icon="mdi:view-dashboard-outline"></ha-icon>Übersicht</button>` +
+    if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
+    const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>Allgemein</button>` +
       rooms.map((r) => `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}</button>`).join("");
     const room = rooms.find((r) => r.id === this._tab);
-    const body = room ? this._room(room) : this._overview();
+    const body = room ? this._room(room) : this._general();
+    const scrollY = this.shadowRoot.host ? window.scrollY : 0;
     this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${this._config.title || "Einstellungen"}</div></div>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || "Einstellungen")}</div>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">Nur Ansicht – Ändern erfordert Admin</span>`}</div>
         <div class="tabs">${tabs}</div>
         ${body}
+        ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
       </ha-card>`;
+    if (scrollY) window.scrollTo(0, scrollY);
+    this._bind();
+  }
+
+  _bind() {
     const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
+    const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash("Fehler: " + (e.message || e)));
     $("[data-tab]").forEach((el) => el.addEventListener("click", () => { this._tab = el.dataset.tab; this._sig = null; this._render(); }));
     $("[data-tgl]").forEach((el) => el.addEventListener("click", () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl })));
     $("[data-press]").forEach((el) => el.addEventListener("click", () => this._hass.callService("button", "press", { entity_id: el.dataset.press })));
@@ -991,6 +1237,65 @@ class RaumklimaSettingsCard extends HTMLElement {
       if (!isNaN(min)) v = Math.max(min, v);
       if (!isNaN(max)) v = Math.min(max, v);
       this._hass.callService("number", "set_value", { entity_id: el.dataset.num, value: v });
+    }));
+    const apply = (scope, changes) => {
+      if (scope === "hub") this._setHub(changes);
+      else this._setRoom(scope.slice(5), changes);
+    };
+    $("[data-opt]").forEach((el) => el.addEventListener("click", () => {
+      const step = parseFloat(el.dataset.step), min = parseFloat(el.dataset.min), max = parseFloat(el.dataset.max);
+      const cur = parseFloat(el.dataset.val);
+      let v = Math.round(((isNaN(cur) ? min : cur) + step * parseInt(el.dataset.d, 10)) * 100) / 100;
+      v = Math.min(max, Math.max(min, v));
+      apply(el.dataset.opt, { [el.dataset.key]: v });
+    }));
+    $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
+    $("[data-seg]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val })));
+    $("[data-sel]").forEach((el) => el.addEventListener("change", () => apply(el.dataset.sel, { [el.dataset.key]: el.value || null })));
+    $("[data-md]").forEach((el) => el.addEventListener("change", () => {
+      const m = /^(\d{1,2})[-.](\d{1,2})\.?$/.exec(el.value.trim());
+      if (!m) { this._flash("Bitte als MM-TT eingeben, z. B. 10-01"); return; }
+      // 01.10. (TT.MM.) oder 10-01 (MM-TT)
+      const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
+      this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
+    }));
+    $("[data-time]").forEach((el) => el.addEventListener("change", () => el.value && this._setHub({ [el.dataset.time]: el.value + ":00" }, 200)));
+    $("[data-person]").forEach((el) => el.addEventListener("click", () => {
+      const list = [...(this._hubOpt("residents") || [])];
+      const i = list.indexOf(el.dataset.person);
+      if (i >= 0) list.splice(i, 1); else list.push(el.dataset.person);
+      this._setHub({ residents: list });
+    }));
+    $("[data-kind]").forEach((el) => el.addEventListener("click", () => {
+      const key = el.dataset.ch === "tts" ? "tts" : "recipients";
+      const table = JSON.parse(JSON.stringify(this._hubOpt(key) || {}));
+      const list = table[el.dataset.target] || [];
+      const i = list.indexOf(el.dataset.kind);
+      if (i >= 0) list.splice(i, 1); else list.push(el.dataset.kind);
+      table[el.dataset.target] = list;
+      this._setHub({ [key]: table });
+    }));
+    $("[data-remove]").forEach((el) => el.addEventListener("click", () => {
+      const key = el.dataset.ch === "tts" ? "tts" : "recipients";
+      const table = JSON.parse(JSON.stringify(this._hubOpt(key) || {}));
+      delete table[el.dataset.remove];
+      this._setHub({ [key]: table }, 100);
+    }));
+    $("[data-add]").forEach((el) => el.addEventListener("click", () => {
+      const sel = this.shadowRoot.getElementById("addTarget");
+      if (!sel || !sel.value) return;
+      const key = el.dataset.add === "tts" ? "tts" : "recipients";
+      const table = JSON.parse(JSON.stringify(this._hubOpt(key) || {}));
+      table[sel.value] = el.dataset.add === "tts" ? ["too_cold"] : [...RK_DEFAULT_PUSH];
+      this._setHub({ [key]: table }, 100);
+    }));
+    $("[data-test]").forEach((el) => el.addEventListener("click", async () => {
+      const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test });
+      if (r) this._flash(`Testnachricht an ${rkPretty(el.dataset.test)} gesendet`);
+    }));
+    $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
+      await ws({ type: "raumklima/hub/action", action: el.dataset.action });
+      this._load();
     }));
     $("[data-nav]").forEach((el) => el.addEventListener("click", () => {
       history.pushState(null, "", el.dataset.nav);

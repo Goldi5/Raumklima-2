@@ -6,6 +6,12 @@ from typing import Final
 
 DOMAIN: Final = "raumklima"
 PLATFORMS: Final = ["climate", "sensor", "binary_sensor", "switch", "button", "number"]
+HUB_PLATFORMS: Final = ["sensor", "switch", "select", "button"]
+
+# Eintragsarten: ein Raum oder die Zentrale „Allgemein“ (einmal)
+CONF_ENTRY_TYPE: Final = "entry_type"
+ENTRY_HUB: Final = "hub"
+HUB_UNIQUE_ID: Final = "raumklima_hub"
 
 # --- Geräte (config entry data) ---
 CONF_NAME: Final = "name"
@@ -40,6 +46,76 @@ CONF_COMFORT_TEMP: Final = "comfort_temperature"
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
 EVENT_RAUMKLIMA: Final = "raumklima_event"
 ROOM_TYPE_OPTIONS: Final = ["living", "kitchen", "bedroom", "bathroom", "children", "rarely_used"]
+
+# --- Zentrale „Allgemein“ (v0.3) ---
+CONF_RECIPIENTS: Final = "recipients"  # {"notify.x": [Nachrichtenarten]}
+CONF_TTS: Final = "tts"  # {"notify.alexa_x": [Nachrichtenarten]}
+CONF_RESIDENTS: Final = "residents"  # person.*
+CONF_ZONE: Final = "zone"  # zone.* der Wohnung
+CONF_AWAY_DELAY: Final = "away_delay"  # min
+CONF_LONG_AWAY_HOURS: Final = "long_away_hours"  # h
+CONF_PREHEAT_KM: Final = "preheat_km"
+CONF_BUILDING: Final = "building_type"  # unrenovated / renovated / new
+CONF_SEASON_MODE: Final = "season_mode"  # auto / always / pause
+CONF_SEASON_START: Final = "season_start"  # "10-01"
+CONF_SEASON_END: Final = "season_end"  # "04-30"
+CONF_HEATING_LIMIT: Final = "heating_limit"  # °C Tagesmittel
+CONF_COLD_SNAP_TEMP: Final = "cold_snap_temp"
+CONF_FROST_FLOOR: Final = "frost_floor"
+CONF_VALVE_CARE: Final = "valve_care"
+# pro Raum
+CONF_SETBACK_SHORT: Final = "setback_short"
+CONF_SETBACK_LONG: Final = "setback_long"
+
+BUILDING_TYPES: Final = ["unrenovated", "renovated", "new"]
+SEASON_MODES: Final = ["auto", "always", "pause"]
+
+# Nachrichtenarten
+KIND_VENT_OPEN: Final = "vent_open"
+KIND_VENT_CLOSE: Final = "vent_close"
+KIND_TOO_COLD: Final = "too_cold"
+KIND_VENT_DONE: Final = "vent_done"
+KIND_WINDOW_AWAY: Final = "window_away"
+KIND_PRESENCE: Final = "presence"
+KIND_SEASON: Final = "season"
+KIND_TRV_FAILURE: Final = "trv_failure"
+KINDS: Final = [
+    KIND_VENT_OPEN,
+    KIND_VENT_CLOSE,
+    KIND_TOO_COLD,
+    KIND_VENT_DONE,
+    KIND_WINDOW_AWAY,
+    KIND_PRESENCE,
+    KIND_SEASON,
+    KIND_TRV_FAILURE,
+]
+DEFAULT_PUSH_KINDS: Final = [k for k in KINDS if k != KIND_PRESENCE]
+DEFAULT_TTS_KINDS: Final = [KIND_TOO_COLD]
+# Diese kommen auch in der Ruhezeit (Push laut)
+URGENT_KINDS: Final = (KIND_TOO_COLD, KIND_WINDOW_AWAY, KIND_TRV_FAILURE)
+
+HUB_DEFAULTS: Final = {
+    CONF_RECIPIENTS: {},
+    CONF_TTS: {},
+    "quiet_start": "22:00:00",
+    "quiet_end": "07:00:00",
+    "repeat_minutes": 5,
+    "weather_entity": None,
+    "notify_on_failure": True,
+    CONF_RESIDENTS: [],
+    CONF_ZONE: None,
+    CONF_AWAY_DELAY: 30,
+    CONF_LONG_AWAY_HOURS: 24,
+    CONF_PREHEAT_KM: 10,
+    CONF_BUILDING: "renovated",
+    CONF_SEASON_MODE: "auto",
+    CONF_SEASON_START: "10-01",
+    CONF_SEASON_END: "04-30",
+    CONF_HEATING_LIMIT: 15.0,
+    CONF_COLD_SNAP_TEMP: 12.0,
+    CONF_FROST_FLOOR: 16.0,
+    CONF_VALVE_CARE: True,
+}
 
 # Karte (Frontend)
 CARD_URL: Final = "/raumklima_static/raumklima-card.js"
@@ -105,6 +181,8 @@ STATUS_WINDOW: Final = "window_open"
 STATUS_OFF: Final = "off"
 STATUS_SENSOR: Final = "sensor_unavailable"
 STATUS_TRV: Final = "trv_unavailable"
+STATUS_SEASON: Final = "season_off"
+STATUS_SETBACK: Final = "setback"
 STATUSES: Final = [
     STATUS_HEATING,
     STATUS_IDLE,
@@ -112,6 +190,8 @@ STATUSES: Final = [
     STATUS_OFF,
     STATUS_SENSOR,
     STATUS_TRV,
+    STATUS_SEASON,
+    STATUS_SETBACK,
 ]
 
 SYNC_OK: Final = "ok"

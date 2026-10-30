@@ -7,7 +7,8 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import RaumklimaConfigEntry
+from . import RaumklimaConfigEntry, is_hub_entry
+from .hub_platforms import hub_entities
 from .const import CAL_NONE
 from .entity import RaumklimaEntity
 
@@ -17,6 +18,9 @@ async def async_setup_entry(
     entry: RaumklimaConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
+    if is_hub_entry(entry):
+        async_add_entities(hub_entities("button", entry.runtime_data))
+        return
     if entry.runtime_data.cal_mode != CAL_NONE:
         async_add_entities([CalibrateButton(entry.runtime_data)])
 

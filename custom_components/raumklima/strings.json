@@ -3,7 +3,17 @@
     "step": {
       "user": {
         "title": "Add room",
-        "description": "Choose thermostat, sensor and window contacts.",
+        "description": "Step 1 of 3: Which thermostat belongs to the room?",
+        "data": {
+          "trv": "Radiator thermostat (TRV)"
+        },
+        "data_description": {
+          "trv": "The real thermostat on the radiator."
+        }
+      },
+      "devices": {
+        "title": "Sensors & windows",
+        "description": "Step 2 of 3: Suggestions from the thermostat's area – please check.",
         "data": {
           "name": "Room name",
           "trv": "Radiator thermostat (TRV)",
@@ -17,65 +27,66 @@
           "window_sensors": "If any is open, heating is paused."
         }
       },
-      "calibration": {
-        "title": "Calibration",
-        "data": {
-          "calibration_mode": "Calibration type",
-          "calibration_entity": "TRV calibration/offset entity",
-          "off_method": "How to switch the TRV off",
-          "on_preset": "Preset used for heating (on)"
-        },
-        "data_description": {
-          "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
-          "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
-          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
-          "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open."
-        }
-      },
-      "settings": {
-        "title": "Settings",
-        "data": {
-          "window_open_delay": "Window open delay",
-          "window_close_delay": "Window close delay",
-          "offset_threshold": "Send offset only if change is at least",
-          "offset_min_interval": "Minimum time between calibrations",
-          "sensor_stale_minutes": "Sensor considered stale after",
-          "sync_verify_delay": "Verify command after",
-          "sync_max_retries": "Retries before notification",
-          "follow_trv_changes": "Adopt changes made on the TRV",
-          "notify_on_failure": "Notify if the TRV does not respond"
-        },
-        "data_description": {
-          "sync_verify_delay": "Then it is checked whether the TRV applied the command; otherwise it is repeated with growing intervals. Helps with short connection drops.",
-          "follow_trv_changes": "Off: changes on the device are reverted (like a child lock).",
-          "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
-        }
-      },
-      "ventilation": {
-        "title": "Airing & notifications",
+      "room": {
+        "title": "The room",
+        "description": "Step 3 of 3: How should it be here?",
         "data": {
           "room_type": "Room type",
           "comfort_temperature": "Preferred temperature (optional)",
-          "weather_entity": "Outdoor climate (weather or outdoor sensor)",
-          "notify_targets": "Send notifications to",
-          "tts_targets": "Voice announcements on (optional)",
-          "quiet_start": "Quiet hours from",
-          "quiet_end": "Quiet hours until",
-          "repeat_minutes": "Repeat reminder every"
+          "setback_short": "Setback 'briefly away'",
+          "setback_long": "Setback 'away longer'"
         },
         "data_description": {
           "room_type": "Sets sensible defaults; fine-tune later with the device's number controls.",
           "comfort_temperature": "Empty = room type default. Used on first start and when switching on a room that was off.",
-          "weather_entity": "Used for recommended airing time and whether airing actually dries the room.",
-          "notify_targets": "e.g. notify.mobile_app_… — iOS messages get action buttons.",
-          "tts_targets": "Announcement only when the room cools down or after repeated reminders, never in quiet hours.",
-          "quiet_start": "Silent push only during quiet hours."
+          "setback_short": "When all residents are away (after the delay). Suggested: living rooms 18 °C, bedroom 16 °C.",
+          "setback_long": "After 24 h or on vacation. Not below 16 °C recommended; the mold guard keeps humid rooms warmer automatically."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Advanced (technical)",
+            "description": "Detected automatically – change only if something is wrong.",
+            "data": {
+              "calibration_mode": "Calibration type",
+              "calibration_entity": "TRV calibration/offset entity",
+              "off_method": "How to switch the TRV off",
+              "on_preset": "Preset used for heating (on)",
+              "window_open_delay": "Window open delay",
+              "window_close_delay": "Window close delay",
+              "follow_trv_changes": "Adopt changes made on the TRV"
+            },
+            "data_description": {
+              "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
+              "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
+              "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
+              "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open.",
+              "follow_trv_changes": "Off: changes on the device are reverted (like a child lock)."
+            }
+          }
+        }
+      },
+      "hub": {
+        "title": "For the whole home",
+        "description": "Only for the first room. Change later under Raumklima → Allgemein or in the dashboard.",
+        "data": {
+          "residents": "Who lives here?",
+          "zone": "Zone of the home",
+          "push_targets": "Send notifications to",
+          "weather_entity": "Outdoor climate (weather or outdoor sensor)",
+          "building_type": "Building type"
+        },
+        "data_description": {
+          "residents": "People who live here. If all are away, heating is lowered.",
+          "zone": "The zone of this home (not necessarily 'Home').",
+          "push_targets": "You can choose per recipient which messages they get later.",
+          "building_type": "Determines how careful the mold guard is during absence."
         }
       }
     },
     "error": {
       "calibration_entity_required": "The offset calibration type needs a calibration entity.",
-      "same_entity": "Sensor and thermostat must differ."
+      "same_entity": "Sensor and thermostat must differ.",
+      "invalid_date": "Please use MM-DD, e.g. 10-01."
     },
     "abort": {
       "already_configured": "This thermostat is already assigned to a room."
@@ -97,65 +108,129 @@
           "window_sensors": "If any is open, heating is paused."
         }
       },
-      "calibration": {
-        "title": "Calibration",
-        "data": {
-          "calibration_mode": "Calibration type",
-          "calibration_entity": "TRV calibration/offset entity",
-          "off_method": "How to switch the TRV off",
-          "on_preset": "Preset used for heating (on)"
-        },
-        "data_description": {
-          "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
-          "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
-          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
-          "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open."
-        }
-      },
-      "settings": {
-        "title": "Settings",
-        "data": {
-          "window_open_delay": "Window open delay",
-          "window_close_delay": "Window close delay",
-          "offset_threshold": "Send offset only if change is at least",
-          "offset_min_interval": "Minimum time between calibrations",
-          "sensor_stale_minutes": "Sensor considered stale after",
-          "sync_verify_delay": "Verify command after",
-          "sync_max_retries": "Retries before notification",
-          "follow_trv_changes": "Adopt changes made on the TRV",
-          "notify_on_failure": "Notify if the TRV does not respond"
-        },
-        "data_description": {
-          "sync_verify_delay": "Then it is checked whether the TRV applied the command; otherwise it is repeated with growing intervals. Helps with short connection drops.",
-          "follow_trv_changes": "Off: changes on the device are reverted (like a child lock).",
-          "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
-        }
-      },
-      "ventilation": {
-        "title": "Airing & notifications",
+      "room": {
+        "title": "The room",
         "data": {
           "room_type": "Room type",
           "comfort_temperature": "Preferred temperature (optional)",
-          "weather_entity": "Outdoor climate (weather or outdoor sensor)",
-          "notify_targets": "Send notifications to",
-          "tts_targets": "Voice announcements on (optional)",
-          "quiet_start": "Quiet hours from",
-          "quiet_end": "Quiet hours until",
-          "repeat_minutes": "Repeat reminder every"
+          "setback_short": "Setback 'briefly away'",
+          "setback_long": "Setback 'away longer'"
         },
         "data_description": {
           "room_type": "Sets sensible defaults; fine-tune later with the device's number controls.",
           "comfort_temperature": "Empty = room type default. Used on first start and when switching on a room that was off.",
-          "weather_entity": "Used for recommended airing time and whether airing actually dries the room.",
-          "notify_targets": "e.g. notify.mobile_app_… — iOS messages get action buttons.",
-          "tts_targets": "Announcement only when the room cools down or after repeated reminders, never in quiet hours.",
-          "quiet_start": "Silent push only during quiet hours."
+          "setback_short": "When all residents are away (after the delay). Suggested: living rooms 18 °C, bedroom 16 °C.",
+          "setback_long": "After 24 h or on vacation. Not below 16 °C recommended; the mold guard keeps humid rooms warmer automatically."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Advanced (technical)",
+            "description": "Detected automatically – change only if something is wrong.",
+            "data": {
+              "calibration_mode": "Calibration type",
+              "calibration_entity": "TRV calibration/offset entity",
+              "off_method": "How to switch the TRV off",
+              "on_preset": "Preset used for heating (on)",
+              "window_open_delay": "Window open delay",
+              "window_close_delay": "Window close delay",
+              "follow_trv_changes": "Adopt changes made on the TRV"
+            },
+            "data_description": {
+              "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
+              "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
+              "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
+              "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open.",
+              "follow_trv_changes": "Off: changes on the device are reverted (like a child lock)."
+            }
+          }
+        }
+      },
+      "technical": {
+        "title": "Technical",
+        "data": {
+          "offset_threshold": "Send offset only if change is at least",
+          "offset_min_interval": "Minimum time between calibrations",
+          "sensor_stale_minutes": "Sensor considered stale after",
+          "sync_verify_delay": "Verify command after",
+          "sync_max_retries": "Retries before notification"
+        },
+        "data_description": {
+          "sync_verify_delay": "Then it is checked whether the TRV applied the command; otherwise it is repeated with growing intervals. Helps with short connection drops.",
+          "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "data": {
+          "push_targets": "Push notifications to",
+          "tts_targets_hub": "Voice announcements on (optional)",
+          "quiet_start": "Quiet hours from",
+          "quiet_end": "Quiet hours until",
+          "repeat_minutes": "Repeat reminder every",
+          "weather_entity": "Outdoor climate (weather or outdoor sensor)",
+          "notify_on_failure": "Notify if the TRV does not respond"
+        },
+        "data_description": {
+          "push_targets": "e.g. notify.mobile_app_… — iOS messages get action buttons.",
+          "tts_targets_hub": "Announcement only when the room cools down or after repeated reminders, never in quiet hours.",
+          "quiet_start": "Silent push only during quiet hours.",
+          "weather_entity": "Used for airing time, heating limit and mold guard.",
+          "notify_on_failure": "Message in the Home Assistant bell."
+        }
+      },
+      "kinds": {
+        "title": "Who gets what?",
+        "description": "Choose the messages per recipient."
+      },
+      "presence": {
+        "title": "Presence",
+        "data": {
+          "residents": "Who lives here?",
+          "zone": "Zone of the home",
+          "away_delay": "Lower heating after",
+          "long_away_hours": "'Away longer' after",
+          "preheat_km": "Preheat within",
+          "building_type": "Building type"
+        },
+        "data_description": {
+          "residents": "Counts as soon as any of their phones is in the zone. Impossible jumps (e.g. VPN) and inaccurate fixes are ignored.",
+          "away_delay": "So a short errand doesn't trigger anything.",
+          "preheat_km": "If someone approaches within this distance, heating starts early. 0 = off."
+        }
+      },
+      "season": {
+        "title": "Heating season",
+        "data": {
+          "season_mode": "Mode",
+          "season_start": "Heating season from (MM-DD)",
+          "season_end": "Heating season until (MM-DD)",
+          "heating_limit": "Heating limit (daily mean outdoor)",
+          "cold_snap_temp": "Cold snap below",
+          "frost_floor": "Safety: always heat below",
+          "valve_care": "Summer valve exercise"
+        },
+        "data_description": {
+          "season_mode": "Automatic: by season and outdoor temperature. Always / pause: manual.",
+          "heating_limit": "Above this mean of the last 24 h and the forecast the heating pauses (after 2 mild days).",
+          "cold_snap_temp": "Outside the season heating runs if the daily mean stays below for 3 days.",
+          "frost_floor": "If a room drops below, it heats even during the pause.",
+          "valve_care": "Wednesdays 11:00 during the pause: open valves for 3 minutes so they don't seize."
+        }
+      },
+      "hub_menu": {
+        "title": "Raumklima general",
+        "description": "What do you want to change? Everything is also available in the dashboard settings.",
+        "menu_options": {
+          "notifications": "Notifications – who gets what",
+          "presence": "Presence & setback",
+          "season": "Heating season & limit"
         }
       }
     },
     "error": {
       "calibration_entity_required": "The offset calibration type needs a calibration entity.",
-      "same_entity": "Sensor and thermostat must differ."
+      "same_entity": "Sensor and thermostat must differ.",
+      "invalid_date": "Please use MM-DD, e.g. 10-01."
     }
   },
   "selector": {
@@ -179,6 +254,32 @@
     "on_preset": {
       "options": {
         "auto_detect": "Automatic"
+      }
+    },
+    "building_type": {
+      "options": {
+        "unrenovated": "Old building, not renovated",
+        "renovated": "Old building, renovated",
+        "new": "New / well insulated"
+      }
+    },
+    "season_mode": {
+      "options": {
+        "auto": "Automatic",
+        "always": "Always heat",
+        "pause": "Heating pause"
+      }
+    },
+    "kind": {
+      "options": {
+        "vent_open": "💧 Please air",
+        "vent_close": "🪟 Close window",
+        "too_cold": "🥶 Room cooling down",
+        "vent_done": "✅ Air exchanged",
+        "window_away": "🚪 Window open, nobody home",
+        "presence": "🏠 Absence & preheating",
+        "season": "🍂 Heating season start/end",
+        "trv_failure": "⚠️ Thermostat not responding"
       }
     },
     "off_method": {
@@ -205,8 +306,34 @@
           "window_open": "Paused – window open",
           "off": "Off",
           "sensor_unavailable": "Sensor unavailable",
-          "trv_unavailable": "Thermostat unavailable"
+          "trv_unavailable": "Thermostat unavailable",
+          "season_off": "Heating pause",
+          "setback": "Lowered – nobody home"
         }
+      },
+      "presence": {
+        "name": "Presence",
+        "state": {
+          "home": "Someone home",
+          "guests": "Guests",
+          "preheat": "Preheating",
+          "away_short": "Briefly away",
+          "away_long": "Away longer"
+        }
+      },
+      "heating_mode": {
+        "name": "Heating mode",
+        "state": {
+          "heating": "Heating season",
+          "pause": "Heating pause",
+          "cold_snap": "Cold snap",
+          "heat_today": "Heat today",
+          "always": "Always heat",
+          "manual_pause": "Pause (manual)"
+        }
+      },
+      "outdoor_mean": {
+        "name": "Outdoor daily mean"
       },
       "sync": {
         "name": "Sync",
@@ -257,6 +384,22 @@
       },
       "notifications": {
         "name": "Airing notifications"
+      },
+      "vacation": {
+        "name": "Vacation"
+      },
+      "guests": {
+        "name": "Guests"
+      }
+    },
+    "select": {
+      "season_mode": {
+        "name": "Heating season mode",
+        "state": {
+          "auto": "Automatic",
+          "always": "Always heat",
+          "pause": "Heating pause"
+        }
       }
     },
     "number": {
@@ -273,6 +416,9 @@
     "button": {
       "calibrate": {
         "name": "Calibrate now"
+      },
+      "heat_today": {
+        "name": "Heat today"
       }
     }
   }

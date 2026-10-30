@@ -60,6 +60,9 @@ from .const import (
     OFFSET_STEP,
     PRESET_GRACE_SECONDS,
     CONF_ON_PRESET,
+    CONF_SETBACK_LONG,
+    CONF_SETBACK_SHORT,
+    KIND_TRV_FAILURE,
     ON_PRESET_AUTO,
     ON_PRESET_AVOID,
     ON_PRESET_CANDIDATES,
@@ -70,9 +73,18 @@ from .const import (
     STATUS_HEATING,
     STATUS_IDLE,
     STATUS_OFF,
+    STATUS_SEASON,
     STATUS_SENSOR,
+    STATUS_SETBACK,
     STATUS_TRV,
     STATUS_WINDOW,
+)
+from .hub import RaumklimaHub, domain_data, get_hub
+from .planning import (
+    AWAY_STAGES,
+    mold_safe_min_temp,
+    setback_defaults,
+    setback_target,
 )
 from .logic import (
     any_open,
@@ -91,6 +103,14 @@ from .ventilation import MIN_USEFUL_TARGET, comfort_temperature
 
 _LOGGER = logging.getLogger(__name__)
 STORAGE_VERSION = 1
+MANUAL_OVERRIDE = timedelta(hours=3)  # Drehen am Regler während Absenkung
+VALVE_CARE = timedelta(minutes=3)
+
+REASON_NORMAL = "normal"
+REASON_MANUAL = "manual"
+REASON_SEASON = "season"
+REASON_FROST = "frost"
+REASON_VALVE_CARE = "valve_care"
 
 
 class RaumklimaController:
@@ -136,6 +156,10 @@ class RaumklimaController:
         self._listeners: list[Callable[[], None]] = []
         self._apply_lock = asyncio.Lock()
         self.valve_sensor: str | None = None
+        self._frost_active = False
+        self._manual_until: datetime | None = None
+        self._valve_care_until: datetime | None = None
+        self._started = False
         self._store: Store[dict[str, Any]] = Store(
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
@@ -207,11 +231,15 @@ class RaumklimaController:
         self._ingest_sensor(self.hass.states.get(self.temp_sensor))
         await self.vent.async_start()
 
+        domain_data(self.hass)["rooms"][self.entry.entry_id] = self
+        self._started = True
         self.hass.async_create_task(self._apply())
         self.hass.async_create_task(self.async_calibrate())
 
     async def async_stop(self) -> None:
         """Alles abmelden."""
+        self._started = False
+        domain_data(self.hass)["rooms"].pop(self.entry.entry_id, None)
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
@@ -248,6 +276,7 @@ class RaumklimaController:
         """Was eingestellt ist – für die Einstellungs-Karte."""
         cfg = self.config
         vent = self.vent
+        hub = self.hub
         return {
             "entry_id": self.entry.entry_id,
             "trv": self.trv,
@@ -259,6 +288,13 @@ class RaumklimaController:
             "quiet_end": vent.quiet_end if vent else None,
             "repeat_minutes": vent.repeat_minutes if vent else None,
             "max_drop": vent.max_drop if vent else None,
+            "hub": bool(hub),
+            "comfort_temperature": cfg.get(CONF_COMFORT_TEMP),
+            "setback_short": self.setback_short,
+            "setback_long": self.setback_long,
+            "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
+            "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),
+            "windows": self.windows,
             "comfort_configured": cfg.get(CONF_COMFORT_TEMP) not in (None, "", 0),
             "window_open_delay": cfg.get(CONF_WINDOW_OPEN_DELAY),
             "window_close_delay": cfg.get(CONF_WINDOW_CLOSE_DELAY),
@@ -388,9 +424,85 @@ class RaumklimaController:
         state = self.hass.states.get(self.cal_entity)
         return to_float(state.state) if state else None
 
+    # ================================================================ Planung
+    @property
+    def hub(self) -> RaumklimaHub | None:
+        return get_hub(self.hass)
+
+    @property
+    def setback_short(self) -> float:
+        value = to_float(self.config.get(CONF_SETBACK_SHORT))
+        return value if value is not None else setback_defaults(self.config.get(CONF_ROOM_TYPE))[0]
+
+    @property
+    def setback_long(self) -> float:
+        value = to_float(self.config.get(CONF_SETBACK_LONG))
+        return value if value is not None else setback_defaults(self.config.get(CONF_ROOM_TYPE))[1]
+
+    def plan(self) -> tuple[bool, float, str]:
+        """(heizen?, Zieltemperatur, Grund) aus Heizsaison, Anwesenheit und Wunsch."""
+        now = dt_util.utcnow()
+        if self._valve_care_until and now < self._valve_care_until:
+            return True, self.trv_max, REASON_VALVE_CARE
+        hub = self.hub
+        if hub is None:
+            return True, self.target_temp, REASON_NORMAL
+        if not hub.heating_allowed:
+            floor = hub.frost_floor
+            cur = self.current_temperature
+            if self._frost_active and (cur is None or cur >= floor + 1):
+                self._frost_active = False
+            elif not self._frost_active and cur is not None and cur < floor:
+                self._frost_active = True
+            if self._frost_active:
+                return True, min(floor + 1, self.trv_max), REASON_FROST
+            return False, self.target_temp, REASON_SEASON
+        self._frost_active = False
+        if hub.stage in AWAY_STAGES:
+            if self._manual_until and now < self._manual_until:
+                return True, self.target_temp, REASON_MANUAL
+            mold = None
+            if self.humidity_sensor:
+                mold = mold_safe_min_temp(
+                    self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
+                )
+            target = setback_target(
+                self.target_temp, hub.stage, self.setback_short, self.setback_long, mold
+            )
+            if target < self.target_temp:
+                return True, target, hub.stage
+        self._manual_until = None
+        return True, self.target_temp, REASON_NORMAL
+
+    @property
+    def effective_target(self) -> float:
+        return self.plan()[1]
+
+    @callback
+    def on_hub_change(self) -> None:
+        """Zentrale hat sich geändert (Anwesenheit, Heizsaison, Einstellungen)."""
+        if not self._started:
+            return
+        self._notify()
+        self.hass.async_create_task(self._apply())
+
+    async def async_valve_care(self) -> None:
+        """Sommerpflege: Ventil kurz ganz öffnen, damit es nicht festsitzt."""
+        if not self.trv_available() or not self.hvac_on:
+            return
+        self._valve_care_until = dt_util.utcnow() + VALVE_CARE
+        await self._apply()
+
+        @callback
+        def _done() -> None:
+            self._valve_care_until = None
+            self.hass.async_create_task(self._apply())
+
+        self._schedule(VALVE_CARE.total_seconds() + 1, _done)
+
     @property
     def hvac_action(self) -> HVACAction:
-        if not self.hvac_on or self.paused:
+        if not self.hvac_on or self.paused or not self.plan()[0]:
             return HVACAction.OFF
         action = self._trv_attr("hvac_action")
         if action == HVACAction.HEATING or self._trv_attr("running_state") == "heat":
@@ -405,15 +517,25 @@ class RaumklimaController:
             return STATUS_OFF
         if self.paused:
             return STATUS_WINDOW
+        on, _target, reason = self.plan()
+        if not on and reason == REASON_SEASON:
+            return STATUS_SEASON
         if not self.sensor_ok:
             return STATUS_SENSOR
+        if reason in AWAY_STAGES:
+            return STATUS_SETBACK
         if self.hvac_action == HVACAction.HEATING:
             return STATUS_HEATING
         return STATUS_IDLE
 
     # ================================================================ Bedienung
     async def async_set_target(self, temperature: float) -> None:
-        self.target_temp = clamp(float(temperature), self.trv_min, self.trv_max)
+        new = clamp(float(temperature), self.trv_min, self.trv_max)
+        on, current, reason = self.plan()
+        if reason in AWAY_STAGES and new > current:
+            # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
+            self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
+        self.target_temp = new
         self._save()
         self._notify()
         await self._apply()
@@ -594,6 +716,8 @@ class RaumklimaController:
             return
         if follow:
             _LOGGER.info("%s: Sollwert am TRV geändert auf %s", self.name, new_t)
+            if self.plan()[2] in AWAY_STAGES:
+                self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
             self.target_temp = new_t
             self._save()
         else:
@@ -646,15 +770,16 @@ class RaumklimaController:
         )
 
     def _desired_setpoint(self) -> float:
+        target = self.effective_target
         if self.cal_mode == CAL_TARGET and self.sensor_ok:
             return calc_target_setpoint(
-                self.target_temp,
+                target,
                 self._ext_value,
                 self.trv_temperature,
                 low=self.trv_min,
                 high=self.trv_max,
             )
-        return clamp(self.target_temp, self.trv_min, self.trv_max)
+        return clamp(target, self.trv_min, self.trv_max)
 
     async def _call_climate(self, service: str, **data: Any) -> None:
         await self.hass.services.async_call(
@@ -668,7 +793,10 @@ class RaumklimaController:
         """Soll-Zustand berechnen und ans TRV senden (mit Prüfung)."""
         async with self._apply_lock:
             method = self._off_method()
-            want_on = self.hvac_on and not self.paused
+            plan_on, _target, reason = self.plan()
+            want_on = self.hvac_on and not self.paused and plan_on
+            if reason == REASON_VALVE_CARE and self.hvac_on:
+                want_on = True
 
             if not want_on:
                 self.sync.cancel("setpoint")
@@ -830,7 +958,16 @@ class RaumklimaController:
 
     @callback
     def _on_sync_failed(self, job: SyncJob) -> None:
-        if not self.config[CONF_NOTIFY]:
+        hub = self.hub
+        if hub and hub.has_targets(KIND_TRV_FAILURE):
+            hub.notify(
+                KIND_TRV_FAILURE,
+                f"⚠️ {self.name}: Thermostat reagiert nicht",
+                f"{job.description} wurde nach {job.attempts} Versuchen nicht bestätigt.",
+                speak=False,
+            )
+        notify_bell = hub.opt("notify_on_failure") if hub else self.config[CONF_NOTIFY]
+        if not notify_bell:
             return
         persistent_notification.async_create(
             self.hass,
@@ -876,6 +1013,8 @@ class RaumklimaController:
                 for key, job in self.sync.jobs.items()
             },
             "status": self.status,
+            "plan": list(self.plan()),
+            "manual_until": self._manual_until.isoformat() if self._manual_until else None,
             "valve_sensor": self.valve_sensor,
             "valve_position": self.valve_position,
             "ventilation": self.vent.diagnostics() if self.vent else None,

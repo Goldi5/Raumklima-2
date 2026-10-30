@@ -11,7 +11,8 @@ from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import RaumklimaConfigEntry
+from . import RaumklimaConfigEntry, is_hub_entry
+from .hub_platforms import hub_entities
 from .const import CAL_OFFSET, STATUSES, SYNC_STATES
 from .ventilation import VENT_STATES
 from .entity import RaumklimaEntity
@@ -22,6 +23,9 @@ async def async_setup_entry(
     entry: RaumklimaConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
+    if is_hub_entry(entry):
+        async_add_entities(hub_entities("sensor", entry.runtime_data))
+        return
     c = entry.runtime_data
     entities: list[SensorEntity] = [StatusSensor(c), SyncSensor(c)]
     if c.cal_mode == CAL_OFFSET:
