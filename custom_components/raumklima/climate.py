@@ -36,6 +36,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_target_temperature_step = 0.5
+    # Einstellungs-Übersicht nicht bei jeder Änderung in die Datenbank schreiben
+    _unrecorded_attributes = frozenset({"settings"})
     _attr_supported_features = (
         ClimateEntityFeature.TARGET_TEMPERATURE
         | ClimateEntityFeature.TURN_ON
@@ -102,6 +104,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "window_entities": c.windows,
             "humidity_sensor": bool(c.humidity_sensor),
             **(c.vent.attributes() if c.vent else {}),
+            "settings": c.settings_summary(),
         }
 
     async def async_set_temperature(self, **kwargs: Any) -> None:

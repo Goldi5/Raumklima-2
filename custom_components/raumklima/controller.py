@@ -244,6 +244,35 @@ class RaumklimaController:
         self._notify()
 
     @callback
+    def settings_summary(self) -> dict[str, Any]:
+        """Was eingestellt ist – für die Einstellungs-Karte."""
+        cfg = self.config
+        vent = self.vent
+        return {
+            "entry_id": self.entry.entry_id,
+            "trv": self.trv,
+            "room_type": vent.room_type if vent else cfg.get(CONF_ROOM_TYPE),
+            "weather_entity": vent.weather if vent else cfg.get(CONF_WEATHER),
+            "notify_targets": vent.notify_targets if vent else [],
+            "tts_targets": vent.tts_targets if vent else [],
+            "quiet_start": vent.quiet_start if vent else None,
+            "quiet_end": vent.quiet_end if vent else None,
+            "repeat_minutes": vent.repeat_minutes if vent else None,
+            "max_drop": vent.max_drop if vent else None,
+            "comfort_configured": cfg.get(CONF_COMFORT_TEMP) not in (None, "", 0),
+            "window_open_delay": cfg.get(CONF_WINDOW_OPEN_DELAY),
+            "window_close_delay": cfg.get(CONF_WINDOW_CLOSE_DELAY),
+            "calibration_mode": cfg.get(CONF_CALIBRATION_MODE),
+            "calibration_entity": cfg.get(CONF_CALIBRATION_ENTITY),
+            "on_preset": cfg.get(CONF_ON_PRESET),
+            "off_method": cfg.get(CONF_OFF_METHOD),
+            "follow_trv": cfg.get(CONF_FOLLOW_TRV),
+            "notify_on_failure": cfg.get(CONF_NOTIFY),
+            "sensor_stale_minutes": cfg.get(CONF_SENSOR_STALE_MINUTES),
+            "sync_verify_delay": cfg.get(CONF_SYNC_VERIFY_DELAY),
+            "sync_max_retries": cfg.get(CONF_SYNC_MAX_RETRIES),
+        }
+
     def fire_event(self, kind: str, data: dict[str, Any]) -> None:
         """Ereignis für eigene Automationen (raumklima_event)."""
         self.hass.bus.async_fire(

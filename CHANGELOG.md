@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.5 – 2026-10-30
+
+### Neu
+- **Einstellungskarte** `custom:raumklima-settings-card`: Übersicht „Wer bekommt was“
+  (Empfänger je Raum, Hinweise aus = durchgestrichen), „Wann gemeldet wird“ mit den
+  aktuellen Grenzwerten, Ruhezeit/Wiederholung/Wetterquelle und Tabelle aller Räume.
+  Pro Raum: Regler mit +/−, Schalter, Geräte, Kalibrierung und Übertragungsstatus.
+- Das Thermostat liefert die Einstellungen als Attribut `settings` (nicht im Verlauf
+  gespeichert).
+- Die Dashboard-Strategie nutzt die Karte im Reiter „Einstellungen“.
+
 ## 0.2.4 – 2026-10-30
 
 ### Neu

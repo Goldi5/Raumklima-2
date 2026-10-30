@@ -8,7 +8,7 @@ Verbindungsabbrüchen (z. B. über VPN).
 Entwickelt und gedacht für Tuya-TRVs über Zigbee2MQTT (z. B. TRV602Z / TS0601),
 funktioniert aber mit jedem `climate`-Thermostat.
 
-**Aktuelle Version: 0.2.4** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
+**Aktuelle Version: 0.2.5** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
 
 ## Funktionen
 
@@ -105,6 +105,18 @@ mode: temperature                      # temperature | humidity | timeline
 hours: 24                              # Start-Zeitraum, in der Karte umschaltbar (6 h / 24 h / 7 T)
 strip_prefix: Finja Berlin             # optional: Präfix aus den Raumnamen entfernen
 ```
+
+```yaml
+type: custom:raumklima-settings-card   # Einstellungen aller Räume (ab 0.2.5)
+strip_prefix: Finja Berlin
+```
+
+Die Einstellungskarte zeigt in der **Übersicht**, wer welche Hinweise bekommt
+(Push, Sprachansage, HA-Glocke – je Raum), wann gemeldet wird, Ruhezeit,
+Wiederholung, Wetterquelle und eine Tabelle aller Räume. Pro Raum lassen sich
+Mindesttemperatur, maximale Abkühlung und Feuchtegrenze direkt mit +/− ändern,
+Fensterlogik und Hinweise ein-/ausschalten und die Kalibrierung starten. Alles
+Weitere (Wunschtemperatur, Empfänger, Geräte …) öffnet „Weitere Einstellungen“.
 
 Die Verlaufskarte findet alle Raumklima-Räume automatisch: glatte Kurven je Raum,
 Wohlfühlbereich als Band (19–22 °C bzw. 40–60 %), Raum-Chips zum Ein-/Ausblenden,

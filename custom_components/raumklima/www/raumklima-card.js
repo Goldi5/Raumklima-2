@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.2.4";
+const RK_VERSION = "0.2.5";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -684,6 +684,291 @@ class RaumklimaHistoryCard extends HTMLElement {
   }
 }
 
+
+// ---------------------------------------------------------------- Einstellungen
+const RK_ROOM_TYPES = { living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", rarely_used: "Selten genutzt" };
+const RK_CAL = { offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Keine" };
+const RK_OFF = { auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" };
+const RK_SYNC = { ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] };
+
+function rkPretty(target) {
+  const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
+  return s.split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || target;
+}
+
+const SETTINGS_STYLES = `
+  .tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:14px -4px 4px; padding:2px 4px 6px; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { all:unset; cursor:pointer; white-space:nowrap; padding:8px 14px; border-radius:999px; font-size:.85rem; font-weight:600; color:var(--secondary-text-color);
+    background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); display:inline-flex; align-items:center; gap:6px; }
+  .tab ha-icon { --mdc-icon-size:16px; }
+  .tab.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
+  .tab .dot { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-ok)); }
+  ha-card.settings { container-type: inline-size; }
+  .groups { display:grid; grid-template-columns: 1fr; gap:14px; margin-top:12px; }
+  @container (min-width: 720px) { .groups { grid-template-columns: 1fr 1fr; } }
+  .grp { border-radius:22px; padding:16px 18px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); }
+  .grp.span { grid-column: 1 / -1; }
+  .gh { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .gh .ic { width:34px; height:34px; border-radius:12px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); }
+  .gh .ic ha-icon { --mdc-icon-size:19px; }
+  .gh b { font-size:.98rem; color:var(--primary-text-color); flex:1; }
+  .gh small { color:var(--secondary-text-color); font-size:.75rem; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); min-height:30px; }
+  .row:first-of-type { border-top:0; }
+  .row .l { font-size:.87rem; color:var(--primary-text-color); }
+  .row .l small { display:block; color:var(--secondary-text-color); font-size:.74rem; margin-top:1px; }
+  .row .v { font-size:.87rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
+  .row .v.mute { color:var(--secondary-text-color); font-weight:500; }
+  .stepper { display:inline-flex; align-items:center; gap:4px; background: var(--ha-card-background, var(--card-background-color)); border-radius:999px; padding:3px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .stepper button { all:unset; cursor:pointer; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:1.05rem; font-weight:700; color:var(--g); background: color-mix(in srgb, var(--g) 12%, transparent); }
+  .stepper button:active { transform: scale(.92); }
+  .stepper span { min-width:58px; text-align:center; font-weight:650; font-variant-numeric:tabular-nums; font-size:.9rem; color:var(--primary-text-color); }
+  .tgl { all:unset; cursor:pointer; width:44px; height:26px; border-radius:999px; position:relative; background: color-mix(in srgb, var(--primary-text-color) 18%, transparent); transition: background .2s; flex:none; }
+  .tgl::after { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+  .tgl.on { background: var(--g, var(--rk-ok)); }
+  .tgl.on::after { transform: translateX(18px); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+  .chip2 { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:.78rem; font-weight:600; background: color-mix(in srgb, var(--c, var(--rk-air)) 14%, transparent); color: var(--primary-text-color); }
+  .chip2 i { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-air)); }
+  .chip2.off { opacity:.45; text-decoration: line-through; }
+  .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:10px; }
+  .person { display:flex; gap:12px; align-items:flex-start; padding:12px; border-radius:18px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .av { width:40px; height:40px; border-radius:14px; flex:none; display:grid; place-items:center; font-weight:700; color:#fff; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 60%, #000)); }
+  .av ha-icon { --mdc-icon-size:20px; }
+  .person b { display:block; font-size:.92rem; color:var(--primary-text-color); }
+  .person small { display:block; font-size:.75rem; color:var(--secondary-text-color); margin:1px 0 7px; }
+  .person .chips { justify-content:flex-start; }
+  .msgs { display:grid; gap:8px; }
+  .msg { display:grid; grid-template-columns: 34px 1fr auto; gap:12px; align-items:center; padding:10px 12px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .msg .e { font-size:1.25rem; text-align:center; }
+  .msg b { font-size:.88rem; color:var(--primary-text-color); display:block; }
+  .msg small { font-size:.76rem; color:var(--secondary-text-color); }
+  .msg .tag { font-size:.7rem; font-weight:700; padding:3px 8px; border-radius:999px; background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) 75%, var(--primary-text-color)); white-space:nowrap; }
+  .tbl { width:100%; border-collapse:separate; border-spacing:0 6px; font-size:.84rem; }
+  .tblwrap { overflow-x:auto; margin: 0 -4px; padding: 0 4px; }
+  .tbl th { text-align:left; font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--secondary-text-color); padding:0 10px 2px; white-space:nowrap; }
+  .tbl td { padding:10px; background: var(--ha-card-background, var(--card-background-color)); white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--primary-text-color); }
+  .tbl tr td:first-child { border-radius:14px 0 0 14px; font-weight:650; }
+  .tbl tr td:last-child { border-radius:0 14px 14px 0; }
+  .tbl tbody tr { cursor:pointer; }
+  .tbl tbody tr:hover td { background: color-mix(in srgb, var(--primary-text-color) 4%, var(--ha-card-background, var(--card-background-color))); }
+  .tbl .rn { display:flex; align-items:center; gap:8px; }
+  .tbl .rn i { width:9px; height:9px; border-radius:50%; background: var(--c); }
+  .ok { color: var(--rk-ok); } .no { color: var(--secondary-text-color); }
+  .foot { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+  .btn { all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:14px; font-weight:600; font-size:.86rem;
+    background: color-mix(in srgb, var(--c, var(--primary-text-color)) 9%, transparent); color: var(--primary-text-color); }
+  .btn ha-icon { --mdc-icon-size:18px; color: var(--c, var(--primary-text-color)); }
+  .btn.primary { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
+  .btn.primary ha-icon { color: inherit; }
+  .hint { font-size:.78rem; color:var(--secondary-text-color); margin-top:12px; line-height:1.45; }
+`;
+
+class RaumklimaSettingsCard extends HTMLElement {
+  static getConfigForm() {
+    return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }] };
+  }
+  static getStubConfig() { return {}; }
+  setConfig(config) {
+    this._config = { ...config };
+    this._tab = this._tab || "overview";
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+  }
+  getCardSize() { return 12; }
+  getGridOptions() { return { columns: "full", rows: "auto" }; }
+  connectedCallback() { this.style.display = "block"; }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._rooms = rkRooms(hass, this._config.strip_prefix || "");
+    const sig = JSON.stringify(this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)])) + this._tab;
+    if (sig === this._sig) return;
+    this._sig = sig;
+    this._render();
+  }
+
+  _st(id) { return id ? this._hass.states[id] : undefined; }
+  _name(id) { const s = this._st(id); return (s && s.attributes.friendly_name) || id || "–"; }
+
+  _stepper(id, unit, dec = 0) {
+    const s = this._st(id);
+    if (!s) return `<span class="v mute">–</span>`;
+    const v = parseFloat(s.state);
+    return `<div class="stepper"><button data-num="${id}" data-d="-1" aria-label="weniger">−</button><span>${isNaN(v) ? "–" : fmt(v, dec)}${unit}</span><button data-num="${id}" data-d="1" aria-label="mehr">+</button></div>`;
+  }
+  _toggle(id) {
+    const s = this._st(id);
+    if (!s) return `<span class="v mute">–</span>`;
+    return `<button class="tgl ${s.state === "on" ? "on" : ""}" data-tgl="${id}" aria-label="umschalten"></button>`;
+  }
+  _row(label, value, sub) { return `<div class="row"><div class="l">${label}${sub ? `<small>${sub}</small>` : ""}</div>${value}</div>`; }
+  _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${text}</span>`; }
+  _grp(title, icon, tone, rows, extra = "", cls = "") {
+    return `<div class="grp ${cls}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${title}</b>${extra}</div>${rows}</div>`;
+  }
+
+  _recipients() {
+    const map = new Map();
+    const add = (key, kind, room, on) => {
+      if (!map.has(key)) map.set(key, { key, kind, rooms: [] });
+      map.get(key).rooms.push({ room, on });
+    };
+    for (const r of this._rooms) {
+      const s = r.attrs.settings || {};
+      const on = !r.sib.notifications || (this._st(r.sib.notifications) || {}).state !== "off";
+      (s.notify_targets || []).forEach((t) => add(t, "push", r, on));
+      (s.tts_targets || []).forEach((t) => add(t, "tts", r, on));
+      if (s.notify_on_failure) add("__ha__", "ha", r, true);
+    }
+    return [...map.values()];
+  }
+
+  _overview() {
+    const rooms = this._rooms;
+    const S = (r) => r.attrs.settings || {};
+    const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
+    const people = this._recipients().map((p, i) => {
+      const isHa = p.kind === "ha";
+      const label = isHa ? "Home Assistant" : rkPretty(p.key);
+      const sub = isHa ? "Glocke in der Seitenleiste · Thermostat-Fehler" : p.kind === "tts" ? "Sprachansage · nur bei Auskühlen & Wiederholungen" : "Push aufs Handy · alle Lüftungshinweise";
+      const c = isHa ? "#8a94a6" : palette[i % palette.length];
+      const av = isHa ? `<ha-icon icon="mdi:home-assistant"></ha-icon>` : p.kind === "tts" ? `<ha-icon icon="mdi:speaker"></ha-icon>` : label[0];
+      const chips = p.rooms.map(({ room, on }) => `<span class="chip2 ${on ? "" : "off"}" style="--c:${room.color}" title="${on ? "aktiv" : "Hinweise aus"}"><i></i>${room.name}</span>`).join("");
+      return `<div class="person"><div class="av" style="--c:${c}">${av}</div><div><b>${label}</b><small>${sub}</small><div class="chips">${chips}</div></div></div>`;
+    }).join("") || `<div class="hint">Noch kein Empfänger eingetragen. Unter „Weitere Einstellungen“ → Lüften &amp; Hinweise kannst du einen hinzufügen.</div>`;
+
+    const uniq = (f) => [...new Set(rooms.map((r) => f(r)).filter((x) => x !== undefined && x !== null && x !== ""))];
+    const hums = uniq((r) => r.attrs.humidity_limit);
+    const humTxt = hums.length === 1 ? `ab ${fmt(hums[0], 0)} %` : hums.length ? `ab ${fmt(Math.min(...hums), 0)}–${fmt(Math.max(...hums), 0)} % je Raum` : "";
+    const drops = uniq((r) => S(r).max_drop);
+    const dropTxt = drops.length === 1 ? `${fmt(drops[0], 1)} °C` : "der eingestellten Abkühlung";
+    const rec = uniq((r) => r.attrs.recommended_minutes);
+    const out = rooms.find((r) => r.attrs.outdoor_temperature !== undefined && r.attrs.outdoor_temperature !== null);
+    const recTxt = rec.length ? `aktuell ${rec[0]} min${out ? ` bei ${fmt(out.attrs.outdoor_temperature)} °C draußen` : ""}` : "";
+    const quiet = uniq((r) => S(r).quiet_start && `${S(r).quiet_start}–${S(r).quiet_end}`);
+    const repeat = uniq((r) => S(r).repeat_minutes);
+    const msgs = [
+      ["💧", "Bitte lüften", `Luftfeuchte ${humTxt} seit 15 min – nur wenn Lüften auch trocknet`, "Push", "air"],
+      ["🪟", "Fenster schließen", `Empfohlene Lüftdauer erreicht (${recTxt || "je nach Außentemperatur"})`, "Push", "air"],
+      ["🥶", "Raum kühlt aus", `Unter Mindesttemperatur oder ${dropTxt} kälter als beim Öffnen – auch in Ruhezeiten`, "Push + Sprache", "cold"],
+      ["✅", "Luft ausgetauscht", "Feuchte wieder unter der Grenze – Fenster kann zu", "Push, leise", "ok"],
+      ["⚠️", "Thermostat reagiert nicht", "Nach allen Wiederholversuchen (z. B. VPN- oder Funkausfall)", "HA-Glocke", "warn"],
+    ].map(([e, t, d, tag, tone]) => `<div class="msg"><div class="e">${e}</div><div><b>${t}</b><small>${d}</small></div><span class="tag" style="--c:${toneVar(tone)}">${tag}</span></div>`).join("");
+
+    const yes = (b) => (b ? `<span class="ok">● an</span>` : `<span class="no">○ aus</span>`);
+    const rowsT = rooms.map((r) => {
+      const s = S(r);
+      const notif = (this._st(r.sib.notifications) || {}).state === "on";
+      const wl = (this._st(r.sib.window_logic) || {}).state === "on";
+      return `<tr data-tab="${r.id}"><td><span class="rn" style="--c:${r.color}"><i></i>${r.name}</span></td>
+        <td>${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</td>
+        <td>${fmt(r.attrs.comfort_temperature)} °C</td>
+        <td>${fmt(r.attrs.min_temp)} °C</td>
+        <td>${fmt(r.attrs.humidity_limit, 0)} %</td>
+        <td>${s.max_drop != null ? fmt(s.max_drop, 1) + " °C" : "–"}</td>
+        <td>${yes(wl)}</td><td>${yes(notif)}</td></tr>`;
+    }).join("");
+
+    return `<div class="groups">
+      ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `<div class="people">${people}</div>`, "", "span")}
+      ${this._grp("Wann gemeldet wird", "mdi:bell-ring-outline", "heat", `<div class="msgs">${msgs}</div>`)}
+      ${this._grp("Allgemein", "mdi:clock-outline", "ok", [
+        this._row("Ruhezeit", this._v(quiet.length === 1 ? quiet[0] + " Uhr" : quiet.length ? "je Raum verschieden" : "–"), "Nur „Raum kühlt aus“ wird dann gemeldet"),
+        this._row("Erinnern alle", this._v(repeat.length === 1 ? `${fmt(repeat[0], 0)} min` : repeat.length ? "je Raum verschieden" : "–"), "solange das Problem besteht"),
+        this._row("Wetterquelle", this._v(this._name(uniq((r) => S(r).weather_entity)[0])), out ? `Draußen ${fmt(out.attrs.outdoor_temperature)} °C · ${fmt(out.attrs.outdoor_humidity, 0)} %` : ""),
+        this._row("Aktionen in der Push", this._v("Erledigt · Später · Heute nicht mehr", true)),
+      ].join(""))}
+      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>Raum</th><th>Typ</th><th>Wunsch</th><th>Minimum</th><th>Feuchte</th><th>Max. Abkühl.</th><th>Fensterlogik</th><th>Hinweise</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">Tippe auf einen Raum, um seine Einstellungen zu ändern.</div>`, "", "span")}
+    </div>`;
+  }
+
+  _room(r) {
+    const a = r.attrs, s = a.settings || {}, sib = r.sib;
+    const sync = RK_SYNC[a.sync] || ["–", "off"];
+    const contacts = (a.window_entities || []).map((w) => { const st = this._st(w); const open = st && st.state === "on"; return `<span class="chip2" style="--c:${open ? "var(--rk-air)" : "var(--rk-off)"}"><i></i>${this._name(w).replace(/^.*?(fenster|window)/i, (m, x) => x)} · ${open ? "offen" : "zu"}</span>`; }).join("") || `<span class="v mute">keine</span>`;
+    const targets = (list, off) => (list && list.length ? `<div class="chips">${list.map((t) => `<span class="chip2 ${off ? "off" : ""}"><i></i>${rkPretty(t)}</span>`).join("")}</div>` : this._v("niemand", true));
+    const notifOff = (this._st(sib.notifications) || {}).state === "off";
+    const offTxt = a.offset !== undefined && a.offset !== null ? `aktuell ${a.offset > 0 ? "+" : ""}${fmt(a.offset, 1)} °C` : "";
+    return `<div class="groups">
+      ${this._grp("Temperatur", "mdi:thermometer", "heat", [
+        this._row("Wunschtemperatur", this._v(`${fmt(a.comfort_temperature)} °C`), s.comfort_configured ? "selbst festgelegt" : `Standard für ${RK_ROOM_TYPES[s.room_type] || "den Raum"}`),
+        this._row("Mindesttemperatur", this._stepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
+        this._row("Max. Abkühlung beim Lüften", this._stepper(sib.max_drop, " °C", 1)),
+        this._row("Raumtyp", this._v(RK_ROOM_TYPES[s.room_type] || "–")),
+      ].join(""))}
+      ${this._grp("Lüften & Feuchte", "mdi:water-percent", "air", [
+        this._row("Feuchtegrenze", this._stepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“"),
+        this._row("Jetzt", this._v(a.current_humidity != null ? `${fmt(a.current_humidity, 0)} % · Taupunkt ${fmt(a.dew_point)} °C` : "–")),
+        this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? `bei ${fmt(a.outdoor_temperature)} °C draußen` : ""),
+        this._row("Lüften trocknet gerade", this._v(a.airing_dries === false ? "nein – draußen feuchter" : "ja")),
+      ].join(""))}
+      ${this._grp("Fenster", "mdi:window-open-variant", "ok", [
+        this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
+        this._row("Pause nach", this._v(`${s.window_open_delay ?? "–"} s offen`)),
+        this._row("Weiter nach", this._v(`${s.window_close_delay ?? "–"} s zu`)),
+        this._row("Kontakte", `<div class="chips">${contacts}</div>`),
+      ].join(""))}
+      ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
+        this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
+        this._row("Push an", targets(s.notify_targets, notifOff)),
+        this._row("Sprachansage", targets(s.tts_targets, notifOff)),
+        this._row("Ruhezeit", this._v(s.quiet_start ? `${s.quiet_start}–${s.quiet_end} Uhr` : "–")),
+        this._row("Erinnern alle", this._v(s.repeat_minutes ? `${fmt(s.repeat_minutes, 0)} min` : "–")),
+        this._row("Thermostat-Fehler melden", this._v(s.notify_on_failure ? "ja (Glocke)" : "nein", !s.notify_on_failure)),
+      ].join(""))}
+      ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
+        this._row("Thermostat", this._v(this._name(s.trv))),
+        this._row("Temperaturfühler", this._v(this._name(a.temperature_sensor))),
+        this._row("Feuchtefühler", this._v(a.humidity_entity ? this._name(a.humidity_entity) : "keiner", !a.humidity_entity)),
+        this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"), offTxt),
+        this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? "Automatisch" : `Preset „${s.on_preset}“`)),
+        this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
+        this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? "ja" : "nein")),
+        this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, `prüft nach ${s.sync_verify_delay ?? "–"} s · bis zu ${s.sync_max_retries ?? "–"} Wiederholungen`),
+      ].join(""), "", "span")}
+    </div>
+    <div class="foot">
+      ${sib.calibrate ? `<button class="btn" data-press="${sib.calibrate}" style="--c:var(--rk-heat)"><ha-icon icon="mdi:tune-vertical"></ha-icon>Jetzt kalibrieren</button>` : ""}
+      <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>Weitere Einstellungen ändern</button>
+    </div>
+    <div class="hint">Wunschtemperatur, Raumtyp, Empfänger, Ruhezeiten und Geräte änderst du unter „Weitere Einstellungen“ → Zahnrad beim Raum „${r.name}“.</div>`;
+  }
+
+  _render() {
+    const rooms = this._rooms;
+    if (this._tab !== "overview" && !rooms.find((r) => r.id === this._tab)) this._tab = "overview";
+    const tabs = `<button class="tab ${this._tab === "overview" ? "on" : ""}" data-tab="overview"><ha-icon icon="mdi:view-dashboard-outline"></ha-icon>Übersicht</button>` +
+      rooms.map((r) => `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}</button>`).join("");
+    const room = rooms.find((r) => r.id === this._tab);
+    const body = room ? this._room(room) : this._overview();
+    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}</style>
+      <ha-card class="settings" style="--tone:${toneVar("off")}">
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${this._config.title || "Einstellungen"}</div></div>
+        <div class="tabs">${tabs}</div>
+        ${body}
+      </ha-card>`;
+    const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
+    $("[data-tab]").forEach((el) => el.addEventListener("click", () => { this._tab = el.dataset.tab; this._sig = null; this._render(); }));
+    $("[data-tgl]").forEach((el) => el.addEventListener("click", () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl })));
+    $("[data-press]").forEach((el) => el.addEventListener("click", () => this._hass.callService("button", "press", { entity_id: el.dataset.press })));
+    $("[data-num]").forEach((el) => el.addEventListener("click", () => {
+      const s = this._st(el.dataset.num);
+      if (!s) return;
+      const step = parseFloat(s.attributes.step) || 1;
+      const min = parseFloat(s.attributes.min), max = parseFloat(s.attributes.max);
+      let v = Math.round((parseFloat(s.state) + step * parseInt(el.dataset.d, 10)) * 100) / 100;
+      if (!isNaN(min)) v = Math.max(min, v);
+      if (!isNaN(max)) v = Math.min(max, v);
+      this._hass.callService("number", "set_value", { entity_id: el.dataset.num, value: v });
+    }));
+    $("[data-nav]").forEach((el) => el.addEventListener("click", () => {
+      history.pushState(null, "", el.dataset.nav);
+      window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
+    }));
+  }
+}
+
 // ---------------------------------------------------------------- Dashboard-Strategie
 const ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 
@@ -726,22 +1011,9 @@ class RaumklimaDashboardStrategy extends HTMLElement {
       ],
     };
 
-    const num = (id, name) => (id ? { type: "tile", entity: id, name, hide_state: true, features_position: "inline", features: [{ type: "numeric-input", style: "buttons" }], grid_options: { columns: 12 } } : null);
-    const sw = (id, name) => (id ? { type: "tile", entity: id, name, grid_options: { columns: 6 } } : null);
     const settingsView = {
-      title: "Einstellungen", path: "einstellungen", icon: "mdi:tune-variant", type: "sections", max_columns: 3,
-      sections: rooms.map((r) => ({
-        type: "grid",
-        cards: [
-          { type: "heading", heading: r.name, icon: "mdi:door", badges: r.sib.problem ? [{ type: "entity", entity: r.sib.problem, show_state: false }] : [] },
-          num(r.sib.humidity_limit, "Feuchtegrenze"),
-          num(r.sib.min_temp, "Mindesttemperatur"),
-          num(r.sib.max_drop, "Max. Abkühlung"),
-          sw(r.sib.notifications, "Hinweise"),
-          sw(r.sib.window_logic, "Fensterlogik"),
-          r.sib.calibrate ? { type: "tile", entity: r.sib.calibrate, name: "Jetzt kalibrieren", grid_options: { columns: 12 } } : null,
-        ].filter(Boolean),
-      })),
+      title: "Einstellungen", path: "einstellungen", icon: "mdi:tune-variant", type: "sections", max_columns: 2,
+      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-settings-card", strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
     return { title: config.title || "Heizung", views: [roomsView, historyView, settingsView] };
@@ -755,9 +1027,11 @@ if (!window.customCards.find((c) => c.type === "raumklima-card")) {
   window.customCards.push(
     { type: "raumklima-card", name: "Raumklima – Raum", description: "Thermostat, Lüften und Klima eines Raums", preview: true },
     { type: "raumklima-overview-card", name: "Raumklima – Übersicht", description: "Alle Räume und Außenklima auf einen Blick", preview: true },
+    { type: "raumklima-settings-card", name: "Raumklima – Einstellungen", description: "Was eingestellt ist, wer welche Hinweise bekommt – mit Reglern", preview: false },
     { type: "raumklima-history-card", name: "Raumklima – Verlauf", description: "Temperatur, Luftfeuchte oder Zeitleiste aller Räume", preview: false },
   );
 }
+if (!customElements.get("raumklima-settings-card")) customElements.define("raumklima-settings-card", RaumklimaSettingsCard);
 if (!customElements.get("raumklima-history-card")) customElements.define("raumklima-history-card", RaumklimaHistoryCard);
 if (!customElements.get("ll-strategy-dashboard-raumklima")) customElements.define("ll-strategy-dashboard-raumklima", RaumklimaDashboardStrategy);
 window.customStrategies = window.customStrategies || [];
