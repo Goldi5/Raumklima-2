@@ -310,7 +310,8 @@
           "sensor_unavailable": "Fühler ausgefallen",
           "trv_unavailable": "Thermostat nicht erreichbar",
           "season_off": "Heizpause",
-          "setback": "Abgesenkt – niemand da"
+          "setback": "Abgesenkt – niemand da",
+          "night_airing": "Nachtlüften – Fenster offen"
         }
       },
       "presence": {

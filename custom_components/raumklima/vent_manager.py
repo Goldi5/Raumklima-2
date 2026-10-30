@@ -25,9 +25,11 @@ from .const import (
     KIND_VENT_DONE,
     KIND_VENT_OPEN,
     KIND_WINDOW_AWAY,
+    CONF_NIGHT_ALARM,
     NOTIFY_ACTION_EVENT,
 )
 from .logic import to_float
+from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, morning_after, mute_until
 from .ventilation import (
     DEFAULT_ROOM_TYPE,
     ROOM_TYPES,
@@ -99,6 +101,8 @@ class VentilationManager:
         self.muted_until: datetime | None = None
         self._last_sent: dict[str, datetime] = {}
         self._repeat_count: dict[str, int] = {}
+        self._night_alarm_sent = False
+        self._night_morning_sent: datetime | None = None
         self._unsubs: list[Callable[[], None]] = []
 
     def load(self, stored: dict[str, Any] | None) -> None:
@@ -254,6 +258,8 @@ class VentilationManager:
             self.temp_at_open = self.c.current_temperature
             self._repeat_count.pop(VENT_PLEASE_CLOSE, None)
             self._repeat_count.pop(VENT_TOO_COLD, None)
+            self._night_alarm_sent = False
+            self._night_morning_sent = None
         elif not is_open and self.window_open_since:
             self.window_open_since = None
             self.temp_at_open = None
@@ -297,13 +303,57 @@ class VentilationManager:
         changed = new != self.state
         self.state = new
         self._check_window_away()
-        if new in MESSAGES:
+        if self.c.night_airing:
+            self._night_update(now, changed)
+        elif new in MESSAGES:
             self._maybe_send(new, changed)
         elif changed and new in (VENT_OK, VENT_AIRING):
             self._clear_phone_notification()
         if changed:
             self.c.fire_event("ventilation", {"state": new})
             self.c.notify_listeners()
+
+    # ------------------------------------------------------------ Nachtlüften
+    def _night_update(self, now: datetime, changed: bool) -> None:
+        """Schlafen bei offenem Fenster: keine Lüft-Hinweise, nur Kälte-Notfall und Morgengruß."""
+        if changed and self.state in (VENT_PLEASE_CLOSE, VENT_TOO_COLD):
+            self._clear_phone_notification()
+        hub = self.c.hub
+        if not self.enabled or hub is None:
+            return
+        temp = self.c.current_temperature
+        alarm = float(hub.opt(CONF_NIGHT_ALARM) or NIGHT_ALARM_TEMP)
+        if temp is not None and temp < alarm and not self._night_alarm_sent:
+            self._night_alarm_sent = True
+            hub.notify(
+                KIND_TOO_COLD,
+                f"🌙 {self.c.name}: sehr kalt",
+                f"Das Fenster ist offen und es sind nur noch {temp:.1f} °C. Vielleicht doch schließen?",
+                data={"tag": f"{self._tag()}_night", "group": "raumklima", "push": {"interruption-level": "passive"}},
+                speak=False,
+            )
+        if self.muted_until and now < self.muted_until:
+            return
+        if self.snooze_until and now < self.snooze_until:
+            return
+        since = self.c.night_since
+        if since is None:
+            return
+        morning = dt_util.as_utc(morning_after(dt_util.as_local(since), self.quiet_end))
+        if now < morning:
+            return
+        last = self._night_morning_sent
+        if last and now - last < NIGHT_MORNING_REPEAT:
+            return
+        self._night_morning_sent = now
+        self.hass.async_create_task(
+            self._send(
+                VENT_PLEASE_CLOSE,
+                f"☀️ {self.c.name}: Fenster noch offen",
+                "Guten Morgen! Die Heizung wartet – sobald das Fenster zu ist, wird der Raum wieder warm.",
+                speak=False,
+            )
+        )
 
     # ------------------------------------------------------------ Benachrichtigung
     def _check_window_away(self) -> None:
@@ -371,6 +421,9 @@ class VentilationManager:
             )
         )
 
+    def _mute_label(self) -> str:
+        return "Heute nicht mehr" if mute_until(dt_util.now(), self.quiet_end).hour == 0 else "Bis morgen früh"
+
     def _tag(self) -> str:
         return f"raumklima_{self.c.entry.entry_id}"
 
@@ -390,7 +443,7 @@ class VentilationManager:
                     "actions": [
                         {"action": self._action_id("DONE"), "title": "Erledigt"},
                         {"action": self._action_id("SNOOZE"), "title": f"In {SNOOZE_MINUTES} min erinnern"},
-                        {"action": self._action_id("MUTE"), "title": "Heute nicht mehr"},
+                        {"action": self._action_id("MUTE"), "title": self._mute_label()},
                     ],
                 },
                 speak=speak,
@@ -404,7 +457,7 @@ class VentilationManager:
             "actions": [
                 {"action": self._action_id("DONE"), "title": "Erledigt"},
                 {"action": self._action_id("SNOOZE"), "title": f"In {SNOOZE_MINUTES} min erinnern"},
-                {"action": self._action_id("MUTE"), "title": "Heute nicht mehr"},
+                {"action": self._action_id("MUTE"), "title": self._mute_label()},
             ],
             "push": {"interruption-level": "time-sensitive" if kind == VENT_TOO_COLD else "active"},
         }
@@ -451,9 +504,7 @@ class VentilationManager:
         if action == self._action_id("SNOOZE"):
             self.snooze_until = now + timedelta(minutes=SNOOZE_MINUTES)
         elif action == self._action_id("MUTE"):
-            local = dt_util.now()
-            midnight = (local + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            self.muted_until = dt_util.as_utc(midnight)
+            self.muted_until = dt_util.as_utc(mute_until(dt_util.now(), self.quiet_end))
         elif action == self._action_id("DONE"):
             self.snooze_until = now + timedelta(minutes=SNOOZE_MINUTES)
         _LOGGER.info("%s: Benachrichtigungs-Aktion %s", self.c.name, action)

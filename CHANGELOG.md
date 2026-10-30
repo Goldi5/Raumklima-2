@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.1 – 2026-10-30
+
+### Neu
+- **Nachtlüften:** Geht abends (20–3 Uhr, einstellbar) in einem Schlafraum ein Fenster auf, während
+  jemand zu Hause ist, gilt das als Schlafen bei offenem Fenster: Heizung wartet, keine Hinweise
+  „Fenster schließen“ oder „Raum kühlt aus“ (die sonst trotz Ruhezeit laut kämen). Nur unter 12 °C
+  einmal eine leise Warnung; morgens zum Ende der Ruhezeit „Fenster noch offen – Heizung wartet“
+  (danach höchstens alle 30 min). Pro Raum: Automatisch (Schlafzimmer, selten genutzt) / Ja / Nein.
+  Eigener Zustand „Nachtlüften“ in Zeitleiste und Bericht.
+
+### Behoben
+- „Heute nicht mehr“ in der Push galt abends nur bis Mitternacht – jetzt bis zum Ende der Ruhezeit
+  am nächsten Morgen (Knopf heißt dann „Bis morgen früh“).
+
+
 ## 0.4.0 – 2026-10-30
 
 ### Neu

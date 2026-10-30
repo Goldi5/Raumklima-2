@@ -18,6 +18,10 @@ from .const import (
     CONF_FROST_FLOOR,
     CONF_HEATING_LIMIT,
     CONF_LONG_AWAY_HOURS,
+    CONF_NIGHT_AIRING,
+    CONF_NIGHT_ALARM,
+    CONF_NIGHT_END,
+    CONF_NIGHT_START,
     CONF_PREHEAT_KM,
     CONF_RECIPIENTS,
     CONF_RESIDENTS,
@@ -38,6 +42,7 @@ from .const import (
     ROOM_TYPE_OPTIONS,
     SEASON_MODES,
 )
+from .planning import NIGHT_MODES
 from .hub import domain_data, get_hub
 
 _KINDS = [vol.In(KINDS)]
@@ -87,6 +92,9 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_COLD_SNAP_TEMP): vol.All(vol.Coerce(float), vol.Range(0, 20)),
         vol.Optional(CONF_FROST_FLOOR): vol.All(vol.Coerce(float), vol.Range(5, 20)),
         vol.Optional(CONF_VALVE_CARE): bool,
+        vol.Optional(CONF_NIGHT_START): _TIME,
+        vol.Optional(CONF_NIGHT_END): _TIME,
+        vol.Optional(CONF_NIGHT_ALARM): vol.All(vol.Coerce(float), vol.Range(5, 20)),
     }
 )
 
@@ -98,6 +106,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_SETBACK_LONG): vol.All(vol.Coerce(float), vol.Range(8, 22)),
         vol.Optional(CONF_WINDOW_OPEN_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 600)),
         vol.Optional(CONF_WINDOW_CLOSE_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 600)),
+        vol.Optional(CONF_NIGHT_AIRING): vol.In(NIGHT_MODES),
     }
 )
 

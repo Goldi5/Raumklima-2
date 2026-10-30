@@ -310,7 +310,8 @@
           "sensor_unavailable": "Sensor unavailable",
           "trv_unavailable": "Thermostat unavailable",
           "season_off": "Heating pause",
-          "setback": "Lowered – nobody home"
+          "setback": "Lowered – nobody home",
+          "night_airing": "Night airing – window open"
         }
       },
       "presence": {

@@ -63,6 +63,9 @@ from .const import (
     PRESET_GRACE_SECONDS,
     CONF_ON_PRESET,
     CONF_SETBACK_LONG,
+    CONF_NIGHT_AIRING,
+    CONF_NIGHT_END,
+    CONF_NIGHT_START,
     CONF_SETBACK_SHORT,
     KIND_TRV_FAILURE,
     ON_PRESET_AUTO,
@@ -78,6 +81,7 @@ from .const import (
     STATUS_SEASON,
     STATUS_SENSOR,
     STATUS_SETBACK,
+    STATUS_NIGHT,
     STATUS_TRV,
     STATUS_WINDOW,
 )
@@ -94,7 +98,10 @@ from .hub import RaumklimaHub, domain_data, get_hub
 from .stats import RoomSample
 from .planning import (
     AWAY_STAGES,
+    NIGHT_AUTO,
+    in_time_window,
     mold_safe_min_temp,
+    night_airing_applies,
     setback_defaults,
     setback_target,
 )
@@ -155,6 +162,7 @@ class RaumklimaController:
         # Laufzeit
         self.window_paused = False
         self._window_raw = False
+        self.night_since: datetime | None = None  # Schlafen bei offenem Fenster seit
         self._last_valid_windows: dict[str, str | None] = {}
         self._window_timer: Callable[[], None] | None = None
         self._ext_value: float | None = None
@@ -248,6 +256,8 @@ class RaumklimaController:
                 self._last_valid_windows[entity] = state.state
         self._window_raw = any_open(self._last_valid_windows, self.windows)
         self.window_paused = self._window_raw
+        if self._window_raw and self.night_applies():
+            self.night_since = dt_util.utcnow()
         self._ingest_sensor(self.hass.states.get(self.temp_sensor))
         await self.vent.async_start()
 
@@ -312,6 +322,7 @@ class RaumklimaController:
             "comfort_temperature": cfg.get(CONF_COMFORT_TEMP),
             "setback_short": self.setback_short,
             "setback_long": self.setback_long,
+            "night_airing": self.night_mode,
             "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
             "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),
             "windows": self.windows,
@@ -437,6 +448,29 @@ class RaumklimaController:
         return self.window_logic and self.window_paused
 
     @property
+    def night_mode(self) -> str:
+        return str(self.config.get(CONF_NIGHT_AIRING) or NIGHT_AUTO)
+
+    def night_applies(self) -> bool:
+        """Würde ein jetzt geöffnetes Fenster als Nachtlüften zählen?"""
+        hub = self.hub
+        if hub is None:
+            return False
+        local = dt_util.now()
+        room_type = self.vent.room_type if self.vent else self.config.get(CONF_ROOM_TYPE)
+        return night_airing_applies(
+            self.night_mode,
+            room_type,
+            in_time_window(local, str(hub.opt(CONF_NIGHT_START)), str(hub.opt(CONF_NIGHT_END))),
+            not hub.nobody_home,
+        )
+
+    @property
+    def night_airing(self) -> bool:
+        """Fenster offen, weil bei offenem Fenster geschlafen wird."""
+        return self._window_raw and self.night_since is not None
+
+    @property
     def window_open(self) -> bool:
         """Mindestens ein Fenster offen (ohne Verzögerung)."""
         return self._window_raw
@@ -554,7 +588,7 @@ class RaumklimaController:
         if not self.hvac_on:
             return STATUS_OFF
         if self.paused:
-            return STATUS_WINDOW
+            return STATUS_NIGHT if self.night_airing else STATUS_WINDOW
         on, _target, reason = self.plan()
         if not on and reason == REASON_SEASON:
             return STATUS_SEASON
@@ -582,6 +616,7 @@ class RaumklimaController:
             humidity_limit=self.vent.humidity_limit if self.humidity_sensor else None,
             mold=self.vent.mold_risk,
             window_open=self.window_open,
+            night=self.night_airing,
         )
 
     def record_history(self, now: datetime) -> None:
@@ -727,6 +762,10 @@ class RaumklimaController:
         if raw == self._window_raw and (self._window_timer or raw == self.window_paused):
             return
         self._window_raw = raw
+        if raw and self.night_since is None and self.night_applies():
+            self.night_since = dt_util.utcnow()
+        elif not raw:
+            self.night_since = None
         if self.vent:
             self.vent.on_window_raw(raw)
         if self._window_timer:

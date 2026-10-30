@@ -19,12 +19,23 @@ Unter **Einstellungen → Allgemein → Wer bekommt was** wählst du für jeden 
 
 **Empfänger** sind `notify`-Dienste, z. B. `notify.mobile_app_iphone` oder ein eigener Dienst wie `notify.christian`. Mit **Test** schickst du eine Probenachricht.
 
+## Nachtlüften
+
+Wer bei offenem Fenster schläft, soll nicht geweckt werden. Geht in einem Schlafraum zwischen **20 und 3 Uhr** ein Fenster auf und jemand ist zu Hause, schaltet der Raum auf **Nachtlüften**:
+
+- Die Heizung bleibt aus, solange das Fenster offen ist; die anderen Räume heizen normal.
+- Keine Hinweise „Fenster schließen“ oder „Raum kühlt aus“.
+- Fällt der Raum unter **12 °C**, kommt einmal pro Nacht eine leise Warnung.
+- Zum Ende der Ruhezeit (7 Uhr) kommt „☀️ Fenster noch offen – Heizung wartet“, danach höchstens alle 30 Minuten. Sobald das Fenster zu ist, heizt der Raum wieder.
+
+Pro Raum unter *Einstellungen → Raum → Fenster → Schlafen bei offenem Fenster*: **Automatisch** (Schlafzimmer und „selten genutzt“), **Ja** oder **Nein**. Zeitfenster und Warngrenze unter *Allgemein → Benachrichtigungen allgemein*.
+
 ## Push-Knöpfe (iPhone/Android)
 
 Lüftungs-Nachrichten haben drei Knöpfe:
 - **Erledigt** – 15 Minuten Ruhe
 - **In 15 min erinnern**
-- **Heute nicht mehr** – bis Mitternacht still
+- **Heute nicht mehr** – tagsüber bis Mitternacht still, abends („Bis morgen früh“) bis zum Ende der Ruhezeit
 
 Eine Nachricht wird automatisch entfernt, sobald sie sich erledigt hat, z. B. wenn das Fenster zu ist.
 

@@ -116,6 +116,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "effective_target": target if on else None,
             "plan_reason": reason,
             "presence": hub.stage if hub else None,
+            "night_airing": c.night_airing,
             "heating_mode": hub.decision if hub else None,
         }
 

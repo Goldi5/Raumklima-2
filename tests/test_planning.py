@@ -204,3 +204,34 @@ def test_season_decision_modes():
     assert season_decision("pause", SeasonState(heating=True), False, True) == "manual_pause"
     assert not season_allows_heating("pause")
     assert season_allows_heating("cold_snap")
+
+
+# ------------------------------------------------------------------ Nachtlüften
+from rk.planning import in_time_window, morning_after, mute_until, night_airing_applies  # noqa: E402
+
+
+def test_night_window():
+    d = datetime(2026, 10, 30)
+    assert in_time_window(d.replace(hour=22, minute=40), "20:00", "03:00")
+    assert in_time_window(d.replace(hour=2, minute=59), "20:00", "03:00")
+    assert not in_time_window(d.replace(hour=3), "20:00", "03:00")
+    assert not in_time_window(d.replace(hour=14), "20:00", "03:00")
+
+
+def test_night_applies():
+    assert night_airing_applies("auto", "bedroom", True, True)
+    assert night_airing_applies("auto", "rarely_used", True, True)
+    assert not night_airing_applies("auto", "living", True, True)
+    assert night_airing_applies("on", "living", True, True)
+    assert not night_airing_applies("off", "bedroom", True, True)
+    assert not night_airing_applies("auto", "bedroom", False, True)  # tagsüber = Stoßlüften
+    assert not night_airing_applies("auto", "bedroom", True, False)  # niemand da
+
+
+def test_morning_and_mute():
+    eve = datetime(2026, 10, 30, 22, 40)
+    assert morning_after(eve, "07:00:00") == datetime(2026, 10, 31, 7, 0)
+    assert morning_after(datetime(2026, 10, 31, 1, 0), "07:00") == datetime(2026, 10, 31, 7, 0)
+    assert mute_until(eve, "07:00") == datetime(2026, 10, 31, 7, 0)
+    assert mute_until(datetime(2026, 10, 31, 2, 0), "07:00") == datetime(2026, 10, 31, 7, 0)
+    assert mute_until(datetime(2026, 10, 31, 14, 0), "07:00") == datetime(2026, 11, 1, 0, 0)

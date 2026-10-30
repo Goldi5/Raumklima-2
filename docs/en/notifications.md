@@ -15,7 +15,9 @@ Choose per recipient which messages they get (Settings → General → Who gets 
 | 🩺 Heating health | low battery, room not warming despite open valve, sensor stuck, flaky radio, silent window contact – at most once a day per problem | push (quiet) |
 | 📊 Weekly report | Sundays 18:00: heating hours, weather-adjusted comparison, setback, humid rooms | push (quiet) |
 
+**Night airing:** if a window in a bedroom opens between 20:00 and 03:00 while someone is home, the room switches to *night airing*: heating waits, no "close window"/"cooling down" messages, one quiet warning below 12 °C, and at the end of quiet hours "window still open – heating is waiting" (then at most every 30 min). Per room: auto (bedroom, rarely used) / yes / no; times and limit under General.
+
 Recipients are `notify` services (mobile app, Alexa Media, …). **Test** sends a sample message.
-Push actions: *Done*, *Remind in 15 min*, *Not today*. Messages clear themselves when resolved.
+Push actions: *Done*, *Remind in 15 min*, *Not today* (in the evening: until the end of quiet hours). Messages clear themselves when resolved.
 **Quiet hours** (22:00–07:00): silent push; only urgent messages are loud; never voice.
 Each room has a **hints on/off** switch. Reminders repeat every 5 min while the problem persists; "please air" at most every 30 min.

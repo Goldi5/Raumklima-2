@@ -66,6 +66,10 @@ CONF_VALVE_CARE: Final = "valve_care"
 # pro Raum
 CONF_SETBACK_SHORT: Final = "setback_short"
 CONF_SETBACK_LONG: Final = "setback_long"
+CONF_NIGHT_AIRING: Final = "night_airing"
+CONF_NIGHT_START: Final = "night_start"
+CONF_NIGHT_END: Final = "night_end"
+CONF_NIGHT_ALARM: Final = "night_alarm_temp"
 
 BUILDING_TYPES: Final = ["unrenovated", "renovated", "new"]
 SEASON_MODES: Final = ["auto", "always", "pause"]
@@ -119,6 +123,9 @@ HUB_DEFAULTS: Final = {
     CONF_COLD_SNAP_TEMP: 12.0,
     CONF_FROST_FLOOR: 16.0,
     CONF_VALVE_CARE: True,
+    CONF_NIGHT_START: "20:00:00",
+    CONF_NIGHT_END: "03:00:00",
+    CONF_NIGHT_ALARM: 12.0,
     "kinds_version": 2,
 }
 
@@ -188,6 +195,7 @@ STATUS_SENSOR: Final = "sensor_unavailable"
 STATUS_TRV: Final = "trv_unavailable"
 STATUS_SEASON: Final = "season_off"
 STATUS_SETBACK: Final = "setback"
+STATUS_NIGHT: Final = "night_airing"
 STATUSES: Final = [
     STATUS_HEATING,
     STATUS_IDLE,
@@ -197,6 +205,7 @@ STATUSES: Final = [
     STATUS_TRV,
     STATUS_SEASON,
     STATUS_SETBACK,
+    STATUS_NIGHT,
 ]
 
 SYNC_OK: Final = "ok"

@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.4.0";
+const RK_VERSION = "0.4.1";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -14,6 +14,7 @@ const STATUS = {
   trv_unavailable: { label: "Thermostat nicht erreichbar", icon: "mdi:lan-disconnect", tone: "warn" },
   season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
   setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
+  night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" },
 };
 
 const PRESENCE = {
@@ -428,6 +429,7 @@ const SEG = {
   heating: { c: "var(--rk-heat)", l: "Heizt" },
   idle: { c: "var(--rk-ok)", l: "Erreicht" },
   window_open: { c: "var(--rk-air)", l: "Fenster offen" },
+  night_airing: { c: "color-mix(in srgb, var(--rk-air) 55%, #1e2a5a)", l: "Nachtlüften" },
   off: { c: "color-mix(in srgb, var(--rk-off) 45%, transparent)", l: "Aus" },
   sensor_unavailable: { c: "var(--rk-warn)", l: "Fühler fehlt" },
   trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" },
@@ -752,7 +754,7 @@ class RaumklimaHistoryCard extends HTMLElement {
     }).join("");
     const ticks = this._hours > 48 ? 7 : 6;
     const xl = Array.from({ length: ticks + 1 }, (_, i) => `<span>${i === ticks ? "jetzt" : this._fmtTime(t0 + ((t1 - t0) * i) / ticks)}</span>`).join("");
-    const leg = ["heating", "idle", "setback", "window_open", "off", "season_off"].map((k) => `<span><i style="--c:${SEG[k].c}"></i>${SEG[k].l}</span>`).join("")
+    const leg = ["heating", "idle", "setback", "window_open", "night_airing", "off", "season_off"].map((k) => `<span><i style="--c:${SEG[k].c}"></i>${SEG[k].l}</span>`).join("")
       + `<span><i style="--c:transparent;outline:2px solid var(--rk-air);background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--rk-air) 30%, transparent) 0 3px, transparent 3px 6px)"></i>Fensterkontakt offen</span>`;
     this.shadowRoot.innerHTML = this._shell(`<div class="tl">${rows}</div><div class="tlx">${xl}</div><div class="tleg">${leg}</div>`);
     this._bind();
@@ -766,6 +768,7 @@ const RK_CAL = { offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", n
 const RK_OFF = { auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" };
 const RK_SYNC = { ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] };
 const RK_BUILDING = { unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" };
+const RK_NIGHT = { auto: "Automatisch", on: "Ja", off: "Nein" };
 const RK_MODES = { auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" };
 const RK_KINDS = {
   vent_open: ["💧", "Bitte lüften"],
@@ -1132,6 +1135,8 @@ class RaumklimaSettingsCard extends HTMLElement {
     const hm = (v) => String(v || "").slice(0, 5);
     const notiRows = [
       this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+      this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
+      this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
       this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
       this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? `Draußen gerade ${fmt(st.outdoor_temperature)} °C` : ""),
       this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
@@ -1182,6 +1187,7 @@ class RaumklimaSettingsCard extends HTMLElement {
     const sbLong = this._roomOpt(r, "setback_long") ?? s.setback_long;
     const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
     const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
+    const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
     const editable = this._admin && cfgRoom;
     const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
     const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : null;
@@ -1206,6 +1212,8 @@ class RaumklimaSettingsCard extends HTMLElement {
         this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
         this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
         this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
+        this._row("Schlafen bei offenem Fenster", editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),
+          nightMode === "auto" ? (["bedroom", "rarely_used"].includes(roomType) ? "Automatisch: ja, weil Schlafraum" : "Automatisch: nein, kein Schlafraum") : "abends geöffnet = Nachtlüften: keine Lüft-Hinweise, Heizung wartet"),
         this._row("Kontakte", `<div class="chips">${contacts}</div>`),
       ].join(""))}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
@@ -1497,6 +1505,7 @@ class RaumklimaReportCard extends HTMLElement {
         r.humid_h >= 1 ? `<span class="w">${fmt(r.humid_h, 0)} h zu feucht</span>` : "",
         r.mold_h >= 1 ? `<span class="w">${fmt(r.mold_h, 0)} h Schimmelrisiko</span>` : "",
         r.window_pause_h >= 0.5 ? `<span>${fmt(r.window_pause_h, 1)} h Fenster offen</span>` : "",
+        r.night_h >= 0.5 ? `<span>${fmt(r.night_h, 0)} h Nachtlüften</span>` : "",
         r.arrivals_warm_pct != null ? `<span><b>${r.arrivals_warm_pct} %</b> warm bei Ankunft</span>` : "",
       ].join("");
       return `<div class="rrow" style="--c:${color(nm, i)}"><div class="nm"><i></i><span>${esc(nm)}</span></div>

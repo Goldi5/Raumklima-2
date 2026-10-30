@@ -20,7 +20,8 @@ ROOM_FIELDS = (
     "valve_pct_s",  # ∫ Ventilöffnung % · s
     "setback_s",  # abgesenkt (Abwesenheit)
     "setback_ks",  # ∫ (Wunsch − Ziel) K · s
-    "window_pause_s",  # Heizung wegen Fenster pausiert
+    "window_pause_s",  # Heizung wegen Fenster pausiert (ohne Nachtlüften)
+    "night_s",  # Schlafen bei offenem Fenster
     "season_off_s",  # Heizpause
     "on_target_s",  # |Raum − Ziel| ≤ 1 K (wenn geregelt wird)
     "regulated_s",  # Zeit, in der geregelt wird (Bezug für on_target)
@@ -54,6 +55,7 @@ class RoomSample:
     humidity_limit: float | None
     mold: bool
     window_open: bool
+    night: bool = False
 
 
 def _empty(fields: tuple[str, ...]) -> dict[str, float]:
@@ -72,7 +74,9 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
     if s.reason in ("away_short", "away_long"):
         day["setback_s"] += dt
         day["setback_ks"] += max(0.0, s.target - s.effective) * dt
-    if s.paused:
+    if s.night:
+        day["night_s"] += dt
+    elif s.paused:
         day["window_pause_s"] += dt
     if s.reason == "season":
         day["season_off_s"] += dt
@@ -142,6 +146,7 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         "setback_h": round(_sum(days, "setback_s") / 3600, 1),
         "setback_avg_k": round(setback_ks / max(_sum(days, "setback_s"), 1), 1),
         "window_pause_h": round(_sum(days, "window_pause_s") / 3600, 1),
+        "night_h": round(_sum(days, "night_s") / 3600, 1),
         "season_off_h": round(_sum(days, "season_off_s") / 3600, 1),
         "on_target_pct": round(100 * _sum(days, "on_target_s") / regulated) if regulated else None,
         "humid_h": round(_sum(days, "humid_s") / 3600, 1),

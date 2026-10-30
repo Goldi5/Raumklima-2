@@ -348,3 +348,57 @@ def season_decision(
 
 def season_allows_heating(decision: str) -> bool:
     return decision in (SEASON_HEATING, SEASON_COLD_SNAP, SEASON_HEAT_TODAY, SEASON_ALWAYS)
+
+
+# ------------------------------------------------------------------ Nachtlüften
+NIGHT_AUTO = "auto"
+NIGHT_ON = "on"
+NIGHT_OFF = "off"
+NIGHT_MODES = [NIGHT_AUTO, NIGHT_ON, NIGHT_OFF]
+NIGHT_ROOM_TYPES = frozenset({"bedroom", "rarely_used"})
+NIGHT_START = "20:00"
+NIGHT_END = "03:00"
+NIGHT_ALARM_TEMP = 12.0
+NIGHT_MORNING_REPEAT = timedelta(minutes=30)
+
+
+def _minutes(value: str) -> int:
+    h, m = (value or "0:0").split(":")[:2]
+    return int(h) * 60 + int(m)
+
+
+def in_time_window(local: datetime, start: str, end: str) -> bool:
+    """Uhrzeit im Fenster [start, end), auch über Mitternacht."""
+    now = local.hour * 60 + local.minute
+    s, e = _minutes(start), _minutes(end)
+    if s == e:
+        return False
+    return s <= now < e if s < e else now >= s or now < e
+
+
+def night_airing_applies(mode: str, room_type: str | None, in_window: bool, someone_home: bool) -> bool:
+    """Fenster geht gerade auf: Schlafen bei offenem Fenster statt Stoßlüften?"""
+    if mode == NIGHT_OFF or not in_window or not someone_home:
+        return False
+    return mode == NIGHT_ON or room_type in NIGHT_ROOM_TYPES
+
+
+def morning_after(night_since_local: datetime, morning: str) -> datetime:
+    """Erster Zeitpunkt „morning“ (Ende der Ruhezeit) nach Beginn des Nachtlüftens."""
+    m = _minutes(morning)
+    candidate = night_since_local.replace(hour=m // 60, minute=m % 60, second=0, microsecond=0)
+    if candidate <= night_since_local:
+        candidate += timedelta(days=1)
+    return candidate
+
+
+def mute_until(local: datetime, morning: str, evening_hour: int = 18) -> datetime:
+    """„Heute nicht mehr“: tagsüber bis Mitternacht, abends/nachts bis zum Morgen."""
+    midnight = (local + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    m = _minutes(morning)
+    next_morning = local.replace(hour=m // 60, minute=m % 60, second=0, microsecond=0)
+    if next_morning <= local:
+        next_morning += timedelta(days=1)
+    if local.hour >= evening_hour or local.hour * 60 + local.minute < m:
+        return next_morning
+    return midnight
