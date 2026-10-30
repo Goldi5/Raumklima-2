@@ -22,12 +22,14 @@
         "data": {
           "calibration_mode": "Kalibrierart",
           "calibration_entity": "Kalibrier-/Offset-Entität des TRV",
-          "off_method": "Wie wird das TRV ausgeschaltet?"
+          "off_method": "Wie wird das TRV ausgeschaltet?",
+          "on_preset": "Preset zum Heizen (An)"
         },
         "data_description": {
           "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
           "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
-          "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“."
+          "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
+          "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen."
         }
       },
       "settings": {
@@ -79,12 +81,14 @@
         "data": {
           "calibration_mode": "Kalibrierart",
           "calibration_entity": "Kalibrier-/Offset-Entität des TRV",
-          "off_method": "Wie wird das TRV ausgeschaltet?"
+          "off_method": "Wie wird das TRV ausgeschaltet?",
+          "on_preset": "Preset zum Heizen (An)"
         },
         "data_description": {
           "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
           "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
-          "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“."
+          "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
+          "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen."
         }
       },
       "settings": {
@@ -118,6 +122,11 @@
         "offset": "Offset (empfohlen)",
         "target": "Sollwert anpassen",
         "none": "Keine Kalibrierung"
+      }
+    },
+    "on_preset": {
+      "options": {
+        "auto_detect": "Automatisch"
       }
     },
     "off_method": {

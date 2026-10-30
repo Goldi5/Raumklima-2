@@ -44,6 +44,7 @@ OFF_METHODS: Final = [OFF_AUTO, OFF_PRESET, OFF_HVAC, OFF_MIN_TEMP]
 DEFAULTS: Final = {
     CONF_CALIBRATION_MODE: CAL_OFFSET,
     CONF_OFF_METHOD: OFF_AUTO,
+    "on_preset": "auto_detect",
     CONF_WINDOW_OPEN_DELAY: 10,
     CONF_WINDOW_CLOSE_DELAY: 10,
     CONF_OFFSET_THRESHOLD: 0.3,
@@ -67,8 +68,12 @@ RECONCILE_INTERVAL: Final = 600  # s – regelmäßiger Abgleich
 CALIBRATION_INTERVAL: Final = 600  # s
 SLOW_RETRY_INTERVAL: Final = 300  # s – nach max. Versuchen weiter alle 5 min
 
-# Vorgaben für "an"-Presets, falls kein früheres Preset bekannt ist
-ON_PRESET_CANDIDATES: Final = ["manual", "on", "heat", "comfort", "none"]
+# Bevorzugte "an"-Presets (Reihenfolge). "on" fehlt bewusst: bei Tuya-TRVs
+# wie dem TRV602Z bedeutet es "Ventil dauerhaft offen", nicht "regeln".
+ON_PRESET_CANDIDATES: Final = ["manual", "heat", "eco", "comfort", "none"]
+ON_PRESET_AVOID: Final = ["on", "off", "antifrost", "auto", "boost", "holiday", "away"]
+CONF_ON_PRESET: Final = "on_preset"
+ON_PRESET_AUTO: Final = "auto_detect"
 
 # Zustände
 INVALID_STATES: Final = ("unavailable", "unknown", None)

@@ -102,6 +102,37 @@ def retry_delay(attempt: int, base: float, max_retries: int, slow: float) -> flo
     return base * attempt
 
 
+def choose_on_preset(
+    presets: Iterable[str],
+    configured: str | None,
+    remembered: str | None,
+    *,
+    candidates: Iterable[str],
+    avoid: Iterable[str],
+    auto_value: str = "auto_detect",
+) -> str | None:
+    """Preset wählen, mit dem das TRV auf einen frei gesetzten Sollwert regelt.
+
+    Reihenfolge: fest eingestellt > bekannte Regel-Presets > zuletzt genutztes
+    (sofern nicht auf der Meiden-Liste) > erstes nicht gemiedenes.
+    """
+    available = [p for p in presets if p and p != "off"]
+    if not available:
+        return None
+    if configured and configured != auto_value and configured in available:
+        return configured
+    for candidate in candidates:
+        if candidate in available:
+            return candidate
+    avoid_set = set(avoid)
+    if remembered and remembered in available and remembered not in avoid_set:
+        return remembered
+    for preset in available:
+        if preset not in avoid_set:
+            return preset
+    return available[0]
+
+
 def plausible_reading(
     new: float,
     last: float | None,

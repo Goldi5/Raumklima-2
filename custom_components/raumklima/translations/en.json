@@ -22,12 +22,14 @@
         "data": {
           "calibration_mode": "Calibration type",
           "calibration_entity": "TRV calibration/offset entity",
-          "off_method": "How to switch the TRV off"
+          "off_method": "How to switch the TRV off",
+          "on_preset": "Preset used for heating (on)"
         },
         "data_description": {
           "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
           "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
-          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'."
+          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
+          "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open."
         }
       },
       "settings": {
@@ -79,12 +81,14 @@
         "data": {
           "calibration_mode": "Calibration type",
           "calibration_entity": "TRV calibration/offset entity",
-          "off_method": "How to switch the TRV off"
+          "off_method": "How to switch the TRV off",
+          "on_preset": "Preset used for heating (on)"
         },
         "data_description": {
           "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
           "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
-          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'."
+          "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
+          "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open."
         }
       },
       "settings": {
@@ -118,6 +122,11 @@
         "offset": "Offset (recommended)",
         "target": "Adjust setpoint",
         "none": "No calibration"
+      }
+    },
+    "on_preset": {
+      "options": {
+        "auto_detect": "Automatic"
       }
     },
     "off_method": {

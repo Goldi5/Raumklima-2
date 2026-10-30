@@ -53,6 +53,9 @@ from .const import (
     OFFSET_MAX,
     OFFSET_MIN,
     OFFSET_STEP,
+    CONF_ON_PRESET,
+    ON_PRESET_AUTO,
+    ON_PRESET_AVOID,
     ON_PRESET_CANDIDATES,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
@@ -68,6 +71,7 @@ from .const import (
 from .logic import (
     any_open,
     calc_offset,
+    choose_on_preset,
     calc_target_setpoint,
     clamp,
     is_valid,
@@ -449,16 +453,6 @@ class RaumklimaController:
         now_off = self._is_trv_off(new, method)
         old_p = old.attributes.get("preset_mode")
         new_p = new.attributes.get("preset_mode")
-        if (
-            follow
-            and method == OFF_PRESET
-            and not was_off
-            and not now_off
-            and new_p
-            and new_p != old_p
-        ):
-            self.trv_on_preset = new_p
-            self._save()
         if was_off != now_off and method != OFF_MIN_TEMP:
             if follow:
                 self.hvac_on = not now_off
@@ -467,7 +461,21 @@ class RaumklimaController:
             else:
                 self.hass.async_create_task(self._apply())
             return
-        if now_off or self.cal_mode == CAL_TARGET:
+        if now_off:
+            return
+        if new_p != old_p:
+            # Preset-Wechsel lädt am TRV oft einen gespeicherten Wert (z. B.
+            # eco_temperature). Den nicht als Wunsch übernehmen, sondern
+            # Preset und Sollwert der Integration wiederherstellen.
+            _LOGGER.info(
+                "%s: Preset am TRV auf '%s' geändert – stelle '%s' wieder her",
+                self.name,
+                new_p,
+                self._on_preset(),
+            )
+            self.hass.async_create_task(self._apply())
+            return
+        if self.cal_mode == CAL_TARGET:
             return
         old_t = to_float(old.attributes.get(ATTR_TEMPERATURE))
         new_t = to_float(new.attributes.get(ATTR_TEMPERATURE))
@@ -519,13 +527,14 @@ class RaumklimaController:
         )
 
     def _on_preset(self) -> str | None:
-        presets = [p for p in (self._trv_attr("preset_modes") or []) if p != "off"]
-        if self.trv_on_preset and self.trv_on_preset in presets:
-            return self.trv_on_preset
-        for candidate in ON_PRESET_CANDIDATES:
-            if candidate in presets:
-                return candidate
-        return presets[0] if presets else None
+        return choose_on_preset(
+            self._trv_attr("preset_modes") or [],
+            self.config.get(CONF_ON_PRESET),
+            self.trv_on_preset,
+            candidates=ON_PRESET_CANDIDATES,
+            avoid=ON_PRESET_AVOID,
+            auto_value=ON_PRESET_AUTO,
+        )
 
     def _desired_setpoint(self) -> float:
         if self.cal_mode == CAL_TARGET and self.sensor_ok:

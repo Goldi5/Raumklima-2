@@ -85,3 +85,31 @@ def test_plausible_reading() -> None:
     assert plausible_reading(21.0, 20.0, 60)
     assert not plausible_reading(25.0, 20.0, 60)
     assert plausible_reading(25.0, 20.0, 600)  # lange her -> ok
+
+
+from rk.logic import choose_on_preset  # noqa: E402
+
+TRV602Z = ["none", "off", "antifrost", "eco", "comfort", "auto", "on"]
+CAND = ["manual", "heat", "eco", "comfort", "none"]
+AVOID = ["on", "off", "antifrost", "auto", "boost", "holiday", "away"]
+
+
+def test_on_preset_trv602z_prefers_eco_never_on() -> None:
+    assert choose_on_preset(TRV602Z, "auto_detect", "on", candidates=CAND, avoid=AVOID) == "eco"
+
+
+def test_on_preset_configured_wins() -> None:
+    assert choose_on_preset(TRV602Z, "comfort", None, candidates=CAND, avoid=AVOID) == "comfort"
+
+
+def test_on_preset_manual_device() -> None:
+    assert choose_on_preset(["off", "manual", "auto"], None, None, candidates=CAND, avoid=AVOID) == "manual"
+
+
+def test_on_preset_remembered_fallback_unless_avoided() -> None:
+    assert choose_on_preset(["off", "x", "y"], None, "y", candidates=CAND, avoid=AVOID) == "y"
+    assert choose_on_preset(["off", "on", "z"], None, "on", candidates=CAND, avoid=AVOID) == "z"
+
+
+def test_on_preset_none_available() -> None:
+    assert choose_on_preset(["off"], None, None, candidates=CAND, avoid=AVOID) is None

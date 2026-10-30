@@ -38,6 +38,7 @@ from .const import (
     CONF_NAME,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
+    CONF_ON_PRESET,
     CONF_OFFSET_MIN_INTERVAL,
     CONF_OFFSET_THRESHOLD,
     CONF_SENSOR_STALE_MINUTES,
@@ -51,6 +52,7 @@ from .const import (
     DEFAULTS,
     DOMAIN,
     OFF_METHODS,
+    ON_PRESET_AUTO,
 )
 
 DEVICE_KEYS = (
@@ -61,7 +63,15 @@ DEVICE_KEYS = (
     CONF_CALIBRATION_MODE,
     CONF_CALIBRATION_ENTITY,
     CONF_OFF_METHOD,
+    CONF_ON_PRESET,
 )
+
+
+def trv_presets(hass: HomeAssistant, trv: str | None) -> list[str]:
+    """Presets des TRV (ohne 'off') für die Auswahl."""
+    state = hass.states.get(trv) if trv else None
+    presets = state.attributes.get("preset_modes") if state else None
+    return [p for p in (presets or []) if p and p != "off"]
 
 
 def find_calibration_entity(hass: HomeAssistant, trv: str) -> str | None:
@@ -108,7 +118,11 @@ def _devices_schema(defaults: dict[str, Any], *, with_name: bool) -> vol.Schema:
     return vol.Schema(fields)
 
 
-def _calibration_schema(defaults: dict[str, Any]) -> vol.Schema:
+def _calibration_schema(defaults: dict[str, Any], presets: list[str]) -> vol.Schema:
+    preset_options = [ON_PRESET_AUTO, *presets]
+    on_default = defaults.get(CONF_ON_PRESET, ON_PRESET_AUTO)
+    if on_default not in preset_options:
+        on_default = ON_PRESET_AUTO
     return vol.Schema(
         {
             vol.Required(
@@ -133,6 +147,14 @@ def _calibration_schema(defaults: dict[str, Any]) -> vol.Schema:
                     options=OFF_METHODS,
                     translation_key=CONF_OFF_METHOD,
                     mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Required(CONF_ON_PRESET, default=on_default): SelectSelector(
+                SelectSelectorConfig(
+                    options=preset_options,
+                    translation_key=CONF_ON_PRESET,
+                    mode=SelectSelectorMode.DROPDOWN,
+                    custom_value=True,
                 )
             ),
         }
@@ -216,7 +238,9 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         }
         return self.async_show_form(
             step_id="calibration",
-            data_schema=_calibration_schema(defaults),
+            data_schema=_calibration_schema(
+                defaults, trv_presets(self.hass, self._data[CONF_TRV])
+            ),
             errors=errors,
             description_placeholders={"found": found or "–"},
         )
@@ -276,7 +300,9 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
             }
         return self.async_show_form(
             step_id="calibration",
-            data_schema=_calibration_schema(defaults),
+            data_schema=_calibration_schema(
+                defaults, trv_presets(self.hass, self._options[CONF_TRV])
+            ),
             errors=errors,
             description_placeholders={"found": defaults.get(CONF_CALIBRATION_ENTITY) or "–"},
         )
