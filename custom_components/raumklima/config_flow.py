@@ -25,6 +25,7 @@ from homeassistant.helpers.selector import (
     SelectSelectorConfig,
     SelectSelectorMode,
     TextSelector,
+    TimeSelector,
 )
 
 from .const import (
@@ -37,6 +38,14 @@ from .const import (
     CONF_HUMIDITY_SENSOR,
     CONF_NAME,
     CONF_NOTIFY,
+    CONF_NOTIFY_TARGETS,
+    CONF_QUIET_END,
+    CONF_QUIET_START,
+    CONF_REPEAT_MINUTES,
+    CONF_ROOM_TYPE,
+    CONF_TTS_TARGETS,
+    CONF_WEATHER,
+    ROOM_TYPE_OPTIONS,
     CONF_OFF_METHOD,
     CONF_ON_PRESET,
     CONF_OFFSET_MIN_INTERVAL,
@@ -192,6 +201,58 @@ def _settings_schema(defaults: dict[str, Any]) -> vol.Schema:
     )
 
 
+def notify_services(hass: HomeAssistant) -> list[str]:
+    """Alle notify-Dienste als 'notify.xyz' (für die Auswahl)."""
+    services = hass.services.async_services().get("notify", {})
+    return sorted(
+        f"notify.{name}" for name in services if name not in ("send_message", "persistent_notification")
+    )
+
+
+def _vent_schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
+    def d(key: str, fallback: Any) -> Any:
+        value = defaults.get(key)
+        return fallback if value in (None, "") else value
+
+    targets = notify_services(hass)
+    return vol.Schema(
+        {
+            vol.Required(CONF_ROOM_TYPE, default=d(CONF_ROOM_TYPE, "living")): SelectSelector(
+                SelectSelectorConfig(
+                    options=ROOM_TYPE_OPTIONS,
+                    translation_key=CONF_ROOM_TYPE,
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(
+                CONF_WEATHER, description={"suggested_value": defaults.get(CONF_WEATHER)}
+            ): EntitySelector(EntitySelectorConfig(domain=["weather", "sensor"])),
+            vol.Optional(
+                CONF_NOTIFY_TARGETS,
+                description={"suggested_value": defaults.get(CONF_NOTIFY_TARGETS) or []},
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=targets, multiple=True, custom_value=True,
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(
+                CONF_TTS_TARGETS,
+                description={"suggested_value": defaults.get(CONF_TTS_TARGETS) or []},
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[t for t in targets if "alexa" in t or "tts" in t] or targets,
+                    multiple=True, custom_value=True,
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Required(CONF_QUIET_START, default=d(CONF_QUIET_START, "22:00:00")): TimeSelector(),
+            vol.Required(CONF_QUIET_END, default=d(CONF_QUIET_END, "07:00:00")): TimeSelector(),
+            vol.Required(CONF_REPEAT_MINUTES, default=d(CONF_REPEAT_MINUTES, 5)): _number(1, 60, 1, "min"),
+        }
+    )
+
+
 def _validate_calibration(data: dict[str, Any]) -> dict[str, str]:
     if data.get(CONF_CALIBRATION_MODE) == CAL_OFFSET and not data.get(CONF_CALIBRATION_ENTITY):
         return {CONF_CALIBRATION_ENTITY: "calibration_entity_required"}
@@ -205,6 +266,7 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         self._data: dict[str, Any] = {}
+        self._options: dict[str, Any] = {}
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
@@ -249,10 +311,22 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         if user_input is not None:
-            return self.async_create_entry(
-                title=self._data[CONF_NAME], data=self._data, options=user_input
-            )
+            self._options = dict(user_input)
+            return await self.async_step_ventilation()
         return self.async_show_form(step_id="settings", data_schema=_settings_schema({}))
+
+    async def async_step_ventilation(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if user_input is not None:
+            return self.async_create_entry(
+                title=self._data[CONF_NAME],
+                data=self._data,
+                options={**self._options, **user_input},
+            )
+        return self.async_show_form(
+            step_id="ventilation", data_schema=_vent_schema(self.hass, {})
+        )
 
     @staticmethod
     @callback
@@ -312,7 +386,20 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
     ) -> ConfigFlowResult:
         if user_input is not None:
             self._options.update(user_input)
-            return self.async_create_entry(data=self._options)
+            return await self.async_step_ventilation()
         return self.async_show_form(
             step_id="settings", data_schema=_settings_schema(self._current())
+        )
+
+    async def async_step_ventilation(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if user_input is not None:
+            user_input.setdefault(CONF_WEATHER, None)
+            user_input.setdefault(CONF_NOTIFY_TARGETS, [])
+            user_input.setdefault(CONF_TTS_TARGETS, [])
+            self._options.update(user_input)
+            return self.async_create_entry(data=self._options)
+        return self.async_show_form(
+            step_id="ventilation", data_schema=_vent_schema(self.hass, self._current())
         )

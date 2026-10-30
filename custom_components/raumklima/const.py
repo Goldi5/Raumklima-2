@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "raumklima"
-PLATFORMS: Final = ["climate", "sensor", "binary_sensor", "switch", "button"]
+PLATFORMS: Final = ["climate", "sensor", "binary_sensor", "switch", "button", "number"]
 
 # --- Geräte (config entry data) ---
 CONF_NAME: Final = "name"
@@ -27,6 +27,21 @@ CONF_SYNC_VERIFY_DELAY: Final = "sync_verify_delay"
 CONF_SYNC_MAX_RETRIES: Final = "sync_max_retries"
 CONF_FOLLOW_TRV: Final = "follow_trv_changes"
 CONF_NOTIFY: Final = "notify_on_failure"
+
+# --- Lüften & Benachrichtigung (v0.2) ---
+CONF_ROOM_TYPE: Final = "room_type"
+CONF_WEATHER: Final = "weather_entity"
+CONF_NOTIFY_TARGETS: Final = "notify_targets"
+CONF_TTS_TARGETS: Final = "tts_targets"
+CONF_QUIET_START: Final = "quiet_start"
+CONF_QUIET_END: Final = "quiet_end"
+CONF_REPEAT_MINUTES: Final = "repeat_minutes"
+NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
+EVENT_RAUMKLIMA: Final = "raumklima_event"
+ROOM_TYPE_OPTIONS: Final = ["living", "kitchen", "bedroom", "bathroom", "children", "rarely_used"]
+
+# Karte (Frontend)
+CARD_URL: Final = "/raumklima_static/raumklima-card.js"
 
 # Kalibrierarten
 CAL_OFFSET: Final = "offset"
@@ -54,6 +69,10 @@ DEFAULTS: Final = {
     CONF_SYNC_MAX_RETRIES: 5,
     CONF_FOLLOW_TRV: True,
     CONF_NOTIFY: True,
+    "room_type": "living",
+    "quiet_start": "22:00",
+    "quiet_end": "07:00",
+    "repeat_minutes": 5,
 }
 
 # Feste Grenzen

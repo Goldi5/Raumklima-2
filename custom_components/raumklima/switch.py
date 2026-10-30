@@ -18,8 +18,10 @@ async def async_setup_entry(
     entry: RaumklimaConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
+    entities: list[SwitchEntity] = [NotificationSwitch(entry.runtime_data)]
     if entry.runtime_data.windows:
-        async_add_entities([WindowLogicSwitch(entry.runtime_data)])
+        entities.append(WindowLogicSwitch(entry.runtime_data))
+    async_add_entities(entities)
 
 
 class WindowLogicSwitch(RaumklimaEntity, SwitchEntity):
@@ -40,3 +42,22 @@ class WindowLogicSwitch(RaumklimaEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         await self.controller.async_set_window_logic(False)
+
+
+class NotificationSwitch(RaumklimaEntity, SwitchEntity):
+    """Lüftungs-Benachrichtigungen ein/aus."""
+
+    _attr_translation_key = "notifications"
+
+    def __init__(self, controller) -> None:
+        super().__init__(controller, "notifications")
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.vent.enabled
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        self.controller.vent.set_enabled(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        self.controller.vent.set_enabled(False)

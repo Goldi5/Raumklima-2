@@ -50,6 +50,25 @@
           "follow_trv_changes": "Off: changes on the device are reverted (like a child lock).",
           "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
         }
+      },
+      "ventilation": {
+        "title": "Airing & notifications",
+        "data": {
+          "room_type": "Room type",
+          "weather_entity": "Outdoor climate (weather or outdoor sensor)",
+          "notify_targets": "Send notifications to",
+          "tts_targets": "Voice announcements on (optional)",
+          "quiet_start": "Quiet hours from",
+          "quiet_end": "Quiet hours until",
+          "repeat_minutes": "Repeat reminder every"
+        },
+        "data_description": {
+          "room_type": "Sets sensible defaults; fine-tune later with the device's number controls.",
+          "weather_entity": "Used for recommended airing time and whether airing actually dries the room.",
+          "notify_targets": "e.g. notify.mobile_app_… — iOS messages get action buttons.",
+          "tts_targets": "Announcement only when the room cools down or after repeated reminders, never in quiet hours.",
+          "quiet_start": "Silent push only during quiet hours."
+        }
       }
     },
     "error": {
@@ -109,6 +128,25 @@
           "follow_trv_changes": "Off: changes on the device are reverted (like a child lock).",
           "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
         }
+      },
+      "ventilation": {
+        "title": "Airing & notifications",
+        "data": {
+          "room_type": "Room type",
+          "weather_entity": "Outdoor climate (weather or outdoor sensor)",
+          "notify_targets": "Send notifications to",
+          "tts_targets": "Voice announcements on (optional)",
+          "quiet_start": "Quiet hours from",
+          "quiet_end": "Quiet hours until",
+          "repeat_minutes": "Repeat reminder every"
+        },
+        "data_description": {
+          "room_type": "Sets sensible defaults; fine-tune later with the device's number controls.",
+          "weather_entity": "Used for recommended airing time and whether airing actually dries the room.",
+          "notify_targets": "e.g. notify.mobile_app_… — iOS messages get action buttons.",
+          "tts_targets": "Announcement only when the room cools down or after repeated reminders, never in quiet hours.",
+          "quiet_start": "Silent push only during quiet hours."
+        }
       }
     },
     "error": {
@@ -122,6 +160,16 @@
         "offset": "Offset (recommended)",
         "target": "Adjust setpoint",
         "none": "No calibration"
+      }
+    },
+    "room_type": {
+      "options": {
+        "living": "Living room",
+        "kitchen": "Kitchen",
+        "bedroom": "Bedroom",
+        "bathroom": "Bathroom",
+        "children": "Children's room",
+        "rarely_used": "Rarely used (guests)"
       }
     },
     "on_preset": {
@@ -166,6 +214,26 @@
       },
       "offset": {
         "name": "Calibration offset"
+      },
+      "ventilation": {
+        "name": "Airing",
+        "state": {
+          "ok": "OK",
+          "please_open": "Please air",
+          "airing": "Airing",
+          "done": "Air exchanged",
+          "please_close": "Please close",
+          "too_cold": "Cooling down – close"
+        }
+      },
+      "dew_point": {
+        "name": "Dew point"
+      },
+      "abs_humidity": {
+        "name": "Absolute humidity"
+      },
+      "recommended_duration": {
+        "name": "Recommended airing time"
       }
     },
     "binary_sensor": {
@@ -174,11 +242,28 @@
       },
       "problem": {
         "name": "Problem"
+      },
+      "mold_risk": {
+        "name": "Mold risk"
       }
     },
     "switch": {
       "window_logic": {
         "name": "Window logic"
+      },
+      "notifications": {
+        "name": "Airing notifications"
+      }
+    },
+    "number": {
+      "humidity_limit": {
+        "name": "Humidity limit 'please air'"
+      },
+      "min_temp": {
+        "name": "Minimum temperature while airing"
+      },
+      "max_drop": {
+        "name": "Max. temperature drop while airing"
       }
     },
     "button": {

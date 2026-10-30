@@ -18,6 +18,7 @@ from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_interval,
 )
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
@@ -41,8 +42,10 @@ from .const import (
     CONF_TRV,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
+    CONF_WEATHER,
     CONF_WINDOWS,
     DEFAULTS,
+    EVENT_RAUMKLIMA,
     DOMAIN,
     MAX_SENSOR_JUMP,
     OFF_AUTO,
@@ -81,6 +84,7 @@ from .logic import (
     values_match,
 )
 from .sync import SyncJob, SyncManager
+from .vent_manager import VentilationManager
 
 _LOGGER = logging.getLogger(__name__)
 STORAGE_VERSION = 1
@@ -128,10 +132,12 @@ class RaumklimaController:
         self._unsubs: list[Callable[[], None]] = []
         self._listeners: list[Callable[[], None]] = []
         self._apply_lock = asyncio.Lock()
+        self.valve_sensor: str | None = None
         self._store: Store[dict[str, Any]] = Store(
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
 
+        self.vent = VentilationManager(self, None)
         self.sync = SyncManager(
             schedule=self._schedule,
             run_task=lambda coro: hass.async_create_task(coro),
@@ -164,9 +170,16 @@ class RaumklimaController:
                 self.trv_on_preset = preset
             self._save()
 
+        self.vent.load((stored or {}).get("vent"))
+        self.valve_sensor = self._find_valve_sensor()
+
         tracked = [self.trv, self.temp_sensor, *self.windows]
         if self.humidity_sensor:
             tracked.append(self.humidity_sensor)
+        if self.config.get(CONF_WEATHER):
+            tracked.append(self.config[CONF_WEATHER])
+        if self.valve_sensor:
+            tracked.append(self.valve_sensor)
         if self.cal_entity:
             tracked.append(self.cal_entity)
         self._unsubs.append(
@@ -191,6 +204,7 @@ class RaumklimaController:
         self._window_raw = any_open(self._last_valid_windows, self.windows)
         self.window_paused = self._window_raw
         self._ingest_sensor(self.hass.states.get(self.temp_sensor))
+        await self.vent.async_start()
 
         self.hass.async_create_task(self._apply())
         self.hass.async_create_task(self.async_calibrate())
@@ -204,6 +218,8 @@ class RaumklimaController:
             self._window_timer()
             self._window_timer = None
         self.sync.cancel_all()
+        if self.vent:
+            self.vent.async_stop()
         await self._store.async_save(self._stored_data())
 
     def _stored_data(self) -> dict[str, Any]:
@@ -212,10 +228,47 @@ class RaumklimaController:
             "hvac_on": self.hvac_on,
             "window_logic": self.window_logic,
             "trv_on_preset": self.trv_on_preset,
+            "vent": self.vent.export() if self.vent else None,
         }
 
     def _save(self) -> None:
         self._store.async_delay_save(self._stored_data, 5)
+
+    def save(self) -> None:
+        """Öffentlich: Zustand speichern (z. B. vom Lüftungsassistenten)."""
+        self._save()
+
+    @callback
+    def notify_listeners(self) -> None:
+        self._notify()
+
+    @callback
+    def fire_event(self, kind: str, data: dict[str, Any]) -> None:
+        """Ereignis für eigene Automationen (raumklima_event)."""
+        self.hass.bus.async_fire(
+            EVENT_RAUMKLIMA,
+            {"type": kind, "room": self.name, "entry_id": self.entry.entry_id, **data},
+        )
+
+    def _find_valve_sensor(self) -> str | None:
+        """Ventilstellung (sensor …position) am selben Gerät wie das TRV."""
+        registry = er.async_get(self.hass)
+        trv_entry = registry.async_get(self.trv)
+        if trv_entry is None or trv_entry.device_id is None:
+            return None
+        for entry in er.async_entries_for_device(registry, trv_entry.device_id):
+            if entry.domain == "sensor" and (
+                "position" in entry.entity_id or entry.translation_key == "position"
+            ):
+                return entry.entity_id
+        return None
+
+    @property
+    def valve_position(self) -> float | None:
+        if not self.valve_sensor:
+            return None
+        state = self.hass.states.get(self.valve_sensor)
+        return to_float(state.state) if state else None
 
     # ================================================================ Listener
     @callback
@@ -363,6 +416,8 @@ class RaumklimaController:
             self._on_trv(old, new)
         elif entity_id == self.cal_entity:
             self.sync.check_all()
+        if self.vent:
+            self.vent.update()
         self._notify()
 
     def _ingest_sensor(self, state: State | None) -> bool:
@@ -402,6 +457,8 @@ class RaumklimaController:
         if raw == self._window_raw and (self._window_timer or raw == self.window_paused):
             return
         self._window_raw = raw
+        if self.vent:
+            self.vent.on_window_raw(raw)
         if self._window_timer:
             self._window_timer()
             self._window_timer = None
@@ -779,5 +836,8 @@ class RaumklimaController:
                 for key, job in self.sync.jobs.items()
             },
             "status": self.status,
+            "valve_sensor": self.valve_sensor,
+            "valve_position": self.valve_position,
+            "ventilation": self.vent.diagnostics() if self.vent else None,
         }
 

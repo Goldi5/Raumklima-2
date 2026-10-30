@@ -1,13 +1,18 @@
 {
   "domain": "raumklima",
   "name": "Raumklima",
-  "codeowners": ["@Goldi5"],
+  "codeowners": [
+    "@Goldi5"
+  ],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": [
+    "frontend",
+    "http"
+  ],
   "documentation": "https://github.com/Goldi5/Raumklima-2",
   "integration_type": "device",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/Goldi5/Raumklima-2/issues",
   "requirements": [],
-  "version": "0.1.3"
+  "version": "0.2.0"
 }

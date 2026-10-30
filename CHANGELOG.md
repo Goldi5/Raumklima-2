@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.0 – 2026-10-30
+
+### Neu
+- **Lüftungsassistent:** Bitte lüften / Fenster schließen / Raum kühlt aus /
+  Luft ausgetauscht – mit Außenklima (Wetter-Entität), absoluter Feuchte und
+  empfohlener Lüftdauer nach Außentemperatur.
+- **Benachrichtigungen** an frei wählbare notify-Dienste, iPhone-Knöpfe
+  (Erledigt, In 15 min erinnern, Heute nicht mehr), Ruhezeiten, optionale
+  Sprachansagen.
+- Neue Entitäten: Lüftung, Taupunkt, absolute Feuchte, empfohlene Lüftdauer,
+  Schimmelrisiko, Regler für Feuchtegrenze/Mindesttemperatur/max. Abkühlung,
+  Schalter für Benachrichtigungen; Ventilstellung als Attribut.
+- **Raumklima-Karte** (`custom:raumklima-card`) und **Übersichtskarte**
+  (`custom:raumklima-overview-card`), automatisch geladen.
+- Einrichtungsassistent: neuer Schritt „Lüften & Benachrichtigungen“ mit Raumtyp.
+- Ereignis `raumklima_event` für eigene Automationen.
+
 ## 0.1.3 – 2026-10-30
 
 ### Behoben

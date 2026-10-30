@@ -95,6 +95,9 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "trv_temperature": c.trv_temperature,
             "offset": c.offset,
             "sync": c.sync.state,
+            "valve_position": c.valve_position,
+            "humidity_sensor": bool(c.humidity_sensor),
+            **(c.vent.attributes() if c.vent else {}),
         }
 
     async def async_set_temperature(self, **kwargs: Any) -> None:

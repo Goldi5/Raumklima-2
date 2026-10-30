@@ -20,13 +20,61 @@
           "failed": "mdi:sync-alert"
         }
       },
-      "offset": { "default": "mdi:thermometer-plus" }
+      "offset": {
+        "default": "mdi:thermometer-plus"
+      },
+      "ventilation": {
+        "default": "mdi:window-open-variant",
+        "state": {
+          "ok": "mdi:check-circle-outline",
+          "please_open": "mdi:air-filter",
+          "airing": "mdi:weather-windy",
+          "done": "mdi:check-decagram",
+          "please_close": "mdi:window-closed-variant",
+          "too_cold": "mdi:snowflake-alert"
+        }
+      },
+      "dew_point": {
+        "default": "mdi:water-thermometer"
+      },
+      "abs_humidity": {
+        "default": "mdi:water-percent"
+      },
+      "recommended_duration": {
+        "default": "mdi:timer-outline"
+      }
     },
     "switch": {
-      "window_logic": { "default": "mdi:window-shutter-auto" }
+      "window_logic": {
+        "default": "mdi:window-shutter-auto"
+      },
+      "notifications": {
+        "default": "mdi:bell-ring-outline",
+        "state": {
+          "off": "mdi:bell-off-outline"
+        }
+      }
     },
     "button": {
-      "calibrate": { "default": "mdi:tune-variant" }
+      "calibrate": {
+        "default": "mdi:tune-variant"
+      }
+    },
+    "binary_sensor": {
+      "mold_risk": {
+        "default": "mdi:mushroom-outline"
+      }
+    },
+    "number": {
+      "humidity_limit": {
+        "default": "mdi:water-percent-alert"
+      },
+      "min_temp": {
+        "default": "mdi:thermometer-low"
+      },
+      "max_drop": {
+        "default": "mdi:thermometer-chevron-down"
+      }
     }
   }
 }

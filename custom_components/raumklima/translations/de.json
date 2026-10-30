@@ -50,6 +50,25 @@
           "follow_trv_changes": "Aus: Änderungen am Gerät werden wieder zurückgesetzt (wie eine Kindersicherung).",
           "sensor_stale_minutes": "Danach regelt das TRV mit eigenem Sensor weiter und der Status zeigt eine Warnung."
         }
+      },
+      "ventilation": {
+        "title": "Lüften & Benachrichtigungen",
+        "data": {
+          "room_type": "Raumtyp",
+          "weather_entity": "Außenklima (Wetter oder Außensensor)",
+          "notify_targets": "Benachrichtigungen an",
+          "tts_targets": "Sprachansagen auf (optional)",
+          "quiet_start": "Ruhezeit ab",
+          "quiet_end": "Ruhezeit bis",
+          "repeat_minutes": "Erinnerung wiederholen alle"
+        },
+        "data_description": {
+          "room_type": "Setzt passende Standards: Wohnraum 18 °C / 70 %, Schlafzimmer und selten genutzt 16 °C, Bad 75 %. Feinjustierung später über die Regler am Gerät.",
+          "weather_entity": "Für empfohlene Lüftdauer und die Prüfung, ob Lüften überhaupt trocknet (absolute Feuchte draußen vs. drinnen).",
+          "notify_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
+          "tts_targets": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",
+          "quiet_start": "In der Ruhezeit nur stille Push-Nachrichten, keine Ansagen (Ausnahme: Raum kühlt aus)."
+        }
       }
     },
     "error": {
@@ -109,6 +128,25 @@
           "follow_trv_changes": "Aus: Änderungen am Gerät werden wieder zurückgesetzt (wie eine Kindersicherung).",
           "sensor_stale_minutes": "Danach regelt das TRV mit eigenem Sensor weiter und der Status zeigt eine Warnung."
         }
+      },
+      "ventilation": {
+        "title": "Lüften & Benachrichtigungen",
+        "data": {
+          "room_type": "Raumtyp",
+          "weather_entity": "Außenklima (Wetter oder Außensensor)",
+          "notify_targets": "Benachrichtigungen an",
+          "tts_targets": "Sprachansagen auf (optional)",
+          "quiet_start": "Ruhezeit ab",
+          "quiet_end": "Ruhezeit bis",
+          "repeat_minutes": "Erinnerung wiederholen alle"
+        },
+        "data_description": {
+          "room_type": "Setzt passende Standards: Wohnraum 18 °C / 70 %, Schlafzimmer und selten genutzt 16 °C, Bad 75 %. Feinjustierung später über die Regler am Gerät.",
+          "weather_entity": "Für empfohlene Lüftdauer und die Prüfung, ob Lüften überhaupt trocknet (absolute Feuchte draußen vs. drinnen).",
+          "notify_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
+          "tts_targets": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",
+          "quiet_start": "In der Ruhezeit nur stille Push-Nachrichten, keine Ansagen (Ausnahme: Raum kühlt aus)."
+        }
       }
     },
     "error": {
@@ -122,6 +160,16 @@
         "offset": "Offset (empfohlen)",
         "target": "Sollwert anpassen",
         "none": "Keine Kalibrierung"
+      }
+    },
+    "room_type": {
+      "options": {
+        "living": "Wohnraum",
+        "kitchen": "Küche",
+        "bedroom": "Schlafzimmer",
+        "bathroom": "Bad",
+        "children": "Kinderzimmer",
+        "rarely_used": "Selten genutzt (Gäste)"
       }
     },
     "on_preset": {
@@ -166,6 +214,26 @@
       },
       "offset": {
         "name": "Kalibrier-Offset"
+      },
+      "ventilation": {
+        "name": "Lüftung",
+        "state": {
+          "ok": "OK",
+          "please_open": "Bitte lüften",
+          "airing": "Lüftet",
+          "done": "Luft ausgetauscht",
+          "please_close": "Bitte schließen",
+          "too_cold": "Kühlt aus – schließen"
+        }
+      },
+      "dew_point": {
+        "name": "Taupunkt"
+      },
+      "abs_humidity": {
+        "name": "Absolute Feuchte"
+      },
+      "recommended_duration": {
+        "name": "Empfohlene Lüftdauer"
       }
     },
     "binary_sensor": {
@@ -174,11 +242,28 @@
       },
       "problem": {
         "name": "Problem"
+      },
+      "mold_risk": {
+        "name": "Schimmelrisiko"
       }
     },
     "switch": {
       "window_logic": {
         "name": "Fensterlogik"
+      },
+      "notifications": {
+        "name": "Lüftungs-Benachrichtigungen"
+      }
+    },
+    "number": {
+      "humidity_limit": {
+        "name": "Feuchtegrenze „Bitte lüften“"
+      },
+      "min_temp": {
+        "name": "Mindesttemperatur beim Lüften"
+      },
+      "max_drop": {
+        "name": "Max. Abkühlung beim Lüften"
       }
     },
     "button": {

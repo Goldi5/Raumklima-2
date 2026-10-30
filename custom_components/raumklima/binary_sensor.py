@@ -24,6 +24,8 @@ async def async_setup_entry(
     entities: list[BinarySensorEntity] = [ProblemSensor(c)]
     if c.windows:
         entities.append(WindowSensor(c))
+    if c.humidity_sensor:
+        entities.append(MoldRiskSensor(c))
     async_add_entities(entities)
 
 
@@ -59,3 +61,17 @@ class ProblemSensor(RaumklimaEntity, BinarySensorEntity):
     def is_on(self) -> bool:
         c = self.controller
         return c.status in (STATUS_SENSOR, STATUS_TRV) or c.sync.state == SYNC_FAILED
+
+
+class MoldRiskSensor(RaumklimaEntity, BinarySensorEntity):
+    """Schimmelrisiko: dauerhaft hohe Feuchte oder kalt und feucht."""
+
+    _attr_translation_key = "mold_risk"
+    _attr_device_class = BinarySensorDeviceClass.MOISTURE
+
+    def __init__(self, controller) -> None:
+        super().__init__(controller, "mold_risk")
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.vent.mold_risk

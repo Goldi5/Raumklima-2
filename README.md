@@ -8,7 +8,7 @@ Verbindungsabbrüchen (z. B. über VPN).
 Entwickelt und gedacht für Tuya-TRVs über Zigbee2MQTT (z. B. TRV602Z / TS0601),
 funktioniert aber mit jedem `climate`-Thermostat.
 
-**Aktuelle Version: 0.1.3** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
+**Aktuelle Version: 0.2.0** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md).
 
 ## Funktionen
 
@@ -42,6 +42,42 @@ funktioniert aber mit jedem `climate`-Thermostat.
 - **Offset-Startwert:** Meldet das TRV noch keinen Offset (`unknown`, typisch bei
   Tuya), sendet Raumklima einmalig 0 und kalibriert danach normal.
 
+## Lüftungsassistent (ab 0.2)
+
+Bewertet pro Raum Luftfeuchte, Fenster und Temperatur und meldet sich per
+Push (iPhone mit Knöpfen *Erledigt · In 15 min erinnern · Heute nicht mehr*) und
+optional per Sprachansage (z. B. Alexa).
+
+| Meldung | Auslöser |
+|---|---|
+| 💧 Bitte lüften | Feuchte ≥ Grenze (Standard 70 %, Bad 75 %) seit 15 min, Fenster zu – und draußen ist die Luft absolut trockener |
+| 🪟 Fenster schließen | Fenster länger offen als die empfohlene Lüftdauer |
+| 🥶 Raum kühlt aus | unter Mindesttemperatur (Wohnraum 18 °C, Schlafzimmer/selten genutzt 16 °C) oder mehr als 3 °C abgekühlt |
+| ✅ Luft ausgetauscht | Fenster offen und Feuchte wieder unter Grenze − 5 % |
+
+Empfohlene Lüftdauer nach Außentemperatur (Wetter-Entität, z. B. Pirate Weather):
+unter 0 °C 4 min · 0–5 °C 5 min · 5–10 °C 10 min · 10–15 °C 15 min ·
+15–20 °C 20 min · darüber 30 min. Ohne Außenwerte gilt die Monatstabelle von
+co2online. Ruhezeiten (Standard 22–7 Uhr): nur stille Push-Nachrichten.
+
+Grundlagen: Umweltbundesamt, co2online, LAUG.
+
+Für eigene Automationen feuert Raumklima das Ereignis `raumklima_event`
+(`type: ventilation`, `state`, `room`).
+
+## Raumklima-Karte (ab 0.2)
+
+Wird mit der Integration ausgeliefert und automatisch geladen – keine extra
+Installation:
+
+```yaml
+type: custom:raumklima-overview-card   # alle Räume + Außenklima
+title: Heizung
+---
+type: custom:raumklima-card            # ein Raum
+entity: climate.finja_berlin_wohnzimmer
+```
+
 ## Entitäten pro Raum
 
 | Entität | Bedeutung |
@@ -54,6 +90,12 @@ funktioniert aber mit jedem `climate`-Thermostat.
 | `binary_sensor.<raum>_problem` | Fühler/TRV weg oder Befehl nicht bestätigt |
 | `switch.<raum>_fensterlogik` | Fensterfunktion ein/aus |
 | `button.<raum>_jetzt_kalibrieren` | Offset sofort neu berechnen |
+| `sensor.<raum>_luftung` | OK / Bitte lüften / Lüftet / Luft ausgetauscht / Bitte schließen / Kühlt aus |
+| `sensor.<raum>_taupunkt`, `…_absolute_feuchte` | Raumklima-Werte |
+| `sensor.<raum>_empfohlene_luftdauer` | aus Außentemperatur |
+| `binary_sensor.<raum>_schimmelrisiko` | dauerhaft feucht oder kalt und feucht |
+| `number.<raum>_feuchtegrenze…`, `…_mindesttemperatur…`, `…_max_abkuhlung…` | pro Raum einstellbar |
+| `switch.<raum>_luftungs_benachrichtigungen` | Hinweise ein/aus |
 
 ## Installation über HACS
 
