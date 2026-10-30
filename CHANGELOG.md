@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.3 – 2026-10-30
+
+### Behoben
+- Nach einem Preset-Wechsel meldet der TRV602Z den gespeicherten Wert (z. B.
+  `eco_temperature`) erst im nächsten Update. Dieser wurde als neue
+  Solltemperatur übernommen. Jetzt gilt eine Schonfrist von 60 s, in der
+  Sollwert-Änderungen ignoriert und der eigene Sollwert wiederhergestellt wird.
+
+### Geändert
+- Raumklima erscheint jetzt unter **Integrationen** statt unter **Helfer**.
+
 ## 0.1.2 – 2026-10-30
 
 ### Behoben

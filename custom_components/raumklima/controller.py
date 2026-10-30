@@ -53,6 +53,7 @@ from .const import (
     OFFSET_MAX,
     OFFSET_MIN,
     OFFSET_STEP,
+    PRESET_GRACE_SECONDS,
     CONF_ON_PRESET,
     ON_PRESET_AUTO,
     ON_PRESET_AVOID,
@@ -123,6 +124,7 @@ class RaumklimaController:
         self._last_cal_send: datetime | None = None
         self._last_cal_value: float | None = None
         self._last_target_setpoint: float | None = None
+        self._preset_changed_at: datetime | None = None
         self._unsubs: list[Callable[[], None]] = []
         self._listeners: list[Callable[[], None]] = []
         self._apply_lock = asyncio.Lock()
@@ -431,6 +433,8 @@ class RaumklimaController:
             return
         if not (is_ok and was_ok):
             return
+        if old.attributes.get("preset_mode") != new.attributes.get("preset_mode"):
+            self._preset_changed_at = dt_util.utcnow()
         # Vor check_all: bestätigt dieses Update einen eigenen Befehl, sind die
         # Jobs noch offen und es wird nicht als manuelle Änderung gewertet.
         self._detect_manual_change(old, new)
@@ -482,6 +486,14 @@ class RaumklimaController:
         if new_t is None or old_t == new_t:
             return
         if values_match(new_t, self._desired_setpoint(), SETPOINT_MATCH_TOLERANCE):
+            return
+        if self._preset_changed_at and dt_util.utcnow() - self._preset_changed_at < timedelta(
+            seconds=PRESET_GRACE_SECONDS
+        ):
+            # Tuya lädt beim Preset-Wechsel den gespeicherten Wert oft erst im
+            # nächsten Update nach – das ist kein Wunsch des Nutzers.
+            _LOGGER.debug("%s: Sollwert %s kurz nach Preset-Wechsel ignoriert", self.name, new_t)
+            self.hass.async_create_task(self._apply())
             return
         if follow:
             _LOGGER.info("%s: Sollwert am TRV geändert auf %s", self.name, new_t)

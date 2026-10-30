@@ -67,6 +67,7 @@ SENSOR_JUMP_WINDOW: Final = 300  # s
 RECONCILE_INTERVAL: Final = 600  # s – regelmäßiger Abgleich
 CALIBRATION_INTERVAL: Final = 600  # s
 SLOW_RETRY_INTERVAL: Final = 300  # s – nach max. Versuchen weiter alle 5 min
+PRESET_GRACE_SECONDS: Final = 60  # s – Sollwert-Änderungen nach Preset-Wechsel ignorieren
 
 # Bevorzugte "an"-Presets (Reihenfolge). "on" fehlt bewusst: bei Tuya-TRVs
 # wie dem TRV602Z bedeutet es "Ventil dauerhaft offen", nicht "regeln".
