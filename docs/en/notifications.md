@@ -15,6 +15,8 @@ Choose per recipient which messages they get (Settings → General → Who gets 
 | 🩺 Heating health | low battery, room not warming despite open valve, sensor stuck, flaky radio, silent window contact – at most once a day per problem | push (quiet) |
 | 📊 Weekly report | Sundays 18:00: heating hours, weather-adjusted comparison, setback, humid rooms | push (quiet) |
 
+**Learned sleep times:** from night airing (window opened in the evening / closed in the morning) and optional sleep signals (e.g. living-room light off for 20 min = bed, on in the morning = up) the integration learns typical bed and wake times, weekdays and weekends separately (median of 6 weeks, from 4 nights). They only ever extend quiet hours and the night-airing window. With signals, quiet hours also follow the lights live.
+
 **Night airing:** if a window in a bedroom opens between 20:00 and 03:00 while someone is home, the room switches to *night airing*: heating waits, no "close window"/"cooling down" messages, one quiet warning below 12 °C, and at the end of quiet hours "window still open – heating is waiting" (then at most every 30 min). Per room: auto (bedroom, rarely used) / yes / no; times and limit under General.
 
 Recipients are `notify` services (mobile app, Alexa Media, …). **Test** sends a sample message.

@@ -19,6 +19,15 @@ Unter **Einstellungen → Allgemein → Wer bekommt was** wählst du für jeden 
 
 **Empfänger** sind `notify`-Dienste, z. B. `notify.mobile_app_iphone` oder ein eigener Dienst wie `notify.christian`. Mit **Test** schickst du eine Probenachricht.
 
+## Schlafenszeiten lernen
+
+Die Integration lernt, wann ihr schlafen geht und aufsteht:
+
+- **aus dem Nachtlüften:** Fenster im Schlafraum abends auf = ins Bett, morgens zu = aufgestanden.
+- **aus Schlaf-Signalen** (optional, z. B. Licht im Wohnzimmer): abends 20 Minuten lang alle aus = ins Bett, morgens eins an = aufgestanden. Mit Signalen gilt die Ruhezeit zusätzlich live: Licht aus → Ruhe, Licht morgens an → wach.
+
+Pro Nacht zählt das früheste Ereignis, Werktag und Wochenende (Fr→Sa, Sa→So) getrennt; ab 4 Nächten gilt der typische Wert der letzten 6 Wochen. Die Ruhezeit beginnt dann 30 Minuten vor der Bettzeit und endet 30 Minuten nach dem Aufstehen – **aber nie kürzer als eingestellt**. Das Nachtlüften-Fenster wird ebenso erweitert. Einstellen und ansehen unter *Allgemein → Schlafenszeiten*.
+
 ## Nachtlüften
 
 Wer bei offenem Fenster schläft, soll nicht geweckt werden. Geht in einem Schlafraum zwischen **20 und 3 Uhr** ein Fenster auf und jemand ist zu Hause, schaltet der Raum auf **Nachtlüften**:

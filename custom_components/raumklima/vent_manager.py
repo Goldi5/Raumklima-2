@@ -29,7 +29,7 @@ from .const import (
     NOTIFY_ACTION_EVENT,
 )
 from .logic import to_float
-from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, morning_after, mute_until
+from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
     DEFAULT_ROOM_TYPE,
     ROOM_TYPES,
@@ -345,8 +345,9 @@ class VentilationManager:
         since = self.c.night_since
         if since is None:
             return
-        morning = dt_util.as_utc(morning_after(dt_util.as_local(since), self.quiet_end, self.quiet_end_weekend))
-        if now < morning:
+        since_local = dt_util.as_local(since)
+        morning = dt_util.as_utc(hub.morning_after(since_local))
+        if now < morning and not hub.woke_after(since_local):
             return
         last = self._night_morning_sent
         if last and now - last < NIGHT_MORNING_REPEAT:
@@ -428,8 +429,20 @@ class VentilationManager:
             )
         )
 
+    def _mute_until(self) -> datetime:
+        """„Heute nicht mehr“: tagsüber bis Mitternacht, abends/nachts bis zum (gelernten) Morgen."""
+        local = dt_util.now()
+        hub = self.c.hub
+        if hub is None:
+            return mute_until(local, self.quiet_end, self.quiet_end_weekend)
+        morning = hub.morning_after(local)
+        if local.hour >= 18 or morning.date() == local.date():
+            return morning
+        return (local + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+
     def _mute_label(self) -> str:
-        return "Heute nicht mehr" if mute_until(dt_util.now(), self.quiet_end, self.quiet_end_weekend).hour == 0 else "Bis morgen früh"
+        until = self._mute_until()
+        return "Heute nicht mehr" if (until.hour, until.minute) == (0, 0) else f"Bis {until:%H:%M} Uhr"
 
     def _tag(self) -> str:
         return f"raumklima_{self.c.entry.entry_id}"
@@ -512,7 +525,7 @@ class VentilationManager:
         if action == self._action_id("SNOOZE"):
             self.snooze_until = now + timedelta(minutes=SNOOZE_MINUTES)
         elif action == self._action_id("MUTE"):
-            self.muted_until = dt_util.as_utc(mute_until(dt_util.now(), self.quiet_end, self.quiet_end_weekend))
+            self.muted_until = dt_util.as_utc(self._mute_until())
         elif action == self._action_id("DONE"):
             self.snooze_until = now + timedelta(minutes=SNOOZE_MINUTES)
         _LOGGER.info("%s: Benachrichtigungs-Aktion %s", self.c.name, action)

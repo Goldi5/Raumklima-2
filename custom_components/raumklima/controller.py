@@ -64,8 +64,6 @@ from .const import (
     CONF_ON_PRESET,
     CONF_SETBACK_LONG,
     CONF_NIGHT_AIRING,
-    CONF_NIGHT_END,
-    CONF_NIGHT_START,
     CONF_SETBACK_SHORT,
     KIND_TRV_FAILURE,
     ON_PRESET_AUTO,
@@ -476,8 +474,9 @@ class RaumklimaController:
             return False, "keine Zentrale"
         local = dt_util.now()
         room_type = self.vent.room_type if self.vent else self.config.get(CONF_ROOM_TYPE)
-        start, end = str(hub.opt(CONF_NIGHT_START))[:5], str(hub.opt(CONF_NIGHT_END))[:5]
-        in_window = in_time_window(local, start, end)
+        times = hub.times_for(local)
+        start, end = times["night_start"], times["night_end"]
+        in_window = in_time_window(local, start, end) or (bool(hub.sleep_signals) and hub.signals.asleep)
         home = not hub.nobody_home
         applies = night_airing_applies(self.night_mode, room_type, in_window, home)
         if self.night_mode == NIGHT_OFF:
@@ -485,7 +484,7 @@ class RaumklimaController:
         elif self.night_mode != NIGHT_ON and room_type not in NIGHT_ROOM_TYPES:
             why = "kein Schlafraum"
         elif not in_window:
-            why = f"{local:%H:%M} liegt nicht im Nachtlüften-Fenster {start}–{end}"
+            why = f"{local:%H:%M} liegt nicht im Nachtlüften-Fenster {start}–{end}" + (" (gelernt)" if times["source"]["night_start"] == "learned" else "")
         elif not home:
             why = "niemand zu Hause"
         else:
@@ -809,12 +808,16 @@ class RaumklimaController:
             if night:
                 self.night_since = dt_util.utcnow()
                 self.log(CAT_WINDOW, "Fenster auf – Nachtlüften", f"{why}: keine Lüft-Hinweise, Heizung wartet bis zum Schließen")
+                if self.hub is not None:
+                    self.hub.record_sleep("bed", dt_util.now(), f"Fenster {self.name}")
             else:
                 self.log(CAT_WINDOW, "Fenster auf", f"normales Lüften ({why})" if self.night_mode != NIGHT_OFF and why != "kein Schlafraum" else None)
         elif not raw:
             if self.night_since is not None:
                 hours = (dt_util.utcnow() - self.night_since).total_seconds() / 3600
                 self.log(CAT_WINDOW, "Fenster zu – Nachtlüften beendet", f"nach {hours:.1f} h".replace(".", ","))
+                if self.hub is not None and hours >= 3:
+                    self.hub.record_sleep("wake", dt_util.now(), f"Fenster {self.name}")
             else:
                 self.log(CAT_WINDOW, "Fenster zu")
             self.night_since = None

@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.5.0";
+const RK_VERSION = "0.6.0";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -897,6 +897,8 @@ const SETTINGS_STYLES = `
   .tbl .rn { display:flex; align-items:center; gap:8px; }
   .tbl .rn i { width:9px; height:9px; border-radius:50%; background: var(--c); }
   .ok { color: var(--rk-ok); } .no { color: var(--secondary-text-color); }
+  .tbl.sm td { padding:10px 12px; } .tbl.sm tbody tr { cursor:default; }
+  .lt { font-size:.72rem; font-weight:700; padding:1px 6px; border-radius:999px; background: color-mix(in srgb, var(--rk-eco) 18%, transparent); color: color-mix(in srgb, var(--rk-eco) 75%, var(--primary-text-color)); vertical-align:1px; }
   .foot { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
   .btn { all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:16px; font-weight:600; font-size:1rem;
     background: color-mix(in srgb, var(--c, var(--primary-text-color)) 9%, transparent); color: var(--primary-text-color); }
@@ -1104,6 +1106,30 @@ class RaumklimaSettingsCard extends HTMLElement {
         : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>24 h heizen</button>`, "für milde, aber kühle Tage"),
     ].join("");
 
+    // --- Schlafenszeiten
+    const sl = st.sleep || {};
+    const signals = this._hubOpt("sleep_signals") || [];
+    const sigNames = Object.fromEntries((ch.signals || []).map((x) => [x.id, x.name]));
+    const sigChips = signals.map((id) => `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${esc(sigNames[id] || this._name(id))}${this._admin ? ` <button class="mini x" data-sigrm="${esc(id)}" title="entfernen">✕</button>` : ""}</span>`).join("");
+    const sigAvail = (ch.signals || []).filter((x) => !signals.includes(x.id));
+    const lrn = (k) => {
+      const v = sl[k] || {}; const e = v.effective || {}; const s = e.source || {};
+      const mark = (key) => (s[key] === "learned" ? ` <span class="lt">gelernt</span>` : "");
+      return `<tr><td>${k === "weekday" ? "Werktags" : "Wochenende"}</td>
+        <td>${v.bed ? "~" + v.bed : `<span class="no">${v.nights_bed || 0}/4 Nächte</span>`}</td>
+        <td>${v.wake ? "~" + v.wake : `<span class="no">${v.nights_wake || 0}/4 Nächte</span>`}</td>
+        <td>${e.quiet_start || "–"}${mark("quiet_start")} – ${e.quiet_end || "–"}${mark("quiet_end")}</td>
+        <td>${e.night_start || "–"}${mark("night_start")} – ${e.night_end || "–"}${mark("night_end")}</td></tr>`;
+    };
+    const sleepRows = [
+      `<div class="status"><span class="chip" style="--tone:${sl.quiet_now ? "var(--rk-eco)" : "var(--rk-ok)"}"><ha-icon icon="${sl.quiet_now ? "mdi:sleep" : "mdi:white-balance-sunny"}"></ha-icon>${sl.quiet_now ? "Ruhezeit gerade aktiv" : "Keine Ruhezeit"}</span>${sl.asleep ? `<span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-off-outline"></ha-icon>Licht aus – alle schlafen</span>` : ""}</div>`,
+      this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
+      this._row("Schlaf-Signale", `<div class="chips">${sigChips || this._v("keine", true)}</div>`, "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden"),
+      this._admin && sigAvail.length ? `<div class="addrow"><select class="sel" id="addSig">${sigAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-sigadd style="--c:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>Signal hinzufügen</button></div>` : "",
+      `<div class="tblwrap"><table class="tbl sm"><thead><tr><th></th><th>Ins Bett</th><th>Aufstehen</th><th>Ruhezeit wirksam</th><th>Nachtlüften</th></tr></thead><tbody>${lrn("weekday")}${lrn("weekend")}</tbody></table></div>`,
+      `<div class="hint">Jede Nacht zählt einmal (frühestes Ereignis), getrennt nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.</div>`,
+    ].join("");
+
     // --- Gebäude
     const frsi = { unrenovated: "0,60", renovated: "0,70", new: "0,80" }[this._hubOpt("building_type")] || "0,70";
     const buildRows = [
@@ -1168,6 +1194,7 @@ class RaumklimaSettingsCard extends HTMLElement {
       ${this._grp("Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
       ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `<div class="people">${cards}</div>${addRow}`, "span")}
       ${this._grp("Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows)}
+      ${this._grp("Schlafenszeiten", "mdi:sleep", "eco", sleepRows, "span")}
       ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
       ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>Raum</th><th>Typ</th><th>Wunsch</th><th>Absenkung kurz / länger</th><th>Minimum Lüften</th><th>Feuchte</th><th>Fensterlogik</th><th>Hinweise</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">Tippe auf einen Raum, um seine Einstellungen zu ändern.</div>`, "span")}
     </div>`;
@@ -1306,6 +1333,13 @@ class RaumklimaSettingsCard extends HTMLElement {
       const i = list.indexOf(el.dataset.person);
       if (i >= 0) list.splice(i, 1); else list.push(el.dataset.person);
       this._setHub({ residents: list });
+    }));
+    $("[data-sigrm]").forEach((el) => el.addEventListener("click", () => {
+      this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });
+    }));
+    $("[data-sigadd]").forEach((el) => el.addEventListener("click", () => {
+      const sel = this.shadowRoot.getElementById("addSig");
+      if (sel && sel.value) this._setHub({ sleep_signals: [...(this._hubOpt("sleep_signals") || []), sel.value] });
     }));
     $("[data-kind]").forEach((el) => el.addEventListener("click", () => {
       const key = el.dataset.ch === "tts" ? "tts" : "recipients";

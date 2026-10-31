@@ -108,6 +108,8 @@ HUB_DEFAULTS: Final = {
     "quiet_start": "22:00:00",
     "quiet_end": "07:00:00",
     "quiet_end_weekend": "09:00:00",
+    "learn_times": True,
+    "sleep_signals": [],
     "repeat_minutes": 5,
     "weather_entity": None,
     "notify_on_failure": True,

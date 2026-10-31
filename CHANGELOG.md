@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.0 – 2026-10-31
+
+### Neu
+- **Schlafenszeiten lernen:** Aus dem Nachtlüften (Fenster abends auf / morgens zu) und optional aus
+  **Schlaf-Signalen** (z. B. Licht im Wohnzimmer: abends 20 min alles aus = ins Bett, morgens an =
+  aufgestanden) lernt die Integration die typischen Zeiten – getrennt nach Werktag und Wochenende,
+  Median der letzten 6 Wochen ab 4 Nächten. Ruhezeit und Nachtlüften-Fenster werden damit nur
+  **verlängert**, nie verkürzt; Morgengruß und „Bis … Uhr“ richten sich danach.
+- Mit Schlaf-Signalen gilt die Ruhezeit live: Licht aus → Ruhe, Licht morgens an → wach.
+- Einstellungen → Allgemein → **Schlafenszeiten**: Lernen an/aus, Signale wählen, gelernte und
+  wirksame Zeiten. Alles erscheint im Protokoll.
+
+
 ## 0.5.0 – 2026-10-31
 
 ### Neu

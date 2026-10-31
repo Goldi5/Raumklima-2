@@ -78,6 +78,8 @@ HUB_CHANGES = vol.Schema(
         vol.Optional("quiet_start"): _TIME,
         vol.Optional("quiet_end"): _TIME,
         vol.Optional("quiet_end_weekend"): _TIME,
+        vol.Optional("learn_times"): bool,
+        vol.Optional("sleep_signals"): [str],
         vol.Optional("repeat_minutes"): vol.All(vol.Coerce(float), vol.Range(1, 120)),
         vol.Optional("weather_entity"): vol.Any(None, str),
         vol.Optional("notify_on_failure"): bool,
@@ -134,6 +136,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "persons": ents("person"),
         "zones": ents("zone"),
         "weather": ents("weather"),
+        "signals": ents("light") + ents("switch") + ents("input_boolean"),
     }
 
 

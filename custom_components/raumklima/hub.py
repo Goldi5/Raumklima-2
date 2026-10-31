@@ -57,8 +57,8 @@ from .planning import (
     approaching,
     combined_mean,
     haversine_km,
-    in_quiet,
     in_season,
+    in_time_window,
     presence_stage,
     season_allows_heating,
     season_decision,
@@ -74,6 +74,7 @@ from .decision_log import (
     fmt_temp,
 )
 from .insights import Insights
+from .sleep import BED, WAKE, SignalTracker, SleepLearner, effective_times, is_weekend_night, night_of
 
 if TYPE_CHECKING:
     from .controller import RaumklimaController
@@ -164,6 +165,10 @@ class RaumklimaHub:
         self.insights = Insights(hass, self)
         self.log = DecisionLog(hass)
         self._reject_logged: dict[str, datetime] = {}
+        # Schlafenszeiten
+        self.sleep = SleepLearner()
+        self.signals = SignalTracker()
+        self._woke_night: str | None = None  # Nacht, in der Signale „aufgestanden“ gemeldet haben
 
     # ------------------------------------------------------------ Konfiguration
     def load_config(self) -> None:
@@ -227,6 +232,11 @@ class RaumklimaHub:
             parsed = _parse(when)
             if parsed and temp is not None:
                 self.samples.append((parsed, float(temp)))
+        self.sleep.load(stored.get("sleep"))
+        sig = stored.get("signals") or {}
+        self.signals.asleep = bool(sig.get("asleep", False))
+        self.signals.bed_at = _parse(sig.get("bed_at"))
+        self._woke_night = sig.get("woke_night")
         self._migrate_kinds()
         self._subscribe()
         await self.insights.async_start()
@@ -251,6 +261,10 @@ class RaumklimaHub:
         self._unsubs.append(
             async_track_time_interval(self.hass, self._on_presence_tick, PRESENCE_INTERVAL)
         )
+        if self.sleep_signals:
+            self._unsubs.append(
+                async_track_state_change_event(self.hass, self.sleep_signals, self._on_signal_change)
+            )
         self._unsubs.append(
             async_track_time_interval(self.hass, self._on_sample_tick, SAMPLE_INTERVAL)
         )
@@ -325,6 +339,8 @@ class RaumklimaHub:
                 "cold_snap": self.season.cold_snap,
             },
             "samples": [[_iso(w), t] for w, t in self.samples if w >= cutoff],
+            "sleep": self.sleep.dump(),
+            "signals": {"asleep": self.signals.asleep, "bed_at": _iso(self.signals.bed_at), "woke_night": self._woke_night},
         }
 
     def _save(self) -> None:
@@ -357,6 +373,93 @@ class RaumklimaHub:
     @callback
     def _on_presence_tick(self, _now: datetime) -> None:
         self._evaluate_presence()
+        if self.sleep_signals:
+            self._handle_signal(self.signals.tick(dt_util.now()))
+
+    # ------------------------------------------------------------ Schlafenszeiten
+    @property
+    def sleep_signals(self) -> list[str]:
+        return [e for e in (self.opt("sleep_signals") or []) if isinstance(e, str)]
+
+    def _signals_on(self) -> bool:
+        return any(
+            (st := self.hass.states.get(e)) is not None and st.state == "on" for e in self.sleep_signals
+        )
+
+    @callback
+    def _on_signal_change(self, event: Any) -> None:
+        new = event.data.get("new_state")
+        if new is None or new.state in ("unavailable", "unknown"):
+            return
+        self._handle_signal(self.signals.update(self._signals_on(), dt_util.now()), event.data.get("entity_id"))
+
+    def _handle_signal(self, kind: str | None, entity_id: str | None = None) -> None:
+        if kind is None:
+            return
+        local = dt_util.now()
+        if kind == BED:
+            when = dt_util.as_local(self.signals.bed_at) if self.signals.bed_at else local
+            names = ", ".join(self._entity_name(e) for e in self.sleep_signals)
+            self.log.add(CAT_PRESENCE, "Schlafenszeit erkannt", f"{names} seit {when:%H:%M} aus – Ruhezeit gilt ab jetzt")
+            self.record_sleep(BED, when, "Licht")
+        else:
+            self._woke_night = night_of(local).isoformat()
+            self.log.add(CAT_PRESENCE, "Aufgestanden erkannt", f"{self._entity_name(entity_id or '')} ist an – Ruhezeit endet")
+            self.record_sleep(WAKE, local, "Licht")
+        self._save()
+        self._changed()
+
+    def _entity_name(self, entity_id: str) -> str:
+        st = self.hass.states.get(entity_id)
+        return str(st.name) if st is not None and getattr(st, "name", None) else entity_id
+
+    def record_sleep(self, kind: str, local: datetime, source: str) -> None:
+        """Bett-/Aufstehereignis lernen (auch von Räumen beim Nachtlüften)."""
+        night = night_of(local)
+        weekend = is_weekend_night(night)
+        before = self.sleep.learned(weekend).as_dict()
+        if not self.sleep.record(kind, local, source):
+            return
+        self.sleep.prune(local.date())
+        after = self.sleep.learned(weekend).as_dict()
+        if (before["bed"], before["wake"]) != (after["bed"], after["wake"]) and (after["bed"] or after["wake"]):
+            label = "Wochenende" if weekend else "werktags"
+            self.log.add(
+                CAT_SETTINGS,
+                f"Schlafenszeiten gelernt ({label})",
+                f"ins Bett ~{after['bed'] or '–'} ({after['nights_bed']} Nächte), aufstehen ~{after['wake'] or '–'} ({after['nights_wake']} Nächte)",
+            )
+        self._save()
+
+    def times_for(self, local: datetime | None = None) -> dict[str, Any]:
+        """Wirksame Ruhe- und Nachtlüftzeiten für die Nacht, zu der „local“ gehört."""
+        local = local or dt_util.now()
+        night = night_of(local)
+        weekend = is_weekend_night(night)
+        end = str(self.opt("quiet_end_weekend") or self.opt("quiet_end")) if weekend else str(self.opt("quiet_end"))
+        out = effective_times(
+            self.sleep.learned(weekend),
+            str(self.opt("quiet_start")),
+            end,
+            str(self.opt("night_start")),
+            str(self.opt("night_end")),
+            enabled=bool(self.opt("learn_times")),
+        )
+        out["weekend"] = weekend
+        out["night"] = night.isoformat()
+        return out
+
+    def morning_after(self, since_local: datetime) -> datetime:
+        """Ende der Ruhezeit am Morgen nach „since“ (gelernt, Wochenende beachtet)."""
+        times = self.times_for(since_local)
+        night = night_of(since_local)
+        h, m = (int(x) for x in times["quiet_end"].split(":"))
+        morning = datetime.combine(night + timedelta(days=1), datetime.min.time(), since_local.tzinfo).replace(hour=h, minute=m)
+        return morning
+
+    def woke_after(self, since_local: datetime) -> bool:
+        """Haben Schlaf-Signale nach „since“ schon „aufgestanden“ gemeldet?"""
+        return bool(self.sleep_signals) and self._woke_night == night_of(since_local).isoformat() and not self.signals.asleep
 
     def _zone_geo(self) -> tuple[float, float, float] | None:
         state = self.hass.states.get(self.zone) if self.zone else None
@@ -724,9 +827,13 @@ class RaumklimaHub:
 
     def quiet_now(self) -> bool:
         now = dt_util.now()
-        return in_quiet(
-            now, str(self.opt("quiet_start")), str(self.opt("quiet_end")), self.opt("quiet_end_weekend") or None
-        )
+        if self.sleep_signals:
+            if self.signals.asleep:
+                return True
+            if self._woke_night == night_of(now).isoformat():
+                return False  # Licht an am Morgen: alle wach
+        times = self.times_for(now)
+        return in_time_window(now, times["quiet_start"], times["quiet_end"])
 
     def notify(
         self,
@@ -825,7 +932,22 @@ class RaumklimaHub:
             "outdoor_temperature": self.outdoor_temp(),
             "frsi": self.frsi,
             "issues": self.insights.all_issues(),
+            "sleep": self.sleep_summary(),
         }
+
+    def sleep_summary(self) -> dict[str, Any]:
+        now = dt_util.now()
+        out: dict[str, Any] = {
+            "asleep": self.signals.asleep if self.sleep_signals else None,
+            "quiet_now": self.quiet_now(),
+            "tonight": self.times_for(now),
+        }
+        for key, weekend in (("weekday", False), ("weekend", True)):
+            sample = now
+            while is_weekend_night(night_of(sample)) != weekend:
+                sample += timedelta(days=1)
+            out[key] = {**self.sleep.learned(weekend).as_dict(), "effective": self.times_for(sample)}
+        return out
 
     def diagnostics(self) -> dict[str, Any]:
         return {
