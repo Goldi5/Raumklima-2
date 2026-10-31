@@ -142,6 +142,11 @@ class VentilationManager:
         return str(self._hub_opt("quiet_end", CONF_QUIET_END, "07:00"))
 
     @property
+    def quiet_end_weekend(self) -> str | None:
+        hub = self.c.hub
+        return (hub.opt("quiet_end_weekend") or None) if hub else None
+
+    @property
     def repeat_minutes(self) -> float:
         return float(self._hub_opt("repeat_minutes", CONF_REPEAT_MINUTES, 5))
 
@@ -328,9 +333,10 @@ class VentilationManager:
             hub.notify(
                 KIND_TOO_COLD,
                 f"🌙 {self.c.name}: sehr kalt",
-                f"Das Fenster ist offen und es sind nur noch {temp:.1f} °C. Vielleicht doch schließen?",
+                f"Das Fenster ist offen und es sind nur noch {temp:.1f} °C. Vielleicht doch schließen?".replace(".", ",", 1),
                 data={"tag": f"{self._tag()}_night", "group": "raumklima", "push": {"interruption-level": "passive"}},
                 speak=False,
+                room=self.c,
             )
         if self.muted_until and now < self.muted_until:
             return
@@ -339,7 +345,7 @@ class VentilationManager:
         since = self.c.night_since
         if since is None:
             return
-        morning = dt_util.as_utc(morning_after(dt_util.as_local(since), self.quiet_end))
+        morning = dt_util.as_utc(morning_after(dt_util.as_local(since), self.quiet_end, self.quiet_end_weekend))
         if now < morning:
             return
         last = self._night_morning_sent
@@ -374,6 +380,7 @@ class VentilationManager:
             f"🚪 {self.c.name}: Fenster offen",
             f"Seit {self.open_minutes:.0f} min offen – und niemand ist zu Hause.",
             data={"tag": f"{self._tag()}_away", "group": "raumklima"},
+            room=self.c,
         )
 
     def _maybe_send(self, kind: str, changed: bool) -> None:
@@ -422,7 +429,7 @@ class VentilationManager:
         )
 
     def _mute_label(self) -> str:
-        return "Heute nicht mehr" if mute_until(dt_util.now(), self.quiet_end).hour == 0 else "Bis morgen früh"
+        return "Heute nicht mehr" if mute_until(dt_util.now(), self.quiet_end, self.quiet_end_weekend).hour == 0 else "Bis morgen früh"
 
     def _tag(self) -> str:
         return f"raumklima_{self.c.entry.entry_id}"
@@ -447,6 +454,7 @@ class VentilationManager:
                     ],
                 },
                 speak=speak,
+                room=self.c,
             )
             return
         now = dt_util.now()
@@ -504,10 +512,19 @@ class VentilationManager:
         if action == self._action_id("SNOOZE"):
             self.snooze_until = now + timedelta(minutes=SNOOZE_MINUTES)
         elif action == self._action_id("MUTE"):
-            self.muted_until = dt_util.as_utc(mute_until(dt_util.now(), self.quiet_end))
+            self.muted_until = dt_util.as_utc(mute_until(dt_util.now(), self.quiet_end, self.quiet_end_weekend))
         elif action == self._action_id("DONE"):
             self.snooze_until = now + timedelta(minutes=SNOOZE_MINUTES)
         _LOGGER.info("%s: Benachrichtigungs-Aktion %s", self.c.name, action)
+        until = self.muted_until if action == self._action_id("MUTE") else self.snooze_until
+        label = {"MUTE": "„Heute nicht mehr“", "SNOOZE": "„Später erinnern“", "DONE": "„Erledigt“"}.get(
+            action.removeprefix("RAUMKLIMA_").split("_", 1)[0], action
+        )
+        self.c.log(
+            "notify",
+            f"Knopf {label} in der Push gedrückt",
+            f"keine Lüft-Hinweise bis {'MoDiMiDoFrSaSo'[dt_util.as_local(until).weekday() * 2:][:2]} {dt_util.as_local(until):%H:%M}" if until else None,
+        )
         self.c.notify_listeners()
 
     # ------------------------------------------------------------ Einstellen

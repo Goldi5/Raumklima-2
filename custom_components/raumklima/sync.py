@@ -28,6 +28,7 @@ class SyncJob:
     description: str
     send: Callable[[], Awaitable[None]]
     check: Callable[[], bool]
+    why: str | None = None
     attempts: int = 0
     cancel: Callable[[], None] | None = field(default=None, repr=False)
 
@@ -47,6 +48,7 @@ class SyncManager:
         on_change: Callable[[], None] | None = None,
         on_failed: Callable[[SyncJob], None] | None = None,
         on_recovered: Callable[[], None] | None = None,
+        on_event: Callable[[str, SyncJob], None] | None = None,
     ) -> None:
         self._schedule = schedule
         self._run_task = run_task
@@ -57,6 +59,7 @@ class SyncManager:
         self._on_change = on_change or (lambda: None)
         self._on_failed = on_failed or (lambda job: None)
         self._on_recovered = on_recovered or (lambda: None)
+        self._on_event = on_event or (lambda event, job: None)
         self.jobs: dict[str, SyncJob] = {}
         self.failed_notified = False
 
@@ -86,6 +89,7 @@ class SyncManager:
         description: str,
         send: Callable[[], Awaitable[None]],
         check: Callable[[], bool],
+        why: str | None = None,
     ) -> None:
         """Neuen Soll-Zustand anfordern (ersetzt älteren mit gleichem key)."""
         self._drop(key)
@@ -93,8 +97,9 @@ class SyncManager:
             # Steht schon so – nichts zu tun
             self._changed()
             return
-        job = SyncJob(key=key, description=description, send=send, check=check)
+        job = SyncJob(key=key, description=description, send=send, check=check, why=why)
         self.jobs[key] = job
+        self._event("send", job)
         await self._attempt(job)
 
     def cancel(self, key: str) -> None:
@@ -161,6 +166,7 @@ class SyncManager:
             _LOGGER.warning(
                 "%s nach %s Versuchen nicht bestätigt", job.description, job.attempts
             )
+            self._event("failed", job)
             if not self.failed_notified:
                 self.failed_notified = True
                 self._on_failed(job)
@@ -169,6 +175,8 @@ class SyncManager:
     def _done(self, job: SyncJob) -> None:
         self._drop(job.key)
         _LOGGER.debug("%s bestätigt", job.description)
+        if job.attempts > 1:
+            self._event("confirmed", job)
         if not self.jobs and self.failed_notified:
             self.failed_notified = False
             self._on_recovered()
@@ -182,3 +190,9 @@ class SyncManager:
 
     def _changed(self) -> None:
         self._on_change()
+
+    def _event(self, event: str, job: SyncJob) -> None:
+        try:
+            self._on_event(event, job)
+        except Exception:  # noqa: BLE001 – Protokoll darf nie die Regelung stören
+            _LOGGER.exception("Protokoll für %s fehlgeschlagen", job.description)

@@ -46,6 +46,7 @@ from .planning import (
     BUILDING_FRSI,
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
+    STAGE_GUESTS,
     STAGE_HOME,
     STAGE_PREHEAT,
     Fix,
@@ -56,14 +57,23 @@ from .planning import (
     approaching,
     combined_mean,
     haversine_km,
+    in_quiet,
     in_season,
     presence_stage,
     season_allows_heating,
     season_decision,
     season_step,
 )
+from .decision_log import (
+    CAT_MANUAL,
+    CAT_NOTIFY,
+    CAT_PRESENCE,
+    CAT_SEASON,
+    CAT_SETTINGS,
+    DecisionLog,
+    fmt_temp,
+)
 from .insights import Insights
-from .ventilation import in_quiet_hours
 
 if TYPE_CHECKING:
     from .controller import RaumklimaController
@@ -92,6 +102,33 @@ def _iso(value: datetime | None) -> str | None:
 
 def _parse(value: Any) -> datetime | None:
     return dt_util.parse_datetime(value) if isinstance(value, str) else None
+
+
+STAGE_TEXT = {
+    STAGE_HOME: "jemand da",
+    STAGE_GUESTS: "Gäste da",
+    STAGE_PREHEAT: "Vorheizen",
+    STAGE_AWAY_SHORT: "kurz weg",
+    STAGE_AWAY_LONG: "länger weg",
+}
+SEASON_TEXT = {
+    "heating": "Heizen",
+    "pause": "Heizpause",
+    "cold_snap": "Kälteeinbruch",
+    "heat_today": "Heute heizen",
+    "always": "Immer heizen",
+    "manual_pause": "Heizpause (von Hand)",
+}
+
+
+def _who(target: str) -> str:
+    name = target.split(".", 1)[-1].removeprefix("mobile_app_")
+    return " ".join(w.capitalize() for w in name.split("_") if w) or target
+
+
+def _short(value: Any) -> str:
+    text = str(value)
+    return text if len(text) <= 40 else text[:37] + "…"
 
 
 class RaumklimaHub:
@@ -125,6 +162,8 @@ class RaumklimaHub:
         self.mean_past: float | None = None
         self.mean_forecast: float | None = None
         self.insights = Insights(hass, self)
+        self.log = DecisionLog(hass)
+        self._reject_logged: dict[str, datetime] = {}
 
     # ------------------------------------------------------------ Konfiguration
     def load_config(self) -> None:
@@ -169,6 +208,7 @@ class RaumklimaHub:
 
     # ------------------------------------------------------------ Lebenszyklus
     async def async_start(self) -> None:
+        await self.log.async_load()
         stored = await self._store.async_load() or {}
         self.vacation = bool(stored.get("vacation", False))
         self.guests = bool(stored.get("guests", False))
@@ -246,12 +286,21 @@ class RaumklimaHub:
 
     async def async_stop(self) -> None:
         await self.insights.async_stop()
+        await self.log.async_save()
         self._unsubscribe()
         await self._store.async_save(self._stored())
 
     async def async_options_updated(self) -> None:
         """Einstellungen geändert: neu laden, ohne die Räume neu zu starten."""
+        old = dict(self.config)
         self.load_config()
+        changed = sorted(k for k in set(old) | set(self.config) if old.get(k) != self.config.get(k))
+        if changed:
+            self.log.add(
+                CAT_SETTINGS,
+                "Einstellungen geändert",
+                ", ".join(f"{k}: {_short(old.get(k))} → {_short(self.config.get(k))}" for k in changed[:8]),
+            )
         self._unsubscribe()
         self._filters.clear()
         self._seen.clear()
@@ -342,6 +391,17 @@ class RaumklimaHub:
                 self._seen[tracker] = when
                 if not flt.feed(Fix(lat, lon, when, accuracy)):
                     _LOGGER.debug("%s: Ortung von %s verworfen (Sprung/ungenau)", name, tracker)
+                    last = self._reject_logged.get(tracker)
+                    if last is None or now - last > timedelta(hours=1):
+                        self._reject_logged[tracker] = now
+                        far = haversine_km(lat, lon, geo[0], geo[1]) if lat is not None and lon is not None else None
+                        self.log.add(
+                            CAT_PRESENCE,
+                            f"Ortung von {name} ignoriert",
+                            (f"{tracker}: Sprung auf {far:.0f} km" if far is not None else tracker)
+                            + (f", Genauigkeit {accuracy:.0f} m" if accuracy > 200 else " – zu schnell für echte Bewegung (z. B. VPN)")
+                            + "; wird erst übernommen, wenn sie 30 min stabil bleibt",
+                        )
             fix = flt.accepted
             if fix is None:
                 continue
@@ -375,6 +435,7 @@ class RaumklimaHub:
                 if self._was_present is False and self.vacation:
                     _LOGGER.info("Ankunft – Urlaub beendet")
                     self.vacation = False
+                    self.log.add(CAT_PRESENCE, "Urlaub beendet", "jemand ist angekommen")
                 self.last_present = now
                 self._preheat_until = None
             elif self.last_present is None:
@@ -407,6 +468,12 @@ class RaumklimaHub:
         if new != self.stage:
             old, self.stage = self.stage, new
             _LOGGER.info("Anwesenheit: %s → %s", old, new)
+            self.log.add(
+                CAT_PRESENCE,
+                f"Anwesenheit: {STAGE_TEXT.get(old, old)} → {STAGE_TEXT.get(new, new)}",
+                self._presence_why(new),
+                stage=new,
+            )
             if not initial:
                 self._announce_stage(old, new)
                 if new == STAGE_HOME and old in (*AWAY_STAGES, STAGE_PREHEAT):
@@ -418,6 +485,30 @@ class RaumklimaHub:
         else:
             self._save()
             self._changed(rooms=False)
+
+    def _presence_why(self, stage: str) -> str:
+        parts = []
+        if stage == STAGE_GUESTS:
+            parts.append("Schalter „Gäste da“ ist an")
+        if self.vacation:
+            parts.append("Urlaub ist an")
+        if stage == STAGE_PREHEAT and self._preheat_by:
+            parts.append(f"{self._preheat_by} nähert sich (Vorheizen ab {float(self.opt(CONF_PREHEAT_KM)):.0f} km)")
+        for p in self.persons.values():
+            if p["present"]:
+                parts.append(f"{p['name']} ist da")
+            elif p["distance_km"] is not None:
+                parts.append(f"{p['name']} {p['distance_km']:.1f} km entfernt".replace(".", ",") + (" und kommt näher" if p["approaching"] else ""))
+            else:
+                parts.append(f"{p['name']}: Ort unbekannt")
+        if stage in AWAY_STAGES and self.last_present:
+            mins = (dt_util.utcnow() - self.last_present).total_seconds() / 60
+            parts.append(
+                f"seit {mins / 60:.0f} h niemand da" if mins >= 120 else f"seit {mins:.0f} min niemand da (Wartezeit {float(self.opt(CONF_AWAY_DELAY)):.0f} min)"
+            )
+        if not self.presence_configured:
+            parts.append("Anwesenheit nicht eingerichtet – gilt als da")
+        return "; ".join(parts)
 
     def _announce_stage(self, old: str, new: str) -> None:
         if new == STAGE_AWAY_SHORT:
@@ -551,12 +642,36 @@ class RaumklimaHub:
         if new != self.decision:
             old, self.decision = self.decision, new
             _LOGGER.info("Heizbetrieb: %s → %s", old, new)
+            self.log.add(
+                CAT_SEASON,
+                f"Heizbetrieb: {SEASON_TEXT.get(old, old)} → {SEASON_TEXT.get(new, new)}",
+                self._season_why(new),
+                decision=new,
+                mean_past=self.mean_past,
+                mean_forecast=self.mean_forecast,
+            )
             self._announce_season(old, new)
             self._save()
             self._changed()
         else:
             self._save()
             self._changed(rooms=False)
+
+    def _season_why(self, decision: str) -> str:
+        limit = float(self.opt(CONF_HEATING_LIMIT))
+        base = (
+            f"Ø letzte 24 h {fmt_temp(self.mean_past)}, Vorhersage 24 h {fmt_temp(self.mean_forecast)}, "
+            f"zusammen {fmt_temp(self.mean_combined)} – Heizgrenze {fmt_temp(limit, 0)}"
+        )
+        reason = {
+            "heating": "unter der Heizgrenze" if self.in_season else "Heizsaison",
+            "pause": "seit 48 h mild" if self.in_season else "außerhalb der Heizsaison",
+            "cold_snap": f"3 Tage unter {fmt_temp(float(self.opt(CONF_COLD_SNAP_TEMP)), 0)} – Kälteeinbruch",
+            "heat_today": "„Heute heizen“ gedrückt (24 h)",
+            "always": "Betriebsart „Immer heizen“",
+            "manual_pause": "Betriebsart „Heizpause“",
+        }.get(decision, "")
+        return f"{reason}; {base}" if reason else base
 
     def _announce_season(self, old: str, new: str) -> None:
         mean = self.mean_combined
@@ -579,10 +694,12 @@ class RaumklimaHub:
         return season_allows_heating(self.decision)
 
     def heat_today(self) -> None:
+        self.log.add(CAT_MANUAL, "„Heute heizen“ gedrückt", "heizt 24 h, egal wie mild es ist")
         self.heat_today_until = dt_util.utcnow() + HEAT_TODAY
         self._evaluate_season()
 
     def cancel_heat_today(self) -> None:
+        self.log.add(CAT_MANUAL, "„Heute heizen“ beendet")
         self.heat_today_until = None
         self._evaluate_season()
 
@@ -593,6 +710,7 @@ class RaumklimaHub:
         if self.heating_allowed:
             return
         _LOGGER.info("Sommerpflege: Ventile werden kurz bewegt")
+        self.log.add(CAT_SEASON, "Sommerpflege: Ventile werden kurz geöffnet", "mittwochs 11 Uhr in der Heizpause, damit nichts festsitzt")
         for room in list(self.rooms.values()):
             self.hass.async_create_task(room.async_valve_care())
 
@@ -606,8 +724,8 @@ class RaumklimaHub:
 
     def quiet_now(self) -> bool:
         now = dt_util.now()
-        return in_quiet_hours(
-            now.hour, now.minute, str(self.opt("quiet_start")), str(self.opt("quiet_end"))
+        return in_quiet(
+            now, str(self.opt("quiet_start")), str(self.opt("quiet_end")), self.opt("quiet_end_weekend") or None
         )
 
     def notify(
@@ -617,8 +735,9 @@ class RaumklimaHub:
         message: str,
         data: dict[str, Any] | None = None,
         speak: bool = True,
+        room: Any = None,
     ) -> None:
-        self.hass.async_create_task(self.async_notify(kind, title, message, data, speak))
+        self.hass.async_create_task(self.async_notify(kind, title, message, data, speak, room=room))
 
     async def async_notify(
         self,
@@ -628,6 +747,7 @@ class RaumklimaHub:
         data: dict[str, Any] | None = None,
         speak: bool = True,
         only: str | None = None,
+        room: Any = None,
     ) -> None:
         """An alle Empfänger senden, die diese Nachrichtenart gewählt haben."""
         quiet = self.quiet_now()
@@ -637,6 +757,19 @@ class RaumklimaHub:
         elif kind in URGENT_KINDS:
             data.setdefault("push", {"interruption-level": "time-sensitive"})
         push = [only] if only else self.targets(kind)
+        tts = [] if not speak or quiet or only else self.targets(kind, "tts")
+        if push or tts:
+            level = (data.get("push") or {}).get("interruption-level", "active")
+            how = {"passive": "leise", "time-sensitive": "dringend (auch in der Ruhezeit)"}.get(level, "normal")
+            self.log.add(
+                CAT_NOTIFY,
+                f"{title}",
+                f"{message} → " + ", ".join([_who(t) for t in push] + [f"{_who(t)} (Sprache)" for t in tts])
+                + f"; {how}" + (" – Ruhezeit" if quiet else ""),
+                kind=kind,
+                room=getattr(room, "name", None),
+                entry_id=getattr(getattr(room, "entry", None), "entry_id", None),
+            )
         for target in push:
             domain, _, service = target.partition(".")
             if domain != "notify" or not service:
@@ -705,6 +838,7 @@ class RaumklimaHub:
                 "cold_snap": self.season.cold_snap,
             },
             "samples": len(self.samples),
+            "decision_log": self.log.query(limit=300),
             "filters": {
                 t: {
                     "accepted": [f.accepted.lat, f.accepted.lon, _iso(f.accepted.when)] if f.accepted else None,

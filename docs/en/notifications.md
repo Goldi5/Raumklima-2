@@ -19,5 +19,5 @@ Choose per recipient which messages they get (Settings → General → Who gets 
 
 Recipients are `notify` services (mobile app, Alexa Media, …). **Test** sends a sample message.
 Push actions: *Done*, *Remind in 15 min*, *Not today* (in the evening: until the end of quiet hours). Messages clear themselves when resolved.
-**Quiet hours** (22:00–07:00): silent push; only urgent messages are loud; never voice.
+**Quiet hours** (22:00–07:00, weekends until 09:00): silent push; only urgent messages are loud; never voice.
 Each room has a **hints on/off** switch. Reminders repeat every 5 min while the problem persists; "please air" at most every 30 min.

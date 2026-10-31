@@ -42,6 +42,7 @@ from .const import (
     ROOM_TYPE_OPTIONS,
     SEASON_MODES,
 )
+from .decision_log import CATEGORIES
 from .planning import NIGHT_MODES
 from .hub import domain_data, get_hub
 
@@ -76,6 +77,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_TTS): _TARGETS,
         vol.Optional("quiet_start"): _TIME,
         vol.Optional("quiet_end"): _TIME,
+        vol.Optional("quiet_end_weekend"): _TIME,
         vol.Optional("repeat_minutes"): vol.All(vol.Coerce(float), vol.Range(1, 120)),
         vol.Optional("weather_entity"): vol.Any(None, str),
         vol.Optional("notify_on_failure"): bool,
@@ -113,7 +115,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report):
+    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report, ws_log, ws_log_subscribe):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -267,3 +269,42 @@ def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
     connection.send_result(msg["id"], {**hub.insights.report(), "issues": hub.insights.all_issues()})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/log",
+        vol.Optional("limit", default=300): vol.All(vol.Coerce(int), vol.Range(1, 2000)),
+        vol.Optional("before"): vol.Coerce(int),
+        vol.Optional("entry_id"): str,
+        vol.Optional("categories"): [vol.In(CATEGORIES)],
+    }
+)
+@callback
+def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Entscheidungsprotokoll, neueste zuerst."""
+    hub = get_hub(hass)
+    if hub is None:
+        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
+        return
+    entries = hub.log.query(
+        limit=msg["limit"], before=msg.get("before"), entry_id=msg.get("entry_id"), categories=msg.get("categories")
+    )
+    connection.send_result(msg["id"], {"entries": entries, "categories": CATEGORIES})
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/log/subscribe"})
+@callback
+def ws_log_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Neue Protokolleinträge live schicken."""
+    hub = get_hub(hass)
+    if hub is None:
+        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
+        return
+
+    @callback
+    def forward(entry: dict) -> None:
+        connection.send_message(websocket_api.event_message(msg["id"], entry))
+
+    connection.subscriptions[msg["id"]] = hub.log.subscribe(forward)
+    connection.send_result(msg["id"])

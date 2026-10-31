@@ -41,6 +41,8 @@ Eine Nachricht wird automatisch entfernt, sobald sie sich erledigt hat, z. B. we
 
 ## Ruhezeit
 
+Am **Wochenende** (Sa/So) endet die Ruhezeit später – Standard 9:00, einstellbar unter *Allgemein → Benachrichtigungen allgemein → Wochenende bis*.
+
 Standard 22:00–07:00 Uhr. In der Ruhezeit kommen Push-Nachrichten **still** an. Laut melden sich nur dringende Nachrichten: *Raum kühlt aus*, *Fenster offen, niemand da* und *Thermostat reagiert nicht*. Sprachansagen gibt es in der Ruhezeit nie.
 
 ## Sprachansagen

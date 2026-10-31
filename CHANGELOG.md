@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.0 – 2026-10-31
+
+### Neu
+- **Protokoll:** neuer Reiter (Karte `raumklima-log-card`) zeigt live, was wann warum entschieden
+  wurde – Anwesenheit (mit Entfernungen), ignorierte Ortungssprünge (VPN), Heizsaison mit
+  Mittelwerten, Zieltemperaturen je Raum mit Grund, Fenster/Nachtlüften, jede Nachricht mit
+  Empfängern und Lautstärke, Knöpfe in der Push, Thermostat-Befehle und Aussetzer, Gesundheit,
+  Änderungen von Hand und an den Einstellungen. Filter nach Raum, Kategorie und Suchtext;
+  14 Tage im eigenen Speicher (belastet die HA-Datenbank nicht), auch im Diagnose-Export.
+  WebSocket: `raumklima/log`, `raumklima/log/subscribe`.
+- **Ruhezeit am Wochenende:** Sa und So endet die Ruhezeit später (Standard 9:00, einstellbar
+  unter Allgemein → Benachrichtigungen). Gilt auch für Nachtlüften-Morgengruß und „Bis morgen früh“.
+
+
 ## 0.4.1 – 2026-10-30
 
 ### Neu

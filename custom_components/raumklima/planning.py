@@ -383,22 +383,35 @@ def night_airing_applies(mode: str, room_type: str | None, in_window: bool, some
     return mode == NIGHT_ON or room_type in NIGHT_ROOM_TYPES
 
 
-def morning_after(night_since_local: datetime, morning: str) -> datetime:
-    """Erster Zeitpunkt „morning“ (Ende der Ruhezeit) nach Beginn des Nachtlüftens."""
-    m = _minutes(morning)
-    candidate = night_since_local.replace(hour=m // 60, minute=m % 60, second=0, microsecond=0)
-    if candidate <= night_since_local:
-        candidate += timedelta(days=1)
-    return candidate
+def quiet_end_on(day: date, end: str, end_weekend: str | None = None) -> str:
+    """Ende der Ruhezeit an diesem Morgen (Sa/So ggf. später)."""
+    return end_weekend if end_weekend and day.weekday() >= 5 else end
 
 
-def mute_until(local: datetime, morning: str, evening_hour: int = 18) -> datetime:
+def in_quiet(local: datetime, start: str, end: str, end_weekend: str | None = None) -> bool:
+    """Ruhezeit jetzt? Am Wochenende endet sie morgens später."""
+    return in_time_window(local, start, quiet_end_on(local.date(), end, end_weekend))
+
+
+def _next_morning(local: datetime, end: str, end_weekend: str | None) -> datetime:
+    for add in (0, 1, 2):
+        day = (local + timedelta(days=add)).date()
+        m = _minutes(quiet_end_on(day, end, end_weekend))
+        candidate = local.replace(year=day.year, month=day.month, day=day.day, hour=m // 60, minute=m % 60, second=0, microsecond=0)
+        if candidate > local:
+            return candidate
+    raise ValueError("kein Morgen gefunden")
+
+
+def morning_after(night_since_local: datetime, morning: str, morning_weekend: str | None = None) -> datetime:
+    """Erstes Ende der Ruhezeit nach Beginn des Nachtlüftens."""
+    return _next_morning(night_since_local, morning, morning_weekend)
+
+
+def mute_until(local: datetime, morning: str, morning_weekend: str | None = None, evening_hour: int = 18) -> datetime:
     """„Heute nicht mehr“: tagsüber bis Mitternacht, abends/nachts bis zum Morgen."""
     midnight = (local + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-    m = _minutes(morning)
-    next_morning = local.replace(hour=m // 60, minute=m % 60, second=0, microsecond=0)
-    if next_morning <= local:
-        next_morning += timedelta(days=1)
-    if local.hour >= evening_hour or local.hour * 60 + local.minute < m:
+    next_morning = _next_morning(local, morning, morning_weekend)
+    if local.hour >= evening_hour or next_morning.date() == local.date():
         return next_morning
     return midnight

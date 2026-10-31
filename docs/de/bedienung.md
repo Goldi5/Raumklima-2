@@ -48,6 +48,22 @@ Alle 10 Minuten prüft die Integration jeden Raum:
 
 Probleme erscheinen im Bericht, unter *Einstellungen → Allgemein → Gesundheit der Heizung*, im Raum-Reiter (mit Warnsymbol), im Sensor **Raumklima Allgemein Gesundheit** (Anzahl offener Probleme) und am Problem-Sensor des Raums. Wer „🩺 Gesundheit“ abonniert hat, bekommt eine Push – je Problem höchstens einmal am Tag.
 
+## Reiter „Protokoll“
+
+![Protokoll](../images/protokoll.png)
+
+Hier steht live jede Entscheidung mit Begründung, z. B.:
+
+- *Anwesenheit: jemand da → kurz weg* – warum: wer wie weit weg ist, seit wann niemand da ist.
+- *Ortung von Christian ignoriert* – Sprung auf 431 km, zu schnell für echte Bewegung (VPN).
+- *Wohnzimmer: Ziel 18,0 °C* – alle weg, Absenkung „kurz weg“.
+- *Heizbetrieb: Heizen → Heizpause* – mit den Außen-Mittelwerten und der Heizgrenze.
+- *Gästezimmer: Fenster auf – Nachtlüften* – Schlafraum, im Zeitfenster, jemand da.
+- jede Nachricht mit Empfängern und ob sie leise, normal oder dringend kam.
+- Thermostat-Befehle (Sollwert, Offset) und ob sie bestätigt wurden.
+
+Oben filterst du nach Raum und Kategorie oder suchst nach einem Wort. Die *Thermostat-Befehle* sind anfangs ausgeblendet, weil der Offset oft nachgeführt wird. Gespeichert werden 14 Tage, unabhängig von der HA-Datenbank; im Diagnose-Export sind die letzten 300 Einträge enthalten.
+
 ## Reiter „Einstellungen“
 
 ![Einstellungen](../images/einstellungen.png)
@@ -85,6 +101,8 @@ type: custom:raumklima-card            # ein Raum
 entity: climate.finja_berlin_wohnzimmer
 ---
 type: custom:raumklima-report-card     # Heizbericht
+---
+type: custom:raumklima-log-card        # Protokoll (optional entity: nur ein Raum)
 ---
 type: custom:raumklima-history-card    # Verlauf
 mode: temperature                      # temperature | humidity | timeline

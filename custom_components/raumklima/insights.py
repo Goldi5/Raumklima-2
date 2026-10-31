@@ -128,6 +128,11 @@ class Insights:
                 continue
             old = {i.code for i in self.issues.get(entry_id, [])}
             self.issues[entry_id] = issues
+            for issue in issues:
+                if issue.code not in old:
+                    room.log("health", f"Problem erkannt: {issue.title}", issue.message, level="info" if issue.severity == SEV_INFO else "warn")
+            for code in old - {i.code for i in issues}:
+                room.log("health", "Problem behoben", code)
             if {i.code for i in issues} != old:
                 changed = True
                 room.notify_listeners()
@@ -137,7 +142,7 @@ class Insights:
                 if issue.severity == SEV_INFO or (last and now - last < RENOTIFY):
                     continue
                 notified[key] = now.isoformat()
-                self.hub.notify(KIND_HEALTH, f"🩺 {room.name}: {issue.title}", issue.message, speak=False)
+                self.hub.notify(KIND_HEALTH, f"🩺 {room.name}: {issue.title}", issue.message, speak=False, room=room)
             # Erledigte Probleme vergessen, damit sie beim Wiederauftreten erneut gemeldet werden
             for key in [k for k in notified if k.startswith(f"{entry_id}:")]:
                 if key.split(":", 1)[1] not in {i.code for i in issues}:

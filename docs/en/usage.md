@@ -18,6 +18,11 @@ Every minute the integration records what each room does (compact daily totals, 
 
 **Health check** every 10 minutes: battery < 20 % (urgent < 10 %), room not warming (valve ≥ 60 % for 2 h, < 0.3 °C rise, still below target), sensor stuck (12 h unchanged while the TRV moved ≥ 1.5 °C), radio (unconfirmed commands or ≥ 3 dropouts in 24 h), window contact silent for 2 h (info if open > 24 h). Issues show in the report, the settings page, the room tab, the *Health* sensor and the room's problem sensor; subscribers of "🩺 Heating health" get at most one push per problem per day.
 
+## Log tab
+![Log](../images/protokoll.png)
+
+A live decision log: presence changes with distances, ignored location jumps (VPN), season decisions with the outdoor means, each room's target with its reason, windows/night airing, every notification with recipients and loudness, push buttons pressed, thermostat commands and confirmations, health, manual and settings changes. Filter by room, category or text; 14 days kept in the integration's own storage; last 300 entries in the diagnostics download.
+
 ## Settings tab
 ![Settings](../images/einstellungen.png)
 
@@ -33,6 +38,8 @@ type: custom:raumklima-card
 entity: climate.living_room
 ---
 type: custom:raumklima-report-card
+---
+type: custom:raumklima-log-card
 ---
 type: custom:raumklima-history-card
 mode: temperature   # temperature | humidity | timeline

@@ -96,7 +96,19 @@ from .health import (
 )
 from .hub import RaumklimaHub, domain_data, get_hub
 from .stats import RoomSample
+from .decision_log import (
+    CAT_DEVICE,
+    CAT_MANUAL,
+    CAT_TARGET,
+    CAT_WINDOW,
+    fmt_temp,
+)
 from .planning import (
+    NIGHT_OFF,
+    NIGHT_ON,
+    NIGHT_ROOM_TYPES,
+    STAGE_AWAY_LONG,
+    STAGE_AWAY_SHORT,
     AWAY_STAGES,
     NIGHT_AUTO,
     in_time_window,
@@ -202,7 +214,9 @@ class RaumklimaController:
             on_change=self._notify,
             on_failed=self._on_sync_failed,
             on_recovered=self._on_sync_recovered,
+            on_event=self._on_sync_event,
         )
+        self._last_plan: tuple[bool, float, str] | None = None
 
     # ================================================================ Lifecycle
     async def async_start(self) -> None:
@@ -453,17 +467,36 @@ class RaumklimaController:
 
     def night_applies(self) -> bool:
         """Würde ein jetzt geöffnetes Fenster als Nachtlüften zählen?"""
+        return self.night_reason()[0]
+
+    def night_reason(self) -> tuple[bool, str]:
+        """(Nachtlüften?, Begründung für das Protokoll)."""
         hub = self.hub
         if hub is None:
-            return False
+            return False, "keine Zentrale"
         local = dt_util.now()
         room_type = self.vent.room_type if self.vent else self.config.get(CONF_ROOM_TYPE)
-        return night_airing_applies(
-            self.night_mode,
-            room_type,
-            in_time_window(local, str(hub.opt(CONF_NIGHT_START)), str(hub.opt(CONF_NIGHT_END))),
-            not hub.nobody_home,
-        )
+        start, end = str(hub.opt(CONF_NIGHT_START))[:5], str(hub.opt(CONF_NIGHT_END))[:5]
+        in_window = in_time_window(local, start, end)
+        home = not hub.nobody_home
+        applies = night_airing_applies(self.night_mode, room_type, in_window, home)
+        if self.night_mode == NIGHT_OFF:
+            why = "Nachtlüften ist für diesen Raum aus"
+        elif self.night_mode != NIGHT_ON and room_type not in NIGHT_ROOM_TYPES:
+            why = "kein Schlafraum"
+        elif not in_window:
+            why = f"{local:%H:%M} liegt nicht im Nachtlüften-Fenster {start}–{end}"
+        elif not home:
+            why = "niemand zu Hause"
+        else:
+            why = f"{'Schlafraum' if self.night_mode != NIGHT_ON else 'Nachtlüften an'}, {local:%H:%M} im Fenster {start}–{end}, jemand da"
+        return applies, why
+
+    def log(self, cat: str, msg: str, why: str | None = None, level: str = "info", **data: Any) -> None:
+        """Ins Entscheidungsprotokoll schreiben (falls die Zentrale läuft)."""
+        hub = self.hub
+        if hub is not None:
+            hub.log.add(cat, msg, why, room=self.name, entry_id=self.entry.entry_id, level=level, **data)
 
     @property
     def night_airing(self) -> bool:
@@ -670,9 +703,16 @@ class RaumklimaController:
     async def async_set_target(self, temperature: float) -> None:
         new = clamp(float(temperature), self.trv_min, self.trv_max)
         on, current, reason = self.plan()
-        if reason in AWAY_STAGES and new > current:
+        override = reason in AWAY_STAGES and new > current
+        if override:
             # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
             self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
+        if new != self.target_temp:
+            self.log(
+                CAT_MANUAL,
+                f"Wunschtemperatur {fmt_temp(self.target_temp)} → {fmt_temp(new)}",
+                "in Home Assistant geändert" + ("; Absenkung für 3 h ausgesetzt" if override else ""),
+            )
         self.target_temp = new
         self._save()
         self._notify()
@@ -689,6 +729,8 @@ class RaumklimaController:
         if on and not self.hvac_on and self.target_temp < MIN_USEFUL_TARGET:
             # Raum war aus (Sollwert-Rest wie 5 °C) → mit Wunschtemperatur starten
             self.target_temp = self.comfort_temp
+        if on != self.hvac_on:
+            self.log(CAT_MANUAL, f"Raum {'eingeschaltet' if on else 'ausgeschaltet'}", "in Home Assistant")
         self.hvac_on = on
         self._save()
         self._notify()
@@ -762,9 +804,19 @@ class RaumklimaController:
         if raw == self._window_raw and (self._window_timer or raw == self.window_paused):
             return
         self._window_raw = raw
-        if raw and self.night_since is None and self.night_applies():
-            self.night_since = dt_util.utcnow()
+        if raw and self.night_since is None:
+            night, why = self.night_reason()
+            if night:
+                self.night_since = dt_util.utcnow()
+                self.log(CAT_WINDOW, "Fenster auf – Nachtlüften", f"{why}: keine Lüft-Hinweise, Heizung wartet bis zum Schließen")
+            else:
+                self.log(CAT_WINDOW, "Fenster auf", f"normales Lüften ({why})" if self.night_mode != NIGHT_OFF and why != "kein Schlafraum" else None)
         elif not raw:
+            if self.night_since is not None:
+                hours = (dt_util.utcnow() - self.night_since).total_seconds() / 3600
+                self.log(CAT_WINDOW, "Fenster zu – Nachtlüften beendet", f"nach {hours:.1f} h".replace(".", ","))
+            else:
+                self.log(CAT_WINDOW, "Fenster zu")
             self.night_since = None
         if self.vent:
             self.vent.on_window_raw(raw)
@@ -787,6 +839,13 @@ class RaumklimaController:
             _LOGGER.info(
                 "%s: Fenster %s", self.name, "offen – pausiere" if raw else "zu – fortsetzen"
             )
+            delay = float(self.config[CONF_WINDOW_OPEN_DELAY if raw else CONF_WINDOW_CLOSE_DELAY])
+            if not self.window_logic:
+                pass
+            elif raw:
+                self.log(CAT_TARGET, "Heizung pausiert", f"Fenster seit {delay:.0f} s offen")
+            else:
+                self.log(CAT_TARGET, "Heizung läuft weiter", f"Fenster seit {delay:.0f} s zu – Ziel {fmt_temp(self.plan()[1])}")
             self._notify()
             self.hass.async_create_task(self._apply())
 
@@ -795,8 +854,12 @@ class RaumklimaController:
         is_ok = new is not None and is_valid(new.state)
         if was_ok and not is_ok:
             self._unavail_events.append(dt_util.utcnow())
+        if was_ok and not is_ok:
+            self.log(CAT_DEVICE, "Thermostat nicht erreichbar", "Funk/Zigbee meldet „nicht verfügbar“ – letzter Stand bleibt, Befehle werden nachgeholt", level="warn")
         if is_ok and not was_ok:
             _LOGGER.info("%s: TRV wieder erreichbar – sende Ausstehendes", self.name)
+            if old is not None:
+                self.log(CAT_DEVICE, "Thermostat wieder erreichbar", "offene Befehle werden sofort gesendet")
             self.hass.async_create_task(self.sync.retry_all_now())
             return
         if not (is_ok and was_ok):
@@ -830,7 +893,9 @@ class RaumklimaController:
                 self.hvac_on = not now_off
                 self._save()
                 _LOGGER.info("%s: TRV am Gerät %s", self.name, "aus" if now_off else "an")
+                self.log(CAT_MANUAL, f"Am Thermostat {'ausgeschaltet' if now_off else 'eingeschaltet'}", "„Drehen am Thermostat übernehmen“ ist an")
             else:
+                self.log(CAT_MANUAL, "Am Thermostat geschaltet – zurückgestellt", "„Drehen am Thermostat übernehmen“ ist aus")
                 self.hass.async_create_task(self._apply())
             return
         if now_off:
@@ -845,6 +910,7 @@ class RaumklimaController:
                 new_p,
                 self._on_preset(),
             )
+            self.log(CAT_DEVICE, f"Preset am Thermostat „{new_p}“ – stelle „{self._on_preset()}“ wieder her", "Preset-Wechsel laden am Gerät alte Werte, das ist kein Wunsch")
             self.hass.async_create_task(self._apply())
             return
         if self.cal_mode == CAL_TARGET:
@@ -865,7 +931,13 @@ class RaumklimaController:
             return
         if follow:
             _LOGGER.info("%s: Sollwert am TRV geändert auf %s", self.name, new_t)
-            if self.plan()[2] in AWAY_STAGES:
+            away = self.plan()[2] in AWAY_STAGES
+            self.log(
+                CAT_MANUAL,
+                f"Am Thermostat gedreht: {fmt_temp(new_t)}",
+                "wird neue Wunschtemperatur" + ("; Absenkung für 3 h ausgesetzt" if away else ""),
+            )
+            if away:
                 self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
             self.target_temp = new_t
             self._save()
@@ -943,6 +1015,7 @@ class RaumklimaController:
         async with self._apply_lock:
             method = self._off_method()
             plan_on, _target, reason = self.plan()
+            self._log_plan(plan_on, _target, reason)
             want_on = self.hvac_on and not self.paused and plan_on
             if reason == REASON_VALVE_CARE and self.hvac_on:
                 want_on = True
@@ -1023,6 +1096,38 @@ class RaumklimaController:
                 ),
             )
 
+    # ================================================================ Protokoll
+    def _log_plan(self, on: bool, target: float, reason: str) -> None:
+        """Zieländerungen mit Begründung protokollieren (nur bei Änderung)."""
+        key = (on, round(target, 1), reason)
+        if key == self._last_plan:
+            return
+        first = self._last_plan is None
+        self._last_plan = key
+        hub = self.hub
+        why = {
+            REASON_NORMAL: f"Wunschtemperatur {fmt_temp(self.target_temp)}",
+            REASON_MANUAL: "von Hand wärmer gestellt – Absenkung 3 h ausgesetzt",
+            REASON_SEASON: "Heizpause (mild draußen)",
+            REASON_FROST: f"Heizpause, aber unter der Sicherung {fmt_temp(hub.frost_floor if hub else None)}",
+            REASON_VALVE_CARE: "Sommerpflege: Ventil kurz öffnen",
+            STAGE_AWAY_SHORT: f"alle weg – Absenkung „kurz weg“ {fmt_temp(self.setback_short)}",
+            STAGE_AWAY_LONG: f"länger weg – Absenkung {fmt_temp(self.setback_long)}",
+        }.get(reason, reason)
+        if reason == STAGE_AWAY_LONG and target > self.setback_long:
+            why += f", Schimmelschutz hält {fmt_temp(target)} (Feuchte {self.current_humidity or 0:.0f} %)"
+        msg = f"Ziel {fmt_temp(target)}" if on else "Heizung aus"
+        self.log(CAT_TARGET, ("Start: " if first else "") + msg, why, target=target, reason=reason)
+
+    @callback
+    def _on_sync_event(self, event: str, job: SyncJob) -> None:
+        if event == "send":
+            self.log(CAT_DEVICE, f"Thermostat: {job.description}", job.why)
+        elif event == "confirmed":
+            self.log(CAT_DEVICE, f"Thermostat bestätigt: {job.description}", f"nach {job.attempts} Versuchen")
+        elif event == "failed":
+            self.log(CAT_DEVICE, f"Thermostat reagiert nicht: {job.description}", f"{job.attempts} Versuche ohne Bestätigung – versuche weiter alle 5 min", level="warn")
+
     # ================================================================ Offset
     def _cal_interval_passed(self) -> bool:
         if self._last_cal_send is None:
@@ -1099,6 +1204,7 @@ class RaumklimaController:
                 new,
                 OFFSET_MATCH_TOLERANCE,
             ),
+            why=f"Raumfühler {fmt_temp(self._ext_value)}, Thermostat misst {fmt_temp(self.trv_temperature)}",
         )
 
     # ================================================================ Meldungen

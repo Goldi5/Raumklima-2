@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.4.1";
+const RK_VERSION = "0.5.0";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -1135,6 +1135,7 @@ class RaumklimaSettingsCard extends HTMLElement {
     const hm = (v) => String(v || "").slice(0, 5);
     const notiRows = [
       this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+      this._row("Wochenende bis", `<span class="v"><input type="time" class="inp" data-time="quiet_end_weekend" value="${hm(this._hubOpt("quiet_end_weekend"))}" ${this._admin ? "" : "disabled"}></span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
       this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
       this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
       this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
@@ -1524,6 +1525,170 @@ class RaumklimaReportCard extends HTMLElement {
   }
 }
 
+// ---------------------------------------------------------------- Protokoll
+const RK_LOG_CATS = {
+  presence: ["Anwesenheit", "mdi:home-account", "eco"],
+  season: ["Heizsaison", "mdi:radiator", "heat"],
+  target: ["Ziel & Heizung", "mdi:thermometer-auto", "ok"],
+  window: ["Fenster", "mdi:window-open-variant", "air"],
+  notify: ["Nachrichten", "mdi:bell-ring-outline", "warn"],
+  manual: ["Von Hand", "mdi:hand-back-right-outline", "eco"],
+  health: ["Gesundheit", "mdi:heart-pulse", "cold"],
+  device: ["Thermostat-Befehle", "mdi:access-point", "off"],
+  settings: ["Einstellungen", "mdi:cog-outline", "off"],
+};
+const LOG_STYLES = `
+  ha-card.log { container-type: inline-size; padding: 24px 26px; }
+  @media (max-width: 600px) { ha-card.log { padding: 18px 14px; } }
+  .live { display:inline-flex; align-items:center; gap:6px; font-size:.82rem; font-weight:600; color:var(--secondary-text-color); }
+  .live i { width:8px; height:8px; border-radius:50%; background: var(--rk-ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--rk-ok) 60%, transparent); animation: rkpulse 2s infinite; }
+  .live.off i { background: var(--rk-off); animation:none; }
+  @keyframes rkpulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rk-ok) 55%, transparent); } 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .filters { display:grid; gap:10px; margin:16px 0 6px; }
+  .filters .chips { justify-content:flex-start; }
+  .chip2 ha-icon { --mdc-icon-size:15px; color: var(--c); }
+  .srch { font: inherit; font-size:.95rem; padding:10px 14px; border-radius:14px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
+    background: var(--ha-card-background, var(--card-background-color)); color: var(--primary-text-color); width:100%; box-sizing:border-box; }
+  .lday { margin-top:18px; }
+  .ldayh { position:sticky; top:0; z-index:1; font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--secondary-text-color);
+    padding:6px 0; background: var(--ha-card-background, var(--card-background-color)); }
+  .ev { display:grid; grid-template-columns: 46px 34px 1fr; gap:10px; align-items:start; padding:10px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
+  .ev:first-of-type { border-top:0; }
+  .ev .tm { font-size:.86rem; font-weight:600; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; padding-top:6px; }
+  .ev .ic { width:34px; height:34px; border-radius:11px; display:grid; place-items:center; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); }
+  .ev .ic ha-icon { --mdc-icon-size:18px; }
+  .ev .bd { min-width:0; }
+  .ev .ms { font-size:.98rem; font-weight:600; color:var(--primary-text-color); line-height:1.35; }
+  .ev .rm { display:inline-block; font-size:.75rem; font-weight:700; padding:2px 8px; border-radius:999px; margin-right:6px; vertical-align:1px;
+    background: color-mix(in srgb, var(--rc, var(--rk-off)) 16%, transparent); color: color-mix(in srgb, var(--rc, var(--rk-off)) 70%, var(--primary-text-color)); }
+  .ev .wy { font-size:.86rem; color:var(--secondary-text-color); margin-top:3px; line-height:1.4; overflow-wrap:anywhere; }
+  .ev .wy b { font-weight:600; color: color-mix(in srgb, var(--primary-text-color) 75%, var(--secondary-text-color)); }
+  .ev.warn .ms { color: color-mix(in srgb, var(--rk-warn) 60%, var(--primary-text-color)); }
+  .ev.new { animation: rkflash 1.6s ease-out; }
+  @keyframes rkflash { from { background: color-mix(in srgb, var(--rk-ok) 14%, transparent); } to { background: transparent; } }
+  .more { display:flex; justify-content:center; margin-top:16px; }
+`;
+
+class RaumklimaLogCard extends HTMLElement {
+  static getConfigForm() {
+    return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }, { name: "entity", selector: { entity: { domain: "climate", integration: "raumklima" } } }] };
+  }
+  static getStubConfig() { return {}; }
+  setConfig(config) {
+    this._config = { ...config };
+    this._entries = this._entries || [];
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem("raumklima-log-filter") || "{}"); } catch (e) { saved = {}; }
+    this._room = this._room ?? saved.room ?? "";
+    this._cats = this._cats || new Set(saved.cats || Object.keys(RK_LOG_CATS).filter((c) => c !== "device"));
+    this._q = this._q || "";
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+  }
+  getCardSize() { return 12; }
+  getGridOptions() { return { columns: "full", rows: "auto" }; }
+  connectedCallback() { this.style.display = "block"; if (this._hass && !this._unsub) this._subscribe(); }
+  disconnectedCallback() { if (this._unsub) { this._unsub.then((u) => u && u()).catch(() => {}); this._unsub = null; } }
+  set hass(hass) {
+    const first = !this._hass;
+    this._hass = hass;
+    if (first) {
+      this._rooms = rkRooms(hass, this._config.strip_prefix || "");
+      if (this._config.entity) {
+        const r = this._rooms.find((x) => x.id === this._config.entity);
+        if (r) this._room = (r.attrs.settings || {}).entry_id || "";
+      }
+      this._load();
+      this._subscribe();
+      this._render();
+    }
+  }
+  _save() { try { localStorage.setItem("raumklima-log-filter", JSON.stringify({ room: this._room, cats: [...this._cats] })); } catch (e) { /* privat */ } }
+  async _load(older) {
+    try {
+      const msg = { type: "raumklima/log", limit: 300 };
+      if (older && this._entries.length) msg.before = this._entries[this._entries.length - 1].id;
+      const res = await this._hass.callWS(msg);
+      this._entries = older ? [...this._entries, ...res.entries] : res.entries;
+      this._end = res.entries.length < 300;
+      this._err = null;
+    } catch (e) { this._err = e.message || String(e); }
+    this._render();
+  }
+  _subscribe() {
+    if (!this._hass || !this._hass.connection || this._unsub) return;
+    this._unsub = this._hass.connection.subscribeMessage((entry) => {
+      this._entries = [entry, ...this._entries];
+      this._fresh = entry.id;
+      this._render();
+    }, { type: "raumklima/log/subscribe" }).catch(() => { this._unsub = null; this._liveOff = true; this._render(); return null; });
+  }
+  _roomOf(e) {
+    if (!e.eid) return null;
+    return this._rooms.find((r) => (r.attrs.settings || {}).entry_id === e.eid) || null;
+  }
+  _visible() {
+    const q = this._q.trim().toLowerCase();
+    return this._entries.filter((e) => {
+      if (!this._cats.has(e.cat) && RK_LOG_CATS[e.cat]) return false;
+      if (this._room && e.eid && e.eid !== this._room) return false;
+      if (this._room && !e.eid && !["presence", "season"].includes(e.cat)) return false;
+      if (q && !`${e.msg} ${e.why || ""} ${e.room || ""}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+  _strip(s) {
+    const p = this._config.strip_prefix;
+    return p ? String(s).replace(new RegExp("^" + p + "\\s*"), "").replace(new RegExp("(\\s)" + p + "\\s+", "g"), "$1") : s;
+  }
+  _render() {
+    if (!this._hass) return;
+    const list = this._visible();
+    const dayKey = (d) => d.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" });
+    const today = dayKey(new Date()), yest = dayKey(new Date(Date.now() - 864e5));
+    let html = "", cur = null;
+    for (const e of list) {
+      const d = new Date(e.t);
+      const k = dayKey(d);
+      if (k !== cur) { if (cur !== null) html += `</div>`; cur = k; html += `<div class="lday"><div class="ldayh">${k === today ? "Heute" : k === yest ? "Gestern" : k}</div>`; }
+      const meta = RK_LOG_CATS[e.cat] || [e.cat, "mdi:information-outline", "off"];
+      const room = this._roomOf(e);
+      const roomName = room ? room.name : e.room ? this._strip(e.room) : null;
+      html += `<div class="ev ${e.lvl === "warn" ? "warn" : ""} ${e.id === this._fresh ? "new" : ""}" style="--c:${toneVar(meta[2])}">
+        <div class="tm">${d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</div>
+        <div class="ic" title="${meta[0]}"><ha-icon icon="${meta[1]}"></ha-icon></div>
+        <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}</div>
+        ${e.why ? `<div class="wy"><b>${e.cat === "notify" && e.msg.indexOf("Knopf") !== 0 ? "Inhalt" : e.cat === "device" || e.cat === "settings" ? "Details" : "Warum"}:</b> ${esc(this._strip(e.why))}</div>` : ""}</div></div>`;
+    }
+    if (cur !== null) html += `</div>`;
+    const roomChips = [`<button class="chip2 ${this._room ? "off" : ""}" data-room="" style="--c:var(--rk-off)"><i></i>Alle Räume</button>`]
+      .concat(this._rooms.map((r) => { const id = (r.attrs.settings || {}).entry_id; return `<button class="chip2 ${this._room === id ? "" : "off"}" data-room="${id}" style="--c:${r.color}"><i></i>${esc(r.name)}</button>`; })).join("");
+    const catChips = Object.entries(RK_LOG_CATS).map(([k, m]) => `<button class="chip2 ${this._cats.has(k) ? "" : "off"}" data-cat="${k}" style="--c:${toneVar(m[2])}"><ha-icon icon="${m[1]}"></ha-icon>${m[0]}</button>`).join("");
+    const empty = this._err ? `<div class="err">Protokoll nicht verfügbar: ${esc(this._err)}</div>`
+      : !this._entries.length ? `<div class="empty">Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.</div>`
+      : !list.length ? `<div class="empty">Keine Einträge für diese Auswahl.</div>` : "";
+    const focus = this.shadowRoot.activeElement && this.shadowRoot.activeElement.classList.contains("srch");
+    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
+      <ha-card class="log" style="--tone:${toneVar("off")}">
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:text-box-search-outline"></ha-icon><div>${esc(this._config.title || "Protokoll")}<div class="rsub">Was wann warum entschieden wurde · 14 Tage</div></div></div>
+          <span class="live ${this._liveOff ? "off" : ""}"><i></i>${this._liveOff ? "nicht live" : "live"}</span></div>
+        <div class="filters">
+          <div class="chips">${roomChips}</div>
+          <div class="chips">${catChips}</div>
+          <input class="srch" placeholder="Suchen … (z. B. Antje, Offset, Heizpause)" value="${esc(this._q)}">
+        </div>
+        ${empty}${html}
+        ${this._entries.length && !this._end ? `<div class="more"><button class="btn" data-more><ha-icon icon="mdi:history"></ha-icon>Ältere laden</button></div>` : ""}
+      </ha-card>`;
+    const $ = (s) => this.shadowRoot.querySelectorAll(s);
+    $("[data-room]").forEach((b) => b.addEventListener("click", () => { this._room = b.dataset.room; this._save(); this._render(); }));
+    $("[data-cat]").forEach((b) => b.addEventListener("click", () => { const c = b.dataset.cat; this._cats.has(c) ? this._cats.delete(c) : this._cats.add(c); this._save(); this._render(); }));
+    $("[data-more]").forEach((b) => b.addEventListener("click", () => this._load(true)));
+    const s = this.shadowRoot.querySelector(".srch");
+    s.addEventListener("input", () => { this._q = s.value; clearTimeout(this._qt); this._qt = setTimeout(() => this._render(), 250); });
+    if (focus) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
+  }
+}
+
 // ---------------------------------------------------------------- Dashboard-Strategie
 const ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 
@@ -1574,7 +1739,12 @@ class RaumklimaDashboardStrategy extends HTMLElement {
       sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-report-card", strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
-    return { title: config.title || "Heizung", views: [roomsView, historyView, reportView, settingsView] };
+    const logView = {
+      title: "Protokoll", path: "protokoll", icon: "mdi:text-box-search-outline", type: "sections", max_columns: 2,
+      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-log-card", strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+    };
+
+    return { title: config.title || "Heizung", views: [roomsView, historyView, reportView, logView, settingsView] };
   }
 }
 
@@ -1587,11 +1757,13 @@ if (!window.customCards.find((c) => c.type === "raumklima-card")) {
     { type: "raumklima-overview-card", name: "Raumklima – Übersicht", description: "Alle Räume und Außenklima auf einen Blick", preview: true },
     { type: "raumklima-settings-card", name: "Raumklima – Einstellungen", description: "Was eingestellt ist, wer welche Hinweise bekommt – mit Reglern", preview: false },
     { type: "raumklima-history-card", name: "Raumklima – Verlauf", description: "Temperatur, Luftfeuchte oder Zeitleiste aller Räume", preview: false },
+    { type: "raumklima-log-card", name: "Raumklima – Protokoll", description: "Was wann warum entschieden wurde – live, mit Filtern", preview: false },
     { type: "raumklima-report-card", name: "Raumklima – Heizbericht", description: "Woche und Monat: Heizstunden, Ersparnis, wetterbereinigter Vergleich, Gesundheit", preview: false },
   );
 }
 if (!customElements.get("raumklima-settings-card")) customElements.define("raumklima-settings-card", RaumklimaSettingsCard);
 if (!customElements.get("raumklima-history-card")) customElements.define("raumklima-history-card", RaumklimaHistoryCard);
+if (!customElements.get("raumklima-log-card")) customElements.define("raumklima-log-card", RaumklimaLogCard);
 if (!customElements.get("raumklima-report-card")) customElements.define("raumklima-report-card", RaumklimaReportCard);
 if (!customElements.get("ll-strategy-dashboard-raumklima")) customElements.define("ll-strategy-dashboard-raumklima", RaumklimaDashboardStrategy);
 window.customStrategies = window.customStrategies || [];

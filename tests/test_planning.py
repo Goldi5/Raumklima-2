@@ -235,3 +235,18 @@ def test_morning_and_mute():
     assert mute_until(eve, "07:00") == datetime(2026, 10, 31, 7, 0)
     assert mute_until(datetime(2026, 10, 31, 2, 0), "07:00") == datetime(2026, 10, 31, 7, 0)
     assert mute_until(datetime(2026, 10, 31, 14, 0), "07:00") == datetime(2026, 11, 1, 0, 0)
+
+
+def test_weekend_quiet():
+    from rk.planning import in_quiet
+    fri = datetime(2026, 10, 30, 22, 30)
+    sat8 = datetime(2026, 10, 31, 8, 0)
+    mon8 = datetime(2026, 11, 2, 8, 0)
+    assert in_quiet(fri, "22:00", "07:00", "09:00")
+    assert in_quiet(sat8, "22:00", "07:00", "09:00")
+    assert not in_quiet(mon8, "22:00", "07:00", "09:00")
+    assert not in_quiet(sat8, "22:00", "07:00")  # ohne Wochenend-Wert wie bisher
+    assert morning_after(fri, "07:00", "09:00") == datetime(2026, 10, 31, 9, 0)
+    assert morning_after(datetime(2026, 11, 1, 23, 0), "07:00", "09:00") == datetime(2026, 11, 2, 7, 0)
+    assert mute_until(fri, "07:00", "09:00") == datetime(2026, 10, 31, 9, 0)
+    assert mute_until(datetime(2026, 10, 31, 8, 0), "07:00", "09:00") == datetime(2026, 10, 31, 9, 0)
