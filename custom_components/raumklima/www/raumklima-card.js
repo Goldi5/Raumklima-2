@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.7.0";
+const RK_VERSION = "0.8.0";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -34,10 +34,17 @@ const SEASON = {
 };
 
 // Entitäten der Zentrale „Allgemein“ finden (über translation_key)
-function rkHub(hass) {
+function rkHomes(hass) {
+  return Object.values(hass.entities || {})
+    .filter((e) => e.platform === "raumklima" && e.translation_key === "presence" && hass.states[e.entity_id])
+    .map((e) => { const a = hass.states[e.entity_id].attributes; return { id: a.home_id, name: a.home_name || "Allgemein", dashboard: a.home_dashboard, presence: e.entity_id }; })
+    .filter((h) => h.id);
+}
+function rkHub(hass, home) {
   const out = {};
   const reg = Object.values(hass.entities || {});
-  const pres = reg.find((e) => e.platform === "raumklima" && e.translation_key === "presence");
+  const all = reg.filter((e) => e.platform === "raumklima" && e.translation_key === "presence");
+  const pres = (home && all.find((e) => (hass.states[e.entity_id] || { attributes: {} }).attributes.home_id === home)) || all[0];
   if (!pres) return out;
   for (const e of reg) if (e.device_id === pres.device_id && e.translation_key) out[e.translation_key] = e.entity_id;
   return out;
@@ -338,7 +345,11 @@ class RaumklimaOverviewCard extends HTMLElement {
       .filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate."))
       .map((e) => this._hass.states[e.entity_id])
       .filter(Boolean)
+      .filter((r) => !this._config.home || !r.attributes.home || r.attributes.home === this._config.home)
       .sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
+    const homes = rkHomes(this._hass);
+    const curHome = this._config.home || (rooms[0] && rooms[0].attributes.home);
+    const homeBar = homes.length > 1 ? `<div class="homes">${homes.map((h) => `<a class="hm ${h.id === curHome ? "on" : ""}" ${h.id === curHome ? "" : `data-nav="/${esc(h.dashboard || "")}"`}><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</a>`).join("")}</div>` : "";
     const heating = rooms.filter((r) => r.attributes.status === "heating").length;
     const windows = rooms.filter((r) => r.attributes.window_open).length;
     const warn = rooms.filter((r) => ["please_open", "please_close", "too_cold"].includes(r.attributes.ventilation) || r.attributes.sync === "failed" || ["sensor_unavailable", "trv_unavailable"].includes(r.attributes.status)).length;
@@ -346,7 +357,7 @@ class RaumklimaOverviewCard extends HTMLElement {
     const outT = w ? w.attributes.temperature : rooms.map((r) => r.attributes.outdoor_temperature).find((v) => v !== undefined && v !== null);
     const outH = w ? w.attributes.humidity : rooms.map((r) => r.attributes.outdoor_humidity).find((v) => v !== undefined && v !== null);
     const allSync = rooms.every((r) => r.attributes.sync === "ok");
-    const hubIds = rkHub(this._hass);
+    const hubIds = rkHub(this._hass, curHome);
     const presSt = hubIds.presence ? this._hass.states[hubIds.presence] : null;
     const seasSt = hubIds.heating_mode ? this._hass.states[hubIds.heating_mode] : null;
     const pres = presSt ? PRESENCE[presSt.state] : null;
@@ -393,12 +404,18 @@ class RaumklimaOverviewCard extends HTMLElement {
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
       .rn { font-weight:650; color:var(--primary-text-color); }
       .rs { font-size:.78rem; color: var(--tone); font-weight:600; }
+      .homes { display:flex; gap:6px; margin:-4px 0 14px; flex-wrap:wrap; }
+      .hm { all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:999px; font-weight:650; font-size:.95rem;
+        color:var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
+      .hm ha-icon { --mdc-icon-size:17px; }
+      .hm.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); cursor:default; }
       .rbottom { margin-top:auto; display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
       .rt { font-size:1.7rem; font-weight:300; letter-spacing:-.03em; font-variant-numeric: tabular-nums; color:var(--primary-text-color); line-height:1; }
       .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }
       .rmeta b { color: var(--st); font-weight:650; }
     </style>
     <ha-card style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
+      ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || "Heizung"}</div>
           <div class="sub">${rooms.length} Räume · ${heating} heizen · ${windows} Fenster offen</div></div>
@@ -416,6 +433,10 @@ class RaumklimaOverviewCard extends HTMLElement {
     </ha-card>`;
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) =>
       b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
+    this.shadowRoot.querySelectorAll("[data-nav]").forEach((el) => el.addEventListener("click", () => {
+      history.pushState(null, "", el.dataset.nav);
+      window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
+    }));
   }
 }
 
@@ -435,7 +456,7 @@ const SEG = {
   trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" },
 };
 
-function rkRooms(hass, prefix) {
+function rkRooms(hass, prefix, home) {
   const reg = Object.values(hass.entities || {});
   const rooms = reg
     .filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate."))
@@ -447,8 +468,9 @@ function rkRooms(hass, prefix) {
       return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + prefix + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
     })
     .sort((a, b) => a.name.localeCompare(b.name));
-  rooms.forEach((r, i) => { r.color = RK_COLORS[i % RK_COLORS.length]; });
-  return rooms;
+  const mine = home ? rooms.filter((r) => !r.attrs.home || r.attrs.home === home) : rooms;
+  mine.forEach((r, i) => { r.color = RK_COLORS[i % RK_COLORS.length]; });
+  return mine;
 }
 
 const HISTORY_STYLES = `
@@ -529,7 +551,7 @@ class RaumklimaHistoryCard extends HTMLElement {
   set hass(hass) {
     const first = !this._hass;
     this._hass = hass;
-    if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "");
+    if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._config.home);
     if (first) this._load(); else this._draw(true);
   }
 
@@ -817,6 +839,7 @@ const SETTINGS_STYLES = `
   ha-card.settings .htitle ha-icon { --mdc-icon-size:28px; }
   .tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:14px -4px 4px; padding:2px 4px 6px; }
   .tabs::-webkit-scrollbar { display:none; }
+  .tabs.homes { margin-bottom:0; } .tabs.homes .tab { font-size:1.02rem; }
   .tab { all:unset; cursor:pointer; white-space:nowrap; padding:10px 18px; border-radius:999px; font-size:.98rem; font-weight:600; color:var(--secondary-text-color);
     background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); display:inline-flex; align-items:center; gap:6px; }
   .tab ha-icon { --mdc-icon-size:16px; }
@@ -932,9 +955,9 @@ class RaumklimaSettingsCard extends HTMLElement {
   set hass(hass) {
     const first = !this._hass;
     this._hass = hass;
-    this._rooms = rkRooms(hass, this._config.strip_prefix || "");
+    this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._homeId());
     if (first) this._load();
-    const hubIds = rkHub(hass);
+    const hubIds = rkHub(hass, this._homeId());
     const sig = JSON.stringify([
       this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)]),
       Object.values(hubIds).map((id) => hass.states[id] && [hass.states[id].state, hass.states[id].attributes]),
@@ -945,10 +968,15 @@ class RaumklimaSettingsCard extends HTMLElement {
     this._render();
   }
 
+  _homeId() {
+    return this._home || this._config.home || (this._cfg && this._cfg.hub && this._cfg.hub.entry_id) || null;
+  }
+  _homeMsg() { const h = this._home || this._config.home; return h ? { home: h } : {}; }
   async _load() {
     if (!this._hass) return;
     try {
-      this._cfg = await this._hass.callWS({ type: "raumklima/config" });
+      this._cfg = await this._hass.callWS({ type: "raumklima/config", ...this._homeMsg() });
+      this._rooms = rkRooms(this._hass, this._config.strip_prefix || "", this._homeId());
       this._err = null;
     } catch (e) {
       this._err = String(e && e.message ? e.message : e);
@@ -986,7 +1014,7 @@ class RaumklimaSettingsCard extends HTMLElement {
     const changes = this._pendingHub; this._pendingHub = null;
     if (!changes) return;
     try {
-      await this._hass.callWS({ type: "raumklima/hub/update", changes });
+      await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
       this._flash("Gespeichert");
     } catch (e) { this._flash("Fehler: " + (e.message || e)); }
     await this._load();
@@ -1131,6 +1159,15 @@ class RaumklimaSettingsCard extends HTMLElement {
       `<div class="hint">Jede Nacht zählt einmal (frühestes Ereignis), getrennt nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.</div>`,
     ].join("");
 
+    // --- Wohnung
+    const homes = this._cfg.homes || [];
+    const homeRows = [
+      this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="z. B. Berlin" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
+      this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
+      this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="Neue Wohnung, z. B. Remscheid"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>Wohnung anlegen</button></div>` : "",
+      `<div class="hint">${homes.length > 1 ? `${homes.length} Wohnungen: ${homes.map((h) => esc(h.name) + " (" + h.rooms.length + " Räume)").join(", ")}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.` : "Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung."}</div>`,
+    ].join("");
+
     // --- Gebäude
     const frsi = { unrenovated: "0,60", renovated: "0,70", new: "0,80" }[this._hubOpt("building_type")] || "0,70";
     const buildRows = [
@@ -1197,6 +1234,7 @@ class RaumklimaSettingsCard extends HTMLElement {
       ${this._grp("Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows)}
       ${this._grp("Schlafenszeiten", "mdi:sleep", "eco", sleepRows, "span")}
       ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
+      ${this._grp("Wohnung", "mdi:home-switch-outline", "air", homeRows)}
       ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>Raum</th><th>Typ</th><th>Wunsch</th><th>Absenkung kurz / länger</th><th>Minimum Lüften</th><th>Feuchte</th><th>Fensterlogik</th><th>Hinweise</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">Tippe auf einen Raum, um seine Einstellungen zu ändern.</div>`, "span")}
     </div>`;
   }
@@ -1228,6 +1266,7 @@ class RaumklimaSettingsCard extends HTMLElement {
         plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
         this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
         this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–")),
+        ((this._cfg && this._cfg.homes) || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
         this._row("Aufheizen", this._v(s.heatup && s.heatup.minutes_2k != null ? `~${s.heatup.minutes_2k} min für +2 °C` : `lernt noch (${(s.heatup && s.heatup.episodes) || 0}/3)`, !(s.heatup && s.heatup.minutes_2k != null)),
           s.heatup && s.heatup.rate ? `${fmt(s.heatup.rate, 1)} °C/h bei aktuellem Wetter · aus ${s.heatup.episodes} Aufheizvorgängen · steuert, wann vorgeheizt wird` : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"),
@@ -1284,10 +1323,13 @@ class RaumklimaSettingsCard extends HTMLElement {
       }).join("");
     const room = rooms.find((r) => r.id === this._tab);
     const body = room ? this._room(room) : this._general();
+    const homes = (this._cfg && this._cfg.homes) || [];
+    const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
     const scrollY = this.shadowRoot.host ? window.scrollY : 0;
     this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || "Einstellungen")}</div>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">Nur Ansicht – Ändern erfordert Admin</span>`}</div>
+        ${homeBar}
         <div class="tabs">${tabs}</div>
         ${body}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
@@ -1340,6 +1382,21 @@ class RaumklimaSettingsCard extends HTMLElement {
       if (i >= 0) list.splice(i, 1); else list.push(el.dataset.person);
       this._setHub({ residents: list });
     }));
+    $("[data-home]").forEach((el) => el.addEventListener("click", () => {
+      this._home = el.dataset.home; this._tab = "general"; this._local = {}; this._sig = null; this._load();
+    }));
+    $("[data-hubtext]").forEach((el) => el.addEventListener("change", () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200)));
+    $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {
+      const inp = this.shadowRoot.getElementById("newHome");
+      const name = inp && inp.value.trim();
+      if (!name) { this._flash("Bitte einen Namen eingeben"); return; }
+      try {
+        const r = await this._hass.callWS({ type: "raumklima/home/create", name });
+        this._flash(`Wohnung „${name}“ angelegt`);
+        this._home = r.entry_id; this._tab = "general"; this._local = {};
+        setTimeout(() => this._load(), 1500);
+      } catch (e) { this._flash("Fehler: " + (e.message || e)); }
+    }));
     $("[data-sigrm]").forEach((el) => el.addEventListener("click", () => {
       this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });
     }));
@@ -1371,11 +1428,11 @@ class RaumklimaSettingsCard extends HTMLElement {
       this._setHub({ [key]: table }, 100);
     }));
     $("[data-test]").forEach((el) => el.addEventListener("click", async () => {
-      const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test });
+      const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test, ...this._homeMsg() });
       if (r) this._flash(`Testnachricht an ${rkPretty(el.dataset.test)} gesendet`);
     }));
     $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
-      await ws({ type: "raumklima/hub/action", action: el.dataset.action });
+      await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });
       this._load();
     }));
     $("[data-nav]").forEach((el) => el.addEventListener("click", () => {
@@ -1452,7 +1509,7 @@ class RaumklimaReportCard extends HTMLElement {
     if (first) { this._colors(); this._load(); this._render(); }
   }
   _colors() {
-    const rooms = rkRooms(this._hass, this._config.strip_prefix || "");
+    const rooms = rkRooms(this._hass, this._config.strip_prefix || "", this._config.home);
     this._roomColor = (name) => {
       const r = rooms.find((x) => x.name === name) || rooms.find((x) => x.name.endsWith(" " + name) || name.endsWith(" " + x.name));
       return r ? r.color : null;
@@ -1461,7 +1518,7 @@ class RaumklimaReportCard extends HTMLElement {
   async _load() {
     if (!this._hass) return;
     try {
-      this._data = await this._hass.callWS({ type: "raumklima/report" });
+      this._data = await this._hass.callWS({ type: "raumklima/report", ...(this._config.home ? { home: this._config.home } : {}) });
       this._err = null;
     } catch (e) {
       this._err = e.message || String(e);
@@ -1632,7 +1689,7 @@ class RaumklimaLogCard extends HTMLElement {
     const first = !this._hass;
     this._hass = hass;
     if (first) {
-      this._rooms = rkRooms(hass, this._config.strip_prefix || "");
+      this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._config.home);
       if (this._config.entity) {
         const r = this._rooms.find((x) => x.id === this._config.entity);
         if (r) this._room = (r.attrs.settings || {}).entry_id || "";
@@ -1645,7 +1702,7 @@ class RaumklimaLogCard extends HTMLElement {
   _save() { try { localStorage.setItem("raumklima-log-filter", JSON.stringify({ room: this._room, cats: [...this._cats] })); } catch (e) { /* privat */ } }
   async _load(older) {
     try {
-      const msg = { type: "raumklima/log", limit: 300 };
+      const msg = { type: "raumklima/log", limit: 300, ...(this._config.home ? { home: this._config.home } : {}) };
       if (older && this._entries.length) msg.before = this._entries[this._entries.length - 1].id;
       const res = await this._hass.callWS(msg);
       this._entries = older ? [...this._entries, ...res.entries] : res.entries;
@@ -1660,7 +1717,7 @@ class RaumklimaLogCard extends HTMLElement {
       this._entries = [entry, ...this._entries];
       this._fresh = entry.id;
       this._render();
-    }, { type: "raumklima/log/subscribe" }).catch(() => { this._unsub = null; this._liveOff = true; this._render(); return null; });
+    }, { type: "raumklima/log/subscribe", ...(this._config.home ? { home: this._config.home } : {}) }).catch(() => { this._unsub = null; this._liveOff = true; this._render(); return null; });
   }
   _roomOf(e) {
     if (!e.eid) return null;
@@ -1746,19 +1803,21 @@ class RaumklimaDashboardStrategy extends HTMLElement {
         const name = prefix ? full.replace(new RegExp("^" + prefix + "\\s*"), "") : full;
         return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib };
       })
+      .filter((r) => !config.home || !r.attrs.home || r.attrs.home === config.home)
       .sort((a, b) => a.name.localeCompare(b.name));
+    const H = config.home ? { home: config.home } : {};
     rooms.forEach((r, i) => { r.color = ROOM_COLORS[i % ROOM_COLORS.length]; });
     const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? undefined);
 
     const roomsView = {
       title: "Räume", path: "raeume", icon: "mdi:home-thermometer", type: "sections", max_columns: 3,
       sections: [
-        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", title: config.title || "Heizung", weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
+        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || "Heizung", weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
         ...rooms.map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] })),
       ],
     };
 
-    const hist = (mode) => ({ type: "custom:raumklima-history-card", mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });
+    const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });
     const historyView = {
       title: "Verlauf", path: "verlauf", icon: "mdi:chart-line", type: "sections", max_columns: 2,
       sections: [
@@ -1771,17 +1830,17 @@ class RaumklimaDashboardStrategy extends HTMLElement {
 
     const settingsView = {
       title: "Einstellungen", path: "einstellungen", icon: "mdi:tune-variant", type: "panel",
-      cards: [{ type: "custom:raumklima-settings-card", strip_prefix: prefix }],
+      cards: [{ type: "custom:raumklima-settings-card", ...H, strip_prefix: prefix }],
     };
 
     const reportView = {
       title: "Bericht", path: "bericht", icon: "mdi:chart-box-outline", type: "sections", max_columns: 2,
-      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-report-card", strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-report-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
     const logView = {
       title: "Protokoll", path: "protokoll", icon: "mdi:text-box-search-outline", type: "sections", max_columns: 2,
-      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-log-card", strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
     return { title: config.title || "Heizung", views: [roomsView, historyView, reportView, logView, settingsView] };

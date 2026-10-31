@@ -117,6 +117,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "plan_reason": reason,
             "presence": hub.stage if hub else None,
             "night_airing": c.night_airing,
+            "home": hub.entry.entry_id if hub else None,
+            "home_name": hub.name if hub else None,
             "window_virtual": c.window_virtual,
             "heating_mode": hub.decision if hub else None,
         }

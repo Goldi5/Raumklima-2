@@ -30,6 +30,9 @@ A live decision log: presence changes with distances, ignored location jumps (VP
 
 Everything visible and editable: **General** (presence & setback, heating season, who gets what with test button, quiet hours, weather, building type, room table) and **per room** (preferred temperature, room type, setbacks, humidity limit, airing limits, window logic and delays, hints on/off, calibrate). Changes are saved after a short pause; only administrators can edit.
 
+## Multiple homes
+Settings → General → Home → *Create home* adds another hub with its own residents, zone, recipients, season, sleep times, report and log. Assign rooms under *Home* in the room tab. A switcher appears in the overview and settings; each home has its own dashboard (path configurable). All cards and the strategy accept `home: <hub entry_id>`.
+
 ## Cards
 ```yaml
 type: custom:raumklima-overview-card

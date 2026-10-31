@@ -12,6 +12,7 @@ HUB_PLATFORMS: Final = ["sensor", "switch", "select", "button"]
 CONF_ENTRY_TYPE: Final = "entry_type"
 ENTRY_HUB: Final = "hub"
 HUB_UNIQUE_ID: Final = "raumklima_hub"
+CONF_HOME: Final = "home"  # Raum → Zentrale (entry_id) der Wohnung
 
 # --- Geräte (config entry data) ---
 CONF_NAME: Final = "name"
@@ -110,6 +111,8 @@ HUB_DEFAULTS: Final = {
     "quiet_end": "07:00:00",
     "quiet_end_weekend": "09:00:00",
     "learn_times": True,
+    "name": "",
+    "dashboard": "",
     "holiday_state": "",
     "sleep_signals": [],
     "repeat_minutes": 5,

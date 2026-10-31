@@ -19,6 +19,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    HUB_UNIQUE_ID,
     CONF_AWAY_DELAY,
     CONF_BUILDING,
     CONF_COLD_SNAP_TEMP,
@@ -93,11 +94,22 @@ HEAT_TODAY = timedelta(hours=24)
 
 def domain_data(hass: HomeAssistant) -> dict[str, Any]:
     """Gemeinsame Daten: Zentrale und alle Räume."""
-    return hass.data.setdefault(DOMAIN, {"hub": None, "rooms": {}})
+    data = hass.data.setdefault(DOMAIN, {"hub": None, "rooms": {}})
+    data.setdefault("hubs", {})
+    return data
 
 
-def get_hub(hass: HomeAssistant) -> RaumklimaHub | None:
-    return domain_data(hass).get("hub")
+def get_hub(hass: HomeAssistant, home: str | None = None) -> RaumklimaHub | None:
+    """Zentrale einer Wohnung (entry_id) – ohne Angabe die erste/Standard-Wohnung."""
+    data = domain_data(hass)
+    hubs: dict[str, RaumklimaHub] = data["hubs"]
+    if home and home in hubs:
+        return hubs[home]
+    return data.get("hub") or next(iter(hubs.values()), None)
+
+
+def all_hubs(hass: HomeAssistant) -> list[RaumklimaHub]:
+    return list(domain_data(hass)["hubs"].values())
 
 
 def _iso(value: datetime | None) -> str | None:
@@ -143,7 +155,9 @@ class RaumklimaHub:
         self.entry = entry
         self.config: dict[str, Any] = {}
         self.load_config()
-        self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, f"{DOMAIN}.hub")
+        self.is_default = entry.unique_id in (None, HUB_UNIQUE_ID)
+        self.store_suffix = "" if self.is_default else f"_{entry.entry_id}"
+        self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, f"{DOMAIN}.hub{self.store_suffix}")
         self._listeners: list[Callable[[], None]] = []
         self._unsubs: list[Callable[[], None]] = []
         # Anwesenheit
@@ -167,7 +181,7 @@ class RaumklimaHub:
         self.mean_past: float | None = None
         self.mean_forecast: float | None = None
         self.insights = Insights(hass, self)
-        self.log = DecisionLog(hass)
+        self.log = DecisionLog(hass, self.store_suffix)
         self._reject_logged: dict[str, datetime] = {}
         # Schlafenszeiten
         self.sleep = SleepLearner()
@@ -213,7 +227,19 @@ class RaumklimaHub:
 
     @property
     def rooms(self) -> dict[str, RaumklimaController]:
-        return domain_data(self.hass)["rooms"]
+        """Räume dieser Wohnung."""
+        return {eid: r for eid, r in domain_data(self.hass)["rooms"].items() if r.hub is self}
+
+    @property
+    def name(self) -> str:
+        return str(self.opt("name") or "") or ("Allgemein" if self.is_default else self.entry.title)
+
+    @property
+    def dashboard(self) -> str:
+        if self.opt("dashboard"):
+            return str(self.opt("dashboard")).strip("/")
+        slug = "".join(c if c.isalnum() else "-" for c in self.name.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")).strip("-")
+        return f"heizung-{slug}" if slug and slug != "allgemein" else "heizung"
 
     # ------------------------------------------------------------ Lebenszyklus
     async def async_start(self) -> None:

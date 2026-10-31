@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.8.0 – 2026-10-31
+
+### Neu
+- **Mehrere Wohnungen:** Einstellungen → Allgemein → Wohnung → „Wohnung anlegen“ erstellt eine
+  weitere Zentrale mit eigenen Bewohnern, Zone, Empfängern, Heizsaison, Bericht und Protokoll
+  (Empfänger, Ruhezeit und Wetter werden als Startwert übernommen). Räume ordnest du im Raum
+  unter „Wohnung“ zu; ohne Zuordnung gehören sie zur ersten Wohnung.
+- Umschalter „Berlin | Remscheid“ oben in der Übersicht und in den Einstellungen; jede Wohnung
+  hat ihr eigenes Dashboard (Adresse einstellbar). Alle Karten und die Dashboard-Strategie
+  kennen die Option `home`.
+- WebSocket: `raumklima/home/create`; alle Befehle akzeptieren `home`.
+
+
 ## 0.7.0 – 2026-10-31
 
 ### Neu

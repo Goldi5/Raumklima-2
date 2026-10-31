@@ -56,9 +56,9 @@ def fmt_temp(value: float | None, digits: int = 1) -> str:
 class DecisionLog:
     """Ringpuffer mit Speicher und Live-Abonnenten."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(self, hass: HomeAssistant, suffix: str = "") -> None:
         self.hass = hass
-        self._store: Store[dict[str, Any]] = Store(hass, 1, f"{DOMAIN}.log")
+        self._store: Store[dict[str, Any]] = Store(hass, 1, f"{DOMAIN}.log{suffix}")
         self.entries: deque[dict[str, Any]] = deque(maxlen=MAX_ENTRIES)
         self._listeners: list[Callable[[dict[str, Any]], None]] = []
         self._seq = 0

@@ -90,6 +90,12 @@ Auf dem Handy stehen Beschriftung und Regler untereinander:
 
 Änderungen werden nach einer kurzen Pause gespeichert. Ändern dürfen nur Administratoren; andere Benutzer sehen die Seite nur an.
 
+## Mehrere Wohnungen
+
+Unter *Einstellungen → Allgemein → Wohnung* legst du eine weitere Wohnung an (z. B. Remscheid). Sie bekommt eine eigene Zentrale mit eigenen Bewohnern, Zone, Empfängern, Heizsaison, Schlafenszeiten, Bericht und Protokoll. Neue Räume ordnest du im Raum-Reiter unter *Wohnung* zu.
+
+Oben in der Übersicht und in den Einstellungen erscheint dann ein Umschalter „Berlin | Remscheid“. Jede Wohnung hat ihr eigenes Dashboard; dessen Adresse stellst du unter *Wohnung → Dashboard* ein. Für eigene Dashboards: `home: <entry_id der Zentrale>` in jeder Karte oder in der Strategie (`strategy: {type: custom:raumklima, home: …}`).
+
 ## Karten für eigene Dashboards
 
 ```yaml

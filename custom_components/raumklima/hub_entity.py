@@ -20,7 +20,7 @@ class HubEntity(Entity):
         self._attr_unique_id = f"{hub.entry.entry_id}_{key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, hub.entry.entry_id)},
-            name="Raumklima Allgemein",
+            name="Raumklima Allgemein" if hub.is_default else f"Raumklima {hub.entry.title}",
             manufacturer="Raumklima",
             model="Zentrale",
         )

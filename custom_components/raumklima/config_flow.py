@@ -411,7 +411,18 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         self._options: dict[str, Any] = {}
 
     async def async_step_import(self, data: dict[str, Any]) -> ConfigFlowResult:
-        """Zentrale „Allgemein“ anlegen (automatisch beim ersten Raum)."""
+        """Zentrale anlegen: „Allgemein“ automatisch beim ersten Raum, weitere Wohnungen auf Wunsch."""
+        data = dict(data or {})
+        home_name = str(data.pop("home_name", "") or "").strip()
+        if home_name:
+            slug = "".join(c if c.isalnum() else "_" for c in home_name.lower())
+            await self.async_set_unique_id(f"raumklima_home_{slug}")
+            self._abort_if_unique_id_configured()
+            return self.async_create_entry(
+                title=home_name,
+                data={CONF_ENTRY_TYPE: ENTRY_HUB},
+                options={**HUB_DEFAULTS, "name": home_name, **data},
+            )
         await self.async_set_unique_id(HUB_UNIQUE_ID)
         self._abort_if_unique_id_configured()
         return self.async_create_entry(

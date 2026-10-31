@@ -42,7 +42,7 @@ class Insights:
     def __init__(self, hass: HomeAssistant, hub: RaumklimaHub) -> None:
         self.hass = hass
         self.hub = hub
-        self._store: Store[dict[str, Any]] = Store(hass, 1, f"{DOMAIN}.stats")
+        self._store: Store[dict[str, Any]] = Store(hass, 1, f"{DOMAIN}.stats{hub.store_suffix}")
         self.data: dict[str, Any] = {"rooms": {}, "names": {}, "home": {}, "notified": {}}
         self.issues: dict[str, list[Issue]] = {}
         self._last_tick: datetime | None = None

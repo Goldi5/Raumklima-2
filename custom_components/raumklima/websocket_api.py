@@ -18,6 +18,7 @@ from .const import (
     CONF_FROST_FLOOR,
     CONF_HEATING_LIMIT,
     CONF_LONG_AWAY_HOURS,
+    CONF_HOME,
     CONF_NIGHT_AIRING,
     CONF_VIRTUAL_WINDOW,
     CONF_NIGHT_ALARM,
@@ -46,7 +47,7 @@ from .const import (
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
 from .planning import NIGHT_MODES, VIRT_MODES
-from .hub import domain_data, get_hub
+from .hub import all_hubs, domain_data, get_hub
 
 _KINDS = [vol.In(KINDS)]
 _TARGETS = vol.Schema({str: _KINDS})
@@ -81,6 +82,8 @@ HUB_CHANGES = vol.Schema(
         vol.Optional("quiet_end"): _TIME,
         vol.Optional("quiet_end_weekend"): _TIME,
         vol.Optional("learn_times"): bool,
+        vol.Optional("name"): str,
+        vol.Optional("dashboard"): str,
         vol.Optional("holiday_state"): vol.Any(None, vol.In(["", *STATES])),
         vol.Optional("sleep_signals"): [str],
         vol.Optional("repeat_minutes"): vol.All(vol.Coerce(float), vol.Range(1, 120)),
@@ -115,13 +118,14 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_WINDOW_CLOSE_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 600)),
         vol.Optional(CONF_NIGHT_AIRING): vol.In(NIGHT_MODES),
         vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
+        vol.Optional(CONF_HOME): vol.Any(None, str),
     }
 )
 
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report, ws_log, ws_log_subscribe):
+    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -145,10 +149,10 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
     }
 
 
-@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/config"})
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/config", vol.Optional("home"): vol.Any(None, str)})
 @callback
 def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass)
+    hub = get_hub(hass, msg.get("home"))
     rooms = []
     for entry_id, room in domain_data(hass)["rooms"].items():
         rooms.append(
@@ -174,6 +178,11 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
                 else None
             ),
             "rooms": rooms,
+            "homes": [
+                {"entry_id": h.entry.entry_id, "name": h.name, "default": h.is_default, "dashboard": h.dashboard,
+                 "rooms": list(h.rooms)}
+                for h in all_hubs(hass)
+            ],
             "kinds": KINDS,
             "choices": _choices(hass),
             "admin": connection.user.is_admin,
@@ -182,12 +191,12 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
 
 
 @websocket_api.websocket_command(
-    {vol.Required("type"): f"{DOMAIN}/hub/update", vol.Required("changes"): dict}
+    {vol.Required("type"): f"{DOMAIN}/hub/update", vol.Optional("home"): vol.Any(None, str), vol.Required("changes"): dict}
 )
 @websocket_api.require_admin
 @callback
 def ws_hub_update(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass)
+    hub = get_hub(hass, msg.get("home"))
     if hub is None:
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
@@ -226,12 +235,12 @@ async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveCo
 
 
 @websocket_api.websocket_command(
-    {vol.Required("type"): f"{DOMAIN}/notify/test", vol.Required("target"): str}
+    {vol.Required("type"): f"{DOMAIN}/notify/test", vol.Optional("home"): vol.Any(None, str), vol.Required("target"): str}
 )
 @websocket_api.require_admin
 @websocket_api.async_response
 async def ws_notify_test(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass)
+    hub = get_hub(hass, msg.get("home"))
     if hub is None:
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
@@ -245,7 +254,7 @@ async def ws_notify_test(hass: HomeAssistant, connection: websocket_api.ActiveCo
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): f"{DOMAIN}/hub/action",
+        vol.Required("type"): f"{DOMAIN}/hub/action", vol.Optional("home"): vol.Any(None, str),
         vol.Required("action"): vol.In(["heat_today", "cancel_heat_today", "vacation", "guests"]),
         vol.Optional("value"): bool,
     }
@@ -253,7 +262,7 @@ async def ws_notify_test(hass: HomeAssistant, connection: websocket_api.ActiveCo
 @websocket_api.require_admin
 @callback
 def ws_hub_action(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass)
+    hub = get_hub(hass, msg.get("home"))
     if hub is None:
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
@@ -269,10 +278,10 @@ def ws_hub_action(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
     connection.send_result(msg["id"], {"ok": True})
 
 
-@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/report"})
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/report", vol.Optional("home"): vol.Any(None, str)})
 @callback
 def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass)
+    hub = get_hub(hass, msg.get("home"))
     if hub is None:
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
@@ -281,7 +290,7 @@ def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): f"{DOMAIN}/log",
+        vol.Required("type"): f"{DOMAIN}/log", vol.Optional("home"): vol.Any(None, str),
         vol.Optional("limit", default=300): vol.All(vol.Coerce(int), vol.Range(1, 2000)),
         vol.Optional("before"): vol.Coerce(int),
         vol.Optional("entry_id"): str,
@@ -291,7 +300,7 @@ def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
 @callback
 def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Entscheidungsprotokoll, neueste zuerst."""
-    hub = get_hub(hass)
+    hub = get_hub(hass, msg.get("home"))
     if hub is None:
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
@@ -301,11 +310,11 @@ def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg:
     connection.send_result(msg["id"], {"entries": entries, "categories": CATEGORIES})
 
 
-@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/log/subscribe"})
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/log/subscribe", vol.Optional("home"): vol.Any(None, str)})
 @callback
 def ws_log_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Neue Protokolleinträge live schicken."""
-    hub = get_hub(hass)
+    hub = get_hub(hass, msg.get("home"))
     if hub is None:
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
@@ -316,3 +325,27 @@ def ws_log_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnec
 
     connection.subscriptions[msg["id"]] = hub.log.subscribe(forward)
     connection.send_result(msg["id"])
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/home/create", vol.Required("name"): vol.All(str, vol.Length(min=1, max=40))}
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_home_create(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Weitere Wohnung (eigene Zentrale) anlegen."""
+    from homeassistant.config_entries import SOURCE_IMPORT
+
+    default = get_hub(hass)
+    inherit = {}
+    if default is not None:
+        # Empfänger und Wetter als Startwert übernehmen – pro Wohnung später änderbar
+        for key in ("recipients", "tts", "quiet_start", "quiet_end", "quiet_end_weekend", "weather_entity"):
+            inherit[key] = default.opt(key)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_IMPORT}, data={**inherit, "home_name": msg["name"].strip()}
+    )
+    if result.get("type") != "create_entry":
+        connection.send_error(msg["id"], "exists", "Diese Wohnung gibt es schon")
+        return
+    connection.send_result(msg["id"], {"entry_id": result["result"].entry_id})

@@ -130,7 +130,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) ->
     if is_hub_entry(entry):
         hub = RaumklimaHub(hass, entry)
         entry.runtime_data = hub
-        domain_data(hass)["hub"] = hub
+        data = domain_data(hass)
+        data["hubs"][entry.entry_id] = hub
+        if hub.is_default or data.get("hub") is None:
+            data["hub"] = hub
         await hass.config_entries.async_forward_entry_setups(entry, HUB_PLATFORMS)
         await hub.async_start()
         entry.async_on_unload(entry.add_update_listener(_async_hub_updated))
@@ -161,7 +164,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) -
         if unloaded:
             await entry.runtime_data.async_stop()
             data = domain_data(hass)
-            data["hub"] = None
+            data["hubs"].pop(entry.entry_id, None)
+            if data.get("hub") is entry.runtime_data:
+                data["hub"] = next(iter(data["hubs"].values()), None)
             data["hub_flow"] = False
             for room in list(data["rooms"].values()):
                 room.on_hub_change()

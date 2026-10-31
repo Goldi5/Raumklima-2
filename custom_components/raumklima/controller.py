@@ -63,6 +63,7 @@ from .const import (
     PRESET_GRACE_SECONDS,
     CONF_ON_PRESET,
     CONF_SETBACK_LONG,
+    CONF_HOME,
     CONF_NIGHT_AIRING,
     CONF_VIRTUAL_WINDOW,
     CONF_SETBACK_SHORT,
@@ -555,7 +556,7 @@ class RaumklimaController:
     # ================================================================ Planung
     @property
     def hub(self) -> RaumklimaHub | None:
-        return get_hub(self.hass)
+        return get_hub(self.hass, self.config.get(CONF_HOME))
 
     @property
     def setback_short(self) -> float:
