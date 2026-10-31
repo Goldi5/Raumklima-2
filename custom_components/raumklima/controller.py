@@ -92,6 +92,7 @@ from .health import (
     check_not_warming,
     check_radio,
     check_sensor_frozen,
+    check_sensor_missing,
     check_window,
 )
 from .hub import RaumklimaHub, domain_data, get_hub
@@ -144,6 +145,7 @@ STORAGE_VERSION = 1
 MANUAL_OVERRIDE = timedelta(hours=3)  # Drehen am Regler während Absenkung
 VALVE_CARE = timedelta(minutes=3)
 
+TRV_OUTAGE_SECONDS = 60  # kürzere Aussetzer gelten nicht als Ausfall
 REASON_NORMAL = "normal"
 REASON_MANUAL = "manual"
 REASON_SEASON = "season"
@@ -209,6 +211,8 @@ class RaumklimaController:
         self._temp_hist: deque[tuple[datetime, float]] = deque(maxlen=40)
         self.virtual_open_at: datetime | None = None
         self._raw_virtual = False
+        self._trv_down_since: datetime | None = None
+        self._trv_down_cancel: Callable[[], None] | None = None
         self.heatup = HeatupTracker()
         self._virtual_low: float = 0.0
         self._virtual_cancel: Callable[[], None] | None = None
@@ -725,6 +729,9 @@ class RaumklimaController:
                 if self.trv_temperature is not None and self._trv_at_ext_change is not None
                 else None,
             ),
+            check_sensor_missing(
+                None if self.sensor_ok or self._ext_time is None else (now - self._ext_time).total_seconds() / 3600
+            ),
             check_radio(
                 sum(1 for t in self._unavail_events if now - t <= timedelta(hours=24)),
                 self.sync.state == "failed",
@@ -836,6 +843,18 @@ class RaumklimaController:
         self._temp_hist.append((now, value))
         self._check_virtual_window(now, value)
         return True
+
+    def _trv_down_confirmed(self) -> None:
+        self._trv_down_cancel = None
+        if self._trv_down_since is None or self.trv_available():
+            return
+        self._unavail_events.append(self._trv_down_since)
+        self.log(
+            CAT_DEVICE,
+            "Thermostat nicht erreichbar",
+            "seit über einer Minute keine Verbindung – letzter Stand bleibt, Befehle werden nachgeholt",
+            level="warn",
+        )
 
     # ================================================================ Fenster ohne Kontakt
     @property
@@ -972,13 +991,24 @@ class RaumklimaController:
         was_ok = old is not None and is_valid(old.state)
         is_ok = new is not None and is_valid(new.state)
         if was_ok and not is_ok:
-            self._unavail_events.append(dt_util.utcnow())
-        if was_ok and not is_ok:
-            self.log(CAT_DEVICE, "Thermostat nicht erreichbar", "Funk/Zigbee meldet „nicht verfügbar“ – letzter Stand bleibt, Befehle werden nachgeholt", level="warn")
+            # Erst nach einer Minute als Ausfall werten – kurze Aussetzer (MQTT/VPN) sind normal
+            self._trv_down_since = dt_util.utcnow()
+            if self._trv_down_cancel:
+                self._trv_down_cancel()
+            self._trv_down_cancel = self._schedule(TRV_OUTAGE_SECONDS, self._trv_down_confirmed)
         if is_ok and not was_ok:
             _LOGGER.info("%s: TRV wieder erreichbar – sende Ausstehendes", self.name)
-            if old is not None:
-                self.log(CAT_DEVICE, "Thermostat wieder erreichbar", "offene Befehle werden sofort gesendet")
+            if self._trv_down_cancel:
+                self._trv_down_cancel()
+                self._trv_down_cancel = None
+            if self._trv_down_since is not None:
+                seconds = (dt_util.utcnow() - self._trv_down_since).total_seconds()
+                self._trv_down_since = None
+                if seconds < TRV_OUTAGE_SECONDS:
+                    if self.hub is not None:
+                        self.hub.note_trv_blip(self, seconds)
+                else:
+                    self.log(CAT_DEVICE, "Thermostat wieder erreichbar", f"nach {seconds / 60:.0f} min – offene Befehle werden sofort gesendet")
             self.hass.async_create_task(self.sync.retry_all_now())
             return
         if not (is_ok and was_ok):

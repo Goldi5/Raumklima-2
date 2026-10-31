@@ -103,3 +103,13 @@ def test_sensor_radio_window():
     assert check_window(None, 3).code == "window_sensor"
     assert check_window(30, None).code == "window_open_long"
     assert check_window(2, 0.5) is None
+
+
+def test_sensor_missing_and_connection():
+    from rk.health import check_connection, check_sensor_missing
+    assert check_sensor_missing(None) is None
+    assert check_sensor_missing(0.5) is None
+    assert check_sensor_missing(6.2).code == "sensor_missing"
+    assert check_connection(5, 7) is None
+    c = check_connection(34, 6.7)
+    assert c.severity == "info" and "34×" in c.message and "~7 s" in c.message

@@ -13,7 +13,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, KIND_HEALTH, KIND_REPORT
-from .health import SEV_INFO, Issue
+from .health import SEV_INFO, Issue, check_connection
 from .stats import add_home_sample, add_room_sample, compare, prune, summarize, week_message
 
 if TYPE_CHECKING:
@@ -147,6 +147,13 @@ class Insights:
             for key in [k for k in notified if k.startswith(f"{entry_id}:")]:
                 if key.split(":", 1)[1] not in {i.code for i in issues}:
                     del notified[key]
+        # Wohnungs-Ebene: Verbindung (alle Thermostate gleichzeitig kurz weg)
+        day = [b for b in self.hub.connection_blips if now - b[0] <= timedelta(hours=24)]
+        conn = check_connection(len(day), (sum(b[1] for b in day) / len(day)) if day else None)
+        hub_issues = [conn] if conn else []
+        if {i.code for i in hub_issues} != {i.code for i in self.issues.get("hub", [])}:
+            changed = True
+        self.issues["hub"] = hub_issues
         if changed:
             self.hub.notify_entities()
         self._save()
@@ -155,8 +162,9 @@ class Insights:
         out = []
         for entry_id, issues in self.issues.items():
             room = self.hub.rooms.get(entry_id)
+            name = room.name if room else (self.hub.name if entry_id == "hub" else entry_id)
             for issue in issues:
-                out.append({"room": room.name if room else entry_id, "entry_id": entry_id, **issue.as_dict()})
+                out.append({"room": name, "entry_id": entry_id, **issue.as_dict()})
         return out
 
     # ------------------------------------------------------------ Bericht

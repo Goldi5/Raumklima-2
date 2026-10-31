@@ -183,6 +183,10 @@ class RaumklimaHub:
         self.insights = Insights(hass, self)
         self.log = DecisionLog(hass, self.store_suffix)
         self._reject_logged: dict[str, datetime] = {}
+        # Kurze Gesamtausfälle aller Thermostate (Verbindung, nicht Geräte)
+        self._blips: dict[str, datetime] = {}
+        self.connection_blips: deque[tuple[datetime, float]] = deque(maxlen=500)
+        self._blip_logged: datetime | None = None
         # Schlafenszeiten
         self.sleep = SleepLearner()
         self.signals = SignalTracker()
@@ -639,6 +643,29 @@ class RaumklimaHub:
         else:
             self._save()
             self._changed(rooms=False)
+
+    def note_trv_blip(self, room: Any, seconds: float) -> None:
+        """Ein Thermostat war kurz weg. Waren es alle gleichzeitig, ist es die Verbindung."""
+        now = dt_util.utcnow()
+        self._blips[room.entry.entry_id] = now
+        rooms = list(self.rooms)
+        if len(rooms) < 2:
+            return
+        recent = [eid for eid in rooms if (t := self._blips.get(eid)) and now - t <= timedelta(seconds=20)]
+        if len(recent) < len(rooms):
+            return
+        if self.connection_blips and now - self.connection_blips[-1][0] <= timedelta(seconds=30):
+            return
+        self.connection_blips.append((now, seconds))
+        day = [b for b in self.connection_blips if now - b[0] <= timedelta(hours=24)]
+        if self._blip_logged is None or now - self._blip_logged >= timedelta(minutes=30):
+            self._blip_logged = now
+            self.log.add(
+                "device",
+                "Kurze Verbindungsunterbrechung zu allen Thermostaten",
+                f"{seconds:.0f} s – heute {len(day)}× (Zigbee2MQTT, MQTT oder VPN); die Regelung holt alles nach",
+                level="info",
+            )
 
     def preheat_needed_minutes(self) -> int | None:
         """Längste gelernte Aufheizzeit aller Räume (None = noch nichts gelernt)."""

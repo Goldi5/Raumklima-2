@@ -92,6 +92,35 @@ def check_sensor_frozen(hours_unchanged: float | None, trv_delta: float | None) 
     return None
 
 
+SENSOR_MISSING_HOURS = 1.0
+CONNECTION_BLIPS = 10  # kurze Gesamtausfälle in 24 h
+
+
+def check_sensor_missing(hours_without_value: float | None) -> Issue | None:
+    """Raumfühler liefert seit über einer Stunde keine Werte."""
+    if hours_without_value is None or hours_without_value < SENSOR_MISSING_HOURS:
+        return None
+    return Issue(
+        "sensor_missing",
+        SEV_WARN,
+        "Raumfühler meldet sich nicht",
+        f"Seit {hours_without_value:.0f} h keine Werte – geregelt wird solange mit dem Fühler am Thermostat. Batterie und Funk des Fühlers prüfen.",
+    )
+
+
+def check_connection(blips_24h: int, typical_seconds: float | None) -> Issue | None:
+    """Alle Thermostate gleichzeitig kurz weg → Verbindung (Zigbee2MQTT/MQTT/VPN), nicht die Geräte."""
+    if blips_24h < CONNECTION_BLIPS:
+        return None
+    dur = f", je ~{typical_seconds:.0f} s" if typical_seconds else ""
+    return Issue(
+        "connection",
+        SEV_INFO,
+        "Verbindung zu den Thermostaten wackelt",
+        f"In 24 h waren {blips_24h}× alle Thermostate gleichzeitig kurz weg{dur}. Das liegt an Zigbee2MQTT, MQTT oder dem VPN, nicht an den Geräten; die Regelung holt alles nach.",
+    )
+
+
 def check_radio(unavailable_events_24h: int, sync_failed: bool) -> Issue | None:
     if sync_failed:
         return Issue("radio", SEV_ALERT, "Thermostat reagiert nicht", "Befehle werden nicht bestätigt – Funkverbindung oder Batterie prüfen.")

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.1 – 2026-10-31
+
+### Behoben
+- Kurze Aussetzer der Thermostate (unter 1 min) zählen nicht mehr als Funkausfall. Sind alle
+  Thermostate gleichzeitig kurz weg, wird das als Verbindungsproblem (Zigbee2MQTT/MQTT/VPN)
+  erkannt: ein Hinweis „Verbindung zu den Thermostaten wackelt“ für die Wohnung und höchstens ein
+  Protokolleintrag pro halbe Stunde – statt „Funk wackelt“ für jeden Raum und hunderter Einträge.
+- Gesundheitscheck meldet jetzt auch einen ausgefallenen Raumfühler („Raumfühler meldet sich nicht“).
+- Protokoll: Einträge vom Start vor dem Laden landen nicht mehr doppelt/an falscher Stelle.
+
+
 ## 0.8.0 – 2026-10-31
 
 ### Neu

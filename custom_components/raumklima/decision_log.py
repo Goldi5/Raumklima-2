@@ -65,9 +65,15 @@ class DecisionLog:
 
     async def async_load(self) -> None:
         stored = await self._store.async_load()
+        early = list(self.entries)  # Einträge, die vor dem Laden entstanden sind (Start der Räume)
         if stored:
+            self.entries.clear()
             self.entries.extend(stored.get("entries", []))
-            self._seq = int(stored.get("seq", len(self.entries)))
+            self._seq = max(int(stored.get("seq", 0)), max((e.get("id", 0) for e in self.entries), default=0))
+            for entry in early:
+                self._seq += 1
+                entry["id"] = self._seq
+                self.entries.append(entry)
         self._prune()
 
     async def async_save(self) -> None:
