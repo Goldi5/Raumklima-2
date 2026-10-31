@@ -249,6 +249,7 @@ class RaumklimaHub:
     async def async_start(self) -> None:
         await self.log.async_load()
         stored = await self._store.async_load() or {}
+        self._loaded = True
         self.vacation = bool(stored.get("vacation", False))
         self.guests = bool(stored.get("guests", False))
         self.last_present = _parse(stored.get("last_present"))
@@ -336,7 +337,8 @@ class RaumklimaHub:
         await self.insights.async_stop()
         await self.log.async_save()
         self._unsubscribe()
-        await self._store.async_save(self._stored())
+        if getattr(self, "_loaded", False):
+            await self._store.async_save(self._stored())
 
     async def async_options_updated(self) -> None:
         """Einstellungen geändert: neu laden, ohne die Räume neu zu starten."""
@@ -378,7 +380,8 @@ class RaumklimaHub:
         }
 
     def _save(self) -> None:
-        self._store.async_delay_save(self._stored, 10)
+        if getattr(self, "_loaded", False):
+            self._store.async_delay_save(self._stored, 10)
 
     # ------------------------------------------------------------ Listener
     @callback

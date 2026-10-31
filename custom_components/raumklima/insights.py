@@ -51,6 +51,7 @@ class Insights:
 
     async def async_start(self) -> None:
         stored = await self._store.async_load()
+        self._loaded = True
         if stored:
             self.data.update(stored)
         self._unsubs.append(async_track_time_interval(self.hass, self._on_tick, TICK))
@@ -63,10 +64,12 @@ class Insights:
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
-        await self._store.async_save(self.data)
+        if getattr(self, "_loaded", False):
+            await self._store.async_save(self.data)
 
     def _save(self) -> None:
-        self._store.async_delay_save(lambda: self.data, 300)
+        if getattr(self, "_loaded", False):
+            self._store.async_delay_save(lambda: self.data, 300)
 
     # ------------------------------------------------------------ Sammeln
     def _today(self) -> str:

@@ -62,9 +62,13 @@ class DecisionLog:
         self.entries: deque[dict[str, Any]] = deque(maxlen=MAX_ENTRIES)
         self._listeners: list[Callable[[dict[str, Any]], None]] = []
         self._seq = 0
+        # Erst nach dem Laden speichern: ein vorzeitiger (verzögerter) Speichervorgang würde sonst
+        # beim Laden statt der Datei zurückgegeben und das alte Protokoll überschreiben.
+        self._loaded = False
 
     async def async_load(self) -> None:
         stored = await self._store.async_load()
+        self._loaded = True
         early = list(self.entries)  # Einträge, die vor dem Laden entstanden sind (Start der Räume)
         if stored:
             self.entries.clear()
@@ -75,9 +79,12 @@ class DecisionLog:
                 entry["id"] = self._seq
                 self.entries.append(entry)
         self._prune()
+        if early:
+            self._store.async_delay_save(self._data, SAVE_DELAY)
 
     async def async_save(self) -> None:
-        await self._store.async_save(self._data())
+        if self._loaded:
+            await self._store.async_save(self._data())
 
     def _data(self) -> dict[str, Any]:
         return {"seq": self._seq, "entries": list(self.entries)}
@@ -121,7 +128,8 @@ class DecisionLog:
         _LOGGER.debug("[%s] %s%s – %s", cat, f"{room}: " if room else "", msg, why or "")
         if self._seq % 200 == 0:
             self._prune()
-        self._store.async_delay_save(self._data, SAVE_DELAY)
+        if self._loaded:
+            self._store.async_delay_save(self._data, SAVE_DELAY)
         for listener in list(self._listeners):
             try:
                 listener(entry)

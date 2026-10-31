@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.4 – 2026-10-31
+
+### Behoben
+- Protokoll (und vorsorglich Zentrale und Bericht) konnten beim Neustart überschrieben werden, wenn
+  Räume schon vor dem Laden etwas eintrugen – Home Assistant liefert dann den ungespeicherten Stand
+  statt der Datei. Gespeichert wird jetzt erst nach dem Laden.
+
+
 ## 0.8.3 – 2026-10-31
 
 ### Geändert
