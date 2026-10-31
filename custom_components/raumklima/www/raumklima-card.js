@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.8.2";
+const RK_VERSION = "0.8.3";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -1683,8 +1683,43 @@ class RaumklimaLogCard extends HTMLElement {
   }
   getCardSize() { return 12; }
   getGridOptions() { return { columns: "full", rows: "auto" }; }
-  connectedCallback() { this.style.display = "block"; if (this._hass && !this._unsub) this._subscribe(); }
-  disconnectedCallback() { if (this._unsub) { this._unsub.then((u) => u && u()).catch(() => {}); this._unsub = null; } }
+  connectedCallback() {
+    this.style.display = "block";
+    if (this._hass) { this._load(); if (!this._unsub) this._subscribe(); }
+    clearInterval(this._poll);
+    this._poll = setInterval(() => this._poll5(), 5000); // Sicherheitsnetz zusätzlich zur Live-Übertragung
+    this._onVis = () => { if (document.visibilityState === "visible") this._poll5(); };
+    document.addEventListener("visibilitychange", this._onVis);
+  }
+  disconnectedCallback() {
+    clearInterval(this._poll);
+    document.removeEventListener("visibilitychange", this._onVis);
+    if (this._unsub) { this._unsub.then((u) => u && u()).catch(() => {}); this._unsub = null; }
+  }
+  _add(list) {
+    const known = new Set(this._entries.map((e) => e.id + "|" + e.t));
+    const fresh = list.filter((e) => !known.has(e.id + "|" + e.t));
+    if (!fresh.length) return false;
+    this._entries = [...fresh, ...this._entries].sort((a, b) => (a.t < b.t ? 1 : a.t > b.t ? -1 : 0));
+    const vis = fresh.filter((e) => this._visible([e]).length);
+    this._fresh = new Set(fresh.map((e) => e.id));
+    this._hiddenNew = (this._hiddenNew || 0) + (fresh.length - vis.length);
+    return true;
+  }
+  async _poll5() {
+    if (!this._hass || document.visibilityState === "hidden" || this._polling) return;
+    this._polling = true;
+    try {
+      const newest = this._entries.length ? Math.max(...this._entries.map((e) => e.id || 0)) : null;
+      const msg = { type: "raumklima/log", limit: 100, ...(newest ? { after: newest } : {}), ...(this._config.home ? { home: this._config.home } : {}) };
+      const res = await this._hass.callWS(msg);
+      const changed = this._add(res.entries);
+      this._stamp = new Date();
+      if (changed) this._render();
+      else { const st = this.shadowRoot.querySelector(".live .ts"); if (st) st.textContent = " · " + this._stamp.toLocaleTimeString("de-DE"); }
+    } catch (e) { /* nächster Versuch in 5 s */ }
+    this._polling = false;
+  }
   set hass(hass) {
     const first = !this._hass;
     this._hass = hass;
@@ -1708,14 +1743,17 @@ class RaumklimaLogCard extends HTMLElement {
       this._entries = older ? [...this._entries, ...res.entries] : res.entries;
       this._end = res.entries.length < 300;
       this._err = null;
+      this._stamp = new Date();
+      if (!older) this._hiddenNew = 0;
     } catch (e) { this._err = e.message || String(e); }
     this._render();
   }
   _subscribe() {
     if (!this._hass || !this._hass.connection || this._unsub) return;
     this._unsub = this._hass.connection.subscribeMessage((entry) => {
-      this._entries = [entry, ...this._entries];
-      this._fresh = entry.id;
+      this._add([entry]);
+      this._stamp = new Date();
+      this._liveOff = false;
       this._render();
     }, { type: "raumklima/log/subscribe", ...(this._config.home ? { home: this._config.home } : {}) }).catch(() => { this._unsub = null; this._liveOff = true; this._render(); return null; });
   }
@@ -1723,9 +1761,9 @@ class RaumklimaLogCard extends HTMLElement {
     if (!e.eid) return null;
     return this._rooms.find((r) => (r.attrs.settings || {}).entry_id === e.eid) || null;
   }
-  _visible() {
+  _visible(src) {
     const q = this._q.trim().toLowerCase();
-    return this._entries.filter((e) => {
+    return (src || this._entries).filter((e) => {
       if (!this._cats.has(e.cat) && RK_LOG_CATS[e.cat]) return false;
       if (this._room && e.eid && e.eid !== this._room) return false;
       if (this._room && !e.eid && !["presence", "season"].includes(e.cat)) return false;
@@ -1750,13 +1788,14 @@ class RaumklimaLogCard extends HTMLElement {
       const meta = RK_LOG_CATS[e.cat] || [e.cat, "mdi:information-outline", "off"];
       const room = this._roomOf(e);
       const roomName = room ? room.name : e.room ? this._strip(e.room) : null;
-      html += `<div class="ev ${e.lvl === "warn" ? "warn" : ""} ${e.id === this._fresh ? "new" : ""}" style="--c:${toneVar(meta[2])}">
+      html += `<div class="ev ${e.lvl === "warn" ? "warn" : ""} ${this._fresh && this._fresh.has && this._fresh.has(e.id) ? "new" : ""}" style="--c:${toneVar(meta[2])}">
         <div class="tm">${d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</div>
         <div class="ic" title="${meta[0]}"><ha-icon icon="${meta[1]}"></ha-icon></div>
         <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}</div>
         ${e.why ? `<div class="wy"><b>${e.cat === "notify" && e.msg.indexOf("Knopf") !== 0 ? "Inhalt" : e.cat === "device" || e.cat === "settings" ? "Details" : "Warum"}:</b> ${esc(this._strip(e.why))}</div>` : ""}</div></div>`;
     }
     if (cur !== null) html += `</div>`;
+    this._fresh = null; // Aufblitzen nur beim ersten Anzeigen
     const roomChips = [`<button class="chip2 ${this._room ? "off" : ""}" data-room="" style="--c:var(--rk-off)"><i></i>Alle Räume</button>`]
       .concat(this._rooms.map((r) => { const id = (r.attrs.settings || {}).entry_id; return `<button class="chip2 ${this._room === id ? "" : "off"}" data-room="${id}" style="--c:${r.color}"><i></i>${esc(r.name)}</button>`; })).join("");
     const catChips = Object.entries(RK_LOG_CATS).map(([k, m]) => `<button class="chip2 ${this._cats.has(k) ? "" : "off"}" data-cat="${k}" style="--c:${toneVar(m[2])}"><ha-icon icon="${m[1]}"></ha-icon>${m[0]}</button>`).join("");
@@ -1767,7 +1806,8 @@ class RaumklimaLogCard extends HTMLElement {
     this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
       <ha-card class="log" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:text-box-search-outline"></ha-icon><div>${esc(this._config.title || "Protokoll")}<div class="rsub">Was wann warum entschieden wurde · 14 Tage</div></div></div>
-          <span class="live ${this._liveOff ? "off" : ""}"><i></i>${this._liveOff ? "nicht live" : "live"}</span></div>
+          <span class="live ${this._liveOff ? "off" : ""}" title="neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen"><i></i>${this._liveOff ? "alle 5 s" : "live"}<span class="ts">${this._stamp ? ` · ${this._stamp.toLocaleTimeString("de-DE")}` : ""}</span></span></div>
+        ${this._hiddenNew ? `<div class="hint" style="margin-top:8px">+${this._hiddenNew} neue Einträge sind durch die Filter ausgeblendet (z. B. Thermostat-Befehle). <button class="mini" data-showall>Alle zeigen</button></div>` : ""}
         <div class="filters">
           <div class="chips">${roomChips}</div>
           <div class="chips">${catChips}</div>
@@ -1780,6 +1820,7 @@ class RaumklimaLogCard extends HTMLElement {
     $("[data-room]").forEach((b) => b.addEventListener("click", () => { this._room = b.dataset.room; this._save(); this._render(); }));
     $("[data-cat]").forEach((b) => b.addEventListener("click", () => { const c = b.dataset.cat; this._cats.has(c) ? this._cats.delete(c) : this._cats.add(c); this._save(); this._render(); }));
     $("[data-more]").forEach((b) => b.addEventListener("click", () => this._load(true)));
+    $("[data-showall]").forEach((b) => b.addEventListener("click", () => { this._cats = new Set(Object.keys(RK_LOG_CATS)); this._room = ""; this._hiddenNew = 0; this._save(); this._render(); }));
     const s = this.shadowRoot.querySelector(".srch");
     s.addEventListener("input", () => { this._q = s.value; clearTimeout(this._qt); this._qt = setTimeout(() => this._render(), 250); });
     if (focus) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); }

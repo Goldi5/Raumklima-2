@@ -145,6 +145,7 @@ class DecisionLog:
         *,
         limit: int = 300,
         before: int | None = None,
+        after: int | None = None,
         entry_id: str | None = None,
         categories: list[str] | None = None,
         since: datetime | None = None,
@@ -155,6 +156,8 @@ class DecisionLog:
         for entry in reversed(self.entries):
             if before is not None and entry["id"] >= before:
                 continue
+            if after is not None and entry["id"] <= after:
+                break
             if since_iso and entry["t"] < since_iso:
                 break
             if entry_id and entry.get("eid") not in (entry_id, None):

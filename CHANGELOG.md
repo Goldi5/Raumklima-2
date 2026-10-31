@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.3 – 2026-10-31
+
+### Geändert
+- Protokoll-Karte: zusätzlich zur Live-Übertragung wird alle 5 s nachgesehen (nur neue Einträge),
+  beim Zurückkehren auf den Reiter und nach einem Neustart wird nachgeladen. Anzeige „live · Uhrzeit“
+  und Hinweis, wenn neue Einträge durch die Filter ausgeblendet sind („Alle zeigen“).
+- WebSocket `raumklima/log` mit Parameter `after`.
+
+
 ## 0.8.2 – 2026-10-31
 
 ### Behoben

@@ -293,6 +293,7 @@ def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
         vol.Required("type"): f"{DOMAIN}/log", vol.Optional("home"): vol.Any(None, str),
         vol.Optional("limit", default=300): vol.All(vol.Coerce(int), vol.Range(1, 2000)),
         vol.Optional("before"): vol.Coerce(int),
+        vol.Optional("after"): vol.Coerce(int),
         vol.Optional("entry_id"): str,
         vol.Optional("categories"): [vol.In(CATEGORIES)],
     }
@@ -305,7 +306,8 @@ def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg:
         connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
     entries = hub.log.query(
-        limit=msg["limit"], before=msg.get("before"), entry_id=msg.get("entry_id"), categories=msg.get("categories")
+        limit=msg["limit"], before=msg.get("before"), after=msg.get("after"), entry_id=msg.get("entry_id"),
+        categories=msg.get("categories")
     )
     connection.send_result(msg["id"], {"entries": entries, "categories": CATEGORIES})
 
