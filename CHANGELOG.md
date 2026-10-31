@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.2 – 2026-10-31
+
+### Behoben
+- „Raumfühler meldet sich nicht“ auch, wenn der Fühler seit dem Start noch keinen Wert geliefert hat.
+
+
 ## 0.8.1 – 2026-10-31
 
 ### Behoben

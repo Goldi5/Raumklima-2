@@ -212,6 +212,7 @@ class RaumklimaController:
         self.virtual_open_at: datetime | None = None
         self._raw_virtual = False
         self._trv_down_since: datetime | None = None
+        self._started_at: datetime = dt_util.utcnow()
         self._trv_down_cancel: Callable[[], None] | None = None
         self.heatup = HeatupTracker()
         self._virtual_low: float = 0.0
@@ -730,7 +731,7 @@ class RaumklimaController:
                 else None,
             ),
             check_sensor_missing(
-                None if self.sensor_ok or self._ext_time is None else (now - self._ext_time).total_seconds() / 3600
+                None if self.sensor_ok else (now - (self._ext_time or self._started_at)).total_seconds() / 3600
             ),
             check_radio(
                 sum(1 for t in self._unavail_events if now - t <= timedelta(hours=24)),
