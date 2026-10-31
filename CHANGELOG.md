@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.0 – 2026-10-31
+
+### Neu
+- **Aufheizzeit lernen:** Jeder Raum merkt sich, wie schnell er warm wird (°C pro Stunde, abhängig
+  von der Außentemperatur, aus den letzten 30 Aufheizvorgängen). Anzeige in den Raum-Einstellungen.
+- **Vorheizen nach Ankunftszeit:** Aus der Annäherung wird die Ankunftszeit geschätzt. Braucht die
+  Wohnung z. B. 50 min zum Aufheizen und jemand ist in 55 min da, wird jetzt vorgeheizt – auch weit
+  vor der km-Grenze (bis 150 km). Begründung steht im Protokoll.
+- **Fenster ohne Kontakt erkennen:** Fällt die Temperatur in 6 min um 1 °C (und draußen ist es
+  deutlich kälter), pausiert die Heizung, bis es wieder wärmer wird (10–30 min). Pro Raum:
+  Automatisch (nur ohne erreichbaren Kontakt) / Ja / Nein.
+- **Feiertage je Bundesland:** Die Nacht vor einem Feiertag gilt wie Wochenende (Ruhezeit,
+  Lernen). Einstellung unter Allgemein → Schlafenszeiten.
+
+### Geändert
+- „Raum kühlt aus“ kommt nur noch 3× laut, danach alle 30 min leise.
+- Temperaturen im Protokoll mit Komma („Sollwert 20,5 °C“).
+
+
 ## 0.6.0 – 2026-10-31
 
 ### Neu

@@ -14,6 +14,8 @@ Ein Thermostat am Heizkörper misst direkt neben der warmen Rippe – es hält d
 - Fenster **≥ 10 s zu** → alter Zustand kommt zurück.
 - Verbindungsabbrüche (`unavailable`) zählen nicht als „offen“ oder „zu“.
 
+**Fenster ohne Kontakt:** Hat ein Raum keinen Fensterkontakt (oder ist er nicht erreichbar), erkennt die Integration ein offenes Fenster am Temperatursturz: fällt es in 6 Minuten um 1 °C und ist es draußen mindestens 5 °C kälter, pausiert die Heizung. Sie läuft weiter, sobald es wieder 0,3 °C wärmer wird (frühestens nach 10, spätestens nach 30 Minuten). Pro Raum einstellbar: Automatisch / Ja / Nein.
+
 ## 3. Absicherung bei Funk- und VPN-Aussetzern
 
 Jeder Befehl ans TRV wird nach 20 s **geprüft**. Kam er nicht an, wird er wiederholt – mit wachsendem Abstand, danach alle 5 Minuten weiter. Meldet sich das TRV zurück, wird Ausstehendes sofort nachgeschickt. Zusätzlich gleicht Raumklima alle 10 Minuten Soll und Ist ab. Klappt es gar nicht, kommt eine Meldung.
@@ -51,6 +53,8 @@ Für die ganze Wohnung legst du fest, **wer hier wohnt** (Personen) und **welche
 - Ist niemand da, gibt es **keine Lüft-Erinnerungen** – stattdessen die Meldung „Fenster offen, niemand da“.
 
 Die Werte stammen aus den Empfehlungen der Verbraucherzentrale bzw. des vzbv: bei kurzer Abwesenheit etwa 18 °C, bei längerer nicht unter 16 °C, die Heizung nie ganz ausschalten. Jedes Grad weniger spart rund 6 % Heizenergie.
+
+**Aufheizzeit und Vorheizen nach Ankunftszeit:** Jeder Raum lernt, wie schnell er warm wird – in °C pro Stunde, abhängig von der Außentemperatur (aus den letzten 30 Aufheizvorgängen, ab 3 gilt es). Nähert sich jemand, schätzt die Integration die Ankunftszeit aus der Geschwindigkeit der letzten Minuten. Ist die Person früher da, als die Wohnung zum Aufheizen braucht (plus 10 Minuten), wird vorgeheizt – auch jenseits der km-Grenze, bis 150 km. Solange noch nichts gelernt ist, gilt nur die km-Grenze.
 
 ## 6. Schimmelschutz
 

@@ -9,6 +9,8 @@ A TRV measures right next to the hot radiator. Raumklima uses an **external room
 ## Window logic
 Open ≥ 10 s → pause (TRV off, target kept); closed ≥ 10 s → resume. `unavailable` is ignored.
 
+**Window without contact:** rooms without a (reachable) contact detect an open window from a temperature drop (1 °C in 6 min, outdoors ≥ 5 °C colder) and pause heating until it warms up again (10–30 min).
+
 ## Reliability
 Every command is verified after 20 s and retried with growing intervals, then every 5 min; pending commands are resent when the TRV reappears; full reconciliation every 10 min; notification if nothing works.
 **TRV602Z:** preset "on" means *valve fully open* – Raumklima uses "eco" and catches the stored eco value loaded on preset changes.
@@ -28,6 +30,8 @@ Residents (people) + home zone; a person counts as home as soon as **any of thei
 | Guests | **guests** switch | preferred |
 
 Impossible jumps (> 300 km/h, e.g. VPN placing the phone at another home) and inaccurate fixes (> 200 m) are ignored; a jump that persists for 30 min is accepted (real travel). Turning up during setback suspends it for 3 h in that room. Vacation ends on arrival. No airing reminders while nobody is home – instead "window open, nobody home".
+
+**Heat-up time & ETA preheating:** each room learns its heat-up rate (°C/h vs. outdoor temperature, last 30 episodes). From the approach speed the arrival time is estimated; if someone arrives sooner than the flat needs to warm up (+10 min), preheating starts — up to 150 km away.
 
 ## Mold guard
 For **longer absence** Raumklima computes the lowest room temperature that keeps the coldest wall spot below **80 % relative humidity** (DIN 4108-2):

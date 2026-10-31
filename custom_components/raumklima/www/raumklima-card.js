@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.6.0";
+const RK_VERSION = "0.7.0";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -1124,6 +1124,7 @@ class RaumklimaSettingsCard extends HTMLElement {
     const sleepRows = [
       `<div class="status"><span class="chip" style="--tone:${sl.quiet_now ? "var(--rk-eco)" : "var(--rk-ok)"}"><ha-icon icon="${sl.quiet_now ? "mdi:sleep" : "mdi:white-balance-sunny"}"></ha-icon>${sl.quiet_now ? "Ruhezeit gerade aktiv" : "Keine Ruhezeit"}</span>${sl.asleep ? `<span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-off-outline"></ha-icon>Licht aus – alle schlafen</span>` : ""}</div>`,
       this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
+      this._row("Feiertage", this._select(H, "holiday_state", ch.states || [], this._hubOpt("holiday_state") || "", "– keine –"), (sl.tonight && sl.tonight.holiday) ? `morgen: ${esc(sl.tonight.holiday)} – Ruhezeit wie am Wochenende` : "Nacht vor einem Feiertag gilt wie Wochenende"),
       this._row("Schlaf-Signale", `<div class="chips">${sigChips || this._v("keine", true)}</div>`, "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden"),
       this._admin && sigAvail.length ? `<div class="addrow"><select class="sel" id="addSig">${sigAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-sigadd style="--c:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>Signal hinzufügen</button></div>` : "",
       `<div class="tblwrap"><table class="tbl sm"><thead><tr><th></th><th>Ins Bett</th><th>Aufstehen</th><th>Ruhezeit wirksam</th><th>Nachtlüften</th></tr></thead><tbody>${lrn("weekday")}${lrn("weekend")}</tbody></table></div>`,
@@ -1216,6 +1217,7 @@ class RaumklimaSettingsCard extends HTMLElement {
     const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
     const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
     const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
+    const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
     const editable = this._admin && cfgRoom;
     const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
     const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : null;
@@ -1227,6 +1229,8 @@ class RaumklimaSettingsCard extends HTMLElement {
         this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
         this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–")),
         this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
+        this._row("Aufheizen", this._v(s.heatup && s.heatup.minutes_2k != null ? `~${s.heatup.minutes_2k} min für +2 °C` : `lernt noch (${(s.heatup && s.heatup.episodes) || 0}/3)`, !(s.heatup && s.heatup.minutes_2k != null)),
+          s.heatup && s.heatup.rate ? `${fmt(s.heatup.rate, 1)} °C/h bei aktuellem Wetter · aus ${s.heatup.episodes} Aufheizvorgängen · steuert, wann vorgeheizt wird` : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"),
         this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
       ].join(""))}
       ${this._grp("Lüften & Feuchte", "mdi:water-percent", "air", [
@@ -1243,6 +1247,8 @@ class RaumklimaSettingsCard extends HTMLElement {
         this._row("Schlafen bei offenem Fenster", editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),
           nightMode === "auto" ? (["bedroom", "rarely_used"].includes(roomType) ? "Automatisch: ja, weil Schlafraum" : "Automatisch: nein, kein Schlafraum") : "abends geöffnet = Nachtlüften: keine Lüft-Hinweise, Heizung wartet"),
         this._row("Kontakte", `<div class="chips">${contacts}</div>`),
+        this._row("Offenes Fenster an Temperatursturz erkennen", editable ? this._segs(scope, "virtual_window", RK_NIGHT, virtMode) : this._v(RK_NIGHT[virtMode] || "–"),
+          (a.window_virtual ? "gerade: Fenster vermutlich offen · " : "") + (virtMode === "auto" ? (s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig") : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")),
       ].join(""))}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),

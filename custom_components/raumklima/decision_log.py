@@ -50,7 +50,7 @@ def fmt_temp(value: float | None, digits: int = 1) -> str:
     """20.5 → „20,5 °C“."""
     if value is None:
         return "–"
-    return f"{value:.{digits}f} °C".replace(".", ",")
+    return f"{value:.{digits}f} °C".replace(".", ",").replace("-", "−")
 
 
 class DecisionLog:

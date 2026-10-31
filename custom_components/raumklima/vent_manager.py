@@ -58,6 +58,8 @@ HUMIDITY_HYSTERESIS = 5.0
 SNOOZE_MINUTES = 15
 PLEASE_OPEN_REPEAT = 30  # min – Erinnerung "bitte lüften"
 TTS_AFTER_REPEATS = 2  # Sprachansage ab der 3. Erinnerung "schließen"
+TOO_COLD_LOUD = 3  # so oft „kühlt aus“ laut, danach leise
+TOO_COLD_QUIET_REPEAT = 30  # min zwischen leisen Erinnerungen
 WINDOW_AWAY_AFTER = 2  # min offen, während niemand da ist
 WINDOW_AWAY_REPEAT = 30  # min
 KIND_OF = {
@@ -310,6 +312,8 @@ class VentilationManager:
         self._check_window_away()
         if self.c.night_airing:
             self._night_update(now, changed)
+        elif self.c.window_virtual and new in (VENT_PLEASE_CLOSE, VENT_DONE):
+            pass  # nur geschätzt offen: nicht zum Schließen auffordern
         elif new in MESSAGES:
             self._maybe_send(new, changed)
         elif changed and new in (VENT_OK, VENT_AIRING):
@@ -407,10 +411,18 @@ class VentilationManager:
         elif kind == VENT_PLEASE_OPEN:
             if last and now - last < timedelta(minutes=PLEASE_OPEN_REPEAT):
                 return
+        elif (
+            kind == VENT_TOO_COLD
+            and self._repeat_count.get(kind, 0) >= TOO_COLD_LOUD
+            and last
+            and now - last < timedelta(minutes=TOO_COLD_QUIET_REPEAT)
+        ):
+            return  # nach drei lauten Meldungen nur noch alle 30 min leise
         elif last and not changed and now - last < timedelta(minutes=self.repeat_minutes):
             return
         self._last_sent[kind] = now
         count = self._repeat_count.get(kind, 0)
+        calm = kind == VENT_TOO_COLD and count >= TOO_COLD_LOUD
         self._repeat_count[kind] = count + 1
         title, body = MESSAGES[kind]
         values = {
@@ -425,9 +437,13 @@ class VentilationManager:
                 title.format(**values),
                 body.format(**values),
                 speak=(kind == VENT_TOO_COLD or count >= TTS_AFTER_REPEATS)
-                and kind != VENT_DONE,
+                and kind != VENT_DONE
+                and not calm,
+                calm=calm,
             )
         )
+        if kind == VENT_TOO_COLD and count + 1 == TOO_COLD_LOUD:
+            self.c.log("notify", "„Raum kühlt aus“ ab jetzt leise", f"schon {TOO_COLD_LOUD}× laut gemeldet – weitere Erinnerungen alle {TOO_COLD_QUIET_REPEAT} min ohne Ton")
 
     def _mute_until(self) -> datetime:
         """„Heute nicht mehr“: tagsüber bis Mitternacht, abends/nachts bis zum (gelernten) Morgen."""
@@ -450,7 +466,7 @@ class VentilationManager:
     def _action_id(self, action: str) -> str:
         return f"RAUMKLIMA_{action}_{self.c.entry.entry_id}"
 
-    async def _send(self, kind: str, title: str, message: str, speak: bool) -> None:
+    async def _send(self, kind: str, title: str, message: str, speak: bool, calm: bool = False) -> None:
         hub = self.c.hub
         if hub is not None:
             await hub.async_notify(
@@ -458,6 +474,7 @@ class VentilationManager:
                 title,
                 message,
                 data={
+                    **({"push": {"interruption-level": "passive"}} if calm else {}),
                     "tag": self._tag(),
                     "group": "raumklima",
                     "actions": [

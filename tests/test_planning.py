@@ -250,3 +250,27 @@ def test_weekend_quiet():
     assert morning_after(datetime(2026, 11, 1, 23, 0), "07:00", "09:00") == datetime(2026, 11, 2, 7, 0)
     assert mute_until(fri, "07:00", "09:00") == datetime(2026, 10, 31, 9, 0)
     assert mute_until(datetime(2026, 10, 31, 8, 0), "07:00", "09:00") == datetime(2026, 10, 31, 9, 0)
+
+
+def test_virtual_window():
+    from rk.planning import detect_temp_drop, virtual_window_close_reason
+    t0 = datetime(2026, 11, 2, 8, 0)
+    pts = [(t0 + timedelta(minutes=m), v) for m, v in [(0, 20.5), (2, 20.4), (4, 19.8), (5, 19.3)]]
+    assert detect_temp_drop(pts, t0 + timedelta(minutes=5), 6.0) == 1.2
+    assert detect_temp_drop(pts, t0 + timedelta(minutes=5), 16.0) is None  # draußen mild
+    slow = [(t0 + timedelta(minutes=m), 20.5 - m * 0.05) for m in range(0, 30, 3)]
+    assert detect_temp_drop(slow, t0 + timedelta(minutes=27), 6.0) is None
+    assert virtual_window_close_reason(t0, t0 + timedelta(minutes=5), 19.0, 19.5) is None  # zu früh
+    assert virtual_window_close_reason(t0, t0 + timedelta(minutes=12), 19.0, 19.4) == "recovered"
+    assert virtual_window_close_reason(t0, t0 + timedelta(minutes=12), 19.0, 19.1) is None
+    assert virtual_window_close_reason(t0, t0 + timedelta(minutes=31), 19.0, 19.0) == "max"
+
+
+def test_eta():
+    from rk.planning import eta_minutes
+    t0 = datetime(2026, 11, 2, 17, 0)
+    hist = [(t0 + timedelta(minutes=m), 80 - m * 1.5) for m in range(0, 11)]  # 90 km/h
+    eta = eta_minutes(hist, t0 + timedelta(minutes=10))
+    assert 40 <= eta <= 44  # 65 km bei 90 km/h
+    walk = [(t0 + timedelta(minutes=m), 3 - m * 0.05) for m in range(0, 11)]
+    assert eta_minutes(walk, t0 + timedelta(minutes=10)) is None

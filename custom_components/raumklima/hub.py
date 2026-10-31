@@ -54,7 +54,9 @@ from .planning import (
     SeasonConfig,
     SeasonState,
     TrackerFilter,
+    ETA_MAX_KM,
     approaching,
+    eta_minutes,
     combined_mean,
     haversine_km,
     in_season,
@@ -73,6 +75,7 @@ from .decision_log import (
     DecisionLog,
     fmt_temp,
 )
+from .holidays_de import holiday_name
 from .insights import Insights
 from .sleep import BED, WAKE, SignalTracker, SleepLearner, effective_times, is_weekend_night, night_of
 
@@ -155,6 +158,7 @@ class RaumklimaHub:
         self._was_present: bool | None = None
         self._preheat_until: datetime | None = None
         self._preheat_by: str | None = None
+        self._preheat_reason: str | None = None
         # Heizsaison
         self.season = SeasonState()
         self.decision = "heating"
@@ -378,6 +382,10 @@ class RaumklimaHub:
 
     # ------------------------------------------------------------ Schlafenszeiten
     @property
+    def holiday_state(self) -> str | None:
+        return str(self.opt("holiday_state") or "") or None
+
+    @property
     def sleep_signals(self) -> list[str]:
         return [e for e in (self.opt("sleep_signals") or []) if isinstance(e, str)]
 
@@ -416,7 +424,7 @@ class RaumklimaHub:
     def record_sleep(self, kind: str, local: datetime, source: str) -> None:
         """Bett-/Aufstehereignis lernen (auch von Räumen beim Nachtlüften)."""
         night = night_of(local)
-        weekend = is_weekend_night(night)
+        weekend = is_weekend_night(night, self.holiday_state)
         before = self.sleep.learned(weekend).as_dict()
         if not self.sleep.record(kind, local, source):
             return
@@ -434,8 +442,9 @@ class RaumklimaHub:
     def times_for(self, local: datetime | None = None) -> dict[str, Any]:
         """Wirksame Ruhe- und Nachtlüftzeiten für die Nacht, zu der „local“ gehört."""
         local = local or dt_util.now()
+        self.sleep.state = self.holiday_state
         night = night_of(local)
-        weekend = is_weekend_night(night)
+        weekend = is_weekend_night(night, self.holiday_state)
         end = str(self.opt("quiet_end_weekend") or self.opt("quiet_end")) if weekend else str(self.opt("quiet_end"))
         out = effective_times(
             self.sleep.learned(weekend),
@@ -447,6 +456,7 @@ class RaumklimaHub:
         )
         out["weekend"] = weekend
         out["night"] = night.isoformat()
+        out["holiday"] = holiday_name(night + timedelta(days=1), self.holiday_state)
         return out
 
     def morning_after(self, since_local: datetime) -> datetime:
@@ -522,6 +532,7 @@ class RaumklimaHub:
             "present": present,
             "distance_km": round(distance, 1) if distance is not None else None,
             "approaching": approaching(list(hist), now) if distance is not None else False,
+            "eta_min": eta_minutes(list(hist), now) if distance is not None and not present else None,
         }
 
     def _evaluate_presence(self, initial: bool = False) -> None:
@@ -549,10 +560,24 @@ class RaumklimaHub:
                 if p["distance_km"] is not None and p["distance_km"] <= float(self.opt(CONF_PREHEAT_KM))
             ]
             coming = [p for p in near if p["approaching"]]
-            if not anyone and coming:
+            # Nach Ankunftszeit: so früh, wie der langsamste Raum zum Aufheizen braucht
+            need = self.preheat_needed_minutes()
+            timely = [
+                p for p in self.persons.values()
+                if p not in near and p["approaching"] and p.get("eta_min") is not None
+                and need is not None and p["distance_km"] is not None and p["distance_km"] <= ETA_MAX_KM
+                and p["eta_min"] <= need + 10
+            ]
+            if not anyone and (coming or timely):
+                if self._preheat_until is None:
+                    who = (coming or timely)[0]
+                    self._preheat_reason = (
+                        f"{who['name']} ist in ~{who['eta_min']:.0f} min da, Aufheizen dauert ~{need} min"
+                        if who in timely else None
+                    )
                 self._preheat_until = now + PREHEAT_HOLD
-                self._preheat_by = coming[0]["name"]
-            if self._preheat_until and (now > self._preheat_until or not near):
+                self._preheat_by = (coming or timely)[0]["name"]
+            if self._preheat_until and (now > self._preheat_until or not (near or timely)):
                 self._preheat_until = None
             minutes = (now - self.last_present).total_seconds() / 60 if self.last_present else None
             new = presence_stage(
@@ -589,6 +614,11 @@ class RaumklimaHub:
             self._save()
             self._changed(rooms=False)
 
+    def preheat_needed_minutes(self) -> int | None:
+        """Längste gelernte Aufheizzeit aller Räume (None = noch nichts gelernt)."""
+        needs = [n for r in list(self.rooms.values()) if (n := r.heatup_needed()) is not None]
+        return max(needs) if needs else None
+
     def _presence_why(self, stage: str) -> str:
         parts = []
         if stage == STAGE_GUESTS:
@@ -596,7 +626,7 @@ class RaumklimaHub:
         if self.vacation:
             parts.append("Urlaub ist an")
         if stage == STAGE_PREHEAT and self._preheat_by:
-            parts.append(f"{self._preheat_by} nähert sich (Vorheizen ab {float(self.opt(CONF_PREHEAT_KM)):.0f} km)")
+            parts.append(self._preheat_reason or f"{self._preheat_by} nähert sich (Vorheizen ab {float(self.opt(CONF_PREHEAT_KM)):.0f} km)")
         for p in self.persons.values():
             if p["present"]:
                 parts.append(f"{p['name']} ist da")
@@ -944,7 +974,7 @@ class RaumklimaHub:
         }
         for key, weekend in (("weekday", False), ("weekend", True)):
             sample = now
-            while is_weekend_night(night_of(sample)) != weekend:
+            while is_weekend_night(night_of(sample), self.holiday_state) != weekend:
                 sample += timedelta(days=1)
             out[key] = {**self.sleep.learned(weekend).as_dict(), "effective": self.times_for(sample)}
         return out

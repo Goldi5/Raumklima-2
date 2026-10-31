@@ -16,6 +16,8 @@ from datetime import date, datetime, timedelta
 from statistics import median
 from typing import Any
 
+from .holidays_de import holiday_name
+
 BED = "bed"
 WAKE = "wake"
 KEEP_DAYS = 42  # 6 Wochen
@@ -51,9 +53,9 @@ def night_of(local: datetime) -> date:
     return (local - timedelta(hours=12)).date()
 
 
-def is_weekend_night(night: date) -> bool:
-    """Fr→Sa und Sa→So: am nächsten Morgen ist kein Werktag."""
-    return night.weekday() in (4, 5)
+def is_weekend_night(night: date, state: str | None = None) -> bool:
+    """Fr→Sa, Sa→So und Nächte vor einem Feiertag: am nächsten Morgen ist kein Werktag."""
+    return night.weekday() in (4, 5) or holiday_name(night + timedelta(days=1), state) is not None
 
 
 def _from_noon(local: datetime) -> int:
@@ -85,6 +87,7 @@ class SleepLearner:
     """Sammelt Ereignisse und berechnet die typischen Zeiten."""
 
     def __init__(self) -> None:
+        self.state: str | None = None  # Bundesland für Feiertage
         # Nacht (ISO-Datum) → {"bed": iso, "bed_src": str, "wake": iso, "wake_src": str}
         self.nights: dict[str, dict[str, str]] = {}
 
@@ -122,7 +125,7 @@ class SleepLearner:
         beds: list[int] = []
         wakes: list[int] = []
         for night, entry in self.nights.items():
-            if is_weekend_night(date.fromisoformat(night)) != weekend:
+            if is_weekend_night(date.fromisoformat(night), self.state) != weekend:
                 continue
             if entry.get(BED):
                 beds.append(_from_noon(datetime.fromisoformat(entry[BED])))

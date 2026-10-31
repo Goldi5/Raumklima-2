@@ -175,6 +175,27 @@ def approaching(history: list[tuple[datetime, float]], now: datetime, min_drop_k
     return False
 
 
+ETA_MIN_SPEED = 10.0  # km/h – langsamer zählt nicht als Anfahrt
+ETA_MAX_SPEED = 160.0
+ETA_MAX_KM = 150.0  # weiter weg wird nicht nach Ankunftszeit vorgeheizt
+
+
+def eta_minutes(history: list[tuple[datetime, float]], now: datetime) -> float | None:
+    """Geschätzte Ankunft in Minuten aus der Annäherung der letzten 5–20 Minuten."""
+    if len(history) < 2:
+        return None
+    current = history[-1][1]
+    for when, dist in history[:-1]:
+        age = now - when
+        if timedelta(minutes=5) <= age <= timedelta(minutes=20):
+            hours = age.total_seconds() / 3600
+            speed = min((dist - current) / hours, ETA_MAX_SPEED)
+            if speed < ETA_MIN_SPEED:
+                return None
+            return round(current / speed * 60)
+    return None
+
+
 # ------------------------------------------------------------------ Anwesenheit
 @dataclass
 class PresenceInput:
@@ -415,3 +436,44 @@ def mute_until(local: datetime, morning: str, morning_weekend: str | None = None
     if local.hour >= evening_hour or next_morning.date() == local.date():
         return next_morning
     return midnight
+
+
+# ------------------------------------------------------------------ Fenster ohne Kontakt
+VIRT_AUTO = "auto"
+VIRT_ON = "on"
+VIRT_OFF = "off"
+VIRT_MODES = [VIRT_AUTO, VIRT_ON, VIRT_OFF]
+VIRT_DROP = 1.0  # K Abfall …
+VIRT_SPAN = timedelta(minutes=6)  # … innerhalb dieser Zeit
+VIRT_OUTDOOR_GAP = 5.0  # K: draußen muss deutlich kälter sein
+VIRT_MIN_OPEN = timedelta(minutes=10)
+VIRT_MAX_OPEN = timedelta(minutes=30)
+VIRT_RECOVER = 0.3  # K über dem Tiefstwert = Fenster wohl wieder zu
+
+
+def detect_temp_drop(
+    points: list[tuple[datetime, float]], now: datetime, outdoor: float | None
+) -> float | None:
+    """Schneller Temperatursturz (Fenster offen)? Gibt den Abfall in K zurück."""
+    recent = [(t, v) for t, v in points if now - t <= VIRT_SPAN]
+    if len(recent) < 2:
+        return None
+    latest = recent[-1][1]
+    peak = max(v for _t, v in recent[:-1])
+    drop = peak - latest
+    if drop < VIRT_DROP:
+        return None
+    if outdoor is not None and latest - outdoor < VIRT_OUTDOOR_GAP:
+        return None  # draußen kaum kälter – eher Messrauschen oder Sonne weg
+    return round(drop, 1)
+
+
+def virtual_window_close_reason(
+    opened_at: datetime, now: datetime, lowest: float, current: float | None
+) -> str | None:
+    """Wann gilt das geschätzte Fenster wieder als zu?"""
+    if now - opened_at >= VIRT_MAX_OPEN:
+        return "max"
+    if current is not None and now - opened_at >= VIRT_MIN_OPEN and current >= lowest + VIRT_RECOVER:
+        return "recovered"
+    return None

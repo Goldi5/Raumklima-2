@@ -64,4 +64,6 @@ In jedem Raum gibt es den Schalter **Hinweise für diesen Raum**, z. B. für ein
 
 ## Wiederholen
 
+„Raum kühlt aus“ kommt höchstens dreimal laut; danach erinnert es alle 30 Minuten leise, solange der Raum zu kalt ist.
+
 Solange ein Problem besteht, wird alle 5 Minuten erinnert (einstellbar). *Bitte lüften* kommt höchstens alle 30 Minuten.

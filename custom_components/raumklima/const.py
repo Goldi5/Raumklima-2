@@ -67,6 +67,7 @@ CONF_VALVE_CARE: Final = "valve_care"
 CONF_SETBACK_SHORT: Final = "setback_short"
 CONF_SETBACK_LONG: Final = "setback_long"
 CONF_NIGHT_AIRING: Final = "night_airing"
+CONF_VIRTUAL_WINDOW: Final = "virtual_window"
 CONF_NIGHT_START: Final = "night_start"
 CONF_NIGHT_END: Final = "night_end"
 CONF_NIGHT_ALARM: Final = "night_alarm_temp"
@@ -109,6 +110,7 @@ HUB_DEFAULTS: Final = {
     "quiet_end": "07:00:00",
     "quiet_end_weekend": "09:00:00",
     "learn_times": True,
+    "holiday_state": "",
     "sleep_signals": [],
     "repeat_minutes": 5,
     "weather_entity": None,

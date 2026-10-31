@@ -19,6 +19,7 @@ from .const import (
     CONF_HEATING_LIMIT,
     CONF_LONG_AWAY_HOURS,
     CONF_NIGHT_AIRING,
+    CONF_VIRTUAL_WINDOW,
     CONF_NIGHT_ALARM,
     CONF_NIGHT_END,
     CONF_NIGHT_START,
@@ -43,7 +44,8 @@ from .const import (
     SEASON_MODES,
 )
 from .decision_log import CATEGORIES
-from .planning import NIGHT_MODES
+from .holidays_de import STATES
+from .planning import NIGHT_MODES, VIRT_MODES
 from .hub import domain_data, get_hub
 
 _KINDS = [vol.In(KINDS)]
@@ -79,6 +81,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional("quiet_end"): _TIME,
         vol.Optional("quiet_end_weekend"): _TIME,
         vol.Optional("learn_times"): bool,
+        vol.Optional("holiday_state"): vol.Any(None, vol.In(["", *STATES])),
         vol.Optional("sleep_signals"): [str],
         vol.Optional("repeat_minutes"): vol.All(vol.Coerce(float), vol.Range(1, 120)),
         vol.Optional("weather_entity"): vol.Any(None, str),
@@ -111,6 +114,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_WINDOW_OPEN_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 600)),
         vol.Optional(CONF_WINDOW_CLOSE_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 600)),
         vol.Optional(CONF_NIGHT_AIRING): vol.In(NIGHT_MODES),
+        vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
     }
 )
 
@@ -137,6 +141,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "zones": ents("zone"),
         "weather": ents("weather"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
+        "states": [{"id": k, "name": v} for k, v in STATES.items()],
     }
 
 

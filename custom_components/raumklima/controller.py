@@ -64,6 +64,7 @@ from .const import (
     CONF_ON_PRESET,
     CONF_SETBACK_LONG,
     CONF_NIGHT_AIRING,
+    CONF_VIRTUAL_WINDOW,
     CONF_SETBACK_SHORT,
     KIND_TRV_FAILURE,
     ON_PRESET_AUTO,
@@ -94,6 +95,7 @@ from .health import (
 )
 from .hub import RaumklimaHub, domain_data, get_hub
 from .stats import RoomSample
+from .heatup import HeatupTracker
 from .decision_log import (
     CAT_DEVICE,
     CAT_MANUAL,
@@ -104,6 +106,12 @@ from .decision_log import (
 from .planning import (
     NIGHT_OFF,
     NIGHT_ON,
+    VIRT_AUTO,
+    VIRT_MAX_OPEN,
+    VIRT_OFF,
+    VIRT_ON,
+    detect_temp_drop,
+    virtual_window_close_reason,
     NIGHT_ROOM_TYPES,
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
@@ -196,6 +204,13 @@ class RaumklimaController:
         self._ext_changed_at: datetime | None = None
         self._trv_at_ext_change: float | None = None
         self._window_unavail_since: dict[str, datetime] = {}
+        # Fenster ohne Kontakt (Temperatursturz)
+        self._temp_hist: deque[tuple[datetime, float]] = deque(maxlen=40)
+        self.virtual_open_at: datetime | None = None
+        self._raw_virtual = False
+        self.heatup = HeatupTracker()
+        self._virtual_low: float = 0.0
+        self._virtual_cancel: Callable[[], None] | None = None
         self._batteries: dict[str, str] = {}
         self._store: Store[dict[str, Any]] = Store(
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
@@ -225,6 +240,7 @@ class RaumklimaController:
             self.hvac_on = bool(stored.get("hvac_on", self.hvac_on))
             self.window_logic = bool(stored.get("window_logic", self.window_logic))
             self.trv_on_preset = stored.get("trv_on_preset")
+            self.heatup.load(stored.get("heatup"))
         elif self.trv_available():
             # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
             self.target_temp = self.comfort_temp
@@ -300,6 +316,7 @@ class RaumklimaController:
             "window_logic": self.window_logic,
             "trv_on_preset": self.trv_on_preset,
             "vent": self.vent.export() if self.vent else None,
+            "heatup": self.heatup.dump(),
         }
 
     def _save(self) -> None:
@@ -335,6 +352,13 @@ class RaumklimaController:
             "setback_short": self.setback_short,
             "setback_long": self.setback_long,
             "night_airing": self.night_mode,
+            "virtual_window": self.virtual_mode,
+            "virtual_active": self.virtual_enabled(),
+            "heatup": {
+                "episodes": len(self.heatup.episodes),
+                "rate": self.heatup.rate(self.hub.outdoor_temp() if self.hub else None),
+                "minutes_2k": self.heatup.minutes_needed(2.0, self.hub.outdoor_temp() if self.hub else None),
+            },
             "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
             "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),
             "windows": self.windows,
@@ -651,8 +675,28 @@ class RaumklimaController:
             night=self.night_airing,
         )
 
+    def heatup_needed(self) -> int | None:
+        """Minuten bis zur Wunschtemperatur, wenn jetzt normal geheizt würde."""
+        hub = self.hub
+        cur = self.current_temperature
+        if hub is None or cur is None or not self.hvac_on or not hub.heating_allowed:
+            return None
+        return self.heatup.minutes_needed(self.target_temp - cur, hub.outdoor_temp())
+
     def record_history(self, now: datetime) -> None:
         on, target, _reason = self.plan()
+        hub = self.hub
+        regulating = on and self.hvac_on and not self.paused and self.trv_available() and self.sensor_ok
+        ep = self.heatup.update(now, self.current_temperature, target, regulating, hub.outdoor_temp() if hub else None)
+        if ep is not None:
+            self.log(
+                CAT_TARGET,
+                f"Aufgeheizt: +{fmt_temp(ep.rise)} in {ep.minutes:.0f} min",
+                f"{ep.rate:.1f} °C pro Stunde".replace(".", ",")
+                + (f" bei {fmt_temp(ep.outdoor)} draußen" if ep.outdoor is not None else "")
+                + f" – gelernt aus {len(self.heatup.episodes)} Aufheizvorgängen",
+            )
+            self._save()
         self.health_hist.append(
             HistoryPoint(
                 when=now,
@@ -788,7 +832,74 @@ class RaumklimaController:
             self._trv_at_ext_change = self.trv_temperature
         self._ext_value = value
         self._ext_time = now
+        self._temp_hist.append((now, value))
+        self._check_virtual_window(now, value)
         return True
+
+    # ================================================================ Fenster ohne Kontakt
+    @property
+    def virtual_mode(self) -> str:
+        return str(self.config.get(CONF_VIRTUAL_WINDOW) or VIRT_AUTO)
+
+    def virtual_enabled(self) -> bool:
+        """Temperatursturz-Erkennung aktiv? Automatisch nur ohne (erreichbaren) Kontakt."""
+        mode = self.virtual_mode
+        if mode == VIRT_OFF:
+            return False
+        if mode == VIRT_ON:
+            return True
+        return not self.windows or all(w in self._window_unavail_since for w in self.windows)
+
+    @property
+    def window_virtual(self) -> bool:
+        """Fenster nur geschätzt offen (kein Kontakt meldet es)."""
+        return self.virtual_open_at is not None and not any_open(self._last_valid_windows, self.windows)
+
+    def _windows_open(self) -> bool:
+        return any_open(self._last_valid_windows, self.windows) or self.virtual_open_at is not None
+
+    def _check_virtual_window(self, now: datetime, value: float) -> None:
+        if not self._started:
+            return
+        if self.virtual_open_at is not None:
+            self._virtual_low = min(self._virtual_low, value)
+            reason = virtual_window_close_reason(self.virtual_open_at, now, self._virtual_low, value)
+            if reason:
+                self._close_virtual(reason)
+            return
+        if not self.virtual_enabled() or self.paused:
+            return
+        hub = self.hub
+        outdoor = hub.outdoor_temp() if hub is not None else None
+        drop = detect_temp_drop(list(self._temp_hist), now, outdoor)
+        if drop is None:
+            return
+        self.virtual_open_at = now
+        self._virtual_low = value
+        self.log(
+            CAT_WINDOW,
+            "Fenster vermutlich offen",
+            f"Temperatur in wenigen Minuten um {fmt_temp(drop)} gefallen"
+            + (f", draußen {fmt_temp(outdoor)}" if outdoor is not None else "")
+            + " – Heizung pausiert, bis es wieder wärmer wird (höchstens 30 min)",
+        )
+        self._virtual_cancel = self._schedule(VIRT_MAX_OPEN.total_seconds() + 5, lambda: self._close_virtual("max"))
+        self._evaluate_windows()
+
+    def _close_virtual(self, reason: str) -> None:
+        if self.virtual_open_at is None:
+            return
+        if self._virtual_cancel:
+            self._virtual_cancel()
+            self._virtual_cancel = None
+        minutes = (dt_util.utcnow() - self.virtual_open_at).total_seconds() / 60
+        self.virtual_open_at = None
+        self.log(
+            CAT_WINDOW,
+            "Fenster vermutlich wieder zu",
+            f"Temperatur steigt wieder (nach {minutes:.0f} min)" if reason == "recovered" else f"nach {minutes:.0f} min – Heizung läuft wieder",
+        )
+        self._evaluate_windows()
 
     def _on_window(self, entity_id: str, new: State | None) -> None:
         if new is None or not is_valid(new.state):
@@ -799,11 +910,15 @@ class RaumklimaController:
         self._evaluate_windows()
 
     def _evaluate_windows(self) -> None:
-        raw = any_open(self._last_valid_windows, self.windows)
+        raw = self._windows_open()
         if raw == self._window_raw and (self._window_timer or raw == self.window_paused):
             return
+        was_virtual = self._raw_virtual
         self._window_raw = raw
-        if raw and self.night_since is None:
+        self._raw_virtual = raw and self.window_virtual
+        if self._raw_virtual or (not raw and was_virtual):
+            pass  # geschätztes Fenster: eigene Protokolleinträge, kein Nachtlüften
+        elif raw and self.night_since is None:
             night, why = self.night_reason()
             if night:
                 self.night_since = dt_util.utcnow()
@@ -836,7 +951,7 @@ class RaumklimaController:
     @callback
     def _window_timer_done(self) -> None:
         self._window_timer = None
-        raw = any_open(self._last_valid_windows, self.windows)
+        raw = self._windows_open()
         if raw != self.window_paused:
             self.window_paused = raw
             _LOGGER.info(
@@ -1047,7 +1162,7 @@ class RaumklimaController:
                     low = self.trv_min
                     await self.sync.request(
                         "mode",
-                        f"Minimaltemperatur {low} °C",
+                        f"Minimaltemperatur {fmt_temp(low)}",
                         lambda: self._call_climate("set_temperature", temperature=low),
                         lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
                     )
@@ -1092,7 +1207,7 @@ class RaumklimaController:
                 self._last_cal_send = dt_util.utcnow()
             await self.sync.request(
                 "setpoint",
-                f"Sollwert {setpoint} °C",
+                f"Sollwert {fmt_temp(setpoint)}",
                 lambda: self._call_climate("set_temperature", temperature=setpoint),
                 lambda: values_match(
                     self._trv_attr(ATTR_TEMPERATURE), setpoint, SETPOINT_MATCH_TOLERANCE
@@ -1195,7 +1310,7 @@ class RaumklimaController:
         entity = self.cal_entity
         await self.sync.request(
             "offset",
-            f"Offset {new} °C",
+            f"Offset {fmt_temp(new)}",
             lambda: self.hass.services.async_call(
                 "number",
                 "set_value",
