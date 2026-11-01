@@ -65,7 +65,36 @@ Für jeden weiteren Raum wiederholst du das – nur Schritt 4 entfällt.
 
 ## Schritt 3: Das Dashboard
 
-Gehe zu **Einstellungen → Dashboards → Dashboard hinzufügen** und wähle **Raumklima**. Fertig – das Dashboard baut sich von selbst auf und wächst mit, wenn du Räume hinzufügst.
+Raumklima bringt ein fertiges Dashboard mit. So holst du es dir:
+
+1. Öffne **Einstellungen → Dashboards**.
+2. Tippe unten rechts auf **+ Dashboard hinzufügen**.
+3. Wähle in der Liste **Raumklima** und tippe auf **Weiter**.
+4. Gib ihm einen Namen (z. B. „Heizung“) und ein Symbol, dann **Erstellen**.
+
+Das neue Dashboard erscheint links in der **Seitenleiste**. Es baut sich von selbst auf, mit den Reitern *Räume*, *Verlauf*, *Bericht*, *Protokoll* und *Einstellungen* – und wächst mit, wenn du Räume hinzufügst.
+
+:::tip
+**Raumklima steht nicht in der Liste?** Lade die Seite neu (am Computer **Strg + F5**, in der App: *Einstellungen → Companion App → Frontend-Cache zurücksetzen*). Die Karten werden beim Start von Home Assistant geladen.
+:::
+
+### Karten im eigenen Dashboard
+
+Du möchtest die Raumklima-Karten lieber in dein bestehendes Dashboard einbauen? Das geht so:
+
+1. Öffne dein Dashboard und tippe oben rechts auf den **Stift** (Bearbeiten).
+2. Tippe auf **+ Karte hinzufügen**.
+3. Gib im Suchfeld **Raumklima** ein.
+4. Wähle eine Karte aus und tippe auf **Speichern**.
+
+| Karte | Zeigt |
+|---|---|
+| **Raumklima – Übersicht** | alle Räume, Außentemperatur, wer zu Hause ist |
+| **Raumklima – Raum** | einen Raum mit Temperatur, Bedienung und Lüften (Raum im Editor auswählen) |
+| **Raumklima – Verlauf** | Temperatur, Luftfeuchte oder Zeitleiste aller Räume |
+| **Raumklima – Heizbericht** | Woche und Monat, Ersparnis, Gesundheit |
+| **Raumklima – Protokoll** | was wann warum passiert ist |
+| **Raumklima – Einstellungen** | alle Einstellungen – am besten als eigene Seite in voller Breite |
 
 ## Die ersten 10 Minuten
 

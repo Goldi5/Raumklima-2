@@ -67,7 +67,36 @@ Repeat this for every further room – only step 4 is skipped.
 
 ## Step 3: The dashboard
 
-Go to **Settings → Dashboards → Add dashboard** and choose **Raumklima**. Done – the dashboard builds itself and grows as you add rooms.
+Raumklima comes with a ready-made dashboard. Here's how to get it:
+
+1. Open **Settings → Dashboards**.
+2. Tap **+ Add dashboard** at the bottom right.
+3. Choose **Raumklima** in the list and tap **Next**.
+4. Give it a name (e.g. “Heating”) and an icon, then **Create**.
+
+The new dashboard appears in the **sidebar** on the left. It builds itself, with the tabs *Rooms*, *History*, *Report*, *Log* and *Settings* – and grows as you add rooms.
+
+:::tip
+**Raumklima isn't in the list?** Reload the page (on a computer **Ctrl + F5**, in the app: *Settings → Companion app → Reset frontend cache*). The cards are loaded when Home Assistant starts.
+:::
+
+### Cards in your own dashboard
+
+Prefer to add the Raumklima cards to your existing dashboard? Here's how:
+
+1. Open your dashboard and tap the **pencil** (edit) at the top right.
+2. Tap **+ Add card**.
+3. Type **Raumklima** in the search field.
+4. Choose a card and tap **Save**.
+
+| Card | Shows |
+|---|---|
+| **Raumklima – Overview** | all rooms, outdoor temperature, who is home |
+| **Raumklima – Room** | one room with temperature, controls and airing (choose the room in the editor) |
+| **Raumklima – History** | temperature, humidity or timeline of all rooms |
+| **Raumklima – Heating report** | week and month, savings, health |
+| **Raumklima – Log** | what happened when and why |
+| **Raumklima – Settings** | all settings – best as a page of its own in full width |
 
 ## The first 10 minutes
 
