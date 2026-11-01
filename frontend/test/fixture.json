@@ -1,0 +1,1119 @@
+{
+ "states": {
+  "climate.trv_bad": {
+   "entity_id": "climate.trv_bad",
+   "state": "heat",
+   "attributes": {
+    "preset_modes": [
+     "manual",
+     "eco",
+     "comfort",
+     "off"
+    ],
+    "preset_mode": "manual",
+    "hvac_modes": [
+     "heat",
+     "off"
+    ],
+    "temperature": 22.0,
+    "current_temperature": 19.0,
+    "min_temp": 5.0,
+    "max_temp": 30.0,
+    "hvac_action": "idle"
+   },
+   "last_changed": "2026-11-01T16:05:42.464737+00:00",
+   "last_updated": "2026-11-01T16:05:42.547908+00:00"
+  },
+  "sensor.bad_temperatur": {
+   "entity_id": "sensor.bad_temperatur",
+   "state": "19.0",
+   "attributes": {
+    "unit_of_measurement": "°C",
+    "device_class": "temperature"
+   },
+   "last_changed": "2026-11-01T16:05:42.486168+00:00",
+   "last_updated": "2026-11-01T16:05:42.486168+00:00"
+  },
+  "binary_sensor.bad_fenster": {
+   "entity_id": "binary_sensor.bad_fenster",
+   "state": "on",
+   "attributes": {
+    "device_class": "window",
+    "friendly_name": "Bad Fenster"
+   },
+   "last_changed": "2026-11-01T16:05:42.550758+00:00",
+   "last_updated": "2026-11-01T16:05:42.550758+00:00"
+  },
+  "switch.raumklima_allgemein_vacation": {
+   "entity_id": "switch.raumklima_allgemein_vacation",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Raumklima Allgemein Vacation"
+   },
+   "last_changed": "2026-11-01T16:05:42.527408+00:00",
+   "last_updated": "2026-11-01T16:05:42.527408+00:00"
+  },
+  "switch.raumklima_allgemein_guests": {
+   "entity_id": "switch.raumklima_allgemein_guests",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Raumklima Allgemein Guests"
+   },
+   "last_changed": "2026-11-01T16:05:42.527654+00:00",
+   "last_updated": "2026-11-01T16:05:42.527654+00:00"
+  },
+  "switch.bad_airing_notifications": {
+   "entity_id": "switch.bad_airing_notifications",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Bad Airing notifications"
+   },
+   "last_changed": "2026-11-01T16:05:42.530449+00:00",
+   "last_updated": "2026-11-01T16:05:42.530449+00:00"
+  },
+  "switch.bad_window_logic": {
+   "entity_id": "switch.bad_window_logic",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Bad Window logic"
+   },
+   "last_changed": "2026-11-01T16:05:42.530703+00:00",
+   "last_updated": "2026-11-01T16:05:42.530703+00:00"
+  },
+  "button.raumklima_allgemein_heat_today": {
+   "entity_id": "button.raumklima_allgemein_heat_today",
+   "state": "unknown",
+   "attributes": {
+    "friendly_name": "Raumklima Allgemein Heat today"
+   },
+   "last_changed": "2026-11-01T16:05:42.532091+00:00",
+   "last_updated": "2026-11-01T16:05:42.532091+00:00"
+  },
+  "sensor.raumklima_allgemein_presence": {
+   "entity_id": "sensor.raumklima_allgemein_presence",
+   "state": "home",
+   "attributes": {
+    "options": [
+     "home",
+     "guests",
+     "preheat",
+     "away_short",
+     "away_long"
+    ],
+    "persons": {},
+    "home_id": "01M6BXR2EP514S3684AWTF32MY",
+    "home_name": "Allgemein",
+    "home_dashboard": "heizung",
+    "last_present": null,
+    "vacation": false,
+    "guests": false,
+    "preheat_by": null,
+    "configured": false,
+    "device_class": "enum",
+    "friendly_name": "Raumklima Allgemein Presence"
+   },
+   "last_changed": "2026-11-01T16:05:42.534639+00:00",
+   "last_updated": "2026-11-01T16:05:42.534639+00:00"
+  },
+  "sensor.raumklima_allgemein_heating_mode": {
+   "entity_id": "sensor.raumklima_allgemein_heating_mode",
+   "state": "always",
+   "attributes": {
+    "options": [
+     "heating",
+     "pause",
+     "cold_snap",
+     "heat_today",
+     "always",
+     "manual_pause"
+    ],
+    "heating_allowed": true,
+    "in_season": true,
+    "mean_past_24h": null,
+    "mean_forecast_24h": null,
+    "mean_combined": null,
+    "heating_limit": 15.0,
+    "heat_today_until": null,
+    "device_class": "enum",
+    "friendly_name": "Raumklima Allgemein Heating mode"
+   },
+   "last_changed": "2026-11-01T16:05:42.545500+00:00",
+   "last_updated": "2026-11-01T16:05:42.545500+00:00"
+  },
+  "sensor.raumklima_allgemein_outdoor_daily_mean": {
+   "entity_id": "sensor.raumklima_allgemein_outdoor_daily_mean",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "°C",
+    "device_class": "temperature",
+    "friendly_name": "Raumklima Allgemein Outdoor daily mean"
+   },
+   "last_changed": "2026-11-01T16:05:42.535400+00:00",
+   "last_updated": "2026-11-01T16:05:42.535400+00:00"
+  },
+  "sensor.raumklima_allgemein_health": {
+   "entity_id": "sensor.raumklima_allgemein_health",
+   "state": "0",
+   "attributes": {
+    "state_class": "measurement",
+    "issues": [],
+    "friendly_name": "Raumklima Allgemein Health"
+   },
+   "last_changed": "2026-11-01T16:05:42.535629+00:00",
+   "last_updated": "2026-11-01T16:05:42.535629+00:00"
+  },
+  "sensor.bad_status": {
+   "entity_id": "sensor.bad_status",
+   "state": "idle",
+   "attributes": {
+    "options": [
+     "heating",
+     "idle",
+     "window_open",
+     "off",
+     "sensor_unavailable",
+     "trv_unavailable",
+     "season_off",
+     "setback",
+     "night_airing"
+    ],
+    "device_class": "enum",
+    "friendly_name": "Bad Status"
+   },
+   "last_changed": "2026-11-01T16:05:42.548013+00:00",
+   "last_updated": "2026-11-01T16:05:42.548013+00:00"
+  },
+  "sensor.bad_sync": {
+   "entity_id": "sensor.bad_sync",
+   "state": "ok",
+   "attributes": {
+    "options": [
+     "ok",
+     "pending",
+     "failed"
+    ],
+    "attempt": 0,
+    "pending": [],
+    "device_class": "enum",
+    "friendly_name": "Bad Sync"
+   },
+   "last_changed": "2026-11-01T16:05:42.548550+00:00",
+   "last_updated": "2026-11-01T16:05:42.548550+00:00"
+  },
+  "sensor.bad_recommended_airing_time": {
+   "entity_id": "sensor.bad_recommended_airing_time",
+   "state": "10",
+   "attributes": {
+    "outdoor_temperature": null,
+    "unit_of_measurement": "min",
+    "device_class": "duration",
+    "friendly_name": "Bad Recommended airing time"
+   },
+   "last_changed": "2026-11-01T16:05:42.536757+00:00",
+   "last_updated": "2026-11-01T16:05:42.536757+00:00"
+  },
+  "climate.bad": {
+   "entity_id": "climate.bad",
+   "state": "heat",
+   "attributes": {
+    "hvac_modes": [
+     "heat",
+     "off"
+    ],
+    "min_temp": 18.0,
+    "max_temp": 30.0,
+    "target_temp_step": 0.5,
+    "current_temperature": 19.0,
+    "temperature": 22.0,
+    "hvac_action": "idle",
+    "status": "idle",
+    "window_open": true,
+    "paused_by_window": false,
+    "trv_temperature": 19.0,
+    "offset": null,
+    "sync": "ok",
+    "valve_position": null,
+    "comfort_temperature": 22.0,
+    "temperature_sensor": "sensor.bad_temperatur",
+    "humidity_entity": null,
+    "window_entities": [
+     "binary_sensor.bad_fenster"
+    ],
+    "humidity_sensor": false,
+    "ventilation": "airing",
+    "humidity_limit": 75.0,
+    "dew_point": null,
+    "abs_humidity": null,
+    "outdoor_temperature": null,
+    "outdoor_humidity": null,
+    "outdoor_abs_humidity": null,
+    "airing_dries": true,
+    "recommended_minutes": 10,
+    "window_open_since": "2026-11-01T16:05:42.550884+00:00",
+    "airing_remaining_s": 599,
+    "mold_risk": false,
+    "notifications": true,
+    "snoozed_until": null,
+    "muted_until": null,
+    "settings": {
+     "entry_id": "01M6BXR2EPGPDAAZ6MCPBZT5VG",
+     "trv": "climate.trv_bad",
+     "room_type": "bathroom",
+     "weather_entity": null,
+     "notify_targets": [],
+     "tts_targets": [],
+     "quiet_start": "22:00:00",
+     "quiet_end": "07:00:00",
+     "repeat_minutes": 5.0,
+     "max_drop": 3.0,
+     "hub": true,
+     "comfort_temperature": null,
+     "setback_short": 18.0,
+     "setback_long": 16.0,
+     "night_airing": "auto",
+     "virtual_window": "auto",
+     "virtual_active": false,
+     "heatup": {
+      "episodes": 0,
+      "rate": null,
+      "minutes_2k": null
+     },
+     "humidity_sensor": null,
+     "temperature_sensor": "sensor.bad_temperatur",
+     "windows": [
+      "binary_sensor.bad_fenster"
+     ],
+     "comfort_configured": false,
+     "window_open_delay": 10,
+     "window_close_delay": 10,
+     "calibration_mode": "none",
+     "calibration_entity": null,
+     "on_preset": "auto_detect",
+     "off_method": "preset",
+     "follow_trv": true,
+     "notify_on_failure": true,
+     "sensor_stale_minutes": 60,
+     "sync_verify_delay": 20,
+     "sync_max_retries": 5
+    },
+    "effective_target": 22.0,
+    "plan_reason": "normal",
+    "presence": "home",
+    "night_airing": false,
+    "home": "01M6BXR2EP514S3684AWTF32MY",
+    "home_name": "Allgemein",
+    "window_virtual": false,
+    "heating_mode": "always",
+    "friendly_name": "Bad",
+    "supported_features": 385
+   },
+   "last_changed": "2026-11-01T16:05:42.539207+00:00",
+   "last_updated": "2026-11-01T16:05:42.551185+00:00"
+  },
+  "binary_sensor.bad_problem": {
+   "entity_id": "binary_sensor.bad_problem",
+   "state": "off",
+   "attributes": {
+    "issues": [],
+    "device_class": "problem",
+    "friendly_name": "Bad Problem"
+   },
+   "last_changed": "2026-11-01T16:05:42.548308+00:00",
+   "last_updated": "2026-11-01T16:05:42.548308+00:00"
+  },
+  "binary_sensor.bad_window": {
+   "entity_id": "binary_sensor.bad_window",
+   "state": "on",
+   "attributes": {
+    "heating_paused": false,
+    "device_class": "window",
+    "friendly_name": "Bad Window"
+   },
+   "last_changed": "2026-11-01T16:05:42.551231+00:00",
+   "last_updated": "2026-11-01T16:05:42.551231+00:00"
+  },
+  "select.raumklima_allgemein_heating_season_mode": {
+   "entity_id": "select.raumklima_allgemein_heating_season_mode",
+   "state": "always",
+   "attributes": {
+    "options": [
+     "auto",
+     "always",
+     "pause"
+    ],
+    "friendly_name": "Raumklima Allgemein Heating season mode"
+   },
+   "last_changed": "2026-11-01T16:05:42.544260+00:00",
+   "last_updated": "2026-11-01T16:05:42.544260+00:00"
+  },
+  "number.bad_minimum_temperature_while_airing": {
+   "entity_id": "number.bad_minimum_temperature_while_airing",
+   "state": "18.0",
+   "attributes": {
+    "min": 10.0,
+    "max": 22.0,
+    "step": 0.5,
+    "mode": "box",
+    "unit_of_measurement": "°C",
+    "device_class": "temperature",
+    "friendly_name": "Bad Minimum temperature while airing"
+   },
+   "last_changed": "2026-11-01T16:05:42.547185+00:00",
+   "last_updated": "2026-11-01T16:05:42.547185+00:00"
+  },
+  "number.bad_max_temperature_drop_while_airing": {
+   "entity_id": "number.bad_max_temperature_drop_while_airing",
+   "state": "3.0",
+   "attributes": {
+    "min": 1.0,
+    "max": 8.0,
+    "step": 0.5,
+    "mode": "box",
+    "unit_of_measurement": "°C",
+    "friendly_name": "Bad Max. temperature drop while airing"
+   },
+   "last_changed": "2026-11-01T16:05:42.547439+00:00",
+   "last_updated": "2026-11-01T16:05:42.547439+00:00"
+  },
+  "sensor.bad_feuchte": {
+   "entity_id": "sensor.bad_feuchte",
+   "state": "64",
+   "attributes": {
+    "unit_of_measurement": "%",
+    "device_class": "humidity"
+   },
+   "last_changed": "2026-11-01T16:05:42.550733+00:00",
+   "last_updated": "2026-11-01T16:05:42.550733+00:00"
+  }
+ },
+ "entities": {
+  "switch.raumklima_allgemein_vacation": {
+   "entity_id": "switch.raumklima_allgemein_vacation",
+   "platform": "raumklima",
+   "translation_key": "vacation",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "switch.raumklima_allgemein_guests": {
+   "entity_id": "switch.raumklima_allgemein_guests",
+   "platform": "raumklima",
+   "translation_key": "guests",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "switch.bad_airing_notifications": {
+   "entity_id": "switch.bad_airing_notifications",
+   "platform": "raumklima",
+   "translation_key": "notifications",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "switch.bad_window_logic": {
+   "entity_id": "switch.bad_window_logic",
+   "platform": "raumklima",
+   "translation_key": "window_logic",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "button.raumklima_allgemein_heat_today": {
+   "entity_id": "button.raumklima_allgemein_heat_today",
+   "platform": "raumklima",
+   "translation_key": "heat_today",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "sensor.raumklima_allgemein_presence": {
+   "entity_id": "sensor.raumklima_allgemein_presence",
+   "platform": "raumklima",
+   "translation_key": "presence",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "sensor.raumklima_allgemein_heating_mode": {
+   "entity_id": "sensor.raumklima_allgemein_heating_mode",
+   "platform": "raumklima",
+   "translation_key": "heating_mode",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "sensor.raumklima_allgemein_outdoor_daily_mean": {
+   "entity_id": "sensor.raumklima_allgemein_outdoor_daily_mean",
+   "platform": "raumklima",
+   "translation_key": "outdoor_mean",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "sensor.raumklima_allgemein_health": {
+   "entity_id": "sensor.raumklima_allgemein_health",
+   "platform": "raumklima",
+   "translation_key": "health",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "sensor.bad_status": {
+   "entity_id": "sensor.bad_status",
+   "platform": "raumklima",
+   "translation_key": "status",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "sensor.bad_sync": {
+   "entity_id": "sensor.bad_sync",
+   "platform": "raumklima",
+   "translation_key": "sync",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "sensor.bad_recommended_airing_time": {
+   "entity_id": "sensor.bad_recommended_airing_time",
+   "platform": "raumklima",
+   "translation_key": "recommended_duration",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "climate.bad": {
+   "entity_id": "climate.bad",
+   "platform": "raumklima",
+   "translation_key": "raumklima",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "binary_sensor.bad_problem": {
+   "entity_id": "binary_sensor.bad_problem",
+   "platform": "raumklima",
+   "translation_key": "problem",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "binary_sensor.bad_window": {
+   "entity_id": "binary_sensor.bad_window",
+   "platform": "raumklima",
+   "translation_key": "window",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "select.raumklima_allgemein_heating_season_mode": {
+   "entity_id": "select.raumklima_allgemein_heating_season_mode",
+   "platform": "raumklima",
+   "translation_key": "season_mode",
+   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+  },
+  "number.bad_minimum_temperature_while_airing": {
+   "entity_id": "number.bad_minimum_temperature_while_airing",
+   "platform": "raumklima",
+   "translation_key": "min_temp",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  },
+  "number.bad_max_temperature_drop_while_airing": {
+   "entity_id": "number.bad_max_temperature_drop_while_airing",
+   "platform": "raumklima",
+   "translation_key": "max_drop",
+   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+  }
+ },
+ "ws": {
+  "raumklima/config": {
+   "hub": {
+    "entry_id": "01M6BXR2EP514S3684AWTF32MY",
+    "options": {
+     "recipients": {},
+     "tts": {},
+     "quiet_start": "22:00:00",
+     "quiet_end": "07:00:00",
+     "quiet_end_weekend": "09:00:00",
+     "learn_times": true,
+     "name": "",
+     "dashboard": "",
+     "holiday_state": "",
+     "sleep_signals": [],
+     "repeat_minutes": 5,
+     "weather_entity": null,
+     "notify_on_failure": true,
+     "residents": [],
+     "zone": null,
+     "away_delay": 30,
+     "long_away_hours": 24,
+     "preheat_km": 10,
+     "building_type": "renovated",
+     "season_mode": "always",
+     "season_start": "10-01",
+     "season_end": "04-30",
+     "heating_limit": 15.0,
+     "cold_snap_temp": 12.0,
+     "frost_floor": 16.0,
+     "valve_care": true,
+     "night_start": "20:00:00",
+     "night_end": "03:00:00",
+     "night_alarm_temp": 12.0,
+     "kinds_version": 2
+    },
+    "state": {
+     "stage": "home",
+     "vacation": false,
+     "guests": false,
+     "persons": {},
+     "last_present": null,
+     "preheat_by": null,
+     "presence_configured": false,
+     "decision": "always",
+     "heating_allowed": true,
+     "in_season": true,
+     "mean_past": null,
+     "mean_forecast": null,
+     "mean_combined": null,
+     "heat_today_until": null,
+     "outdoor_temperature": null,
+     "frsi": 0.7,
+     "issues": [],
+     "sleep": {
+      "asleep": null,
+      "quiet_now": true,
+      "tonight": {
+       "quiet_start": "22:00",
+       "quiet_end": "09:00",
+       "night_start": "20:00",
+       "night_end": "03:00",
+       "source": {
+        "quiet_start": "set",
+        "quiet_end": "set",
+        "night_start": "set",
+        "night_end": "set"
+       },
+       "weekend": true,
+       "night": "2026-10-31",
+       "holiday": null
+      },
+      "weekday": {
+       "bed": null,
+       "wake": null,
+       "nights_bed": 0,
+       "nights_wake": 0,
+       "effective": {
+        "quiet_start": "22:00",
+        "quiet_end": "07:00",
+        "night_start": "20:00",
+        "night_end": "03:00",
+        "source": {
+         "quiet_start": "set",
+         "quiet_end": "set",
+         "night_start": "set",
+         "night_end": "set"
+        },
+        "weekend": false,
+        "night": "2026-11-01",
+        "holiday": null
+       }
+      },
+      "weekend": {
+       "bed": null,
+       "wake": null,
+       "nights_bed": 0,
+       "nights_wake": 0,
+       "effective": {
+        "quiet_start": "22:00",
+        "quiet_end": "09:00",
+        "night_start": "20:00",
+        "night_end": "03:00",
+        "source": {
+         "quiet_start": "set",
+         "quiet_end": "set",
+         "night_start": "set",
+         "night_end": "set"
+        },
+        "weekend": true,
+        "night": "2026-10-31",
+        "holiday": null
+       }
+      }
+     }
+    }
+   },
+   "rooms": [
+    {
+     "entry_id": "01M6BXR2EPGPDAAZ6MCPBZT5VG",
+     "title": "Bad",
+     "options": {
+      "name": "Bad",
+      "trv": "climate.trv_bad",
+      "temperature_sensor": "sensor.bad_temperatur",
+      "window_sensors": [
+       "binary_sensor.bad_fenster"
+      ],
+      "calibration_mode": "none",
+      "off_method": "preset",
+      "window_open_delay": 10,
+      "window_close_delay": 10,
+      "room_type": "bathroom"
+     },
+     "setback_short": 18.0,
+     "setback_long": 16.0,
+     "comfort_temperature": 22.0
+    }
+   ],
+   "homes": [
+    {
+     "entry_id": "01M6BXR2EP514S3684AWTF32MY",
+     "name": "Allgemein",
+     "default": true,
+     "dashboard": "heizung",
+     "rooms": [
+      "01M6BXR2EPGPDAAZ6MCPBZT5VG"
+     ]
+    }
+   ],
+   "kinds": [
+    "vent_open",
+    "vent_close",
+    "too_cold",
+    "vent_done",
+    "window_away",
+    "presence",
+    "season",
+    "trv_failure",
+    "health",
+    "report"
+   ],
+   "choices": {
+    "notify": [],
+    "persons": [],
+    "zones": [],
+    "weather": [],
+    "signals": [
+     {
+      "id": "switch.bad_airing_notifications",
+      "name": "Bad Airing notifications"
+     },
+     {
+      "id": "switch.bad_window_logic",
+      "name": "Bad Window logic"
+     },
+     {
+      "id": "switch.raumklima_allgemein_guests",
+      "name": "Raumklima Allgemein Guests"
+     },
+     {
+      "id": "switch.raumklima_allgemein_vacation",
+      "name": "Raumklima Allgemein Vacation"
+     }
+    ],
+    "states": [
+     {
+      "id": "BW",
+      "name": "Baden-Württemberg"
+     },
+     {
+      "id": "BY",
+      "name": "Bayern"
+     },
+     {
+      "id": "BE",
+      "name": "Berlin"
+     },
+     {
+      "id": "BB",
+      "name": "Brandenburg"
+     },
+     {
+      "id": "HB",
+      "name": "Bremen"
+     },
+     {
+      "id": "HH",
+      "name": "Hamburg"
+     },
+     {
+      "id": "HE",
+      "name": "Hessen"
+     },
+     {
+      "id": "MV",
+      "name": "Mecklenburg-Vorpommern"
+     },
+     {
+      "id": "NI",
+      "name": "Niedersachsen"
+     },
+     {
+      "id": "NW",
+      "name": "Nordrhein-Westfalen"
+     },
+     {
+      "id": "RP",
+      "name": "Rheinland-Pfalz"
+     },
+     {
+      "id": "SL",
+      "name": "Saarland"
+     },
+     {
+      "id": "SN",
+      "name": "Sachsen"
+     },
+     {
+      "id": "ST",
+      "name": "Sachsen-Anhalt"
+     },
+     {
+      "id": "SH",
+      "name": "Schleswig-Holstein"
+     },
+     {
+      "id": "TH",
+      "name": "Thüringen"
+     }
+    ]
+   },
+   "admin": true
+  },
+  "raumklima/report": {
+   "since": null,
+   "week": {
+    "start": "2026-10-26",
+    "end": "2026-11-01",
+    "rooms": {},
+    "total": {
+     "hours": 0.0,
+     "heating_h": 0.0,
+     "valve_h": 0.0,
+     "setback_h": 0.0,
+     "setback_avg_k": 0.0,
+     "window_pause_h": 0.0,
+     "night_h": 0.0,
+     "season_off_h": 0.0,
+     "on_target_pct": null,
+     "humid_h": 0.0,
+     "mold_h": 0.0,
+     "temp_avg": null,
+     "humidity_avg": null,
+     "airings": 0,
+     "airing_h": 0.0,
+     "arrivals": 0,
+     "arrivals_warm_pct": null,
+     "saving_pct": 0.0
+    },
+    "hdd": 0.0,
+    "outdoor_avg": null,
+    "away_h": 0.0,
+    "preheats": 0
+   },
+   "prev_week": {
+    "start": "2026-10-19",
+    "end": "2026-10-25",
+    "rooms": {},
+    "total": {
+     "hours": 0.0,
+     "heating_h": 0.0,
+     "valve_h": 0.0,
+     "setback_h": 0.0,
+     "setback_avg_k": 0.0,
+     "window_pause_h": 0.0,
+     "night_h": 0.0,
+     "season_off_h": 0.0,
+     "on_target_pct": null,
+     "humid_h": 0.0,
+     "mold_h": 0.0,
+     "temp_avg": null,
+     "humidity_avg": null,
+     "airings": 0,
+     "airing_h": 0.0,
+     "arrivals": 0,
+     "arrivals_warm_pct": null,
+     "saving_pct": 0.0
+    },
+    "hdd": 0.0,
+    "outdoor_avg": null,
+    "away_h": 0.0,
+    "preheats": 0
+   },
+   "week_change": null,
+   "month": {
+    "start": "2026-11-01",
+    "end": "2026-11-01",
+    "rooms": {},
+    "total": {
+     "hours": 0.0,
+     "heating_h": 0.0,
+     "valve_h": 0.0,
+     "setback_h": 0.0,
+     "setback_avg_k": 0.0,
+     "window_pause_h": 0.0,
+     "night_h": 0.0,
+     "season_off_h": 0.0,
+     "on_target_pct": null,
+     "humid_h": 0.0,
+     "mold_h": 0.0,
+     "temp_avg": null,
+     "humidity_avg": null,
+     "airings": 0,
+     "airing_h": 0.0,
+     "arrivals": 0,
+     "arrivals_warm_pct": null,
+     "saving_pct": 0.0
+    },
+    "hdd": 0.0,
+    "outdoor_avg": null,
+    "away_h": 0.0,
+    "preheats": 0
+   },
+   "prev_month": {
+    "start": "2026-10-01",
+    "end": "2026-10-31",
+    "rooms": {},
+    "total": {
+     "hours": 0.0,
+     "heating_h": 0.0,
+     "valve_h": 0.0,
+     "setback_h": 0.0,
+     "setback_avg_k": 0.0,
+     "window_pause_h": 0.0,
+     "night_h": 0.0,
+     "season_off_h": 0.0,
+     "on_target_pct": null,
+     "humid_h": 0.0,
+     "mold_h": 0.0,
+     "temp_avg": null,
+     "humidity_avg": null,
+     "airings": 0,
+     "airing_h": 0.0,
+     "arrivals": 0,
+     "arrivals_warm_pct": null,
+     "saving_pct": 0.0
+    },
+    "hdd": 0.0,
+    "outdoor_avg": null,
+    "away_h": 0.0,
+    "preheats": 0
+   },
+   "month_change": null,
+   "daily": [
+    {
+     "date": "2026-10-02",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-03",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-04",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-05",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-06",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-07",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-08",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-09",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-10",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-11",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-12",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-13",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-14",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-15",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-16",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-17",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-18",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-19",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-20",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-21",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-22",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-23",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-24",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-25",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-26",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-27",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-28",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-29",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-30",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-10-31",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    },
+    {
+     "date": "2026-11-01",
+     "hdd": 0.0,
+     "outdoor": null,
+     "rooms": {}
+    }
+   ],
+   "issues": []
+  },
+  "raumklima/log": {
+   "entries": [
+    {
+     "id": 4,
+     "t": "2026-11-01T16:05:42.550874+00:00",
+     "cat": "window",
+     "msg": "Fenster auf",
+     "room": "Bad",
+     "eid": "01M6BXR2EPGPDAAZ6MCPBZT5VG"
+    },
+    {
+     "id": 3,
+     "t": "2026-11-01T16:05:42.547884+00:00",
+     "cat": "device",
+     "msg": "Thermostat: Sollwert 22,0 °C",
+     "room": "Bad",
+     "eid": "01M6BXR2EPGPDAAZ6MCPBZT5VG"
+    },
+    {
+     "id": 2,
+     "t": "2026-11-01T16:05:42.547805+00:00",
+     "cat": "target",
+     "msg": "Start: Ziel 22,0 °C",
+     "why": "Wunschtemperatur 22,0 °C",
+     "room": "Bad",
+     "eid": "01M6BXR2EPGPDAAZ6MCPBZT5VG",
+     "data": {
+      "target": 22.0,
+      "reason": "normal"
+     }
+    },
+    {
+     "id": 1,
+     "t": "2026-11-01T16:05:42.545220+00:00",
+     "cat": "season",
+     "msg": "Heizbetrieb: Heizen → Immer heizen",
+     "why": "Betriebsart „Immer heizen“; Ø letzte 24 h –, Vorhersage 24 h –, zusammen – – Heizgrenze 15 °C",
+     "data": {
+      "decision": "always"
+     }
+    }
+   ],
+   "categories": [
+    "presence",
+    "season",
+    "target",
+    "window",
+    "notify",
+    "device",
+    "health",
+    "manual",
+    "settings"
+   ]
+  }
+ }
+}

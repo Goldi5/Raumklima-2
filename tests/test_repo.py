@@ -19,4 +19,7 @@ def test_changelog_top_entry():
 
 
 def test_card_version():
-    assert f'const RK_VERSION = "{VERSION}"' in (ROOT / "custom_components/raumklima/www/raumklima-card.js").read_text()
+    """Quelltext und gebaute Karte (npm run build) passen zur Version."""
+    assert f'export const RK_VERSION = "{VERSION}"' in (ROOT / "frontend/src/version.js").read_text(), "npm run build ausführen"
+    built = (ROOT / "custom_components/raumklima/www/raumklima-card.js").read_text()
+    assert f"/* Raumklima {VERSION} " in built, "Karte neu bauen: cd frontend && npm run build"
