@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.12.0 – 2026-11-01
+
+### Neu
+- **PDF-Heizbericht** für Woche (sonntags 18 Uhr), Monat (am 1.) und Heizsaison (Tag nach Saisonende):
+  Kennzahlen, Vergleich mit Vorzeitraum und Vorjahr (auch wetterbereinigt), Diagramm, Tabelle je Raum,
+  Auffälligkeiten und Tipps. Sprache wie Home Assistant (Deutsch, sonst Englisch). Erzeugt direkt in
+  Home Assistant (Bibliothek fpdf2, wird automatisch installiert).
+- **Herunterladen direkt in der Berichtskarte** (signierter Link, keine Ordner), Knöpfe für einen Bericht
+  „bis heute“. Ablage im Medienordner `raumklima/`.
+- **Push mit „PDF öffnen“** an alle mit „Wochenbericht“, optional **E-Mail mit PDF-Anhang** über einen
+  Mail-Dienst (SMTP). Einstellungen unter *Allgemein → Benachrichtigungen allgemein*.
+- Statistik zählt jetzt Lüftvorgänge (wurden bisher nicht erfasst) sowie Zeiten „Raum leer – abgesenkt“
+  und „belegt“ (Präsenzmelder); die Ersparnis berücksichtigt auch leere Räume.
+
 ## 0.11.0 – 2026-11-01
 
 ### Neu

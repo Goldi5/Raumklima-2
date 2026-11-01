@@ -37,6 +37,29 @@ Jede Minute merkt sich die Integration, was jeder Raum tut – klein zusammengef
 - **Gesundheit:** offene Probleme (siehe unten).
 - **CSV:** Der Knopf oben rechts lädt alle Tageswerte je Raum als Tabelle herunter (Semikolon, Dezimalkomma – öffnet sich direkt in Excel oder LibreOffice).
 
+### PDF-Berichte
+
+Unten im Heizbericht stehen die **PDF-Berichte** – jeder mit Knopf **Herunterladen**, du musst also in keinen Ordner. Es gibt drei Arten:
+
+| Bericht | automatisch | Zeitraum |
+|---|---|---|
+| Woche | sonntags 18 Uhr | Montag bis Sonntag |
+| Monat | am 1. um 9 Uhr | der Vormonat |
+| Heizsaison | am Tag nach dem Saisonende (Standard 1. Mai) | ganze Saison, z. B. 01.10.–30.04. |
+
+Mit den Knöpfen **Woche**, **Monat** und **Heizsaison** entsteht sofort ein Bericht **bis heute** und wird gleich heruntergeladen.
+
+**Inhalt (2 Seiten):** Heizstunden, Ersparnis durch Absenkung, Wohlfühlzeit, Außentemperatur und Heizgradtage · Vergleich mit dem Vorzeitraum und – sobald ein Jahr Daten da ist – mit dem **Vorjahr**, jeweils auch wetterbereinigt · Diagramm Heizstunden und Außentemperatur · Tabelle je Raum (Heizstunden, Ø Temperatur und Feuchte, Stunden zu feucht, Lüftvorgänge, Fenster offen, abgesenkt, am Ziel) · **Auffälligkeiten und Tipps** (z. B. „Bad 18 h über der Feuchtegrenze – öfter kurz stoßlüften“, „Küche: Fenster 9 h offen – lieber stoßlüften statt kippen“, offene Gesundheitsprobleme).
+
+**Sprache:** wie Home Assistant – Deutsch auf Deutsch, jede andere Sprache auf Englisch.
+
+**Zustellung:**
+- **Push** an alle, die den *Wochenbericht* bekommen – mit Knopf **PDF öffnen** (Link 30 Tage gültig).
+- **E-Mail mit Anhang:** unter *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* einen Mail-Dienst wählen. Dafür in Home Assistant einmal die Integration **SMTP** einrichten (z. B. mit deinem Mail-Konto). Mit **Wochenbericht jetzt senden** prüfst du es.
+- **Ablage:** im Medienordner unter `raumklima/` – auch unter *Medien* in Home Assistant zu finden. Aufgehoben werden die letzten 26 Wochen-, 24 Monats- und 20 Saisonberichte.
+
+Welche Berichte automatisch entstehen, stellst du unter *PDF-Berichte* ein (Standard: alle drei). Der Download geht nur angemeldet oder über einen signierten Link.
+
 ### Gesundheitscheck
 
 Alle 10 Minuten prüft die Integration jeden Raum:

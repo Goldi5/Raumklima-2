@@ -90,6 +90,9 @@ A cold month needs more heating. “Weather-adjusted” takes that into account 
 ### Can I look at the values in Excel?
 Yes: tap **CSV** at the top right of the heating report.
 
+### Is there a PDF report – also by email?
+Yes. Week, month and heating season are created automatically as PDFs; they are listed at the bottom of the heating report to **download**. A push brings a link, an email brings the PDF as an attachment – set up **SMTP** in Home Assistant once and choose it under *General → Notifications – general → Email PDF to*.
+
 ## Other
 
 ### The cards look old after an update.

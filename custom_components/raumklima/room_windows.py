@@ -183,6 +183,8 @@ class WindowMixin:
                 if self.hub is not None:
                     self.hub.record_sleep("bed", dt_util.now(), f"Fenster {self.name}")
             else:
+                if self.hub is not None:
+                    self.hub.insights.count_airing(self.entry.entry_id)
                 self.log(CAT_WINDOW, "Fenster auf", f"normales Lüften ({why})" if self.night_mode != NIGHT_OFF and why != "kein Schlafraum" else None)
         elif not raw:
             if self.night_since is not None:

@@ -160,6 +160,8 @@ HUB_DEFAULTS: Final = {
     CONF_CALENDAR_HOME: "Homeoffice, Home-Office, zu Hause, home office, wfh",
     CONF_FROST_NIGHT: True,
     CONF_HOME_SENSORS: "mmwave",
+    "report_pdf": ["week", "month", "season"],
+    "report_email": None,
     "kinds_version": 2,
 }
 

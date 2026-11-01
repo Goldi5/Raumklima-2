@@ -15,7 +15,7 @@ Unter **Einstellungen → Allgemein → Wer bekommt was** wählst du für jeden 
 | 🍂 Heizsaison Start/Ende | Heizsaison beginnt, Heizpause, Kälteeinbruch | Push |
 | ⚠️ Thermostat reagiert nicht | Befehl nach allen Wiederholungen nicht bestätigt | Push + HA-Glocke |
 | 🩺 Gesundheit der Heizung | Batterie schwach, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funk wackelt, Fensterkontakt still – höchstens einmal pro Tag je Problem | Push, leise |
-| 📊 Wochenbericht | sonntags 18 Uhr: Heizstunden, wetterbereinigter Vergleich, Absenkung, zu feuchte Räume | Push, leise |
+| 📊 Wochenbericht | sonntags 18 Uhr: Heizstunden, wetterbereinigter Vergleich, Absenkung, zu feuchte Räume – mit **PDF** (auch Monat am 1. und Saison-Bilanz), siehe [PDF-Berichte](bedienung.md#pdf-berichte) | Push, leise |
 | 📱 Lüft-Countdown auf dem Sperrbildschirm | Fenster zum Lüften offen – siehe [unten](#lüft-countdown-auf-dem-sperrbildschirm) | aus, nur Handy-App |
 
 **Empfänger** sind `notify`-Dienste, z. B. `notify.mobile_app_iphone` oder ein eigener Dienst wie `notify.christian`. Mit **Test** schickst du eine Probenachricht.

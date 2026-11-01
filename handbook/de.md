@@ -243,6 +243,18 @@ Ist es draußen im Tagesmittel mild (Standard: über 15 °C), macht die Heizung 
 
 Im Reiter **Bericht** siehst du für diese Woche oder diesen Monat: wie lange geheizt wurde, wie viel die Absenkung gespart hat und ob es gemütlich war. Sonntags kommt eine kurze Zusammenfassung aufs Handy.
 
+### Der Bericht als PDF
+
+Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** mit Vergleich zum Vorzeitraum und zum Vorjahr, einer Tabelle je Raum und **Tipps** – zum Beispiel, wenn das Bad oft zu feucht war.
+
+- **Herunterladen:** ganz unten im Reiter **Bericht** unter *PDF-Berichte* – auf **Herunterladen** tippen. Mit den Knöpfen *Woche*, *Monat* und *Heizsaison* bekommst du sofort einen Bericht bis heute.
+- **Aufs Handy:** Die Push-Nachricht hat einen Knopf **PDF öffnen**.
+- **Per E-Mail:** *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an*. Vorher in Home Assistant einmal die Integration **SMTP** mit deinem Mail-Konto einrichten.
+
+:::tip
+Der Bericht kommt in der Sprache von Home Assistant: auf Deutsch, bei jeder anderen Sprache auf Englisch.
+:::
+
 Im Reiter **Protokoll** steht jede Entscheidung mit Begründung – praktisch, wenn du dich fragst: „Warum ist es jetzt so kalt?“
 
 # Einstellungen
@@ -260,7 +272,7 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Allgemein → Anwesenheit** | Bewohner, Zone, wann abgesenkt wird, Urlaub, Gäste, Kalender |
 | **Allgemein → Heizsaison** | wann geheizt wird, Heute heizen |
 | **Allgemein → Wer bekommt was** | Empfänger und welche Nachrichten sie bekommen |
-| **Allgemein → Benachrichtigungen** | Ruhezeit, Erinnerungen, Wetterquelle |
+| **Allgemein → Benachrichtigungen** | Ruhezeit, Erinnerungen, Wetterquelle, PDF-Berichte, E-Mail |
 | **Allgemein → Schlafenszeiten** | Raumklima lernt, wann ihr schlaft |
 | **Raum → Temperatur** | Wunschtemperatur, Absenkung, Sonnenseite |
 | **Raum → Lüften & Feuchte** | ab welcher Feuchte gelüftet werden soll |

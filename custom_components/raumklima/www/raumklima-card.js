@@ -1,4 +1,4 @@
-/* Raumklima 0.11.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.12.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -432,7 +432,21 @@
     "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung": "Automatic: motion = PIR, presence/occupancy = mmWave. Empty after 3 min (mmWave) or 20 min (PIR) without detection",
     "Automatisch: ja (mmWave, passender Raumtyp)": "Automatic: yes (mmWave, suitable room type)",
     "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave": "Automatic: no – only living room, kitchen, rarely used and only with mmWave",
-    "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück": "never below “briefly away” and mould protection; back immediately when someone comes in"
+    "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück": "never below “briefly away” and mould protection; back immediately when someone comes in",
+    "Bericht gesendet: {f}": "Report sent: {f}",
+    "Download fehlgeschlagen: {e}": "Download failed: {e}",
+    "Herunterladen": "Download",
+    "Mail-Dienst (SMTP) in Home Assistant einrichten, dann hier wählen – die PDF kommt als Anhang": "set up a mail service (SMTP) in Home Assistant, then choose it here – the PDF comes as an attachment",
+    "Monat": "Month",
+    "Noch keine PDF-Berichte. Sie entstehen automatisch: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach dem Saisonende – oder jetzt mit den Knöpfen oben (bis heute).": "No PDF reports yet. They are created automatically: week on Sundays 18:00, month on the 1st, heating season after the season ends – or now with the buttons above (up to today).",
+    "PDF konnte nicht erstellt werden: {e}": "PDF could not be created: {e}",
+    "PDF per E-Mail an": "Email PDF to",
+    "PDF-Berichte": "PDF reports",
+    "Woche": "Week",
+    "Wochenbericht jetzt senden": "Send weekly report now",
+    "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“": "create automatically: week on Sundays 18:00, month on the 1st, heating season after it ends – push with link to everyone with “weekly report”",
+    "bis heute": "up to today",
+    "– keine E-Mail –": "– no email –"
   };
 
   // src/i18n.js
@@ -463,7 +477,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.11.0";
+  var RK_VERSION = "0.12.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -839,6 +853,14 @@
   .toast { position:sticky; bottom:8px; margin-top:12px; padding:10px 14px; border-radius:14px; font-size:.9rem; font-weight:600; background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); width:max-content; max-width:100%; }
 `;
   var REPORT_STYLES = `
+  .pdfmk { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .pdflist { display:flex; flex-direction:column; gap:6px; }
+  .pdfrow { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .pdfrow > ha-icon { color: var(--rk-cold, #e5484d); --mdc-icon-size:26px; }
+  .pdfi { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .pdfi b { font-weight:600; color: var(--primary-text-color); }
+  .pdfi small { color: var(--secondary-text-color); font-size:.8rem; }
+  .pdfi .no { font-weight:500; color: var(--secondary-text-color); font-size:.8rem; }
   ha-card.report { container-type: inline-size; padding: 24px 26px; }
   @media (max-width: 600px) { ha-card.report { padding: 18px 16px; } }
   .rsub { font-size:.9rem; color:var(--secondary-text-color); margin-top:2px; }
@@ -1822,7 +1844,21 @@
         this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
         this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
         this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
-        this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure")))
+        this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
+        this._row(
+          "PDF-Berichte",
+          `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => {
+            const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k);
+            return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`;
+          }).join("")}</div>`,
+          "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"
+        ),
+        this._row(
+          "PDF per E-Mail an",
+          this._select(H, "report_email", (ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) })), this._hubOpt("report_email") || "", "– keine E-Mail –"),
+          "Mail-Dienst (SMTP) in Home Assistant einrichten, dann hier wählen – die PDF kommt als Anhang"
+        ),
+        this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : ""
       ].join("");
       const yes = (b) => b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`;
       const rowsT = this._rooms.map((r) => {
@@ -2102,6 +2138,19 @@
         const s = room && room.attrs.settings || {};
         return [...(room && this._roomOpt(room, key)) ?? s[key] ?? fallback];
       };
+      $("[data-rpdf]").forEach((el) => el.addEventListener("click", () => {
+        const list = [...this._hubOpt("report_pdf") ?? ["week", "month", "season"]];
+        const i = list.indexOf(el.dataset.rpdf);
+        if (i >= 0) list.splice(i, 1);
+        else list.push(el.dataset.rpdf);
+        this._setHub({ report_pdf: list });
+      }));
+      $("[data-pdftest]").forEach((el) => el.addEventListener("click", async () => {
+        el.disabled = true;
+        const r = await ws({ type: "raumklima/report/pdf/create", kind: "week", send: true, ...this._homeMsg() });
+        el.disabled = false;
+        if (r) this._flash(t("Bericht gesendet: {f}", { f: r.file }));
+      }));
       $("[data-presrm]").forEach((el) => el.addEventListener("click", () => {
         this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
       }));
@@ -2226,6 +2275,7 @@
       try {
         this._data = await this._hass.callWS({ type: "raumklima/report", ...this._config.home ? { home: this._config.home } : {} });
         this._err = null;
+        this._pdfs = (await this._hass.callWS({ type: "raumklima/report/pdf/list", ...this._config.home ? { home: this._config.home } : {} })).reports;
       } catch (e) {
         this._err = e.message || String(e);
       }
@@ -2250,12 +2300,58 @@
           <div class="segs"><button class="${P === "week" ? "on" : ""}" data-p="week">${t("Diese Woche")}</button><button class="${P === "month" ? "on" : ""}" data-p="month">${t("Dieser Monat")}</button></div>
           <button class="btn" data-csv title="${t("Tageswerte je Raum als Tabelle (CSV)")}"><ha-icon icon="mdi:file-delimited-outline"></ha-icon>CSV</button></div>
         ${body}
+        ${this._pdfSection()}
       </ha-card>`;
       this.shadowRoot.querySelectorAll("[data-p]").forEach((b) => b.addEventListener("click", () => {
         this._period = b.dataset.p;
         this._render();
       }));
       this.shadowRoot.querySelectorAll("[data-csv]").forEach((b) => b.addEventListener("click", () => this._csv()));
+      this.shadowRoot.querySelectorAll("[data-mkpdf]").forEach((b) => b.addEventListener("click", () => this._makePdf(b.dataset.mkpdf)));
+      this.shadowRoot.querySelectorAll("[data-pdf]").forEach((b) => b.addEventListener("click", () => this._download(b.dataset.pdf, b.dataset.file)));
+    }
+    _pdfSection() {
+      const kinds = { week: t("Woche"), month: t("Monat"), season: t("Heizsaison") };
+      const list = (this._pdfs || []).slice(0, 8);
+      const day = (s) => (/* @__PURE__ */ new Date(s + "T00:00:00")).toLocaleDateString(loc(), { day: "2-digit", month: "2-digit", year: "numeric" });
+      const rows = list.map((r) => `<div class="pdfrow"><ha-icon icon="mdi:file-pdf-box"></ha-icon>
+        <div class="pdfi"><b>${kinds[r.kind] || r.kind}${r.current ? ` <span class="no">${t("bis heute")}</span>` : ""}</b><small>${day(r.start)} – ${day(r.end)} · ${Math.max(1, Math.round(r.size / 1024))} KB</small></div>
+        <button class="btn" data-pdf="${esc(r.url)}" data-file="${esc(r.file)}"><ha-icon icon="mdi:download"></ha-icon>${t("Herunterladen")}</button></div>`).join("");
+      return `<div class="rsec"><h3><ha-icon icon="mdi:file-pdf-box"></ha-icon>${t("PDF-Berichte")}</h3>
+      <div class="pdfmk">${Object.entries(kinds).map(([k, l]) => `<button class="btn" data-mkpdf="${k}" ${this._busy ? "disabled" : ""}><ha-icon icon="${this._busy === k ? "mdi:loading" : "mdi:plus"}"></ha-icon>${l}</button>`).join("")}</div>
+      ${rows ? `<div class="pdflist">${rows}</div>` : `<div class="hint">${t("Noch keine PDF-Berichte. Sie entstehen automatisch: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach dem Saisonende – oder jetzt mit den Knöpfen oben (bis heute).")}</div>`}
+      ${this._pdfMsg ? `<div class="hint">${esc(this._pdfMsg)}</div>` : ""}</div>`;
+    }
+    async _makePdf(kind) {
+      this._busy = kind;
+      this._pdfMsg = null;
+      this._render();
+      try {
+        const r = await this._hass.callWS({ type: "raumklima/report/pdf/create", kind, ...this._config.home ? { home: this._config.home } : {} });
+        this._busy = null;
+        await this._load();
+        await this._download(r.url, r.file);
+      } catch (e) {
+        this._busy = null;
+        this._pdfMsg = t("PDF konnte nicht erstellt werden: {e}", { e: e.message || e });
+        this._render();
+      }
+    }
+    async _download(url, file) {
+      try {
+        const s = await this._hass.callWS({ type: "auth/sign_path", path: url, expires: 120 });
+        const a = document.createElement("a");
+        a.href = s.path;
+        a.download = file || "";
+        a.target = "_blank";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.dispatchEvent(new MouseEvent("click"));
+        a.remove();
+      } catch (e) {
+        this._pdfMsg = t("Download fehlgeschlagen: {e}", { e: e.message || e });
+        this._render();
+      }
     }
     async _csv() {
       try {

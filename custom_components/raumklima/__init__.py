@@ -56,6 +56,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     domain_data(hass)
     await _async_register_card(hass)
     async_register_websocket(hass)
+    if getattr(hass, "http", None) is not None:
+        from .reports import ReportView
+
+        hass.http.register_view(ReportView())
     return True
 
 

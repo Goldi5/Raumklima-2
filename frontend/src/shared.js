@@ -402,6 +402,14 @@ export const SETTINGS_STYLES = `
 `;
 
 export const REPORT_STYLES = `
+  .pdfmk { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .pdflist { display:flex; flex-direction:column; gap:6px; }
+  .pdfrow { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .pdfrow > ha-icon { color: var(--rk-cold, #e5484d); --mdc-icon-size:26px; }
+  .pdfi { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .pdfi b { font-weight:600; color: var(--primary-text-color); }
+  .pdfi small { color: var(--secondary-text-color); font-size:.8rem; }
+  .pdfi .no { font-weight:500; color: var(--secondary-text-color); font-size:.8rem; }
   ha-card.report { container-type: inline-size; padding: 24px 26px; }
   @media (max-width: 600px) { ha-card.report { padding: 18px 16px; } }
   .rsub { font-size:.9rem; color:var(--secondary-text-color); margin-top:2px; }

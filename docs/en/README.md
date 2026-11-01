@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.11.0** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
+**Current version: 0.12.0** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
@@ -31,7 +31,7 @@
 - **Notifications:** choose per recipient which messages they get; push with action buttons, quiet hours, optional voice announcements; **airing countdown on the lock screen** (iPhone Live Activity, Android Live Update).
 - **Presence sensors:** mmWave and PIR (PIR weighted more cautiously) – nobody is wrongly “away” while someone is home; empty rooms a little cooler if you like.
 - **Light signal:** lights in the room blink blue for “please air the room” and orange for “please close” – then back to how they were.
-- **Heating report** for week and month – heating hours, weather-adjusted comparison, savings from setback, comfort time; weekly push; **CSV export**.
+- **Heating report** for week and month – heating hours, weather-adjusted comparison, savings from setback, comfort time; weekly push; **CSV export**; **PDF report** for week, month and heating season with year-over-year comparison – via push link, email or download.
 - **Health check:** batteries, “room doesn't warm up”, radiator can't keep up (hydraulic balancing), stuck or missing sensor, radio and connection dropouts, silent window contact, protection against endless loops with the thermostat.
 - **Several homes** (e.g. city flat and holiday home), each with its own residents, recipients, report and log.
 - **Modern dashboard** with room cards, history, timeline, report, live decision log and a fully editable settings page – in **English or German**, following your Home Assistant language.

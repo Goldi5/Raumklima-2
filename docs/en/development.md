@@ -15,6 +15,8 @@ The integration is split into **logic without Home Assistant** (`logic.py`, `pla
 - Room: `controller.py` (flow, control) with `room_windows.py` (window logic), `room_trv.py` (thermostat control, offset, loop protection) and `room_health.py` (health check, diagnostics)
 - Hub: `hub.py` with `hub_presence.py` (presence, calendar), `hub_sleep.py` (sleep times), `hub_season.py` (heating season, forecast) and `hub_notify.py` (notifications)
 - `websocket_api.py` (card API), `device_trigger.py` (device triggers), `insights.py` (report, health)
+- PDF report: `report_data.py` (periods, comparisons, findings – no HA), `report_pdf.py` (drawing with fpdf2), `reports.py` (storage, schedule, push/email, download view)
+- Presence sensors: `occupancy.py` (logic) and `room_presence.py`; light signal `room_lights.py`; lock screen countdown `live_activity.py`
 
 ## Tests
 

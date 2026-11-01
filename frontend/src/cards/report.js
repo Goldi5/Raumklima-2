@@ -36,6 +36,7 @@ export class RaumklimaReportCard extends HTMLElement {
     try {
       this._data = await this._hass.callWS({ type: "raumklima/report", ...(this._config.home ? { home: this._config.home } : {}) });
       this._err = null;
+      this._pdfs = (await this._hass.callWS({ type: "raumklima/report/pdf/list", ...(this._config.home ? { home: this._config.home } : {}) })).reports;
     } catch (e) {
       this._err = e.message || String(e);
     }
@@ -62,9 +63,52 @@ export class RaumklimaReportCard extends HTMLElement {
           <div class="segs"><button class="${P === "week" ? "on" : ""}" data-p="week">${t("Diese Woche")}</button><button class="${P === "month" ? "on" : ""}" data-p="month">${t("Dieser Monat")}</button></div>
           <button class="btn" data-csv title="${t("Tageswerte je Raum als Tabelle (CSV)")}"><ha-icon icon="mdi:file-delimited-outline"></ha-icon>CSV</button></div>
         ${body}
+        ${this._pdfSection()}
       </ha-card>`;
     this.shadowRoot.querySelectorAll("[data-p]").forEach((b) => b.addEventListener("click", () => { this._period = b.dataset.p; this._render(); }));
     this.shadowRoot.querySelectorAll("[data-csv]").forEach((b) => b.addEventListener("click", () => this._csv()));
+    this.shadowRoot.querySelectorAll("[data-mkpdf]").forEach((b) => b.addEventListener("click", () => this._makePdf(b.dataset.mkpdf)));
+    this.shadowRoot.querySelectorAll("[data-pdf]").forEach((b) => b.addEventListener("click", () => this._download(b.dataset.pdf, b.dataset.file)));
+  }
+
+  _pdfSection() {
+    const kinds = { week: t("Woche"), month: t("Monat"), season: t("Heizsaison") };
+    const list = (this._pdfs || []).slice(0, 8);
+    const day = (s) => new Date(s + "T00:00:00").toLocaleDateString(loc(), { day: "2-digit", month: "2-digit", year: "numeric" });
+    const rows = list.map((r) => `<div class="pdfrow"><ha-icon icon="mdi:file-pdf-box"></ha-icon>
+        <div class="pdfi"><b>${kinds[r.kind] || r.kind}${r.current ? ` <span class="no">${t("bis heute")}</span>` : ""}</b><small>${day(r.start)} – ${day(r.end)} · ${Math.max(1, Math.round(r.size / 1024))} KB</small></div>
+        <button class="btn" data-pdf="${esc(r.url)}" data-file="${esc(r.file)}"><ha-icon icon="mdi:download"></ha-icon>${t("Herunterladen")}</button></div>`).join("");
+    return `<div class="rsec"><h3><ha-icon icon="mdi:file-pdf-box"></ha-icon>${t("PDF-Berichte")}</h3>
+      <div class="pdfmk">${Object.entries(kinds).map(([k, l]) => `<button class="btn" data-mkpdf="${k}" ${this._busy ? "disabled" : ""}><ha-icon icon="${this._busy === k ? "mdi:loading" : "mdi:plus"}"></ha-icon>${l}</button>`).join("")}</div>
+      ${rows ? `<div class="pdflist">${rows}</div>` : `<div class="hint">${t("Noch keine PDF-Berichte. Sie entstehen automatisch: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach dem Saisonende – oder jetzt mit den Knöpfen oben (bis heute).")}</div>`}
+      ${this._pdfMsg ? `<div class="hint">${esc(this._pdfMsg)}</div>` : ""}</div>`;
+  }
+
+  async _makePdf(kind) {
+    this._busy = kind; this._pdfMsg = null; this._render();
+    try {
+      const r = await this._hass.callWS({ type: "raumklima/report/pdf/create", kind, ...(this._config.home ? { home: this._config.home } : {}) });
+      this._busy = null;
+      await this._load();
+      await this._download(r.url, r.file);
+    } catch (e) {
+      this._busy = null;
+      this._pdfMsg = t("PDF konnte nicht erstellt werden: {e}", { e: e.message || e });
+      this._render();
+    }
+  }
+
+  async _download(url, file) {
+    try {
+      // wie Home Assistant selbst (z. B. Backups): kurz gültiger, signierter Link
+      const s = await this._hass.callWS({ type: "auth/sign_path", path: url, expires: 120 });
+      const a = document.createElement("a");
+      a.href = s.path; a.download = file || ""; a.target = "_blank"; a.style.display = "none";
+      document.body.appendChild(a); a.dispatchEvent(new MouseEvent("click")); a.remove();
+    } catch (e) {
+      this._pdfMsg = t("Download fehlgeschlagen: {e}", { e: e.message || e });
+      this._render();
+    }
   }
 
   async _csv() {

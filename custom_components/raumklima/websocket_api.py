@@ -66,6 +66,8 @@ from .holidays_de import STATES
 from .hub import RaumklimaHub
 from .occupancy import sensor_kind
 from .planning import NIGHT_MODES, VIRT_MODES
+from .report_data import REPORT_KINDS
+from .reports import CONF_REPORT_EMAIL, CONF_REPORT_PDF, URL as REPORT_URL
 from .shared import all_hubs, domain_data, get_hub
 
 _KINDS = [vol.In(KINDS)]
@@ -135,6 +137,8 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_CALENDAR_HOME): vol.All(str, vol.Length(max=300)),
         vol.Optional(CONF_FROST_NIGHT): bool,
         vol.Optional(CONF_HOME_SENSORS): vol.In(HOME_SENSOR_MODES),
+        vol.Optional(CONF_REPORT_PDF): [vol.In(REPORT_KINDS)],
+        vol.Optional(CONF_REPORT_EMAIL): vol.Any(None, vol.Match(r"^notify\.\w+$")),
     }
 )
 
@@ -163,7 +167,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -373,6 +377,48 @@ def ws_report_export(hass: HomeAssistant, connection: websocket_api.ActiveConnec
         msg["id"],
         {"filename": f"raumklima-{slug}-{dt_util.now().date().isoformat()}.csv", "csv": hub.insights.export_csv(msg.get("days"))},
     )
+
+
+def _pdf_entry(entry: dict) -> dict:
+    return {k: v for k, v in entry.items() if not k.startswith("_")} | {"url": f"{REPORT_URL}/{entry['file']}"}
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/report/pdf/list", vol.Optional("home"): vol.Any(None, str)})
+@callback
+def ws_pdf_list(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Vorhandene PDF-Berichte (Download über auth/sign_path + url)."""
+    hub = _hub_or_error(hass, connection, msg)
+    if hub is None:
+        return
+    connection.send_result(msg["id"], {"reports": [_pdf_entry(r) for r in hub.pdf.listing()]})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/report/pdf/create",
+        vol.Optional("home"): vol.Any(None, str),
+        vol.Required("kind"): vol.In(REPORT_KINDS),
+        vol.Optional("current", default=True): bool,
+        vol.Optional("send", default=False): bool,
+    }
+)
+@websocket_api.async_response
+async def ws_pdf_create(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """PDF jetzt erstellen (bis heute bzw. letzter abgeschlossener Zeitraum) – optional verschicken (nur Admin)."""
+    hub = _hub_or_error(hass, connection, msg)
+    if hub is None:
+        return
+    if msg["send"] and not connection.user.is_admin:
+        connection.send_error(msg["id"], "unauthorized", "Nur Administratoren können verschicken")
+        return
+    try:
+        entry = await hub.pdf.async_create(msg["kind"], current=msg["current"])
+        if msg["send"]:
+            await hub.pdf.async_send(entry)
+    except Exception as err:  # noqa: BLE001
+        connection.send_error(msg["id"], "failed", str(err))
+        return
+    connection.send_result(msg["id"], _pdf_entry(entry))
 
 
 @websocket_api.websocket_command(

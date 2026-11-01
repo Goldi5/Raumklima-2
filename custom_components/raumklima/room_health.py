@@ -94,6 +94,7 @@ class HealthMixin:
             mold=self.vent.mold_risk,
             window_open=self.window_open,
             night=self.night_airing,
+            occupied=self.occupied,
         )
 
     def heatup_needed(self) -> int | None:

@@ -30,7 +30,7 @@
 - **Benachrichtigungen:** pro Empfänger wählbar, welche Nachrichten er bekommt; Push mit Knöpfen, optional Sprachansagen; **Lüft-Countdown auf dem Sperrbildschirm** (iPhone-Live-Aktivität, Android-Live-Update).
 - **Präsenzmelder:** mmWave und PIR (PIR vorsichtiger gewichtet) – niemand wird fälschlich „weg“, solange jemand da ist; leere Räume auf Wunsch etwas kühler.
 - **Lichtsignal:** Lampen im Raum blinken blau bei „Bitte lüften“ und orange bei „Bitte schließen“ – danach wie vorher.
-- **Modernes Dashboard** mit Raumkarten, Verlauf, Zeitleiste, Heizbericht (auch als CSV) und einer komplett bearbeitbaren Einstellungsseite – auf Deutsch oder Englisch, je nach Sprache in Home Assistant.
+- **Modernes Dashboard** mit Raumkarten, Verlauf, Zeitleiste, Heizbericht (auch als CSV und als **PDF** für Woche, Monat und Heizsaison – per Push, E-Mail oder Download) und einer komplett bearbeitbaren Einstellungsseite – auf Deutsch oder Englisch, je nach Sprache in Home Assistant.
 - **Eigene Automationen:** Geräte-Auslöser wie „Bitte lüften“, „Fenster geöffnet“ oder „Heizung pausiert“.
 
 Getestet mit Tuya **TRV602Z** (Zigbee2MQTT) und IKEA-Fühlern, funktioniert mit jedem `climate`-Thermostat in Home Assistant – Hinweise zu Matter/Thread unter [Installation](installation.md#matter--thread-thermostate).

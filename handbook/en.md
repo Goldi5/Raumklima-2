@@ -245,6 +245,18 @@ When the daily mean outside is mild (default: above 15 °C), the heating pauses.
 
 The **Report** tab shows for this week or month how long the heating ran, how much the setback saved and whether it was comfortable. On Sundays a short summary arrives on your phone.
 
+### The report as PDF
+
+Every week, every month and at the end of the heating season a **PDF report** is created with a comparison to the previous period and the year before, a table per room and **tips** – for example when the bathroom was often too humid.
+
+- **Download:** at the very bottom of the **Report** tab under *PDF reports* – tap **Download**. The buttons *Week*, *Month* and *Heating season* give you a report up to today right away.
+- **On your phone:** the push message has an **Open PDF** button.
+- **By email:** *Settings → General → Notifications – general → Email PDF to*. First set up the **SMTP** integration in Home Assistant with your mail account once.
+
+:::tip
+The report follows the Home Assistant language: German for German, English for every other language.
+:::
+
 The **Log** tab lists every decision with its reason – handy when you wonder “why is it so cold right now?”
 
 # Settings
@@ -262,7 +274,7 @@ Not sure? Keep the defaults. They follow the recommendations of German consumer 
 | **General → Presence** | residents, zone, when to set back, vacation, guests, calendar |
 | **General → Heating season** | when to heat, heat today |
 | **General → Who gets what** | recipients and which messages they get |
-| **General → Notifications** | quiet hours, reminders, weather source |
+| **General → Notifications** | quiet hours, reminders, weather source, PDF reports, email |
 | **General → Sleep times** | Raumklima learns when you sleep |
 | **Room → Temperature** | desired temperature, setback, sunny side |
 | **Room → Airing & humidity** | from which humidity to ask for airing |

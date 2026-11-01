@@ -36,6 +36,10 @@ ROOM_FIELDS = (
     "airing_s",  # Fenster offen
     "arrivals",  # Ankünfte (Stufe → da)
     "arrivals_warm",  # davon Raum schon warm
+    "empty_s",  # Raum leer und deshalb abgesenkt (Präsenzmelder)
+    "empty_ks",  # ∫ (Wunsch − Ziel) K · s im leeren Raum
+    "occupied_s",  # Präsenzmelder: jemand im Raum
+    "sensed_s",  # Zeit mit Präsenzmelder-Daten
 )
 HOME_FIELDS = ("seconds", "away_s", "outdoor_s", "outdoor_n_s", "preheats")
 
@@ -57,6 +61,7 @@ class RoomSample:
     mold: bool
     window_open: bool
     night: bool = False
+    occupied: bool | None = None  # Präsenzmelder (None = keiner)
 
 
 def _empty(fields: tuple[str, ...]) -> dict[str, float]:
@@ -75,6 +80,13 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
     if s.reason in ("away_short", "away_long"):
         day["setback_s"] += dt
         day["setback_ks"] += max(0.0, s.target - s.effective) * dt
+    if s.reason == "room_empty":
+        day["empty_s"] += dt
+        day["empty_ks"] += max(0.0, s.target - s.effective) * dt
+    if s.occupied is not None:
+        day["sensed_s"] += dt
+        if s.occupied:
+            day["occupied_s"] += dt
     if s.night:
         day["night_s"] += dt
     elif s.paused:
@@ -140,7 +152,8 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
     temp_n = _sum(days, "temp_n_s")
     hum_n = _sum(days, "hum_n_s")
     arrivals = _sum(days, "arrivals")
-    setback_ks = _sum(days, "setback_ks")
+    setback_ks = _sum(days, "setback_ks") + _sum(days, "empty_ks")
+    sensed = _sum(days, "sensed_s")
     return {
         "hours": round(seconds / 3600, 1),
         "heating_h": round(_sum(days, "heating_s") / 3600, 1),
@@ -157,9 +170,11 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         "humidity_avg": round(_sum(days, "hum_s") / hum_n) if hum_n else None,
         "airings": int(_sum(days, "airings")),
         "airing_h": round(_sum(days, "airing_s") / 3600, 1),
+        "empty_h": round(_sum(days, "empty_s") / 3600, 1),
+        "occupied_pct": round(100 * _sum(days, "occupied_s") / sensed) if sensed >= 3600 else None,
         "arrivals": int(arrivals),
         "arrivals_warm_pct": round(100 * _sum(days, "arrivals_warm") / arrivals) if arrivals else None,
-        # Einsparung durch Absenkung: 6 % je Grad, gewichtet mit der Zeit
+        # Einsparung durch Absenkung (Abwesenheit + leere Räume): 6 % je Grad, gewichtet mit der Zeit
         "saving_pct": round(100 * ENERGY_PER_KELVIN * setback_ks / seconds, 1) if seconds else 0.0,
     }
 

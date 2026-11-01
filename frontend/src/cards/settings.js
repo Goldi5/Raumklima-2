@@ -283,6 +283,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
       this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
       this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
+      this._row("PDF-Berichte", `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => { const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k); return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`; }).join("")}</div>`,
+        "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
+      this._row("PDF per E-Mail an", this._select(H, "report_email", (ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) })), this._hubOpt("report_email") || "", "– keine E-Mail –"),
+        "Mail-Dienst (SMTP) in Home Assistant einrichten, dann hier wählen – die PDF kommt als Anhang"),
+      this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
     ].join("");
 
     // --- Tabelle
@@ -531,6 +536,18 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const s = (room && room.attrs.settings) || {};
       return [...((room && this._roomOpt(room, key)) ?? s[key] ?? fallback)];
     };
+    $("[data-rpdf]").forEach((el) => el.addEventListener("click", () => {
+      const list = [...(this._hubOpt("report_pdf") ?? ["week", "month", "season"])];
+      const i = list.indexOf(el.dataset.rpdf);
+      if (i >= 0) list.splice(i, 1); else list.push(el.dataset.rpdf);
+      this._setHub({ report_pdf: list });
+    }));
+    $("[data-pdftest]").forEach((el) => el.addEventListener("click", async () => {
+      el.disabled = true;
+      const r = await ws({ type: "raumklima/report/pdf/create", kind: "week", send: true, ...this._homeMsg() });
+      el.disabled = false;
+      if (r) this._flash(t("Bericht gesendet: {f}", { f: r.file }));
+    }));
     $("[data-presrm]").forEach((el) => el.addEventListener("click", () => {
       this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
     }));

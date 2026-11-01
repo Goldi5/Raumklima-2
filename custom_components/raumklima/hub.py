@@ -49,6 +49,7 @@ from .planning import (
     SeasonState,
     TrackerFilter,
 )
+from .reports import PdfReports
 from .shared import domain_data, iso, parse_dt
 from .sleep import SignalTracker, SleepLearner
 
@@ -105,6 +106,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self.mean_forecast: float | None = None
         self.forecast_hourly: list[ForecastHour] = []
         self.insights = Insights(hass, self)
+        self.pdf = PdfReports(hass, self)
         self.log = DecisionLog(hass, self.store_suffix)
         self._reject_logged: dict[str, datetime] = {}
         # Kurze Gesamtausfälle aller Thermostate (Verbindung, nicht Geräte)

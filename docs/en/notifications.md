@@ -15,7 +15,7 @@ Under **Settings → General → Who gets what** you choose for each recipient w
 | 🍂 Heating season start/end | heating season starts, heating pause, cold snap | push |
 | ⚠️ Thermostat not responding | command not confirmed after all retries | push + HA notification |
 | 🩺 Heating health | battery low, room doesn't warm up despite an open valve, sensor stuck, radio flaky, window contact silent – at most once a day per problem | push, quiet |
-| 📊 Weekly report | Sundays 18:00: heating hours, weather-adjusted comparison, setback, rooms that were too humid | push, quiet |
+| 📊 Weekly report | Sundays 18:00: heating hours, weather-adjusted comparison, setback, rooms that were too humid – with a **PDF** (also month on the 1st and season summary), see [PDF reports](usage.md#pdf-reports) | push, quiet |
 | 📱 Airing countdown on the lock screen | window open for airing – see [below](#airing-countdown-on-the-lock-screen) | off, app only |
 
 **Recipients** are `notify` services, e.g. `notify.mobile_app_iphone` or your own service such as `notify.christian`. **Test** sends a sample message.

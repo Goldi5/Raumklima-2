@@ -37,6 +37,29 @@ Every minute the integration records what each room does – compactly summarise
 - **Health:** open problems (see below).
 - **CSV:** the button at the top right downloads all daily values per room as a table (semicolon-separated with decimal comma, as used in German spreadsheets).
 
+### PDF reports
+
+At the bottom of the heating report you find the **PDF reports** – each with a **Download** button, so you never need to open a folder. There are three kinds:
+
+| Report | automatically | period |
+|---|---|---|
+| Week | Sundays 18:00 | Monday to Sunday |
+| Month | on the 1st at 9:00 | the previous month |
+| Heating season | the day after the season ends (default 1 May) | whole season, e.g. 1 Oct – 30 Apr |
+
+The buttons **Week**, **Month** and **Heating season** create a report **up to today** right away and download it.
+
+**Contents (2 pages):** heating hours, savings from setback, comfort time, outdoor temperature and heating degree days · comparison with the previous period and – once there is a year of data – with the **year before**, also weather-adjusted · chart of heating hours and outdoor temperature · table per room (heating hours, avg temperature and humidity, hours too humid, airings, window open, set back, at target) · **findings and tips** (e.g. “Bathroom 18 h above the humidity limit – air briefly more often”, “Kitchen: window open 9 h – better short, wide airing than a tilted window”, open health problems).
+
+**Language:** like Home Assistant – German stays German, every other language gets English.
+
+**Delivery:**
+- **Push** to everyone who receives the *weekly report* – with an **Open PDF** button (link valid for 30 days).
+- **Email with attachment:** under *Settings → General → Notifications – general → Email PDF to*, choose a mail service. For this, set up the **SMTP** integration in Home Assistant once (e.g. with your mail account). **Send weekly report now** checks it.
+- **Storage:** in the media folder under `raumklima/` – also visible under *Media* in Home Assistant. The last 26 weekly, 24 monthly and 20 season reports are kept.
+
+Which reports are created automatically is set under *PDF reports* (default: all three). Downloading only works when logged in or with a signed link.
+
 ### Health check
 
 Every 10 minutes the integration checks each room:

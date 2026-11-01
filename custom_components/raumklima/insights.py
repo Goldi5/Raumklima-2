@@ -59,6 +59,9 @@ class Insights:
         self._unsubs.append(
             async_track_time_change(self.hass, self._on_weekly, hour=18, minute=0, second=0)
         )
+        self._unsubs.append(
+            async_track_time_change(self.hass, self._on_daily, hour=9, minute=5, second=0)
+        )
 
     async def async_stop(self) -> None:
         for unsub in self._unsubs:
@@ -66,6 +69,9 @@ class Insights:
         self._unsubs.clear()
         if getattr(self, "_loaded", False):
             await self._store.async_save(self.data)
+
+    def save(self) -> None:
+        self._save()
 
     def _save(self) -> None:
         if getattr(self, "_loaded", False):
@@ -109,6 +115,11 @@ class Insights:
             temp = room.current_temperature
             if temp is not None and temp >= room.target_temp - 1.0:
                 day["arrivals_warm"] = day.get("arrivals_warm", 0) + 1
+
+    def count_airing(self, entry_id: str) -> None:
+        """Ein Fenster wurde zum Lüften geöffnet (nicht Nachtlüften)."""
+        day = self.data["rooms"].setdefault(entry_id, {}).setdefault(self._today(), {})
+        day["airings"] = day.get("airings", 0) + 1
 
     def on_preheat(self) -> None:
         home = self.data["home"].setdefault(self._today(), {})
@@ -172,7 +183,7 @@ class Insights:
         return out
 
     # ------------------------------------------------------------ Bericht
-    def _rooms_by_name(self) -> dict[str, dict[str, dict[str, float]]]:
+    def rooms_by_name(self) -> dict[str, dict[str, dict[str, float]]]:
         names = self.data.get("names", {})
         current = {eid: r.name for eid, r in self.hub.rooms.items()}
         full = {eid: current.get(eid) or names.get(eid, eid) for eid in self.data["rooms"]}
@@ -182,7 +193,7 @@ class Insights:
     def report(self, today: date | None = None) -> dict[str, Any]:
         """Woche, Vorwoche, Monat, Vormonat und Tageswerte der letzten 31 Tage."""
         today = today or dt_util.now().date()
-        rooms = self._rooms_by_name()
+        rooms = self.rooms_by_name()
         home = self.data["home"]
         week_start = today - timedelta(days=today.weekday())
         prev_week_start = week_start - timedelta(days=7)
@@ -220,7 +231,7 @@ class Insights:
     def export_csv(self, days: int | None = None, today: date | None = None) -> str:
         """Tageswerte je Raum als CSV (für Tabellenkalkulation)."""
         today = today or dt_util.now().date()
-        rooms = self._rooms_by_name()
+        rooms = self.rooms_by_name()
         first = min((k for d in rooms.values() for k in d), default=today.isoformat())
         start = date.fromisoformat(first)
         if days:
@@ -234,9 +245,19 @@ class Insights:
             return
         today = local.date()
         start = today - timedelta(days=6)
-        rooms = self._rooms_by_name()
+        rooms = self.rooms_by_name()
         cur = summarize(rooms, self.data["home"], start, today)
         if cur["total"]["hours"] < 24:
             return  # noch zu wenige Daten
         prev = summarize(rooms, self.data["home"], start - timedelta(days=7), start - timedelta(days=1))
-        self.hub.notify(KIND_REPORT, "📊 Heizung diese Woche", week_message(cur, compare(cur, prev)), speak=False)
+        short = week_message(cur, compare(cur, prev))
+        self.hass.async_create_task(self._weekly(today, short))
+
+    async def _weekly(self, today: date, short: str) -> None:
+        """Wochenbericht als PDF mit Link – sonst wie bisher nur die Kurzfassung."""
+        if not await self.hub.pdf.async_weekly(today, short):
+            self.hub.notify(KIND_REPORT, "📊 Heizung diese Woche", short, speak=False)
+
+    @callback
+    def _on_daily(self, now: datetime) -> None:
+        self.hass.async_create_task(self.hub.pdf.async_scheduled(now))
