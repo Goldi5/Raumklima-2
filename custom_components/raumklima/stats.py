@@ -13,6 +13,7 @@ from typing import Any
 ENERGY_PER_KELVIN = 0.06  # Faustregel Verbraucherzentrale: ~6 % Heizenergie je Grad
 HDD_BASE = 15.0  # Heizgradtage-Basis = Heizgrenze
 MAX_DAYS = 400
+MIN_COMPARE_HOURS = 72  # je Raum und Zeitraum, sonst kein Vergleich
 
 ROOM_FIELDS = (
     "seconds",  # erfasste Zeit
@@ -82,7 +83,8 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
         day["season_off_s"] += dt
     if s.plan_on and not s.paused and s.temp is not None:
         day["regulated_s"] += dt
-        if abs(s.temp - s.effective) <= 1.0:
+        # Am Ziel: ±1 °C – oder wärmer, ohne dass geheizt wird (Wärme aus Nachbarräumen ist kein Fehler)
+        if abs(s.temp - s.effective) <= 1.0 or (s.temp > s.effective and not s.heating):
             day["on_target_s"] += dt
     if s.humidity is not None:
         day["hum_s"] += s.humidity * dt
@@ -197,6 +199,13 @@ def compare(current: dict[str, Any], previous: dict[str, Any]) -> float | None:
     cur_v, prev_v = current["total"]["valve_h"], previous["total"]["valve_h"]
     if cur_hdd < 5 or prev_hdd < 5 or prev_v <= 0:
         return None  # zu mild oder zu wenig Daten für einen fairen Vergleich
+    rooms = max(len([r for r in current.get("rooms", {}).values() if r.get("hours")]), 1)
+    prev_rooms = max(len([r for r in previous.get("rooms", {}).values() if r.get("hours")]), 1)
+    if (
+        "rooms" in current
+        and (current["total"].get("hours", 0) / rooms < MIN_COMPARE_HOURS or previous["total"].get("hours", 0) / prev_rooms < MIN_COMPARE_HOURS)
+    ):
+        return None  # einer der Zeiträume hat zu wenige Messstunden
     return round(100 * ((cur_v / cur_hdd) / (prev_v / prev_hdd) - 1))
 
 

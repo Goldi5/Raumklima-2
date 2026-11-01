@@ -23,6 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 MAX_ENTRIES = 5000
 KEEP = timedelta(days=14)
 SAVE_DELAY = 60
+REPEAT_WINDOW = timedelta(minutes=2)
 
 CAT_PRESENCE = "presence"
 CAT_SEASON = "season"
@@ -107,6 +108,18 @@ class DecisionLog:
         **data: Any,
     ) -> dict[str, Any]:
         """Eintrag anlegen. „msg“ = was, „why“ = warum (beides für Menschen lesbar)."""
+        now_iso = dt_util.utcnow().isoformat()
+        # Gleiches kurz hintereinander zusammenfassen statt das Protokoll zu fluten
+        cutoff = (dt_util.utcnow() - REPEAT_WINDOW).isoformat()
+        for prev in list(self.entries)[-12:]:
+            if prev.get("room") == room and prev["msg"] == msg and prev.get("t_last", prev["t"]) >= cutoff:
+                prev["n"] = prev.get("n", 1) + 1
+                prev["t_last"] = now_iso
+                if why:
+                    prev["why"] = why
+                if self._loaded:
+                    self._store.async_delay_save(self._data, SAVE_DELAY)
+                return prev
         self._seq += 1
         entry: dict[str, Any] = {
             "id": self._seq,

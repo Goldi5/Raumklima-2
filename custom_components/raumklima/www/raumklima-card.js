@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.8.4";
+const RK_VERSION = "0.8.5";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -1664,6 +1664,8 @@ const LOG_STYLES = `
   .ev.new { animation: rkflash 1.6s ease-out; }
   @keyframes rkflash { from { background: color-mix(in srgb, var(--rk-ok) 14%, transparent); } to { background: transparent; } }
   .more { display:flex; justify-content:center; margin-top:16px; }
+  .rep { display:inline-block; font-size:.75rem; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:1px;
+    background: color-mix(in srgb, var(--rk-warn) 18%, transparent); color: color-mix(in srgb, var(--rk-warn) 70%, var(--primary-text-color)); }
 `;
 
 class RaumklimaLogCard extends HTMLElement {
@@ -1738,7 +1740,10 @@ class RaumklimaLogCard extends HTMLElement {
   async _load(older) {
     try {
       const msg = { type: "raumklima/log", limit: 300, ...(this._config.home ? { home: this._config.home } : {}) };
-      if (older && this._entries.length) msg.before = this._entries[this._entries.length - 1].id;
+      // Filter schon im Server anwenden – sonst lädt „Ältere laden“ nur ausgeblendete Einträge
+      if (this._cats.size < Object.keys(RK_LOG_CATS).length) msg.categories = [...this._cats];
+      if (this._room) msg.entry_id = this._room;
+      if (older && this._entries.length) msg.before = Math.min(...this._entries.map((e) => e.id || Infinity));
       const res = await this._hass.callWS(msg);
       this._entries = older ? [...this._entries, ...res.entries] : res.entries;
       this._end = res.entries.length < 300;
@@ -1791,7 +1796,7 @@ class RaumklimaLogCard extends HTMLElement {
       html += `<div class="ev ${e.lvl === "warn" ? "warn" : ""} ${this._fresh && this._fresh.has && this._fresh.has(e.id) ? "new" : ""}" style="--c:${toneVar(meta[2])}">
         <div class="tm">${d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</div>
         <div class="ic" title="${meta[0]}"><ha-icon icon="${meta[1]}"></ha-icon></div>
-        <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}</div>
+        <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}${e.n > 1 ? ` <span class="rep" title="zuletzt ${new Date(e.t_last || e.t).toLocaleTimeString("de-DE")}">×${e.n} · bis ${new Date(e.t_last || e.t).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</span>` : ""}</div>
         ${e.why ? `<div class="wy"><b>${e.cat === "notify" && e.msg.indexOf("Knopf") !== 0 ? "Inhalt" : e.cat === "device" || e.cat === "settings" ? "Details" : "Warum"}:</b> ${esc(this._strip(e.why))}</div>` : ""}</div></div>`;
     }
     if (cur !== null) html += `</div>`;
@@ -1817,10 +1822,10 @@ class RaumklimaLogCard extends HTMLElement {
         ${this._entries.length && !this._end ? `<div class="more"><button class="btn" data-more><ha-icon icon="mdi:history"></ha-icon>Ältere laden</button></div>` : ""}
       </ha-card>`;
     const $ = (s) => this.shadowRoot.querySelectorAll(s);
-    $("[data-room]").forEach((b) => b.addEventListener("click", () => { this._room = b.dataset.room; this._save(); this._render(); }));
-    $("[data-cat]").forEach((b) => b.addEventListener("click", () => { const c = b.dataset.cat; this._cats.has(c) ? this._cats.delete(c) : this._cats.add(c); this._save(); this._render(); }));
+    $("[data-room]").forEach((b) => b.addEventListener("click", () => { this._room = b.dataset.room; this._save(); this._render(); this._load(); }));
+    $("[data-cat]").forEach((b) => b.addEventListener("click", () => { const c = b.dataset.cat; this._cats.has(c) ? this._cats.delete(c) : this._cats.add(c); this._save(); this._render(); this._load(); }));
     $("[data-more]").forEach((b) => b.addEventListener("click", () => this._load(true)));
-    $("[data-showall]").forEach((b) => b.addEventListener("click", () => { this._cats = new Set(Object.keys(RK_LOG_CATS)); this._room = ""; this._hiddenNew = 0; this._save(); this._render(); }));
+    $("[data-showall]").forEach((b) => b.addEventListener("click", () => { this._cats = new Set(Object.keys(RK_LOG_CATS)); this._room = ""; this._hiddenNew = 0; this._save(); this._load(); }));
     const s = this.shadowRoot.querySelector(".srch");
     s.addEventListener("input", () => { this._q = s.value; clearTimeout(this._qt); this._qt = setTimeout(() => this._render(), 250); });
     if (focus) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); }

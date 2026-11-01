@@ -146,6 +146,15 @@ MANUAL_OVERRIDE = timedelta(hours=3)  # Drehen am Regler während Absenkung
 VALVE_CARE = timedelta(minutes=3)
 
 TRV_OUTAGE_SECONDS = 60  # kürzere Aussetzer gelten nicht als Ausfall
+# Presets, in denen das Thermostat auf den gesendeten Sollwert regelt – gleichwertig.
+# Tuya-TRVs (z. B. TRV602Z) springen beim Sollwert-Setzen selbst zwischen eco und comfort.
+HEAT_PRESETS = frozenset({"manual", "heat", "eco", "comfort", "none"})
+PRESET_FIGHT_COUNT = 4  # so oft springt das Thermostat selbst aufs gleiche Preset …
+PRESET_FIGHT_WINDOW = timedelta(minutes=10)  # … in dieser Zeit → nicht mehr dagegen ankämpfen
+PRESET_BACKOFF = timedelta(minutes=30)
+SEND_LIMIT = 40  # mehr Befehle in 10 min → Bremse
+SEND_WINDOW = timedelta(minutes=10)
+SEND_BACKOFF = timedelta(minutes=15)
 REASON_NORMAL = "normal"
 REASON_MANUAL = "manual"
 REASON_SEASON = "season"
@@ -213,6 +222,12 @@ class RaumklimaController:
         self._raw_virtual = False
         self._trv_down_since: datetime | None = None
         self._started_at: datetime = dt_util.utcnow()
+        # Schutz gegen Endlosschleifen mit dem Thermostat
+        self.preset_learned: str | None = None
+        self._preset_flips: deque[tuple[datetime, str]] = deque(maxlen=20)
+        self._restore_paused_until: datetime | None = None
+        self._sends: deque[datetime] = deque(maxlen=200)
+        self.throttled_until: datetime | None = None
         self._trv_down_cancel: Callable[[], None] | None = None
         self.heatup = HeatupTracker()
         self._virtual_low: float = 0.0
@@ -246,6 +261,7 @@ class RaumklimaController:
             self.hvac_on = bool(stored.get("hvac_on", self.hvac_on))
             self.window_logic = bool(stored.get("window_logic", self.window_logic))
             self.trv_on_preset = stored.get("trv_on_preset")
+            self.preset_learned = stored.get("preset_learned")
             self.heatup.load(stored.get("heatup"))
         elif self.trv_available():
             # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
@@ -321,6 +337,7 @@ class RaumklimaController:
             "hvac_on": self.hvac_on,
             "window_logic": self.window_logic,
             "trv_on_preset": self.trv_on_preset,
+            "preset_learned": self.preset_learned,
             "vent": self.vent.export() if self.vent else None,
             "heatup": self.heatup.dump(),
         }
@@ -730,6 +747,8 @@ class RaumklimaController:
                 if self.trv_temperature is not None and self._trv_at_ext_change is not None
                 else None,
             ),
+            Issue("throttled", "warn", "Thermostat und Integration verstellen sich", "Zu viele Befehle in kurzer Zeit – die Integration pausiert kurz. Zeitplan/Automatik am Thermostat oder andere Automationen prüfen.")
+            if self.throttled_until and now < self.throttled_until else None,
             check_sensor_missing(
                 None if self.sensor_ok else (now - (self._ext_time or self._started_at)).total_seconds() / 3600
             ),
@@ -1060,6 +1079,15 @@ class RaumklimaController:
                 new_p,
                 self._on_preset(),
             )
+            if new_p == self._on_preset():
+                return  # steht schon auf dem gewünschten Preset
+            if new_p in HEAT_PRESETS and old_p in HEAT_PRESETS and new_p != "none":
+                # eco ↔ comfort: regelt weiter auf den Sollwert. Nicht zurückstellen,
+                # nur den Sollwert prüfen (das Thermostat lädt beim Wechsel evtl. einen eigenen Wert).
+                self.hass.async_create_task(self._apply())
+                return
+            if self._handle_preset_fight(new_p):
+                return
             self.log(CAT_DEVICE, f"Preset am Thermostat „{new_p}“ – stelle „{self._on_preset()}“ wieder her", "Preset-Wechsel laden am Gerät alte Werte, das ist kein Wunsch")
             self.hass.async_create_task(self._apply())
             return
@@ -1130,7 +1158,41 @@ class RaumklimaController:
             state.attributes.get(ATTR_TEMPERATURE), self.trv_min, SETPOINT_MATCH_TOLERANCE
         )
 
+    def _handle_preset_fight(self, new_p: str | None) -> bool:
+        """Springt das Thermostat immer wieder selbst auf ein Preset? Dann nicht endlos dagegenhalten."""
+        now = dt_util.utcnow()
+        if self._restore_paused_until and now < self._restore_paused_until:
+            return True  # Pause: nicht zurückstellen
+        self._preset_flips.append((now, str(new_p)))
+        same = [t for t, p in self._preset_flips if p == str(new_p) and now - t <= PRESET_FIGHT_WINDOW]
+        if len(same) < PRESET_FIGHT_COUNT:
+            return False
+        self._preset_flips.clear()
+        available = self._trv_attr("preset_modes") or []
+        if new_p and new_p in available and new_p not in ON_PRESET_AVOID and new_p != "off":
+            self.preset_learned = new_p
+            self._save()
+            self.log(
+                CAT_DEVICE,
+                f"Thermostat bleibt bei „{new_p}“ – wird übernommen",
+                f"es ist {len(same)}× in 10 min von selbst darauf gesprungen; „{new_p}“ regelt genauso auf den Sollwert, also kein Hin und Her mehr",
+                level="warn",
+            )
+            self.hass.async_create_task(self._apply())
+            return True
+        self._restore_paused_until = now + PRESET_BACKOFF
+        self.log(
+            CAT_DEVICE,
+            f"Thermostat springt immer wieder auf „{new_p}“ – 30 min Pause",
+            "damit Thermostat und Integration sich nicht endlos verstellen (Batterie). Zeitplan oder Automatik am Thermostat prüfen.",
+            level="warn",
+        )
+        return True
+
     def _on_preset(self) -> str | None:
+        available = self._trv_attr("preset_modes") or []
+        if self.preset_learned and self.preset_learned in available:
+            return self.preset_learned
         return choose_on_preset(
             self._trv_attr("preset_modes") or [],
             self.config.get(CONF_ON_PRESET),
@@ -1163,6 +1225,8 @@ class RaumklimaController:
     async def _apply(self, from_measurement: bool = False) -> None:
         """Soll-Zustand berechnen und ans TRV senden (mit Prüfung)."""
         async with self._apply_lock:
+            if self.throttled_until and dt_util.utcnow() < self.throttled_until:
+                return  # Bremse aktiv – zu viele Befehle in kurzer Zeit
             method = self._off_method()
             plan_on, _target, reason = self.plan()
             self._log_plan(plan_on, _target, reason)
@@ -1203,12 +1267,15 @@ class RaumklimaController:
             # --- an: zuerst Modus, dann Sollwert
             if method == OFF_PRESET:
                 preset = self._on_preset()
-                if preset:
+                current = self._trv_attr("preset_mode")
+                if current in HEAT_PRESETS and current != "none" or (current == "none" and preset == "none"):
+                    self.sync.cancel("mode")  # regelt schon auf den Sollwert – Preset nicht umstellen
+                elif preset:
                     await self.sync.request(
                         "mode",
                         f"Preset '{preset}'",
                         lambda: self._call_climate("set_preset_mode", preset_mode=preset),
-                        lambda: self._trv_attr("preset_mode") == preset,
+                        lambda: self._trv_attr("preset_mode") in HEAT_PRESETS,
                     )
             elif method == OFF_HVAC:
                 modes = [m for m in (self._trv_attr("hvac_modes") or []) if m != "off"]
@@ -1272,6 +1339,18 @@ class RaumklimaController:
     @callback
     def _on_sync_event(self, event: str, job: SyncJob) -> None:
         if event == "send":
+            now = dt_util.utcnow()
+            self._sends.append(now)
+            recent = [t for t in self._sends if now - t <= SEND_WINDOW]
+            if len(recent) > SEND_LIMIT and not (self.throttled_until and now < self.throttled_until):
+                self.throttled_until = now + SEND_BACKOFF
+                self._sends.clear()
+                self.log(
+                    CAT_DEVICE,
+                    "Zu viele Befehle – 15 min Pause",
+                    f"{len(recent)} Befehle in 10 min ans Thermostat; irgendetwas stellt es immer wieder zurück. Schützt die Batterie.",
+                    level="warn",
+                )
             self.log(CAT_DEVICE, f"Thermostat: {job.description}", job.why)
         elif event == "confirmed":
             self.log(CAT_DEVICE, f"Thermostat bestätigt: {job.description}", f"nach {job.attempts} Versuchen")

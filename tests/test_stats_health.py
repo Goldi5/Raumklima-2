@@ -113,3 +113,14 @@ def test_sensor_missing_and_connection():
     assert check_connection(5, 7) is None
     c = check_connection(34, 6.7)
     assert c.severity == "info" and "34×" in c.message and "~7 s" in c.message
+
+
+def test_compare_needs_coverage_and_warm_counts_on_target():
+    cur = {"hdd": 14.0, "total": {"valve_h": 3.8, "hours": 129.8}, "rooms": {"a": {"hours": 26}}}
+    prev = {"hdd": 5.6, "total": {"valve_h": 1.8, "hours": 16.1}, "rooms": {"a": {"hours": 16.1}}}
+    assert compare(cur, prev) is None  # Vormonat nur 16 h Daten
+    day: dict = {}
+    add_room_sample(day, _s(temp=18.8, effective=14.5, heating=False), 60)  # wärmer ohne Heizen
+    add_room_sample(day, _s(temp=17.0, effective=20.0, heating=True), 60)  # zu kalt
+    r = summarize({"S": {"2026-11-02": day}}, {}, date(2026, 11, 2), date(2026, 11, 2))["rooms"]["S"]
+    assert r["on_target_pct"] == 50

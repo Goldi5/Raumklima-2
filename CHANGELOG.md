@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.8.5 – 2026-11-01
+
+### Behoben
+- **Endlosschleife mit dem Thermostat:** Tuya-TRVs (TRV602Z) springen beim Setzen eines Sollwerts im
+  Preset „eco“ selbst auf „comfort“. Die Integration hat jedes Mal „eco“ zurückgestellt – im Bad
+  stundenlang alle ~3 s. Jetzt gelten eco/comfort/manual/heat als gleichwertig (beide regeln auf den
+  Sollwert); zusätzlich: springt ein Thermostat wiederholt auf ein anderes Preset, wird es übernommen
+  bzw. 30 min pausiert, und bei mehr als 40 Befehlen in 10 min bremst die Integration 15 min
+  (Hinweis im Gesundheitscheck).
+- Protokoll: gleiche Einträge kurz hintereinander werden zu einem Eintrag „×N“ zusammengefasst.
+- Protokoll-Karte: „Ältere laden“ berücksichtigt die Filter (lud bisher nur ausgeblendete Einträge).
+- Bericht: kein wetterbereinigter Vergleich mehr, wenn ein Zeitraum weniger als 72 Messstunden je Raum
+  hat; „Wohlfühlzeit“ zählt einen Raum, der ohne Heizen wärmer als sein Ziel ist, als am Ziel.
+- README und Doku aktualisiert; ein Test prüft künftig, dass README, Changelog und Karte zur Version passen.
+
+
 ## 0.8.4 – 2026-10-31
 
 ### Behoben
