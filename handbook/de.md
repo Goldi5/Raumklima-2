@@ -245,7 +245,16 @@ Im Reiter **Bericht** siehst du für diese Woche oder diesen Monat: wie lange ge
 
 ### Der Bericht als PDF
 
-Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** mit Vergleich zum Vorzeitraum und zum Vorjahr, einer Tabelle je Raum und **Tipps** – zum Beispiel, wenn das Bad oft zu feucht war.
+Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** (4 Seiten). Darin stehen unter anderem:
+
+- eine **Note von A bis F** für dein Raumklima – mit Verlauf,
+- der Vergleich zum Vorzeitraum und zum **Vorjahr**,
+- jeder Raum mit kleiner **Verlaufskurve**, eine **Rangliste** und **Werktag gegen Wochenende**,
+- **Feuchte-Ampel**, CO₂ und eine **Lüft-Bilanz**,
+- ein **Wärmebild**, wann geheizt wird,
+- **Batteriestände**, Ausfälle und **Spartipps** mit Zahlen.
+
+Trägst du unter *Einstellungen → Allgemein → Gebäude & Schimmelschutz* deine **Heizkosten pro Jahr** ein, rechnet der Bericht die Ersparnis grob in **Euro** um.
 
 - **Herunterladen:** ganz unten im Reiter **Bericht** unter *PDF-Berichte* – auf **Herunterladen** tippen. Mit den Knöpfen *Woche*, *Monat* und *Heizsaison* bekommst du sofort einen Bericht bis heute.
 - **Aufs Handy:** Die Push-Nachricht hat einen Knopf **PDF öffnen**.

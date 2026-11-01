@@ -162,6 +162,7 @@ HUB_DEFAULTS: Final = {
     CONF_HOME_SENSORS: "mmwave",
     "report_pdf": ["week", "month", "season"],
     "report_email": None,
+    "annual_cost": None,  # Heizkosten pro Jahr (€) laut Abrechnung – nur für die Euro-Schätzung
     "kinds_version": 2,
 }
 

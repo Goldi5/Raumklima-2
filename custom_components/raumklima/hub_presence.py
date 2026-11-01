@@ -237,6 +237,7 @@ class PresenceMixin:
         if self.connection_blips and now - self.connection_blips[-1][0] <= timedelta(seconds=30):
             return
         self.connection_blips.append((now, seconds))
+        self.insights.count("", "blips", home=True)
         day = [b for b in self.connection_blips if now - b[0] <= timedelta(hours=24)]
         if self._blip_logged is None or now - self._blip_logged >= timedelta(minutes=30):
             self._blip_logged = now

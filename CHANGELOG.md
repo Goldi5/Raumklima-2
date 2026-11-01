@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.13.0 – 2026-11-01
+
+### Neu im PDF-Bericht (jetzt 4 Seiten)
+- **Raumklima-Note A–F** aus Wohlfühlzeit, Feuchte und Sparen – mit Verlauf der letzten Wochen/Monate.
+- **Euro-Schätzung** (optional): Heizkosten pro Jahr laut Abrechnung eintragen (*Allgemein → Gebäude &
+  Schimmelschutz*) – Ersparnis in €, „1 °C weniger ≈ … € im Jahr“.
+- **Räume mit Verlaufskurven** (Temperatur, Feuchte), **Rangliste** (sparsamster/wärmster Raum, beste
+  Wohlfühlzeit, größte Verbesserung), **Werktag gegen Wochenende**.
+- **Feuchte-Ampel** je Raum mit Problemraum, **CO₂-Auswertung**, **Lüft-Bilanz** (Anzahl, Dauer, gekippt
+  > 30 min, „Bitte lüften“ → „Luft ausgetauscht“).
+- **Wärmebild „Wann wird geheizt?“** (Wochentag × Uhrzeit).
+- **Anwesenheit** (Vorheizen, warm bei Ankunft, Raumbelegung, Aufheizzeit je Raum) und **Zuverlässigkeit**
+  (Ausfälle, Verbindungsunterbrechungen, Batteriestände).
+- Saisonbericht mit **Rückblick**: erster/letzter Heiztag, kältester Tag, längste Heizpause, stärkster Monat.
+- **Spartipps mit Zahlen**, z. B. Nachtabsenkung, Heizen an milden Tagen, zu warme Räume, Kippfenster.
+
+### Geändert
+- Statistik sammelt zusätzlich: Heizen je Stunde, CO₂, Ergebnis der Lüft-Hinweise, lange Lüftungen,
+  Thermostat-Ausfälle und Verbindungsunterbrechungen.
+
 ## 0.12.0 – 2026-11-01
 
 ### Neu

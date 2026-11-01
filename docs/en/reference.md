@@ -9,6 +9,9 @@
 | Set back after | 30 min | delay before “briefly away” applies |
 | “Away longer” from | 24 h | then setback “long” |
 | Preheat from | 10 km | approaching closer than this → preheat (0 = off) |
+| Heating costs per year | – | optional, € from your bill – only for the euro estimate in the PDF report (`annual_cost`) |
+| PDF reports | week, month, heating season | created automatically (`report_pdf`) |
+| Email PDF to | – | `notify` service, e.g. SMTP (`report_email`) |
 | Presence sensors count | mmWave only | mmWave only / mmWave + PIR / none – if a sensor sees someone, the home counts as occupied (`home_sensors`) |
 | Calendar | – | `calendar.*`; a running event containing “vacation” etc. acts like vacation, “home office” etc. like guests |
 | … like vacation / … someone stays home | see [How it works](how-it-works.md#5-absence) | words, comma-separated |

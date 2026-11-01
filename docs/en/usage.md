@@ -49,7 +49,18 @@ At the bottom of the heating report you find the **PDF reports** – each with a
 
 The buttons **Week**, **Month** and **Heating season** create a report **up to today** right away and download it.
 
-**Contents (2 pages):** heating hours, savings from setback, comfort time, outdoor temperature and heating degree days · comparison with the previous period and – once there is a year of data – with the **year before**, also weather-adjusted · chart of heating hours and outdoor temperature · table per room (heating hours, avg temperature and humidity, hours too humid, airings, window open, set back, at target) · **findings and tips** (e.g. “Bathroom 18 h above the humidity limit – air briefly more often”, “Kitchen: window open 9 h – better short, wide airing than a tilted window”, open health problems).
+**Contents (4 pages):**
+
+| Page | What's in it |
+|---|---|
+| 1 | **Raumklima grade A–F** (from comfort time, humidity and savings) with history of recent weeks/months · heating hours, savings (optionally **in euros**), comfort time, outdoor temperature · comparison with the previous period and the **year before**, also weather-adjusted · chart of heating hours and outdoor temperature |
+| 2 | **Rooms** with small **trend lines** for temperature and humidity · **ranking** (most economical and warmest room, best comfort time, biggest improvement) · **weekdays vs. weekend** |
+| 3 | **Humidity and mould** as a traffic light per room, problem room, **CO₂** (avg and hours above 1000 ppm) · **airing summary** (how often, how long, tilted > 30 min, “please air” → “air exchanged”) · **heat map** “When is it heating?” – weekday × hour |
+| 4 | **Presence** (nobody home, preheated, warm on arrival, room occupancy, heat-up time per room) · **reliability** (failures, connection drops, **battery levels**) · in the season report a **review** (first/last heating day, coldest day, longest pause, peak month) · **saving tips** with numbers · **findings** |
+
+**Euro estimate:** under *Settings → General → Building & mould protection → Heating costs per year*, enter the costs from your bill (optional). The report then estimates savings in euros and what 1 °C less brings per year – roughly via heating degree days, no meter needed. Leave empty = no euro figures.
+
+Heat map, CO₂, airing results and failures are collected from version 0.13 on – they fill up over time.
 
 **Language:** like Home Assistant – German stays German, every other language gets English.
 

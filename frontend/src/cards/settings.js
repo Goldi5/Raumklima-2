@@ -249,6 +249,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const frsi = fmt({ unrenovated: 0.6, renovated: 0.7, new: 0.8 }[this._hubOpt("building_type")] || 0.7, 2);
     const buildRows = [
       this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
+      this._row("Heizkosten pro Jahr", `<span class="v"><input type="number" class="inp" min="0" max="20000" step="50" data-hubnum="annual_cost" value="${this._hubOpt("annual_cost") ?? ""}" placeholder="${t("z. B. 1400")}" ${this._admin ? "" : "disabled"} style="width:110px"> €</span>`, "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)"),
       `<div class="hint">${t("Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.", { f: frsi })}</div>`,
     ].join("");
 
@@ -518,6 +519,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }));
     $("[data-home]").forEach((el) => el.addEventListener("click", () => {
       this._home = el.dataset.home; this._tab = "general"; this._local = {}; this._sig = null; this._load();
+    }));
+    $("[data-hubnum]").forEach((el) => el.addEventListener("change", () => {
+      const v = el.value.trim() === "" ? null : Math.max(0, Math.min(20000, parseFloat(el.value.replace(",", "."))));
+      this._setHub({ [el.dataset.hubnum]: Number.isNaN(v) ? null : v }, 200);
     }));
     $("[data-hubtext]").forEach((el) => el.addEventListener("change", () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200)));
     $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {

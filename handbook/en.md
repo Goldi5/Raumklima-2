@@ -247,7 +247,16 @@ The **Report** tab shows for this week or month how long the heating ran, how mu
 
 ### The report as PDF
 
-Every week, every month and at the end of the heating season a **PDF report** is created with a comparison to the previous period and the year before, a table per room and **tips** – for example when the bathroom was often too humid.
+Every week, every month and at the end of the heating season a **PDF report** (4 pages) is created. Among other things it contains:
+
+- a **grade from A to F** for your indoor climate – with history,
+- the comparison with the previous period and the **year before**,
+- every room with a small **trend line**, a **ranking** and **weekdays vs. weekend**,
+- a **humidity traffic light**, CO₂ and an **airing summary**,
+- a **heat map** of when it heats,
+- **battery levels**, failures and **saving tips** with numbers.
+
+If you enter your **heating costs per year** under *Settings → General → Building & mould protection*, the report roughly converts savings into **euros**.
 
 - **Download:** at the very bottom of the **Report** tab under *PDF reports* – tap **Download**. The buttons *Week*, *Month* and *Heating season* give you a report up to today right away.
 - **On your phone:** the push message has an **Open PDF** button.

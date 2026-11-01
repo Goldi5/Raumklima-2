@@ -193,6 +193,8 @@ class WindowMixin:
                 if self.hub is not None and hours >= 3:
                     self.hub.record_sleep("wake", dt_util.now(), f"Fenster {self.name}")
             else:
+                if self.hub is not None and self.vent and self.vent.open_minutes >= 30:
+                    self.hub.insights.count(self.entry.entry_id, "airings_long")
                 self.log(CAT_WINDOW, "Fenster zu")
             self.night_since = None
         if raw != was_raw:

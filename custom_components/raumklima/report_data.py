@@ -101,7 +101,7 @@ def series(rooms: dict[str, dict[str, dict[str, float]]], home: dict[str, dict[s
     d = start
     while d <= end:
         s = summarize(rooms, home, d, d)
-        out.append({"date": d.isoformat(), "heating_h": s["total"]["heating_h"], "outdoor": s["outdoor_avg"], "hdd": s["hdd"]})
+        out.append({"date": d.isoformat(), "heating_h": s["total"]["heating_h"], "outdoor": s["outdoor_avg"], "hdd": s["hdd"], "recorded": s["total"]["hours"] > 0})
         d += timedelta(days=1)
     return out
 
@@ -198,6 +198,7 @@ def build(
     issues: list[dict[str, Any]] | None = None,
     lang: str = "de",
     season: tuple[str, str] = ("10-01", "04-30"),
+    extras: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Alle Zahlen für einen Bericht."""
     cur = summarize(rooms, home, start, end)
@@ -221,4 +222,46 @@ def build(
         "lang": lang,
     }
     data["findings"] = findings(data, issues or [], lang)
+    add_extras(data, rooms, home, extras or {})
     return data
+
+
+def add_extras(data: dict[str, Any], rooms: dict[str, Any], home: dict[str, Any], extras: dict[str, Any]) -> None:
+    """Weitere Auswertungen: Feuchte, Lüften, Werktag/WE, Rangliste, Verläufe, Wärmebild, Note, Euro, Tipps."""
+    from . import report_extra as rx
+
+    kind, lang = data["kind"], data["lang"]
+    start, end = date.fromisoformat(data["start"]), date.fromisoformat(data["end"])
+    cur = data["current"]
+    weeks = max(data["days"] / 7, 1 / 7)
+    annual_cost = extras.get("annual_cost") or None
+    daily = data["series"] if kind != SEASON else series(rooms, home, MONTH, start, end)
+    grid = rx.heatmap(rooms, start, end)
+    data["humidity"] = {
+        "lights": {n: rx.humidity_light(r, weeks) for n, r in cur["rooms"].items() if r["hours"]},
+        "problem": rx.problem_room(cur),
+    }
+    data["airing"] = rx.airing_rows(cur)
+    data["weekday"] = rx.weekday_weekend(rooms, home, start, end)
+    data["ranking"] = rx.ranking(cur, data["previous"])
+    data["trends"] = rx.room_trends(rooms, home, kind, start, end)
+    data["heatmap"] = grid
+    data["highlights"] = rx.season_highlights(daily, data["series"]) if kind == SEASON else None
+    data["score"] = rx.score(cur)
+    data["score_history"] = rx.score_history(rooms, home, kind, end, 6 if kind != WEEK else 8)
+    data["money"] = rx.money(cur, annual_cost)
+    data["tips"] = rx.saving_tips(cur, daily, grid, annual_cost, extras.get("room_types", {}), lang)
+    data["presence"] = {
+        "away_h": cur["away_h"],
+        "preheats": cur["preheats"],
+        "arrivals": cur["total"]["arrivals"],
+        "arrivals_warm_pct": cur["total"]["arrivals_warm_pct"],
+        "occupied": {n: r["occupied_pct"] for n, r in cur["rooms"].items() if r.get("occupied_pct") is not None},
+        "heatup": extras.get("heatup", {}),
+    }
+    data["reliability"] = {
+        "rooms": {n: {"sync_failed_h": r["sync_failed_h"], "trv_down_h": r["trv_down_h"]} for n, r in cur["rooms"].items() if r["hours"]},
+        "blips": cur.get("blips", 0),
+        "batteries": extras.get("batteries", {}),
+    }
+    data["co2"] = {n: {"avg": r["co2_avg"], "high_h": r["co2_high_h"]} for n, r in cur["rooms"].items() if r.get("co2_avg") is not None}

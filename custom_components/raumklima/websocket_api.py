@@ -139,6 +139,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_HOME_SENSORS): vol.In(HOME_SENSOR_MODES),
         vol.Optional(CONF_REPORT_PDF): [vol.In(REPORT_KINDS)],
         vol.Optional(CONF_REPORT_EMAIL): vol.Any(None, vol.Match(r"^notify\.\w+$")),
+        vol.Optional("annual_cost"): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(0, 20000))),
     }
 )
 

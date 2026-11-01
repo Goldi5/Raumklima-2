@@ -116,6 +116,12 @@ class Insights:
             if temp is not None and temp >= room.target_temp - 1.0:
                 day["arrivals_warm"] = day.get("arrivals_warm", 0) + 1
 
+    def count(self, entry_id: str, field: str, home: bool = False) -> None:
+        """Ereignis des Tages zählen (z. B. „Luft ausgetauscht“, Funkaussetzer)."""
+        today = self._today()
+        day = self.data["home"].setdefault(today, {}) if home else self.data["rooms"].setdefault(entry_id, {}).setdefault(today, {})
+        day[field] = day.get(field, 0) + 1
+
     def count_airing(self, entry_id: str) -> None:
         """Ein Fenster wurde zum Lüften geöffnet (nicht Nachtlüften)."""
         day = self.data["rooms"].setdefault(entry_id, {}).setdefault(self._today(), {})
@@ -183,12 +189,40 @@ class Insights:
         return out
 
     # ------------------------------------------------------------ Bericht
-    def rooms_by_name(self) -> dict[str, dict[str, dict[str, float]]]:
+    def short_names(self) -> dict[str, str]:
+        """entry_id → kurzer Raumname (gemeinsames Präfix entfernt)."""
         names = self.data.get("names", {})
         current = {eid: r.name for eid, r in self.hub.rooms.items()}
-        full = {eid: current.get(eid) or names.get(eid, eid) for eid in self.data["rooms"]}
+        full = {eid: current.get(eid) or names.get(eid, eid) for eid in {*self.data["rooms"], *current}}
         short = shorten_names(list(full.values()))
-        return {short[full[eid]]: days for eid, days in self.data["rooms"].items()}
+        return {eid: short[n] for eid, n in full.items()}
+
+    def rooms_by_name(self) -> dict[str, dict[str, dict[str, float]]]:
+        short = self.short_names()
+        return {short[eid]: days for eid, days in self.data["rooms"].items()}
+
+    def report_extras(self) -> dict[str, Any]:
+        """Live-Werte für den PDF-Bericht: Raumtypen, Aufheizzeiten, Batterien, Heizkosten."""
+        short = self.short_names()
+        extras: dict[str, Any] = {"room_types": {}, "heatup": {}, "batteries": {}, "annual_cost": self.hub.opt("annual_cost")}
+        outdoor = self.hub.outdoor_temp()
+        for eid, room in self.hub.rooms.items():
+            name = short.get(eid, room.name)
+            extras["room_types"][name] = room.config.get("room_type")
+            minutes = room.heatup.minutes_needed(2.0, outdoor)
+            if minutes is not None:
+                extras["heatup"][name] = minutes
+            levels = {}
+            for dev, entity in room._batteries.items():
+                st = self.hass.states.get(entity)
+                try:
+                    levels[dev] = float(st.state) if st else None
+                except ValueError:
+                    continue
+            levels = {k: v for k, v in levels.items() if v is not None}
+            if levels:
+                extras["batteries"][name] = levels
+        return extras
 
     def report(self, today: date | None = None) -> dict[str, Any]:
         """Woche, Vorwoche, Monat, Vormonat und Tageswerte der letzten 31 Tage."""

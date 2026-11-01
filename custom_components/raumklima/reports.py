@@ -134,6 +134,7 @@ class PdfReports:
             hub.insights.all_issues(),
             lang,
             season,
+            hub.insights.report_extras(),
         )
         name = file_name(kind, start, end, lang, current, self._home_label())
         created = dt_util.now()

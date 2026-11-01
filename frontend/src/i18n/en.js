@@ -446,4 +446,7 @@ export const EN = {
   "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“": "create automatically: week on Sundays 18:00, month on the 1st, heating season after it ends – push with link to everyone with “weekly report”",
   "bis heute": "up to today",
   "– keine E-Mail –": "– no email –",
+  "Heizkosten pro Jahr": "Heating costs per year",
+  "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)": "optional, from your bill – only for the euro estimate in the PDF report (savings, “1 °C less = … €”)",
+  "z. B. 1400": "e.g. 1400",
 };

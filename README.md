@@ -2,7 +2,7 @@
 
 **Heizung, die mitdenkt.** Raumklima macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: Es regelt nach einem echten Raumfühler, pausiert bei offenem Fenster, berät beim Lüften, senkt ab, wenn niemand zu Hause ist – mit Schimmelschutz – und heizt nur, wenn es draußen wirklich kalt ist.
 
-**Aktuelle Version: 0.12.0** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · 🇬🇧 [English documentation](docs/en/README.md)
+**Aktuelle Version: 0.13.0** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · 🇬🇧 [English documentation](docs/en/README.md)
 
 > 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf)
 
@@ -27,7 +27,7 @@
 | 📱 **Benachrichtigungen** | pro Empfänger wählbar, welche Nachrichten; Push mit Knöpfen, Ruhezeit (am Wochenende länger), optional Sprachansagen; **Lüft-Countdown auf dem Sperrbildschirm** (Live-Aktivität) |
 | 👤 **Präsenzmelder** | mmWave und PIR (PIR vorsichtiger gewichtet): niemand fälschlich „weg“, solange jemand da ist; leere Räume auf Wunsch etwas kühler |
 | 💡 **Lichtsignal** | Lampen im Raum blinken blau bei „Bitte lüften“, orange bei „Bitte schließen“ – danach wie vorher |
-| 📈 **Heizbericht** | Woche/Monat: Heizstunden, wetterbereinigter Vergleich, Ersparnis durch Absenkung, Wohlfühlzeit; Wochen-Push sonntags; **CSV-Export**; **PDF-Bericht** für Woche, Monat und Heizsaison mit Vergleich zum Vorjahr – per Push-Link, E-Mail oder Download |
+| 📈 **Heizbericht** | Woche/Monat: Heizstunden, wetterbereinigter Vergleich, Ersparnis durch Absenkung, Wohlfühlzeit; Wochen-Push sonntags; **CSV-Export**; **PDF-Bericht** für Woche, Monat und Heizsaison mit Note A–F, Vorjahresvergleich, Feuchte-Ampel, Wärmebild, Rangliste und Spartipps (auf Wunsch in Euro) – per Push-Link, E-Mail oder Download |
 | 🧾 **Protokoll** | live: was wann warum entschieden wurde – Anwesenheit, Ziele, Fenster, Nachrichten, Thermostat-Befehle |
 | 🩺 **Gesundheitscheck** | Batterien, „Raum wird nicht warm“, „Heizkörper kommt kaum hinterher“ (hydraulischer Abgleich), Fühler hängt oder fehlt, Funk- und Verbindungsaussetzer, stiller Fensterkontakt, Schutz gegen Endlosschleifen mit dem Thermostat |
 | 🏘️ **Mehrere Wohnungen** | z. B. Berlin und Remscheid – je eigene Bewohner, Empfänger, Bericht und Protokoll, Umschalter im Dashboard |

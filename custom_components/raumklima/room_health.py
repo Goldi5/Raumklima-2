@@ -8,9 +8,11 @@ from typing import Any
 
 from homeassistant.const import ATTR_TEMPERATURE
 from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.util import dt as dt_util
 
 from .const import (
     STATUS_HEATING,
+    STATUS_TRV,
 )
 from .decision_log import (
     CAT_DEVICE,
@@ -95,6 +97,10 @@ class HealthMixin:
             window_open=self.window_open,
             night=self.night_airing,
             occupied=self.occupied,
+            co2=self.current_co2,
+            sync_failed=self.sync.state == "failed",
+            trv_down=self.status == STATUS_TRV,
+            hour=dt_util.now().hour,
         )
 
     def heatup_needed(self) -> int | None:

@@ -49,7 +49,18 @@ Unten im Heizbericht stehen die **PDF-Berichte** – jeder mit Knopf **Herunterl
 
 Mit den Knöpfen **Woche**, **Monat** und **Heizsaison** entsteht sofort ein Bericht **bis heute** und wird gleich heruntergeladen.
 
-**Inhalt (2 Seiten):** Heizstunden, Ersparnis durch Absenkung, Wohlfühlzeit, Außentemperatur und Heizgradtage · Vergleich mit dem Vorzeitraum und – sobald ein Jahr Daten da ist – mit dem **Vorjahr**, jeweils auch wetterbereinigt · Diagramm Heizstunden und Außentemperatur · Tabelle je Raum (Heizstunden, Ø Temperatur und Feuchte, Stunden zu feucht, Lüftvorgänge, Fenster offen, abgesenkt, am Ziel) · **Auffälligkeiten und Tipps** (z. B. „Bad 18 h über der Feuchtegrenze – öfter kurz stoßlüften“, „Küche: Fenster 9 h offen – lieber stoßlüften statt kippen“, offene Gesundheitsprobleme).
+**Inhalt (4 Seiten):**
+
+| Seite | Was drinsteht |
+|---|---|
+| 1 | **Raumklima-Note A–F** (aus Wohlfühlzeit, Feuchte und Sparen) mit Verlauf der letzten Wochen/Monate · Heizstunden, Ersparnis (auf Wunsch **in Euro**), Wohlfühlzeit, Außentemperatur · Vergleich mit Vorzeitraum und **Vorjahr**, auch wetterbereinigt · Diagramm Heizstunden und Außentemperatur |
+| 2 | **Räume** mit kleinen **Verlaufskurven** für Temperatur und Feuchte · **Rangliste** (sparsamster und wärmster Raum, beste Wohlfühlzeit, größte Verbesserung) · **Werktag und Wochenende** im Vergleich |
+| 3 | **Feuchte und Schimmel** als Ampel je Raum, Problemraum, **CO₂** (Ø und Stunden über 1000 ppm) · **Lüft-Bilanz** (wie oft, wie lange, gekippt > 30 min, „Bitte lüften“ → „Luft ausgetauscht“) · **Wärmebild** „Wann wird geheizt?“ – Wochentag × Uhrzeit |
+| 4 | **Anwesenheit** (niemand da, vorgeheizt, warm bei Ankunft, Raumbelegung, Aufheizzeit je Raum) · **Zuverlässigkeit** (Ausfälle, Verbindungsunterbrechungen, **Batteriestände**) · im Saisonbericht **Rückblick** (erster/letzter Heiztag, kältester Tag, längste Heizpause, stärkster Monat) · **Spartipps** mit Zahlen · **Auffälligkeiten** |
+
+**Euro-Schätzung:** Unter *Einstellungen → Allgemein → Gebäude & Schimmelschutz → Heizkosten pro Jahr* die Kosten laut Abrechnung eintragen (optional). Daraus schätzt der Bericht die Ersparnis in Euro und was 1 °C weniger im Jahr bringt – grob über die Heizgradtage, kein Zähler nötig. Leer lassen = keine Euro-Angaben.
+
+Wärmebild, CO₂, Lüft-Ergebnisse und Ausfälle werden ab Version 0.13 gesammelt – sie füllen sich also erst mit der Zeit.
 
 **Sprache:** wie Home Assistant – Deutsch auf Deutsch, jede andere Sprache auf Englisch.
 

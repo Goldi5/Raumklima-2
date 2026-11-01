@@ -466,6 +466,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             {"type": kind, "room": self.name, "entry_id": self.entry.entry_id, **data},
         )
         self.lights.on_event(kind, data)
+        field = {"please_open": "vent_open_n", "done": "vent_done_n", "please_close": "vent_close_n", "too_cold": "vent_cold_n"}.get(data.get("state")) if kind == "ventilation" else None
+        hub = self.hub
+        if field and hub is not None:
+            hub.insights.count(self.entry.entry_id, field)
 
     def log_light(self, what: str, lights: list[str]) -> None:
         names = []

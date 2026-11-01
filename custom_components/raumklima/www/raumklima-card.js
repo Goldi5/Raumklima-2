@@ -1,4 +1,4 @@
-/* Raumklima 0.12.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.13.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -446,7 +446,10 @@
     "Wochenbericht jetzt senden": "Send weekly report now",
     "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“": "create automatically: week on Sundays 18:00, month on the 1st, heating season after it ends – push with link to everyone with “weekly report”",
     "bis heute": "up to today",
-    "– keine E-Mail –": "– no email –"
+    "– keine E-Mail –": "– no email –",
+    "Heizkosten pro Jahr": "Heating costs per year",
+    "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)": "optional, from your bill – only for the euro estimate in the PDF report (savings, “1 °C less = … €”)",
+    "z. B. 1400": "e.g. 1400"
   };
 
   // src/i18n.js
@@ -477,7 +480,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.12.0";
+  var RK_VERSION = "0.13.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1816,6 +1819,7 @@
       const frsi = fmt({ unrenovated: 0.6, renovated: 0.7, new: 0.8 }[this._hubOpt("building_type")] || 0.7, 2);
       const buildRows = [
         this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
+        this._row("Heizkosten pro Jahr", `<span class="v"><input type="number" class="inp" min="0" max="20000" step="50" data-hubnum="annual_cost" value="${this._hubOpt("annual_cost") ?? ""}" placeholder="${t("z. B. 1400")}" ${this._admin ? "" : "disabled"} style="width:110px"> €</span>`, "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)"),
         `<div class="hint">${t("Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.", { f: frsi })}</div>`
       ].join("");
       const push = this._hubOpt("recipients") || {};
@@ -2113,6 +2117,10 @@
         this._local = {};
         this._sig = null;
         this._load();
+      }));
+      $("[data-hubnum]").forEach((el) => el.addEventListener("change", () => {
+        const v = el.value.trim() === "" ? null : Math.max(0, Math.min(2e4, parseFloat(el.value.replace(",", "."))));
+        this._setHub({ [el.dataset.hubnum]: Number.isNaN(v) ? null : v }, 200);
       }));
       $("[data-hubtext]").forEach((el) => el.addEventListener("change", () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200)));
       $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {

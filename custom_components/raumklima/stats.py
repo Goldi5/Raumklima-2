@@ -40,8 +40,19 @@ ROOM_FIELDS = (
     "empty_ks",  # ∫ (Wunsch − Ziel) K · s im leeren Raum
     "occupied_s",  # Präsenzmelder: jemand im Raum
     "sensed_s",  # Zeit mit Präsenzmelder-Daten
+    "co2_s",  # ∫ CO₂ ppm · s
+    "co2_n_s",
+    "co2_high_s",  # CO₂ ≥ 1000 ppm
+    "sync_failed_s",  # Thermostat bestätigt Befehle nicht
+    "trv_down_s",  # Thermostat nicht erreichbar
+    "vent_open_n",  # „Bitte lüften“
+    "vent_done_n",  # „Luft ausgetauscht“
+    "vent_close_n",  # „Bitte schließen“
+    "vent_cold_n",  # „Raum kühlt aus“
+    "airings_long",  # Lüftungen ≥ 30 min (gekippt?)
 )
-HOME_FIELDS = ("seconds", "away_s", "outdoor_s", "outdoor_n_s", "preheats")
+HOME_FIELDS = ("seconds", "away_s", "outdoor_s", "outdoor_n_s", "preheats", "blips")
+CO2_HIGH = 1000.0
 
 
 @dataclass
@@ -62,6 +73,10 @@ class RoomSample:
     window_open: bool
     night: bool = False
     occupied: bool | None = None  # Präsenzmelder (None = keiner)
+    co2: float | None = None
+    sync_failed: bool = False
+    trv_down: bool = False
+    hour: int | None = None  # Ortszeit, für das Wärmebild
 
 
 def _empty(fields: tuple[str, ...]) -> dict[str, float]:
@@ -110,6 +125,21 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
         day["temp_n_s"] += dt
     if s.window_open:
         day["airing_s"] += dt
+    if s.co2 is not None:
+        day["co2_s"] += s.co2 * dt
+        day["co2_n_s"] += dt
+        if s.co2 >= CO2_HIGH:
+            day["co2_high_s"] += dt
+    if s.sync_failed:
+        day["sync_failed_s"] += dt
+    if s.trv_down:
+        day["trv_down_s"] += dt
+    if s.hour is not None and 0 <= s.hour < 24:
+        hh = day.setdefault("hh", [0.0] * 24)  # Sekunden „heizt“ je Stunde
+        hn = day.setdefault("hn", [0.0] * 24)  # erfasste Sekunden je Stunde
+        hn[s.hour] += dt
+        if s.heating:
+            hh[s.hour] += dt
 
 
 def add_home_sample(day: dict[str, float], away: bool, outdoor: float | None, dt: float) -> None:
@@ -132,7 +162,7 @@ def prune(days: dict[str, Any], today: date, keep: int = MAX_DAYS) -> None:
 
 # ------------------------------------------------------------------ Auswertung
 def _sum(days: list[dict[str, float]], field: str) -> float:
-    return sum(d.get(field, 0.0) for d in days)
+    return sum(v for d in days if isinstance(v := d.get(field, 0.0), (int, float)))
 
 
 def heating_degree_days(home_days: list[dict[str, float]], base: float = HDD_BASE) -> float:
@@ -170,6 +200,15 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         "humidity_avg": round(_sum(days, "hum_s") / hum_n) if hum_n else None,
         "airings": int(_sum(days, "airings")),
         "airing_h": round(_sum(days, "airing_s") / 3600, 1),
+        "co2_avg": round(_sum(days, "co2_s") / co2_n) if (co2_n := _sum(days, "co2_n_s")) >= 3600 else None,
+        "co2_high_h": round(_sum(days, "co2_high_s") / 3600, 1),
+        "sync_failed_h": round(_sum(days, "sync_failed_s") / 3600, 1),
+        "trv_down_h": round(_sum(days, "trv_down_s") / 3600, 1),
+        "vent_open_n": int(_sum(days, "vent_open_n")),
+        "vent_done_n": int(_sum(days, "vent_done_n")),
+        "vent_close_n": int(_sum(days, "vent_close_n")),
+        "vent_cold_n": int(_sum(days, "vent_cold_n")),
+        "airings_long": int(_sum(days, "airings_long")),
         "empty_h": round(_sum(days, "empty_s") / 3600, 1),
         "occupied_pct": round(100 * _sum(days, "occupied_s") / sensed) if sensed >= 3600 else None,
         "arrivals": int(arrivals),
@@ -187,11 +226,23 @@ def summarize(
 ) -> dict[str, Any]:
     """Zeitraum [start, end] auswerten: je Raum und gesamt."""
     keys = [(start + timedelta(days=i)).isoformat() for i in range((end - start).days + 1)]
+    return summarize_keys(rooms, home, keys, start, end)
+
+
+def summarize_keys(
+    rooms: dict[str, dict[str, dict[str, float]]],
+    home: dict[str, dict[str, float]],
+    keys: list[str],
+    start: date,
+    end: date,
+) -> dict[str, Any]:
+    """Wie summarize(), aber für beliebige Tage (z. B. nur Wochenenden)."""
+    keyset = set(keys)
     per_room = {
         name: summarize_room([days[k] for k in keys if k in days]) for name, days in rooms.items()
     }
     home_days = [home[k] for k in keys if k in home]
-    total = summarize_room([d for days in rooms.values() for k, d in days.items() if k in keys])
+    total = summarize_room([d for days in rooms.values() for k, d in days.items() if k in keyset])
     n_rooms = max(len([r for r in per_room.values() if r["hours"]]), 1)
     # Gesamtwerte: Stunden summiert, Prozente gemittelt
     total["saving_pct"] = round(sum(r["saving_pct"] for r in per_room.values()) / n_rooms, 1)
@@ -205,6 +256,7 @@ def summarize(
         "outdoor_avg": round(_sum(home_days, "outdoor_s") / outdoor_n, 1) if outdoor_n else None,
         "away_h": round(_sum(home_days, "away_s") / 3600, 1),
         "preheats": int(_sum(home_days, "preheats")),
+        "blips": int(_sum(home_days, "blips")),
     }
 
 
