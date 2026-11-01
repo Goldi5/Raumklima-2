@@ -1,0 +1,1 @@
+"""Integrationstests mit Home Assistant."""

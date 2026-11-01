@@ -12,10 +12,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RaumklimaConfigEntry, is_hub_entry
-from .hub_platforms import hub_entities
 from .const import CAL_OFFSET, STATUSES, SYNC_STATES
-from .ventilation import VENT_STATES
 from .entity import RaumklimaEntity
+from .hub_platforms import hub_entities
+from .ventilation import VENT_STATES
 
 
 async def async_setup_entry(

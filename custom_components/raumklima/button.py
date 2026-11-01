@@ -8,9 +8,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RaumklimaConfigEntry, is_hub_entry
-from .hub_platforms import hub_entities
 from .const import CAL_NONE
 from .entity import RaumklimaEntity
+from .hub_platforms import hub_entities
 
 
 async def async_setup_entry(

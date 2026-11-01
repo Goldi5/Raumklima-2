@@ -11,8 +11,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
-
 from homeassistant.config_entries import (
     SOURCE_IMPORT,
     ConfigEntry,
@@ -23,9 +21,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import section
-from homeassistant.helpers import area_registry as ar
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er
 from homeassistant.helpers.selector import (
     BooleanSelector,
     EntitySelector,
@@ -39,6 +35,7 @@ from homeassistant.helpers.selector import (
     TextSelector,
     TimeSelector,
 )
+import voluptuous as vol
 
 from .const import (
     BUILDING_TYPES,

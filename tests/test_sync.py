@@ -69,97 +69,76 @@ def make(clock: FakeClock, device: FakeDevice, events: list[str]) -> SyncManager
     )
 
 
-def run(coro) -> None:
-    asyncio.run(coro)
+async def test_confirmed_on_first_try() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
+    assert sync.state == "pending"
+    await clock.advance(20)
+    assert sync.state == "ok"
+    assert dev.sent == [21.0]
 
 
-def test_confirmed_on_first_try() -> None:
-    async def body() -> None:
-        clock, dev, events = FakeClock(), FakeDevice(), []
-        sync = make(clock, dev, events)
-        await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
-        assert sync.state == "pending"
-        await clock.advance(20)
-        assert sync.state == "ok"
-        assert dev.sent == [21.0]
-
-    run(body())
-
-
-def test_lost_command_is_repeated_after_vpn_drop() -> None:
-    async def body() -> None:
-        clock, dev, events = FakeClock(), FakeDevice(), []
-        sync = make(clock, dev, events)
-        dev.connected = False  # 10 s Abbruch
-        await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
-        await clock.advance(10)
-        dev.connected = True
-        await clock.advance(10)  # Prüfung bei 20 s -> fehlt -> erneut senden
-        assert dev.sent == [21.0, 21.0]
-        await clock.advance(40)  # Prüfung Versuch 2
-        assert sync.state == "ok"
-        assert events == []
-
-    run(body())
+async def test_lost_command_is_repeated_after_vpn_drop() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.connected = False  # 10 s Abbruch
+    await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
+    await clock.advance(10)
+    dev.connected = True
+    await clock.advance(10)  # Prüfung bei 20 s -> fehlt -> erneut senden
+    assert dev.sent == [21.0, 21.0]
+    await clock.advance(40)  # Prüfung Versuch 2
+    assert sync.state == "ok"
+    assert events == []
 
 
-def test_newer_request_replaces_older() -> None:
-    async def body() -> None:
-        clock, dev, events = FakeClock(), FakeDevice(), []
-        sync = make(clock, dev, events)
-        dev.connected = False
-        await sync.request("mode", "aus", dev.sender(1.0), lambda: dev.value == 1.0)
-        await sync.request("mode", "an", dev.sender(2.0), lambda: dev.value == 2.0)
-        dev.connected = True
-        await clock.advance(25)
-        await clock.advance(60)
-        assert dev.value == 2.0  # veralteter Befehl "aus" wurde nie wiederholt
-        assert dev.sent.count(1.0) == 1
-        assert sync.state == "ok"
-
-    run(body())
+async def test_newer_request_replaces_older() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.connected = False
+    await sync.request("mode", "aus", dev.sender(1.0), lambda: dev.value == 1.0)
+    await sync.request("mode", "an", dev.sender(2.0), lambda: dev.value == 2.0)
+    dev.connected = True
+    await clock.advance(25)
+    await clock.advance(60)
+    assert dev.value == 2.0  # veralteter Befehl "aus" wurde nie wiederholt
+    assert dev.sent.count(1.0) == 1
+    assert sync.state == "ok"
 
 
-def test_failure_notifies_then_recovers() -> None:
-    async def body() -> None:
-        clock, dev, events = FakeClock(), FakeDevice(), []
-        sync = make(clock, dev, events)
-        dev.connected = False
-        await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
-        await clock.advance(20 + 40 + 60)  # 3 Versuche
-        assert events == ["failed"]
-        assert sync.state == "failed"
-        dev.connected = True
-        await clock.advance(300)  # langsamer Takt
-        await clock.advance(300)
-        assert sync.state == "ok"
-        assert events == ["failed", "recovered"]
-
-    run(body())
+async def test_failure_notifies_then_recovers() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.connected = False
+    await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
+    await clock.advance(20 + 40 + 60)  # 3 Versuche
+    assert events == ["failed"]
+    assert sync.state == "failed"
+    dev.connected = True
+    await clock.advance(300)  # langsamer Takt
+    await clock.advance(300)
+    assert sync.state == "ok"
+    assert events == ["failed", "recovered"]
 
 
-def test_no_send_when_already_correct() -> None:
-    async def body() -> None:
-        clock, dev, events = FakeClock(), FakeDevice(), []
-        sync = make(clock, dev, events)
-        dev.value = 21.0
-        await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
-        assert dev.sent == []
-        assert sync.state == "ok"
-
-    run(body())
+async def test_no_send_when_already_correct() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.value = 21.0
+    await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
+    assert dev.sent == []
+    assert sync.state == "ok"
 
 
-def test_retry_all_now_after_reconnect() -> None:
-    async def body() -> None:
-        clock, dev, events = FakeClock(), FakeDevice(), []
-        sync = make(clock, dev, events)
-        dev.connected = False
-        await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
-        dev.connected = True
-        await sync.retry_all_now()  # TRV wieder "available"
-        assert dev.value == 21.0
-        sync.check_all()
-        assert sync.state == "ok"
+async def test_retry_all_now_after_reconnect() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.connected = False
+    await sync.request("sp", "Sollwert", dev.sender(21.0), lambda: dev.value == 21.0)
+    dev.connected = True
+    await sync.retry_all_now()  # TRV wieder "available"
+    assert dev.value == 21.0
+    sync.check_all()
+    assert sync.state == "ok"
 
-    run(body())

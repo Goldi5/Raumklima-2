@@ -33,7 +33,7 @@ def shorten_names(names: list[str]) -> dict[str, str]:
     common = 0
     while all(len(w) > common + 1 for w in words) and len({w[common] for w in words}) == 1:
         common += 1
-    return {n: " ".join(w[common:]) for n, w in zip(names, words)}
+    return {n: " ".join(w[common:]) for n, w in zip(names, words, strict=True)}
 
 
 class Insights:

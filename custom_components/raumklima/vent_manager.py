@@ -13,6 +13,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_HUMIDITY_SENSOR,
+    CONF_NIGHT_ALARM,
     CONF_NOTIFY_TARGETS,
     CONF_QUIET_END,
     CONF_QUIET_START,
@@ -25,7 +26,6 @@ from .const import (
     KIND_VENT_DONE,
     KIND_VENT_OPEN,
     KIND_WINDOW_AWAY,
-    CONF_NIGHT_ALARM,
     NOTIFY_ACTION_EVENT,
 )
 from .logic import to_float

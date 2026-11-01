@@ -207,7 +207,7 @@ def test_season_decision_modes():
 
 
 # ------------------------------------------------------------------ Nachtlüften
-from rk.planning import in_time_window, morning_after, mute_until, night_airing_applies  # noqa: E402
+from rk.planning import in_time_window, morning_after, mute_until, night_airing_applies
 
 
 def test_night_window():

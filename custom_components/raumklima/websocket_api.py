@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
-
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
+import voluptuous as vol
 
 from .const import (
     BUILDING_TYPES,
@@ -17,10 +16,9 @@ from .const import (
     CONF_COMFORT_TEMP,
     CONF_FROST_FLOOR,
     CONF_HEATING_LIMIT,
-    CONF_LONG_AWAY_HOURS,
     CONF_HOME,
+    CONF_LONG_AWAY_HOURS,
     CONF_NIGHT_AIRING,
-    CONF_VIRTUAL_WINDOW,
     CONF_NIGHT_ALARM,
     CONF_NIGHT_END,
     CONF_NIGHT_START,
@@ -35,6 +33,7 @@ from .const import (
     CONF_SETBACK_SHORT,
     CONF_TTS,
     CONF_VALVE_CARE,
+    CONF_VIRTUAL_WINDOW,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
     CONF_ZONE,
@@ -46,11 +45,20 @@ from .const import (
 )
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
+from .hub import RaumklimaHub, all_hubs, domain_data, get_hub
 from .planning import NIGHT_MODES, VIRT_MODES
-from .hub import all_hubs, domain_data, get_hub
 
 _KINDS = [vol.In(KINDS)]
 _TARGETS = vol.Schema({str: _KINDS})
+
+
+def _hub_or_error(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> RaumklimaHub | None:
+    """Zentrale der gewünschten Wohnung – oder Fehler an die Karte senden."""
+    hub = get_hub(hass, msg.get("home"))
+    if hub is None:
+        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
+    return hub
+
 def _md(value: Any) -> str:
     """'MM-TT' prüfen (Saisonbeginn/-ende)."""
     text = str(value)
@@ -71,16 +79,13 @@ def _time(value: Any) -> str:
     return f"{h:02d}:{m:02d}:00"
 
 
-_MD = _md
-_TIME = _time
-
 HUB_CHANGES = vol.Schema(
     {
         vol.Optional(CONF_RECIPIENTS): _TARGETS,
         vol.Optional(CONF_TTS): _TARGETS,
-        vol.Optional("quiet_start"): _TIME,
-        vol.Optional("quiet_end"): _TIME,
-        vol.Optional("quiet_end_weekend"): _TIME,
+        vol.Optional("quiet_start"): _time,
+        vol.Optional("quiet_end"): _time,
+        vol.Optional("quiet_end_weekend"): _time,
         vol.Optional("learn_times"): bool,
         vol.Optional("name"): str,
         vol.Optional("dashboard"): str,
@@ -96,14 +101,14 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_PREHEAT_KM): vol.All(vol.Coerce(float), vol.Range(0, 500)),
         vol.Optional(CONF_BUILDING): vol.In(BUILDING_TYPES),
         vol.Optional(CONF_SEASON_MODE): vol.In(SEASON_MODES),
-        vol.Optional(CONF_SEASON_START): _MD,
-        vol.Optional(CONF_SEASON_END): _MD,
+        vol.Optional(CONF_SEASON_START): _md,
+        vol.Optional(CONF_SEASON_END): _md,
         vol.Optional(CONF_HEATING_LIMIT): vol.All(vol.Coerce(float), vol.Range(5, 25)),
         vol.Optional(CONF_COLD_SNAP_TEMP): vol.All(vol.Coerce(float), vol.Range(0, 20)),
         vol.Optional(CONF_FROST_FLOOR): vol.All(vol.Coerce(float), vol.Range(5, 20)),
         vol.Optional(CONF_VALVE_CARE): bool,
-        vol.Optional(CONF_NIGHT_START): _TIME,
-        vol.Optional(CONF_NIGHT_END): _TIME,
+        vol.Optional(CONF_NIGHT_START): _time,
+        vol.Optional(CONF_NIGHT_END): _time,
         vol.Optional(CONF_NIGHT_ALARM): vol.All(vol.Coerce(float), vol.Range(5, 20)),
     }
 )
@@ -196,9 +201,8 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
 @websocket_api.require_admin
 @callback
 def ws_hub_update(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass, msg.get("home"))
+    hub = _hub_or_error(hass, connection, msg)
     if hub is None:
-        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
     try:
         changes = HUB_CHANGES(msg["changes"])
@@ -230,8 +234,11 @@ async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveCo
         connection.send_error(msg["id"], "invalid", str(err))
         return
     hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
-    await hass.config_entries.async_reload(entry.entry_id)
-    connection.send_result(msg["id"], {"ok": True})
+    room = domain_data(hass)["rooms"].get(entry.entry_id)
+    live = room is not None and room.apply_live_options(changes)
+    if not live:
+        await hass.config_entries.async_reload(entry.entry_id)
+    connection.send_result(msg["id"], {"ok": True, "reloaded": not live})
 
 
 @websocket_api.websocket_command(
@@ -240,9 +247,8 @@ async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveCo
 @websocket_api.require_admin
 @websocket_api.async_response
 async def ws_notify_test(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass, msg.get("home"))
+    hub = _hub_or_error(hass, connection, msg)
     if hub is None:
-        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
     try:
         await hub.async_test(msg["target"])
@@ -262,9 +268,8 @@ async def ws_notify_test(hass: HomeAssistant, connection: websocket_api.ActiveCo
 @websocket_api.require_admin
 @callback
 def ws_hub_action(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass, msg.get("home"))
+    hub = _hub_or_error(hass, connection, msg)
     if hub is None:
-        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
     action = msg["action"]
     if action == "heat_today":
@@ -281,9 +286,8 @@ def ws_hub_action(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/report", vol.Optional("home"): vol.Any(None, str)})
 @callback
 def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    hub = get_hub(hass, msg.get("home"))
+    hub = _hub_or_error(hass, connection, msg)
     if hub is None:
-        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
     connection.send_result(msg["id"], {**hub.insights.report(), "issues": hub.insights.all_issues()})
 
@@ -301,9 +305,8 @@ def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
 @callback
 def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Entscheidungsprotokoll, neueste zuerst."""
-    hub = get_hub(hass, msg.get("home"))
+    hub = _hub_or_error(hass, connection, msg)
     if hub is None:
-        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
     entries = hub.log.query(
         limit=msg["limit"], before=msg.get("before"), after=msg.get("after"), entry_id=msg.get("entry_id"),
@@ -316,9 +319,8 @@ def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg:
 @callback
 def ws_log_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Neue Protokolleinträge live schicken."""
-    hub = get_hub(hass, msg.get("home"))
+    hub = _hub_or_error(hass, connection, msg)
     if hub is None:
-        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
         return
 
     @callback

@@ -1,8 +1,8 @@
 """Versionsangaben in README, Changelog und Karte müssen zur manifest.json passen."""
 
 import json
-import re
 from pathlib import Path
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = json.loads((ROOT / "custom_components/raumklima/manifest.json").read_text())["version"]

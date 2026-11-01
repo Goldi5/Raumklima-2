@@ -19,7 +19,6 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    HUB_UNIQUE_ID,
     CONF_AWAY_DELAY,
     CONF_BUILDING,
     CONF_COLD_SNAP_TEMP,
@@ -37,35 +36,10 @@ from .const import (
     CONF_ZONE,
     DOMAIN,
     HUB_DEFAULTS,
+    HUB_UNIQUE_ID,
     KIND_PRESENCE,
     KIND_SEASON,
     URGENT_KINDS,
-)
-from .logic import to_float
-from .planning import (
-    AWAY_STAGES,
-    BUILDING_FRSI,
-    STAGE_AWAY_LONG,
-    STAGE_AWAY_SHORT,
-    STAGE_GUESTS,
-    STAGE_HOME,
-    STAGE_PREHEAT,
-    Fix,
-    PresenceInput,
-    SeasonConfig,
-    SeasonState,
-    TrackerFilter,
-    ETA_MAX_KM,
-    approaching,
-    eta_minutes,
-    combined_mean,
-    haversine_km,
-    in_season,
-    in_time_window,
-    presence_stage,
-    season_allows_heating,
-    season_decision,
-    season_step,
 )
 from .decision_log import (
     CAT_MANUAL,
@@ -78,6 +52,32 @@ from .decision_log import (
 )
 from .holidays_de import holiday_name
 from .insights import Insights
+from .logic import to_float
+from .planning import (
+    AWAY_STAGES,
+    BUILDING_FRSI,
+    ETA_MAX_KM,
+    STAGE_AWAY_LONG,
+    STAGE_AWAY_SHORT,
+    STAGE_GUESTS,
+    STAGE_HOME,
+    STAGE_PREHEAT,
+    Fix,
+    PresenceInput,
+    SeasonConfig,
+    SeasonState,
+    TrackerFilter,
+    approaching,
+    combined_mean,
+    eta_minutes,
+    haversine_km,
+    in_season,
+    in_time_window,
+    presence_stage,
+    season_allows_heating,
+    season_decision,
+    season_step,
+)
 from .sleep import BED, WAKE, SignalTracker, SleepLearner, effective_times, is_weekend_night, night_of
 
 if TYPE_CHECKING:
@@ -701,9 +701,9 @@ class RaumklimaHub:
 
     def _announce_stage(self, old: str, new: str) -> None:
         if new == STAGE_AWAY_SHORT:
-            self.notify(KIND_PRESENCE, "🏠 Alle weg", "Heizung in Berlin ist abgesenkt (kurze Abwesenheit).")
+            self.notify(KIND_PRESENCE, "🏠 Alle weg", f"Heizung{self._where()} ist abgesenkt (kurze Abwesenheit).")
         elif new == STAGE_AWAY_LONG:
-            self.notify(KIND_PRESENCE, "🧳 Länger weg", "Heizung ist auf die Abwesenheits-Temperatur abgesenkt.")
+            self.notify(KIND_PRESENCE, "🧳 Länger weg", f"Heizung{self._where()} ist auf die Abwesenheits-Temperatur abgesenkt.")
         elif new == STAGE_PREHEAT:
             who = self._preheat_by or "Jemand"
             dist = next((p["distance_km"] for p in self.persons.values() if p["name"] == who), None)
@@ -711,6 +711,10 @@ class RaumklimaHub:
             self.notify(KIND_PRESENCE, f"🚗 {who} kommt{extra}", "Heize schon mal vor.")
         elif old in AWAY_STAGES and new == STAGE_HOME:
             self.notify(KIND_PRESENCE, "👋 Willkommen", "Räume heizen wieder auf Wunschtemperatur.")
+
+    def _where(self) -> str:
+        """„ in Berlin“ – nur wenn es mehrere Wohnungen gibt."""
+        return f" in {self.name}" if len(all_hubs(self.hass)) > 1 else ""
 
     @property
     def away(self) -> bool:

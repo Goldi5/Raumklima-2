@@ -194,5 +194,5 @@ class SyncManager:
     def _event(self, event: str, job: SyncJob) -> None:
         try:
             self._on_event(event, job)
-        except Exception:  # noqa: BLE001 – Protokoll darf nie die Regelung stören
+        except Exception:
             _LOGGER.exception("Protokoll für %s fehlgeschlagen", job.description)

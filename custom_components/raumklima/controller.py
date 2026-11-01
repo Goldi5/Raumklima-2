@@ -14,13 +14,12 @@ from homeassistant.components.climate import HVACAction
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ENTITY_ID, ATTR_TEMPERATURE
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, State, callback
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.event import (
     async_call_later,
     async_track_state_change_event,
     async_track_time_interval,
 )
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
@@ -31,26 +30,33 @@ from .const import (
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
     CONF_COMFORT_TEMP,
-    CONF_ROOM_TYPE,
     CONF_FOLLOW_TRV,
+    CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_NAME,
+    CONF_NIGHT_AIRING,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
     CONF_OFFSET_MIN_INTERVAL,
     CONF_OFFSET_THRESHOLD,
+    CONF_ON_PRESET,
+    CONF_ROOM_TYPE,
     CONF_SENSOR_STALE_MINUTES,
+    CONF_SETBACK_LONG,
+    CONF_SETBACK_SHORT,
     CONF_SYNC_MAX_RETRIES,
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
     CONF_TRV,
+    CONF_VIRTUAL_WINDOW,
+    CONF_WEATHER,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
-    CONF_WEATHER,
     CONF_WINDOWS,
     DEFAULTS,
-    EVENT_RAUMKLIMA,
     DOMAIN,
+    EVENT_RAUMKLIMA,
+    KIND_TRV_FAILURE,
     MAX_SENSOR_JUMP,
     OFF_AUTO,
     OFF_HVAC,
@@ -60,30 +66,31 @@ from .const import (
     OFFSET_MAX,
     OFFSET_MIN,
     OFFSET_STEP,
-    PRESET_GRACE_SECONDS,
-    CONF_ON_PRESET,
-    CONF_SETBACK_LONG,
-    CONF_HOME,
-    CONF_NIGHT_AIRING,
-    CONF_VIRTUAL_WINDOW,
-    CONF_SETBACK_SHORT,
-    KIND_TRV_FAILURE,
     ON_PRESET_AUTO,
     ON_PRESET_AVOID,
     ON_PRESET_CANDIDATES,
+    PRESET_GRACE_SECONDS,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
     SETPOINT_MATCH_TOLERANCE,
     SLOW_RETRY_INTERVAL,
     STATUS_HEATING,
     STATUS_IDLE,
+    STATUS_NIGHT,
     STATUS_OFF,
     STATUS_SEASON,
     STATUS_SENSOR,
     STATUS_SETBACK,
-    STATUS_NIGHT,
     STATUS_TRV,
     STATUS_WINDOW,
+)
+from .decision_log import (
+    CAT_DEVICE,
+    CAT_MANUAL,
+    CAT_SETTINGS,
+    CAT_TARGET,
+    CAT_WINDOW,
+    fmt_temp,
 )
 from .health import (
     HistoryPoint,
@@ -95,47 +102,40 @@ from .health import (
     check_sensor_missing,
     check_window,
 )
-from .hub import RaumklimaHub, domain_data, get_hub
-from .stats import RoomSample
 from .heatup import HeatupTracker
-from .decision_log import (
-    CAT_DEVICE,
-    CAT_MANUAL,
-    CAT_TARGET,
-    CAT_WINDOW,
-    fmt_temp,
-)
-from .planning import (
-    NIGHT_OFF,
-    NIGHT_ON,
-    VIRT_AUTO,
-    VIRT_MAX_OPEN,
-    VIRT_OFF,
-    VIRT_ON,
-    detect_temp_drop,
-    virtual_window_close_reason,
-    NIGHT_ROOM_TYPES,
-    STAGE_AWAY_LONG,
-    STAGE_AWAY_SHORT,
-    AWAY_STAGES,
-    NIGHT_AUTO,
-    in_time_window,
-    mold_safe_min_temp,
-    night_airing_applies,
-    setback_defaults,
-    setback_target,
-)
+from .hub import RaumklimaHub, domain_data, get_hub
 from .logic import (
     any_open,
     calc_offset,
-    choose_on_preset,
     calc_target_setpoint,
+    choose_on_preset,
     clamp,
     is_valid,
     plausible_reading,
     to_float,
     values_match,
 )
+from .planning import (
+    AWAY_STAGES,
+    NIGHT_AUTO,
+    NIGHT_OFF,
+    NIGHT_ON,
+    NIGHT_ROOM_TYPES,
+    STAGE_AWAY_LONG,
+    STAGE_AWAY_SHORT,
+    VIRT_AUTO,
+    VIRT_MAX_OPEN,
+    VIRT_OFF,
+    VIRT_ON,
+    detect_temp_drop,
+    in_time_window,
+    mold_safe_min_temp,
+    night_airing_applies,
+    setback_defaults,
+    setback_target,
+    virtual_window_close_reason,
+)
+from .stats import RoomSample
 from .sync import SyncJob, SyncManager
 from .vent_manager import VentilationManager
 from .ventilation import MIN_USEFUL_TARGET, comfort_temperature
@@ -160,6 +160,19 @@ REASON_MANUAL = "manual"
 REASON_SEASON = "season"
 REASON_FROST = "frost"
 REASON_VALVE_CARE = "valve_care"
+# Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
+LIVE_OPTIONS = frozenset(
+    {
+        CONF_COMFORT_TEMP,
+        CONF_SETBACK_SHORT,
+        CONF_SETBACK_LONG,
+        CONF_WINDOW_OPEN_DELAY,
+        CONF_WINDOW_CLOSE_DELAY,
+        CONF_NIGHT_AIRING,
+        CONF_VIRTUAL_WINDOW,
+        CONF_HOME,
+    }
+)
 
 
 class RaumklimaController:
@@ -400,6 +413,43 @@ class RaumklimaController:
             "sync_verify_delay": cfg.get(CONF_SYNC_VERIFY_DELAY),
             "sync_max_retries": cfg.get(CONF_SYNC_MAX_RETRIES),
         }
+
+    def apply_live_options(self, changes: dict[str, Any]) -> bool:
+        """Einstellungen aus der Karte übernehmen, ohne den Raum neu zu laden.
+
+        False, wenn eine Änderung einen Neustart braucht (z. B. Raumtyp mit eigenen Standardwerten).
+        """
+        if not self._started or not set(changes) <= LIVE_OPTIONS:
+            return False
+        changed = {k: v for k, v in changes.items() if self.config.get(k) != v}
+        if not changed:
+            return True
+        old_hub = self.hub
+        # self.config ist dasselbe Objekt, das auch der Lüftungsassistent nutzt
+        self.config.update(changed)
+        self.log(
+            CAT_SETTINGS,
+            "Einstellungen geändert",
+            ", ".join(f"{k}: {self._fmt_opt(v)}" for k, v in changed.items()),
+        )
+        if self.virtual_open_at is not None and not self.virtual_enabled():
+            self._close_virtual("off")
+        new_hub = self.hub
+        if new_hub is not old_hub:
+            for hub in (old_hub, new_hub):
+                if hub is not None:
+                    hub.notify_entities()
+        self._notify()
+        self.hass.async_create_task(self._apply())
+        return True
+
+    @staticmethod
+    def _fmt_opt(value: Any) -> str:
+        if value is None or value == "":
+            return "Standard"
+        if isinstance(value, float):
+            return fmt_temp(value) if value < 40 else f"{value:.0f}"
+        return str(value)
 
     def fire_event(self, kind: str, data: dict[str, Any]) -> None:
         """Ereignis für eigene Automationen (raumklima_event)."""
@@ -850,12 +900,11 @@ class RaumklimaController:
             since,
             max_jump=MAX_SENSOR_JUMP,
             window=SENSOR_JUMP_WINDOW,
-        ):
+        ) and (self._ext_candidate is None or abs(value - self._ext_candidate) > 0.5):
             # Ausreißer? Nur übernehmen, wenn der nächste Wert ihn bestätigt
-            if self._ext_candidate is None or abs(value - self._ext_candidate) > 0.5:
-                _LOGGER.debug("%s: unplausibler Messwert %s verworfen", self.name, value)
-                self._ext_candidate = value
-                return False
+            _LOGGER.debug("%s: unplausibler Messwert %s verworfen", self.name, value)
+            self._ext_candidate = value
+            return False
         self._ext_candidate = None
         if value != self._ext_value:
             self._ext_changed_at = now

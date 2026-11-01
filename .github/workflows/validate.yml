@@ -7,19 +7,44 @@ on:
     - cron: "0 3 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   hassfest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: home-assistant/actions/hassfest@master
+      # Feste Commits statt @master/@main: keine Überraschungen durch Änderungen dort
+      - uses: home-assistant/actions/hassfest@86d4564712fa02543c808e3a693dd04f9d3f8361
 
   hacs:
     runs-on: ubuntu-latest
     steps:
-      - uses: hacs/action@main
+      - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
         with:
           category: integration
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements_test.txt
+      - name: Ruff
+        run: ruff check custom_components tests
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Karte bauen und prüfen
+        run: |
+          cd frontend
+          npm ci
+          npm run check
+          npm run build
+          git diff --exit-code -- ../custom_components/raumklima/www/ || (echo "::error::raumklima-card.js ist nicht aktuell – 'npm run build' im Ordner frontend ausführen und committen" && exit 1)
 
   tests:
     runs-on: ubuntu-latest
@@ -28,5 +53,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - run: pip install pytest
-      - run: pytest tests -q
+          cache: pip
+          cache-dependency-path: requirements_test.txt
+      - run: pip install -r requirements_test.txt
+      - run: pytest tests -q -p no:logging

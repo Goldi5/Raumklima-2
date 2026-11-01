@@ -54,6 +54,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     from .websocket_api import async_register_websocket
 
     domain_data(hass)
+    await _async_register_card(hass)
+    async_register_websocket(hass)
+    return True
+
+
+async def _async_register_card(hass: HomeAssistant) -> None:
+    """Karte ausliefern und als Dashboard-Ressource eintragen."""
     card = Path(__file__).parent / "www" / "raumklima-card.js"
     try:
         await hass.http.async_register_static_paths(
@@ -62,8 +69,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     except RuntimeError as err:  # bereits registriert (z. B. nach Reload)
         _LOGGER.debug("Karte schon registriert: %s", err)
     await _async_register_resource(hass)
-    async_register_websocket(hass)
-    return True
 
 
 async def _async_register_resource(hass: HomeAssistant) -> None:

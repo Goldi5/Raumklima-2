@@ -87,7 +87,7 @@ def test_plausible_reading() -> None:
     assert plausible_reading(25.0, 20.0, 600)  # lange her -> ok
 
 
-from rk.logic import choose_on_preset  # noqa: E402
+from rk.logic import choose_on_preset
 
 TRV602Z = ["none", "off", "antifrost", "eco", "comfort", "auto", "on"]
 CAND = ["manual", "heat", "eco", "comfort", "none"]

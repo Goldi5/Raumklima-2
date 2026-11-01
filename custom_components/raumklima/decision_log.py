@@ -146,7 +146,7 @@ class DecisionLog:
         for listener in list(self._listeners):
             try:
                 listener(entry)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 _LOGGER.exception("Protokoll-Abonnent fehlgeschlagen")
         return entry
 
