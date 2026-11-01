@@ -1,7 +1,9 @@
-import { HISTORY_STYLES, ISSUE_STYLES, REPORT_STYLES, ROOM_COLORS, SETTINGS_STYLES, STYLES, esc, fmt, loc, rkIssueList, rkRooms, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, REPORT_STYLES, ROOM_COLORS, SETTINGS_STYLES, STYLES, esc, fmt, loc, rkIssueList, rkRooms, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaReportCard extends HTMLElement {
+  // Neu zeichnen ohne Springen der Seite
+  set _html(html) { rkPaint(this, html); }
   static getConfigForm() {
     return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }] };
   }
@@ -57,7 +59,7 @@ export class RaumklimaReportCard extends HTMLElement {
     else if (!d) body = `<div class="empty">${t("Lade Bericht …")}</div>`;
     else body = this._body(d, P);
     const since = d && d.since ? new Date(d.since + "T00:00:00").toLocaleDateString(loc(), { day: "numeric", month: "long" }) : null;
-    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
+    this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
       <ha-card class="report" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:chart-box-outline"></ha-icon><div>${esc(this._config.title || t("Heizbericht"))}${since ? `<div class="rsub">${t("Daten seit {d}", { d: since })}</div>` : ""}</div></div>
           <div class="segs"><button class="${P === "week" ? "on" : ""}" data-p="week">${t("Diese Woche")}</button><button class="${P === "month" ? "on" : ""}" data-p="month">${t("Dieser Monat")}</button></div>

@@ -1,7 +1,9 @@
-import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkRooms, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkRooms, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaHistoryCard extends HTMLElement {
+  // Neu zeichnen ohne Springen der Seite
+  set _html(html) { rkPaint(this, html); }
   static getConfigForm() {
     return {
       schema: [
@@ -159,7 +161,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
       return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${r.name}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
     }).join("");
     if (!this._data) {
-      this.shadowRoot.innerHTML = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
+      this._html = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
       return this._bind();
     }
     const cw = this.shadowRoot.querySelector(".chart");
@@ -190,7 +192,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
     const body = series.length
       ? `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><defs>${defs}</defs>${bandSvg}<g class="grid">${grid}</g>${xl}${paths}<line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}" style="display:none"/></svg><div class="tip" style="display:none"></div>`
       : `<div class="empty">${this._error ? t("Verlauf nicht verfügbar: {e}", { e: this._error }) : t("Keine Daten im Zeitraum")}</div>`;
-    this.shadowRoot.innerHTML = this._shell(`<div class="legend">${legend}</div><div class="chart" style="--h:${H}px">${body}</div>`);
+    this._html = this._shell(`<div class="legend">${legend}</div><div class="chart" style="--h:${H}px">${body}</div>`);
     this._bind();
     const chart = this.shadowRoot.querySelector(".chart");
     const svg = chart.querySelector("svg");
@@ -214,7 +216,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
 
   _drawTimeline() {
     if (!this._data) {
-      this.shadowRoot.innerHTML = this._shell(`<div class="empty">${t("Lade Verlauf …")}</div>`);
+      this._html = this._shell(`<div class="empty">${t("Lade Verlauf …")}</div>`);
       return this._bind();
     }
     const [t0, t1] = this._range;
@@ -266,7 +268,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
     const xl = Array.from({ length: ticks + 1 }, (_, i) => `<span>${i === ticks ? t("jetzt") : this._fmtTime(t0 + ((t1 - t0) * i) / ticks)}</span>`).join("");
     const leg = ["heating", "idle", "setback", "window_open", "night_airing", "off", "season_off"].map((k) => `<span><i style="--c:${SEG[k].c}"></i>${SEG[k].l}</span>`).join("")
       + `<span><i style="--c:transparent;outline:2px solid var(--rk-air);background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--rk-air) 30%, transparent) 0 3px, transparent 3px 6px)"></i>${t("Fensterkontakt offen")}</span>`;
-    this.shadowRoot.innerHTML = this._shell(`<div class="tl">${rows}</div><div class="tlx">${xl}</div><div class="tleg">${leg}</div>`);
+    this._html = this._shell(`<div class="tl">${rows}</div><div class="tlx">${xl}</div><div class="tleg">${leg}</div>`);
     this._bind();
   }
 }

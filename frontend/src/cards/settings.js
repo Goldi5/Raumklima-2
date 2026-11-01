@@ -1,4 +1,6 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkRooms, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkBusy, rkPaint, rkRooms, setLang, t, toneVar } from "../shared.js";
+import { HELP } from "../help.js";
+import { getLang } from "../i18n.js";
 
 
 export class RaumklimaSettingsCard extends HTMLElement {
@@ -36,6 +38,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
     if (sig === this._sig) return;
     this._sig = sig;
     this._render();
+  }
+  _renderSoon() {
+    // Während jemand tippt oder ein Auswahlfeld offen hat: warten, danach nachholen
+    if (rkBusy(this)) {
+      if (!this._waiting) {
+        this._waiting = true;
+        this.shadowRoot.addEventListener("focusout", () => { this._waiting = false; setTimeout(() => this._render(), 50); }, { once: true });
+      }
+      return true;
+    }
+    return false;
   }
 
   _homeId() {
@@ -120,7 +133,14 @@ export class RaumklimaSettingsCard extends HTMLElement {
   // ---------------------------------------------------------------- Bausteine
   _st(id) { return id ? this._hass.states[id] : undefined; }
   _name(id) { const s = this._st(id); return (s && s.attributes.friendly_name) || id || "–"; }
-  _row(label, value, sub) { return `<div class="row"><div class="l">${t(label)}${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>`; }
+  _row(label, value, sub) {
+    const help = HELP[label];
+    this._helpOpen = this._helpOpen || new Set();
+    const open = help && this._helpOpen.has(label);
+    const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
+    const box = open ? `<div class="helpbox">${esc(help[getLang() === "de" ? 0 : 1])}</div>` : "";
+    return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
+  }
   _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`; }
   _grp(title, icon, tone, rows, cls = "", extra = "") {
     return `<div class="grp ${cls}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
@@ -286,8 +306,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
       this._row("PDF-Berichte", `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => { const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k); return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`; }).join("")}</div>`,
         "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
-      this._row("PDF per E-Mail an", this._select(H, "report_email", (ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) })), this._hubOpt("report_email") || "", "– keine E-Mail –"),
-        "Mail-Dienst (SMTP) in Home Assistant einrichten, dann hier wählen – die PDF kommt als Anhang"),
+      this._row("PDF per E-Mail an", this._select(H, "report_email", [{ id: "raumklima", name: t("Raumklima (direkt hier einrichten)") }, ...(ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) }))], this._hubOpt("report_email") || "", "– keine E-Mail –"),
+        "„Raumklima“ wählen und unten die Zugangsdaten eintragen – die PDF kommt als Anhang"),
+      this._hubOpt("report_email") === "raumklima" ? this._mailSetup() : "",
       this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
     ].join("");
 
@@ -400,6 +421,35 @@ export class RaumklimaSettingsCard extends HTMLElement {
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
   }
 
+  _mailSetup() {
+    const o = (k) => this._mailForm && this._mailForm[k] !== undefined ? this._mailForm[k] : (this._hubOpt(k) ?? "");
+    const ok = !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
+    const open = this._mailOpen ?? !ok;
+    const dis = this._admin ? "" : "disabled";
+    const sec = o("mail_security") || "starttls";
+    const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
+    const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
+      <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
+    return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
+      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")}</span>`}</summary>
+      <div class="mailform">
+        <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
+          <select class="sel" data-mailprov ${dis}><option value="">${t("– wählen –")}</option>${provs}<option value="other">${t("Anderer Anbieter")}</option></select></label>
+        ${field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse")}
+        ${field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort")}
+        ${field("mail_to", "Empfänger", "text", "ich@example.de, partner@example.de", "mehrere mit Komma")}
+        <details class="adv"><summary>${t("Server-Einstellungen")}</summary>
+          ${field("mail_server", "Server", "text", "smtp.example.de")}
+          ${field("mail_port", "Port", "number", "587")}
+          <label class="mf"><span>${t("Verschlüsselung")}</span><div class="segs">${["starttls", "ssl", "none"].map((v) => `<button class="${v === sec ? "on" : ""}" data-mailsec="${v}" ${dis}>${{ starttls: "STARTTLS", ssl: "SSL/TLS", none: t("keine") }[v]}</button>`).join("")}</div></label>
+          ${field("mail_from", "Absender", "email", "", "leer = Benutzer")}
+        </details>
+        <div class="mailact"><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
+        ${this._mailMsg ? `<div class="hint ${this._mailMsg[0]}">${esc(this._mailMsg[1])}</div>` : ""}
+        <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
+      </div></details>`;
+  }
+
   _presenceGroup(r, id, editable) {
     const a = r.attrs, s = a.settings || {};
     const scope = `room:${id}`;
@@ -449,6 +499,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
   // ---------------------------------------------------------------- Rendern
   _render() {
     if (!this._hass || !this._rooms) return;
+    if (this._renderSoon()) return;
     const rooms = this._rooms;
     if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
     const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` +
@@ -460,16 +511,14 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const body = room ? this._room(room) : this._general();
     const homes = (this._cfg && this._cfg.homes) || [];
     const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
-    const scrollY = this.shadowRoot.host ? window.scrollY : 0;
-    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
+    rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
         ${body}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
-      </ha-card>`;
-    if (scrollY) window.scrollTo(0, scrollY);
+      </ha-card>`);
     this._bind();
   }
 
@@ -541,6 +590,48 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const s = (room && room.attrs.settings) || {};
       return [...((room && this._roomOpt(room, key)) ?? s[key] ?? fallback)];
     };
+    const mailbox = this.shadowRoot.querySelector("[data-mailbox]");
+    if (mailbox) mailbox.addEventListener("toggle", () => { this._mailOpen = mailbox.open; });
+    $("[data-mail]").forEach((el) => el.addEventListener("input", () => { this._mailForm = { ...(this._mailForm || {}), [el.dataset.mail]: el.value }; }));
+    $("[data-mailprov]").forEach((el) => el.addEventListener("change", () => {
+      const p = RK_MAIL_PROVIDERS[el.value];
+      if (!p) return;
+      this._mailForm = { ...(this._mailForm || {}), mail_server: p[0], mail_port: String(p[1]), mail_security: p[2] };
+      for (const [k, v] of Object.entries({ mail_server: p[0], mail_port: p[1] })) {
+        const inp = this.shadowRoot.querySelector(`[data-mail="${k}"]`);
+        if (inp) inp.value = v;
+      }
+      this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b.dataset.mailsec === p[2]));
+    }));
+    $("[data-mailsec]").forEach((el) => el.addEventListener("click", () => {
+      this._mailForm = { ...(this._mailForm || {}), mail_security: el.dataset.mailsec };
+      this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b === el));
+    }));
+    $("[data-mailsave]").forEach((el) => el.addEventListener("click", async () => {
+      const f = { ...(this._mailForm || {}) };
+      const changes = {};
+      for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+        if (f[k] === undefined) continue;
+        changes[k] = k === "mail_port" ? (f[k] === "" ? null : parseInt(f[k], 10)) : String(f[k]).trim();
+      }
+      el.disabled = true;
+      this._mailMsg = ["", t("Sende Test-Mail …")]; this._sig = null; this._render();
+      try {
+        if (Object.keys(changes).length) await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
+        const r = await this._hass.callWS({ type: "raumklima/mail/test", settings: changes, ...this._homeMsg() });
+        this._mailMsg = ["okmsg", t("Test-Mail an {to} gesendet – bitte Posteingang (und Spam) prüfen.", { to: (r.to || []).join(", ") })];
+        this._mailForm = {};
+      } catch (e) {
+        this._mailMsg = ["errmsg", t("Fehler: {e}", { e: e.message || e })];
+      }
+      await this._load();
+    }));
+    $("[data-help]").forEach((el) => el.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const k = el.dataset.help;
+      if (this._helpOpen.has(k)) this._helpOpen.delete(k); else this._helpOpen.add(k);
+      this._sig = null; this._render();
+    }));
     $("[data-rpdf]").forEach((el) => el.addEventListener("click", () => {
       const list = [...(this._hubOpt("report_pdf") ?? ["week", "month", "season"])];
       const i = list.indexOf(el.dataset.rpdf);

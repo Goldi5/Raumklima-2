@@ -11,7 +11,7 @@
 | Vorheizen ab | 10 km | Annäherung näher als das → vorheizen (0 = aus) |
 | Heizkosten pro Jahr | – | optional, € laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (`annual_cost`) |
 | PDF-Berichte | Woche, Monat, Heizsaison | automatisch erstellen (`report_pdf`) |
-| PDF per E-Mail an | – | `notify`-Dienst, z. B. SMTP (`report_email`) |
+| PDF per E-Mail an | – | `raumklima` = eingebauter Versand (Zugangsdaten `mail_server`, `mail_port`, `mail_security`, `mail_user`, `mail_password`, `mail_from`, `mail_to`) oder ein `notify`-Dienst (`report_email`) |
 | Präsenzmelder zählen | nur mmWave | nur mmWave / mmWave + PIR / keine – sieht ein Melder jemanden, gilt die Wohnung als bewohnt (`home_sensors`) |
 | Kalender | – | `calendar.*`; laufender Termin mit „Urlaub“ o. ä. wirkt wie Urlaub, mit „Homeoffice“ o. ä. wie Gäste |
 | … wie Urlaub / … zu Hause | siehe [So funktioniert's](funktionsweise.md#5-abwesenheit) | Wörter, Komma-getrennt |

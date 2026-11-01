@@ -1,6 +1,8 @@
-import { STATUS, STYLES, VENT, fmt, humTone, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar } from "../shared.js";
+import { STATUS, STYLES, VENT, fmt, humTone, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 export class RaumklimaCard extends HTMLElement {
+  // Neu zeichnen ohne Springen der Seite
+  set _html(html) { rkPaint(this, html); }
   static getConfigForm() {
     return {
       schema: [
@@ -111,7 +113,7 @@ export class RaumklimaCard extends HTMLElement {
     if (!this._hass || !this._config) return;
     const st = this._hass.states[this._config.entity];
     if (!st) {
-      this.shadowRoot.innerHTML = `<style>${STYLES}</style><ha-card><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
+      this._html = `<style>${STYLES}</style><ha-card><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
       return;
     }
     const a = st.attributes;
@@ -159,7 +161,7 @@ export class RaumklimaCard extends HTMLElement {
     const notif = sib.notifications ? this._hass.states[sib.notifications] : null;
     const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
 
-    this.shadowRoot.innerHTML = `<style>${STYLES}</style>
+    this._html = `<style>${STYLES}</style>
       <ha-card style="--tone:${toneVar(status.tone)}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>

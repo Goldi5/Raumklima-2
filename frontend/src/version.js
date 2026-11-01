@@ -1,2 +1,2 @@
 // Wird von build.mjs aus der manifest.json gesetzt – nicht von Hand ändern
-export const RK_VERSION = "0.13.0";
+export const RK_VERSION = "0.14.0";

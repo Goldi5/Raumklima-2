@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, REPORT_STYLES, SETTINGS_STYLES, STYLES, esc, escRe, loc, rkRooms, setLang, t, tmap, toneVar } from "../shared.js";
+import { HISTORY_STYLES, REPORT_STYLES, SETTINGS_STYLES, STYLES, esc, escRe, loc, rkRooms, setLang, t, tmap, toneVar, rkPaint } from "../shared.js";
 
 const RK_LOG_CATS = tmap({
   presence: ["Anwesenheit", "mdi:home-account", "eco"],
@@ -46,6 +46,8 @@ const LOG_STYLES = `
 `;
 
 export class RaumklimaLogCard extends HTMLElement {
+  // Neu zeichnen ohne Springen der Seite
+  set _html(html) { rkPaint(this, html); }
   static getConfigForm() {
     return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }, { name: "entity", selector: { entity: { domain: "climate", integration: "raumklima" } } }] };
   }
@@ -186,7 +188,7 @@ export class RaumklimaLogCard extends HTMLElement {
       : !this._entries.length ? `<div class="empty">${t("Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.")}</div>`
       : !list.length ? `<div class="empty">${t("Keine Einträge für diese Auswahl.")}</div>` : "";
     const focus = this.shadowRoot.activeElement && this.shadowRoot.activeElement.classList.contains("srch");
-    this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
+    this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
       <ha-card class="log" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:text-box-search-outline"></ha-icon><div>${esc(this._config.title || t("Protokoll"))}<div class="rsub">${t("Was wann warum entschieden wurde · 14 Tage")}</div></div></div>
           <span class="live ${this._liveOff ? "off" : ""}" title="${t("neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen")}"><i></i>${this._liveOff ? t("alle 5 s") : "live"}<span class="ts">${this._stamp ? ` · ${this._stamp.toLocaleTimeString(loc())}` : ""}</span></span></div>

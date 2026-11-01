@@ -1,4 +1,4 @@
-/* Raumklima 0.13.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -449,7 +449,32 @@
     "– keine E-Mail –": "– no email –",
     "Heizkosten pro Jahr": "Heating costs per year",
     "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)": "optional, from your bill – only for the euro estimate in the PDF report (savings, “1 °C less = … €”)",
-    "z. B. 1400": "e.g. 1400"
+    "z. B. 1400": "e.g. 1400",
+    "Erklärung": "Explanation",
+    "Anbieter": "Provider",
+    "Anderer Anbieter": "Other provider",
+    "Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.": "The password is only stored in Home Assistant and never shown. Tip: for Gmail, create a separate password for Raumklima under myaccount.google.com → Security → App passwords.",
+    "E-Mail einrichten": "Set up email",
+    "Raumklima (direkt hier einrichten)": "Raumklima (set up right here)",
+    "Sende Test-Mail …": "Sending test email …",
+    "Server-Einstellungen": "Server settings",
+    "Speichern & Test-Mail senden": "Save & send test email",
+    "Test-Mail an {to} gesendet – bitte Posteingang (und Spam) prüfen.": "Test email sent to {to} – please check your inbox (and spam).",
+    "Verschlüsselung": "Encryption",
+    "eingerichtet": "set up",
+    "füllt Server, Port und Verschlüsselung aus": "fills in server, port and encryption",
+    "gespeichert – leer lassen zum Behalten": "saved – leave empty to keep",
+    "noch nicht eingerichtet": "not set up yet",
+    "„Raumklima“ wählen und unten die Zugangsdaten eintragen – die PDF kommt als Anhang": "choose “Raumklima” and enter the login below – the PDF comes as an attachment",
+    "Benutzer": "User",
+    "Passwort": "Password",
+    "Server": "Server",
+    "Port": "Port",
+    "Absender": "Sender",
+    "meist deine E-Mail-Adresse": "usually your email address",
+    "bei Gmail, iCloud, Outlook: App-Passwort": "for Gmail, iCloud, Outlook: app password",
+    "mehrere mit Komma": "several separated by commas",
+    "leer = Benutzer": "empty = user"
   };
 
   // src/i18n.js
@@ -480,7 +505,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.13.0";
+  var RK_VERSION = "0.14.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -566,6 +591,27 @@
     const d = new Date(ms);
     const time = d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
     return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
+  }
+  function rkPaint(host, html) {
+    const root = host.shadowRoot;
+    const h = host.offsetHeight;
+    const y = window.scrollY;
+    const scrollers = [];
+    for (let el = host.parentElement || host.getRootNode() && host.getRootNode().host; el; el = el.parentElement || el.getRootNode() && el.getRootNode().host) {
+      if (el.scrollTop) scrollers.push([el, el.scrollTop]);
+    }
+    if (h) host.style.minHeight = `${h}px`;
+    root.innerHTML = html;
+    if (window.scrollY !== y) window.scrollTo(0, y);
+    for (const [el, top] of scrollers) if (el.scrollTop !== top) el.scrollTop = top;
+    clearTimeout(host._rkHold);
+    host._rkHold = setTimeout(() => {
+      host.style.minHeight = "";
+    }, 600);
+  }
+  function rkBusy(host) {
+    const a = host.shadowRoot && host.shadowRoot.activeElement;
+    return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
   }
   var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
   var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
@@ -667,6 +713,16 @@
   var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
   var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
   var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+  var RK_MAIL_PROVIDERS = {
+    gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
+    gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
+    webde: ["smtp.web.de", 587, "starttls", "WEB.DE"],
+    outlook: ["smtp-mail.outlook.com", 587, "starttls", "Outlook / Hotmail"],
+    tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
+    icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
+    posteo: ["posteo.de", 587, "starttls", "Posteo"],
+    ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"]
+  };
   var RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
   var RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
   var RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
@@ -780,6 +836,24 @@
   .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); min-height:30px; }
   .rws > .row:first-child { border-top:0; }
   .row .l { font-size:1rem; color:var(--primary-text-color); min-width:0; }
+  .row .lbl { display:inline-flex; align-items:center; gap:6px; }
+  .qm { all:unset; cursor:pointer; flex:none; width:18px; height:18px; border-radius:50%; display:inline-grid; place-items:center; font-size:.72rem; font-weight:700;
+    color: var(--secondary-text-color); border:1.5px solid color-mix(in srgb, var(--secondary-text-color) 55%, transparent); }
+  .qm:hover, .qm.on { color:#fff; background: var(--g, var(--rk-air)); border-color: var(--g, var(--rk-air)); }
+  .qm:focus-visible { outline:2px solid var(--g, var(--rk-air)); outline-offset:2px; }
+  .mailbox { margin:4px 0 10px; border-radius:14px; background: color-mix(in srgb, var(--g, var(--rk-air)) 7%, transparent); padding:4px 12px; }
+  .mailbox > summary, .adv > summary { cursor:pointer; padding:10px 0; font-weight:600; display:flex; align-items:center; gap:8px; color: var(--primary-text-color); }
+  .mailbox > summary .ok { color: var(--rk-ok); font-weight:500; font-size:.85rem; } .mailbox > summary .no { color: var(--secondary-text-color); font-weight:500; font-size:.85rem; }
+  .adv > summary { font-weight:500; font-size:.9rem; color: var(--secondary-text-color); }
+  .mailform { display:flex; flex-direction:column; gap:10px; padding-bottom:12px; }
+  .mf { display:flex; flex-direction:column; align-items:stretch; gap:4px; }
+  .mf > span { color: var(--primary-text-color); } .mf small { display:block; color: var(--secondary-text-color); font-size:.8rem; }
+  .mf .inp, .mf .sel { width:100%; box-sizing:border-box; text-align:left; }
+  .mf .segs { align-self:flex-start; }
+  .mailact { display:flex; justify-content:flex-end; }
+  .hint.okmsg { color: var(--rk-ok); font-weight:600; } .hint.errmsg { color: var(--rk-cold, #e5484d); font-weight:600; }
+  .helpbox { margin:-4px 0 10px; padding:10px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; color: var(--primary-text-color);
+    background: color-mix(in srgb, var(--g, var(--rk-air)) 10%, var(--card-background-color, #fff)); border-left:3px solid var(--g, var(--rk-air)); }
   .row .l small { display:block; color:var(--secondary-text-color); font-size:.84rem; margin-top:1px; }
   .row .v { font-size:1rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
   .row .v.mute { color:var(--secondary-text-color); font-weight:500; }
@@ -909,6 +983,10 @@
 
   // src/cards/room.js
   var RaumklimaCard = class extends HTMLElement {
+    // Neu zeichnen ohne Springen der Seite
+    set _html(html) {
+      rkPaint(this, html);
+    }
     static getConfigForm() {
       return {
         schema: [
@@ -1025,7 +1103,7 @@
       if (!this._hass || !this._config) return;
       const st = this._hass.states[this._config.entity];
       if (!st) {
-        this.shadowRoot.innerHTML = `<style>${STYLES}</style><ha-card><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
+        this._html = `<style>${STYLES}</style><ha-card><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
         return;
       }
       const a = st.attributes;
@@ -1064,7 +1142,7 @@
       const syncLabel = { ok: t("synchron"), pending: t("sendet …"), failed: t("keine Antwort") }[a.sync] || a.sync;
       const notif = sib.notifications ? this._hass.states[sib.notifications] : null;
       const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
-      this.shadowRoot.innerHTML = `<style>${STYLES}</style>
+      this._html = `<style>${STYLES}</style>
       <ha-card style="--tone:${toneVar(status.tone)}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
@@ -1104,6 +1182,10 @@
 
   // src/cards/overview.js
   var RaumklimaOverviewCard = class extends HTMLElement {
+    // Neu zeichnen ohne Springen der Seite
+    set _html(html) {
+      rkPaint(this, html);
+    }
     static getConfigForm() {
       return {
         schema: [
@@ -1180,7 +1262,7 @@
         </div>
       </div>`;
       };
-      this.shadowRoot.innerHTML = `<style>${STYLES}
+      this._html = `<style>${STYLES}
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }
@@ -1238,6 +1320,10 @@
 
   // src/cards/history.js
   var RaumklimaHistoryCard = class extends HTMLElement {
+    // Neu zeichnen ohne Springen der Seite
+    set _html(html) {
+      rkPaint(this, html);
+    }
     static getConfigForm() {
       return {
         schema: [
@@ -1414,7 +1500,7 @@
         return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${r.name}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
       }).join("");
       if (!this._data) {
-        this.shadowRoot.innerHTML = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
+        this._html = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
         return this._bind();
       }
       const cw = this.shadowRoot.querySelector(".chart");
@@ -1450,7 +1536,7 @@
       }).join("");
       const bandSvg = `<rect class="band" x="${padL}" width="${W - padL - padR}" y="${y(band[1])}" height="${y(band[0]) - y(band[1])}" rx="6"/><text class="bandlab" x="${W - padR - 6}" y="${y(band[1]) + 13}" text-anchor="end">${t("Wohlfühlbereich")}</text>`;
       const body = series.length ? `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><defs>${defs}</defs>${bandSvg}<g class="grid">${grid}</g>${xl}${paths}<line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}" style="display:none"/></svg><div class="tip" style="display:none"></div>` : `<div class="empty">${this._error ? t("Verlauf nicht verfügbar: {e}", { e: this._error }) : t("Keine Daten im Zeitraum")}</div>`;
-      this.shadowRoot.innerHTML = this._shell(`<div class="legend">${legend}</div><div class="chart" style="--h:${H}px">${body}</div>`);
+      this._html = this._shell(`<div class="legend">${legend}</div><div class="chart" style="--h:${H}px">${body}</div>`);
       this._bind();
       const chart = this.shadowRoot.querySelector(".chart");
       const svg = chart.querySelector("svg");
@@ -1489,7 +1575,7 @@
     }
     _drawTimeline() {
       if (!this._data) {
-        this.shadowRoot.innerHTML = this._shell(`<div class="empty">${t("Lade Verlauf …")}</div>`);
+        this._html = this._shell(`<div class="empty">${t("Lade Verlauf …")}</div>`);
         return this._bind();
       }
       const [t0, t1] = this._range;
@@ -1538,9 +1624,298 @@
       const ticks = this._hours > 48 ? 7 : 6;
       const xl = Array.from({ length: ticks + 1 }, (_, i) => `<span>${i === ticks ? t("jetzt") : this._fmtTime(t0 + (t1 - t0) * i / ticks)}</span>`).join("");
       const leg = ["heating", "idle", "setback", "window_open", "night_airing", "off", "season_off"].map((k) => `<span><i style="--c:${SEG[k].c}"></i>${SEG[k].l}</span>`).join("") + `<span><i style="--c:transparent;outline:2px solid var(--rk-air);background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--rk-air) 30%, transparent) 0 3px, transparent 3px 6px)"></i>${t("Fensterkontakt offen")}</span>`;
-      this.shadowRoot.innerHTML = this._shell(`<div class="tl">${rows}</div><div class="tlx">${xl}</div><div class="tleg">${leg}</div>`);
+      this._html = this._shell(`<div class="tl">${rows}</div><div class="tlx">${xl}</div><div class="tleg">${leg}</div>`);
       this._bind();
     }
+  };
+
+  // src/help.js
+  var HELP = {
+    // ---------------------------------------------------------------- Anwesenheit
+    "Wer wohnt hier?": [
+      "Die Personen, deren Handys zählen. Ist keine davon in der Wohnungs-Zone, gilt die Wohnung nach der Wartezeit als leer und Raumklima senkt ab. Personen legst du in Home Assistant unter Einstellungen → Personen an und verknüpfst dort das Handy (Home-Assistant-App).",
+      "The people whose phones count. If none of them is in the home zone, the home counts as empty after the waiting time and Raumklima lowers the temperature. People are created in Home Assistant under Settings → People, where you also link their phone (Home Assistant app)."
+    ],
+    "Wohnung (Zone)": [
+      "Der Bereich auf der Karte, der als „zu Hause“ gilt. Meist „Home“; bei mehreren Wohnungen je Wohnung eine eigene Zone (Einstellungen → Bereiche & Zonen).",
+      "The area on the map that counts as “home”. Usually “Home”; with several homes, one zone per home (Settings → Areas & zones)."
+    ],
+    "Absenken nach": [
+      "So lange muss die Wohnung leer sein, bevor abgesenkt wird – damit kurz Brötchen holen nichts auslöst. 30 Minuten sind ein guter Wert.",
+      "How long the home must be empty before lowering – so that popping out for bread doesn't trigger anything. 30 minutes is a good value."
+    ],
+    "„Länger weg“ ab": [
+      "Nach so vielen Stunden ohne jemanden wird von „kurz weg“ auf „länger weg“ umgeschaltet – dann wird tiefer abgesenkt (z. B. über Nacht weg oder auf Reisen).",
+      "After this many hours without anyone home, “briefly away” switches to “away longer” and the temperature is lowered further (e.g. away overnight or travelling)."
+    ],
+    "Vorheizen ab": [
+      "Kommt jemand näher als diese Entfernung, wird schon vorgeheizt, damit es bei der Ankunft warm ist. Zusätzlich heizt Raumklima nach der gelernten Aufheizzeit vor. 0 schaltet das Vorheizen nach Entfernung aus.",
+      "When someone gets closer than this distance, heating starts early so it is warm on arrival. Raumklima also preheats based on the learned heat-up time. 0 turns distance-based preheating off."
+    ],
+    "Präsenzmelder zählen": [
+      "Sieht ein Präsenzmelder in einem Raum jemanden, gilt die Wohnung als bewohnt – auch wenn alle Handys weg sind (Besuch, Kinder ohne Handy). „Nur mmWave“ ist der sichere Standard, weil Bewegungsmelder (PIR) auch auf Haustiere reagieren. Im Urlaub zählen Melder nie.",
+      "If a presence sensor sees someone in a room, the home counts as occupied – even when all phones are away (visitors, children without a phone). “mmWave only” is the safe default because motion sensors (PIR) also react to pets. During vacation sensors never count."
+    ],
+    Urlaub: [
+      "Senkt sofort tief ab („länger weg“), egal wo die Handys sind. Endet automatisch, sobald jemand nach Hause kommt.",
+      "Lowers the temperature right away (“away longer”), no matter where the phones are. Ends automatically as soon as someone comes home."
+    ],
+    "Gäste da": [
+      "Solange an, wird nicht abgesenkt – auch wenn alle Bewohner weg sind. Praktisch, wenn Besuch ohne Handy in Home Assistant da ist.",
+      "While on, nothing is lowered – even if all residents are away. Handy when visitors without a phone in Home Assistant are staying."
+    ],
+    Kalender: [
+      "Ein Kalender aus Home Assistant. Läuft gerade ein Termin mit einem der Urlaubs-Wörter im Titel, wirkt er wie der Urlaubsschalter; mit einem der Zuhause-Wörter wie „Gäste da“.",
+      "A calendar from Home Assistant. If an event with one of the vacation words in its title is running, it acts like the vacation switch; with one of the at-home words like “guests”."
+    ],
+    "… wie Urlaub": [
+      "Wörter im Termintitel, die „verreist“ bedeuten, durch Komma getrennt. Groß-/Kleinschreibung egal.",
+      "Words in the event title that mean “travelling”, separated by commas. Case doesn't matter."
+    ],
+    "… jemand bleibt zu Hause": [
+      "Wörter im Termintitel, bei denen nicht abgesenkt werden soll, z. B. Homeoffice – auch wenn das Handy kurz woanders ist.",
+      "Words in the event title for which nothing should be lowered, e.g. home office – even if the phone is briefly elsewhere."
+    ],
+    // ---------------------------------------------------------------- Heizsaison
+    Betriebsart: [
+      "Automatisch: geheizt wird nur, wenn es draußen kalt genug ist (Heizgrenze, Heizsaison, Kälteeinbruch). Immer heizen: ganzjährig. Heizpause: nie – außer ein Raum fällt unter die Sicherung.",
+      "Automatic: heating only when it is cold enough outside (heating limit, season, cold snap). Always heat: all year. Heating pause: never – unless a room drops below the safety minimum."
+    ],
+    Heizgrenze: [
+      "Liegt das Tagesmittel draußen (gemessen + Vorhersage) über diesem Wert, braucht das Haus keine Heizung – Raumklima macht Pause. 15 °C passt für die meisten Häuser; gut gedämmt eher 12–14 °C.",
+      "If the daily mean outside (measured + forecast) is above this value, the building needs no heating and Raumklima pauses. 15 °C suits most homes; well insulated rather 12–14 °C."
+    ],
+    Heizsaison: [
+      "Der Zeitraum, in dem normalerweise geheizt wird (Monat-Tag). Außerhalb wird nur bei einem Kälteeinbruch geheizt. Am Tag nach dem Ende kommt auch der Saisonbericht.",
+      "The period in which you normally heat (month-day). Outside of it, heating only runs during a cold snap. The day after it ends, the season report is created."
+    ],
+    "Kälteeinbruch unter": [
+      "Ist es außerhalb der Heizsaison 3 Tage lang kälter als dieser Wert, wird trotzdem geheizt – z. B. bei einem kalten Mai.",
+      "If it is colder than this for 3 days outside the heating season, heating runs anyway – e.g. in a cold May."
+    ],
+    Sicherung: [
+      "Fällt ein Raum während der Heizpause unter diese Temperatur, heizt er trotzdem – Schutz vor Auskühlen und Schimmel.",
+      "If a room drops below this temperature during the heating pause, it heats anyway – protection against cooling down and mould."
+    ],
+    "Frostnacht: weniger absenken": [
+      "Sagt die Vorhersage −5 °C oder kälter, wird bei Abwesenheit nur halb so tief abgesenkt. So kühlen die Wände nicht zu stark aus und der Raum ist schneller wieder warm.",
+      "If the forecast says −5 °C or colder, setback during absence is only half as deep. Walls don't cool down too much and the room warms up faster."
+    ],
+    "Sommerpflege Ventile": [
+      "Im Sommer öffnet Raumklima mittwochs um 11 Uhr die Ventile kurz ganz, damit sie nicht festsitzen.",
+      "In summer Raumklima briefly opens the valves fully on Wednesdays at 11:00 so they don't get stuck."
+    ],
+    "Heute heizen": [
+      "Für milde, aber kühle Tage: heizt 24 Stunden lang, auch wenn die Heizgrenze eigentlich eine Pause vorsieht.",
+      "For mild but chilly days: heats for 24 hours even though the heating limit would normally pause."
+    ],
+    // ---------------------------------------------------------------- Schlafen
+    "Zeiten lernen": [
+      "Raumklima merkt sich, wann ihr ins Bett geht und aufsteht (Nachtlüften, Licht aus/an) und passt Ruhezeit und Nachtlüften daran an – verlängert sie nur, verkürzt sie nie.",
+      "Raumklima learns when you go to bed and get up (night airing, lights off/on) and adjusts quiet hours and night airing – it only extends them, never shortens."
+    ],
+    Feiertage: [
+      "Dein Bundesland: Die Nacht vor einem Feiertag gilt dann wie Wochenende (längere Ruhezeit am Morgen).",
+      "Your German state: the night before a public holiday then counts like a weekend (longer quiet hours in the morning)."
+    ],
+    "Schlaf-Signale": [
+      "Lampen oder Schalter, an denen Raumklima den Schlaf erkennt: abends alle aus = ins Bett, morgens eins an = aufgestanden.",
+      "Lights or switches Raumklima uses to detect sleep: all off in the evening = bedtime, one on in the morning = up."
+    ],
+    // ---------------------------------------------------------------- Wohnung
+    "Name der Wohnung": [
+      "Erscheint im Umschalter oben im Dashboard und in Nachrichten – wichtig, wenn du mehrere Wohnungen hast.",
+      "Shown in the switcher at the top of the dashboard and in messages – important if you have several homes."
+    ],
+    Dashboard: [
+      "Pfad des Raumklima-Dashboards dieser Wohnung. Antippen einer Live-Aktivität oder eines Berichts öffnet diese Seite.",
+      "Path of this home's Raumklima dashboard. Tapping a live activity or a report opens this page."
+    ],
+    Bauart: [
+      "Wie gut die Außenwände dämmen. Daraus berechnet der Schimmelschutz, wie kalt die kälteste Wandstelle wird – bei einem unsanierten Altbau wird deshalb weniger abgesenkt.",
+      "How well the outer walls insulate. Mould protection uses this to calculate how cold the coldest spot on the wall gets – an unrenovated old building is lowered less."
+    ],
+    "Heizkosten pro Jahr": [
+      "Optional: deine Heizkosten pro Jahr laut Abrechnung. Nur für den PDF-Bericht – er rechnet die Ersparnis grob in Euro um und zeigt, was 1 °C weniger im Jahr bringt. Leer lassen = keine Euro-Angaben.",
+      "Optional: your yearly heating costs from your bill. Only for the PDF report – it roughly converts savings into euros and shows what 1 °C less saves per year. Leave empty = no euro figures."
+    ],
+    // ---------------------------------------------------------------- Benachrichtigungen
+    Ruhezeit: [
+      "In dieser Zeit kommen Nachrichten leise an und es gibt keine Sprachansagen. Nur Dringendes ist laut: Raum kühlt aus, Fenster offen während niemand da ist, Thermostat reagiert nicht.",
+      "During this time messages arrive silently and there are no voice announcements. Only urgent ones are loud: room cooling down, window open while nobody is home, thermostat not responding."
+    ],
+    "Wochenende bis": [
+      "Am Wochenende endet die Ruhezeit erst zu dieser Uhrzeit – zum Ausschlafen.",
+      "On weekends quiet hours end only at this time – for sleeping in."
+    ],
+    Nachtlüften: [
+      "Wird ein Schlafzimmerfenster in diesem Zeitfenster geöffnet, gilt es als „Schlafen bei offenem Fenster“: keine Lüft-Hinweise, die Heizung wartet bis zum Schließen, morgens ein Gruß.",
+      "If a bedroom window is opened in this time window, it counts as “sleeping with the window open”: no airing notices, heating waits until it is closed, a good-morning message."
+    ],
+    "… leise warnen unter": [
+      "Wird es beim Schlafen mit offenem Fenster kälter als dieser Wert, kommt einmal pro Nacht eine leise Warnung.",
+      "If it gets colder than this while sleeping with the window open, a quiet warning is sent once per night."
+    ],
+    "Erinnern alle": [
+      "Besteht ein Problem weiter (z. B. Fenster offen, Raum kühlt aus), erinnert Raumklima in diesem Abstand – höchstens einige Male.",
+      "If a problem persists (e.g. window open, room cooling down), Raumklima reminds you at this interval – only a few times."
+    ],
+    Wetterquelle: [
+      "Woher die Außentemperatur und die Vorhersage kommen. Am besten ein Wetterdienst mit Vorhersage, z. B. weather.forecast_home – nötig für Heizgrenze, Lüftdauer, Sonnenseite und Frostnacht.",
+      "Where the outdoor temperature and forecast come from. Ideally a weather service with a forecast, e.g. weather.forecast_home – needed for heating limit, airing time, sunny side and frost nights."
+    ],
+    "Fehler auch in der HA-Glocke": [
+      "Reagiert ein Thermostat nicht, erscheint zusätzlich eine Meldung in der Glocke von Home Assistant.",
+      "If a thermostat doesn't respond, an additional notification appears in Home Assistant's bell."
+    ],
+    "PDF-Berichte": [
+      "Welche Berichte automatisch als PDF entstehen: Woche (sonntags 18 Uhr), Monat (am 1.), Heizsaison (nach dem Saisonende). Sie kommen als Push an alle mit „Wochenbericht“ und stehen im Reiter Bericht zum Herunterladen.",
+      "Which reports are created automatically as PDF: week (Sundays 18:00), month (on the 1st), heating season (after it ends). They are pushed to everyone with “weekly report” and listed in the Report tab for download."
+    ],
+    "PDF per E-Mail an": [
+      "Wohin der PDF-Bericht als Anhang geht. Am einfachsten „Raumklima“ wählen: Dann klappt darunter „E-Mail einrichten“ auf – Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Speichern & Test-Mail senden“. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort. Hast du schon einen Mail-Dienst in Home Assistant, kannst du auch den wählen.",
+      "Where the PDF report is sent as an attachment. Easiest: choose “Raumklima” – “Set up email” opens below: pick your provider (fills in server and port), enter user, password and recipients, then “Save & send test email”. Gmail, iCloud and Outlook need an app password. If you already have a mail service in Home Assistant, you can choose that instead."
+    ],
+    Test: ["Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.", "Creates a weekly report now and sends it to all recipients and by email."],
+    // ---------------------------------------------------------------- Raum: Temperatur
+    Wunschtemperatur: [
+      "So warm soll der Raum sein, wenn jemand da ist. Gemessen wird mit dem Raumfühler, nicht am Heizkörper. Jedes Grad weniger spart etwa 6 % Heizenergie.",
+      "How warm the room should be when someone is home. Measured with the room sensor, not at the radiator. Each degree less saves about 6 % heating energy."
+    ],
+    Raumtyp: [
+      "Setzt passende Standardwerte für Wunschtemperatur, Feuchtegrenze, Mindesttemperatur und Absenkung (Bad wärmer und feuchter, Schlafzimmer kühler). Beim Wechsel startet der Raum kurz neu.",
+      "Sets suitable defaults for desired temperature, humidity limit, minimum temperature and setback (bathroom warmer and more humid, bedroom cooler). Changing it restarts the room briefly."
+    ],
+    Wohnung: [
+      "Zu welcher Wohnung der Raum gehört – bestimmt Bewohner, Zone, Empfänger und Bericht.",
+      "Which home the room belongs to – determines residents, zone, recipients and report."
+    ],
+    Sonnenseite: [
+      "Für Räume mit großen Süd- oder Westfenstern: Ist Sonne vorhergesagt und der Raum schon fast warm, heizt er 1 °C weniger – die Sonne erledigt den Rest.",
+      "For rooms with large south or west windows: if sun is forecast and the room is almost warm, it heats 1 °C less – the sun does the rest."
+    ],
+    "Absenkung „kurz weg“": [
+      "Zieltemperatur, wenn alle kurz weg sind. Nie tiefer, als der Schimmelschutz erlaubt.",
+      "Target temperature when everyone is briefly away. Never lower than mould protection allows."
+    ],
+    "Absenkung „länger weg“": [
+      "Zieltemperatur bei längerer Abwesenheit oder Urlaub. Feuchte Räume bleiben automatisch wärmer (Schimmelschutz).",
+      "Target temperature during longer absence or vacation. Humid rooms automatically stay warmer (mould protection)."
+    ],
+    Aufheizen: [
+      "Wie lange der Raum braucht, um 2 °C wärmer zu werden – Raumklima lernt das aus jedem Aufheizen und heizt danach rechtzeitig vor, bevor jemand ankommt.",
+      "How long the room needs to get 2 °C warmer – Raumklima learns this from every heat-up and then preheats in time before someone arrives."
+    ],
+    // ---------------------------------------------------------------- Raum: Lüften
+    Feuchtegrenze: [
+      "Ab dieser Luftfeuchte (15 Minuten lang) kommt „Bitte lüften“ – aber nur, wenn Lüften auch trocknet, die Luft draußen also trockener ist. Ändern über Geräte & Technik.",
+      "From this humidity (for 15 minutes) you get “please air the room” – but only if airing actually dries, i.e. the outside air is drier. Change it under devices & technical settings."
+    ],
+    Feuchtefühler: [
+      "Sensor für die Luftfeuchte im Raum – nötig für Lüft-Hinweise und Schimmelschutz.",
+      "Sensor for the room's humidity – needed for airing notices and mould protection."
+    ],
+    "Mindesttemperatur beim Lüften": [
+      "Fällt der Raum beim Lüften darunter, kommt „Raum kühlt aus – bitte schließen“.",
+      "If the room drops below this while airing, you get “room cooling down – please close”."
+    ],
+    "Max. Abkühlung beim Lüften": [
+      "Kühlt der Raum beim Lüften um mehr als diesen Wert ab, kommt ebenfalls „bitte schließen“ – so kühlen die Wände nicht aus.",
+      "If the room cools down by more than this while airing, you also get “please close” – so the walls don't cool down."
+    ],
+    Jetzt: ["Aktuelle Feuchte und Taupunkt im Raum.", "Current humidity and dew point in the room."],
+    "Empfohlene Lüftdauer": [
+      "Wie lange stoßlüften reicht – je kälter es draußen ist, desto kürzer (im Winter oft nur 5 Minuten).",
+      "How long airing wide open is enough – the colder it is outside, the shorter (often only 5 minutes in winter)."
+    ],
+    // ---------------------------------------------------------------- Raum: Fenster
+    "Heizung bei offenem Fenster pausieren": [
+      "Ist ein Fenster offen, stoppt die Heizung; danach geht es mit der vorherigen Einstellung weiter. Schalte die eingebaute Fenstererkennung des Thermostats aus, damit sich beides nicht stört.",
+      "When a window is open, heating stops; afterwards it continues with the previous setting. Turn off the thermostat's built-in window detection so the two don't interfere."
+    ],
+    "Pause nach": [
+      "So lange muss das Fenster offen sein, bevor die Heizung pausiert – kurzes Öffnen löst nichts aus.",
+      "How long the window must be open before heating pauses – briefly opening it doesn't trigger anything."
+    ],
+    "Weiter nach": [
+      "So lange muss das Fenster zu sein, bevor wieder geheizt wird.",
+      "How long the window must be closed before heating resumes."
+    ],
+    "Schlafen bei offenem Fenster": [
+      "Wird abends im Schlafzimmer gelüftet, gilt das als Nachtlüften: keine Lüft-Hinweise, die Heizung wartet, morgens ein Gruß. Automatisch = ja für Schlafzimmer und selten genutzte Räume.",
+      "If the bedroom window is opened in the evening, it counts as night airing: no airing notices, heating waits, a good-morning message. Automatic = yes for bedrooms and rarely used rooms."
+    ],
+    Kontakte: ["Die Fensterkontakte dieses Raums und ihr Zustand. Ändern über Geräte & Technik.", "This room's window contacts and their state. Change them under devices & technical settings."],
+    "Offenes Fenster an Temperatursturz erkennen": [
+      "Ohne (funktionierenden) Fensterkontakt: Fällt die Temperatur in 6 Minuten um 1 °C, nimmt Raumklima ein offenes Fenster an und pausiert. Automatisch = nur, wenn kein Kontakt zuverlässig meldet.",
+      "Without a (working) window contact: if the temperature drops 1 °C in 6 minutes, Raumklima assumes an open window and pauses. Automatic = only if no contact reports reliably."
+    ],
+    // ---------------------------------------------------------------- Raum: Präsenz
+    Melder: [
+      "Präsenz- oder Bewegungsmelder in diesem Raum. mmWave (Radar) sieht auch Stillsitzende – sehr zuverlässig. PIR sieht nur Bewegung; Raumklima wartet deshalb länger, bevor der Raum als leer gilt.",
+      "Presence or motion sensors in this room. mmWave (radar) also sees people sitting still – very reliable. PIR only sees movement, so Raumklima waits longer before the room counts as empty."
+    ],
+    Art: [
+      "Automatisch: Geräteklasse „Bewegung“ = PIR, „Anwesenheit/Belegung“ = mmWave. Stimmt das bei deinem Melder nicht, hier fest einstellen.",
+      "Automatic: device class “motion” = PIR, “presence/occupancy” = mmWave. If that's wrong for your sensor, set it here."
+    ],
+    "Leeren Raum absenken": [
+      "Ist niemand im Raum, wird er etwas kühler – kommt jemand herein, sofort wieder warm. Automatisch = nur Wohnraum, Küche und selten genutzte Räume und nur mit mmWave. Schlafzimmer und Bad bleiben warm, außer du stellst „Ja“ ein.",
+      "If nobody is in the room it gets a little cooler – when someone comes in, it warms up right away. Automatic = only living room, kitchen and rarely used rooms and only with mmWave. Bedrooms and bathrooms stay warm unless you set “yes”."
+    ],
+    "… wenn leer seit": [
+      "So lange muss der Raum leer sein, bevor abgesenkt wird. Heizkörper reagieren träge – zu kurz spart kaum etwas.",
+      "How long the room must be empty before lowering. Radiators are slow – too short saves hardly anything."
+    ],
+    "… um": [
+      "So viel kühler wird der leere Raum – nie unter „kurz weg“ und den Schimmelschutz.",
+      "How much cooler the empty room gets – never below “briefly away” and mould protection."
+    ],
+    // ---------------------------------------------------------------- Raum: Lichtsignal
+    Lampen: [
+      "Lampen, die bei Hinweisen dreimal farbig blinken und danach wieder so sind wie vorher. Nicht in der Ruhezeit, beim Nachtlüften, wenn niemand da ist oder der Raum leer ist.",
+      "Lights that blink three times in colour on notices and then return to how they were. Not during quiet hours, night airing, when nobody is home or the room is empty."
+    ],
+    "Blinken bei": [
+      "Bei welchen Hinweisen geblinkt wird: blau = bitte lüften, orange = bitte schließen/kühlt aus, grün = Luft ausgetauscht, rot = Problem mit der Heizung.",
+      "Which notices make the lights blink: blue = please air, orange = please close/cooling down, green = air exchanged, red = heating problem."
+    ],
+    Ausprobieren: ["Lässt die Lampen jetzt einmal blau blinken.", "Makes the lights blink blue once now."],
+    // ---------------------------------------------------------------- Raum: Benachrichtigungen & Technik
+    "Hinweise für diesen Raum": [
+      "Aus = dieser Raum schickt keine Lüft-Hinweise und keinen Lüft-Countdown. Geregelt wird trotzdem.",
+      "Off = this room sends no airing notices and no airing countdown. It is still controlled."
+    ],
+    Empfänger: ["Wer Nachrichten bekommt, stellst du zentral unter Allgemein → Wer bekommt was ein.", "Who gets messages is set centrally under General → Who gets what."],
+    Thermostat: ["Das Thermostat am Heizkörper. Ändern über Geräte & Technik.", "The radiator thermostat. Change it under devices & technical settings."],
+    Temperaturfühler: [
+      "Der Fühler, nach dem geregelt wird – am besten in Raummitte, nicht am Heizkörper oder in der Sonne.",
+      "The sensor used for control – ideally in the middle of the room, not at the radiator or in the sun."
+    ],
+    "CO₂-Sensor": [
+      "Optional: ab 1000 ppm kommt „Bitte lüften“, „Luft ausgetauscht“ erst unter 800 ppm.",
+      "Optional: from 1000 ppm you get “please air the room”, “air exchanged” only below 800 ppm."
+    ],
+    Kalibrierung: [
+      "Wie das Thermostat dazu gebracht wird, die Raumtemperatur zu „sehen“: Offset (Korrekturwert am Thermostat), Sollwert-Ausgleich (Ziel am Thermostat anpassen) oder keine.",
+      "How the thermostat is made to “see” the room temperature: offset (correction value on the thermostat), setpoint compensation (adjust the thermostat target) or none."
+    ],
+    "Einschalten mit": [
+      "Mit welcher Betriebsart das Thermostat heizt. Automatisch meidet Modi, bei denen manche Thermostate das Ventil einfach ganz öffnen.",
+      "Which mode the thermostat heats with. Automatic avoids modes in which some thermostats simply open the valve fully."
+    ],
+    "Ausschalten über": [
+      "Wie „aus“ ans Thermostat geht: Preset „aus“, HVAC „aus“ oder Minimaltemperatur – je nachdem, was dein Gerät zuverlässig kann.",
+      "How “off” is sent to the thermostat: preset “off”, HVAC “off” or minimum temperature – whatever your device handles reliably."
+    ],
+    "Drehen am Thermostat übernehmen": [
+      "Ja: Drehst du am Thermostat, wird das die neue Wunschtemperatur. Nein: Raumklima stellt den Wert zurück.",
+      "Yes: turning the thermostat sets the new desired temperature. No: Raumklima resets the value."
+    ],
+    Übertragung: [
+      "Jeder Befehl wird nach kurzer Zeit geprüft und bei Bedarf wiederholt – gegen Funk- und VPN-Aussetzer. „Synchron“ heißt: Thermostat hat bestätigt.",
+      "Every command is checked after a short time and repeated if needed – against radio and VPN drops. “In sync” means the thermostat has confirmed."
+    ]
   };
 
   // src/cards/settings.js
@@ -1588,6 +1963,19 @@
       if (sig === this._sig) return;
       this._sig = sig;
       this._render();
+    }
+    _renderSoon() {
+      if (rkBusy(this)) {
+        if (!this._waiting) {
+          this._waiting = true;
+          this.shadowRoot.addEventListener("focusout", () => {
+            this._waiting = false;
+            setTimeout(() => this._render(), 50);
+          }, { once: true });
+        }
+        return true;
+      }
+      return false;
     }
     _homeId() {
       return this._home || this._config.home || this._cfg && this._cfg.hub && this._cfg.hub.entry_id || null;
@@ -1692,7 +2080,12 @@
       return s && s.attributes.friendly_name || id || "–";
     }
     _row(label, value, sub) {
-      return `<div class="row"><div class="l">${t(label)}${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>`;
+      const help = HELP[label];
+      this._helpOpen = this._helpOpen || /* @__PURE__ */ new Set();
+      const open = help && this._helpOpen.has(label);
+      const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
+      const box = open ? `<div class="helpbox">${esc(help[getLang() === "de" ? 0 : 1])}</div>` : "";
+      return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
     }
     _v(text, mute) {
       return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`;
@@ -1859,9 +2252,10 @@
         ),
         this._row(
           "PDF per E-Mail an",
-          this._select(H, "report_email", (ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) })), this._hubOpt("report_email") || "", "– keine E-Mail –"),
-          "Mail-Dienst (SMTP) in Home Assistant einrichten, dann hier wählen – die PDF kommt als Anhang"
+          this._select(H, "report_email", [{ id: "raumklima", name: t("Raumklima (direkt hier einrichten)") }, ...(ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) }))], this._hubOpt("report_email") || "", "– keine E-Mail –"),
+          "„Raumklima“ wählen und unten die Zugangsdaten eintragen – die PDF kommt als Anhang"
         ),
+        this._hubOpt("report_email") === "raumklima" ? this._mailSetup() : "",
         this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : ""
       ].join("");
       const yes = (b) => b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`;
@@ -1985,6 +2379,34 @@
     </div>
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
     }
+    _mailSetup() {
+      const o = (k) => this._mailForm && this._mailForm[k] !== void 0 ? this._mailForm[k] : this._hubOpt(k) ?? "";
+      const ok = !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
+      const open = this._mailOpen ?? !ok;
+      const dis = this._admin ? "" : "disabled";
+      const sec = o("mail_security") || "starttls";
+      const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
+      const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
+      <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
+      return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
+      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")}</span>`}</summary>
+      <div class="mailform">
+        <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
+          <select class="sel" data-mailprov ${dis}><option value="">${t("– wählen –")}</option>${provs}<option value="other">${t("Anderer Anbieter")}</option></select></label>
+        ${field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse")}
+        ${field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort")}
+        ${field("mail_to", "Empfänger", "text", "ich@example.de, partner@example.de", "mehrere mit Komma")}
+        <details class="adv"><summary>${t("Server-Einstellungen")}</summary>
+          ${field("mail_server", "Server", "text", "smtp.example.de")}
+          ${field("mail_port", "Port", "number", "587")}
+          <label class="mf"><span>${t("Verschlüsselung")}</span><div class="segs">${["starttls", "ssl", "none"].map((v) => `<button class="${v === sec ? "on" : ""}" data-mailsec="${v}" ${dis}>${{ starttls: "STARTTLS", ssl: "SSL/TLS", none: t("keine") }[v]}</button>`).join("")}</div></label>
+          ${field("mail_from", "Absender", "email", "", "leer = Benutzer")}
+        </details>
+        <div class="mailact"><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
+        ${this._mailMsg ? `<div class="hint ${this._mailMsg[0]}">${esc(this._mailMsg[1])}</div>` : ""}
+        <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
+      </div></details>`;
+    }
     _presenceGroup(r, id, editable) {
       const a = r.attrs, s = a.settings || {};
       const scope = `room:${id}`;
@@ -2038,6 +2460,7 @@
     // ---------------------------------------------------------------- Rendern
     _render() {
       if (!this._hass || !this._rooms) return;
+      if (this._renderSoon()) return;
       const rooms = this._rooms;
       if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
       const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` + rooms.map((r) => {
@@ -2048,16 +2471,14 @@
       const body = room ? this._room(room) : this._general();
       const homes = this._cfg && this._cfg.homes || [];
       const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
-      const scrollY = this.shadowRoot.host ? window.scrollY : 0;
-      this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
+      rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
         ${body}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
-      </ha-card>`;
-      if (scrollY) window.scrollTo(0, scrollY);
+      </ha-card>`);
       this._bind();
     }
     _bind() {
@@ -2146,6 +2567,56 @@
         const s = room && room.attrs.settings || {};
         return [...(room && this._roomOpt(room, key)) ?? s[key] ?? fallback];
       };
+      const mailbox = this.shadowRoot.querySelector("[data-mailbox]");
+      if (mailbox) mailbox.addEventListener("toggle", () => {
+        this._mailOpen = mailbox.open;
+      });
+      $("[data-mail]").forEach((el) => el.addEventListener("input", () => {
+        this._mailForm = { ...this._mailForm || {}, [el.dataset.mail]: el.value };
+      }));
+      $("[data-mailprov]").forEach((el) => el.addEventListener("change", () => {
+        const p = RK_MAIL_PROVIDERS[el.value];
+        if (!p) return;
+        this._mailForm = { ...this._mailForm || {}, mail_server: p[0], mail_port: String(p[1]), mail_security: p[2] };
+        for (const [k, v] of Object.entries({ mail_server: p[0], mail_port: p[1] })) {
+          const inp = this.shadowRoot.querySelector(`[data-mail="${k}"]`);
+          if (inp) inp.value = v;
+        }
+        this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b.dataset.mailsec === p[2]));
+      }));
+      $("[data-mailsec]").forEach((el) => el.addEventListener("click", () => {
+        this._mailForm = { ...this._mailForm || {}, mail_security: el.dataset.mailsec };
+        this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b === el));
+      }));
+      $("[data-mailsave]").forEach((el) => el.addEventListener("click", async () => {
+        const f = { ...this._mailForm || {} };
+        const changes = {};
+        for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+          if (f[k] === void 0) continue;
+          changes[k] = k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
+        }
+        el.disabled = true;
+        this._mailMsg = ["", t("Sende Test-Mail …")];
+        this._sig = null;
+        this._render();
+        try {
+          if (Object.keys(changes).length) await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
+          const r = await this._hass.callWS({ type: "raumklima/mail/test", settings: changes, ...this._homeMsg() });
+          this._mailMsg = ["okmsg", t("Test-Mail an {to} gesendet – bitte Posteingang (und Spam) prüfen.", { to: (r.to || []).join(", ") })];
+          this._mailForm = {};
+        } catch (e) {
+          this._mailMsg = ["errmsg", t("Fehler: {e}", { e: e.message || e })];
+        }
+        await this._load();
+      }));
+      $("[data-help]").forEach((el) => el.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const k = el.dataset.help;
+        if (this._helpOpen.has(k)) this._helpOpen.delete(k);
+        else this._helpOpen.add(k);
+        this._sig = null;
+        this._render();
+      }));
       $("[data-rpdf]").forEach((el) => el.addEventListener("click", () => {
         const list = [...this._hubOpt("report_pdf") ?? ["week", "month", "season"]];
         const i = list.indexOf(el.dataset.rpdf);
@@ -2237,6 +2708,10 @@
 
   // src/cards/report.js
   var RaumklimaReportCard = class extends HTMLElement {
+    // Neu zeichnen ohne Springen der Seite
+    set _html(html) {
+      rkPaint(this, html);
+    }
     static getConfigForm() {
       return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }] };
     }
@@ -2302,7 +2777,7 @@
       else if (!d) body = `<div class="empty">${t("Lade Bericht …")}</div>`;
       else body = this._body(d, P);
       const since = d && d.since ? (/* @__PURE__ */ new Date(d.since + "T00:00:00")).toLocaleDateString(loc(), { day: "numeric", month: "long" }) : null;
-      this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
+      this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
       <ha-card class="report" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:chart-box-outline"></ha-icon><div>${esc(this._config.title || t("Heizbericht"))}${since ? `<div class="rsub">${t("Daten seit {d}", { d: since })}</div>` : ""}</div></div>
           <div class="segs"><button class="${P === "week" ? "on" : ""}" data-p="week">${t("Diese Woche")}</button><button class="${P === "month" ? "on" : ""}" data-p="month">${t("Dieser Monat")}</button></div>
@@ -2502,6 +2977,10 @@
     background: color-mix(in srgb, var(--rk-warn) 18%, transparent); color: color-mix(in srgb, var(--rk-warn) 70%, var(--primary-text-color)); }
 `;
   var RaumklimaLogCard = class extends HTMLElement {
+    // Neu zeichnen ohne Springen der Seite
+    set _html(html) {
+      rkPaint(this, html);
+    }
     static getConfigForm() {
       return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }, { name: "entity", selector: { entity: { domain: "climate", integration: "raumklima" } } }] };
     }
@@ -2680,7 +3159,7 @@
       const catChips = Object.entries(RK_LOG_CATS).map(([k, m]) => `<button class="chip2 ${this._cats.has(k) ? "" : "off"}" data-cat="${k}" style="--c:${toneVar(m[2])}"><ha-icon icon="${m[1]}"></ha-icon>${m[0]}</button>`).join("");
       const empty = this._err ? `<div class="err">${t("Protokoll nicht verfügbar: {e}", { e: esc(this._err) })}</div>` : !this._entries.length ? `<div class="empty">${t("Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.")}</div>` : !list.length ? `<div class="empty">${t("Keine Einträge für diese Auswahl.")}</div>` : "";
       const focus = this.shadowRoot.activeElement && this.shadowRoot.activeElement.classList.contains("srch");
-      this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
+      this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
       <ha-card class="log" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:text-box-search-outline"></ha-icon><div>${esc(this._config.title || t("Protokoll"))}<div class="rsub">${t("Was wann warum entschieden wurde · 14 Tage")}</div></div></div>
           <span class="live ${this._liveOff ? "off" : ""}" title="${t("neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen")}"><i></i>${this._liveOff ? t("alle 5 s") : "live"}<span class="ts">${this._stamp ? ` · ${this._stamp.toLocaleTimeString(loc())}` : ""}</span></span></div>

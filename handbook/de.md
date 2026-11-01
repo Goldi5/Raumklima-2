@@ -258,7 +258,7 @@ Trägst du unter *Einstellungen → Allgemein → Gebäude & Schimmelschutz* dei
 
 - **Herunterladen:** ganz unten im Reiter **Bericht** unter *PDF-Berichte* – auf **Herunterladen** tippen. Mit den Knöpfen *Woche*, *Monat* und *Heizsaison* bekommst du sofort einen Bericht bis heute.
 - **Aufs Handy:** Die Push-Nachricht hat einen Knopf **PDF öffnen**.
-- **Per E-Mail:** *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an*. Vorher in Home Assistant einmal die Integration **SMTP** mit deinem Mail-Konto einrichten.
+- **Per E-Mail:** *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* → **„Raumklima (direkt hier einrichten)“**. Im Bereich **E-Mail einrichten** deinen Anbieter wählen (z. B. GMX oder Gmail), Benutzer, Passwort und Empfänger eintragen und **Speichern & Test-Mail senden** tippen. Bei Gmail, iCloud und Outlook brauchst du ein App-Passwort.
 
 :::tip
 Der Bericht kommt in der Sprache von Home Assistant: auf Deutsch, bei jeder anderen Sprache auf Englisch.
@@ -268,7 +268,7 @@ Im Reiter **Protokoll** steht jede Entscheidung mit Begründung – praktisch, w
 
 # Einstellungen
 
-Alle Einstellungen findest du im Dashboard im Reiter **Einstellungen**. Änderungen werden nach einer kurzen Pause gespeichert und gelten sofort.
+Alle Einstellungen findest du im Dashboard im Reiter **Einstellungen**. Änderungen werden nach einer kurzen Pause gespeichert und gelten sofort. Unsicher, was eine Einstellung bewirkt? Tippe auf das **„?“** dahinter – dann klappt eine Erklärung auf.
 
 :::tip
 Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbraucherzentrale und Umweltbundesamt.

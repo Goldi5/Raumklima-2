@@ -66,7 +66,7 @@ Wärmebild, CO₂, Lüft-Ergebnisse und Ausfälle werden ab Version 0.13 gesamme
 
 **Zustellung:**
 - **Push** an alle, die den *Wochenbericht* bekommen – mit Knopf **PDF öffnen** (Link 30 Tage gültig).
-- **E-Mail mit Anhang:** unter *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* einen Mail-Dienst wählen. Dafür in Home Assistant einmal die Integration **SMTP** einrichten (z. B. mit deinem Mail-Konto). Mit **Wochenbericht jetzt senden** prüfst du es.
+- **E-Mail mit Anhang:** unter *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* **„Raumklima (direkt hier einrichten)“** wählen. Darunter klappt **E-Mail einrichten** auf: Anbieter wählen (Gmail, GMX, WEB.DE, Outlook, T-Online, iCloud, Posteo, IONOS – füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, **Speichern & Test-Mail senden**. Bei Gmail, iCloud und Outlook ein **App-Passwort** verwenden. Das Passwort bleibt in Home Assistant und wird nie angezeigt. Wer schon einen Mail-Dienst (`notify`) in Home Assistant hat, kann stattdessen den wählen.
 - **Ablage:** im Medienordner unter `raumklima/` – auch unter *Medien* in Home Assistant zu finden. Aufgehoben werden die letzten 26 Wochen-, 24 Monats- und 20 Saisonberichte.
 
 Welche Berichte automatisch entstehen, stellst du unter *PDF-Berichte* ein (Standard: alle drei). Der Download geht nur angemeldet oder über einen signierten Link.
@@ -125,6 +125,8 @@ Hier ist **alles zu sehen und direkt änderbar**:
 Auf dem Handy stehen Beschriftung und Regler untereinander:
 
 <img src="../images/einstellungen-handy.png" width="320">
+
+Hinter jeder Einstellung steht ein **„?“** – antippen klappt eine kurze Erklärung auf, was sie bewirkt und welcher Wert sinnvoll ist.
 
 Änderungen werden nach einer kurzen Pause gespeichert und vom Raum sofort übernommen (nur beim Raumtyp startet der Raum kurz neu). Ändern dürfen nur Administratoren; andere Benutzer sehen die Seite nur an.
 

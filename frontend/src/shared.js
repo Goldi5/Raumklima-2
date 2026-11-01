@@ -105,6 +105,27 @@ export function rkClock(ms) {
   const time = d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
   return Date.now() - ms > 20 * 3600 * 1000 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
 }
+// Karte neu zeichnen, ohne dass die Seite nach oben springt: Höhe halten, Scrollposition merken.
+export function rkPaint(host, html) {
+  const root = host.shadowRoot;
+  const h = host.offsetHeight;
+  const y = window.scrollY;
+  const scrollers = [];
+  for (let el = host.parentElement || (host.getRootNode() && host.getRootNode().host); el; el = el.parentElement || (el.getRootNode() && el.getRootNode().host)) {
+    if (el.scrollTop) scrollers.push([el, el.scrollTop]);
+  }
+  if (h) host.style.minHeight = `${h}px`;
+  root.innerHTML = html;
+  if (window.scrollY !== y) window.scrollTo(0, y);
+  for (const [el, top] of scrollers) if (el.scrollTop !== top) el.scrollTop = top;
+  clearTimeout(host._rkHold);
+  host._rkHold = setTimeout(() => { host.style.minHeight = ""; }, 600);
+}
+// Tippt oder wählt jemand gerade etwas in der Karte? Dann nicht neu zeichnen.
+export function rkBusy(host) {
+  const a = host.shadowRoot && host.shadowRoot.activeElement;
+  return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
+}
 export const fmt = (v, d = 1) =>
   v === null || v === undefined || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
 
@@ -209,6 +230,17 @@ export const RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hv
 export const RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
 export const RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
 export const RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+// Anbieter für den Mail-Versand: Server, Port, Verschlüsselung, Name
+export const RK_MAIL_PROVIDERS = {
+  gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
+  gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
+  webde: ["smtp.web.de", 587, "starttls", "WEB.DE"],
+  outlook: ["smtp-mail.outlook.com", 587, "starttls", "Outlook / Hotmail"],
+  tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
+  icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
+  posteo: ["posteo.de", 587, "starttls", "Posteo"],
+  ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"],
+};
 export const RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
 export const RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
 export const RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
@@ -325,6 +357,24 @@ export const SETTINGS_STYLES = `
   .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); min-height:30px; }
   .rws > .row:first-child { border-top:0; }
   .row .l { font-size:1rem; color:var(--primary-text-color); min-width:0; }
+  .row .lbl { display:inline-flex; align-items:center; gap:6px; }
+  .qm { all:unset; cursor:pointer; flex:none; width:18px; height:18px; border-radius:50%; display:inline-grid; place-items:center; font-size:.72rem; font-weight:700;
+    color: var(--secondary-text-color); border:1.5px solid color-mix(in srgb, var(--secondary-text-color) 55%, transparent); }
+  .qm:hover, .qm.on { color:#fff; background: var(--g, var(--rk-air)); border-color: var(--g, var(--rk-air)); }
+  .qm:focus-visible { outline:2px solid var(--g, var(--rk-air)); outline-offset:2px; }
+  .mailbox { margin:4px 0 10px; border-radius:14px; background: color-mix(in srgb, var(--g, var(--rk-air)) 7%, transparent); padding:4px 12px; }
+  .mailbox > summary, .adv > summary { cursor:pointer; padding:10px 0; font-weight:600; display:flex; align-items:center; gap:8px; color: var(--primary-text-color); }
+  .mailbox > summary .ok { color: var(--rk-ok); font-weight:500; font-size:.85rem; } .mailbox > summary .no { color: var(--secondary-text-color); font-weight:500; font-size:.85rem; }
+  .adv > summary { font-weight:500; font-size:.9rem; color: var(--secondary-text-color); }
+  .mailform { display:flex; flex-direction:column; gap:10px; padding-bottom:12px; }
+  .mf { display:flex; flex-direction:column; align-items:stretch; gap:4px; }
+  .mf > span { color: var(--primary-text-color); } .mf small { display:block; color: var(--secondary-text-color); font-size:.8rem; }
+  .mf .inp, .mf .sel { width:100%; box-sizing:border-box; text-align:left; }
+  .mf .segs { align-self:flex-start; }
+  .mailact { display:flex; justify-content:flex-end; }
+  .hint.okmsg { color: var(--rk-ok); font-weight:600; } .hint.errmsg { color: var(--rk-cold, #e5484d); font-weight:600; }
+  .helpbox { margin:-4px 0 10px; padding:10px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; color: var(--primary-text-color);
+    background: color-mix(in srgb, var(--g, var(--rk-air)) 10%, var(--card-background-color, #fff)); border-left:3px solid var(--g, var(--rk-air)); }
   .row .l small { display:block; color:var(--secondary-text-color); font-size:.84rem; margin-top:1px; }
   .row .v { font-size:1rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
   .row .v.mute { color:var(--secondary-text-color); font-weight:500; }

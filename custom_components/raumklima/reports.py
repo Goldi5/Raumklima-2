@@ -20,6 +20,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from .const import CONF_SEASON_END, CONF_SEASON_START, KIND_REPORT
+from .mailer import BUILTIN, MailError, recipients, send as mail_send
 from .report_data import MONTH, SEASON, WEEK, build, period, report_lang
 from .shared import all_hubs
 from .stats import week_message
@@ -194,7 +195,17 @@ class PdfReports:
             push_data |= {"url": url, "clickAction": url, "actions": [{"action": "URI", "title": tx["open"], "uri": url}]}
         await self.hub.async_notify(KIND_REPORT, title, message, push_data, speak=False)
         email = self.hub.opt(CONF_REPORT_EMAIL)
-        if email:
+        if email == BUILTIN:
+            path = str(report_dir(self.hass) / entry["file"])
+            try:
+                await self.hass.async_add_executor_job(
+                    mail_send, dict(self.hub.entry.options), title.replace("📊 ", ""), f"{message}\n\n{tx['mail']}", [path]
+                )
+                self.hub.log.add("notify", f"PDF-Bericht per E-Mail: {entry['file']}", ", ".join(recipients(self.hub.opt("mail_to"))))
+            except MailError as err:
+                self.hub.log.add("notify", "E-Mail mit Heizbericht fehlgeschlagen", str(err), level="warn")
+                _LOGGER.warning("E-Mail mit Heizbericht fehlgeschlagen: %s", err)
+        elif email:
             domain, _, service = str(email).partition(".")
             path = str(report_dir(self.hass) / entry["file"])
             try:

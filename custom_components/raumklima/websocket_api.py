@@ -64,6 +64,7 @@ from .const import (
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
 from .hub import RaumklimaHub
+from .mailer import BUILTIN as MAIL_BUILTIN, MAIL_KEYS, SECURITY as MAIL_SECURITY, MailError, recipients, send as mail_send
 from .occupancy import sensor_kind
 from .planning import NIGHT_MODES, VIRT_MODES
 from .report_data import REPORT_KINDS
@@ -138,7 +139,14 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_FROST_NIGHT): bool,
         vol.Optional(CONF_HOME_SENSORS): vol.In(HOME_SENSOR_MODES),
         vol.Optional(CONF_REPORT_PDF): [vol.In(REPORT_KINDS)],
-        vol.Optional(CONF_REPORT_EMAIL): vol.Any(None, vol.Match(r"^notify\.\w+$")),
+        vol.Optional(CONF_REPORT_EMAIL): vol.Any(None, MAIL_BUILTIN, vol.Match(r"^notify\.\w+$")),
+        vol.Optional("mail_server"): vol.All(str, vol.Length(max=200)),
+        vol.Optional("mail_port"): vol.Any(None, vol.All(vol.Coerce(int), vol.Range(1, 65535))),
+        vol.Optional("mail_security"): vol.In(MAIL_SECURITY),
+        vol.Optional("mail_user"): vol.All(str, vol.Length(max=200)),
+        vol.Optional("mail_password"): vol.All(str, vol.Length(max=300)),
+        vol.Optional("mail_from"): vol.All(str, vol.Length(max=200)),
+        vol.Optional("mail_to"): vol.All(str, vol.Length(max=500)),
         vol.Optional("annual_cost"): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(0, 20000))),
     }
 )
@@ -168,7 +176,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -224,7 +232,12 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
             "hub": (
                 {
                     "entry_id": hub.entry.entry_id,
-                    "options": {**HUB_DEFAULTS, **hub.entry.options},
+                    "options": {
+                        **HUB_DEFAULTS,
+                        **hub.entry.options,
+                        "mail_password": "",
+                        "mail_password_set": bool(hub.entry.options.get("mail_password")),
+                    },
                     "state": hub.summary(),
                 }
                 if hub
@@ -257,9 +270,37 @@ def ws_hub_update(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
     except vol.Invalid as err:
         connection.send_error(msg["id"], "invalid", str(err))
         return
+    if not changes.get("mail_password"):
+        changes.pop("mail_password", None)  # leer = altes Passwort behalten (wird nie an die Karte geschickt)
     entry = hub.entry
     hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
     connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/mail/test",
+        vol.Optional("home"): vol.Any(None, str),
+        vol.Optional("settings", default=dict): dict,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_mail_test(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Test-Mail mit den gespeicherten (oder gerade eingegebenen) Zugangsdaten."""
+    hub = _hub_or_error(hass, connection, msg)
+    if hub is None:
+        return
+    given = {k: v for k, v in msg["settings"].items() if k in MAIL_KEYS and v not in (None, "")}
+    opts = {**hub.entry.options, **given}
+    try:
+        await hass.async_add_executor_job(
+            mail_send, opts, "Raumklima – Test-Mail", "Hallo! So kommen die Heizberichte von Raumklima an. / This is how Raumklima heating reports arrive."
+        )
+    except MailError as err:
+        connection.send_error(msg["id"], "mail_failed", str(err))
+        return
+    connection.send_result(msg["id"], {"ok": True, "to": recipients(opts.get("mail_to"))})
 
 
 @websocket_api.websocket_command(

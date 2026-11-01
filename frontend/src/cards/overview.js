@@ -1,6 +1,8 @@
-import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar } from "../shared.js";
+import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
+  // Neu zeichnen ohne Springen der Seite
+  set _html(html) { rkPaint(this, html); }
   static getConfigForm() {
     return {
       schema: [
@@ -65,7 +67,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       </div>`;
     };
 
-    this.shadowRoot.innerHTML = `<style>${STYLES}
+    this._html = `<style>${STYLES}
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }

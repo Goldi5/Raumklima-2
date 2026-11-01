@@ -89,7 +89,7 @@ Ein kalter Monat braucht mehr Heizung. „Wetterbereinigt“ rechnet das heraus,
 Ja: Im Heizbericht oben rechts auf **CSV** tippen.
 
 ### Gibt es den Bericht als PDF – auch per E-Mail?
-Ja. Woche, Monat und Heizsaison entstehen automatisch als PDF; unten im Heizbericht stehen sie zum **Herunterladen**. Per Push kommt ein Link, per E-Mail die PDF als Anhang – dafür in Home Assistant einmal **SMTP** einrichten und unter *Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* auswählen.
+Ja. Woche, Monat und Heizsaison entstehen automatisch als PDF; unten im Heizbericht stehen sie zum **Herunterladen**. Per Push kommt ein Link, per E-Mail die PDF als Anhang: unter *Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* **„Raumklima“** wählen, Anbieter auswählen, Benutzer, Passwort und Empfänger eintragen und **Speichern & Test-Mail senden** – kein YAML nötig.
 
 ## Sonstiges
 

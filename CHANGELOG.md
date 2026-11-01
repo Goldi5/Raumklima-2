@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.14.0 – 2026-11-01
+
+### Neu
+- **„?“ hinter jeder Einstellung:** antippen klappt eine kurze Erklärung auf (Deutsch/Englisch) – was die
+  Einstellung bewirkt und welcher Wert sinnvoll ist.
+- **E-Mail direkt in Raumklima einrichten** – ohne YAML: bei „PDF per E-Mail an“ „Raumklima“ wählen, Anbieter
+  aussuchen (Gmail, GMX, WEB.DE, Outlook, T-Online, iCloud, Posteo, IONOS füllen Server und Port aus),
+  Benutzer, Passwort, Empfänger eintragen, **Speichern & Test-Mail senden**. Verständliche Fehlermeldungen
+  (z. B. „App-Passwort verwenden“). Das Passwort wird nie an die Karte geschickt und ist in der
+  Diagnose-Datei ausgeblendet. Ein vorhandener `notify`-Mail-Dienst kann weiter gewählt werden.
+
+### Behoben
+- **Seite sprang nach oben:** Die Karten zeichneten sich bei jeder Temperaturänderung neu, dabei sprang
+  das Dashboard an den Anfang. Jetzt bleiben Höhe und Scrollposition erhalten; während man tippt oder ein
+  Auswahlfeld offen hat, wartet die Einstellungskarte mit dem Aktualisieren.
+
 ## 0.13.0 – 2026-11-01
 
 ### Neu im PDF-Bericht (jetzt 4 Seiten)
