@@ -3,7 +3,7 @@
  *   type: custom:raumklima-card          (ein Raum)
  *   type: custom:raumklima-overview-card (alle Räume + Außenklima)
  */
-const RK_VERSION = "0.8.5";
+const RK_VERSION = "0.8.6";
 
 const STATUS = {
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -811,7 +811,7 @@ function rkIssueList(issues, withRoom, prefix) {
   const order = { alert: 0, warn: 1, info: 2 };
   return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
     const sv = RK_SEV[i.severity] || RK_SEV.info;
-    return `<div class="issue" style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.replace(new RegExp("^" + prefix + "\\s*"), "") : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
+    return `<div class="issue" style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? (i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room) : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
   }).join("")}</div>`;
 }
 const ISSUE_STYLES = `

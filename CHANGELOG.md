@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.6 – 2026-11-01
+
+### Behoben
+- Beim Neuladen eines Raums (z. B. nach einer Änderung in der Einstellungskarte) liefen die Timer für
+  „Thermostat nicht erreichbar“ und „Fenster vermutlich offen“ weiter und konnten in die entladene
+  Instanz schreiben; noch wartende Regeldurchläufe senden nach dem Entladen keine Befehle mehr.
+- Gesundheitscheck-Karte: Raumnamen mit Sonderzeichen wie „Bad (OG)“ brachen das Kürzen des
+  Wohnungs-Präfixes (regulärer Ausdruck); jetzt einfacher Textvergleich.
+
+
 ## 0.8.5 – 2026-11-01
 
 ### Behoben

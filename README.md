@@ -2,7 +2,7 @@
 
 **Heizung, die mitdenkt.** Raumklima macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: Es regelt nach einem echten Raumfühler, pausiert bei offenem Fenster, berät beim Lüften, senkt ab, wenn niemand zu Hause ist – mit Schimmelschutz – und heizt nur, wenn es draußen wirklich kalt ist.
 
-**Aktuelle Version: 0.8.5** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · 🇬🇧 [English documentation](docs/en/README.md)
+**Aktuelle Version: 0.8.6** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · 🇬🇧 [English documentation](docs/en/README.md)
 
 ![Räume](docs/images/raeume.png)
 

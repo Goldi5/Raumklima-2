@@ -323,9 +323,11 @@ class RaumklimaController:
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
-        if self._window_timer:
-            self._window_timer()
-            self._window_timer = None
+        for attr in ("_window_timer", "_trv_down_cancel", "_virtual_cancel"):
+            cancel = getattr(self, attr)
+            if cancel:
+                cancel()
+                setattr(self, attr, None)
         self.sync.cancel_all()
         if self.vent:
             self.vent.async_stop()
@@ -1225,6 +1227,8 @@ class RaumklimaController:
     async def _apply(self, from_measurement: bool = False) -> None:
         """Soll-Zustand berechnen und ans TRV senden (mit Prüfung)."""
         async with self._apply_lock:
+            if not self._started:
+                return  # Raum wird gerade entladen/neu geladen – nichts mehr senden
             if self.throttled_until and dt_util.utcnow() < self.throttled_until:
                 return  # Bremse aktiv – zu viele Befehle in kurzer Zeit
             method = self._off_method()
