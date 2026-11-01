@@ -62,6 +62,7 @@ export function planText(a, off) {
   if ((r === "away_short" || r === "away_long") && a.effective_target != null)
     return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
   if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
+  if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
 }
 

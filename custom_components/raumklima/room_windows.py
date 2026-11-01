@@ -170,6 +170,7 @@ class WindowMixin:
         if raw == self._window_raw and (self._window_timer or raw == self.window_paused):
             return
         was_virtual = self._raw_virtual
+        was_raw = self._window_raw
         self._window_raw = raw
         self._raw_virtual = raw and self.window_virtual
         if self._raw_virtual or (not raw and was_virtual):
@@ -192,6 +193,8 @@ class WindowMixin:
             else:
                 self.log(CAT_WINDOW, "Fenster zu")
             self.night_since = None
+        if raw != was_raw:
+            self.fire_event("window", {"state": "open" if raw else "closed", "virtual": self._raw_virtual or was_virtual, "night": self.night_since is not None})
         if self.vent:
             self.vent.on_window_raw(raw)
         if self._window_timer:
@@ -214,6 +217,8 @@ class WindowMixin:
                 "%s: Fenster %s", self.name, "offen – pausiere" if raw else "zu – fortsetzen"
             )
             delay = float(self.config[CONF_WINDOW_OPEN_DELAY if raw else CONF_WINDOW_CLOSE_DELAY])
+            if self.window_logic:
+                self.fire_event("heating", {"state": "paused" if raw else "resumed"})
             if not self.window_logic:
                 pass
             elif raw:

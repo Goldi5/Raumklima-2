@@ -31,6 +31,7 @@ from .const import (
     CALIBRATION_INTERVAL,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
+    CONF_CO2_SENSOR,
     CONF_COMFORT_TEMP,
     CONF_FOLLOW_TRV,
     CONF_HOME,
@@ -44,6 +45,7 @@ from .const import (
     CONF_SENSOR_STALE_MINUTES,
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
+    CONF_SOLAR,
     CONF_SYNC_MAX_RETRIES,
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
@@ -96,8 +98,10 @@ from .logic import (
 )
 from .planning import (
     AWAY_STAGES,
+    SOLAR_REDUCTION,
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
+    frost_night_setback,
     mold_safe_min_temp,
     setback_defaults,
     setback_target,
@@ -120,6 +124,7 @@ REASON_MANUAL = "manual"
 REASON_SEASON = "season"
 REASON_FROST = "frost"
 REASON_VALVE_CARE = "valve_care"
+REASON_SOLAR = "solar"
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
     {
@@ -131,6 +136,7 @@ LIVE_OPTIONS = frozenset(
         CONF_NIGHT_AIRING,
         CONF_VIRTUAL_WINDOW,
         CONF_HOME,
+        CONF_SOLAR,
     }
 )
 
@@ -146,6 +152,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
         self.trv: str = self.config[CONF_TRV]
         self.temp_sensor: str = self.config[CONF_TEMP_SENSOR]
         self.humidity_sensor: str | None = self.config.get(CONF_HUMIDITY_SENSOR)
+        self.co2_sensor: str | None = self.config.get(CONF_CO2_SENSOR) or None
         self.windows: list[str] = list(self.config.get(CONF_WINDOWS) or [])
         self.cal_mode: str = self.config[CONF_CALIBRATION_MODE]
         self.cal_entity: str | None = self.config.get(CONF_CALIBRATION_ENTITY)
@@ -180,6 +187,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
         self._apply_lock = asyncio.Lock()
         self.valve_sensor: str | None = None
         self._frost_active = False
+        self._solar_active = False
+        self.frost_night_low: float | None = None
         self._manual_until: datetime | None = None
         self._valve_care_until: datetime | None = None
         self._started = False
@@ -252,6 +261,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
         tracked = [self.trv, self.temp_sensor, *self.windows]
         if self.humidity_sensor:
             tracked.append(self.humidity_sensor)
+        if self.co2_sensor:
+            tracked.append(self.co2_sensor)
         if self.config.get(CONF_WEATHER):
             tracked.append(self.config[CONF_WEATHER])
         if self.valve_sensor:
@@ -351,6 +362,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             "setback_long": self.setback_long,
             "night_airing": self.night_mode,
             "virtual_window": self.virtual_mode,
+            "solar_gain": bool(self.config.get(CONF_SOLAR)),
             "virtual_active": self.virtual_enabled(),
             "heatup": {
                 "episodes": len(self.heatup.episodes),
@@ -358,6 +370,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
                 "minutes_2k": self.heatup.minutes_needed(2.0, self.hub.outdoor_temp() if self.hub else None),
             },
             "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
+            "co2_sensor": self.co2_sensor,
             "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),
             "windows": self.windows,
             "comfort_configured": cfg.get(CONF_COMFORT_TEMP) not in (None, "", 0),
@@ -485,6 +498,13 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
         return to_float(state.state) if state else None
 
     @property
+    def current_co2(self) -> float | None:
+        if not self.co2_sensor:
+            return None
+        state = self.hass.states.get(self.co2_sensor)
+        return to_float(state.state) if state else None
+
+    @property
     def offset(self) -> float | None:
         if not self.cal_entity:
             return None
@@ -536,10 +556,27 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             target = setback_target(
                 self.target_temp, hub.stage, self.setback_short, self.setback_long, mold
             )
+            frost = hub.frost_night
+            self.frost_night_low = frost if target < self.target_temp else None
+            if frost is not None and target < self.target_temp:
+                target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
             if target < self.target_temp:
                 return True, target, hub.stage
         self._manual_until = None
+        self.frost_night_low = None
+        if self._solar_applies(hub):
+            return True, self.target_temp - SOLAR_REDUCTION, REASON_SOLAR
         return True, self.target_temp, REASON_NORMAL
+
+    def _solar_applies(self, hub: RaumklimaHub) -> bool:
+        """Sonnen-Raum: bei erwarteter Sonne 1 °C weniger – einmal an, bis die Sonne weg ist (keine Schwingung)."""
+        if not self.config.get(CONF_SOLAR) or not hub.sun_expected():
+            self._solar_active = False
+            return False
+        if not self._solar_active:
+            cur = self.current_temperature
+            self._solar_active = cur is not None and cur >= self.target_temp - 0.5
+        return self._solar_active
 
     @property
     def effective_target(self) -> float:
@@ -872,10 +909,13 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             REASON_SEASON: "Heizpause (mild draußen)",
             REASON_FROST: f"Heizpause, aber unter der Sicherung {fmt_temp(hub.frost_floor if hub else None)}",
             REASON_VALVE_CARE: "Sommerpflege: Ventil kurz öffnen",
+            REASON_SOLAR: f"Sonne erwartet – {fmt_temp(SOLAR_REDUCTION)} weniger, sie heizt mit (Wunsch {fmt_temp(self.target_temp)})",
             STAGE_AWAY_SHORT: f"alle weg – Absenkung „kurz weg“ {fmt_temp(self.setback_short)}",
             STAGE_AWAY_LONG: f"länger weg – Absenkung {fmt_temp(self.setback_long)}",
         }.get(reason, reason)
-        if reason == STAGE_AWAY_LONG and target > self.setback_long:
+        if self.frost_night_low is not None and reason in AWAY_STAGES:
+            why += f", Frostnacht ({fmt_temp(self.frost_night_low)} erwartet): nur halb so tief abgesenkt"
+        elif reason == STAGE_AWAY_LONG and target > self.setback_long:
             why += f", Schimmelschutz hält {fmt_temp(target)} (Feuchte {self.current_humidity or 0:.0f} %)"
         msg = f"Ziel {fmt_temp(target)}" if on else "Heizung aus"
         self.log(CAT_TARGET, ("Start: " if first else "") + msg, why, target=target, reason=reason)

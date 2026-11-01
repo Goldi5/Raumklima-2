@@ -21,6 +21,7 @@ from .health import (
     HistoryPoint,
     Issue,
     check_battery,
+    check_hydraulic,
     check_not_warming,
     check_radio,
     check_sensor_frozen,
@@ -138,6 +139,7 @@ class HealthMixin:
         issues += check_battery(levels)
         for check in (
             check_not_warming(list(self.health_hist), now),
+            check_hydraulic(list(self.health_hist), now) if self.valve_sensor else None,
             check_sensor_frozen(
                 (now - self._ext_changed_at).total_seconds() / 3600 if self._ext_changed_at else None,
                 (self.trv_temperature - self._trv_at_ext_change)

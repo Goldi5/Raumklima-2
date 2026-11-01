@@ -6,15 +6,20 @@ from typing import Any
 
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
 from .const import (
     BUILDING_TYPES,
     CONF_AWAY_DELAY,
     CONF_BUILDING,
+    CONF_CALENDAR,
+    CONF_CALENDAR_AWAY,
+    CONF_CALENDAR_HOME,
     CONF_COLD_SNAP_TEMP,
     CONF_COMFORT_TEMP,
     CONF_FROST_FLOOR,
+    CONF_FROST_NIGHT,
     CONF_HEATING_LIMIT,
     CONF_HOME,
     CONF_LONG_AWAY_HOURS,
@@ -31,6 +36,7 @@ from .const import (
     CONF_SEASON_START,
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
+    CONF_SOLAR,
     CONF_TTS,
     CONF_VALVE_CARE,
     CONF_VIRTUAL_WINDOW,
@@ -111,6 +117,10 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_NIGHT_START): _time,
         vol.Optional(CONF_NIGHT_END): _time,
         vol.Optional(CONF_NIGHT_ALARM): vol.All(vol.Coerce(float), vol.Range(5, 20)),
+        vol.Optional(CONF_CALENDAR): vol.Any(None, str),
+        vol.Optional(CONF_CALENDAR_AWAY): vol.All(str, vol.Length(max=300)),
+        vol.Optional(CONF_CALENDAR_HOME): vol.All(str, vol.Length(max=300)),
+        vol.Optional(CONF_FROST_NIGHT): bool,
     }
 )
 
@@ -125,13 +135,14 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_NIGHT_AIRING): vol.In(NIGHT_MODES),
         vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
         vol.Optional(CONF_HOME): vol.Any(None, str),
+        vol.Optional(CONF_SOLAR): bool,
     }
 )
 
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report, ws_report_export, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -150,6 +161,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "persons": ents("person"),
         "zones": ents("zone"),
         "weather": ents("weather"),
+        "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
         "states": [{"id": k, "name": v} for k, v in STATES.items()],
     }
@@ -291,6 +303,26 @@ def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
     if hub is None:
         return
     connection.send_result(msg["id"], {**hub.insights.report(), "issues": hub.insights.all_issues()})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/report/export",
+        vol.Optional("home"): vol.Any(None, str),
+        vol.Optional("days"): vol.All(vol.Coerce(int), vol.Range(1, 400)),
+    }
+)
+@callback
+def ws_report_export(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Heizbericht als CSV (Tageswerte je Raum)."""
+    hub = _hub_or_error(hass, connection, msg)
+    if hub is None:
+        return
+    slug = "".join(c if c.isalnum() else "-" for c in hub.name.lower()).strip("-") or "wohnung"
+    connection.send_result(
+        msg["id"],
+        {"filename": f"raumklima-{slug}-{dt_util.now().date().isoformat()}.csv", "csv": hub.insights.export_csv(msg.get("days"))},
+    )
 
 
 @websocket_api.websocket_command(

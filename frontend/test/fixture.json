@@ -21,8 +21,8 @@
     "max_temp": 30.0,
     "hvac_action": "idle"
    },
-   "last_changed": "2026-11-01T16:05:42.464737+00:00",
-   "last_updated": "2026-11-01T16:05:42.547908+00:00"
+   "last_changed": "2026-11-01T16:21:53.139056+00:00",
+   "last_updated": "2026-11-01T16:21:53.218220+00:00"
   },
   "sensor.bad_temperatur": {
    "entity_id": "sensor.bad_temperatur",
@@ -31,8 +31,8 @@
     "unit_of_measurement": "°C",
     "device_class": "temperature"
    },
-   "last_changed": "2026-11-01T16:05:42.486168+00:00",
-   "last_updated": "2026-11-01T16:05:42.486168+00:00"
+   "last_changed": "2026-11-01T16:21:53.153751+00:00",
+   "last_updated": "2026-11-01T16:21:53.153751+00:00"
   },
   "binary_sensor.bad_fenster": {
    "entity_id": "binary_sensor.bad_fenster",
@@ -41,8 +41,22 @@
     "device_class": "window",
     "friendly_name": "Bad Fenster"
    },
-   "last_changed": "2026-11-01T16:05:42.550758+00:00",
-   "last_updated": "2026-11-01T16:05:42.550758+00:00"
+   "last_changed": "2026-11-01T16:21:53.223182+00:00",
+   "last_updated": "2026-11-01T16:21:53.223182+00:00"
+  },
+  "select.raumklima_allgemein_heating_season_mode": {
+   "entity_id": "select.raumklima_allgemein_heating_season_mode",
+   "state": "always",
+   "attributes": {
+    "options": [
+     "auto",
+     "always",
+     "pause"
+    ],
+    "friendly_name": "Raumklima Allgemein Heating season mode"
+   },
+   "last_changed": "2026-11-01T16:21:53.196181+00:00",
+   "last_updated": "2026-11-01T16:21:53.196181+00:00"
   },
   "switch.raumklima_allgemein_vacation": {
    "entity_id": "switch.raumklima_allgemein_vacation",
@@ -50,8 +64,8 @@
    "attributes": {
     "friendly_name": "Raumklima Allgemein Vacation"
    },
-   "last_changed": "2026-11-01T16:05:42.527408+00:00",
-   "last_updated": "2026-11-01T16:05:42.527408+00:00"
+   "last_changed": "2026-11-01T16:21:53.198591+00:00",
+   "last_updated": "2026-11-01T16:21:53.198591+00:00"
   },
   "switch.raumklima_allgemein_guests": {
    "entity_id": "switch.raumklima_allgemein_guests",
@@ -59,8 +73,8 @@
    "attributes": {
     "friendly_name": "Raumklima Allgemein Guests"
    },
-   "last_changed": "2026-11-01T16:05:42.527654+00:00",
-   "last_updated": "2026-11-01T16:05:42.527654+00:00"
+   "last_changed": "2026-11-01T16:21:53.198855+00:00",
+   "last_updated": "2026-11-01T16:21:53.198855+00:00"
   },
   "switch.bad_airing_notifications": {
    "entity_id": "switch.bad_airing_notifications",
@@ -68,8 +82,8 @@
    "attributes": {
     "friendly_name": "Bad Airing notifications"
    },
-   "last_changed": "2026-11-01T16:05:42.530449+00:00",
-   "last_updated": "2026-11-01T16:05:42.530449+00:00"
+   "last_changed": "2026-11-01T16:21:53.199635+00:00",
+   "last_updated": "2026-11-01T16:21:53.199635+00:00"
   },
   "switch.bad_window_logic": {
    "entity_id": "switch.bad_window_logic",
@@ -77,8 +91,8 @@
    "attributes": {
     "friendly_name": "Bad Window logic"
    },
-   "last_changed": "2026-11-01T16:05:42.530703+00:00",
-   "last_updated": "2026-11-01T16:05:42.530703+00:00"
+   "last_changed": "2026-11-01T16:21:53.199873+00:00",
+   "last_updated": "2026-11-01T16:21:53.199873+00:00"
   },
   "button.raumklima_allgemein_heat_today": {
    "entity_id": "button.raumklima_allgemein_heat_today",
@@ -86,132 +100,8 @@
    "attributes": {
     "friendly_name": "Raumklima Allgemein Heat today"
    },
-   "last_changed": "2026-11-01T16:05:42.532091+00:00",
-   "last_updated": "2026-11-01T16:05:42.532091+00:00"
-  },
-  "sensor.raumklima_allgemein_presence": {
-   "entity_id": "sensor.raumklima_allgemein_presence",
-   "state": "home",
-   "attributes": {
-    "options": [
-     "home",
-     "guests",
-     "preheat",
-     "away_short",
-     "away_long"
-    ],
-    "persons": {},
-    "home_id": "01M6BXR2EP514S3684AWTF32MY",
-    "home_name": "Allgemein",
-    "home_dashboard": "heizung",
-    "last_present": null,
-    "vacation": false,
-    "guests": false,
-    "preheat_by": null,
-    "configured": false,
-    "device_class": "enum",
-    "friendly_name": "Raumklima Allgemein Presence"
-   },
-   "last_changed": "2026-11-01T16:05:42.534639+00:00",
-   "last_updated": "2026-11-01T16:05:42.534639+00:00"
-  },
-  "sensor.raumklima_allgemein_heating_mode": {
-   "entity_id": "sensor.raumklima_allgemein_heating_mode",
-   "state": "always",
-   "attributes": {
-    "options": [
-     "heating",
-     "pause",
-     "cold_snap",
-     "heat_today",
-     "always",
-     "manual_pause"
-    ],
-    "heating_allowed": true,
-    "in_season": true,
-    "mean_past_24h": null,
-    "mean_forecast_24h": null,
-    "mean_combined": null,
-    "heating_limit": 15.0,
-    "heat_today_until": null,
-    "device_class": "enum",
-    "friendly_name": "Raumklima Allgemein Heating mode"
-   },
-   "last_changed": "2026-11-01T16:05:42.545500+00:00",
-   "last_updated": "2026-11-01T16:05:42.545500+00:00"
-  },
-  "sensor.raumklima_allgemein_outdoor_daily_mean": {
-   "entity_id": "sensor.raumklima_allgemein_outdoor_daily_mean",
-   "state": "unknown",
-   "attributes": {
-    "state_class": "measurement",
-    "unit_of_measurement": "°C",
-    "device_class": "temperature",
-    "friendly_name": "Raumklima Allgemein Outdoor daily mean"
-   },
-   "last_changed": "2026-11-01T16:05:42.535400+00:00",
-   "last_updated": "2026-11-01T16:05:42.535400+00:00"
-  },
-  "sensor.raumklima_allgemein_health": {
-   "entity_id": "sensor.raumklima_allgemein_health",
-   "state": "0",
-   "attributes": {
-    "state_class": "measurement",
-    "issues": [],
-    "friendly_name": "Raumklima Allgemein Health"
-   },
-   "last_changed": "2026-11-01T16:05:42.535629+00:00",
-   "last_updated": "2026-11-01T16:05:42.535629+00:00"
-  },
-  "sensor.bad_status": {
-   "entity_id": "sensor.bad_status",
-   "state": "idle",
-   "attributes": {
-    "options": [
-     "heating",
-     "idle",
-     "window_open",
-     "off",
-     "sensor_unavailable",
-     "trv_unavailable",
-     "season_off",
-     "setback",
-     "night_airing"
-    ],
-    "device_class": "enum",
-    "friendly_name": "Bad Status"
-   },
-   "last_changed": "2026-11-01T16:05:42.548013+00:00",
-   "last_updated": "2026-11-01T16:05:42.548013+00:00"
-  },
-  "sensor.bad_sync": {
-   "entity_id": "sensor.bad_sync",
-   "state": "ok",
-   "attributes": {
-    "options": [
-     "ok",
-     "pending",
-     "failed"
-    ],
-    "attempt": 0,
-    "pending": [],
-    "device_class": "enum",
-    "friendly_name": "Bad Sync"
-   },
-   "last_changed": "2026-11-01T16:05:42.548550+00:00",
-   "last_updated": "2026-11-01T16:05:42.548550+00:00"
-  },
-  "sensor.bad_recommended_airing_time": {
-   "entity_id": "sensor.bad_recommended_airing_time",
-   "state": "10",
-   "attributes": {
-    "outdoor_temperature": null,
-    "unit_of_measurement": "min",
-    "device_class": "duration",
-    "friendly_name": "Bad Recommended airing time"
-   },
-   "last_changed": "2026-11-01T16:05:42.536757+00:00",
-   "last_updated": "2026-11-01T16:05:42.536757+00:00"
+   "last_changed": "2026-11-01T16:21:53.202177+00:00",
+   "last_updated": "2026-11-01T16:21:53.202177+00:00"
   },
   "climate.bad": {
    "entity_id": "climate.bad",
@@ -242,6 +132,9 @@
     ],
     "humidity_sensor": false,
     "ventilation": "airing",
+    "ventilation_reason": null,
+    "co2": null,
+    "co2_limit": null,
     "humidity_limit": 75.0,
     "dew_point": null,
     "abs_humidity": null,
@@ -250,14 +143,14 @@
     "outdoor_abs_humidity": null,
     "airing_dries": true,
     "recommended_minutes": 10,
-    "window_open_since": "2026-11-01T16:05:42.550884+00:00",
+    "window_open_since": "2026-11-01T16:21:53.223324+00:00",
     "airing_remaining_s": 599,
     "mold_risk": false,
     "notifications": true,
     "snoozed_until": null,
     "muted_until": null,
     "settings": {
-     "entry_id": "01M6BXR2EPGPDAAZ6MCPBZT5VG",
+     "entry_id": "01M6BYNPC2586V3FXBRC1B0KYR",
      "trv": "climate.trv_bad",
      "room_type": "bathroom",
      "weather_entity": null,
@@ -273,6 +166,7 @@
      "setback_long": 16.0,
      "night_airing": "auto",
      "virtual_window": "auto",
+     "solar_gain": false,
      "virtual_active": false,
      "heatup": {
       "episodes": 0,
@@ -280,6 +174,7 @@
       "minutes_2k": null
      },
      "humidity_sensor": null,
+     "co2_sensor": null,
      "temperature_sensor": "sensor.bad_temperatur",
      "windows": [
       "binary_sensor.bad_fenster"
@@ -301,15 +196,15 @@
     "plan_reason": "normal",
     "presence": "home",
     "night_airing": false,
-    "home": "01M6BXR2EP514S3684AWTF32MY",
+    "home": "01M6BYNPC1W7V6H1XPA6957D96",
     "home_name": "Allgemein",
     "window_virtual": false,
     "heating_mode": "always",
     "friendly_name": "Bad",
     "supported_features": 385
    },
-   "last_changed": "2026-11-01T16:05:42.539207+00:00",
-   "last_updated": "2026-11-01T16:05:42.551185+00:00"
+   "last_changed": "2026-11-01T16:21:53.205568+00:00",
+   "last_updated": "2026-11-01T16:21:53.223521+00:00"
   },
   "binary_sensor.bad_problem": {
    "entity_id": "binary_sensor.bad_problem",
@@ -319,8 +214,8 @@
     "device_class": "problem",
     "friendly_name": "Bad Problem"
    },
-   "last_changed": "2026-11-01T16:05:42.548308+00:00",
-   "last_updated": "2026-11-01T16:05:42.548308+00:00"
+   "last_changed": "2026-11-01T16:21:53.218677+00:00",
+   "last_updated": "2026-11-01T16:21:53.218677+00:00"
   },
   "binary_sensor.bad_window": {
    "entity_id": "binary_sensor.bad_window",
@@ -330,22 +225,132 @@
     "device_class": "window",
     "friendly_name": "Bad Window"
    },
-   "last_changed": "2026-11-01T16:05:42.551231+00:00",
-   "last_updated": "2026-11-01T16:05:42.551231+00:00"
+   "last_changed": "2026-11-01T16:21:53.223636+00:00",
+   "last_updated": "2026-11-01T16:21:53.223636+00:00"
   },
-  "select.raumklima_allgemein_heating_season_mode": {
-   "entity_id": "select.raumklima_allgemein_heating_season_mode",
+  "sensor.raumklima_allgemein_presence": {
+   "entity_id": "sensor.raumklima_allgemein_presence",
+   "state": "home",
+   "attributes": {
+    "options": [
+     "home",
+     "guests",
+     "preheat",
+     "away_short",
+     "away_long"
+    ],
+    "persons": {},
+    "home_id": "01M6BYNPC1W7V6H1XPA6957D96",
+    "home_name": "Allgemein",
+    "home_dashboard": "heizung",
+    "last_present": null,
+    "vacation": false,
+    "guests": false,
+    "preheat_by": null,
+    "configured": false,
+    "device_class": "enum",
+    "friendly_name": "Raumklima Allgemein Presence"
+   },
+   "last_changed": "2026-11-01T16:21:53.211820+00:00",
+   "last_updated": "2026-11-01T16:21:53.211820+00:00"
+  },
+  "sensor.raumklima_allgemein_heating_mode": {
+   "entity_id": "sensor.raumklima_allgemein_heating_mode",
    "state": "always",
    "attributes": {
     "options": [
-     "auto",
+     "heating",
+     "pause",
+     "cold_snap",
+     "heat_today",
      "always",
-     "pause"
+     "manual_pause"
     ],
-    "friendly_name": "Raumklima Allgemein Heating season mode"
+    "heating_allowed": true,
+    "in_season": true,
+    "mean_past_24h": null,
+    "mean_forecast_24h": null,
+    "mean_combined": null,
+    "heating_limit": 15.0,
+    "heat_today_until": null,
+    "device_class": "enum",
+    "friendly_name": "Raumklima Allgemein Heating mode"
    },
-   "last_changed": "2026-11-01T16:05:42.544260+00:00",
-   "last_updated": "2026-11-01T16:05:42.544260+00:00"
+   "last_changed": "2026-11-01T16:21:53.215355+00:00",
+   "last_updated": "2026-11-01T16:21:53.215355+00:00"
+  },
+  "sensor.raumklima_allgemein_outdoor_daily_mean": {
+   "entity_id": "sensor.raumklima_allgemein_outdoor_daily_mean",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "°C",
+    "device_class": "temperature",
+    "friendly_name": "Raumklima Allgemein Outdoor daily mean"
+   },
+   "last_changed": "2026-11-01T16:21:53.212557+00:00",
+   "last_updated": "2026-11-01T16:21:53.212557+00:00"
+  },
+  "sensor.raumklima_allgemein_health": {
+   "entity_id": "sensor.raumklima_allgemein_health",
+   "state": "0",
+   "attributes": {
+    "state_class": "measurement",
+    "issues": [],
+    "friendly_name": "Raumklima Allgemein Health"
+   },
+   "last_changed": "2026-11-01T16:21:53.213146+00:00",
+   "last_updated": "2026-11-01T16:21:53.213146+00:00"
+  },
+  "sensor.bad_status": {
+   "entity_id": "sensor.bad_status",
+   "state": "idle",
+   "attributes": {
+    "options": [
+     "heating",
+     "idle",
+     "window_open",
+     "off",
+     "sensor_unavailable",
+     "trv_unavailable",
+     "season_off",
+     "setback",
+     "night_airing"
+    ],
+    "device_class": "enum",
+    "friendly_name": "Bad Status"
+   },
+   "last_changed": "2026-11-01T16:21:53.218801+00:00",
+   "last_updated": "2026-11-01T16:21:53.218801+00:00"
+  },
+  "sensor.bad_sync": {
+   "entity_id": "sensor.bad_sync",
+   "state": "ok",
+   "attributes": {
+    "options": [
+     "ok",
+     "pending",
+     "failed"
+    ],
+    "attempt": 0,
+    "pending": [],
+    "device_class": "enum",
+    "friendly_name": "Bad Sync"
+   },
+   "last_changed": "2026-11-01T16:21:53.219327+00:00",
+   "last_updated": "2026-11-01T16:21:53.219327+00:00"
+  },
+  "sensor.bad_recommended_airing_time": {
+   "entity_id": "sensor.bad_recommended_airing_time",
+   "state": "10",
+   "attributes": {
+    "outdoor_temperature": null,
+    "unit_of_measurement": "min",
+    "device_class": "duration",
+    "friendly_name": "Bad Recommended airing time"
+   },
+   "last_changed": "2026-11-01T16:21:53.214190+00:00",
+   "last_updated": "2026-11-01T16:21:53.214190+00:00"
   },
   "number.bad_minimum_temperature_while_airing": {
    "entity_id": "number.bad_minimum_temperature_while_airing",
@@ -359,8 +364,8 @@
     "device_class": "temperature",
     "friendly_name": "Bad Minimum temperature while airing"
    },
-   "last_changed": "2026-11-01T16:05:42.547185+00:00",
-   "last_updated": "2026-11-01T16:05:42.547185+00:00"
+   "last_changed": "2026-11-01T16:21:53.217386+00:00",
+   "last_updated": "2026-11-01T16:21:53.217386+00:00"
   },
   "number.bad_max_temperature_drop_while_airing": {
    "entity_id": "number.bad_max_temperature_drop_while_airing",
@@ -373,8 +378,8 @@
     "unit_of_measurement": "°C",
     "friendly_name": "Bad Max. temperature drop while airing"
    },
-   "last_changed": "2026-11-01T16:05:42.547439+00:00",
-   "last_updated": "2026-11-01T16:05:42.547439+00:00"
+   "last_changed": "2026-11-01T16:21:53.217611+00:00",
+   "last_updated": "2026-11-01T16:21:53.217611+00:00"
   },
   "sensor.bad_feuchte": {
    "entity_id": "sensor.bad_feuchte",
@@ -383,124 +388,124 @@
     "unit_of_measurement": "%",
     "device_class": "humidity"
    },
-   "last_changed": "2026-11-01T16:05:42.550733+00:00",
-   "last_updated": "2026-11-01T16:05:42.550733+00:00"
+   "last_changed": "2026-11-01T16:21:53.223150+00:00",
+   "last_updated": "2026-11-01T16:21:53.223150+00:00"
   }
  },
  "entities": {
+  "select.raumklima_allgemein_heating_season_mode": {
+   "entity_id": "select.raumklima_allgemein_heating_season_mode",
+   "platform": "raumklima",
+   "translation_key": "season_mode",
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
+  },
   "switch.raumklima_allgemein_vacation": {
    "entity_id": "switch.raumklima_allgemein_vacation",
    "platform": "raumklima",
    "translation_key": "vacation",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
   },
   "switch.raumklima_allgemein_guests": {
    "entity_id": "switch.raumklima_allgemein_guests",
    "platform": "raumklima",
    "translation_key": "guests",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
   },
   "switch.bad_airing_notifications": {
    "entity_id": "switch.bad_airing_notifications",
    "platform": "raumklima",
    "translation_key": "notifications",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   },
   "switch.bad_window_logic": {
    "entity_id": "switch.bad_window_logic",
    "platform": "raumklima",
    "translation_key": "window_logic",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   },
   "button.raumklima_allgemein_heat_today": {
    "entity_id": "button.raumklima_allgemein_heat_today",
    "platform": "raumklima",
    "translation_key": "heat_today",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
-  },
-  "sensor.raumklima_allgemein_presence": {
-   "entity_id": "sensor.raumklima_allgemein_presence",
-   "platform": "raumklima",
-   "translation_key": "presence",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
-  },
-  "sensor.raumklima_allgemein_heating_mode": {
-   "entity_id": "sensor.raumklima_allgemein_heating_mode",
-   "platform": "raumklima",
-   "translation_key": "heating_mode",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
-  },
-  "sensor.raumklima_allgemein_outdoor_daily_mean": {
-   "entity_id": "sensor.raumklima_allgemein_outdoor_daily_mean",
-   "platform": "raumklima",
-   "translation_key": "outdoor_mean",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
-  },
-  "sensor.raumklima_allgemein_health": {
-   "entity_id": "sensor.raumklima_allgemein_health",
-   "platform": "raumklima",
-   "translation_key": "health",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
-  },
-  "sensor.bad_status": {
-   "entity_id": "sensor.bad_status",
-   "platform": "raumklima",
-   "translation_key": "status",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
-  },
-  "sensor.bad_sync": {
-   "entity_id": "sensor.bad_sync",
-   "platform": "raumklima",
-   "translation_key": "sync",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
-  },
-  "sensor.bad_recommended_airing_time": {
-   "entity_id": "sensor.bad_recommended_airing_time",
-   "platform": "raumklima",
-   "translation_key": "recommended_duration",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
   },
   "climate.bad": {
    "entity_id": "climate.bad",
    "platform": "raumklima",
    "translation_key": "raumklima",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   },
   "binary_sensor.bad_problem": {
    "entity_id": "binary_sensor.bad_problem",
    "platform": "raumklima",
    "translation_key": "problem",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   },
   "binary_sensor.bad_window": {
    "entity_id": "binary_sensor.bad_window",
    "platform": "raumklima",
    "translation_key": "window",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   },
-  "select.raumklima_allgemein_heating_season_mode": {
-   "entity_id": "select.raumklima_allgemein_heating_season_mode",
+  "sensor.raumklima_allgemein_presence": {
+   "entity_id": "sensor.raumklima_allgemein_presence",
    "platform": "raumklima",
-   "translation_key": "season_mode",
-   "device_id": "cbf6e7f0a2e553c0e83cc566dc8497a2"
+   "translation_key": "presence",
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
+  },
+  "sensor.raumklima_allgemein_heating_mode": {
+   "entity_id": "sensor.raumklima_allgemein_heating_mode",
+   "platform": "raumklima",
+   "translation_key": "heating_mode",
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
+  },
+  "sensor.raumklima_allgemein_outdoor_daily_mean": {
+   "entity_id": "sensor.raumklima_allgemein_outdoor_daily_mean",
+   "platform": "raumklima",
+   "translation_key": "outdoor_mean",
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
+  },
+  "sensor.raumklima_allgemein_health": {
+   "entity_id": "sensor.raumklima_allgemein_health",
+   "platform": "raumklima",
+   "translation_key": "health",
+   "device_id": "6bb4f2f6706f1c9ab3ed65075ea0fd65"
+  },
+  "sensor.bad_status": {
+   "entity_id": "sensor.bad_status",
+   "platform": "raumklima",
+   "translation_key": "status",
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
+  },
+  "sensor.bad_sync": {
+   "entity_id": "sensor.bad_sync",
+   "platform": "raumklima",
+   "translation_key": "sync",
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
+  },
+  "sensor.bad_recommended_airing_time": {
+   "entity_id": "sensor.bad_recommended_airing_time",
+   "platform": "raumklima",
+   "translation_key": "recommended_duration",
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   },
   "number.bad_minimum_temperature_while_airing": {
    "entity_id": "number.bad_minimum_temperature_while_airing",
    "platform": "raumklima",
    "translation_key": "min_temp",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   },
   "number.bad_max_temperature_drop_while_airing": {
    "entity_id": "number.bad_max_temperature_drop_while_airing",
    "platform": "raumklima",
    "translation_key": "max_drop",
-   "device_id": "4d51a3b9cb9d039a1839a148020a1b46"
+   "device_id": "0966d89ad9381130fde268ba52f7ffd7"
   }
  },
  "ws": {
   "raumklima/config": {
    "hub": {
-    "entry_id": "01M6BXR2EP514S3684AWTF32MY",
+    "entry_id": "01M6BYNPC1W7V6H1XPA6957D96",
     "options": {
      "recipients": {},
      "tts": {},
@@ -531,6 +536,10 @@
      "night_start": "20:00:00",
      "night_end": "03:00:00",
      "night_alarm_temp": 12.0,
+     "calendar_entity": null,
+     "calendar_away_words": "Urlaub, Reise, Dienstreise, verreist, vacation, trip",
+     "calendar_home_words": "Homeoffice, Home-Office, zu Hause, home office, wfh",
+     "frost_night": true,
      "kinds_version": 2
     },
     "state": {
@@ -541,6 +550,7 @@
      "last_present": null,
      "preheat_by": null,
      "presence_configured": false,
+     "calendar": null,
      "decision": "always",
      "heating_allowed": true,
      "in_season": true,
@@ -616,7 +626,7 @@
    },
    "rooms": [
     {
-     "entry_id": "01M6BXR2EPGPDAAZ6MCPBZT5VG",
+     "entry_id": "01M6BYNPC2586V3FXBRC1B0KYR",
      "title": "Bad",
      "options": {
       "name": "Bad",
@@ -638,12 +648,12 @@
    ],
    "homes": [
     {
-     "entry_id": "01M6BXR2EP514S3684AWTF32MY",
+     "entry_id": "01M6BYNPC1W7V6H1XPA6957D96",
      "name": "Allgemein",
      "default": true,
      "dashboard": "heizung",
      "rooms": [
-      "01M6BXR2EPGPDAAZ6MCPBZT5VG"
+      "01M6BYNPC2586V3FXBRC1B0KYR"
      ]
     }
    ],
@@ -664,6 +674,7 @@
     "persons": [],
     "zones": [],
     "weather": [],
+    "calendars": [],
     "signals": [
      {
       "id": "switch.bad_airing_notifications",
@@ -1065,28 +1076,28 @@
    "entries": [
     {
      "id": 4,
-     "t": "2026-11-01T16:05:42.550874+00:00",
+     "t": "2026-11-01T16:21:53.223304+00:00",
      "cat": "window",
      "msg": "Fenster auf",
      "room": "Bad",
-     "eid": "01M6BXR2EPGPDAAZ6MCPBZT5VG"
+     "eid": "01M6BYNPC2586V3FXBRC1B0KYR"
     },
     {
      "id": 3,
-     "t": "2026-11-01T16:05:42.547884+00:00",
+     "t": "2026-11-01T16:21:53.218199+00:00",
      "cat": "device",
      "msg": "Thermostat: Sollwert 22,0 °C",
      "room": "Bad",
-     "eid": "01M6BXR2EPGPDAAZ6MCPBZT5VG"
+     "eid": "01M6BYNPC2586V3FXBRC1B0KYR"
     },
     {
      "id": 2,
-     "t": "2026-11-01T16:05:42.547805+00:00",
+     "t": "2026-11-01T16:21:53.218136+00:00",
      "cat": "target",
      "msg": "Start: Ziel 22,0 °C",
      "why": "Wunschtemperatur 22,0 °C",
      "room": "Bad",
-     "eid": "01M6BXR2EPGPDAAZ6MCPBZT5VG",
+     "eid": "01M6BYNPC2586V3FXBRC1B0KYR",
      "data": {
       "target": 22.0,
       "reason": "normal"
@@ -1094,7 +1105,7 @@
     },
     {
      "id": 1,
-     "t": "2026-11-01T16:05:42.545220+00:00",
+     "t": "2026-11-01T16:21:53.215122+00:00",
      "cat": "season",
      "msg": "Heizbetrieb: Heizen → Immer heizen",
      "why": "Betriebsart „Immer heizen“; Ø letzte 24 h –, Vorhersage 24 h –, zusammen – – Heizgrenze 15 °C",

@@ -46,6 +46,7 @@ from .const import (
     CONF_BUILDING,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
+    CONF_CO2_SENSOR,
     CONF_COLD_SNAP_TEMP,
     CONF_COMFORT_TEMP,
     CONF_ENTRY_TYPE,
@@ -144,6 +145,7 @@ def suggest_for_trv(hass: HomeAssistant, trv: str) -> dict[str, Any]:
         return result
     temps: list[str] = []
     hums: list[str] = []
+    co2s: list[str] = []
     windows: list[str] = []
     for entry in ents.entities.values():
         if entry.disabled_by or entry.device_id == trv_entry.device_id:
@@ -156,12 +158,16 @@ def suggest_for_trv(hass: HomeAssistant, trv: str) -> dict[str, Any]:
             temps.append(entry.entity_id)
         elif entry.domain == "sensor" and dclass == "humidity":
             hums.append(entry.entity_id)
+        elif entry.domain == "sensor" and dclass == "carbon_dioxide":
+            co2s.append(entry.entity_id)
         elif entry.domain == "binary_sensor" and dclass in ("window", "door", "opening"):
             windows.append(entry.entity_id)
     if temps:
         result[CONF_TEMP_SENSOR] = sorted(temps)[0]
     if hums:
         result[CONF_HUMIDITY_SENSOR] = sorted(hums)[0]
+    if co2s:
+        result[CONF_CO2_SENSOR] = sorted(co2s)[0]
     if windows:
         result[CONF_WINDOWS] = sorted(windows)
     return result
@@ -216,6 +222,9 @@ def _devices_schema(defaults: dict[str, Any], *, with_name: bool) -> vol.Schema:
             vol.Optional(
                 CONF_HUMIDITY_SENSOR, description=_suggest(defaults.get(CONF_HUMIDITY_SENSOR))
             ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="humidity")),
+            vol.Optional(
+                CONF_CO2_SENSOR, description=_suggest(defaults.get(CONF_CO2_SENSOR))
+            ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="carbon_dioxide")),
             vol.Optional(
                 CONF_WINDOWS, description=_suggest(defaults.get(CONF_WINDOWS))
             ): EntitySelector(EntitySelectorConfig(domain="binary_sensor", multiple=True)),

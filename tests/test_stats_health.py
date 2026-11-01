@@ -124,3 +124,36 @@ def test_compare_needs_coverage_and_warm_counts_on_target():
     add_room_sample(day, _s(temp=17.0, effective=20.0, heating=True), 60)  # zu kalt
     r = summarize({"S": {"2026-11-02": day}}, {}, date(2026, 11, 2), date(2026, 11, 2))["rooms"]["S"]
     assert r["on_target_pct"] == 50
+
+
+def test_hydraulic_hint() -> None:
+    from datetime import datetime, timedelta
+
+    from rk.health import HistoryPoint, check_hydraulic
+
+    now = datetime(2026, 11, 2, 12, 0)
+    # 10 h heizen, Ventil 95 %, Raum bleibt 1,5 K unter dem Ziel
+    hist = [HistoryPoint(now - timedelta(minutes=10 * i), 95.0, 19.5, 21.0, True) for i in range(60)]
+    issue = check_hydraulic(hist, now)
+    assert issue is not None and issue.code == "hydraulic"
+    # Ziel meist erreicht → kein Hinweis
+    ok = [HistoryPoint(p.when, 95.0, 21.0, 21.0, True) for p in hist]
+    assert check_hydraulic(ok, now) is None
+    # zu wenig Heizzeit
+    assert check_hydraulic(hist[:20], now) is None
+
+
+def test_csv_export() -> None:
+    from datetime import date
+
+    from rk.stats import export_rows, rows_to_csv
+
+    rooms = {"Bad": {"2026-11-01": {"seconds": 86400, "heating_s": 7200, "valve_pct_s": 50 * 3600 * 100, "temp_s": 21.5 * 86400, "temp_n_s": 86400}}}
+    home = {"2026-11-01": {"outdoor_s": 5 * 86400, "outdoor_n_s": 86400, "seconds": 86400}}
+    rows = export_rows(rooms, home, date(2026, 10, 31), date(2026, 11, 1))
+    assert len(rows) == 1 and rows[0]["room"] == "Bad" and rows[0]["heating_h"] == 2.0
+    text = rows_to_csv(rows)
+    head, line = text.strip().split("\n")
+    assert head.startswith("Datum;Raum;")
+    assert line.startswith("2026-11-01;Bad;24;2;")
+    assert ";21,5;" in line

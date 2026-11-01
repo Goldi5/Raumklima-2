@@ -274,3 +274,50 @@ def test_eta():
     assert 40 <= eta <= 44  # 65 km bei 90 km/h
     walk = [(t0 + timedelta(minutes=m), 3 - m * 0.05) for m in range(0, 11)]
     assert eta_minutes(walk, t0 + timedelta(minutes=10)) is None
+
+
+# ------------------------------------------------------------------ Kalender
+def test_calendar_mode() -> None:
+    from rk.planning import CAL_AWAY, CAL_AWAY_WORDS, CAL_HOME, CAL_HOME_WORDS, calendar_mode
+
+    assert calendar_mode(True, "Urlaub Mallorca", CAL_AWAY_WORDS, CAL_HOME_WORDS) == CAL_AWAY
+    assert calendar_mode(True, "Homeoffice", CAL_AWAY_WORDS, CAL_HOME_WORDS) == CAL_HOME
+    assert calendar_mode(True, "Zahnarzt", CAL_AWAY_WORDS, CAL_HOME_WORDS) is None
+    assert calendar_mode(False, "Urlaub", CAL_AWAY_WORDS, CAL_HOME_WORDS) is None
+    assert calendar_mode(True, "Kur", "kur", "") == CAL_AWAY
+
+
+# ------------------------------------------------------------------ Wettervorhersage
+def _hours(now, conds, temps=None, clouds=None):
+    from datetime import timedelta
+
+    from rk.planning import ForecastHour
+
+    return [
+        ForecastHour(now + timedelta(hours=i), (temps or [5] * len(conds))[i], c, (clouds or [None] * len(conds))[i])
+        for i, c in enumerate(conds)
+    ]
+
+
+def test_sun_expected() -> None:
+    from datetime import datetime
+
+    from rk.planning import sun_expected
+
+    now = datetime(2026, 11, 2, 10, 0)
+    assert sun_expected(_hours(now, ["sunny", "sunny", "cloudy", "cloudy"]), now)
+    assert not sun_expected(_hours(now, ["sunny", "cloudy", "rainy", "cloudy"]), now)
+    assert not sun_expected(_hours(now, ["clear-night"] * 4), now)
+    # Bewölkung entscheidet, wenn vorhanden
+    assert sun_expected(_hours(now, ["partlycloudy"] * 4, clouds=[20, 25, 80, 90]), now)
+
+
+def test_frost_night() -> None:
+    from datetime import datetime
+
+    from rk.planning import frost_night_min, frost_night_setback
+
+    now = datetime(2026, 12, 2, 18, 0)
+    assert frost_night_min(_hours(now, ["clear-night"] * 13, temps=[0, -2, -4, -6, -8, -7, -6, -5, -4, -3, -2, -1, 0]), now) == -8
+    assert frost_night_min(_hours(now, ["cloudy"] * 13, temps=[2] * 13), now) is None
+    assert frost_night_setback(16.0, 21.0) == 18.5

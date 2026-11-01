@@ -477,3 +477,70 @@ def virtual_window_close_reason(
     if current is not None and now - opened_at >= VIRT_MIN_OPEN and current >= lowest + VIRT_RECOVER:
         return "recovered"
     return None
+
+
+# ------------------------------------------------------------------ Kalender
+CAL_AWAY = "away"
+CAL_HOME = "home"
+CAL_AWAY_WORDS = "Urlaub, Reise, Dienstreise, verreist, vacation, trip"
+CAL_HOME_WORDS = "Homeoffice, Home-Office, zu Hause, home office, wfh"
+
+
+def _words(text: str | None) -> list[str]:
+    return [w.strip().lower() for w in str(text or "").split(",") if w.strip()]
+
+
+def calendar_mode(active: bool, summary: str | None, away_words: str | None, home_words: str | None) -> str | None:
+    """Laufender Kalendertermin → „away“ (wie Urlaub), „home“ (wie Gäste: nicht absenken) oder None."""
+    if not active or not summary:
+        return None
+    text = summary.lower()
+    if any(w in text for w in _words(away_words)):
+        return CAL_AWAY
+    if any(w in text for w in _words(home_words)):
+        return CAL_HOME
+    return None
+
+
+# ------------------------------------------------------------------ Wettervorhersage
+SUNNY_CONDITIONS = frozenset({"sunny", "clear"})
+SUNNY_CLOUDS = 30.0  # % Bewölkung – darunter zählt eine Stunde als sonnig
+SOLAR_HOURS = 3  # so weit vorausschauen …
+SOLAR_MIN_SUNNY = 2  # … davon so viele sonnig
+SOLAR_REDUCTION = 1.0  # K weniger, wenn die Sonne mitheizt
+FROST_NIGHT_TEMP = -5.0  # °C
+FROST_NIGHT_AHEAD = timedelta(hours=12)
+
+
+@dataclass(frozen=True)
+class ForecastHour:
+    when: datetime
+    temperature: float | None
+    condition: str | None
+    cloud_coverage: float | None = None
+
+
+def _is_sunny(h: ForecastHour) -> bool:
+    if h.cloud_coverage is not None:
+        return h.cloud_coverage <= SUNNY_CLOUDS and h.condition not in ("rainy", "pouring", "snowy", "fog")
+    return h.condition in SUNNY_CONDITIONS
+
+
+def sun_expected(hourly: list[ForecastHour], now: datetime) -> bool:
+    """Scheint in den nächsten Stunden (tagsüber) überwiegend die Sonne?"""
+    ahead = [h for h in hourly if now - timedelta(minutes=30) <= h.when <= now + timedelta(hours=SOLAR_HOURS)]
+    # „clear“ nachts zählt nicht – die Sonne muss auch scheinen
+    sunny = [h for h in ahead if _is_sunny(h) and h.condition != "clear-night"]
+    return len(sunny) >= SOLAR_MIN_SUNNY
+
+
+def frost_night_min(hourly: list[ForecastHour], now: datetime) -> float | None:
+    """Tiefste vorhergesagte Temperatur der nächsten 12 h, wenn sie unter −5 °C liegt."""
+    temps = [h.temperature for h in hourly if now <= h.when <= now + FROST_NIGHT_AHEAD and h.temperature is not None]
+    low = min(temps, default=None)
+    return low if low is not None and low <= FROST_NIGHT_TEMP else None
+
+
+def frost_night_setback(setback: float, wish: float) -> float:
+    """In Frostnächten nur halb so tief absenken – der Raum kühlt sonst stark aus und braucht lange zum Aufheizen."""
+    return round_up_half((setback + wish) / 2)

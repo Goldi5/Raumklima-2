@@ -125,7 +125,7 @@ export class RaumklimaCard extends HTMLElement {
     if (vent && a.ventilation !== "ok") {
       const showBar = winOpen && this._openSince && ["airing", "please_close", "done"].includes(a.ventilation);
       const extra = a.ventilation === "please_open"
-        ? `<span>${t("{h} % · ca. {m} min", { h: fmt(a.current_humidity, 0), m: this._recMin })}</span>`
+        ? `<span>${a.ventilation_reason === "co2" ? t("{c} ppm · ca. {m} min", { c: fmt(a.co2, 0), m: this._recMin }) : t("{h} % · ca. {m} min", { h: fmt(a.current_humidity, 0), m: this._recMin })}</span>`
         : showBar ? `<span class="count" data-count>–</span>` : "";
       banner = `<div class="banner" style="--vt:${toneVar(vent.tone)}">
           <ha-icon icon="${vent.icon}"></ha-icon><span class="grow">${vent.label}${showBar ? ` · ${this._recMin} min` : ""}</span>${extra}
@@ -138,6 +138,7 @@ export class RaumklimaCard extends HTMLElement {
 
     const stats = [
       a.humidity_sensor ? stat("mdi:water-percent", t("Feuchte"), `${fmt(a.current_humidity, 0)} %`, humTone(a.current_humidity), sib.ventilation) : "",
+      a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)}<small>ppm</small>`, a.co2 >= 1400 ? "cold" : a.co2 >= 1000 ? "warn" : "ok") : "",
       a.dew_point !== undefined && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
       stat("mdi:valve", t("Ventil"), a.valve_position === null || a.valve_position === undefined ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null),
       a.outdoor_temperature !== undefined && a.outdoor_temperature !== null

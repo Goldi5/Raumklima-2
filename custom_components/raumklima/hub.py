@@ -24,6 +24,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_BUILDING,
+    CONF_CALENDAR,
     CONF_FROST_FLOOR,
     CONF_RESIDENTS,
     CONF_ZONE,
@@ -44,6 +45,7 @@ from .planning import (
     BUILDING_FRSI,
     STAGE_HOME,
     STAGE_PREHEAT,
+    ForecastHour,
     SeasonState,
     TrackerFilter,
 )
@@ -91,6 +93,8 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self._preheat_until: datetime | None = None
         self._preheat_by: str | None = None
         self._preheat_reason: str | None = None
+        self.calendar_mode: str | None = None  # laufender Termin: away / home
+        self.calendar_summary: str | None = None
         # Heizsaison
         self.season = SeasonState()
         self.decision = "heating"
@@ -98,6 +102,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self.samples: list[tuple[datetime, float]] = []
         self.mean_past: float | None = None
         self.mean_forecast: float | None = None
+        self.forecast_hourly: list[ForecastHour] = []
         self.insights = Insights(hass, self)
         self.log = DecisionLog(hass, self.store_suffix)
         self._reject_logged: dict[str, datetime] = {}
@@ -207,6 +212,8 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
                 tracked += list(state.attributes.get("device_trackers") or [])
         if self.zone:
             tracked.append(self.zone)
+        if self.opt(CONF_CALENDAR):
+            tracked.append(self.opt(CONF_CALENDAR))
         if tracked:
             self._unsubs.append(
                 async_track_state_change_event(self.hass, tracked, self._on_tracker_change)
@@ -379,6 +386,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
             "last_present": iso(self.last_present),
             "preheat_by": self._preheat_by if self.stage == STAGE_PREHEAT else None,
             "presence_configured": self.presence_configured,
+            "calendar": {"mode": self.calendar_mode, "summary": self.calendar_summary} if self.opt(CONF_CALENDAR) else None,
             "decision": self.decision,
             "heating_allowed": self.heating_allowed,
             "in_season": self.in_season,

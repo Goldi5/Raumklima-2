@@ -39,6 +39,10 @@ COMFORT_BY_ROOM = {
 }
 MIN_USEFUL_TARGET = 12.0  # darunter gilt ein Sollwert als "aus"-Rest (z. B. 5 °C)
 
+# CO₂ (UBA/Pettenkofer): unter 1000 ppm unbedenklich, 1000–2000 auffällig
+CO2_LIMIT = 1000.0  # ab hier „Bitte lüften“
+CO2_DONE = 800.0  # darunter ist die Luft beim Lüften ausgetauscht
+
 
 def comfort_temperature(configured: float | None, room_type: str | None) -> float:
     """Wunschtemperatur: eingestellt oder Standard des Raumtyps."""
@@ -106,6 +110,9 @@ class VentInput:
     duration: int
     dries: bool
     high_delay_minutes: float = 15.0
+    co2: float | None = None
+    co2_limit: float = CO2_LIMIT
+    co2_done: float = CO2_DONE
 
 
 def evaluate(v: VentInput) -> str:
@@ -118,13 +125,11 @@ def evaluate(v: VentInput) -> str:
                 return VENT_TOO_COLD
         if v.open_minutes >= v.duration:
             return VENT_PLEASE_CLOSE
-        if (
-            v.humidity is not None
-            and v.open_minutes >= 2
-            and v.humidity < v.humidity_limit - v.humidity_hysteresis
-        ):
+        if v.open_minutes >= 2 and air_exchanged(v):
             return VENT_DONE
         return VENT_AIRING
+    if v.co2 is not None and v.co2 >= v.co2_limit:
+        return VENT_PLEASE_OPEN  # verbrauchte Luft: lüften hilft immer, auch wenn es draußen feucht ist
     if (
         v.humidity is not None
         and v.humidity >= v.humidity_limit
@@ -133,6 +138,20 @@ def evaluate(v: VentInput) -> str:
     ):
         return VENT_PLEASE_OPEN
     return VENT_OK
+
+
+def air_exchanged(v: VentInput) -> bool:
+    """Beim Lüften: sind alle vorhandenen Werte (Feuchte, CO₂) wieder gut?"""
+    if v.humidity is None and v.co2 is None:
+        return False
+    if v.humidity is not None and v.humidity >= v.humidity_limit - v.humidity_hysteresis:
+        return False
+    return v.co2 is None or v.co2 < v.co2_done
+
+
+def vent_reason(v: VentInput) -> str:
+    """Warum „Bitte lüften“? „co2“ oder „humidity“."""
+    return "co2" if v.co2 is not None and v.co2 >= v.co2_limit else "humidity"
 
 
 def mold_risk(humidity: float | None, room_temp: float | None, high_hours: float) -> bool:

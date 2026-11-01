@@ -223,3 +223,62 @@ def week_message(cur: dict[str, Any], change: float | None) -> str:
     if humid:
         parts.append(", ".join(f"{n} {h:.0f} h zu feucht" for n, h in humid[:2]))
     return " · ".join(parts)
+
+
+# ------------------------------------------------------------------ Export
+CSV_COLUMNS = (
+    ("date", "Datum"),
+    ("room", "Raum"),
+    ("hours", "erfasst_h"),
+    ("heating_h", "heizt_h"),
+    ("valve_h", "ventil_voll_offen_h"),
+    ("setback_h", "abgesenkt_h"),
+    ("setback_avg_k", "absenkung_mittel_K"),
+    ("window_pause_h", "fenster_pause_h"),
+    ("night_h", "nachtlueften_h"),
+    ("temp_avg", "temperatur_mittel_C"),
+    ("humidity_avg", "feuchte_mittel_pct"),
+    ("humid_h", "zu_feucht_h"),
+    ("on_target_pct", "am_ziel_pct"),
+    ("outdoor_avg", "aussen_mittel_C"),
+    ("hdd", "heizgradtage"),
+)
+
+
+def export_rows(
+    rooms: dict[str, dict[str, dict[str, float]]],
+    home: dict[str, dict[str, float]],
+    start: date,
+    end: date,
+) -> list[dict[str, Any]]:
+    """Ein Eintrag je Tag und Raum (nur Tage mit Messwerten)."""
+    rows = []
+    day = start
+    while day <= end:
+        key = day.isoformat()
+        h = summarize({}, home, day, day)
+        for name in sorted(rooms):
+            if key not in rooms[name]:
+                continue
+            r = summarize_room([rooms[name][key]])
+            rows.append({"date": key, "room": name, **r, "outdoor_avg": h["outdoor_avg"], "hdd": h["hdd"]})
+        day += timedelta(days=1)
+    return rows
+
+
+def rows_to_csv(rows: list[dict[str, Any]]) -> str:
+    """CSV mit Semikolon und Dezimalkomma (öffnet sich in Excel/LibreOffice auf Deutsch direkt richtig)."""
+
+    def cell(value: Any) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, float):
+            return f"{value:g}".replace(".", ",")
+        text = str(value)
+        if any(c in text for c in ';"\n'):
+            text = '"' + text.replace('"', '""') + '"'
+        return text
+
+    lines = [";".join(label for _, label in CSV_COLUMNS)]
+    lines += [";".join(cell(row.get(key)) for key, _ in CSV_COLUMNS) for row in rows]
+    return "\n".join(lines) + "\n"

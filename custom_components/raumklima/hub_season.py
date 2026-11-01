@@ -11,6 +11,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_COLD_SNAP_TEMP,
+    CONF_FROST_NIGHT,
     CONF_HEATING_LIMIT,
     CONF_SEASON_END,
     CONF_SEASON_MODE,
@@ -25,12 +26,15 @@ from .decision_log import (
 )
 from .logic import to_float
 from .planning import (
+    ForecastHour,
     SeasonConfig,
     combined_mean,
+    frost_night_min,
     in_season,
     season_allows_heating,
     season_decision,
     season_step,
+    sun_expected,
 )
 from .shared import parse_dt
 
@@ -88,8 +92,10 @@ class SeasonMixin:
         weather = self.weather
         if not weather or not weather.startswith("weather."):
             self.mean_forecast = None
+            self.forecast_hourly = []
             return
         temps: list[float] = []
+        hourly: list[ForecastHour] = []
         for kind in ("hourly", "daily"):
             try:
                 resp = await self.hass.services.async_call(
@@ -110,6 +116,7 @@ class SeasonMixin:
                     temp = to_float(item.get("temperature"))
                     if when and temp is not None and when <= now + timedelta(hours=24):
                         temps.append(temp)
+                        hourly.append(ForecastHour(when, temp, item.get("condition"), to_float(item.get("cloud_coverage"))))
             elif forecast:
                 hi = to_float(forecast[0].get("temperature"))
                 lo = to_float(forecast[0].get("templow"))
@@ -117,7 +124,19 @@ class SeasonMixin:
             if temps:
                 break
         self.mean_forecast = round(sum(temps) / len(temps), 1) if temps else None
+        self.forecast_hourly = hourly
         self._evaluate_season()
+
+    def sun_expected(self) -> bool:
+        """Scheint laut Vorhersage in den nächsten Stunden die Sonne?"""
+        return sun_expected(self.forecast_hourly, dt_util.utcnow())
+
+    @property
+    def frost_night(self) -> float | None:
+        """Tiefstwert der nächsten 12 h, falls eine Frostnacht (≤ −5 °C) kommt und die Option an ist."""
+        if not self.opt(CONF_FROST_NIGHT):
+            return None
+        return frost_night_min(self.forecast_hourly, dt_util.utcnow())
 
     def _season_config(self) -> SeasonConfig:
         return SeasonConfig(

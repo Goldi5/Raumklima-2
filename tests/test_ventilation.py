@@ -92,3 +92,36 @@ def test_comfort_temperature_defaults() -> None:
     assert comfort_temperature("", "bedroom") == 17.0
     assert comfort_temperature(21.5, "bedroom") == 21.5
     assert comfort_temperature(None, None) == 20.0
+
+
+# ------------------------------------------------------------------ CO₂
+def _v(**kw):
+    from rk.ventilation import VentInput
+
+    base = dict(
+        window_open=False, open_minutes=0, room_temp=21.0, temp_at_open=None, humidity=50.0,
+        humidity_high_minutes=0, humidity_limit=70.0, humidity_hysteresis=5.0, min_temp=18.0,
+        max_drop=3.0, duration=10, dries=True,
+    )
+    base.update(kw)
+    return VentInput(**base)
+
+
+def test_co2_high_asks_to_open_even_if_outside_is_humid() -> None:
+    from rk.ventilation import VENT_OK, VENT_PLEASE_OPEN, evaluate, vent_reason
+
+    assert evaluate(_v(co2=1250, dries=False)) == VENT_PLEASE_OPEN
+    assert vent_reason(_v(co2=1250)) == "co2"
+    assert evaluate(_v(co2=900)) == VENT_OK
+
+
+def test_airing_done_needs_humidity_and_co2_good() -> None:
+    from rk.ventilation import VENT_AIRING, VENT_DONE, evaluate
+
+    # Feuchte gut, CO₂ noch hoch → weiter lüften
+    assert evaluate(_v(window_open=True, open_minutes=3, humidity=50, co2=950)) == VENT_AIRING
+    assert evaluate(_v(window_open=True, open_minutes=3, humidity=50, co2=700)) == VENT_DONE
+    # nur CO₂-Fühler
+    assert evaluate(_v(window_open=True, open_minutes=3, humidity=None, co2=700)) == VENT_DONE
+    # gar kein Fühler → nie „ausgetauscht“
+    assert evaluate(_v(window_open=True, open_minutes=3, humidity=None, co2=None)) == VENT_AIRING

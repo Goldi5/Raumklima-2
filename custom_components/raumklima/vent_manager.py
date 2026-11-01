@@ -31,6 +31,7 @@ from .const import (
 from .logic import to_float
 from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
+    CO2_LIMIT,
     DEFAULT_ROOM_TYPE,
     ROOM_TYPES,
     VENT_AIRING,
@@ -75,6 +76,7 @@ MESSAGES = {
     VENT_TOO_COLD: ("🥶 {room}: Raum kühlt aus", "Nur noch {temp:.1f} °C – bitte jetzt schließen."),
     VENT_DONE: ("✅ {room}: Luft ausgetauscht", "Luftfeuchte wieder {hum:.0f} % – du kannst schließen."),
 }
+MESSAGE_CO2 = ("🫁 {room}: Bitte lüften", "CO₂ {co2:.0f} ppm – die Luft ist verbraucht, bitte ca. {dur} min stoßlüften.")
 
 
 class VentilationManager:
@@ -96,6 +98,7 @@ class VentilationManager:
         self._window_away_sent: datetime | None = None
 
         self.state: str = VENT_OK
+        self.reason: str = "humidity"  # warum „Bitte lüften“: humidity / co2
         self.window_open_since: datetime | None = None
         self.temp_at_open: float | None = None
         self.humidity_high_since: datetime | None = None
@@ -305,10 +308,13 @@ class VentilationManager:
                 max_drop=self.max_drop,
                 duration=self.duration,
                 dries=self.dries,
+                co2=self.c.current_co2,
             )
         )
         changed = new != self.state
         self.state = new
+        if new == VENT_PLEASE_OPEN and changed:
+            self.reason = "co2" if (self.c.current_co2 or 0) >= CO2_LIMIT else "humidity"
         self._check_window_away()
         if self.c.night_airing:
             self._night_update(now, changed)
@@ -319,7 +325,7 @@ class VentilationManager:
         elif changed and new in (VENT_OK, VENT_AIRING):
             self._clear_phone_notification()
         if changed:
-            self.c.fire_event("ventilation", {"state": new})
+            self.c.fire_event("ventilation", {"state": new, "reason": self.reason if new == VENT_PLEASE_OPEN else None})
             self.c.notify_listeners()
 
     # ------------------------------------------------------------ Nachtlüften
@@ -425,11 +431,16 @@ class VentilationManager:
         calm = kind == VENT_TOO_COLD and count >= TOO_COLD_LOUD
         self._repeat_count[kind] = count + 1
         title, body = MESSAGES[kind]
+        if kind == VENT_PLEASE_OPEN and self.reason == "co2":
+            title, body = MESSAGE_CO2
+        elif kind == VENT_DONE and self.humidity is None:
+            body = "CO₂ wieder {co2:.0f} ppm – du kannst schließen."
         values = {
             "room": self.c.name,
             "hum": self.humidity or 0,
             "dur": self.duration,
             "temp": self.c.current_temperature or 0,
+            "co2": self.c.current_co2 or 0,
         }
         self.hass.async_create_task(
             self._send(
@@ -575,6 +586,9 @@ class VentilationManager:
     def attributes(self) -> dict[str, Any]:
         return {
             "ventilation": self.state,
+            "ventilation_reason": self.reason if self.state == VENT_PLEASE_OPEN else None,
+            "co2": self.c.current_co2,
+            "co2_limit": CO2_LIMIT if self.c.co2_sensor else None,
             "humidity_limit": self.humidity_limit,
             "min_temp": self.min_temp,
             "dew_point": self.dew_point,

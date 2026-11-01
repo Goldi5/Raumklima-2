@@ -2,6 +2,22 @@
 (() => {
   // src/i18n/en.js
   var EN = {
+    "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
+    "Export fehlgeschlagen: {e}": "Export failed: {e}",
+    "Kalender": "Calendar",
+    "– keiner –": "– none –",
+    "gerade: „{s}“": "now: “{s}”",
+    "Termine mit diesen Wörtern steuern die Anwesenheit": "Events with these words control presence",
+    "… wie Urlaub": "… like vacation",
+    "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist": "comma-separated; set back like “away longer” as soon as nobody is home",
+    "… jemand bleibt zu Hause": "… someone stays home",
+    "Komma-getrennt; dann wird nicht abgesenkt": "comma-separated; no setback then",
+    "Frostnacht: weniger absenken": "Frost night: smaller setback",
+    "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm": "below −5 °C forecast only half as deep – the room warms up faster",
+    "Sonnenseite": "Sunny side",
+    "gerade: Sonne erwartet – 1 °C weniger": "now: sun expected – 1 °C less",
+    "bei Sonne laut Vorhersage 1 °C weniger heizen – die Sonne wärmt mit": "heat 1 °C less when the forecast says sun – the sun helps",
+    "Sonne heizt mit · Ziel <b>{v} °C</b>": "Sun helps · target <b>{v} °C</b>",
     "+{n} neue Einträge sind durch die Filter ausgeblendet (z. B. Thermostat-Befehle).": "+{n} new entries are hidden by the filters (e.g. thermostat commands).",
     "1 Hinweis": "1 notice",
     "24 h heizen": "Heat for 24 h",
@@ -40,6 +56,8 @@
     "Automatisch": "Automatic",
     "Außen": "Outdoor",
     "Bad": "Bathroom",
+    "CO₂-Sensor": "CO₂ sensor",
+    "ab 1000 ppm: „Bitte lüften“": "from 1000 ppm: “Please air the room”",
     "Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge). Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Bars = how long the valves were fully open, converted (a measure of heat delivered). Dots = heating degree days: the colder outside, the higher. High bars on mild days hint at open windows or desired temperatures that are too high.",
     "Bauart": "Building type",
     "Beenden": "Stop",
@@ -343,6 +361,7 @@
     "{d} ggü. {vs}": "{d} vs. {vs}",
     "{h} % · Taupunkt {d} °C": "{h} % · dew point {d} °C",
     "{h} % · ca. {m} min": "{h} % · approx. {m} min",
+    "{c} ppm · ca. {m} min": "{c} ppm · approx. {m} min",
     "{n} Heizgradtage": "{n} heating degree days",
     "{n} Hinweise": "{n} notices",
     "{n} Räume": "{n} rooms",
@@ -451,6 +470,7 @@
     if ((r === "away_short" || r === "away_long") && a.effective_target != null)
       return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
     if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
+    if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
   }
   var VENT = tmap({
@@ -909,7 +929,7 @@
       let banner = "";
       if (vent && a.ventilation !== "ok") {
         const showBar = winOpen && this._openSince && ["airing", "please_close", "done"].includes(a.ventilation);
-        const extra = a.ventilation === "please_open" ? `<span>${t("{h} % · ca. {m} min", { h: fmt(a.current_humidity, 0), m: this._recMin })}</span>` : showBar ? `<span class="count" data-count>–</span>` : "";
+        const extra = a.ventilation === "please_open" ? `<span>${a.ventilation_reason === "co2" ? t("{c} ppm · ca. {m} min", { c: fmt(a.co2, 0), m: this._recMin }) : t("{h} % · ca. {m} min", { h: fmt(a.current_humidity, 0), m: this._recMin })}</span>` : showBar ? `<span class="count" data-count>–</span>` : "";
         banner = `<div class="banner" style="--vt:${toneVar(vent.tone)}">
           <ha-icon icon="${vent.icon}"></ha-icon><span class="grow">${vent.label}${showBar ? ` · ${this._recMin} min` : ""}</span>${extra}
         </div>${showBar ? `<div class="bar" style="--vt:${toneVar(vent.tone)}"><i data-bar style="width:0%"></i></div>` : ""}`;
@@ -918,6 +938,7 @@
         <div class="v ${tone ? "tone" : ""}" style="${tone ? `--st:${toneVar(tone)}` : ""}">${value}</div></div>`;
       const stats = [
         a.humidity_sensor ? stat("mdi:water-percent", t("Feuchte"), `${fmt(a.current_humidity, 0)} %`, humTone(a.current_humidity), sib.ventilation) : "",
+        a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)}<small>ppm</small>`, a.co2 >= 1400 ? "cold" : a.co2 >= 1e3 ? "warn" : "ok") : "",
         a.dew_point !== void 0 && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
         stat("mdi:valve", t("Ventil"), a.valve_position === null || a.valve_position === void 0 ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null),
         a.outdoor_temperature !== void 0 && a.outdoor_temperature !== null ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
@@ -1606,7 +1627,14 @@
         this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
         this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
         this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
-        this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind")
+        this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
+        this._row(
+          "Kalender",
+          this._select(H, "calendar_entity", ch.calendars || [], this._hubOpt("calendar_entity"), "– keiner –"),
+          st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"
+        ),
+        this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
+        this._hubOpt("calendar_entity") ? this._row("… jemand bleibt zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; dann wird nicht abgesenkt") : ""
       ].join("");
       const mode = this._hubOpt("season_mode");
       const mdToInput = (v) => esc(v || "");
@@ -1618,6 +1646,7 @@
         this._row("Heizsaison", `<span class="v"><input class="inp short" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Format MM-TT, außerhalb nur bei Kälteeinbruch"),
         this._row("Kälteeinbruch unter", this._optStepper(H, "cold_snap_temp", this._hubOpt("cold_snap_temp"), " °C", 0.5, 0, 20, 1), "3 Tage darunter → heizt auch außerhalb der Saison"),
         this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
+        this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
         this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen"),
         this._row("Heute heizen", st.heat_today_until ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>` : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage")
       ].join("");
@@ -1746,6 +1775,11 @@
         this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
         this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–")),
         (this._cfg && this._cfg.homes || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
+        this._row(
+          "Sonnenseite",
+          editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
+          a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : "bei Sonne laut Vorhersage 1 °C weniger heizen – die Sonne wärmt mit"
+        ),
         this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
         this._row(
           "Aufheizen",
@@ -1785,6 +1819,7 @@
         this._row("Thermostat", this._v(esc(this._name(s.trv)))),
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
+        this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
         this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"), offTxt),
         this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
         this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
@@ -2015,13 +2050,30 @@
       this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
       <ha-card class="report" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:chart-box-outline"></ha-icon><div>${esc(this._config.title || t("Heizbericht"))}${since ? `<div class="rsub">${t("Daten seit {d}", { d: since })}</div>` : ""}</div></div>
-          <div class="segs"><button class="${P === "week" ? "on" : ""}" data-p="week">${t("Diese Woche")}</button><button class="${P === "month" ? "on" : ""}" data-p="month">${t("Dieser Monat")}</button></div></div>
+          <div class="segs"><button class="${P === "week" ? "on" : ""}" data-p="week">${t("Diese Woche")}</button><button class="${P === "month" ? "on" : ""}" data-p="month">${t("Dieser Monat")}</button></div>
+          <button class="btn" data-csv title="${t("Tageswerte je Raum als Tabelle (CSV)")}"><ha-icon icon="mdi:file-delimited-outline"></ha-icon>CSV</button></div>
         ${body}
       </ha-card>`;
       this.shadowRoot.querySelectorAll("[data-p]").forEach((b) => b.addEventListener("click", () => {
         this._period = b.dataset.p;
         this._render();
       }));
+      this.shadowRoot.querySelectorAll("[data-csv]").forEach((b) => b.addEventListener("click", () => this._csv()));
+    }
+    async _csv() {
+      try {
+        const r = await this._hass.callWS({ type: "raumklima/report/export", ...this._config.home ? { home: this._config.home } : {} });
+        const url = URL.createObjectURL(new Blob(["\uFEFF" + r.csv], { type: "text/csv;charset=utf-8" }));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = r.filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5e3);
+      } catch (e) {
+        alert(t("Export fehlgeschlagen: {e}", { e: e.message || e }));
+      }
     }
     _body(d, P) {
       const cur = d[P], prev = d[P === "week" ? "prev_week" : "prev_month"], change = d[P === "week" ? "week_change" : "month_change"];

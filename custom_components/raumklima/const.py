@@ -19,6 +19,7 @@ CONF_NAME: Final = "name"
 CONF_TRV: Final = "trv"
 CONF_TEMP_SENSOR: Final = "temperature_sensor"
 CONF_HUMIDITY_SENSOR: Final = "humidity_sensor"
+CONF_CO2_SENSOR: Final = "co2_sensor"
 CONF_WINDOWS: Final = "window_sensors"
 CONF_CALIBRATION_MODE: Final = "calibration_mode"
 CONF_CALIBRATION_ENTITY: Final = "calibration_entity"
@@ -64,6 +65,11 @@ CONF_HEATING_LIMIT: Final = "heating_limit"  # °C Tagesmittel
 CONF_COLD_SNAP_TEMP: Final = "cold_snap_temp"
 CONF_FROST_FLOOR: Final = "frost_floor"
 CONF_VALVE_CARE: Final = "valve_care"
+CONF_CALENDAR: Final = "calendar_entity"  # Termine wie „Urlaub“ / „Homeoffice“
+CONF_CALENDAR_AWAY: Final = "calendar_away_words"
+CONF_CALENDAR_HOME: Final = "calendar_home_words"
+CONF_FROST_NIGHT: Final = "frost_night"  # in Frostnächten weniger absenken
+CONF_SOLAR: Final = "solar_gain"  # pro Raum: Sonne heizt mit
 # pro Raum
 CONF_SETBACK_SHORT: Final = "setback_short"
 CONF_SETBACK_LONG: Final = "setback_long"
@@ -134,6 +140,10 @@ HUB_DEFAULTS: Final = {
     CONF_NIGHT_START: "20:00:00",
     CONF_NIGHT_END: "03:00:00",
     CONF_NIGHT_ALARM: 12.0,
+    CONF_CALENDAR: None,
+    CONF_CALENDAR_AWAY: "Urlaub, Reise, Dienstreise, verreist, vacation, trip",
+    CONF_CALENDAR_HOME: "Homeoffice, Home-Office, zu Hause, home office, wfh",
+    CONF_FROST_NIGHT: True,
     "kinds_version": 2,
 }
 

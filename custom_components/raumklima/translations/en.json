@@ -19,12 +19,14 @@
           "trv": "Radiator thermostat (TRV)",
           "temperature_sensor": "External temperature sensor",
           "humidity_sensor": "Humidity sensor (optional)",
-          "window_sensors": "Window/door contacts (optional)"
+          "window_sensors": "Window/door contacts (optional)",
+          "co2_sensor": "CO₂ sensor (optional)"
         },
         "data_description": {
           "trv": "The real thermostat on the radiator.",
           "temperature_sensor": "Used for control instead of the sensor at the radiator.",
-          "window_sensors": "If any is open, heating is paused."
+          "window_sensors": "If any is open, heating is paused.",
+          "co2_sensor": "Above 1000 ppm the airing assistant asks you to air the room."
         }
       },
       "room": {
@@ -100,12 +102,14 @@
           "trv": "Radiator thermostat (TRV)",
           "temperature_sensor": "External temperature sensor",
           "humidity_sensor": "Humidity sensor (optional)",
-          "window_sensors": "Window/door contacts (optional)"
+          "window_sensors": "Window/door contacts (optional)",
+          "co2_sensor": "CO₂ sensor (optional)"
         },
         "data_description": {
           "trv": "The real thermostat on the radiator.",
           "temperature_sensor": "Used for control instead of the sensor at the radiator.",
-          "window_sensors": "If any is open, heating is paused."
+          "window_sensors": "If any is open, heating is paused.",
+          "co2_sensor": "Above 1000 ppm the airing assistant asks you to air the room."
         }
       },
       "room": {
@@ -426,6 +430,19 @@
       "heat_today": {
         "name": "Heat today"
       }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "vent_please_open": "Airing assistant asks to air the room",
+      "vent_please_close": "Airing time reached – please close",
+      "vent_too_cold": "Room cooling down while airing",
+      "vent_done": "Air exchanged",
+      "window_opened": "Window opened",
+      "window_closed": "Window closed",
+      "heating_paused": "Heating paused (window)",
+      "heating_resumed": "Heating resumed",
+      "health_problem": "Health check found a problem"
     }
   }
 }

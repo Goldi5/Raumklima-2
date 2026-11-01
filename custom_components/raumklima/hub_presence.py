@@ -12,6 +12,9 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_AWAY_DELAY,
+    CONF_CALENDAR,
+    CONF_CALENDAR_AWAY,
+    CONF_CALENDAR_HOME,
     CONF_LONG_AWAY_HOURS,
     CONF_PREHEAT_KM,
     KIND_PRESENCE,
@@ -22,6 +25,8 @@ from .decision_log import (
 from .logic import to_float
 from .planning import (
     AWAY_STAGES,
+    CAL_AWAY,
+    CAL_HOME,
     ETA_MAX_KM,
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
@@ -32,6 +37,7 @@ from .planning import (
     PresenceInput,
     TrackerFilter,
     approaching,
+    calendar_mode,
     eta_minutes,
     haversine_km,
     presence_stage,
@@ -133,6 +139,7 @@ class PresenceMixin:
         }
 
     def _evaluate_presence(self, initial: bool = False) -> None:
+        cal = self._check_calendar()
         now = dt_util.utcnow()
         geo = self._zone_geo()
         if not self.presence_configured or geo is None:
@@ -184,8 +191,8 @@ class PresenceMixin:
                     minutes_since_present=minutes,
                     away_delay_min=float(self.opt(CONF_AWAY_DELAY)),
                     long_away_hours=float(self.opt(CONF_LONG_AWAY_HOURS)),
-                    vacation=self.vacation,
-                    guests=self.guests,
+                    vacation=self.vacation or cal == CAL_AWAY,
+                    guests=self.guests or cal == CAL_HOME,
                     preheat=self._preheat_until is not None,
                 )
             )
@@ -239,8 +246,34 @@ class PresenceMixin:
         needs = [n for r in list(self.rooms.values()) if (n := r.heatup_needed()) is not None]
         return max(needs) if needs else None
 
+    def calendar_event(self) -> tuple[str | None, str | None]:
+        """(Modus, Termin) des laufenden Kalendertermins: „away“ wie Urlaub, „home“ wie Gäste."""
+        entity = self.opt(CONF_CALENDAR)
+        state = self.hass.states.get(entity) if entity else None
+        if state is None:
+            return None, None
+        summary = state.attributes.get("message")
+        mode = calendar_mode(state.state == "on", summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME))
+        return mode, summary
+
+    def _check_calendar(self) -> str | None:
+        """Kalender lesen und Wechsel protokollieren."""
+        mode, summary = self.calendar_event()
+        if mode != self.calendar_mode:
+            if mode == CAL_AWAY:
+                self.log.add(CAT_PRESENCE, f"Kalender: „{summary}“ – wie Urlaub", "Termin läuft; Absenkung „länger weg“, sobald niemand da ist")
+            elif mode == CAL_HOME:
+                self.log.add(CAT_PRESENCE, f"Kalender: „{summary}“ – jemand bleibt zu Hause", "Termin läuft; es wird nicht abgesenkt")
+            else:
+                self.log.add(CAT_PRESENCE, "Kalender: Termin vorbei", "Anwesenheit wieder nach Ortung")
+            self.calendar_mode = mode
+            self.calendar_summary = summary
+        return mode
+
     def _presence_why(self, stage: str) -> str:
         parts = []
+        if self.calendar_mode:
+            parts.append(f"Kalender: „{self.calendar_summary}“")
         if stage == STAGE_GUESTS:
             parts.append("Schalter „Gäste da“ ist an")
         if self.vacation:
@@ -287,7 +320,7 @@ class PresenceMixin:
     @property
     def nobody_home(self) -> bool:
         """Niemand da (auch während der Wartezeit/beim Vorheizen)."""
-        if not self.presence_configured or self.guests:
+        if not self.presence_configured or self.guests or self.calendar_mode == CAL_HOME:
             return False
         return not any(p.get("present") for p in self.persons.values())
 

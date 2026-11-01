@@ -14,7 +14,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, KIND_HEALTH, KIND_REPORT
 from .health import SEV_INFO, Issue, check_connection
-from .stats import add_home_sample, add_room_sample, compare, prune, summarize, week_message
+from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
 if TYPE_CHECKING:
     from .hub import RaumklimaHub
@@ -133,6 +133,7 @@ class Insights:
             self.issues[entry_id] = issues
             for issue in issues:
                 if issue.code not in old:
+                    room.fire_event("health", {"state": "problem", "code": issue.code, "title": issue.title, "severity": issue.severity})
                     room.log("health", f"Problem erkannt: {issue.title}", issue.message, level="info" if issue.severity == SEV_INFO else "warn")
             for code in old - {i.code for i in issues}:
                 room.log("health", "Problem behoben", code)
@@ -215,6 +216,16 @@ class Insights:
             "month_change": compare(month, prev_month),
             "daily": daily,
         }
+
+    def export_csv(self, days: int | None = None, today: date | None = None) -> str:
+        """Tageswerte je Raum als CSV (für Tabellenkalkulation)."""
+        today = today or dt_util.now().date()
+        rooms = self._rooms_by_name()
+        first = min((k for d in rooms.values() for k in d), default=today.isoformat())
+        start = date.fromisoformat(first)
+        if days:
+            start = max(start, today - timedelta(days=days - 1))
+        return rows_to_csv(export_rows(rooms, self.data["home"], start, today))
 
     @callback
     def _on_weekly(self, now: datetime) -> None:

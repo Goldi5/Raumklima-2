@@ -135,3 +135,35 @@ def check_window(open_hours: float | None, unavailable_hours: float | None) -> I
     if open_hours is not None and open_hours >= WINDOW_OPEN_HOURS:
         return Issue("window_open_long", SEV_INFO, "Fenster seit über einem Tag offen", f"Seit {open_hours:.0f} h offen – Kontakt verrutscht oder wirklich offen?")
     return None
+
+
+HYDRAULIC_WINDOW = timedelta(hours=24)
+HYDRAULIC_MIN_HOURS = 8.0  # so viel Heizzeit muss im Fenster liegen
+HYDRAULIC_VALVE = 90.0  # % – „fast ganz offen“
+HYDRAULIC_VALVE_SHARE = 0.5  # in mehr als der Hälfte der Heizzeit …
+HYDRAULIC_REACHED_SHARE = 0.3  # … und das Ziel nur selten erreicht
+
+
+def check_hydraulic(history: list[HistoryPoint], now: datetime, step_minutes: float = 10.0) -> Issue | None:
+    """Ventil dauernd fast ganz offen und der Raum erreicht sein Ziel trotzdem kaum.
+
+    Anders als „Raum wird nicht warm“ (2 h, akut) ist das ein Muster über einen Tag:
+    der Heizkörper bekommt zu wenig Wärme – typisch für einen fehlenden hydraulischen
+    Abgleich, eine zu niedrige Vorlauftemperatur oder einen zu kleinen Heizkörper.
+    """
+    window = [p for p in history if now - p.when <= HYDRAULIC_WINDOW and p.regulating and p.valve is not None and p.temp is not None]
+    hours = len(window) * step_minutes / 60
+    if hours < HYDRAULIC_MIN_HOURS:
+        return None
+    wide = sum(1 for p in window if p.valve >= HYDRAULIC_VALVE) / len(window)
+    reached = sum(1 for p in window if p.temp >= p.target - 0.5) / len(window)
+    if wide <= HYDRAULIC_VALVE_SHARE or reached >= HYDRAULIC_REACHED_SHARE:
+        return None
+    return Issue(
+        "hydraulic",
+        SEV_INFO,
+        "Heizkörper kommt kaum hinterher",
+        f"In den letzten 24 h war das Ventil {wide * 100:.0f} % der Heizzeit fast ganz offen, das Ziel wurde nur "
+        f"{reached * 100:.0f} % der Zeit erreicht. Mögliche Ursachen: hydraulischer Abgleich fehlt, "
+        "Vorlauftemperatur der Heizung zu niedrig oder Heizkörper zu klein für den Raum.",
+    )
