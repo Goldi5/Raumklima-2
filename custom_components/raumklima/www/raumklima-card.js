@@ -1,4 +1,4 @@
-/* Raumklima 0.14.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -476,7 +476,9 @@
     "mehrere mit Komma": "several separated by commas",
     "leer = Benutzer": "empty = user",
     "hier antippen": "tap here",
-    "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "enter your login below under “Set up email” – the PDF comes as an attachment"
+    "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "enter your login below under “Set up email” – the PDF comes as an attachment",
+    "Eigenes E-Mail-Konto (unten einrichten)": "Own email account (set up below)",
+    "Vorhandener Mail-Dienst in Home Assistant": "Existing mail service in Home Assistant"
   };
 
   // src/i18n.js
@@ -507,7 +509,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.14.1";
+  var RK_VERSION = "0.14.2";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2254,7 +2256,14 @@
         ),
         this._row(
           "PDF per E-Mail an",
-          this._select(H, "report_email", [{ id: "raumklima", name: t("Raumklima (direkt hier einrichten)") }, ...(ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) }))], this._hubOpt("report_email") || "", "– keine E-Mail –"),
+          (() => {
+            const cur = this._hubOpt("report_email") || "";
+            const others = (ch.notify || []).filter((n) => !n.startsWith("notify.mobile_app_")).map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
+            return `<select class="sel" data-sel="${H}" data-key="report_email" ${this._admin ? "" : "disabled"}>
+          <option value="" ${cur ? "" : "selected"}>${t("– keine E-Mail –")}</option>
+          <option value="raumklima" ${cur === "raumklima" ? "selected" : ""}>${t("Eigenes E-Mail-Konto (unten einrichten)")}</option>
+          ${others ? `<optgroup label="${t("Vorhandener Mail-Dienst in Home Assistant")}">${others}</optgroup>` : ""}</select>`;
+          })(),
           "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang"
         ),
         !String(this._hubOpt("report_email") || "").startsWith("notify.") ? this._mailSetup() : "",

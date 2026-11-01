@@ -306,7 +306,14 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
       this._row("PDF-Berichte", `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => { const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k); return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`; }).join("")}</div>`,
         "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
-      this._row("PDF per E-Mail an", this._select(H, "report_email", [{ id: "raumklima", name: t("Raumklima (direkt hier einrichten)") }, ...(ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) }))], this._hubOpt("report_email") || "", "– keine E-Mail –"),
+      this._row("PDF per E-Mail an", (() => {
+        const cur = this._hubOpt("report_email") || "";
+        const others = (ch.notify || []).filter((n) => !n.startsWith("notify.mobile_app_")).map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
+        return `<select class="sel" data-sel="${H}" data-key="report_email" ${this._admin ? "" : "disabled"}>
+          <option value="" ${cur ? "" : "selected"}>${t("– keine E-Mail –")}</option>
+          <option value="raumklima" ${cur === "raumklima" ? "selected" : ""}>${t("Eigenes E-Mail-Konto (unten einrichten)")}</option>
+          ${others ? `<optgroup label="${t("Vorhandener Mail-Dienst in Home Assistant")}">${others}</optgroup>` : ""}</select>`;
+      })(),
         "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang"),
       !String(this._hubOpt("report_email") || "").startsWith("notify.") ? this._mailSetup() : "",
       this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",

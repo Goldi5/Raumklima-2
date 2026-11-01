@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.2 – 2026-11-01
+
+### Geändert
+- Auswahl „PDF per E-Mail an“ aufgeräumt: „Eigenes E-Mail-Konto (unten einrichten)“ steht oben, Handys
+  (`notify.mobile_app_…`) tauchen nicht mehr auf, andere Mail-Dienste stehen in einer eigenen Gruppe.
+
 ## 0.14.1 – 2026-11-01
 
 ### Geändert

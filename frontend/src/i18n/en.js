@@ -476,4 +476,6 @@ export const EN = {
   "leer = Benutzer": "empty = user",
   "hier antippen": "tap here",
   "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "enter your login below under “Set up email” – the PDF comes as an attachment",
+  "Eigenes E-Mail-Konto (unten einrichten)": "Own email account (set up below)",
+  "Vorhandener Mail-Dienst in Home Assistant": "Existing mail service in Home Assistant",
 };
