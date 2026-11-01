@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.8.6** – see [CHANGELOG](../../CHANGELOG.md)
+**Current version: 0.9.0** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
@@ -8,27 +8,30 @@
 
 | Page | Topic |
 |---|---|
-| [Installation & setup](installation.md) | HACS, first room, general settings |
-| [Usage](usage.md) | Dashboard, cards, settings page |
-| [How it works](how-it-works.md) | Control, offset, windows, reliability, airing, absence, mold guard, heating season |
-| [Notifications](notifications.md) | Who gets what, quiet hours, actions, voice |
-| [Reference](reference.md) | All settings, entities, events |
+| [Installation & setup](installation.md) | HACS, first room, general settings, Matter/Thread |
+| [Usage](usage.md) | Dashboard, cards, report, log, settings page |
+| [How it works](how-it-works.md) | Control, offset, windows, reliability, airing, absence, mould protection, heating season |
+| [Notifications](notifications.md) | Who gets what, quiet hours, sleep times, actions, voice |
+| [Reference](reference.md) | All settings, entities, device triggers, events |
 | [Troubleshooting](troubleshooting.md) | FAQ |
+| [Development](development.md) | Tests, building the card, code structure |
 
 ## At a glance
 
-- **Control by the room sensor** instead of the sensor at the radiator – automatic offset or setpoint compensation.
-- **Window logic:** pause after 10 s open, resume after 10 s closed, settings kept.
-- **Reliable over flaky radio/VPN links:** every command is verified and retried.
-- **Airing assistant:** humidity limit per room, airing time by outdoor temperature, checks whether airing actually dries, warns when the room cools down.
-- **Absence:** residents + home zone, setback "briefly away" / "away longer", mold guard per DIN 4108-2, preheating when someone approaches.
-- **Heating season:** heating limit by daily mean incl. weather forecast, cold-snap rule, "heat today", summer valve exercise.
-- **Notifications:** choose per recipient which messages they get; actionable push, optional voice.
-- **Night airing:** sleeping with the window open – no airing prompts, one quiet cold warning, good-morning reminder.
-- **Learning:** heat-up time per room (preheat by estimated arrival), bed and wake times from windows and lights (quiet hours adapt; weekends and public holidays per German state).
-- **Window without contact:** detects an open window from a sudden temperature drop.
-- **Health check, report and live decision log** – what was decided when and why.
-- **Multiple homes** (e.g. Berlin and Remscheid) with a switcher in the dashboard.
-- **Modern dashboard** with room cards, history, report, log and a fully editable settings page.
+- **Control by the room sensor** instead of the sensor at the radiator – automatic offset or setpoint compensation, emergency mode if the sensor fails.
+- **Window logic:** paused after 10 s open, resumed after 10 s closed – the setting is kept. Open windows are also detected **without a contact** from a sudden temperature drop.
+- **Reliable over flaky radio and VPN links:** every command is verified and repeated.
+- **Airing assistant:** humidity limit per room, optional CO₂ sensor, airing time by outdoor temperature, checks whether airing actually dries, warns when the room cools down; **night airing** for people who sleep with the window open.
+- **Absence:** residents + home zone, setback “briefly away” / “away longer”, mould protection per DIN 4108-2, preheating on approach and by **arrival time** (learned heat-up time per room), calendar events (“vacation”, “home office”), smaller setback on frost nights.
+- **Heating season:** heating limit from the daily mean (measured + forecast), cold-snap rule, “heat today”, summer valve exercise; rooms on the sunny side heat 1 °C less when sun is forecast.
+- **Sleep times are learned** from night airing and lights – quiet hours adapt, weekends and public holidays (German states) separately.
+- **Notifications:** choose per recipient which messages they get; push with action buttons, quiet hours, optional voice announcements.
+- **Heating report** for week and month – heating hours, weather-adjusted comparison, savings from setback, comfort time; weekly push; **CSV export**.
+- **Health check:** batteries, “room doesn't warm up”, radiator can't keep up (hydraulic balancing), stuck or missing sensor, radio and connection dropouts, silent window contact, protection against endless loops with the thermostat.
+- **Several homes** (e.g. city flat and holiday home), each with its own residents, recipients, report and log.
+- **Modern dashboard** with room cards, history, timeline, report, live decision log and a fully editable settings page – in **English or German**, following your Home Assistant language.
+- **Your own automations:** device triggers such as “please air the room”, “window opened” or “heating paused”.
 
-Tested with Tuya **TRV602Z** (Zigbee2MQTT) and IKEA sensors; works with any `climate` thermostat. The user interface is German/English.
+Tested with Tuya **TRV602Z** (Zigbee2MQTT) and IKEA sensors; works with every `climate` thermostat in Home Assistant.
+
+> Messages generated by the integration itself (log entries, notices, push notifications) are currently in German. The dashboard cards and the setup dialogs are available in English.

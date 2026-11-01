@@ -1,4 +1,4 @@
-/* Raumklima 0.8.6 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.9.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -416,7 +416,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.8.6";
+  var RK_VERSION = "0.9.0";
 
   // src/shared.js
   var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

@@ -6,10 +6,10 @@ Unter **Einstellungen → Allgemein → Wer bekommt was** wählst du für jeden 
 
 | Nachricht | Wann | Standard |
 |---|---|---|
-| 💧 Bitte lüften | Feuchte 15 min über der Grenze, Lüften trocknet | Push |
+| 💧 Bitte lüften | Feuchte 15 min über der Grenze, Lüften trocknet – oder CO₂ ab 1000 ppm (🫁) | Push |
 | 🪟 Fenster schließen | empfohlene Lüftdauer erreicht | Push |
 | 🥶 Raum kühlt aus | unter Mindesttemperatur oder zu stark abgekühlt | Push + Sprache |
-| ✅ Luft ausgetauscht | Feuchte wieder unter der Grenze | Push, leise |
+| ✅ Luft ausgetauscht | Feuchte wieder unter der Grenze (und CO₂ unter 800 ppm) | Push, leise |
 | 🚪 Fenster offen, niemand da | Fenster > 2 min offen, alle Bewohner weg | Push |
 | 🏠 Abwesenheit & Vorheizen | alle weg, länger weg, „Antje kommt – heize vor“, Willkommen | aus |
 | 🍂 Heizsaison Start/Ende | Heizsaison beginnt, Heizpause, Kälteeinbruch | Push |

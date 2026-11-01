@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.9.0 – 2026-11-01
+
+### Neu
+- **CO₂-Sensor** je Raum (optional, wird aus dem Bereich vorgeschlagen): ab 1000 ppm „Bitte lüften“ –
+  auch wenn Lüften wegen feuchter Außenluft nicht trocknet; „Luft ausgetauscht“ erst unter 800 ppm.
+  CO₂-Kachel in der Raumkarte.
+- **Kalender:** Läuft ein Termin mit „Urlaub“, „Reise“ … wirkt er wie der Urlaubsschalter, mit
+  „Homeoffice“, „zu Hause“ … wie „Gäste da“ (kein Absenken). Wörter einstellbar.
+- **Wettervorhersage:** Räume als *Sonnenseite* markieren – bei erwarteter Sonne 1 °C weniger heizen.
+  In **Frostnächten** (Vorhersage ≤ −5 °C) wird bei Abwesenheit nur halb so tief abgesenkt.
+- **Gesundheitscheck:** Hinweis „Heizkörper kommt kaum hinterher“, wenn das Ventil über einen Tag
+  meist fast ganz offen ist und das Ziel trotzdem selten erreicht wird (hydraulischer Abgleich,
+  Vorlauftemperatur, Heizkörpergröße).
+- **Geräte-Auslöser** für Automationen: Bitte lüften, bitte schließen, kühlt aus, Luft ausgetauscht,
+  Fenster geöffnet/geschlossen, Heizung pausiert/läuft wieder, Gesundheitsproblem.
+  `raumklima_event` hat dafür neue Typen `window`, `heating`, `health`.
+- **CSV-Export** des Heizberichts (Knopf in der Berichtskarte, WebSocket `raumklima/report/export`).
+- **Karten auf Englisch**, wenn Home Assistant nicht auf Deutsch eingestellt ist; Zahlen und Uhrzeiten
+  im passenden Format.
+- Doku: englische Seiten vollständig, Hinweise zu Matter/Thread-Thermostaten, Seite „Entwickeln“.
+
+### Geändert
+- Einstellungen aus der Einstellungskarte (Wunsch, Absenkung, Fenster-Verzögerung, Nachtlüften …)
+  wirken sofort, ohne den Raum neu zu laden – Fensterzustand, Verlauf und Gesundheitsdaten bleiben
+  erhalten. Nur beim Raumtyp startet der Raum kurz neu.
+- Code aufgeräumt: Raum- und Zentralenlogik in Teilmodule aufgeteilt, Karte als Module mit Build
+  (`frontend/`), Integrationstests mit Home Assistant, Lint (ruff) und feste Action-Versionen in der CI.
+
+### Behoben
+- Abwesenheits-Push sprach immer von „Berlin“ – jetzt der Name der Wohnung (nur bei mehreren).
+- Karten: ein Präfix (`strip_prefix`) mit Sonderzeichen wurde als regulärer Ausdruck gedeutet.
+
+
 ## 0.8.6 – 2026-11-01
 
 ### Behoben

@@ -9,6 +9,8 @@
 | Absenken nach | 30 min | Wartezeit, bevor „kurz weg“ gilt |
 | „Länger weg“ ab | 24 h | danach Absenkung „länger“ |
 | Vorheizen ab | 10 km | Annäherung näher als das → vorheizen (0 = aus) |
+| Kalender | – | `calendar.*`; laufender Termin mit „Urlaub“ o. ä. wirkt wie Urlaub, mit „Homeoffice“ o. ä. wie Gäste |
+| … wie Urlaub / … zu Hause | siehe [So funktioniert's](funktionsweise.md#5-abwesenheit) | Wörter, Komma-getrennt |
 | Bauart | Altbau saniert | Temperaturfaktor für den Schimmelschutz (0,60 / 0,70 / 0,80) |
 | Betriebsart | Automatisch | Automatisch / Immer heizen / Heizpause |
 | Heizsaison | 10-01 bis 04-30 | Format MM-TT |
@@ -16,6 +18,7 @@
 | Kälteeinbruch unter | 12 °C | 3 Tage darunter → heizen auch außerhalb der Saison |
 | Sicherung | 16 °C | darunter heizt ein Raum immer |
 | Sommerpflege | an | mittwochs 11 Uhr Ventile 3 min öffnen |
+| Frostnacht: weniger absenken | an | Vorhersage ≤ −5 °C in 12 h → Absenkung nur halb so tief |
 | Empfänger | – | je `notify`-Dienst die Nachrichtenarten |
 | Ruhezeit | 22:00–07:00 | nur Dringendes laut, keine Ansagen |
 | Erinnern alle | 5 min | Wiederholung, solange das Problem besteht |
@@ -30,6 +33,8 @@
 | Wunschtemperatur | nach Raumtyp | Wohnraum/Kinderzimmer 20 · Küche 19 · Bad 22 · Schlafzimmer/selten genutzt 17 °C |
 | Absenkung „kurz weg“ | 18 °C (Schlafzimmer, selten genutzt: 16) | |
 | Absenkung „länger weg“ | 16 °C | |
+| Sonnenseite | aus | bei erwarteter Sonne 1 °C weniger |
+| CO₂-Sensor | – | optional; ab 1000 ppm „Bitte lüften“ |
 | Feuchtegrenze | 70 % (Bad 75 %) | ab hier „Bitte lüften“ |
 | Mindesttemperatur beim Lüften | 18 °C (Schlafzimmer, selten genutzt: 16) | darunter „Raum kühlt aus“ |
 | Max. Abkühlung beim Lüften | 3 °C | |
@@ -73,9 +78,30 @@
 
 (Die genauen Entitäts-IDs hängen von der Sprache bei der Einrichtung ab.)
 
+## Geräte-Auslöser
+
+Im Automationseditor: **Auslöser hinzufügen → Gerät → (Raum)**. Zur Auswahl stehen:
+
+| Auslöser | Wann |
+|---|---|
+| Lüftungsassistent bittet ums Lüften | Feuchte oder CO₂ zu hoch |
+| Lüftzeit erreicht – bitte schließen | empfohlene Lüftdauer vorbei |
+| Raum kühlt beim Lüften aus | unter Mindesttemperatur oder zu stark abgekühlt |
+| Luft ausgetauscht | Feuchte/CO₂ wieder gut |
+| Fenster geöffnet / geschlossen | sofort (ohne Verzögerung), auch geschätzte Fenster ohne Kontakt |
+| Heizung pausiert (Fenster) / läuft wieder | nach der Verzögerung, nur mit Fensterlogik |
+| Gesundheitscheck meldet ein Problem | neues Problem im Raum |
+
 ## Ereignis für eigene Automationen
 
-`raumklima_event` mit `type` (z. B. `ventilation`), `room`, `entry_id` und weiteren Daten:
+`raumklima_event` mit `type`, `state`, `room`, `entry_id` und weiteren Daten:
+
+| `type` | `state` | weitere Daten |
+|---|---|---|
+| `ventilation` | `ok`, `please_open`, `airing`, `done`, `please_close`, `too_cold` | `reason` (`humidity`/`co2` bei `please_open`) |
+| `window` | `open`, `closed` | `virtual` (geschätzt), `night` (Nachtlüften) |
+| `heating` | `paused`, `resumed` | |
+| `health` | `problem` | `code`, `title`, `severity` |
 
 ```yaml
 triggers:

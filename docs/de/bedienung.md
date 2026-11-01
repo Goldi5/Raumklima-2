@@ -33,6 +33,7 @@ Jede Minute merkt sich die Integration, was jeder Raum tut – klein zusammengef
 - **Heizbedarf pro Tag:** gestapelte Balken je Raum, Punkte = Heizgradtage.
 - **Räume:** geheizt, abgesenkt, Ø Temperatur und Feuchte, Stunden zu feucht oder mit Schimmelrisiko, warm bei Ankunft.
 - **Gesundheit:** offene Probleme (siehe unten).
+- **CSV:** Der Knopf oben rechts lädt alle Tageswerte je Raum als Tabelle herunter (Semikolon, Dezimalkomma – öffnet sich direkt in Excel oder LibreOffice).
 
 ### Gesundheitscheck
 
@@ -45,6 +46,7 @@ Alle 10 Minuten prüft die Integration jeden Raum:
 | Fühler hängt | Fühlerwert 12 h unverändert, obwohl das Thermostat ≥ 1,5 °C Änderung misst |
 | Funk | Befehle nicht bestätigt (dringend) oder ≥ 3 Aussetzer in 24 h |
 | Fensterkontakt | 2 h nicht erreichbar; Hinweis, wenn ein Fenster über 24 h offen ist |
+| Heizkörper kommt kaum hinterher | über 24 h (mindestens 8 h Heizzeit) war das Ventil mehr als die Hälfte der Zeit ≥ 90 % offen und das Ziel wurde in weniger als 30 % der Zeit erreicht – Hinweis auf fehlenden hydraulischen Abgleich, zu niedrige Vorlauftemperatur oder einen zu kleinen Heizkörper (nur Hinweis, keine Push) |
 
 Probleme erscheinen im Bericht, unter *Einstellungen → Allgemein → Gesundheit der Heizung*, im Raum-Reiter (mit Warnsymbol), im Sensor **Raumklima Allgemein Gesundheit** (Anzahl offener Probleme) und am Problem-Sensor des Raums. Wer „🩺 Gesundheit“ abonniert hat, bekommt eine Push – je Problem höchstens einmal am Tag.
 
@@ -88,7 +90,9 @@ Auf dem Handy stehen Beschriftung und Regler untereinander:
 
 <img src="../images/einstellungen-handy.png" width="320">
 
-Änderungen werden nach einer kurzen Pause gespeichert. Ändern dürfen nur Administratoren; andere Benutzer sehen die Seite nur an.
+Änderungen werden nach einer kurzen Pause gespeichert und vom Raum sofort übernommen (nur beim Raumtyp startet der Raum kurz neu). Ändern dürfen nur Administratoren; andere Benutzer sehen die Seite nur an.
+
+**Sprache:** Die Karten folgen der Sprache in deinem Home-Assistant-Profil – Deutsch oder Englisch. Texte aus der Integration selbst (Protokoll, Hinweise, Push) bleiben deutsch.
 
 ## Mehrere Wohnungen
 

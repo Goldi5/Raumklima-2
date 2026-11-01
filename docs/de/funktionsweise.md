@@ -25,8 +25,9 @@ Jeder Befehl ans TRV wird nach 20 s **geprüft**. Kam er nicht an, wird er wiede
 ## 4. Lüftungsassistent
 
 - **Bitte lüften:** Luftfeuchte 15 Minuten über der Grenze des Raums (Standard 70 %, Bad 75 %) – aber nur, wenn **Lüften auch trocknet** (absolute Feuchte draußen niedriger als drinnen).
+- **CO₂ (optional):** Mit CO₂-Sensor kommt „Bitte lüften“ auch ab **1000 ppm** – dann unabhängig vom Wetter, denn verbrauchte Luft wird durch Lüften immer besser (Umweltbundesamt: unter 1000 ppm unbedenklich).
 - **Lüftdauer** nach Außentemperatur (co2online/UBA): unter 0 °C 4 min, 0–5 °C 5 min, 5–10 °C 10 min, 10–15 °C 15 min, 15–20 °C 20 min, darüber 30 min.
-- **Fenster schließen**, wenn die Zeit um ist; **Luft ausgetauscht**, wenn die Feuchte wieder unter der Grenze ist.
+- **Fenster schließen**, wenn die Zeit um ist; **Luft ausgetauscht**, wenn die Feuchte wieder unter der Grenze ist (und CO₂ unter 800 ppm).
 - **Raum kühlt aus:** unter Mindesttemperatur (Wohnräume 18 °C, Schlafzimmer/selten genutzt 16 °C) oder mehr als 3 °C kälter als beim Öffnen.
 - **Schimmelrisiko:** dauerhaft über 70 % oder kalt und feucht.
 
@@ -51,6 +52,17 @@ Für die ganze Wohnung legst du fest, **wer hier wohnt** (Personen) und **welche
 - Wer am Regler oder in der App **hochdreht**, während abgesenkt ist, setzt die Absenkung in diesem Raum für **3 Stunden** aus.
 - **Urlaub** endet automatisch, sobald jemand ankommt.
 - Ist niemand da, gibt es **keine Lüft-Erinnerungen** – stattdessen die Meldung „Fenster offen, niemand da“.
+
+**Kalender (optional):** Unter *Allgemein → Anwesenheit & Absenkung → Kalender* wählst du einen `calendar.*`. Läuft gerade ein Termin, dessen Titel eines der Wörter enthält, gilt:
+
+| Termin enthält (Standard) | Wirkung |
+|---|---|
+| Urlaub, Reise, Dienstreise, verreist, vacation, trip | wie Schalter **Urlaub**: Absenkung „länger weg“, sobald niemand da ist |
+| Homeoffice, Home-Office, zu Hause, home office, wfh | wie **Gäste da**: es wird nicht abgesenkt |
+
+Die Wörter sind einstellbar (Komma-getrennt, Groß-/Kleinschreibung egal). Kommt während eines „Urlaub“-Termins doch jemand nach Hause, gilt die Ortung.
+
+**Frostnacht:** Sagt die Vorhersage für die nächsten 12 Stunden −5 °C oder kälter voraus, wird bei Abwesenheit nur **halb so tief** abgesenkt (z. B. 19 statt 16 °C bei 22 °C Wunsch). Wände und Möbel kühlen sonst stark aus, und das Aufheizen dauert lange. Abschaltbar unter *Allgemein → Heizsaison → Frostnacht: weniger absenken*.
 
 Die Werte stammen aus den Empfehlungen der Verbraucherzentrale bzw. des vzbv: bei kurzer Abwesenheit etwa 18 °C, bei längerer nicht unter 16 °C, die Heizung nie ganz ausschalten. Jedes Grad weniger spart rund 6 % Heizenergie.
 
@@ -84,9 +96,12 @@ Geheizt wird, wenn es draußen wirklich kalt ist – maßgeblich ist die **Heizg
 - **Betriebsarten:** Automatisch, Immer heizen, Heizpause. **Heute heizen** hebt eine Pause für 24 h auf.
 - **Sommerpflege:** In der Heizpause öffnet Raumklima mittwochs um 11 Uhr die Ventile für 3 Minuten, damit sie nicht festsitzen.
 
+**Sonnenseite:** Räume mit großen Süd- oder Westfenstern kannst du als *Sonnenseite* markieren (Einstellungen → Raum → Temperatur). Zeigt die stündliche Vorhersage für die nächsten 3 Stunden überwiegend Sonne (Zustand „sonnig“ oder höchstens 30 % Bewölkung) und ist der Raum schon fast warm, heizt er **1 °C weniger** – die Sonne erledigt den Rest. Das gilt, bis die Sonne laut Vorhersage weg ist (kein Hin und Her). Braucht eine Wetterquelle `weather.*` mit stündlicher Vorhersage.
+
 ## Vorrang
 
 1. Fenster offen → Pause
 2. Heizpause → aus (außer Sicherung bzw. Frostschutz)
-3. Alle weg → Absenkung, aber nie unter den Schimmelschutz
-4. Sonst → Wunschtemperatur
+3. Alle weg → Absenkung, aber nie unter den Schimmelschutz (in Frostnächten nur halb so tief)
+4. Sonnenseite und Sonne erwartet → 1 °C unter Wunsch
+5. Sonst → Wunschtemperatur
