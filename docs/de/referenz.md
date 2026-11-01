@@ -34,6 +34,8 @@
 | Absenkung „kurz weg“ | 18 °C (Schlafzimmer, selten genutzt: 16) | |
 | Absenkung „länger weg“ | 16 °C | |
 | Sonnenseite | aus | bei erwarteter Sonne 1 °C weniger |
+| Lichtsignal: Lampen | – | `light`-Entitäten, die bei Hinweisen blinken (`signal_lights`) |
+| Lichtsignal: Blinken bei | Bitte lüften, Bitte schließen | `light_signals`: `open`, `close`, `done`, `problem` |
 | CO₂-Sensor | – | optional; ab 1000 ppm „Bitte lüften“ |
 | Feuchtegrenze | 70 % (Bad 75 %) | ab hier „Bitte lüften“ |
 | Mindesttemperatur beim Lüften | 18 °C (Schlafzimmer, selten genutzt: 16) | darunter „Raum kühlt aus“ |

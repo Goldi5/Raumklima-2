@@ -16,6 +16,7 @@ Under **Settings → General → Who gets what** you choose for each recipient w
 | ⚠️ Thermostat not responding | command not confirmed after all retries | push + HA notification |
 | 🩺 Heating health | battery low, room doesn't warm up despite an open valve, sensor stuck, radio flaky, window contact silent – at most once a day per problem | push, quiet |
 | 📊 Weekly report | Sundays 18:00: heating hours, weather-adjusted comparison, setback, rooms that were too humid | push, quiet |
+| 📱 Airing countdown on the lock screen | window open for airing – see [below](#airing-countdown-on-the-lock-screen) | off, app only |
 
 **Recipients** are `notify` services, e.g. `notify.mobile_app_iphone` or your own service such as `notify.christian`. **Test** sends a sample message.
 
@@ -49,6 +50,43 @@ Airing messages have three buttons:
 - **Not today** – silent until midnight during the day, in the evening (“until tomorrow morning”) until the end of quiet hours
 
 A message is removed automatically once it no longer applies, e.g. when the window is closed.
+
+## Airing countdown on the lock screen
+
+When you open a window to air the room, your phone shows a **countdown** with the recommended airing time – on the iPhone as a **Live Activity** (lock screen and Dynamic Island), on Android as a **Live Update** (lock screen, notification shade, status bar).
+
+- **Blue, timer running:** window open, e.g. 5 min recommended.
+- **Green:** air exchanged – you can close.
+- **Orange:** airing time reached – please close.
+- **Red:** room cooling down – please close now.
+
+When the window is closed, the display disappears. Tapping it opens the Raumklima dashboard.
+
+**Turn it on:** *Settings → General → Who gets what* → tap **📱 Airing countdown on the lock screen** for the phone. This message type is only offered for `notify.mobile_app_…` recipients (Home Assistant app).
+
+**Requirements:** current Home Assistant app; iPhone with iOS 17.2 or later and Home Assistant 2026.7 or later; the phone must reach Home Assistant when you're out (remote access). On the iPhone, confirm the lock screen notice the first time. If the display gets stuck: *iOS Settings → Home Assistant → Live Activities* off and on again.
+
+The timer runs on the phone itself – Raumklima only sends an update when the state changes, which saves battery and push budget. Not while sleeping with the window open and not when the window was only detected from a temperature drop.
+
+> The texts on the lock screen are currently in German.
+
+## Light signal in the room
+
+Lights in the room can blink instead of (or in addition to) a push message – handy for everyone without a phone in hand. Under *Settings → room → Light signal*:
+
+1. **Add light** – one or more `light` entities (up to 10).
+2. Tap **Blink on**:
+
+| Colour | When | Default |
+|---|---|---|
+| 🔵 Blue | Please air the room | on |
+| 🟠 Orange | Please close / room cooling down | on |
+| 🟢 Green | Air exchanged | off |
+| 🔴 Red | Problem with the heating (health check) | off |
+
+3. **Test** makes the lights blink blue once.
+
+The lights blink three times and then return to how they were – a light that was off goes off again, a light that was on gets its brightness and colour back. Lights without colour simply blink bright. **No light signal** during quiet hours, while sleeping with the window open, or when nobody is home. Every signal is written to the log.
 
 ## Quiet hours
 

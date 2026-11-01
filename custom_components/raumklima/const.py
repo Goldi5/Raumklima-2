@@ -70,6 +70,10 @@ CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
 CONF_FROST_NIGHT: Final = "frost_night"  # in Frostnächten weniger absenken
 CONF_SOLAR: Final = "solar_gain"  # pro Raum: Sonne heizt mit
+CONF_LIGHTS: Final = "signal_lights"  # pro Raum: Lampen, die Lüft-Hinweise anzeigen
+CONF_LIGHT_SIGNALS: Final = "light_signals"  # welche Hinweise blinken
+LIGHT_SIGNALS: Final = ["open", "close", "done", "problem"]
+DEFAULT_LIGHT_SIGNALS: Final = ["open", "close"]
 # pro Raum
 CONF_SETBACK_SHORT: Final = "setback_short"
 CONF_SETBACK_LONG: Final = "setback_long"
@@ -93,6 +97,7 @@ KIND_SEASON: Final = "season"
 KIND_TRV_FAILURE: Final = "trv_failure"
 KIND_HEALTH: Final = "health"
 KIND_REPORT: Final = "report"
+KIND_LIVE: Final = "live"  # Lüft-Countdown als Live-Aktivität (nur Handy-App)
 KINDS: Final = [
     KIND_VENT_OPEN,
     KIND_VENT_CLOSE,
@@ -104,8 +109,9 @@ KINDS: Final = [
     KIND_TRV_FAILURE,
     KIND_HEALTH,
     KIND_REPORT,
+    KIND_LIVE,
 ]
-DEFAULT_PUSH_KINDS: Final = [k for k in KINDS if k != KIND_PRESENCE]
+DEFAULT_PUSH_KINDS: Final = [k for k in KINDS if k not in (KIND_PRESENCE, KIND_LIVE)]
 DEFAULT_TTS_KINDS: Final = [KIND_TOO_COLD]
 # Diese kommen auch in der Ruhezeit (Push laut)
 URGENT_KINDS: Final = (KIND_TOO_COLD, KIND_WINDOW_AWAY, KIND_TRV_FAILURE)

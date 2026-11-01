@@ -65,6 +65,12 @@ You can deselect individual message types per recipient. For a single room there
 ### Why don't messages make a sound at night?
 During quiet hours (default 22:00–07:00, longer on weekends) messages arrive silently. Only urgent ones are loud: room cooling down, window open while nobody is home, thermostat not responding.
 
+### Can I use a light instead of a message?
+Yes. Add lights under *Settings → room → Light signal* – they blink blue for “please air the room” and orange for “please close” and then return to how they were.
+
+### Can I see the airing countdown on the lock screen?
+Yes, with the Home Assistant app: tap **📱 Airing countdown** for the phone under *Who gets what*. On the iPhone it appears as a Live Activity (iOS 17.2 or later), on Android as a Live Update.
+
 ### What does “thermostat not responding” mean?
 A command didn't reach the thermostat even after several attempts – usually a radio problem or an empty battery. Raumklima keeps trying every 5 minutes.
 

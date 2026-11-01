@@ -88,6 +88,7 @@ from .const import (
     ENTRY_HUB,
     HUB_DEFAULTS,
     HUB_UNIQUE_ID,
+    KIND_LIVE,
     KINDS,
     OFF_METHODS,
     ON_PRESET_AUTO,
@@ -362,7 +363,7 @@ def _hub_kinds_schema(push: dict[str, list[str]], tts: dict[str, list[str]]) -> 
     for target, kinds in push.items():
         fields[vol.Optional(target, default=kinds)] = _select(KINDS, "kind", multiple=True)
     for target, kinds in tts.items():
-        fields[vol.Optional(f"🔊 {target}", default=kinds)] = _select(KINDS, "kind", multiple=True)
+        fields[vol.Optional(f"🔊 {target}", default=kinds)] = _select([k for k in KINDS if k != KIND_LIVE], "kind", multiple=True)
     return vol.Schema(fields)
 
 

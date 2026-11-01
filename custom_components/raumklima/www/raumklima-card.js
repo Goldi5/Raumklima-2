@@ -1,4 +1,4 @@
-/* Raumklima 0.9.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.10.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -388,7 +388,19 @@
     "„Länger weg“ ab": "“Away longer” from",
     "„Raumklima Allgemein“ wird gerade eingerichtet – bitte die Seite gleich neu laden.": "“Raumklima General” is being set up – please reload the page in a moment.",
     "… leise warnen unter": "… quiet warning below",
-    "↓ {v}° · Wunsch {w}°": "↓ {v}° · desired {w}°"
+    "↓ {v}° · Wunsch {w}°": "↓ {v}° · desired {w}°",
+    "Ausprobieren": "Try it",
+    "Bitte schließen": "Please close",
+    "Blau = lüften · Orange = schließen · Grün = fertig · Rot = Problem": "Blue = air the room · orange = close · green = done · red = problem",
+    "Blinken bei": "Blink on",
+    "Lampe hinzufügen": "Add light",
+    "Lampen": "Lights",
+    "Lampen blinken blau": "Lights are blinking blue",
+    "Lichtsignal": "Light signal",
+    "Lüft-Countdown auf dem Sperrbildschirm": "Airing countdown on the lock screen",
+    "Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.": "Not during quiet hours, not while sleeping with the window open and not when nobody is home. Lights without colour simply blink bright.",
+    "Problem mit der Heizung": "Problem with the heating",
+    "blinken 3× in der Farbe des Hinweises, danach wie vorher": "blink 3× in the colour of the notice, then back to how they were"
   };
 
   // src/i18n.js
@@ -419,7 +431,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.9.1";
+  var RK_VERSION = "0.10.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -592,7 +604,14 @@
     season: ["🍂", "Heizsaison Start/Ende"],
     trv_failure: ["⚠️", "Thermostat reagiert nicht"],
     health: ["🩺", "Gesundheit der Heizung"],
-    report: ["📊", "Wochenbericht"]
+    report: ["📊", "Wochenbericht"],
+    live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"]
+  });
+  var RK_LIGHT_SIGNALS = tmap({
+    open: ["#005aff", "Bitte lüften"],
+    close: ["#ff6e00", "Bitte schließen"],
+    done: ["#00c83c", "Luft ausgetauscht"],
+    problem: ["#ff0000", "Problem mit der Heizung"]
   });
   var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report"];
   var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Prüfen"], info: ["air", "mdi:information-outline", "Hinweis"] });
@@ -1696,7 +1715,8 @@
       const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
       const kinds = this._cfg.kinds || Object.keys(RK_KINDS);
       const card = (target, list, channel, i) => {
-        const chips = kinds.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
+        const ks = kinds.filter((k) => k !== "live" || channel === "push" && target.startsWith("notify.mobile_app_"));
+        const chips = ks.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
         return `<div class="person"><div class="av" style="--c:${palette[i % palette.length]}">${channel === "tts" ? `<ha-icon icon="mdi:speaker"></ha-icon>` : esc(rkPretty(target)[0] || "?")}</div>
         <div class="pb"><div class="ph"><b>${esc(rkPretty(target))}</b>${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div>
         <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small>
@@ -1815,6 +1835,7 @@
           (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig" : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")
         )
       ].join(""))}
+      ${this._lightGroup(r, id, editable)}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
         this._row("Empfänger", push.length ? `<div class="chips">${push.map((tg) => `<span class="chip2"><i></i>${esc(rkPretty(tg))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was")
@@ -1836,6 +1857,23 @@
       <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>${t("Geräte & Technik ändern")}</button>
     </div>
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
+    }
+    _lightGroup(r, id, editable) {
+      const s = r.attrs.settings || {};
+      const lights = this._roomOpt(r, "signal_lights") ?? s.signal_lights ?? [];
+      const sigs = this._roomOpt(r, "light_signals") ?? s.light_signals ?? ["open", "close"];
+      const all = this._cfg && this._cfg.choices && this._cfg.choices.lights || [];
+      const names = Object.fromEntries(all.map((x) => [x.id, x.name]));
+      const chips = lights.map((e) => `<span class="chip2" style="--c:var(--rk-air)"><i></i>${esc(names[e] || this._name(e))}${editable ? ` <button class="mini x" data-lightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`).join("");
+      const avail = all.filter((x) => !lights.includes(x.id));
+      const sigChips = Object.entries(RK_LIGHT_SIGNALS).map(([k, [c, l]]) => `<button class="chip2 ${sigs.includes(k) ? "" : "off"}" style="--c:${c}" data-lsig="${k}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${l}</button>`).join("");
+      return this._grp("Lichtsignal", "mdi:lightbulb-on-outline", "air", [
+        this._row("Lampen", `<div class="chips">${chips || this._v("keine", true)}</div>`, "blinken 3× in der Farbe des Hinweises, danach wie vorher"),
+        editable && avail.length ? `<div class="addrow"><select class="sel" id="addLight-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-lightadd="${id}" style="--c:var(--rk-air)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Lampe hinzufügen")}</button></div>` : "",
+        this._row("Blinken bei", `<div class="chips">${sigChips}</div>`, "Blau = lüften · Orange = schließen · Grün = fertig · Rot = Problem"),
+        lights.length && this._admin ? this._row("Ausprobieren", `<button class="btn" data-lighttest="${id}" style="--c:var(--rk-air)"><ha-icon icon="mdi:play"></ha-icon>${t("Test")}</button>`) : "",
+        `<div class="hint">${t("Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.")}</div>`
+      ].join(""));
     }
     // ---------------------------------------------------------------- Rendern
     _render() {
@@ -1938,6 +1976,29 @@
         } catch (e) {
           this._flash(t("Fehler: {e}", { e: e.message || e }));
         }
+      }));
+      const roomList = (entry, key, fallback) => {
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+        const s = room && room.attrs.settings || {};
+        return [...(room && this._roomOpt(room, key)) ?? s[key] ?? fallback];
+      };
+      $("[data-lightrm]").forEach((el) => el.addEventListener("click", () => {
+        this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
+      }));
+      $("[data-lightadd]").forEach((el) => el.addEventListener("click", () => {
+        const sel = this.shadowRoot.getElementById(`addLight-${el.dataset.lightadd}`);
+        if (sel && sel.value) this._setRoom(el.dataset.lightadd, { signal_lights: [...roomList(el.dataset.lightadd, "signal_lights", []), sel.value] }, 200);
+      }));
+      $("[data-lsig]").forEach((el) => el.addEventListener("click", () => {
+        const list = roomList(el.dataset.entry, "light_signals", ["open", "close"]);
+        const i = list.indexOf(el.dataset.lsig);
+        if (i >= 0) list.splice(i, 1);
+        else list.push(el.dataset.lsig);
+        this._setRoom(el.dataset.entry, { light_signals: list }, 600);
+      }));
+      $("[data-lighttest]").forEach((el) => el.addEventListener("click", async () => {
+        const r = await ws({ type: "raumklima/room/light_test", entry_id: el.dataset.lighttest });
+        if (r) this._flash("Lampen blinken blau");
       }));
       $("[data-sigrm]").forEach((el) => el.addEventListener("click", () => {
         this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });

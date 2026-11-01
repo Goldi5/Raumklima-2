@@ -191,6 +191,13 @@ export const RK_KINDS = tmap({
   trv_failure: ["⚠️", "Thermostat reagiert nicht"],
   health: ["🩺", "Gesundheit der Heizung"],
   report: ["📊", "Wochenbericht"],
+  live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"],
+});
+export const RK_LIGHT_SIGNALS = tmap({
+  open: ["#005aff", "Bitte lüften"],
+  close: ["#ff6e00", "Bitte schließen"],
+  done: ["#00c83c", "Luft ausgetauscht"],
+  problem: ["#ff0000", "Problem mit der Heizung"],
 });
 export const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report"];
 export const RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Prüfen"], info: ["air", "mdi:information-outline", "Hinweis"] });

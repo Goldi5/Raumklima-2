@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.10.0 – 2026-11-01
+
+### Neu
+- **Lichtsignal pro Raum:** Lampen auswählen (*Einstellungen → Raum → Lichtsignal*), die bei Hinweisen
+  dreimal farbig blinken – blau „Bitte lüften“, orange „Bitte schließen“ / „Raum kühlt aus“, optional
+  grün „Luft ausgetauscht“ und rot „Problem mit der Heizung“. Danach bekommt jede Lampe ihren alten
+  Zustand zurück. Nicht in der Ruhezeit, beim Nachtlüften oder wenn niemand da ist. Knopf **Test**,
+  WebSocket `raumklima/room/light_test`, Optionen `signal_lights` und `light_signals`.
+- **Lüft-Countdown auf dem Sperrbildschirm:** neue Nachrichtenart „📱 Lüft-Countdown“ für Empfänger
+  `notify.mobile_app_…`. Beim Lüften erscheint ein Countdown als Live-Aktivität (iPhone, iOS 17.2+)
+  bzw. Live Update (Android); Farbe und Text wechseln bei „Luft ausgetauscht“, „bitte schließen“,
+  „kühlt aus“; beim Schließen verschwindet er. Standardmäßig aus.
+- Doku, FAQ und Handbuch (PDF) um beides ergänzt.
+
 ## 0.9.1 – 2026-11-01
 
 ### Neu

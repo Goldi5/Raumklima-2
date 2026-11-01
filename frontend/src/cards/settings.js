@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_MODES, RK_NIGHT, RK_OFF, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkRooms, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MODES, RK_NIGHT, RK_OFF, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkRooms, setLang, t, toneVar } from "../shared.js";
 
 
 export class RaumklimaSettingsCard extends HTMLElement {
@@ -256,7 +256,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
     const kinds = this._cfg.kinds || Object.keys(RK_KINDS);
     const card = (target, list, channel, i) => {
-      const chips = kinds.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
+      const ks = kinds.filter((k) => k !== "live" || (channel === "push" && target.startsWith("notify.mobile_app_")));
+      const chips = ks.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
       return `<div class="person"><div class="av" style="--c:${palette[i % palette.length]}">${channel === "tts" ? `<ha-icon icon="mdi:speaker"></ha-icon>` : esc(rkPretty(target)[0] || "?")}</div>
         <div class="pb"><div class="ph"><b>${esc(rkPretty(target))}</b>${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div>
         <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small>
@@ -366,6 +367,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._row("Offenes Fenster an Temperatursturz erkennen", editable ? this._segs(scope, "virtual_window", RK_NIGHT, virtMode) : this._v(RK_NIGHT[virtMode] || "–"),
           (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? (s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig") : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")),
       ].join(""))}
+      ${this._lightGroup(r, id, editable)}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
         this._row("Empfänger", push.length ? `<div class="chips">${push.map((tg) => `<span class="chip2"><i></i>${esc(rkPretty(tg))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was"),
@@ -387,6 +389,24 @@ export class RaumklimaSettingsCard extends HTMLElement {
       <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>${t("Geräte & Technik ändern")}</button>
     </div>
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
+  }
+
+  _lightGroup(r, id, editable) {
+    const s = r.attrs.settings || {};
+    const lights = this._roomOpt(r, "signal_lights") ?? s.signal_lights ?? [];
+    const sigs = this._roomOpt(r, "light_signals") ?? s.light_signals ?? ["open", "close"];
+    const all = (this._cfg && this._cfg.choices && this._cfg.choices.lights) || [];
+    const names = Object.fromEntries(all.map((x) => [x.id, x.name]));
+    const chips = lights.map((e) => `<span class="chip2" style="--c:var(--rk-air)"><i></i>${esc(names[e] || this._name(e))}${editable ? ` <button class="mini x" data-lightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`).join("");
+    const avail = all.filter((x) => !lights.includes(x.id));
+    const sigChips = Object.entries(RK_LIGHT_SIGNALS).map(([k, [c, l]]) => `<button class="chip2 ${sigs.includes(k) ? "" : "off"}" style="--c:${c}" data-lsig="${k}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${l}</button>`).join("");
+    return this._grp("Lichtsignal", "mdi:lightbulb-on-outline", "air", [
+      this._row("Lampen", `<div class="chips">${chips || this._v("keine", true)}</div>`, "blinken 3× in der Farbe des Hinweises, danach wie vorher"),
+      editable && avail.length ? `<div class="addrow"><select class="sel" id="addLight-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-lightadd="${id}" style="--c:var(--rk-air)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Lampe hinzufügen")}</button></div>` : "",
+      this._row("Blinken bei", `<div class="chips">${sigChips}</div>`, "Blau = lüften · Orange = schließen · Grün = fertig · Rot = Problem"),
+      lights.length && this._admin ? this._row("Ausprobieren", `<button class="btn" data-lighttest="${id}" style="--c:var(--rk-air)"><ha-icon icon="mdi:play"></ha-icon>${t("Test")}</button>`) : "",
+      `<div class="hint">${t("Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.")}</div>`,
+    ].join(""));
   }
 
   // ---------------------------------------------------------------- Rendern
@@ -474,6 +494,28 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._home = r.entry_id; this._tab = "general"; this._local = {};
         setTimeout(() => this._load(), 1500);
       } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
+    }));
+    const roomList = (entry, key, fallback) => {
+      const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+      const s = (room && room.attrs.settings) || {};
+      return [...((room && this._roomOpt(room, key)) ?? s[key] ?? fallback)];
+    };
+    $("[data-lightrm]").forEach((el) => el.addEventListener("click", () => {
+      this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
+    }));
+    $("[data-lightadd]").forEach((el) => el.addEventListener("click", () => {
+      const sel = this.shadowRoot.getElementById(`addLight-${el.dataset.lightadd}`);
+      if (sel && sel.value) this._setRoom(el.dataset.lightadd, { signal_lights: [...roomList(el.dataset.lightadd, "signal_lights", []), sel.value] }, 200);
+    }));
+    $("[data-lsig]").forEach((el) => el.addEventListener("click", () => {
+      const list = roomList(el.dataset.entry, "light_signals", ["open", "close"]);
+      const i = list.indexOf(el.dataset.lsig);
+      if (i >= 0) list.splice(i, 1); else list.push(el.dataset.lsig);
+      this._setRoom(el.dataset.entry, { light_signals: list }, 600);
+    }));
+    $("[data-lighttest]").forEach((el) => el.addEventListener("click", async () => {
+      const r = await ws({ type: "raumklima/room/light_test", entry_id: el.dataset.lighttest });
+      if (r) this._flash("Lampen blinken blau");
     }));
     $("[data-sigrm]").forEach((el) => el.addEventListener("click", () => {
       this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });

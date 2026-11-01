@@ -88,7 +88,7 @@ Here **everything is visible and can be changed directly**:
 
 ![General](../images/einstellungen-allgemein.png)
 
-**Per room:** desired temperature, room type, home, setback values, sunny side, heat-up time, humidity limit, minimum temperature and maximum cooling while airing, window logic and delays, night airing, window detection without contact, notices on/off, calibrate. Devices and technical settings via *Change devices & technical settings*.
+**Per room:** desired temperature, room type, home, setback values, sunny side, heat-up time, humidity limit, minimum temperature and maximum cooling while airing, window logic and delays, night airing, window detection without contact, **light signal** (lights, colours, test), notices on/off, calibrate. Devices and technical settings via *Change devices & technical settings*.
 
 ![Room](../images/einstellungen-raum.png)
 

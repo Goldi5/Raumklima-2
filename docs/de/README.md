@@ -27,7 +27,8 @@
 - **Lüftungsassistent:** Feuchtegrenze je Raum, optional CO₂-Sensor, Lüftdauer nach Außentemperatur, Prüfung ob Lüften überhaupt trocknet, Warnung beim Auskühlen.
 - **Abwesenheit:** Bewohner + Wohnung, Absenkung „kurz weg“ / „länger weg“, Schimmelschutz nach DIN 4108-2, Vorheizen bei Annäherung, Kalendertermine („Urlaub“, „Homeoffice“), in Frostnächten weniger absenken.
 - **Heizsaison:** Heizgrenze nach Tagesmittel und Wettervorhersage, Kälteeinbruch-Regel, „Heute heizen“, Sommerpflege der Ventile; Sonnenseite-Räume heizen bei Sonne 1 °C weniger.
-- **Benachrichtigungen:** pro Empfänger wählbar, welche Nachrichten er bekommt; Push mit Knöpfen, optional Sprachansagen.
+- **Benachrichtigungen:** pro Empfänger wählbar, welche Nachrichten er bekommt; Push mit Knöpfen, optional Sprachansagen; **Lüft-Countdown auf dem Sperrbildschirm** (iPhone-Live-Aktivität, Android-Live-Update).
+- **Lichtsignal:** Lampen im Raum blinken blau bei „Bitte lüften“ und orange bei „Bitte schließen“ – danach wie vorher.
 - **Modernes Dashboard** mit Raumkarten, Verlauf, Zeitleiste, Heizbericht (auch als CSV) und einer komplett bearbeitbaren Einstellungsseite – auf Deutsch oder Englisch, je nach Sprache in Home Assistant.
 - **Eigene Automationen:** Geräte-Auslöser wie „Bitte lüften“, „Fenster geöffnet“ oder „Heizung pausiert“.
 

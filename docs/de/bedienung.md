@@ -82,7 +82,7 @@ Hier ist **alles zu sehen und direkt änderbar**:
 
 ![Allgemein komplett](../images/einstellungen-allgemein.png)
 
-**Je Raum:** Wunschtemperatur, Raumtyp, Absenkwerte, Feuchtegrenze, Mindesttemperatur und Abkühlung beim Lüften, Fensterlogik und Verzögerungen, Hinweise an/aus, Kalibrieren. Geräte und Technik über *Geräte & Technik ändern*.
+**Je Raum:** Wunschtemperatur, Raumtyp, Absenkwerte, Feuchtegrenze, Mindesttemperatur und Abkühlung beim Lüften, Fensterlogik und Verzögerungen, **Lichtsignal** (Lampen, Farben, Test), Hinweise an/aus, Kalibrieren. Geräte und Technik über *Geräte & Technik ändern*.
 
 ![Raum](../images/einstellungen-raum.png)
 

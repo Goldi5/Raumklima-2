@@ -16,6 +16,7 @@ Unter **Einstellungen → Allgemein → Wer bekommt was** wählst du für jeden 
 | ⚠️ Thermostat reagiert nicht | Befehl nach allen Wiederholungen nicht bestätigt | Push + HA-Glocke |
 | 🩺 Gesundheit der Heizung | Batterie schwach, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funk wackelt, Fensterkontakt still – höchstens einmal pro Tag je Problem | Push, leise |
 | 📊 Wochenbericht | sonntags 18 Uhr: Heizstunden, wetterbereinigter Vergleich, Absenkung, zu feuchte Räume | Push, leise |
+| 📱 Lüft-Countdown auf dem Sperrbildschirm | Fenster zum Lüften offen – siehe [unten](#lüft-countdown-auf-dem-sperrbildschirm) | aus, nur Handy-App |
 
 **Empfänger** sind `notify`-Dienste, z. B. `notify.mobile_app_iphone` oder ein eigener Dienst wie `notify.christian`. Mit **Test** schickst du eine Probenachricht.
 
@@ -47,6 +48,41 @@ Lüftungs-Nachrichten haben drei Knöpfe:
 - **Heute nicht mehr** – tagsüber bis Mitternacht still, abends („Bis morgen früh“) bis zum Ende der Ruhezeit
 
 Eine Nachricht wird automatisch entfernt, sobald sie sich erledigt hat, z. B. wenn das Fenster zu ist.
+
+## Lüft-Countdown auf dem Sperrbildschirm
+
+Öffnest du ein Fenster zum Lüften, zeigt das Handy einen **Countdown** mit der empfohlenen Lüftdauer – auf dem iPhone als **Live-Aktivität** (Sperrbildschirm und Dynamic Island), auf Android als **Live Update** (Sperrbildschirm, Benachrichtigungsleiste, Statusleiste).
+
+- **Blau, Timer läuft:** Fenster offen, empfohlen z. B. 5 min.
+- **Grün:** Luft ausgetauscht – du kannst schließen.
+- **Orange:** Lüftzeit erreicht – bitte schließen.
+- **Rot:** Raum kühlt aus – bitte jetzt schließen.
+
+Ist das Fenster zu, verschwindet die Anzeige. Tippen öffnet das Raumklima-Dashboard.
+
+**Einschalten:** *Einstellungen → Allgemein → Wer bekommt was* → beim Handy **📱 Lüft-Countdown auf dem Sperrbildschirm** antippen. Die Nachrichtenart gibt es nur bei Empfängern `notify.mobile_app_…` (Home-Assistant-App).
+
+**Voraussetzungen:** aktuelle Home-Assistant-App; iPhone ab iOS 17.2 und Home Assistant ab 2026.7; das Handy muss Home Assistant auch unterwegs erreichen (Fernzugriff). Auf dem iPhone beim ersten Mal den Hinweis zur Anzeige auf dem Sperrbildschirm bestätigen. Bleibt die Anzeige hängen: *iOS-Einstellungen → Home Assistant → Live-Aktivitäten* aus- und wieder einschalten.
+
+Der Timer läuft auf dem Handy selbst – Raumklima schickt nur bei einem neuen Zustand ein Update, das schont Akku und Push-Kontingent. Nicht beim Schlafen mit offenem Fenster und nicht, wenn das Fenster nur am Temperatursturz erkannt wurde.
+
+## Lichtsignal im Raum
+
+Lampen im Raum können blinken, statt (oder zusätzlich zu) einer Push-Nachricht – praktisch für alle ohne Handy in der Hand. Unter *Einstellungen → Raum → Lichtsignal*:
+
+1. **Lampe hinzufügen** – eine oder mehrere `light`-Entitäten (bis zu 10).
+2. **Blinken bei** antippen:
+
+| Farbe | Wann | Standard |
+|---|---|---|
+| 🔵 Blau | Bitte lüften | an |
+| 🟠 Orange | Bitte schließen / Raum kühlt aus | an |
+| 🟢 Grün | Luft ausgetauscht | aus |
+| 🔴 Rot | Problem mit der Heizung (Gesundheitscheck) | aus |
+
+3. Mit **Test** blinken die Lampen einmal blau.
+
+Die Lampen blinken dreimal und bekommen danach ihren vorherigen Zustand zurück – eine ausgeschaltete Lampe geht wieder aus, eine eingeschaltete bekommt Helligkeit und Farbe zurück. Lampen ohne Farbe blinken einfach hell. **Kein Lichtsignal** in der Ruhezeit, beim Schlafen mit offenem Fenster und wenn niemand zu Hause ist. Jedes Signal steht im Protokoll.
 
 ## Ruhezeit
 

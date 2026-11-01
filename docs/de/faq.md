@@ -65,6 +65,12 @@ Bei jedem Empfänger lassen sich einzelne Nachrichtenarten abwählen. Für einen
 ### Warum kommt nachts keine Nachricht mit Ton?
 In der Ruhezeit (Standard 22–7 Uhr, am Wochenende länger) kommen Nachrichten still an. Nur Dringendes ist laut: Raum kühlt aus, Fenster offen während niemand da ist, Thermostat reagiert nicht.
 
+### Kann ich eine Lampe statt einer Nachricht nutzen?
+Ja. Unter *Einstellungen → Raum → Lichtsignal* Lampen hinzufügen – sie blinken blau bei „Bitte lüften“ und orange bei „Bitte schließen“ und gehen danach wieder auf ihren alten Zustand zurück.
+
+### Kann ich den Lüft-Countdown auf dem Sperrbildschirm sehen?
+Ja, mit der Home-Assistant-App: beim Handy unter *Wer bekommt was* **📱 Lüft-Countdown** antippen. Auf dem iPhone erscheint er als Live-Aktivität (ab iOS 17.2), auf Android als Live Update.
+
 ### Was bedeutet „Thermostat reagiert nicht“?
 Ein Befehl kam auch nach mehreren Versuchen nicht beim Thermostat an. Meist Funkproblem oder leere Batterie. Raumklima versucht es alle 5 Minuten weiter.
 

@@ -39,6 +39,8 @@
 | Setback “briefly away” | 18 °C (bedroom, rarely used: 16) | |
 | Setback “away longer” | 16 °C | |
 | Sunny side | off | 1 °C less when sun is forecast |
+| Light signal: lights | – | `light` entities that blink on notices (`signal_lights`) |
+| Light signal: blink on | please air, please close | `light_signals`: `open`, `close`, `done`, `problem` |
 | CO₂ sensor | – | optional; from 1000 ppm “please air the room” |
 | Humidity limit | 70 % (bathroom 75 %) | from here “please air the room” |
 | Minimum temperature while airing | 18 °C (bedroom, rarely used: 16) | below: “room cooling down” |
@@ -146,4 +148,5 @@ Used by the cards; handy for your own tools. All commands accept an optional `ho
 | `raumklima/report/export` | daily values per room as CSV (`days` optional) |
 | `raumklima/log`, `raumklima/log/subscribe` | decision log, live |
 | `raumklima/notify/test` | send a test message (admin) |
+| `raumklima/room/light_test` | let the room's signal lights blink (`entry_id`, optional `signal`; admin) |
 | `raumklima/home/create` | create another home (admin) |

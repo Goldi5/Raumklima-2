@@ -36,6 +36,8 @@ from .const import (
     CONF_FOLLOW_TRV,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
+    CONF_LIGHT_SIGNALS,
+    CONF_LIGHTS,
     CONF_NAME,
     CONF_NIGHT_AIRING,
     CONF_NOTIFY,
@@ -79,6 +81,7 @@ from .const import (
 from .decision_log import (
     CAT_DEVICE,
     CAT_MANUAL,
+    CAT_NOTIFY,
     CAT_SETTINGS,
     CAT_TARGET,
     fmt_temp,
@@ -107,6 +110,7 @@ from .planning import (
     setback_target,
 )
 from .room_health import HealthMixin
+from .room_lights import LightSignal
 from .room_trv import HEAT_PRESETS, MANUAL_OVERRIDE, TrvMixin
 from .room_windows import WindowMixin
 from .shared import domain_data, get_hub
@@ -137,6 +141,8 @@ LIVE_OPTIONS = frozenset(
         CONF_VIRTUAL_WINDOW,
         CONF_HOME,
         CONF_SOLAR,
+        CONF_LIGHTS,
+        CONF_LIGHT_SIGNALS,
     }
 )
 
@@ -220,6 +226,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
         )
 
         self.vent = VentilationManager(self, None)
+        self.lights = LightSignal(self)
         self.sync = SyncManager(
             schedule=self._schedule,
             run_task=lambda coro: hass.async_create_task(coro),
@@ -313,6 +320,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
                 cancel()
                 setattr(self, attr, None)
         self.sync.cancel_all()
+        self.lights.stop()
         if self.vent:
             self.vent.async_stop()
         await self._store.async_save(self._stored_data())
@@ -363,6 +371,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             "night_airing": self.night_mode,
             "virtual_window": self.virtual_mode,
             "solar_gain": bool(self.config.get(CONF_SOLAR)),
+            "signal_lights": self.lights.lights,
+            "light_signals": self.lights.signals,
             "virtual_active": self.virtual_enabled(),
             "heatup": {
                 "episodes": len(self.heatup.episodes),
@@ -430,6 +440,14 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             EVENT_RAUMKLIMA,
             {"type": kind, "room": self.name, "entry_id": self.entry.entry_id, **data},
         )
+        self.lights.on_event(kind, data)
+
+    def log_light(self, what: str, lights: list[str]) -> None:
+        names = []
+        for entity_id in lights:
+            st = self.hass.states.get(entity_id)
+            names.append(st.name if st else entity_id)
+        self.log(CAT_NOTIFY, f"Lichtsignal: {what}", ", ".join(names))
 
 
 

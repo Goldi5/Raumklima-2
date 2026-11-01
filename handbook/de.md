@@ -27,7 +27,8 @@ Dieses Handbuch erklärt Schritt für Schritt, wie du Raumklima einrichtest und 
 | 🏠 **Niemand da = sparen** | Senkt ab, wenn alle weg sind, und heizt vor, bevor jemand nach Hause kommt. |
 | 🧱 **Schimmelschutz** | Senkt nie so weit ab, dass die Wände feucht werden. |
 | 🍂 **Nur heizen, wenn es kalt ist** | Erkennt anhand der Wettervorhersage, ob überhaupt geheizt werden muss. |
-| 📱 **Gute Nachrichten** | Schickt Hinweise aufs Handy – nachts leise. |
+| 📱 **Gute Nachrichten** | Schickt Hinweise aufs Handy – nachts leise. Auf Wunsch mit Lüft-Countdown auf dem Sperrbildschirm. |
+| 💡 **Lichtsignal** | Lampen im Raum blinken blau, wenn gelüftet werden soll, und orange, wenn das Fenster zu soll. |
 | 📈 **Bericht** | Zeigt, wie viel geheizt und gespart wurde. |
 
 ## Was du brauchst
@@ -144,6 +145,51 @@ Die Nachrichten haben Knöpfe: **Erledigt**, **In 15 min erinnern** und **Heute 
 Lüften lohnt sich nur, wenn die Luft draußen trockener ist. Raumklima rechnet das aus und bittet dich bei feuchtem Wetter gar nicht erst ums Lüften.
 :::
 
+## Lüft-Countdown auf dem Sperrbildschirm
+
+Mit der Home-Assistant-App siehst du den Countdown auch auf dem **Sperrbildschirm** – auf dem iPhone als Live-Aktivität (auch in der Dynamic Island), auf Android in der Benachrichtigungsleiste. Du musst das Handy nicht entsperren.
+
+So schaltest du ihn ein:
+
+1. Dashboard → **Einstellungen → Allgemein → Wer bekommt was**.
+2. Bei deinem Handy **📱 Lüft-Countdown auf dem Sperrbildschirm** antippen.
+3. Beim nächsten Lüften auf dem iPhone den Hinweis zum Sperrbildschirm bestätigen.
+
+| Farbe | Bedeutung |
+|---|---|
+| 🔵 Blau, Uhr läuft | Fenster offen, so lange noch lüften |
+| 🟢 Grün | Luft ausgetauscht – du kannst schließen |
+| 🟠 Orange | Lüftzeit erreicht – bitte schließen |
+| 🔴 Rot | Raum kühlt aus – jetzt schließen |
+
+Ist das Fenster zu, verschwindet die Anzeige von selbst.
+
+:::tip
+**Voraussetzung:** iPhone ab iOS 17.2 und Home Assistant ab Version 2026.7. Das Handy muss Home Assistant auch unterwegs erreichen. Bleibt die Anzeige hängen: in den iPhone-Einstellungen unter *Home Assistant → Live-Aktivitäten* aus- und wieder einschalten.
+:::
+
+## Lichtsignal: Lampen zeigen es an
+
+Nicht jeder hat das Handy in der Hand. Darum können Lampen im Raum Bescheid geben: Sie **blinken dreimal** in einer Farbe und gehen danach wieder so, wie sie vorher waren.
+
+So richtest du es ein:
+
+1. Dashboard → **Einstellungen** → Reiter des Raums (z. B. *Bad*).
+2. Bereich **Lichtsignal** → Lampe im Auswahlfeld wählen → **Lampe hinzufügen**. Das geht auch mit mehreren Lampen.
+3. Bei **Blinken bei** antippen, wann es blinken soll.
+4. Mit **Test** ausprobieren – die Lampen blinken blau.
+
+| Farbe | Wann | von Anfang an |
+|---|---|---|
+| 🔵 Blau | Bitte lüften | an |
+| 🟠 Orange | Bitte schließen / Raum kühlt aus | an |
+| 🟢 Grün | Luft ausgetauscht | aus |
+| 🔴 Rot | Problem mit der Heizung | aus |
+
+:::tip
+Nachts in der Ruhezeit, beim Schlafen mit offenem Fenster und wenn niemand zu Hause ist, blinkt nichts. Lampen ohne Farbe blinken einfach hell.
+:::
+
 ## Wenn alle weg sind
 
 Raumklima merkt über eure Handys, wenn niemand mehr zu Hause ist:
@@ -194,6 +240,7 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Raum → Temperatur** | Wunschtemperatur, Absenkung, Sonnenseite |
 | **Raum → Lüften & Feuchte** | ab welcher Feuchte gelüftet werden soll |
 | **Raum → Fenster** | Pause bei offenem Fenster, Schlafen bei offenem Fenster |
+| **Raum → Lichtsignal** | Lampen, die bei Hinweisen blinken |
 
 
 # Häufige Fragen

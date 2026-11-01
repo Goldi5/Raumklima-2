@@ -285,7 +285,8 @@
         "season": "🍂 Heating season start/end",
         "trv_failure": "⚠️ Thermostat not responding",
         "health": "🩺 Heating health",
-        "report": "📊 Weekly report"
+        "report": "📊 Weekly report",
+        "live": "📱 Airing countdown on the lock screen"
       }
     },
     "off_method": {

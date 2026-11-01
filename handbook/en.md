@@ -29,7 +29,8 @@ This manual explains step by step how to set up Raumklima and use it day to day.
 | 🏠 **Nobody home = savings** | Lowers the temperature when everyone is away and preheats before someone comes home. |
 | 🧱 **Mould protection** | Never lowers the temperature so much that walls get damp. |
 | 🍂 **Heats only when it's cold** | Uses the weather forecast to decide whether heating is needed at all. |
-| 📱 **Helpful messages** | Sends notices to your phone – quietly at night. |
+| 📱 **Helpful messages** | Sends notices to your phone – quietly at night. If you like, with an airing countdown on the lock screen. |
+| 💡 **Light signal** | Lights in the room blink blue when it's time to air the room and orange when the window should be closed. |
 | 📈 **Report** | Shows how much was heated and saved. |
 
 ## What you need
@@ -146,6 +147,51 @@ The messages have buttons: **Done**, **Remind me in 15 min** and **Not today**.
 Airing only helps when the air outside is drier. Raumklima calculates this and doesn't ask you to air the room in humid weather.
 :::
 
+## Airing countdown on the lock screen
+
+With the Home Assistant app you also see the countdown on the **lock screen** – on the iPhone as a Live Activity (also in the Dynamic Island), on Android in the notification shade. No need to unlock your phone.
+
+How to turn it on:
+
+1. Dashboard → **Settings → General → Who gets what**.
+2. Tap **📱 Airing countdown on the lock screen** for your phone.
+3. The next time you air a room, confirm the lock screen notice on the iPhone.
+
+| Colour | Meaning |
+|---|---|
+| 🔵 Blue, clock running | window open, keep airing this long |
+| 🟢 Green | air exchanged – you can close |
+| 🟠 Orange | airing time reached – please close |
+| 🔴 Red | room cooling down – close now |
+
+When the window is closed, the display disappears by itself.
+
+:::tip
+**Requirements:** iPhone with iOS 17.2 or later and Home Assistant 2026.7 or later. The phone must reach Home Assistant when you're out. If the display gets stuck: in the iPhone settings under *Home Assistant → Live Activities*, turn it off and on again.
+:::
+
+## Light signal: lights show it
+
+Not everyone has their phone in hand. That's why lights in the room can let you know: they **blink three times** in a colour and then return to how they were.
+
+How to set it up:
+
+1. Dashboard → **Settings** → the room's tab (e.g. *Bathroom*).
+2. Section **Light signal** → choose a light in the list → **Add light**. Several lights work too.
+3. Under **Blink on**, tap when it should blink.
+4. Try it with **Test** – the lights blink blue.
+
+| Colour | When | from the start |
+|---|---|---|
+| 🔵 Blue | Please air the room | on |
+| 🟠 Orange | Please close / room cooling down | on |
+| 🟢 Green | Air exchanged | off |
+| 🔴 Red | Problem with the heating | off |
+
+:::tip
+Nothing blinks during quiet hours at night, while sleeping with the window open, or when nobody is home. Lights without colour simply blink bright.
+:::
+
 ## When everyone is away
 
 Raumklima notices through your phones when nobody is home anymore:
@@ -196,6 +242,7 @@ Not sure? Keep the defaults. They follow the recommendations of German consumer 
 | **Room → Temperature** | desired temperature, setback, sunny side |
 | **Room → Airing & humidity** | from which humidity to ask for airing |
 | **Room → Windows** | pause while a window is open, sleeping with the window open |
+| **Room → Light signal** | lights that blink on notices |
 
 
 # Frequently asked questions

@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.9.1** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
+**Current version: 0.10.0** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
@@ -28,7 +28,8 @@
 - **Absence:** residents + home zone, setback “briefly away” / “away longer”, mould protection per DIN 4108-2, preheating on approach and by **arrival time** (learned heat-up time per room), calendar events (“vacation”, “home office”), smaller setback on frost nights.
 - **Heating season:** heating limit from the daily mean (measured + forecast), cold-snap rule, “heat today”, summer valve exercise; rooms on the sunny side heat 1 °C less when sun is forecast.
 - **Sleep times are learned** from night airing and lights – quiet hours adapt, weekends and public holidays (German states) separately.
-- **Notifications:** choose per recipient which messages they get; push with action buttons, quiet hours, optional voice announcements.
+- **Notifications:** choose per recipient which messages they get; push with action buttons, quiet hours, optional voice announcements; **airing countdown on the lock screen** (iPhone Live Activity, Android Live Update).
+- **Light signal:** lights in the room blink blue for “please air the room” and orange for “please close” – then back to how they were.
 - **Heating report** for week and month – heating hours, weather-adjusted comparison, savings from setback, comfort time; weekly push; **CSV export**.
 - **Health check:** batteries, “room doesn't warm up”, radiator can't keep up (hydraulic balancing), stuck or missing sensor, radio and connection dropouts, silent window contact, protection against endless loops with the thermostat.
 - **Several homes** (e.g. city flat and holiday home), each with its own residents, recipients, report and log.

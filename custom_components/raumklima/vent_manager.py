@@ -28,6 +28,7 @@ from .const import (
     KIND_WINDOW_AWAY,
     NOTIFY_ACTION_EVENT,
 )
+from .live_activity import LiveCountdown
 from .logic import to_float
 from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
@@ -107,6 +108,7 @@ class VentilationManager:
         self._last_sent: dict[str, datetime] = {}
         self._repeat_count: dict[str, int] = {}
         self._night_alarm_sent = False
+        self.live = LiveCountdown(self)
         self._night_morning_sent: datetime | None = None
         self._unsubs: list[Callable[[], None]] = []
 
@@ -183,6 +185,7 @@ class VentilationManager:
         self.update()
 
     def async_stop(self) -> None:
+        self.live.end()
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
@@ -325,6 +328,7 @@ class VentilationManager:
         elif changed and new in (VENT_OK, VENT_AIRING):
             self._clear_phone_notification()
         if changed:
+            self.live.update(new)
             self.c.fire_event("ventilation", {"state": new, "reason": self.reason if new == VENT_PLEASE_OPEN else None})
             self.c.notify_listeners()
 

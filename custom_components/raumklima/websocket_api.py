@@ -22,6 +22,8 @@ from .const import (
     CONF_FROST_NIGHT,
     CONF_HEATING_LIMIT,
     CONF_HOME,
+    CONF_LIGHT_SIGNALS,
+    CONF_LIGHTS,
     CONF_LONG_AWAY_HOURS,
     CONF_NIGHT_AIRING,
     CONF_NIGHT_ALARM,
@@ -46,6 +48,7 @@ from .const import (
     DOMAIN,
     HUB_DEFAULTS,
     KINDS,
+    LIGHT_SIGNALS,
     ROOM_TYPE_OPTIONS,
     SEASON_MODES,
 )
@@ -136,13 +139,15 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
         vol.Optional(CONF_HOME): vol.Any(None, str),
         vol.Optional(CONF_SOLAR): bool,
+        vol.Optional(CONF_LIGHTS): vol.All([vol.Match(r"^light\.")], vol.Length(max=10)),
+        vol.Optional(CONF_LIGHT_SIGNALS): [vol.In(LIGHT_SIGNALS)],
     }
 )
 
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_hub_action, ws_report, ws_report_export, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -163,6 +168,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "weather": ents("weather"),
         "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
+        "lights": ents("light"),
         "states": [{"id": k, "name": v} for k, v in STATES.items()],
     }
 
@@ -267,6 +273,26 @@ async def ws_notify_test(hass: HomeAssistant, connection: websocket_api.ActiveCo
         await hub.async_test(msg["target"])
     except Exception as err:  # noqa: BLE001
         connection.send_error(msg["id"], "failed", str(err))
+        return
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/room/light_test",
+        vol.Required("entry_id"): str,
+        vol.Optional("signal", default="open"): vol.In(LIGHT_SIGNALS),
+    }
+)
+@websocket_api.require_admin
+@callback
+def ws_light_test(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    room = domain_data(hass)["rooms"].get(msg["entry_id"])
+    if room is None:
+        connection.send_error(msg["id"], "not_found", "Raum nicht gefunden")
+        return
+    if not room.lights.start(msg["signal"]):
+        connection.send_error(msg["id"], "no_lights", "Keine Lampe gewählt")
         return
     connection.send_result(msg["id"], {"ok": True})
 

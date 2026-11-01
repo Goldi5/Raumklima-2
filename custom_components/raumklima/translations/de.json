@@ -285,7 +285,8 @@
         "season": "🍂 Heizsaison Start/Ende",
         "trv_failure": "⚠️ Thermostat reagiert nicht",
         "health": "🩺 Gesundheit der Heizung",
-        "report": "📊 Wochenbericht"
+        "report": "📊 Wochenbericht",
+        "live": "📱 Lüft-Countdown auf dem Sperrbildschirm"
       }
     },
     "off_method": {
