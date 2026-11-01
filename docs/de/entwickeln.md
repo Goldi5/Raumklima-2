@@ -50,3 +50,16 @@ npm run build   # schreibt custom_components/raumklima/www/raumklima-card.js
 4. Nach dem Merge in `main` erstellt GitHub automatisch das Release.
 
 `tests/test_repo.py` prüft, dass alle Angaben zusammenpassen.
+
+## Handbuch (PDF)
+
+Die Texte stehen in `handbook/de.md` und `handbook/en.md` (die FAQ werden aus `docs/*/faq.md` eingebunden). Beim Push auf `main` baut GitHub die PDFs und hängt sie ans Release. Lokal:
+
+```bash
+cd handbook
+npm ci
+npx playwright install chromium   # oder CHROMIUM_PATH=/pfad/zu/chrome setzen
+npm run build                     # → handbook/dist/*.pdf
+```
+
+Kästen im Text: `:::tip … :::` (Hinweis) und `:::check … :::` (Checkliste).

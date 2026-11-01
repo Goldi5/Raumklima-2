@@ -1,0 +1,193 @@
+---
+title: Raumklima
+subtitle: Handbuch – Heizung, die mitdenkt
+lang: de
+toc: Inhalt
+cover_image: ../docs/images/raeume.png
+footer: Raumklima für Home Assistant · github.com/Goldi5/Raumklima-2
+---
+
+# Willkommen
+
+**Raumklima** macht aus jedem Heizkörperthermostat ein Raumthermostat, das mitdenkt. Es regelt nach einem echten Fühler im Raum, macht beim Lüften Pause, senkt ab, wenn niemand zu Hause ist, und heizt im Sommer gar nicht erst.
+
+Dieses Handbuch erklärt Schritt für Schritt, wie du Raumklima einrichtest und im Alltag nutzt. Technisches Vorwissen brauchst du nicht – nur ein laufendes Home Assistant.
+
+:::tip
+**Kurz gesagt:** Einmal einrichten, dann läuft alles von selbst. Du musst nur noch eingreifen, wenn du etwas anders haben möchtest.
+:::
+
+## Was Raumklima für dich tut
+
+| | |
+|---|---|
+| 🌡️ **Richtig messen** | Regelt nach einem Fühler mitten im Raum statt nach dem Thermostat direkt am heißen Heizkörper. |
+| 🪟 **Fenster auf = Pause** | Ist ein Fenster offen, hört die Heizung auf. Danach geht es mit der alten Einstellung weiter. |
+| 💨 **Lüften mit Plan** | Sagt Bescheid, wenn die Luft feucht oder verbraucht ist, wie lange gelüftet werden soll und wann es reicht. |
+| 🏠 **Niemand da = sparen** | Senkt ab, wenn alle weg sind, und heizt vor, bevor jemand nach Hause kommt. |
+| 🧱 **Schimmelschutz** | Senkt nie so weit ab, dass die Wände feucht werden. |
+| 🍂 **Nur heizen, wenn es kalt ist** | Erkennt anhand der Wettervorhersage, ob überhaupt geheizt werden muss. |
+| 📱 **Gute Nachrichten** | Schickt Hinweise aufs Handy – nachts leise. |
+| 📈 **Bericht** | Zeigt, wie viel geheizt und gespart wurde. |
+
+## Was du brauchst
+
+- **Home Assistant** (Version 2026.5 oder neuer) mit **HACS**
+- pro Raum ein **Heizkörperthermostat**, das in Home Assistant erscheint
+- pro Raum einen **Temperaturfühler** (am besten mit Luftfeuchte)
+- optional: **Fensterkontakte**, ein **CO₂-Sensor**
+- für die Anwesenheit: die **Home-Assistant-App** auf euren Handys
+
+# Einrichten
+
+## Schritt 1: Installieren
+
+1. Öffne in Home Assistant **HACS**.
+2. Tippe oben rechts auf **⋮ → Benutzerdefinierte Repositories**.
+3. Trage `https://github.com/Goldi5/Raumklima-2` ein, Kategorie **Integration**, und bestätige.
+4. Suche in HACS nach **Raumklima** und tippe auf **Herunterladen**.
+5. **Starte Home Assistant neu** (*Einstellungen → System → Neu starten*).
+
+:::tip
+Schalte vorher die eingebaute Fenstererkennung deines Thermostats aus (falls es eine hat) und deaktiviere alte Automationen für dieselben Thermostate. Sonst arbeiten beide gegeneinander.
+:::
+
+## Schritt 2: Den ersten Raum anlegen
+
+Gehe zu **Einstellungen → Geräte & Dienste → Integration hinzufügen** und wähle **Raumklima**.
+
+1. **Thermostat wählen** – das Thermostat am Heizkörper.
+2. **Fühler & Fenster** – Raumklima schlägt Fühler und Fensterkontakte aus demselben Raum vor. Kurz prüfen, weiter.
+3. **Der Raum** – wähle den **Raumtyp** (Wohnzimmer, Schlafzimmer, Bad …). Damit sind alle Werte schon sinnvoll eingestellt. Die Technik unter *Erweitert* kannst du in Ruhe lassen.
+4. **Für die ganze Wohnung** (nur beim ersten Raum) – wer wohnt hier, welche Zone ist die Wohnung, wer bekommt Nachrichten, woher kommt das Wetter.
+
+Für jeden weiteren Raum wiederholst du das – nur Schritt 4 entfällt.
+
+## Schritt 3: Das Dashboard
+
+Gehe zu **Einstellungen → Dashboards → Dashboard hinzufügen** und wähle **Raumklima**. Fertig – das Dashboard baut sich von selbst auf und wächst mit, wenn du Räume hinzufügst.
+
+## Die ersten 10 Minuten
+
+Nimm dir nach der Einrichtung kurz Zeit für diese Punkte. Alles findest du im Dashboard im Reiter **Einstellungen → Allgemein**.
+
+:::check
+- **Bewohner antippen** – wer wohnt hier?
+- **Zone wählen** – welche Zone ist eure Wohnung?
+- **Empfänger hinzufügen** – wer bekommt Nachrichten? Mit **Test** prüfen.
+- **Wetterquelle wählen** – z. B. `weather.forecast_home`.
+- **Wunschtemperaturen prüfen** – pro Raum im jeweiligen Reiter.
+:::
+
+# Im Alltag
+
+## Die Raumkarte lesen
+
+![Raumkarten](../docs/images/raeume.png)
+
+- Der **Bogen** zeigt, wie warm es gerade ist, der **Punkt** das Ziel.
+- Mit **− / +** stellst du die Wunschtemperatur in halben Grad ein, mit **⏻** schaltest du den Raum aus und an.
+- Oben rechts steht, was der Raum gerade macht:
+
+| Anzeige | Bedeutung |
+|---|---|
+| **Heizt** | Der Raum ist kälter als gewünscht und wird geheizt. |
+| **Temperatur erreicht** | Alles gut, es ist warm genug. |
+| **Pausiert – Fenster offen** | Ein Fenster ist offen, die Heizung wartet. |
+| **Nachtlüften – Fenster offen** | Jemand schläft bei offenem Fenster. |
+| **Abgesenkt – niemand da** | Alle sind weg, es wird gespart. |
+| **Heizpause** | Draußen ist es mild genug. |
+| **Aus** | Du hast den Raum ausgeschaltet. |
+| **Fühler ausgefallen** | Der Fühler meldet sich nicht – das Thermostat regelt allein weiter. |
+| **Thermostat nicht erreichbar** | Funk- oder Batterieproblem. |
+
+## Lüften
+
+Wird die Luft zu feucht (oder mit CO₂-Sensor: verbraucht), bekommst du **„Bitte lüften“**. Öffnest du das Fenster, läuft in der Karte ein **Countdown** mit der empfohlenen Lüftdauer – im Winter nur wenige Minuten.
+
+- **„Luft ausgetauscht“** – du kannst schließen.
+- **„Lüftzeit erreicht“** – bitte schließen.
+- **„Raum kühlt aus“** – jetzt aber wirklich schließen.
+
+Die Nachrichten haben Knöpfe: **Erledigt**, **In 15 min erinnern** und **Heute nicht mehr**.
+
+:::tip
+Lüften lohnt sich nur, wenn die Luft draußen trockener ist. Raumklima rechnet das aus und bittet dich bei feuchtem Wetter gar nicht erst ums Lüften.
+:::
+
+## Wenn alle weg sind
+
+Raumklima merkt über eure Handys, wenn niemand mehr zu Hause ist:
+
+| Situation | Was passiert |
+|---|---|
+| Alle seit 30 Minuten weg | Absenken auf etwa 18 °C |
+| Länger als 24 Stunden weg | Absenken auf etwa 16 °C |
+| Jemand ist auf dem Heimweg | Rechtzeitig vorheizen |
+| Jemand kommt nach Hause | Wieder Wunschtemperatur |
+
+Kommst du früher heim und es ist dir zu kühl: einfach hochdrehen – die Absenkung pausiert dann für 3 Stunden.
+
+## Urlaub und Besuch
+
+- **Urlaub:** Schalter *Urlaub* in den Einstellungen – oder ein Kalendertermin mit „Urlaub“ im Titel. Endet automatisch, wenn ihr zurückkommt.
+- **Besuch:** Schalter *Gäste da* – dann wird nicht abgesenkt, auch wenn alle Bewohner unterwegs sind.
+
+## Heizpause im Frühling und Herbst
+
+Ist es draußen im Tagesmittel mild (Standard: über 15 °C), macht die Heizung Pause. Ist dir trotzdem kalt: **Heute heizen** – das gilt für 24 Stunden.
+
+## Bericht und Protokoll
+
+![Heizbericht](../docs/images/bericht.png)
+
+Im Reiter **Bericht** siehst du für diese Woche oder diesen Monat: wie lange geheizt wurde, wie viel die Absenkung gespart hat und ob es gemütlich war. Sonntags kommt eine kurze Zusammenfassung aufs Handy.
+
+Im Reiter **Protokoll** steht jede Entscheidung mit Begründung – praktisch, wenn du dich fragst: „Warum ist es jetzt so kalt?“
+
+# Einstellungen
+
+Alle Einstellungen findest du im Dashboard im Reiter **Einstellungen**. Änderungen werden nach einer kurzen Pause gespeichert und gelten sofort.
+
+:::tip
+Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbraucherzentrale und Umweltbundesamt.
+:::
+
+![Einstellungen](../docs/images/einstellungen.png)
+
+| Bereich | Was du dort einstellst |
+|---|---|
+| **Allgemein → Anwesenheit** | Bewohner, Zone, wann abgesenkt wird, Urlaub, Gäste, Kalender |
+| **Allgemein → Heizsaison** | wann geheizt wird, Heute heizen |
+| **Allgemein → Wer bekommt was** | Empfänger und welche Nachrichten sie bekommen |
+| **Allgemein → Benachrichtigungen** | Ruhezeit, Erinnerungen, Wetterquelle |
+| **Allgemein → Schlafenszeiten** | Raumklima lernt, wann ihr schlaft |
+| **Raum → Temperatur** | Wunschtemperatur, Absenkung, Sonnenseite |
+| **Raum → Lüften & Feuchte** | ab welcher Feuchte gelüftet werden soll |
+| **Raum → Fenster** | Pause bei offenem Fenster, Schlafen bei offenem Fenster |
+
+
+# Häufige Fragen
+
+<!-- include: ../docs/de/faq.md -->
+
+# Kleines Lexikon
+
+| Begriff | Erklärung |
+|---|---|
+| **Thermostat (TRV)** | Der Regler direkt am Heizkörper. |
+| **Fühler** | Ein kleines Gerät, das Temperatur (und oft Luftfeuchte) im Raum misst. |
+| **Offset** | Ein Korrekturwert, damit das Thermostat dieselbe Temperatur „sieht“ wie der Fühler. |
+| **Zone** | Ein Bereich auf der Karte in Home Assistant, z. B. eure Wohnung. |
+| **Absenken** | Die Temperatur etwas herunterregeln, um Energie zu sparen. |
+| **Heizgrenze** | Ab dieser Außentemperatur (Tagesmittel) braucht das Haus keine Heizung. |
+| **Taupunkt** | Ab dieser Temperatur wird Luftfeuchte zu Wasser – z. B. an kalten Wänden. |
+| **Heizgradtage** | Ein Maß dafür, wie kalt es draußen war. |
+| **Ruhezeit** | Zeit, in der Nachrichten leise ankommen. |
+| **HACS** | Der „App-Store“ für Erweiterungen in Home Assistant. |
+
+# Hilfe bekommen
+
+- **Ausführliche Anleitung:** github.com/Goldi5/Raumklima-2 → Dokumentation
+- **Fehler melden oder Wunsch äußern:** github.com/Goldi5/Raumklima-2/issues
+- **Diagnose-Datei für einen Fehlerbericht:** *Einstellungen → Geräte & Dienste → Raumklima → Raum → ⋮ → Diagnose herunterladen*

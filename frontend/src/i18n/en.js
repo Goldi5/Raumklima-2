@@ -1,6 +1,8 @@
 // Englische Texte der Karten. Schlüssel = deutscher Text (siehe i18n.js).
 // Neue Texte: node test/extract.mjs listet alle Schlüssel, npm test meldet fehlende.
 export const EN = {
+  "Handbuch (PDF)": "Manual (PDF)",
+  "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
   "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
   "Export fehlgeschlagen: {e}": "Export failed: {e}",
   "Kalender": "Calendar",

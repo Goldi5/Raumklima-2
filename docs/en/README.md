@@ -1,10 +1,12 @@
 # Raumklima – Documentation
 
-**Current version: 0.9.0** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
+**Current version: 0.9.1** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
 ![Rooms](../images/raeume.png)
+
+> 📘 New here? The **[manual as PDF](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf)** explains setup and everyday use step by step.
 
 | Page | Topic |
 |---|---|
@@ -13,7 +15,8 @@
 | [How it works](how-it-works.md) | Control, offset, windows, reliability, airing, absence, mould protection, heating season |
 | [Notifications](notifications.md) | Who gets what, quiet hours, sleep times, actions, voice |
 | [Reference](reference.md) | All settings, entities, device triggers, events |
-| [Troubleshooting](troubleshooting.md) | FAQ |
+| [FAQ](faq.md) | Frequently asked questions for beginners |
+| [Troubleshooting](troubleshooting.md) | Problems and solutions |
 | [Development](development.md) | Tests, building the card, code structure |
 
 ## At a glance

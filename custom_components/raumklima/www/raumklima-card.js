@@ -1,7 +1,9 @@
-/* Raumklima 0.9.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.9.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
+    "Handbuch (PDF)": "Manual (PDF)",
+    "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
     "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
     "Export fehlgeschlagen: {e}": "Export failed: {e}",
     "Kalender": "Calendar",
@@ -397,6 +399,7 @@
     lang = l.toLowerCase().startsWith("de") ? "de" : "en";
     locale = lang === "de" ? "de-DE" : l;
   }
+  var getLang = () => lang;
   var loc = () => locale;
   function t(de, vars) {
     let s = lang === "de" ? de : EN[de] ?? de;
@@ -416,9 +419,10 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.9.0";
+  var RK_VERSION = "0.9.1";
 
   // src/shared.js
+  var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
   var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   var STATUS = tmap({
     heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -1849,7 +1853,7 @@
       const scrollY = this.shadowRoot.host ? window.scrollY : 0;
       this.shadowRoot.innerHTML = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
         ${body}

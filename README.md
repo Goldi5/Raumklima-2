@@ -2,7 +2,9 @@
 
 **Heizung, die mitdenkt.** Raumklima macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: Es regelt nach einem echten Raumfühler, pausiert bei offenem Fenster, berät beim Lüften, senkt ab, wenn niemand zu Hause ist – mit Schimmelschutz – und heizt nur, wenn es draußen wirklich kalt ist.
 
-**Aktuelle Version: 0.9.0** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · 🇬🇧 [English documentation](docs/en/README.md)
+**Aktuelle Version: 0.9.1** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · 🇬🇧 [English documentation](docs/en/README.md)
+
+> 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf)
 
 ![Räume](docs/images/raeume.png)
 
@@ -48,12 +50,14 @@ Ausführlich: [Installation & Einrichtung](docs/de/installation.md)
 
 | | Deutsch | English |
 |---|---|---|
+| 📘 Handbuch (PDF, für Einsteiger) | [Raumklima-Handbuch.pdf](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) | [Raumklima-Manual.pdf](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) |
 | Übersicht | [README](docs/de/README.md) | [README](docs/en/README.md) |
 | Installation & Einrichtung | [installation](docs/de/installation.md) | [installation](docs/en/installation.md) |
 | Bedienung | [bedienung](docs/de/bedienung.md) | [usage](docs/en/usage.md) |
 | So funktioniert's | [funktionsweise](docs/de/funktionsweise.md) | [how it works](docs/en/how-it-works.md) |
 | Benachrichtigungen | [benachrichtigungen](docs/de/benachrichtigungen.md) | [notifications](docs/en/notifications.md) |
 | Referenz | [referenz](docs/de/referenz.md) | [reference](docs/en/reference.md) |
+| Häufige Fragen | [faq](docs/de/faq.md) | [faq](docs/en/faq.md) |
 | Fehlerbehebung | [fehlerbehebung](docs/de/fehlerbehebung.md) | [troubleshooting](docs/en/troubleshooting.md) |
 | Entwickeln | [entwickeln](docs/de/entwickeln.md) | [development](docs/en/development.md) |
 

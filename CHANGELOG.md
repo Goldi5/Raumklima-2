@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.1 – 2026-11-01
+
+### Neu
+- **Handbuch als PDF** für Einsteiger, Deutsch und Englisch getrennt: Einrichtung Schritt für Schritt,
+  Alltag, Einstellungen, häufige Fragen und ein kleines Lexikon. Hängt an jedem Release an
+  ([Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf), [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf)).
+- Link **Handbuch (PDF)** oben in der Einstellungskarte – in der Sprache von Home Assistant.
+- Neue Doku-Seite **Häufige Fragen** (`docs/de/faq.md`, `docs/en/faq.md`).
+
+
 ## 0.9.0 – 2026-11-01
 
 ### Neu

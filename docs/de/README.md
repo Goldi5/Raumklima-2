@@ -6,6 +6,8 @@
 
 ## Inhalt
 
+> 📘 Neu hier? Das **[Handbuch als PDF](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf)** erklärt Einrichtung und Alltag Schritt für Schritt.
+
 | Seite | Worum es geht |
 |---|---|
 | [Installation & Einrichtung](installation.md) | HACS, erster Raum, Allgemein |
@@ -13,7 +15,8 @@
 | [So funktioniert's](funktionsweise.md) | Regelung, Offset, Fenster, Absicherung, Lüften, Abwesenheit, Schimmelschutz, Heizsaison |
 | [Benachrichtigungen](benachrichtigungen.md) | Wer bekommt was, Ruhezeit, Aktionen, Sprachansagen |
 | [Referenz](referenz.md) | Alle Einstellungen, Entitäten, Ereignisse für eigene Automationen |
-| [Fehlerbehebung](fehlerbehebung.md) | Häufige Fragen und Lösungen |
+| [Häufige Fragen](faq.md) | FAQ für Einsteiger |
+| [Fehlerbehebung](fehlerbehebung.md) | Probleme und Lösungen |
 | [Entwickeln](entwickeln.md) | Tests, Karte bauen, Aufbau des Codes |
 
 ## Auf einen Blick

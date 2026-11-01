@@ -50,3 +50,16 @@ npm run build   # writes custom_components/raumklima/www/raumklima-card.js
 4. After merging into `main`, GitHub creates the release automatically.
 
 `tests/test_repo.py` checks that everything matches.
+
+## Manual (PDF)
+
+The texts live in `handbook/de.md` and `handbook/en.md` (the FAQ is included from `docs/*/faq.md`). On a push to `main`, GitHub builds the PDFs and attaches them to the release. Locally:
+
+```bash
+cd handbook
+npm ci
+npx playwright install chromium   # or set CHROMIUM_PATH=/path/to/chrome
+npm run build                     # → handbook/dist/*.pdf
+```
+
+Boxes in the text: `:::tip … :::` (hint) and `:::check … :::` (checklist).

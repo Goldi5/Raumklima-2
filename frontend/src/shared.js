@@ -1,10 +1,14 @@
 // Gemeinsame Konstanten, Formatierung und Stile aller Raumklima-Karten
-import { loc, setLang, t, tmap } from "./i18n.js";
+import { getLang, loc, setLang, t, tmap } from "./i18n.js";
 import { RK_VERSION } from "./version.js";
 
 export { RK_VERSION, loc, setLang, t, tmap };
 
 // Text für einen regulären Ausdruck entschärfen (Raumnamen wie „Bad (OG)“)
+// Handbuch als PDF (am neuesten GitHub-Release angehängt), in der Sprache der Karte
+export const rkManualUrl = () =>
+  `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
+
 export const escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const STATUS = tmap({

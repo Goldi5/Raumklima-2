@@ -1,13 +1,19 @@
 name: Release
 
 # Erstellt automatisch ein GitHub-Release, sobald sich die Version in der
-# manifest.json ändert (Tag vX.Y.Z, Text aus CHANGELOG.md).
+# manifest.json ändert (Tag vX.Y.Z, Text aus CHANGELOG.md), und hängt das
+# Handbuch als PDF an (Deutsch und Englisch). Ändert sich nur das Handbuch,
+# werden die PDFs am bestehenden Release ersetzt.
 on:
   push:
     branches: [main]
     paths:
       - custom_components/raumklima/manifest.json
       - .github/workflows/release.yml
+      - handbook/**
+      - docs/de/faq.md
+      - docs/en/faq.md
+      - docs/images/**
   workflow_dispatch:
 
 permissions:
@@ -34,6 +40,17 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Handbuch bauen (PDF)
+        working-directory: handbook
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run build
+
       - name: Text aus dem Changelog
         if: steps.check.outputs.exists == 'false'
         run: |
@@ -49,4 +66,13 @@ jobs:
           gh release create "v${{ steps.v.outputs.version }}" \
             --title "Raumklima v${{ steps.v.outputs.version }}" \
             --notes-file notes.md \
-            --target "${{ github.sha }}"
+            --target "${{ github.sha }}" \
+            handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf
+
+      - name: Handbuch am bestehenden Release ersetzen
+        if: steps.check.outputs.exists == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "v${{ steps.v.outputs.version }}" --clobber \
+            handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf
