@@ -43,6 +43,7 @@ jobs:
           cd frontend
           npm ci
           npm run check
+          npm test
           npm run build
           git diff --exit-code -- ../custom_components/raumklima/www/ || (echo "::error::raumklima-card.js ist nicht aktuell – 'npm run build' im Ordner frontend ausführen und committen" && exit 1)
 
