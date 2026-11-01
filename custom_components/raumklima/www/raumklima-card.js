@@ -1,4 +1,4 @@
-/* Raumklima 0.14.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -474,7 +474,9 @@
     "meist deine E-Mail-Adresse": "usually your email address",
     "bei Gmail, iCloud, Outlook: App-Passwort": "for Gmail, iCloud, Outlook: app password",
     "mehrere mit Komma": "several separated by commas",
-    "leer = Benutzer": "empty = user"
+    "leer = Benutzer": "empty = user",
+    "hier antippen": "tap here",
+    "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "enter your login below under “Set up email” – the PDF comes as an attachment"
   };
 
   // src/i18n.js
@@ -505,7 +507,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.14.0";
+  var RK_VERSION = "0.14.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1773,8 +1775,8 @@
       "Which reports are created automatically as PDF: week (Sundays 18:00), month (on the 1st), heating season (after it ends). They are pushed to everyone with “weekly report” and listed in the Report tab for download."
     ],
     "PDF per E-Mail an": [
-      "Wohin der PDF-Bericht als Anhang geht. Am einfachsten „Raumklima“ wählen: Dann klappt darunter „E-Mail einrichten“ auf – Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Speichern & Test-Mail senden“. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort. Hast du schon einen Mail-Dienst in Home Assistant, kannst du auch den wählen.",
-      "Where the PDF report is sent as an attachment. Easiest: choose “Raumklima” – “Set up email” opens below: pick your provider (fills in server and port), enter user, password and recipients, then “Save & send test email”. Gmail, iCloud and Outlook need an app password. If you already have a mail service in Home Assistant, you can choose that instead."
+      "Wohin der PDF-Bericht als Anhang geht. Am einfachsten direkt darunter „E-Mail einrichten“ antippen – Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Speichern & Test-Mail senden“. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort. Hast du schon einen Mail-Dienst in Home Assistant, kannst du auch den wählen.",
+      "Where the PDF report is sent as an attachment. Easiest: tap “Set up email” right below – pick your provider (fills in server and port), enter user, password and recipients, then “Save & send test email”. Gmail, iCloud and Outlook need an app password. If you already have a mail service in Home Assistant, you can choose that instead."
     ],
     Test: ["Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.", "Creates a weekly report now and sends it to all recipients and by email."],
     // ---------------------------------------------------------------- Raum: Temperatur
@@ -2253,9 +2255,9 @@
         this._row(
           "PDF per E-Mail an",
           this._select(H, "report_email", [{ id: "raumklima", name: t("Raumklima (direkt hier einrichten)") }, ...(ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) }))], this._hubOpt("report_email") || "", "– keine E-Mail –"),
-          "„Raumklima“ wählen und unten die Zugangsdaten eintragen – die PDF kommt als Anhang"
+          "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang"
         ),
-        this._hubOpt("report_email") === "raumklima" ? this._mailSetup() : "",
+        !String(this._hubOpt("report_email") || "").startsWith("notify.") ? this._mailSetup() : "",
         this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : ""
       ].join("");
       const yes = (b) => b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`;
@@ -2381,15 +2383,16 @@
     }
     _mailSetup() {
       const o = (k) => this._mailForm && this._mailForm[k] !== void 0 ? this._mailForm[k] : this._hubOpt(k) ?? "";
-      const ok = !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
-      const open = this._mailOpen ?? !ok;
+      const active = this._hubOpt("report_email") === "raumklima";
+      const ok = active && !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
+      const open = this._mailOpen ?? (active && !ok);
       const dis = this._admin ? "" : "disabled";
       const sec = o("mail_security") || "starttls";
       const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
       const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
       <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
       return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
-      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")}</span>`}</summary>
+      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
       <div class="mailform">
         <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
           <select class="sel" data-mailprov ${dis}><option value="">${t("– wählen –")}</option>${provs}<option value="other">${t("Anderer Anbieter")}</option></select></label>
@@ -2590,7 +2593,7 @@
       }));
       $("[data-mailsave]").forEach((el) => el.addEventListener("click", async () => {
         const f = { ...this._mailForm || {} };
-        const changes = {};
+        const changes = { report_email: "raumklima" };
         for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
           if (f[k] === void 0) continue;
           changes[k] = k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
@@ -2600,8 +2603,9 @@
         this._sig = null;
         this._render();
         try {
-          if (Object.keys(changes).length) await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
-          const r = await this._hass.callWS({ type: "raumklima/mail/test", settings: changes, ...this._homeMsg() });
+          await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
+          const { report_email: _re, ...settings } = changes;
+          const r = await this._hass.callWS({ type: "raumklima/mail/test", settings, ...this._homeMsg() });
           this._mailMsg = ["okmsg", t("Test-Mail an {to} gesendet – bitte Posteingang (und Spam) prüfen.", { to: (r.to || []).join(", ") })];
           this._mailForm = {};
         } catch (e) {

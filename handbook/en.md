@@ -260,7 +260,7 @@ If you enter your **heating costs per year** under *Settings → General → Bui
 
 - **Download:** at the very bottom of the **Report** tab under *PDF reports* – tap **Download**. The buttons *Week*, *Month* and *Heating season* give you a report up to today right away.
 - **On your phone:** the push message has an **Open PDF** button.
-- **By email:** *Settings → General → Notifications – general → Email PDF to* → **“Raumklima (set up right here)”**. In **Set up email**, pick your provider (e.g. Gmail), enter user, password and recipients and tap **Save & send test email**. Gmail, iCloud and Outlook need an app password.
+- **By email:** *Settings → General → Notifications – general → Email PDF to* → tap **Set up email** right below, pick your provider (e.g. Gmail), enter user, password and recipients and tap **Save & send test email**. Gmail, iCloud and Outlook need an app password.
 
 :::tip
 The report follows the Home Assistant language: German for German, English for every other language.

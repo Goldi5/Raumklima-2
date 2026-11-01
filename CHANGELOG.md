@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.1 – 2026-11-01
+
+### Geändert
+- „E-Mail einrichten“ steht jetzt immer direkt unter „PDF per E-Mail an“ (vorher erst nach Auswahl von
+  „Raumklima“ sichtbar). Speichern schaltet den Mail-Versand automatisch ein.
+
 ## 0.14.0 – 2026-11-01
 
 ### Neu

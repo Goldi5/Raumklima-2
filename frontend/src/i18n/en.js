@@ -474,4 +474,6 @@ export const EN = {
   "bei Gmail, iCloud, Outlook: App-Passwort": "for Gmail, iCloud, Outlook: app password",
   "mehrere mit Komma": "several separated by commas",
   "leer = Benutzer": "empty = user",
+  "hier antippen": "tap here",
+  "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "enter your login below under “Set up email” – the PDF comes as an attachment",
 };

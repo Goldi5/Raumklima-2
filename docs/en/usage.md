@@ -66,7 +66,7 @@ Heat map, CO₂, airing results and failures are collected from version 0.13 on 
 
 **Delivery:**
 - **Push** to everyone who receives the *weekly report* – with an **Open PDF** button (link valid for 30 days).
-- **Email with attachment:** under *Settings → General → Notifications – general → Email PDF to*, choose **“Raumklima (set up right here)”**. **Set up email** opens below: pick your provider (Gmail, GMX, WEB.DE, Outlook, T-Online, iCloud, Posteo, IONOS – fills in server and port), enter user, password and recipients, then **Save & send test email**. Gmail, iCloud and Outlook need an **app password**. The password stays in Home Assistant and is never shown. If you already have a mail service (`notify`) in Home Assistant, you can choose that instead.
+- **Email with attachment:** under *Settings → General → Notifications – general → Email PDF to*, tap **Set up email** right below: pick your provider (Gmail, GMX, WEB.DE, Outlook, T-Online, iCloud, Posteo, IONOS – fills in server and port), enter user, password and recipients, then **Save & send test email**. Gmail, iCloud and Outlook need an **app password**. The password stays in Home Assistant and is never shown. If you already have a mail service (`notify`) in Home Assistant, you can choose that instead.
 - **Storage:** in the media folder under `raumklima/` – also visible under *Media* in Home Assistant. The last 26 weekly, 24 monthly and 20 season reports are kept.
 
 Which reports are created automatically is set under *PDF reports* (default: all three). Downloading only works when logged in or with a signed link.

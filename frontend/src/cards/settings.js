@@ -307,8 +307,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("PDF-Berichte", `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => { const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k); return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`; }).join("")}</div>`,
         "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
       this._row("PDF per E-Mail an", this._select(H, "report_email", [{ id: "raumklima", name: t("Raumklima (direkt hier einrichten)") }, ...(ch.notify || []).map((n) => ({ id: n, name: rkPretty(n) }))], this._hubOpt("report_email") || "", "– keine E-Mail –"),
-        "„Raumklima“ wählen und unten die Zugangsdaten eintragen – die PDF kommt als Anhang"),
-      this._hubOpt("report_email") === "raumklima" ? this._mailSetup() : "",
+        "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang"),
+      !String(this._hubOpt("report_email") || "").startsWith("notify.") ? this._mailSetup() : "",
       this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
     ].join("");
 
@@ -423,15 +423,16 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   _mailSetup() {
     const o = (k) => this._mailForm && this._mailForm[k] !== undefined ? this._mailForm[k] : (this._hubOpt(k) ?? "");
-    const ok = !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
-    const open = this._mailOpen ?? !ok;
+    const active = this._hubOpt("report_email") === "raumklima";
+    const ok = active && !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
+    const open = this._mailOpen ?? (active && !ok);
     const dis = this._admin ? "" : "disabled";
     const sec = o("mail_security") || "starttls";
     const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
     const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
       <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
     return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
-      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")}</span>`}</summary>
+      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
       <div class="mailform">
         <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
           <select class="sel" data-mailprov ${dis}><option value="">${t("– wählen –")}</option>${provs}<option value="other">${t("Anderer Anbieter")}</option></select></label>
@@ -609,7 +610,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }));
     $("[data-mailsave]").forEach((el) => el.addEventListener("click", async () => {
       const f = { ...(this._mailForm || {}) };
-      const changes = {};
+      const changes = { report_email: "raumklima" };
       for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
         if (f[k] === undefined) continue;
         changes[k] = k === "mail_port" ? (f[k] === "" ? null : parseInt(f[k], 10)) : String(f[k]).trim();
@@ -617,8 +618,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
       el.disabled = true;
       this._mailMsg = ["", t("Sende Test-Mail …")]; this._sig = null; this._render();
       try {
-        if (Object.keys(changes).length) await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
-        const r = await this._hass.callWS({ type: "raumklima/mail/test", settings: changes, ...this._homeMsg() });
+        await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
+        const { report_email: _re, ...settings } = changes;
+        const r = await this._hass.callWS({ type: "raumklima/mail/test", settings, ...this._homeMsg() });
         this._mailMsg = ["okmsg", t("Test-Mail an {to} gesendet – bitte Posteingang (und Spam) prüfen.", { to: (r.to || []).join(", ") })];
         this._mailForm = {};
       } catch (e) {

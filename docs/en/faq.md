@@ -91,7 +91,7 @@ A cold month needs more heating. “Weather-adjusted” takes that into account 
 Yes: tap **CSV** at the top right of the heating report.
 
 ### Is there a PDF report – also by email?
-Yes. Week, month and heating season are created automatically as PDFs; they are listed at the bottom of the heating report to **download**. A push brings a link, an email brings the PDF as an attachment: under *General → Notifications – general → Email PDF to* choose **“Raumklima”**, pick your provider, enter user, password and recipients and tap **Save & send test email** – no YAML needed.
+Yes. Week, month and heating season are created automatically as PDFs; they are listed at the bottom of the heating report to **download**. A push brings a link, an email brings the PDF as an attachment: under *General → Notifications – general → Email PDF to* tap **Set up email**, pick your provider, enter user, password and recipients and tap **Save & send test email** – no YAML needed.
 
 ## Other
 
