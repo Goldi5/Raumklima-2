@@ -1,4 +1,4 @@
-/* Raumklima 0.10.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.10.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -400,7 +400,13 @@
     "Lüft-Countdown auf dem Sperrbildschirm": "Airing countdown on the lock screen",
     "Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.": "Not during quiet hours, not while sleeping with the window open and not when nobody is home. Lights without colour simply blink bright.",
     "Problem mit der Heizung": "Problem with the heating",
-    "blinken 3× in der Farbe des Hinweises, danach wie vorher": "blink 3× in the colour of the notice, then back to how they were"
+    "blinken 3× in der Farbe des Hinweises, danach wie vorher": "blink 3× in the colour of the notice, then back to how they were",
+    "Fenster offen seit {c} · {d}": "Window open since {c} · {d}",
+    "offen seit {c}": "open since {c}",
+    "{d} Tg. {h} h": "{d} d {h} h",
+    "{h} h {m} min": "{h} h {m} min",
+    "{n} min": "{n} min",
+    "{n} s": "{n} s"
   };
 
   // src/i18n.js
@@ -431,7 +437,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.10.0";
+  var RK_VERSION = "0.10.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -497,6 +503,26 @@
     please_close: { label: "Lüftzeit erreicht – bitte schließen", icon: "mdi:window-closed-variant", tone: "warn" },
     too_cold: { label: "Raum kühlt aus – jetzt schließen", icon: "mdi:snowflake-alert", tone: "cold" }
   });
+  function rkOpenSince(hass, a) {
+    if (!a || !a.window_open) return null;
+    const times = (a.window_entities || []).map((e) => hass.states[e]).filter((s) => s && s.state === "on" && s.last_changed).map((s) => Date.parse(s.last_changed));
+    if (times.length) return Math.min(...times);
+    return a.window_open_since ? Date.parse(a.window_open_since) : null;
+  }
+  function rkDuration(ms) {
+    const s = Math.max(0, Math.floor(ms / 1e3));
+    if (s < 60) return t("{n} s", { n: s });
+    const m = Math.floor(s / 60);
+    if (m < 60) return t("{n} min", { n: m });
+    const h = Math.floor(m / 60);
+    if (h < 24) return t("{h} h {m} min", { h, m: String(m % 60).padStart(2, "0") });
+    return t("{d} Tg. {h} h", { d: Math.floor(h / 24), h: h % 24 });
+  }
+  function rkClock(ms) {
+    const d = new Date(ms);
+    const time = d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
+    return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
+  }
   var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
   var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
   var STYLES = `
@@ -513,6 +539,8 @@
   .wins { display:flex; gap:4px; color:var(--secondary-text-color); }
   .wins ha-icon { --mdc-icon-size:20px; }
   .wins .open { color: var(--rk-air); }
+  .since { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:.85rem; font-weight:600; color:var(--rk-air); font-variant-numeric:tabular-nums; }
+  .since ha-icon { --mdc-icon-size:16px; }
   .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }
@@ -893,6 +921,8 @@
       this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }));
     }
     _tick() {
+      const since = this.shadowRoot && this.shadowRoot.querySelector("[data-since]");
+      if (since && this._winSince) since.textContent = t("Fenster offen seit {c} · {d}", { c: rkClock(this._winSince), d: rkDuration(Date.now() - this._winSince) });
       const el = this.shadowRoot && this.shadowRoot.querySelector("[data-count]");
       if (!el || !this._openSince) return;
       const total = this._recMin * 60;
@@ -948,6 +978,7 @@
       const name = this._config.name || a.friendly_name || t("Raum");
       const winOpen = a.window_open;
       this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
+      this._winSince = rkOpenSince(this._hass, a);
       this._recMin = a.recommended_minutes || 5;
       let banner = "";
       if (vent && a.ventilation !== "ok") {
@@ -979,6 +1010,7 @@
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
         </div>
+        ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
           ${this._arc(a.current_temperature, target, isOff)}
           <div class="center">
@@ -1037,6 +1069,12 @@
       setLang(hass);
       this._render();
     }
+    connectedCallback() {
+      this._timer = setInterval(() => this._render(), 3e4);
+    }
+    disconnectedCallback() {
+      clearInterval(this._timer);
+    }
     _render() {
       if (!this._hass) return;
       const rooms = Object.values(this._hass.entities || {}).filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => this._hass.states[e.entity_id]).filter(Boolean).filter((r) => !this._config.home || !r.attributes.home || r.attributes.home === this._config.home).sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
@@ -1067,7 +1105,10 @@
         const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
         return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
-          ${a.window_open ? `<ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>` : ""}</div>
+          ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => {
+          const s2 = rkOpenSince(this._hass, a);
+          return s2 ? `<span title="${t("offen seit {c}", { c: rkClock(s2) })}">${rkDuration(Date.now() - s2)}</span>` : "";
+        })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
         <div class="rs">${label}</div>
         <div class="rbottom">
@@ -1093,6 +1134,7 @@
       .dot { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:var(--tone); background: color-mix(in srgb, var(--tone) 16%, transparent); }
       .dot ha-icon { --mdc-icon-size:20px; }
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
+      .wopen { display:inline-flex; align-items:center; gap:4px; color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
       .rn { font-weight:650; color:var(--primary-text-color); }
       .rs { font-size:.78rem; color: var(--tone); font-weight:600; }
       .homes { display:flex; gap:6px; margin:-4px 0 14px; flex-wrap:wrap; }

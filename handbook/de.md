@@ -117,6 +117,7 @@ Nimm dir nach der Einrichtung kurz Zeit für diese Punkte. Alles findest du im D
 
 - Der **Bogen** zeigt, wie warm es gerade ist, der **Punkt** das Ziel.
 - Mit **− / +** stellst du die Wunschtemperatur in halben Grad ein, mit **⏻** schaltest du den Raum aus und an.
+- Ist ein Fenster offen, steht unter dem Namen **„Fenster offen seit 14:32 · 12 min“**. In der Übersicht oben siehst du die Dauer neben dem Fenster-Symbol jedes Raums.
 - Oben rechts steht, was der Raum gerade macht:
 
 | Anzeige | Bedeutung |

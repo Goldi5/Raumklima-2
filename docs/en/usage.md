@@ -9,6 +9,7 @@
 **Room card:**
 - The **arc** shows the current temperature, the **knob** the target. **−/+** in 0.5 °C steps, **⏻** turns the room on/off.
 - Below the temperature you see what currently applies: *Target 20 °C*, *Set back 18 °C · desired 20°*, *Heating paused*, *Frost protection* or *Sun helps*.
+- When a window is open, **“Window open since 14:32 · 12 min”** appears below the name – the duration counts up live. In the overview, the tile shows the duration next to the window icon.
 - While airing, a **countdown** runs with the recommended airing time.
 - The tiles show humidity, CO₂ (if a sensor is configured), dew point, valve position, outdoor climate, radiator temperature and offset.
 

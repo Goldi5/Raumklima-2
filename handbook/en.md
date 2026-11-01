@@ -119,6 +119,7 @@ After setup, take a moment for these points. You'll find everything in the dashb
 
 - The **arc** shows how warm it is right now, the **dot** the target.
 - **− / +** sets the desired temperature in half degrees, **⏻** turns the room off and on.
+- When a window is open, **“Window open since 14:32 · 12 min”** appears below the name. In the overview at the top you see the duration next to each room's window icon.
 - The top right shows what the room is doing:
 
 | Shown | Meaning |

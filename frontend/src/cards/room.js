@@ -1,4 +1,4 @@
-import { STATUS, STYLES, VENT, fmt, humTone, planText, setLang, t, toneVar } from "../shared.js";
+import { STATUS, STYLES, VENT, fmt, humTone, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar } from "../shared.js";
 
 export class RaumklimaCard extends HTMLElement {
   static getConfigForm() {
@@ -67,6 +67,8 @@ export class RaumklimaCard extends HTMLElement {
   }
 
   _tick() {
+    const since = this.shadowRoot && this.shadowRoot.querySelector("[data-since]");
+    if (since && this._winSince) since.textContent = t("Fenster offen seit {c} · {d}", { c: rkClock(this._winSince), d: rkDuration(Date.now() - this._winSince) });
     const el = this.shadowRoot && this.shadowRoot.querySelector("[data-count]");
     if (!el || !this._openSince) return;
     const total = this._recMin * 60;
@@ -119,6 +121,7 @@ export class RaumklimaCard extends HTMLElement {
     const name = this._config.name || a.friendly_name || t("Raum");
     const winOpen = a.window_open;
     this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
+    this._winSince = rkOpenSince(this._hass, a);
     this._recMin = a.recommended_minutes || 5;
 
     let banner = "";
@@ -159,6 +162,7 @@ export class RaumklimaCard extends HTMLElement {
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
         </div>
+        ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
           ${this._arc(a.current_temperature, target, isOff)}
           <div class="center">

@@ -1,4 +1,4 @@
-import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkHomes, rkHub, setLang, t, toneVar } from "../shared.js";
+import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   static getConfigForm() {
@@ -15,6 +15,8 @@ export class RaumklimaOverviewCard extends HTMLElement {
   getCardSize() { return 4; }
   getGridOptions() { return { columns: 12, rows: "auto" }; }
   set hass(hass) { this._hass = hass; setLang(hass); this._render(); }
+  connectedCallback() { this._timer = setInterval(() => this._render(), 30000); }
+  disconnectedCallback() { clearInterval(this._timer); }
 
   _render() {
     if (!this._hass) return;
@@ -52,7 +54,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
       return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
-          ${a.window_open ? `<ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>` : ""}</div>
+          ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => { const s = rkOpenSince(this._hass, a); return s ? `<span title="${t("offen seit {c}", { c: rkClock(s) })}">${rkDuration(Date.now() - s)}</span>` : ""; })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
         <div class="rs">${label}</div>
         <div class="rbottom">
@@ -79,6 +81,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .dot { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:var(--tone); background: color-mix(in srgb, var(--tone) 16%, transparent); }
       .dot ha-icon { --mdc-icon-size:20px; }
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
+      .wopen { display:inline-flex; align-items:center; gap:4px; color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
       .rn { font-weight:650; color:var(--primary-text-color); }
       .rs { font-size:.78rem; color: var(--tone); font-weight:600; }
       .homes { display:flex; gap:6px; margin:-4px 0 14px; flex-wrap:wrap; }

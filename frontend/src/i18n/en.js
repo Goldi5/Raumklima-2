@@ -400,4 +400,10 @@ export const EN = {
   "Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.": "Not during quiet hours, not while sleeping with the window open and not when nobody is home. Lights without colour simply blink bright.",
   "Problem mit der Heizung": "Problem with the heating",
   "blinken 3× in der Farbe des Hinweises, danach wie vorher": "blink 3× in the colour of the notice, then back to how they were",
+  "Fenster offen seit {c} · {d}": "Window open since {c} · {d}",
+  "offen seit {c}": "open since {c}",
+  "{d} Tg. {h} h": "{d} d {h} h",
+  "{h} h {m} min": "{h} h {m} min",
+  "{n} min": "{n} min",
+  "{n} s": "{n} s",
 };

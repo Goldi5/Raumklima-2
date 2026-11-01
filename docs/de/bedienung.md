@@ -9,6 +9,7 @@
 **Raumkarte:**
 - Der **Bogen** zeigt die Ist-Temperatur, der **Knopf** das Ziel. Mit **−/+** in 0,5-°C-Schritten, mit **⏻** an/aus.
 - Unter der Temperatur steht, was gerade gilt: *Ziel 20 °C*, *Abgesenkt 18 °C · Wunsch 20°*, *Heizpause* oder *Frostschutz*.
+- Ist ein Fenster offen, steht unter dem Namen **„Fenster offen seit 14:32 · 12 min“** – die Dauer läuft live mit. In der Übersicht zeigt die Kachel die Dauer neben dem Fenster-Symbol.
 - Beim Lüften läuft ein **Countdown** mit der empfohlenen Lüftdauer.
 - Die Kacheln unten zeigen Feuchte, Taupunkt, Ventilstellung, Außenklima, Heizkörper-Temperatur und Offset.
 

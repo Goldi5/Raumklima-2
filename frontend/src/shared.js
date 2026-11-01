@@ -79,6 +79,31 @@ export const VENT = tmap({
   too_cold: { label: "Raum kühlt aus – jetzt schließen", icon: "mdi:snowflake-alert", tone: "cold" },
 });
 
+// Seit wann ist ein Fenster offen? Frühester Wechsel der offenen Kontakte, sonst Raumklimas eigener Zeitpunkt.
+export function rkOpenSince(hass, a) {
+  if (!a || !a.window_open) return null;
+  const times = (a.window_entities || [])
+    .map((e) => hass.states[e])
+    .filter((s) => s && s.state === "on" && s.last_changed)
+    .map((s) => Date.parse(s.last_changed));
+  if (times.length) return Math.min(...times);
+  return a.window_open_since ? Date.parse(a.window_open_since) : null;
+}
+// Dauer kurz: „45 s“, „12 min“, „1 h 05 min“, „2 Tg. 3 h“
+export function rkDuration(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  if (s < 60) return t("{n} s", { n: s });
+  const m = Math.floor(s / 60);
+  if (m < 60) return t("{n} min", { n: m });
+  const h = Math.floor(m / 60);
+  if (h < 24) return t("{h} h {m} min", { h, m: String(m % 60).padStart(2, "0") });
+  return t("{d} Tg. {h} h", { d: Math.floor(h / 24), h: h % 24 });
+}
+export function rkClock(ms) {
+  const d = new Date(ms);
+  const time = d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
+  return Date.now() - ms > 20 * 3600 * 1000 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
+}
 export const fmt = (v, d = 1) =>
   v === null || v === undefined || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
 
@@ -98,6 +123,8 @@ export const STYLES = `
   .wins { display:flex; gap:4px; color:var(--secondary-text-color); }
   .wins ha-icon { --mdc-icon-size:20px; }
   .wins .open { color: var(--rk-air); }
+  .since { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:.85rem; font-weight:600; color:var(--rk-air); font-variant-numeric:tabular-nums; }
+  .since ha-icon { --mdc-icon-size:16px; }
   .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }

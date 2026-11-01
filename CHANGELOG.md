@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.1 – 2026-11-01
+
+### Neu
+- **Wie lange ist das Fenster schon offen?** Die Raumkarte zeigt unter dem Namen „Fenster offen seit
+  14:32 · 12 min“ (läuft live mit), die Übersicht die Dauer neben dem Fenster-Symbol jeder Kachel.
+  Maßgeblich ist der früheste offene Fensterkontakt, ohne Kontakt die von Raumklima erkannte Öffnung.
+
 ## 0.10.0 – 2026-11-01
 
 ### Neu
