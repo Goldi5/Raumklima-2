@@ -100,3 +100,20 @@ async def test_diagnostics_hide_mail_login(hass: HomeAssistant, trv: FakeTrv, se
     hub, _room = await _ready(hass, tmp_path, MAIL)
     text = str(await async_get_config_entry_diagnostics(hass, hub))
     assert "geheim" not in text and "partner@example.de" not in text
+
+
+async def test_only_real_mail_services_offered(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path, hass_ws_client: WebSocketGenerator) -> None:
+    from types import SimpleNamespace
+
+    from homeassistant.components.notify.legacy import NOTIFY_SERVICES
+
+    await _ready(hass, tmp_path)
+    hass.data[NOTIFY_SERVICES] = {
+        "smtp": [SimpleNamespace(_service_name="email")],
+        "alexa_media": [SimpleNamespace(_service_name="alexa_media_flur")],
+        "mobile_app": [SimpleNamespace(_service_name="mobile_app_iphone")],
+    }
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/config"})
+    choices = (await client.receive_json())["result"]["choices"]
+    assert choices["mail"] == ["notify.email"]

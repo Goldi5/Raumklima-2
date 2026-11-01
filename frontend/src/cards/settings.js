@@ -308,7 +308,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
       this._row("PDF per E-Mail an", (() => {
         const cur = this._hubOpt("report_email") || "";
-        const others = (ch.notify || []).filter((n) => !n.startsWith("notify.mobile_app_")).map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
+        const others = [...new Set([...(ch.mail || []), ...(cur.startsWith("notify.") ? [cur] : [])])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
         return `<select class="sel" data-sel="${H}" data-key="report_email" ${this._admin ? "" : "disabled"}>
           <option value="" ${cur ? "" : "selected"}>${t("– keine E-Mail –")}</option>
           <option value="raumklima" ${cur === "raumklima" ? "selected" : ""}>${t("Eigenes E-Mail-Konto (unten einrichten)")}</option>
@@ -559,7 +559,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }));
     $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
     $("[data-seg]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val })));
-    $("[data-sel]").forEach((el) => el.addEventListener("change", () => apply(el.dataset.sel, { [el.dataset.key]: el.value || null })));
+    // nach der Auswahl Fokus lösen, sonst wartet die Karte mit dem Aktualisieren (Schutz beim Tippen)
+    $("[data-sel]").forEach((el) => el.addEventListener("change", () => { el.blur(); apply(el.dataset.sel, { [el.dataset.key]: el.value || null }); }));
     $("[data-md]").forEach((el) => el.addEventListener("change", () => {
       const m = /^(\d{1,2})[-.](\d{1,2})\.?$/.exec(el.value.trim());
       if (!m) { this._flash("Bitte als MM-TT eingeben, z. B. 10-01"); return; }

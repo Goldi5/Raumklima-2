@@ -1,4 +1,4 @@
-/* Raumklima 0.14.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -509,7 +509,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.14.2";
+  var RK_VERSION = "0.14.3";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2258,7 +2258,7 @@
           "PDF per E-Mail an",
           (() => {
             const cur = this._hubOpt("report_email") || "";
-            const others = (ch.notify || []).filter((n) => !n.startsWith("notify.mobile_app_")).map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
+            const others = [.../* @__PURE__ */ new Set([...ch.mail || [], ...cur.startsWith("notify.") ? [cur] : []])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
             return `<select class="sel" data-sel="${H}" data-key="report_email" ${this._admin ? "" : "disabled"}>
           <option value="" ${cur ? "" : "selected"}>${t("– keine E-Mail –")}</option>
           <option value="raumklima" ${cur === "raumklima" ? "selected" : ""}>${t("Eigenes E-Mail-Konto (unten einrichten)")}</option>
@@ -2526,7 +2526,10 @@
       }));
       $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
       $("[data-seg]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val })));
-      $("[data-sel]").forEach((el) => el.addEventListener("change", () => apply(el.dataset.sel, { [el.dataset.key]: el.value || null })));
+      $("[data-sel]").forEach((el) => el.addEventListener("change", () => {
+        el.blur();
+        apply(el.dataset.sel, { [el.dataset.key]: el.value || null });
+      }));
       $("[data-md]").forEach((el) => el.addEventListener("change", () => {
         const m = /^(\d{1,2})[-.](\d{1,2})\.?$/.exec(el.value.trim());
         if (!m) {

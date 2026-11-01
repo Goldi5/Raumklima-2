@@ -180,6 +180,25 @@ def async_register_websocket(hass: HomeAssistant) -> None:
         websocket_api.async_register_command(hass, handler)
 
 
+MAIL_PLATFORMS = ("smtp", "google_mail", "mailgun", "sendgrid")
+
+
+def _mail_services(hass: HomeAssistant) -> list[str]:
+    """Nur echte Mail-Dienste (SMTP & Co.) – nicht Alexa, Handys oder Fernseher."""
+    try:
+        from homeassistant.components.notify.legacy import NOTIFY_SERVICES
+    except ImportError:  # ältere/neuere HA-Version
+        return []
+    services = hass.data.get(NOTIFY_SERVICES, {})
+    out = []
+    for platform in MAIL_PLATFORMS:
+        for svc in services.get(platform, []):
+            name = getattr(svc, "_service_name", None)
+            if name:
+                out.append(f"notify.{name}")
+    return sorted(set(out))
+
+
 def _choices(hass: HomeAssistant) -> dict[str, Any]:
     services = hass.services.async_services().get("notify", {})
     notify = sorted(
@@ -198,6 +217,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
         "lights": ents("light"),
+        "mail": _mail_services(hass),
         "presence": sorted(
             (
                 {"id": s.entity_id, "name": s.name, "kind": sensor_kind(s.attributes.get("device_class"))}

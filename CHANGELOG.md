@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.3 – 2026-11-01
+
+### Behoben
+- Nach einer Auswahl in einem Auswahlfeld der Einstellungskarte passierte scheinbar nichts, bis man
+  woanders hinklickte (die Karte wartete auf das Ende der Eingabe). Jetzt wird sofort übernommen.
+- „PDF per E-Mail an“ zeigt nur noch echte Mail-Dienste (SMTP, Google Mail, Mailgun, SendGrid) –
+  keine Alexa-Geräte, Fernseher oder Handys mehr.
+
 ## 0.14.2 – 2026-11-01
 
 ### Geändert
