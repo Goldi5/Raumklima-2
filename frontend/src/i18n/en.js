@@ -478,4 +478,10 @@ export const EN = {
   "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "enter your login below under “Set up email” – the PDF comes as an attachment",
   "Eigenes E-Mail-Konto (unten einrichten)": "Own email account (set up below)",
   "Vorhandener Mail-Dienst in Home Assistant": "Existing mail service in Home Assistant",
+  "Zugang prüfen": "Check login",
+  "Server erreichbar": "Server reachable",
+  "Anmeldung": "Login",
+  "Prüfe Zugang …": "Checking login …",
+  "Alles in Ordnung – du kannst speichern und eine Test-Mail senden.": "All good – you can save and send a test email.",
+  "Da stimmt noch etwas nicht – siehe oben.": "Something isn't right yet – see above.",
 };

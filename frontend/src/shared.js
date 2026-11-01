@@ -239,6 +239,7 @@ export const RK_MAIL_PROVIDERS = {
   tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
   icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
   posteo: ["posteo.de", 587, "starttls", "Posteo"],
+  einsundeins: ["smtp.1und1.de", 587, "starttls", "1&1"],
   ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"],
 };
 export const RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
@@ -371,7 +372,12 @@ export const SETTINGS_STYLES = `
   .mf > span { color: var(--primary-text-color); } .mf small { display:block; color: var(--secondary-text-color); font-size:.8rem; }
   .mf .inp, .mf .sel { width:100%; box-sizing:border-box; text-align:left; }
   .mf .segs { align-self:flex-start; }
-  .mailact { display:flex; justify-content:flex-end; }
+  .mailact { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+  .msteps { display:flex; flex-direction:column; gap:6px; }
+  .mstep { display:flex; gap:10px; align-items:flex-start; padding:8px 10px; border-radius:10px; font-size:.88rem; line-height:1.35; color: var(--primary-text-color); }
+  .mstep > b { flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:.75rem; }
+  .mstep.ok { background: color-mix(in srgb, var(--rk-ok) 10%, transparent); } .mstep.ok > b { background: var(--rk-ok); }
+  .mstep.bad { background: color-mix(in srgb, var(--rk-cold, #e5484d) 10%, transparent); } .mstep.bad > b { background: var(--rk-cold, #e5484d); }
   .hint.okmsg { color: var(--rk-ok); font-weight:600; } .hint.errmsg { color: var(--rk-cold, #e5484d); font-weight:600; }
   .helpbox { margin:-4px 0 10px; padding:10px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; color: var(--primary-text-color);
     background: color-mix(in srgb, var(--g, var(--rk-air)) 10%, var(--card-background-color, #fff)); border-left:3px solid var(--g, var(--rk-air)); }

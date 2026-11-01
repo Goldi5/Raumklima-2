@@ -64,7 +64,15 @@ from .const import (
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
 from .hub import RaumklimaHub
-from .mailer import BUILTIN as MAIL_BUILTIN, MAIL_KEYS, SECURITY as MAIL_SECURITY, MailError, recipients, send as mail_send
+from .mailer import (
+    BUILTIN as MAIL_BUILTIN,
+    MAIL_KEYS,
+    SECURITY as MAIL_SECURITY,
+    MailError,
+    recipients,
+    send as mail_send,
+    verify as mail_verify,
+)
 from .occupancy import sensor_kind
 from .planning import NIGHT_MODES, VIRT_MODES
 from .report_data import REPORT_KINDS
@@ -302,6 +310,7 @@ def ws_hub_update(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
         vol.Required("type"): f"{DOMAIN}/mail/test",
         vol.Optional("home"): vol.Any(None, str),
         vol.Optional("settings", default=dict): dict,
+        vol.Optional("send", default=True): bool,
     }
 )
 @websocket_api.require_admin
@@ -313,6 +322,11 @@ async def ws_mail_test(hass: HomeAssistant, connection: websocket_api.ActiveConn
         return
     given = {k: v for k, v in msg["settings"].items() if k in MAIL_KEYS and v not in (None, "")}
     opts = {**hub.entry.options, **given}
+    if not msg["send"]:
+        # nur prüfen: Verbindung, Verschlüsselung, Anmeldung – ohne Mail
+        steps = await hass.async_add_executor_job(mail_verify, opts)
+        connection.send_result(msg["id"], {"ok": all(s["ok"] for s in steps), "steps": steps})
+        return
     try:
         await hass.async_add_executor_job(
             mail_send, opts, "Raumklima – Test-Mail", "Hallo! So kommen die Heizberichte von Raumklima an. / This is how Raumklima heating reports arrive."

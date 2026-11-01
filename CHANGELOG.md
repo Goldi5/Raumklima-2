@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.4 – 2026-11-01
+
+### Neu
+- **„Zugang prüfen“** beim E-Mail-Einrichten: testet Schritt für Schritt Server, Verschlüsselung,
+  Anmeldung und Empfänger – ohne eine Mail zu senden – und sagt bei einem Fehler genau, woran es liegt.
+- **1&1** in der Anbieterliste (smtp.1und1.de, Port 587, STARTTLS).
+
 ## 0.14.3 – 2026-11-01
 
 ### Behoben

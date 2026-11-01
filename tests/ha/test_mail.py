@@ -117,3 +117,39 @@ async def test_only_real_mail_services_offered(hass: HomeAssistant, trv: FakeTrv
     await client.send_json_auto_id({"type": "raumklima/config"})
     choices = (await client.receive_json())["result"]["choices"]
     assert choices["mail"] == ["notify.email"]
+
+
+def test_verify_steps_ok_and_failures() -> None:
+    smtp = MagicMock()
+    with patch.object(smtplib, "SMTP", return_value=smtp):
+        steps = mailer.verify(MAIL)
+    assert [s["step"] for s in steps] == ["connect", "tls", "login", "recipients"]
+    assert all(s["ok"] for s in steps)
+    smtp.send_message.assert_not_called()  # prüfen schickt keine Mail
+
+    smtp.login.side_effect = smtplib.SMTPAuthenticationError(535, b"no")
+    with patch.object(smtplib, "SMTP", return_value=smtp):
+        steps = mailer.verify(MAIL)
+    assert steps[-1]["step"] == "login" and not steps[-1]["ok"] and "App-Passwort" in steps[-1]["msg"]
+
+    with patch.object(smtplib, "SMTP", side_effect=OSError("timed out")):
+        steps = mailer.verify(MAIL)
+    assert steps == [{"step": "connect", "ok": False, "msg": steps[0]["msg"]}] and "nicht erreichbar" in steps[0]["msg"]
+    assert mailer.verify({})[0]["ok"] is False
+
+
+def test_einsundeins_in_providers() -> None:
+    assert mailer.PROVIDERS["einsundeins"] == ("smtp.1und1.de", 587, "starttls")
+
+
+async def test_ws_check_only(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path, hass_ws_client: WebSocketGenerator) -> None:
+    await _ready(hass, tmp_path, MAIL)
+    client = await hass_ws_client(hass)
+    steps = [{"step": "connect", "ok": True, "msg": "ok"}, {"step": "login", "ok": False, "msg": "abgelehnt"}]
+    with patch("custom_components.raumklima.websocket_api.mail_verify", return_value=steps) as verify, \
+         patch("custom_components.raumklima.websocket_api.mail_send") as send:
+        await client.send_json_auto_id({"type": "raumklima/mail/test", "send": False, "settings": {"mail_user": "x@y.de"}})
+        msg = await client.receive_json()
+    assert msg["result"] == {"ok": False, "steps": steps}
+    assert verify.call_args.args[0]["mail_user"] == "x@y.de" and verify.call_args.args[0]["mail_password"] == "geheim"
+    send.assert_not_called()

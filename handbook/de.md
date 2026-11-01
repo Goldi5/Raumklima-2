@@ -258,7 +258,7 @@ Trägst du unter *Einstellungen → Allgemein → Gebäude & Schimmelschutz* dei
 
 - **Herunterladen:** ganz unten im Reiter **Bericht** unter *PDF-Berichte* – auf **Herunterladen** tippen. Mit den Knöpfen *Woche*, *Monat* und *Heizsaison* bekommst du sofort einen Bericht bis heute.
 - **Aufs Handy:** Die Push-Nachricht hat einen Knopf **PDF öffnen**.
-- **Per E-Mail:** *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* → darunter auf **E-Mail einrichten** tippen, deinen Anbieter wählen (z. B. GMX oder Gmail), Benutzer, Passwort und Empfänger eintragen und **Speichern & Test-Mail senden** tippen. Bei Gmail, iCloud und Outlook brauchst du ein App-Passwort.
+- **Per E-Mail:** *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail an* → darunter auf **E-Mail einrichten** tippen, deinen Anbieter wählen (z. B. GMX oder Gmail), Benutzer, Passwort und Empfänger eintragen, mit **Zugang prüfen** testen und dann **Speichern & Test-Mail senden** tippen. Bei Gmail, iCloud und Outlook brauchst du ein App-Passwort.
 
 :::tip
 Der Bericht kommt in der Sprache von Home Assistant: auf Deutsch, bei jeder anderen Sprache auf Englisch.

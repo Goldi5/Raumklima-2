@@ -1,4 +1,4 @@
-/* Raumklima 0.14.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -478,7 +478,13 @@
     "hier antippen": "tap here",
     "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "enter your login below under “Set up email” – the PDF comes as an attachment",
     "Eigenes E-Mail-Konto (unten einrichten)": "Own email account (set up below)",
-    "Vorhandener Mail-Dienst in Home Assistant": "Existing mail service in Home Assistant"
+    "Vorhandener Mail-Dienst in Home Assistant": "Existing mail service in Home Assistant",
+    "Zugang prüfen": "Check login",
+    "Server erreichbar": "Server reachable",
+    "Anmeldung": "Login",
+    "Prüfe Zugang …": "Checking login …",
+    "Alles in Ordnung – du kannst speichern und eine Test-Mail senden.": "All good – you can save and send a test email.",
+    "Da stimmt noch etwas nicht – siehe oben.": "Something isn't right yet – see above."
   };
 
   // src/i18n.js
@@ -509,7 +515,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.14.3";
+  var RK_VERSION = "0.14.4";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -725,6 +731,7 @@
     tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
     icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
     posteo: ["posteo.de", 587, "starttls", "Posteo"],
+    einsundeins: ["smtp.1und1.de", 587, "starttls", "1&1"],
     ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"]
   };
   var RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
@@ -854,7 +861,12 @@
   .mf > span { color: var(--primary-text-color); } .mf small { display:block; color: var(--secondary-text-color); font-size:.8rem; }
   .mf .inp, .mf .sel { width:100%; box-sizing:border-box; text-align:left; }
   .mf .segs { align-self:flex-start; }
-  .mailact { display:flex; justify-content:flex-end; }
+  .mailact { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+  .msteps { display:flex; flex-direction:column; gap:6px; }
+  .mstep { display:flex; gap:10px; align-items:flex-start; padding:8px 10px; border-radius:10px; font-size:.88rem; line-height:1.35; color: var(--primary-text-color); }
+  .mstep > b { flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:.75rem; }
+  .mstep.ok { background: color-mix(in srgb, var(--rk-ok) 10%, transparent); } .mstep.ok > b { background: var(--rk-ok); }
+  .mstep.bad { background: color-mix(in srgb, var(--rk-cold, #e5484d) 10%, transparent); } .mstep.bad > b { background: var(--rk-cold, #e5484d); }
   .hint.okmsg { color: var(--rk-ok); font-weight:600; } .hint.errmsg { color: var(--rk-cold, #e5484d); font-weight:600; }
   .helpbox { margin:-4px 0 10px; padding:10px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; color: var(--primary-text-color);
     background: color-mix(in srgb, var(--g, var(--rk-air)) 10%, var(--card-background-color, #fff)); border-left:3px solid var(--g, var(--rk-air)); }
@@ -2414,7 +2426,8 @@
           <label class="mf"><span>${t("Verschlüsselung")}</span><div class="segs">${["starttls", "ssl", "none"].map((v) => `<button class="${v === sec ? "on" : ""}" data-mailsec="${v}" ${dis}>${{ starttls: "STARTTLS", ssl: "SSL/TLS", none: t("keine") }[v]}</button>`).join("")}</div></label>
           ${field("mail_from", "Absender", "email", "", "leer = Benutzer")}
         </details>
-        <div class="mailact"><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
+        <div class="mailact"><button class="btn" data-mailcheck ${dis}><ha-icon icon="mdi:shield-check-outline"></ha-icon>${t("Zugang prüfen")}</button><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
+        ${this._mailSteps ? `<div class="msteps">${this._mailSteps.map((s) => `<div class="mstep ${s.ok ? "ok" : "bad"}"><b>${s.ok ? "✓" : "✕"}</b><span><b>${esc(t({ connect: "Server erreichbar", tls: "Verschlüsselung", login: "Anmeldung", recipients: "Empfänger" }[s.step] || s.step))}</b> – ${esc(s.msg)}</span></div>`).join("")}</div>` : ""}
         ${this._mailMsg ? `<div class="hint ${this._mailMsg[0]}">${esc(this._mailMsg[1])}</div>` : ""}
         <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
       </div></details>`;
@@ -2603,7 +2616,33 @@
         this._mailForm = { ...this._mailForm || {}, mail_security: el.dataset.mailsec };
         this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b === el));
       }));
+      const mailSettings = () => {
+        const f = { ...this._mailForm || {} };
+        const out = {};
+        for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+          if (f[k] === void 0) continue;
+          out[k] = k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
+        }
+        return out;
+      };
+      $("[data-mailcheck]").forEach((el) => el.addEventListener("click", async () => {
+        el.disabled = true;
+        this._mailSteps = null;
+        this._mailMsg = ["", t("Prüfe Zugang …")];
+        this._sig = null;
+        this._render();
+        try {
+          const r = await this._hass.callWS({ type: "raumklima/mail/test", send: false, settings: mailSettings(), ...this._homeMsg() });
+          this._mailSteps = r.steps;
+          this._mailMsg = r.ok ? ["okmsg", t("Alles in Ordnung – du kannst speichern und eine Test-Mail senden.")] : ["errmsg", t("Da stimmt noch etwas nicht – siehe oben.")];
+        } catch (e) {
+          this._mailMsg = ["errmsg", t("Fehler: {e}", { e: e.message || e })];
+        }
+        this._sig = null;
+        this._render();
+      }));
       $("[data-mailsave]").forEach((el) => el.addEventListener("click", async () => {
+        this._mailSteps = null;
         const f = { ...this._mailForm || {} };
         const changes = { report_email: "raumklima" };
         for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
