@@ -50,6 +50,7 @@ from .const import (
     CONF_COLD_SNAP_TEMP,
     CONF_COMFORT_TEMP,
     CONF_ENTRY_TYPE,
+    CONF_EXTRA_TRVS,
     CONF_FOLLOW_TRV,
     CONF_FROST_FLOOR,
     CONF_HEATING_LIMIT,
@@ -229,6 +230,9 @@ def _devices_schema(defaults: dict[str, Any], *, with_name: bool) -> vol.Schema:
             vol.Optional(
                 CONF_WINDOWS, description=_suggest(defaults.get(CONF_WINDOWS))
             ): EntitySelector(EntitySelectorConfig(domain="binary_sensor", multiple=True)),
+            vol.Optional(
+                CONF_EXTRA_TRVS, description=_suggest(defaults.get(CONF_EXTRA_TRVS))
+            ): EntitySelector(EntitySelectorConfig(domain="climate", multiple=True)),
         }
     )
     return vol.Schema(fields)
@@ -458,6 +462,8 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if user_input[CONF_TEMP_SENSOR] == self._data[CONF_TRV]:
                 errors[CONF_TEMP_SENSOR] = "same_entity"
+            elif self._data[CONF_TRV] in (user_input.get(CONF_EXTRA_TRVS) or []):
+                errors[CONF_EXTRA_TRVS] = "extra_is_main"
             else:
                 self._data.update(user_input)
                 return await self.async_step_room()
@@ -545,13 +551,18 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
         return {**DEFAULTS, **self.config_entry.data, **self.config_entry.options}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
         if user_input is not None:
             user_input.setdefault(CONF_HUMIDITY_SENSOR, None)
             user_input.setdefault(CONF_WINDOWS, [])
-            self._options.update(user_input)
-            return await self.async_step_room()
+            user_input.setdefault(CONF_EXTRA_TRVS, [])
+            if user_input.get(CONF_TRV) in user_input[CONF_EXTRA_TRVS]:
+                errors[CONF_EXTRA_TRVS] = "extra_is_main"
+            else:
+                self._options.update(user_input)
+                return await self.async_step_room()
         return self.async_show_form(
-            step_id="init", data_schema=_devices_schema(self._current(), with_name=False)
+            step_id="init", data_schema=_devices_schema(user_input or self._current(), with_name=False), errors=errors
         )
 
     async def async_step_room(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:

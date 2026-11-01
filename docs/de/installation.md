@@ -20,7 +20,7 @@ Die Dashboard-Karten werden automatisch mitgeladen – keine extra Ressource nö
 **Einstellungen → Geräte & Dienste → Integration hinzufügen → Raumklima**
 
 1. **Thermostat** wählen.
-2. **Fühler & Fenster** – Raumklima schlägt Temperatur-, Feuchte- und CO₂-Fühler sowie Fensterkontakte aus demselben Bereich vor. Kurz prüfen, fertig.
+2. **Fühler & Fenster** – Raumklima schlägt Temperatur-, Feuchte- und CO₂-Fühler sowie Fensterkontakte aus demselben Bereich vor. Kurz prüfen, fertig. Mehrere Heizkörper im Raum? Die übrigen Thermostate unter **Weitere Thermostate im Raum** wählen – sie bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert. Fensterkontakte gehen beliebig viele (Pause, sobald eins offen ist).
 3. **Der Raum** – Raumtyp (setzt passende Standards), optional Wunschtemperatur und Absenkwerte. Technik (Kalibrierung, Preset, Verzögerungen) wird erkannt und liegt aufklappbar unter **Erweitert**.
 4. **Nur beim ersten Raum: Für die ganze Wohnung** – wer wohnt hier, Zone der Wohnung, wer bekommt Benachrichtigungen, Wetterquelle, Bauart.
 

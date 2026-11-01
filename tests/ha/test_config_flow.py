@@ -46,3 +46,17 @@ async def test_same_trv_twice_aborts(hass: HomeAssistant, setup) -> None:
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
 
+
+
+async def test_extra_thermostat_cannot_be_main(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    hass.states.async_set("climate.trv_bad_2", "heat", {})
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"trv": TRV})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"name": "Bad", "temperature_sensor": SENSOR, "extra_trvs": [TRV]}
+    )
+    assert result["errors"] == {"extra_trvs": "extra_is_main"}
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"name": "Bad", "temperature_sensor": SENSOR, "extra_trvs": ["climate.trv_bad_2"]}
+    )
+    assert result["step_id"] == "room"

@@ -21,6 +21,7 @@ CONF_TEMP_SENSOR: Final = "temperature_sensor"
 CONF_HUMIDITY_SENSOR: Final = "humidity_sensor"
 CONF_CO2_SENSOR: Final = "co2_sensor"
 CONF_WINDOWS: Final = "window_sensors"
+CONF_EXTRA_TRVS: Final = "extra_trvs"  # weitere Thermostate im selben Raum (laufen mit dem Haupt-Thermostat mit)
 CONF_CALIBRATION_MODE: Final = "calibration_mode"
 CONF_CALIBRATION_ENTITY: Final = "calibration_entity"
 CONF_OFF_METHOD: Final = "off_method"

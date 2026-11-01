@@ -64,7 +64,7 @@ class SyncSensor(RaumklimaEntity, SensorEntity):
 
     @property
     def native_value(self) -> str:
-        return self.controller.sync.state
+        return self.controller.sync_state
 
     @property
     def extra_state_attributes(self) -> dict:

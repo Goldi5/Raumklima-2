@@ -38,6 +38,8 @@
 
 | Setting | Default | Meaning |
 |---|---|---|
+| Further thermostats | – | further `climate` thermostats in the same room (`extra_trvs`); follow the main thermostat, own offset/setpoint compensation |
+| Window contacts | – | any number; pause as soon as one is open |
 | Room type | living room | sets defaults for desired temperature, minimum temperature, humidity, setback |
 | Desired temperature | by room type | living/children's room 20 · kitchen 19 · bathroom 22 · bedroom/rarely used 17 °C |
 | Setback “briefly away” | 18 °C (bedroom, rarely used: 16) | |

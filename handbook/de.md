@@ -58,7 +58,7 @@ Schalte vorher die eingebaute Fenstererkennung deines Thermostats aus (falls es 
 Gehe zu **Einstellungen → Geräte & Dienste → Integration hinzufügen** und wähle **Raumklima**.
 
 1. **Thermostat wählen** – das Thermostat am Heizkörper.
-2. **Fühler & Fenster** – Raumklima schlägt Fühler und Fensterkontakte aus demselben Raum vor. Kurz prüfen, weiter.
+2. **Fühler & Fenster** – Raumklima schlägt Fühler und Fensterkontakte aus demselben Raum vor. Kurz prüfen, weiter. Hat der Raum **mehrere Heizkörper**, die übrigen Thermostate bei **Weitere Thermostate im Raum** auswählen. Fensterkontakte gehen beliebig viele.
 3. **Der Raum** – wähle den **Raumtyp** (Wohnzimmer, Schlafzimmer, Bad …). Damit sind alle Werte schon sinnvoll eingestellt. Die Technik unter *Erweitert* kannst du in Ruhe lassen.
 4. **Für die ganze Wohnung** (nur beim ersten Raum) – wer wohnt hier, welche Zone ist die Wohnung, wer bekommt Nachrichten, woher kommt das Wetter.
 

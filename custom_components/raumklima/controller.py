@@ -33,6 +33,7 @@ from .const import (
     CONF_CALIBRATION_MODE,
     CONF_CO2_SENSOR,
     CONF_COMFORT_TEMP,
+    CONF_EXTRA_TRVS,
     CONF_FOLLOW_TRV,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
@@ -115,6 +116,7 @@ from .planning import (
     setback_defaults,
     setback_target,
 )
+from .room_extra_trvs import ExtraTrv
 from .room_health import HealthMixin
 from .room_lights import LightSignal
 from .room_presence import PresenceMixin
@@ -173,6 +175,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.humidity_sensor: str | None = self.config.get(CONF_HUMIDITY_SENSOR)
         self.co2_sensor: str | None = self.config.get(CONF_CO2_SENSOR) or None
         self.windows: list[str] = list(self.config.get(CONF_WINDOWS) or [])
+        self._extra_ids: list[str] = [e for e in (self.config.get(CONF_EXTRA_TRVS) or []) if e and e != self.config[CONF_TRV]]
         self.cal_mode: str = self.config[CONF_CALIBRATION_MODE]
         self.cal_entity: str | None = self.config.get(CONF_CALIBRATION_ENTITY)
         if self.cal_mode == CAL_OFFSET and not self.cal_entity:
@@ -240,6 +243,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
         self.vent = VentilationManager(self, None)
         self.lights = LightSignal(self)
+        self.extra_trvs = [ExtraTrv(self, e) for e in self._extra_ids]
         self.sync = SyncManager(
             schedule=self._schedule,
             run_task=lambda coro: hass.async_create_task(coro),
@@ -276,9 +280,11 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
         self.vent.load((stored or {}).get("vent"))
         self.valve_sensor = self._find_valve_sensor()
+        for extra in self.extra_trvs:
+            extra.discover()
         self._batteries = self._find_batteries()
 
-        tracked = [self.trv, self.temp_sensor, *self.windows]
+        tracked = [self.trv, self.temp_sensor, *self.windows, *(e for x in self.extra_trvs for e in x.tracked())]
         if self.humidity_sensor:
             tracked.append(self.humidity_sensor)
         if self.co2_sensor:
@@ -336,6 +342,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 setattr(self, attr, None)
         self.sync.cancel_all()
         self.lights.stop()
+        for extra in self.extra_trvs:
+            extra.stop()
         self.stop_presence()
         if self.vent:
             self.vent.async_stop()
@@ -393,6 +401,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "room_eco_enabled": self.room_eco_enabled(),
             "room_eco_after": self.room_eco_after,
             "room_eco_drop": self.room_eco_drop,
+            "extra_trvs": [x.summary() for x in self.extra_trvs],
             "signal_lights": self.lights.lights,
             "light_signals": self.lights.signals,
             "virtual_active": self.virtual_enabled(),
@@ -752,6 +761,12 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self._on_trv(old, new)
         elif entity_id == self.cal_entity:
             self.sync.check_all()
+        else:
+            for extra in self.extra_trvs:
+                if entity_id in extra.tracked():
+                    extra.sync.check_all()
+                    if self.cal_mode == CAL_OFFSET and entity_id == extra.entity_id and old is not None and new is not None and old.attributes.get("current_temperature") != new.attributes.get("current_temperature"):
+                        self.hass.async_create_task(extra.calibrate())
         if self.vent:
             self.vent.update()
         self._notify()
@@ -899,6 +914,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                         lambda: self._call_climate("set_temperature", temperature=low),
                         lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
                     )
+                await self._apply_extras(False, method)
                 return
 
             # --- an: zuerst Modus, dann Sollwert
@@ -949,6 +965,27 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                     self._trv_attr(ATTR_TEMPERATURE), setpoint, SETPOINT_MATCH_TOLERANCE
                 ),
             )
+            await self._apply_extras(True, method)
+
+    async def _apply_extras(self, want_on: bool, method: str) -> None:
+        """Weitere Thermostate im Raum auf denselben Stand bringen."""
+        if not self.extra_trvs:
+            return
+        target = self.effective_target
+        for extra in self.extra_trvs:
+            try:
+                await extra.apply(want_on, method, target)
+            except Exception as err:  # noqa: BLE001 – ein Heizkörper darf die anderen nicht aufhalten
+                _LOGGER.warning("%s: weiteres Thermostat %s: %s", self.name, extra.entity_id, err)
+
+    @property
+    def sync_state(self) -> str:
+        """Übertragung über alle Thermostate: failed > pending > ok."""
+        states = [self.sync.state, *(x.sync.state for x in self.extra_trvs)]
+        for s in ("failed", "pending"):
+            if s in states:
+                return s
+        return "ok"
 
     # ================================================================ Protokoll
     def _log_plan(self, on: bool, target: float, reason: str) -> None:

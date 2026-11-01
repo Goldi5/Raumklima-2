@@ -59,7 +59,7 @@ class HealthMixin:
         ents = er.async_get(self.hass)
         devs = dr.async_get(self.hass)
         found: dict[str, str] = {}
-        for entity_id in [self.trv, self.temp_sensor, self.humidity_sensor, *self.windows]:
+        for entity_id in [self.trv, *getattr(self, "_extra_ids", []), self.temp_sensor, self.humidity_sensor, *self.windows]:
             entry = ents.async_get(entity_id) if entity_id else None
             if entry is None or entry.device_id is None:
                 continue
@@ -74,10 +74,14 @@ class HealthMixin:
 
     @property
     def valve_position(self) -> float | None:
-        if not self.valve_sensor:
-            return None
-        state = self.hass.states.get(self.valve_sensor)
-        return to_float(state.state) if state else None
+        """Ventilstellung – bei mehreren Heizkörpern der Mittelwert."""
+        values = []
+        if self.valve_sensor:
+            state = self.hass.states.get(self.valve_sensor)
+            values.append(to_float(state.state) if state else None)
+        values += [x.valve for x in getattr(self, "extra_trvs", [])]
+        values = [v for v in values if v is not None]
+        return round(sum(values) / len(values), 1) if values else None
 
     # ================================================================ Bericht & Gesundheit
     def stats_sample(self) -> RoomSample:
@@ -169,6 +173,8 @@ class HealthMixin:
         ):
             if check is not None:
                 issues.append(check)
+        for extra in getattr(self, "extra_trvs", []):
+            issues += extra.issues()
         return issues
 
     @property

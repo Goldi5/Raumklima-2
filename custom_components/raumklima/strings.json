@@ -20,13 +20,15 @@
           "temperature_sensor": "External temperature sensor",
           "humidity_sensor": "Humidity sensor (optional)",
           "window_sensors": "Window/door contacts (optional)",
-          "co2_sensor": "CO₂ sensor (optional)"
+          "co2_sensor": "CO₂ sensor (optional)",
+          "extra_trvs": "Further thermostats in this room (optional)"
         },
         "data_description": {
           "trv": "The real thermostat on the radiator.",
           "temperature_sensor": "Used for control instead of the sensor at the radiator.",
           "window_sensors": "If any is open, heating is paused.",
-          "co2_sensor": "Above 1000 ppm the airing assistant asks you to air the room."
+          "co2_sensor": "Above 1000 ppm the airing assistant asks you to air the room.",
+          "extra_trvs": "For rooms with several radiators: these thermostats get the same commands as the main thermostat, each with its own check and correction."
         }
       },
       "room": {
@@ -88,7 +90,8 @@
     "error": {
       "calibration_entity_required": "The offset calibration type needs a calibration entity.",
       "same_entity": "Sensor and thermostat must differ.",
-      "invalid_date": "Please use MM-DD, e.g. 10-01."
+      "invalid_date": "Please use MM-DD, e.g. 10-01.",
+      "extra_is_main": "The main thermostat can't also be a further thermostat."
     },
     "abort": {
       "already_configured": "This thermostat is already assigned to a room."
@@ -103,13 +106,15 @@
           "temperature_sensor": "External temperature sensor",
           "humidity_sensor": "Humidity sensor (optional)",
           "window_sensors": "Window/door contacts (optional)",
-          "co2_sensor": "CO₂ sensor (optional)"
+          "co2_sensor": "CO₂ sensor (optional)",
+          "extra_trvs": "Further thermostats in this room (optional)"
         },
         "data_description": {
           "trv": "The real thermostat on the radiator.",
           "temperature_sensor": "Used for control instead of the sensor at the radiator.",
           "window_sensors": "If any is open, heating is paused.",
-          "co2_sensor": "Above 1000 ppm the airing assistant asks you to air the room."
+          "co2_sensor": "Above 1000 ppm the airing assistant asks you to air the room.",
+          "extra_trvs": "For rooms with several radiators: these thermostats get the same commands as the main thermostat, each with its own check and correction."
         }
       },
       "room": {
@@ -234,7 +239,8 @@
     "error": {
       "calibration_entity_required": "The offset calibration type needs a calibration entity.",
       "same_entity": "Sensor and thermostat must differ.",
-      "invalid_date": "Please use MM-DD, e.g. 10-01."
+      "invalid_date": "Please use MM-DD, e.g. 10-01.",
+      "extra_is_main": "The main thermostat can't also be a further thermostat."
     }
   },
   "selector": {

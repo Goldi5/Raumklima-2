@@ -60,7 +60,7 @@ First turn off your thermostat's built-in window detection (if it has one) and d
 Go to **Settings → Devices & services → Add integration** and choose **Raumklima**.
 
 1. **Choose the thermostat** – the one on the radiator.
-2. **Sensors & windows** – Raumklima suggests sensors and window contacts from the same room. Check them, continue.
+2. **Sensors & windows** – Raumklima suggests sensors and window contacts from the same room. Check them, continue. If the room has **several radiators**, choose the other thermostats under **Further thermostats in this room**. Any number of window contacts is fine.
 3. **The room** – choose the **room type** (living room, bedroom, bathroom …). This sets all values sensibly. You can leave the technical settings under *Advanced* alone.
 4. **For the whole home** (first room only) – who lives here, which zone is your home, who gets messages, where the weather comes from.
 

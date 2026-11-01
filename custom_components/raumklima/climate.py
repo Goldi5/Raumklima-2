@@ -96,7 +96,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "paused_by_window": c.paused,
             "trv_temperature": c.trv_temperature,
             "offset": c.offset,
-            "sync": c.sync.state,
+            "sync": c.sync_state,
             "valve_position": c.valve_position,
             "comfort_temperature": c.comfort_temp,
             "temperature_sensor": c.temp_sensor,

@@ -8,6 +8,9 @@ Jedes Heizkörperthermostat, das in Home Assistant als „Klima“-Gerät (`clim
 ### Brauche ich unbedingt einen extra Temperaturfühler?
 Ja, pro Raum einen. Das Thermostat selbst misst direkt am warmen Heizkörper und liegt deshalb oft daneben. Ein einfacher Zigbee-Fühler (z. B. von IKEA oder Aqara) irgendwo mitten im Raum reicht.
 
+### Mein Raum hat mehrere Heizkörper und Fenster – geht das?
+Ja. Beim Einrichten (oder später unter *Geräte & Technik ändern* → Zahnrad beim Raum) das erste Thermostat als Haupt-Thermostat wählen und die anderen unter **Weitere Thermostate im Raum**. Alle bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert. Fensterkontakte gehen beliebig viele – die Heizung pausiert, sobald eins offen ist.
+
 ### Sind Fensterkontakte Pflicht?
 Nein. Ohne Kontakt erkennt Raumklima ein offenes Fenster am plötzlichen Temperatursturz. Mit Kontakt geht es aber schneller und zuverlässiger.
 

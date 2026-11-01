@@ -8,6 +8,9 @@ Every radiator thermostat that shows up in Home Assistant as a “climate” dev
 ### Do I really need an extra temperature sensor?
 Yes, one per room. The thermostat itself measures right next to the hot radiator and is often off. A simple Zigbee sensor (e.g. from IKEA or Aqara) somewhere in the middle of the room is enough.
 
+### My room has several radiators and windows – does that work?
+Yes. During setup (or later under *Change devices & technical settings* → gear icon of the room) pick the first thermostat as main thermostat and the others under **Further thermostats in this room**. All get the same commands, each with its own check and correction. Any number of window contacts works – heating pauses as soon as one is open.
+
 ### Are window contacts required?
 No. Without a contact, Raumklima detects an open window from a sudden temperature drop. A contact is faster and more reliable, though.
 

@@ -20,13 +20,15 @@
           "temperature_sensor": "Externer Temperaturfühler",
           "humidity_sensor": "Luftfeuchte-Sensor (optional)",
           "window_sensors": "Fenster-/Türkontakte (optional)",
-          "co2_sensor": "CO₂-Sensor (optional)"
+          "co2_sensor": "CO₂-Sensor (optional)",
+          "extra_trvs": "Weitere Thermostate im Raum (optional)"
         },
         "data_description": {
           "trv": "Das echte Thermostat am Heizkörper.",
           "temperature_sensor": "Danach wird geregelt – nicht nach dem Sensor am Heizkörper.",
           "window_sensors": "Ist einer offen, wird die Heizung pausiert.",
-          "co2_sensor": "Ab 1000 ppm bittet der Lüftungsassistent ums Lüften."
+          "co2_sensor": "Ab 1000 ppm bittet der Lüftungsassistent ums Lüften.",
+          "extra_trvs": "Für Räume mit mehreren Heizkörpern: Diese Thermostate bekommen dieselben Befehle wie das Haupt-Thermostat – jedes mit eigener Prüfung und eigenem Korrekturwert."
         }
       },
       "room": {
@@ -88,7 +90,8 @@
     "error": {
       "calibration_entity_required": "Für die Kalibrierart Offset wird eine Kalibrier-Entität benötigt.",
       "same_entity": "Fühler und Thermostat müssen verschieden sein.",
-      "invalid_date": "Bitte als MM-TT eingeben, z. B. 10-01."
+      "invalid_date": "Bitte als MM-TT eingeben, z. B. 10-01.",
+      "extra_is_main": "Das Haupt-Thermostat kann nicht zugleich ein weiteres Thermostat sein."
     },
     "abort": {
       "already_configured": "Dieses Thermostat ist schon einem Raum zugeordnet."
@@ -103,13 +106,15 @@
           "temperature_sensor": "Externer Temperaturfühler",
           "humidity_sensor": "Luftfeuchte-Sensor (optional)",
           "window_sensors": "Fenster-/Türkontakte (optional)",
-          "co2_sensor": "CO₂-Sensor (optional)"
+          "co2_sensor": "CO₂-Sensor (optional)",
+          "extra_trvs": "Weitere Thermostate im Raum (optional)"
         },
         "data_description": {
           "trv": "Das echte Thermostat am Heizkörper.",
           "temperature_sensor": "Danach wird geregelt – nicht nach dem Sensor am Heizkörper.",
           "window_sensors": "Ist einer offen, wird die Heizung pausiert.",
-          "co2_sensor": "Ab 1000 ppm bittet der Lüftungsassistent ums Lüften."
+          "co2_sensor": "Ab 1000 ppm bittet der Lüftungsassistent ums Lüften.",
+          "extra_trvs": "Für Räume mit mehreren Heizkörpern: Diese Thermostate bekommen dieselben Befehle wie das Haupt-Thermostat – jedes mit eigener Prüfung und eigenem Korrekturwert."
         }
       },
       "room": {
@@ -234,7 +239,8 @@
     "error": {
       "calibration_entity_required": "Für die Kalibrierart Offset wird eine Kalibrier-Entität benötigt.",
       "same_entity": "Fühler und Thermostat müssen verschieden sein.",
-      "invalid_date": "Bitte als MM-TT eingeben, z. B. 10-01."
+      "invalid_date": "Bitte als MM-TT eingeben, z. B. 10-01.",
+      "extra_is_main": "Das Haupt-Thermostat kann nicht zugleich ein weiteres Thermostat sein."
     }
   },
   "selector": {

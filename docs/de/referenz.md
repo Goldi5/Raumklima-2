@@ -33,6 +33,8 @@
 
 | Einstellung | Standard | Bedeutung |
 |---|---|---|
+| Weitere Thermostate | – | weitere `climate`-Thermostate im selben Raum (`extra_trvs`); laufen mit dem Haupt-Thermostat mit, eigener Offset/Sollwert-Ausgleich |
+| Fensterkontakte | – | beliebig viele; Pause, sobald einer offen ist |
 | Raumtyp | Wohnraum | setzt Standards für Wunsch, Mindesttemperatur, Feuchte, Absenkung |
 | Wunschtemperatur | nach Raumtyp | Wohnraum/Kinderzimmer 20 · Küche 19 · Bad 22 · Schlafzimmer/selten genutzt 17 °C |
 | Absenkung „kurz weg“ | 18 °C (Schlafzimmer, selten genutzt: 16) | |

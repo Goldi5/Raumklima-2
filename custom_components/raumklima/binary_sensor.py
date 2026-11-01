@@ -60,7 +60,7 @@ class ProblemSensor(RaumklimaEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         c = self.controller
-        if c.status in (STATUS_SENSOR, STATUS_TRV) or c.sync.state == SYNC_FAILED:
+        if c.status in (STATUS_SENSOR, STATUS_TRV) or c.sync_state == SYNC_FAILED:
             return True
         return any(i.severity != "info" for i in c.issues)
 

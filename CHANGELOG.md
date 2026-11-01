@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.15.0 – 2026-11-01
+
+### Neu
+- **Mehrere Heizkörper pro Raum:** unter „Fühler & Fenster“ bzw. *Geräte & Technik ändern* weitere
+  Thermostate wählen. Sie bekommen dieselben Befehle wie das Haupt-Thermostat (an/aus, Preset, Sollwert) –
+  jedes mit eigener Prüfung und Wiederholung, eigenem Offset bzw. Sollwert-Ausgleich nach seiner eigenen
+  Temperatur und eigener Meldung im Gesundheitscheck, wenn es ausfällt. Ventilstellung als Mittelwert;
+  Übertragungsstatus über alle Thermostate. In der Einstellungskarte unter „Thermostat & Fühler“ sichtbar.
+- Klargestellt: beliebig viele Fensterkontakte pro Raum (Pause, sobald einer offen ist).
+
 ## 0.14.7 – 2026-11-01
 
 ### Behoben

@@ -289,6 +289,12 @@ class TrvMixin:
         return dt_util.utcnow() - self._last_cal_send >= timedelta(minutes=minutes)
 
     async def async_calibrate(self, force: bool = False) -> None:
+        """Offset für das Haupt-Thermostat und alle weiteren Thermostate im Raum."""
+        await self._calibrate_main(force)
+        for extra in getattr(self, "extra_trvs", []):
+            await extra.calibrate(force)
+
+    async def _calibrate_main(self, force: bool = False) -> None:
         """Automatischen Offset berechnen und senden."""
         if self.cal_mode != CAL_OFFSET or not self.cal_entity:
             if self.cal_mode == CAL_TARGET and force:

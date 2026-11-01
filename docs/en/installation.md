@@ -20,7 +20,7 @@ The dashboard cards are loaded automatically – no extra resource needed.
 **Settings → Devices & services → Add integration → Raumklima**
 
 1. Choose the **thermostat**.
-2. **Sensors & windows** – Raumklima suggests temperature, humidity and CO₂ sensors and window contacts from the same area. Check them, done.
+2. **Sensors & windows** – Raumklima suggests temperature, humidity and CO₂ sensors and window contacts from the same area. Check them, done. Several radiators in the room? Choose the other thermostats under **Further thermostats in this room** – they get the same commands, each with its own check and correction. Any number of window contacts works (pause as soon as one is open).
 3. **The room** – room type (sets sensible defaults), optionally the desired temperature and setback values. Technical settings (calibration, preset, delays) are detected automatically and live under **Advanced**.
 4. **First room only: for the whole home** – who lives here, the home zone, who receives notifications, weather source, building type.
 
