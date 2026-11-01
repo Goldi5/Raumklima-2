@@ -1,4 +1,4 @@
-/* Raumklima 0.14.5 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.6 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -523,7 +523,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.14.5";
+  var RK_VERSION = "0.14.6";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -626,6 +626,24 @@
     host._rkHold = setTimeout(() => {
       host.style.minHeight = "";
     }, 600);
+  }
+  var rkLastScroll = 0;
+  if (typeof window !== "undefined") {
+    const mark = () => {
+      rkLastScroll = Date.now();
+    };
+    for (const ev of ["scroll", "wheel", "touchmove"]) window.addEventListener(ev, mark, { capture: true, passive: true });
+  }
+  var rkScrolling = () => Date.now() - rkLastScroll < 600;
+  function rkLater(host, fn) {
+    clearTimeout(host._rkLater);
+    host._rkLater = setTimeout(() => rkScrolling() ? rkLater(host, fn) : fn(), 700);
+  }
+  function rkChanged(host, hass, ids) {
+    const refs = ids.map((id) => hass.states[id]);
+    const prev = host._rkRefs;
+    host._rkRefs = refs;
+    return !prev || prev.length !== refs.length || refs.some((r, i) => r !== prev[i]);
   }
   function rkBusy(host) {
     const a = host.shadowRoot && host.shadowRoot.activeElement;
@@ -1045,6 +1063,13 @@
     set hass(hass) {
       this._hass = hass;
       setLang(hass);
+      const st = hass.states[this._config.entity];
+      const ids = [this._config.entity, ...Object.values(this._siblings()), ...st && st.attributes.window_entities || []];
+      if (!rkChanged(this, hass, ids) && this.shadowRoot && this.shadowRoot.firstChild) return;
+      if (rkScrolling()) {
+        rkLater(this, () => this._render());
+        return;
+      }
       this._render();
     }
     _siblings() {
@@ -1235,10 +1260,17 @@
     set hass(hass) {
       this._hass = hass;
       setLang(hass);
+      const own = Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima").map((e) => e.entity_id);
+      const wins = own.filter((id) => id.startsWith("climate.")).flatMap((id) => hass.states[id] && hass.states[id].attributes.window_entities || []);
+      if (!rkChanged(this, hass, [...own, ...wins]) && this.shadowRoot && this.shadowRoot.firstChild) return;
+      if (rkScrolling()) {
+        rkLater(this, () => this._render());
+        return;
+      }
       this._render();
     }
     connectedCallback() {
-      this._timer = setInterval(() => this._render(), 3e4);
+      this._timer = setInterval(() => rkScrolling() ? null : this._render(), 3e4);
     }
     disconnectedCallback() {
       clearInterval(this._timer);
@@ -1986,6 +2018,10 @@
       ]);
       if (sig === this._sig) return;
       this._sig = sig;
+      if (rkScrolling()) {
+        rkLater(this, () => this._render());
+        return;
+      }
       this._render();
     }
     _renderSoon() {

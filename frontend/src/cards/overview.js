@@ -1,4 +1,4 @@
-import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -16,8 +16,17 @@ export class RaumklimaOverviewCard extends HTMLElement {
   setConfig(config) { this._config = config || {}; if (!this.shadowRoot) this.attachShadow({ mode: "open" }); }
   getCardSize() { return 4; }
   getGridOptions() { return { columns: 12, rows: "auto" }; }
-  set hass(hass) { this._hass = hass; setLang(hass); this._render(); }
-  connectedCallback() { this._timer = setInterval(() => this._render(), 30000); }
+  set hass(hass) {
+    this._hass = hass;
+    setLang(hass);
+    // nur bei Änderungen an Raumklima-Entitäten (und deren Fenstern) neu zeichnen
+    const own = Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima").map((e) => e.entity_id);
+    const wins = own.filter((id) => id.startsWith("climate.")).flatMap((id) => (hass.states[id] && hass.states[id].attributes.window_entities) || []);
+    if (!rkChanged(this, hass, [...own, ...wins]) && this.shadowRoot && this.shadowRoot.firstChild) return;
+    if (rkScrolling()) { rkLater(this, () => this._render()); return; }
+    this._render();
+  }
+  connectedCallback() { this._timer = setInterval(() => (rkScrolling() ? null : this._render()), 30000); }
   disconnectedCallback() { clearInterval(this._timer); }
 
   _render() {

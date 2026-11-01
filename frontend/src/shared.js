@@ -121,6 +121,24 @@ export function rkPaint(host, html) {
   clearTimeout(host._rkHold);
   host._rkHold = setTimeout(() => { host.style.minHeight = ""; }, 600);
 }
+// Scrollt jemand gerade? Dann nicht neu zeichnen – sonst kämpft das Neuzeichnen gegen das Scrollen.
+let rkLastScroll = 0;
+if (typeof window !== "undefined") {
+  const mark = () => { rkLastScroll = Date.now(); };
+  for (const ev of ["scroll", "wheel", "touchmove"]) window.addEventListener(ev, mark, { capture: true, passive: true });
+}
+export const rkScrolling = () => Date.now() - rkLastScroll < 600;
+export function rkLater(host, fn) {
+  clearTimeout(host._rkLater);
+  host._rkLater = setTimeout(() => (rkScrolling() ? rkLater(host, fn) : fn()), 700);
+}
+// Hat sich an den Entitäten dieser Karte etwas geändert? (Home Assistant ersetzt Zustandsobjekte bei Änderung)
+export function rkChanged(host, hass, ids) {
+  const refs = ids.map((id) => hass.states[id]);
+  const prev = host._rkRefs;
+  host._rkRefs = refs;
+  return !prev || prev.length !== refs.length || refs.some((r, i) => r !== prev[i]);
+}
 // Tippt oder wählt jemand gerade etwas in der Karte? Dann nicht neu zeichnen.
 export function rkBusy(host) {
   const a = host.shadowRoot && host.shadowRoot.activeElement;

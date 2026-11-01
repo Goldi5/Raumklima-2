@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.6 – 2026-11-01
+
+### Behoben
+- **Erste Seite ließ sich nicht scrollen** – sie sprang immer wieder nach oben. Raumkarten und Übersicht
+  zeichneten sich bei *jeder* Zustandsänderung in Home Assistant neu (jede Lampe, jeder Sensor –
+  mehrmals pro Sekunde). Jetzt nur noch, wenn sich am eigenen Raum etwas ändert (im Test: 180 → 0
+  unnötige Neuzeichnungen in 3 Sekunden). Während gescrollt wird, zeichnen die Karten gar nicht neu,
+  sondern holen es danach nach.
+
 ## 0.14.5 – 2026-11-01
 
 ### Geändert

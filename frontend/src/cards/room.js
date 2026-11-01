@@ -1,4 +1,4 @@
-import { STATUS, STYLES, VENT, fmt, humTone, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { STATUS, STYLES, VENT, fmt, humTone, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -33,6 +33,11 @@ export class RaumklimaCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     setLang(hass);
+    // nur neu zeichnen, wenn sich an diesem Raum etwas geändert hat – nicht bei jeder Lampe im Haus
+    const st = hass.states[this._config.entity];
+    const ids = [this._config.entity, ...Object.values(this._siblings()), ...((st && st.attributes.window_entities) || [])];
+    if (!rkChanged(this, hass, ids) && this.shadowRoot && this.shadowRoot.firstChild) return;
+    if (rkScrolling()) { rkLater(this, () => this._render()); return; }
     this._render();
   }
 
