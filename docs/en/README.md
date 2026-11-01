@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.10.1** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
+**Current version: 0.11.0** – see [CHANGELOG](../../CHANGELOG.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
@@ -29,6 +29,7 @@
 - **Heating season:** heating limit from the daily mean (measured + forecast), cold-snap rule, “heat today”, summer valve exercise; rooms on the sunny side heat 1 °C less when sun is forecast.
 - **Sleep times are learned** from night airing and lights – quiet hours adapt, weekends and public holidays (German states) separately.
 - **Notifications:** choose per recipient which messages they get; push with action buttons, quiet hours, optional voice announcements; **airing countdown on the lock screen** (iPhone Live Activity, Android Live Update).
+- **Presence sensors:** mmWave and PIR (PIR weighted more cautiously) – nobody is wrongly “away” while someone is home; empty rooms a little cooler if you like.
 - **Light signal:** lights in the room blink blue for “please air the room” and orange for “please close” – then back to how they were.
 - **Heating report** for week and month – heating hours, weather-adjusted comparison, savings from setback, comfort time; weekly push; **CSV export**.
 - **Health check:** batteries, “room doesn't warm up”, radiator can't keep up (hydraulic balancing), stuck or missing sensor, radio and connection dropouts, silent window contact, protection against endless loops with the thermostat.

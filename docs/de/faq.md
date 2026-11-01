@@ -48,6 +48,9 @@ Im Reiter **Protokoll** steht jede Entscheidung mit Uhrzeit und Begründung.
 ### Mein Handy zeigt manchmal falsche Orte (z. B. durch ein VPN).
 Unmögliche Sprünge und ungenaue Ortungen ignoriert Raumklima. Erst wenn ein neuer Ort 30 Minuten stabil bleibt, wird er übernommen.
 
+### Bringen Präsenzmelder etwas?
+Ja: Sieht ein **mmWave-Melder** jemanden, wird nicht abgesenkt – auch wenn alle Handys weg sind. Und einzelne Räume (z. B. Wohnzimmer) können etwas kühler werden, solange niemand drin ist. **PIR-Bewegungsmelder** gehen auch, gelten aber als unsicher: Sie sehen niemanden, der still sitzt, und Haustiere lösen sie aus. Darum wartet Raumklima bei PIR länger und lässt sie standardmäßig nicht über „jemand zu Hause“ entscheiden.
+
 ### Wir haben Besuch, der kein Handy in Home Assistant hat.
 Schalte **Gäste da** ein. Dann wird nicht abgesenkt, auch wenn alle Bewohner weg sind. Alternativ ein Kalendertermin mit „zu Hause“ oder „Homeoffice“ im Titel.
 

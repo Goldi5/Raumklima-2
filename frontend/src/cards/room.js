@@ -69,6 +69,8 @@ export class RaumklimaCard extends HTMLElement {
   _tick() {
     const since = this.shadowRoot && this.shadowRoot.querySelector("[data-since]");
     if (since && this._winSince) since.textContent = t("Fenster offen seit {c} · {d}", { c: rkClock(this._winSince), d: rkDuration(Date.now() - this._winSince) });
+    const empty = this.shadowRoot && this.shadowRoot.querySelector("[data-empty]");
+    if (empty && this._emptySince) empty.textContent = t(this._roomEco ? "Raum leer seit {d} – abgesenkt" : "Raum leer seit {d}", { d: rkDuration(Date.now() - this._emptySince) });
     const el = this.shadowRoot && this.shadowRoot.querySelector("[data-count]");
     if (!el || !this._openSince) return;
     const total = this._recMin * 60;
@@ -122,6 +124,8 @@ export class RaumklimaCard extends HTMLElement {
     const winOpen = a.window_open;
     this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
     this._winSince = rkOpenSince(this._hass, a);
+    this._emptySince = a.occupied === false && a.empty_since ? Date.parse(a.empty_since) : null;
+    this._roomEco = !!a.room_eco;
     this._recMin = a.recommended_minutes || 5;
 
     let banner = "";
@@ -162,6 +166,7 @@ export class RaumklimaCard extends HTMLElement {
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
         </div>
+        ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
           ${this._arc(a.current_temperature, target, isOff)}

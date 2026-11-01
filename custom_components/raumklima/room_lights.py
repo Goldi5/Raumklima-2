@@ -125,6 +125,8 @@ class LightSignal:
             return
         if self.c.night_airing:
             return  # jemand schläft bei offenem Fenster
+        if self.c.occupied is False:
+            return  # Präsenzmelder: niemand im Raum, der es sehen könnte
         self.start(signal)
 
     def start(self, signal: str) -> bool:

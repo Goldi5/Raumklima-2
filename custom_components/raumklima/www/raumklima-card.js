@@ -1,4 +1,4 @@
-/* Raumklima 0.10.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.11.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -406,7 +406,33 @@
     "{d} Tg. {h} h": "{d} d {h} h",
     "{h} h {m} min": "{h} h {m} min",
     "{n} min": "{n} min",
-    "{n} s": "{n} s"
+    "{n} s": "{n} s",
+    "Art": "Type",
+    "Jemand im Raum": "Someone in the room",
+    "Leeren Raum absenken": "Lower empty room",
+    "Melder": "Sensors",
+    "Melder hinzufügen": "Add sensor",
+    "PIR": "PIR",
+    "Präsenzmelder": "Presence sensors",
+    "Präsenzmelder zählen": "Presence sensors count",
+    "Raum leer · Ziel <b>{v} °C</b>": "Room empty · target <b>{v} °C</b>",
+    "gerade jemand in: {r}": "someone in: {r}",
+    "jemand im Raum": "someone in the room",
+    "leer": "empty",
+    "leer – abgesenkt": "empty – lowered",
+    "mmWave": "mmWave",
+    "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung": "mmWave (radar) also sees people sitting still · PIR only movement",
+    "mmWave + PIR": "mmWave + PIR",
+    "nur mmWave": "mmWave only",
+    "… um": "… by",
+    "… wenn leer seit": "… when empty for",
+    "Raum leer seit {d}": "Room empty for {d}",
+    "Raum leer seit {d} – abgesenkt": "Room empty for {d} – lowered",
+    "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie": "if a sensor sees someone, no setback – PIR also triggers on pets, so mmWave only by default; sensors never count during vacation",
+    "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung": "Automatic: motion = PIR, presence/occupancy = mmWave. Empty after 3 min (mmWave) or 20 min (PIR) without detection",
+    "Automatisch: ja (mmWave, passender Raumtyp)": "Automatic: yes (mmWave, suitable room type)",
+    "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave": "Automatic: no – only living room, kitchen, rarely used and only with mmWave",
+    "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück": "never below “briefly away” and mould protection; back immediately when someone comes in"
   };
 
   // src/i18n.js
@@ -437,7 +463,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.10.1";
+  var RK_VERSION = "0.11.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -492,6 +518,7 @@
     if ((r === "away_short" || r === "away_long") && a.effective_target != null)
       return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
     if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
+    if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
   }
@@ -541,6 +568,8 @@
   .wins .open { color: var(--rk-air); }
   .since { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:.85rem; font-weight:600; color:var(--rk-air); font-variant-numeric:tabular-nums; }
   .since ha-icon { --mdc-icon-size:16px; }
+  .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
+  .since.occ.in { color:var(--rk-ok); }
   .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }
@@ -621,6 +650,8 @@
   var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
   var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
   var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+  var RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
+  var RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
   var RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
   var RK_KINDS = tmap({
     vent_open: ["💧", "Bitte lüften"],
@@ -751,6 +782,7 @@
   .chips { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
   .chip2 { all:unset; display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.9rem; font-weight:600; background: color-mix(in srgb, var(--c, var(--rk-air)) 14%, transparent); color: var(--primary-text-color); }
   button.chip2 { cursor:pointer; }
+  .chip2 .kb { font-size:.68rem; font-weight:700; padding:1px 6px; border-radius:6px; background: color-mix(in srgb, var(--primary-text-color) 10%, transparent); color: var(--secondary-text-color); }
   .chip2 i { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-air)); }
   .chip2.off { opacity:.45; }
   .chip2.strike { opacity:.45; text-decoration: line-through; }
@@ -923,6 +955,8 @@
     _tick() {
       const since = this.shadowRoot && this.shadowRoot.querySelector("[data-since]");
       if (since && this._winSince) since.textContent = t("Fenster offen seit {c} · {d}", { c: rkClock(this._winSince), d: rkDuration(Date.now() - this._winSince) });
+      const empty = this.shadowRoot && this.shadowRoot.querySelector("[data-empty]");
+      if (empty && this._emptySince) empty.textContent = t(this._roomEco ? "Raum leer seit {d} – abgesenkt" : "Raum leer seit {d}", { d: rkDuration(Date.now() - this._emptySince) });
       const el = this.shadowRoot && this.shadowRoot.querySelector("[data-count]");
       if (!el || !this._openSince) return;
       const total = this._recMin * 60;
@@ -979,6 +1013,8 @@
       const winOpen = a.window_open;
       this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
       this._winSince = rkOpenSince(this._hass, a);
+      this._emptySince = a.occupied === false && a.empty_since ? Date.parse(a.empty_since) : null;
+      this._roomEco = !!a.room_eco;
       this._recMin = a.recommended_minutes || 5;
       let banner = "";
       if (vent && a.ventilation !== "ok") {
@@ -1010,6 +1046,7 @@
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
         </div>
+        ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
           ${this._arc(a.current_temperature, target, isOff)}
@@ -1105,6 +1142,7 @@
         const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
         return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
+          ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => {
           const s2 = rkOpenSince(this._hass, a);
           return s2 ? `<span title="${t("offen seit {c}", { c: rkClock(s2) })}">${rkDuration(Date.now() - s2)}</span>` : "";
@@ -1134,6 +1172,7 @@
       .dot { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:var(--tone); background: color-mix(in srgb, var(--tone) 16%, transparent); }
       .dot ha-icon { --mdc-icon-size:20px; }
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
+      .occ { color: var(--rk-ok); --mdc-icon-size:18px; margin-left:auto; margin-right:6px; }
       .wopen { display:inline-flex; align-items:center; gap:4px; color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
       .rn { font-weight:650; color:var(--primary-text-color); }
       .rs { font-size:.78rem; color: var(--tone); font-weight:600; }
@@ -1691,6 +1730,11 @@
         this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
         this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
         this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
+        this._row(
+          "Präsenzmelder zählen",
+          this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
+          st.sensed && st.sensed.length ? t("gerade jemand in: {r}", { r: esc(st.sensed.join(", ")) }) : "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie"
+        ),
         this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
         this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
         this._row(
@@ -1877,6 +1921,7 @@
           (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig" : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")
         )
       ].join(""))}
+      ${this._presenceGroup(r, id, editable)}
       ${this._lightGroup(r, id, editable)}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
@@ -1899,6 +1944,39 @@
       <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>${t("Geräte & Technik ändern")}</button>
     </div>
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
+    }
+    _presenceGroup(r, id, editable) {
+      const a = r.attrs, s = a.settings || {};
+      const scope = `room:${id}`;
+      const kinds = s.presence_sensors || {};
+      const list = this._roomOpt(r, "presence_sensors") ?? Object.keys(kinds);
+      const all = this._cfg && this._cfg.choices && this._cfg.choices.presence || [];
+      const info = Object.fromEntries(all.map((x) => [x.id, x]));
+      const kindOf = (e) => kinds[e] || info[e] && info[e].kind || "pir";
+      const badge = (k) => `<b class="kb">${k === "mmwave" ? "mmWave" : "PIR"}</b>`;
+      const chips = list.map((e) => {
+        const on = this._st(e) && this._st(e).state === "on";
+        return `<span class="chip2" style="--c:${on ? "var(--rk-ok)" : "var(--rk-off)"}"><i></i>${esc(info[e] && info[e].name || this._name(e))} ${badge(kindOf(e))}${editable ? ` <button class="mini x" data-presrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`;
+      }).join("");
+      const avail = all.filter((x) => !list.includes(x.id));
+      const eco = this._roomOpt(r, "room_eco") ?? s.room_eco ?? "auto";
+      const after = this._roomOpt(r, "room_eco_after") ?? s.room_eco_after ?? 30;
+      const drop = this._roomOpt(r, "room_eco_drop") ?? s.room_eco_drop ?? 1.5;
+      const pk = this._roomOpt(r, "presence_kind") ?? s.presence_kind ?? "auto";
+      const state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt");
+      return this._grp("Präsenzmelder", "mdi:motion-sensor", "ok", [
+        list.length ? `<div class="status"><span class="chip" style="--tone:${a.occupied ? "var(--rk-ok)" : "var(--rk-off)"}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon>${state}</span></div>` : "",
+        this._row("Melder", `<div class="chips">${chips || this._v("keine", true)}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
+        editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "",
+        list.length ? this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung") : "",
+        list.length ? this._row(
+          "Leeren Raum absenken",
+          editable ? this._segs(scope, "room_eco", RK_NIGHT, eco) : this._v(RK_NIGHT[eco]),
+          eco === "auto" ? s.room_eco_enabled ? "Automatisch: ja (mmWave, passender Raumtyp)" : "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave" : ""
+        ) : "",
+        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… wenn leer seit", editable ? this._optStepper(scope, "room_eco_after", after, " min", 5, 5, 240) : this._v(`${after} min`)) : "",
+        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… um", editable ? this._optStepper(scope, "room_eco_drop", drop, " °C", 0.5, 0.5, 4, 1) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
+      ].join(""));
     }
     _lightGroup(r, id, editable) {
       const s = r.attrs.settings || {};
@@ -2023,6 +2101,18 @@
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
         const s = room && room.attrs.settings || {};
         return [...(room && this._roomOpt(room, key)) ?? s[key] ?? fallback];
+      };
+      $("[data-presrm]").forEach((el) => el.addEventListener("click", () => {
+        this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
+      }));
+      $("[data-presadd]").forEach((el) => el.addEventListener("click", () => {
+        const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
+        if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
+      }));
+      const roomPres = (entry) => {
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+        const local = room && this._roomOpt(room, "presence_sensors");
+        return [...local ?? Object.keys((room && room.attrs.settings || {}).presence_sensors || {})];
       };
       $("[data-lightrm]").forEach((el) => el.addEventListener("click", () => {
         this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);

@@ -66,6 +66,7 @@ export function planText(a, off) {
   if ((r === "away_short" || r === "away_long") && a.effective_target != null)
     return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
   if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
+  if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
 }
@@ -125,6 +126,8 @@ export const STYLES = `
   .wins .open { color: var(--rk-air); }
   .since { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:.85rem; font-weight:600; color:var(--rk-air); font-variant-numeric:tabular-nums; }
   .since ha-icon { --mdc-icon-size:16px; }
+  .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
+  .since.occ.in { color:var(--rk-ok); }
   .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }
@@ -206,6 +209,8 @@ export const RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hv
 export const RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
 export const RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
 export const RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+export const RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
+export const RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
 export const RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
 export const RK_KINDS = tmap({
   vent_open: ["💧", "Bitte lüften"],
@@ -339,6 +344,7 @@ export const SETTINGS_STYLES = `
   .chips { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
   .chip2 { all:unset; display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.9rem; font-weight:600; background: color-mix(in srgb, var(--c, var(--rk-air)) 14%, transparent); color: var(--primary-text-color); }
   button.chip2 { cursor:pointer; }
+  .chip2 .kb { font-size:.68rem; font-weight:700; padding:1px 6px; border-radius:6px; background: color-mix(in srgb, var(--primary-text-color) 10%, transparent); color: var(--secondary-text-color); }
   .chip2 i { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-air)); }
   .chip2.off { opacity:.45; }
   .chip2.strike { opacity:.45; text-decoration: line-through; }

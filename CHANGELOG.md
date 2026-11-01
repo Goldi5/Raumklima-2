@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.11.0 – 2026-11-01
+
+### Neu
+- **Präsenzmelder pro Raum** (*Einstellungen → Raum → Präsenzmelder*), mmWave und PIR mit
+  unterschiedlicher Gewichtung: mmWave gilt 3 min nach der letzten Meldung als leer, PIR erst nach
+  20 min (sieht keine Stillsitzenden). Art automatisch aus der Geräteklasse oder fest einstellbar.
+- **Jemand zu Hause:** Sieht ein Melder jemanden, wird nicht abgesenkt – auch ohne Handy.
+  Standardmäßig zählen nur mmWave-Melder (PIR reagiert auch auf Haustiere), einstellbar unter
+  *Allgemein → Anwesenheit*. Im Urlaub zählen Melder nie.
+- **Leeren Raum absenken:** nach 30 min leer 1,5 °C weniger (beides einstellbar), nie unter „kurz weg“
+  und den Schimmelschutz; sofort zurück, wenn jemand hereinkommt. „Automatisch“: nur Wohnraum, Küche,
+  selten genutzt und nur mit mmWave.
+- Raumkarte: „Jemand im Raum“ / „Raum leer seit … – abgesenkt“; Übersicht: Personen-Symbol.
+- Lichtsignal blinkt nicht in leeren Räumen.
+
 ## 0.10.1 – 2026-11-01
 
 ### Neu

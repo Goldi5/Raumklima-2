@@ -191,6 +191,30 @@ So richtest du es ein:
 Nachts in der Ruhezeit, beim Schlafen mit offenem Fenster und wenn niemand zu Hause ist, blinkt nichts. Lampen ohne Farbe blinken einfach hell.
 :::
 
+## Präsenzmelder: Wer ist im Raum?
+
+Mit Präsenzmeldern weiß Raumklima nicht nur, ob jemand zu Hause ist, sondern auch, **in welchem Raum**. Es gibt zwei Arten:
+
+| Was | **mmWave** (Radar) | **PIR** (Bewegungsmelder) |
+|---|---|---|
+| sieht | auch Stillsitzende und Schlafende | nur Bewegung |
+| Raum gilt als leer | nach 3 Minuten | erst nach 20 Minuten |
+| zählt für „jemand zu Hause“ | ja | nein (Haustiere!) – einstellbar |
+
+**mmWave ist deutlich zuverlässiger.** PIR geht auch, Raumklima ist damit aber vorsichtiger.
+
+So richtest du es ein:
+
+1. Dashboard → **Einstellungen** → Reiter des Raums.
+2. Bereich **Präsenzmelder** → Melder im Auswahlfeld wählen (dahinter steht mmWave oder PIR) → **Melder hinzufügen**.
+3. **Leeren Raum absenken:** *Automatisch* lässt Wohnraum, Küche und selten genutzte Räume nach 30 Minuten ohne jemanden 1,5 °C kühler werden – nur mit mmWave. Mit **Ja** gilt es auch für andere Räume oder für PIR.
+
+Die Raumkarte zeigt dann **„Jemand im Raum“** oder **„Raum leer seit 25 min“**. Kommt jemand herein, wird sofort wieder auf die Wunschtemperatur geheizt.
+
+:::tip
+Ein Melder im Wohnzimmer verhindert auch, dass Raumklima fälschlich „alle weg“ denkt – etwa wenn ein Handy aus ist oder Besuch allein da ist. Im Urlaub zählen die Melder nicht, die Katze beendet also nicht den Urlaub.
+:::
+
 ## Wenn alle weg sind
 
 Raumklima merkt über eure Handys, wenn niemand mehr zu Hause ist:
@@ -241,6 +265,7 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Raum → Temperatur** | Wunschtemperatur, Absenkung, Sonnenseite |
 | **Raum → Lüften & Feuchte** | ab welcher Feuchte gelüftet werden soll |
 | **Raum → Fenster** | Pause bei offenem Fenster, Schlafen bei offenem Fenster |
+| **Raum → Präsenzmelder** | Melder, leeren Raum absenken |
 | **Raum → Lichtsignal** | Lampen, die bei Hinweisen blinken |
 
 

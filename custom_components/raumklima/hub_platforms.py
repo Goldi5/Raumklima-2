@@ -37,6 +37,7 @@ class PresenceSensor(HubEntity, SensorEntity):
         s = self.hub.summary()
         return {
             "persons": s["persons"],
+            "sensed": s["sensed"],
             "home_id": self.hub.entry.entry_id,
             "home_name": self.hub.name,
             "home_dashboard": self.hub.dashboard,

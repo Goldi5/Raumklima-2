@@ -9,6 +9,7 @@
 | Absenken nach | 30 min | Wartezeit, bevor „kurz weg“ gilt |
 | „Länger weg“ ab | 24 h | danach Absenkung „länger“ |
 | Vorheizen ab | 10 km | Annäherung näher als das → vorheizen (0 = aus) |
+| Präsenzmelder zählen | nur mmWave | nur mmWave / mmWave + PIR / keine – sieht ein Melder jemanden, gilt die Wohnung als bewohnt (`home_sensors`) |
 | Kalender | – | `calendar.*`; laufender Termin mit „Urlaub“ o. ä. wirkt wie Urlaub, mit „Homeoffice“ o. ä. wie Gäste |
 | … wie Urlaub / … zu Hause | siehe [So funktioniert's](funktionsweise.md#5-abwesenheit) | Wörter, Komma-getrennt |
 | Bauart | Altbau saniert | Temperaturfaktor für den Schimmelschutz (0,60 / 0,70 / 0,80) |
@@ -34,6 +35,11 @@
 | Absenkung „kurz weg“ | 18 °C (Schlafzimmer, selten genutzt: 16) | |
 | Absenkung „länger weg“ | 16 °C | |
 | Sonnenseite | aus | bei erwarteter Sonne 1 °C weniger |
+| Präsenzmelder | – | `binary_sensor`-Entitäten (`presence_sensors`) |
+| Art der Melder | Automatisch | Automatisch / mmWave / PIR (`presence_kind`) |
+| Leeren Raum absenken | Automatisch | Automatisch (Wohnraum, Küche, selten genutzt – nur mit mmWave) / Ja / Nein (`room_eco`) |
+| … wenn leer seit | 30 min | `room_eco_after` |
+| … um | 1,5 °C | `room_eco_drop`; nie unter „kurz weg“ und Schimmelschutz |
 | Lichtsignal: Lampen | – | `light`-Entitäten, die bei Hinweisen blinken (`signal_lights`) |
 | Lichtsignal: Blinken bei | Bitte lüften, Bitte schließen | `light_signals`: `open`, `close`, `done`, `problem` |
 | CO₂-Sensor | – | optional; ab 1000 ppm „Bitte lüften“ |

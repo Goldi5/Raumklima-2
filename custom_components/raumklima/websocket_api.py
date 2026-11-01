@@ -22,6 +22,7 @@ from .const import (
     CONF_FROST_NIGHT,
     CONF_HEATING_LIMIT,
     CONF_HOME,
+    CONF_HOME_SENSORS,
     CONF_LIGHT_SIGNALS,
     CONF_LIGHTS,
     CONF_LONG_AWAY_HOURS,
@@ -30,8 +31,13 @@ from .const import (
     CONF_NIGHT_END,
     CONF_NIGHT_START,
     CONF_PREHEAT_KM,
+    CONF_PRESENCE,
+    CONF_PRESENCE_KIND,
     CONF_RECIPIENTS,
     CONF_RESIDENTS,
+    CONF_ROOM_ECO,
+    CONF_ROOM_ECO_AFTER,
+    CONF_ROOM_ECO_DROP,
     CONF_ROOM_TYPE,
     CONF_SEASON_END,
     CONF_SEASON_MODE,
@@ -46,15 +52,19 @@ from .const import (
     CONF_WINDOW_OPEN_DELAY,
     CONF_ZONE,
     DOMAIN,
+    HOME_SENSOR_MODES,
     HUB_DEFAULTS,
     KINDS,
     LIGHT_SIGNALS,
+    PRESENCE_KINDS,
+    ROOM_ECO_MODES,
     ROOM_TYPE_OPTIONS,
     SEASON_MODES,
 )
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
 from .hub import RaumklimaHub
+from .occupancy import sensor_kind
 from .planning import NIGHT_MODES, VIRT_MODES
 from .shared import all_hubs, domain_data, get_hub
 
@@ -124,6 +134,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_CALENDAR_AWAY): vol.All(str, vol.Length(max=300)),
         vol.Optional(CONF_CALENDAR_HOME): vol.All(str, vol.Length(max=300)),
         vol.Optional(CONF_FROST_NIGHT): bool,
+        vol.Optional(CONF_HOME_SENSORS): vol.In(HOME_SENSOR_MODES),
     }
 )
 
@@ -141,6 +152,11 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_SOLAR): bool,
         vol.Optional(CONF_LIGHTS): vol.All([vol.Match(r"^light\.")], vol.Length(max=10)),
         vol.Optional(CONF_LIGHT_SIGNALS): [vol.In(LIGHT_SIGNALS)],
+        vol.Optional(CONF_PRESENCE): vol.All([vol.Match(r"^binary_sensor\.")], vol.Length(max=6)),
+        vol.Optional(CONF_PRESENCE_KIND): vol.In(PRESENCE_KINDS),
+        vol.Optional(CONF_ROOM_ECO): vol.In(ROOM_ECO_MODES),
+        vol.Optional(CONF_ROOM_ECO_AFTER): vol.All(vol.Coerce(float), vol.Range(5, 240)),
+        vol.Optional(CONF_ROOM_ECO_DROP): vol.All(vol.Coerce(float), vol.Range(0.5, 4)),
     }
 )
 
@@ -169,6 +185,14 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
         "lights": ents("light"),
+        "presence": sorted(
+            (
+                {"id": s.entity_id, "name": s.name, "kind": sensor_kind(s.attributes.get("device_class"))}
+                for s in hass.states.async_all("binary_sensor")
+                if s.attributes.get("device_class") in ("motion", "occupancy", "presence")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
         "states": [{"id": k, "name": v} for k, v in STATES.items()],
     }
 

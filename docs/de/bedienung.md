@@ -9,6 +9,7 @@
 **Raumkarte:**
 - Der **Bogen** zeigt die Ist-Temperatur, der **Knopf** das Ziel. Mit **−/+** in 0,5-°C-Schritten, mit **⏻** an/aus.
 - Unter der Temperatur steht, was gerade gilt: *Ziel 20 °C*, *Abgesenkt 18 °C · Wunsch 20°*, *Heizpause* oder *Frostschutz*.
+- Mit Präsenzmelder steht unter dem Namen **„Jemand im Raum“** oder **„Raum leer seit 25 min“** (bzw. „– abgesenkt“); in der Übersicht zeigt ein Personen-Symbol besetzte Räume.
 - Ist ein Fenster offen, steht unter dem Namen **„Fenster offen seit 14:32 · 12 min“** – die Dauer läuft live mit. In der Übersicht zeigt die Kachel die Dauer neben dem Fenster-Symbol.
 - Beim Lüften läuft ein **Countdown** mit der empfohlenen Lüftdauer.
 - Die Kacheln unten zeigen Feuchte, Taupunkt, Ventilstellung, Außenklima, Heizkörper-Temperatur und Offset.
@@ -83,7 +84,7 @@ Hier ist **alles zu sehen und direkt änderbar**:
 
 ![Allgemein komplett](../images/einstellungen-allgemein.png)
 
-**Je Raum:** Wunschtemperatur, Raumtyp, Absenkwerte, Feuchtegrenze, Mindesttemperatur und Abkühlung beim Lüften, Fensterlogik und Verzögerungen, **Lichtsignal** (Lampen, Farben, Test), Hinweise an/aus, Kalibrieren. Geräte und Technik über *Geräte & Technik ändern*.
+**Je Raum:** Wunschtemperatur, Raumtyp, Absenkwerte, Feuchtegrenze, Mindesttemperatur und Abkühlung beim Lüften, Fensterlogik und Verzögerungen, **Präsenzmelder** (Melder, Art, leeren Raum absenken), **Lichtsignal** (Lampen, Farben, Test), Hinweise an/aus, Kalibrieren. Geräte und Technik über *Geräte & Technik ändern*.
 
 ![Raum](../images/einstellungen-raum.png)
 

@@ -48,6 +48,9 @@ Through the Home Assistant app on the phone. A person counts as home as soon as 
 ### My phone sometimes shows wrong places (e.g. because of a VPN).
 Raumklima ignores impossible jumps and inaccurate fixes. A new location is only accepted after it has stayed stable for 30 minutes.
 
+### Are presence sensors worth it?
+Yes: if an **mmWave sensor** sees someone, there is no setback – even when all phones are away. And single rooms (e.g. the living room) can get a little cooler while nobody is in them. **PIR motion sensors** work too but count as less reliable: they don't see someone sitting still, and pets trigger them. That's why Raumklima waits longer with PIR and by default doesn't let them decide “someone is home”.
+
 ### We have visitors without a phone in Home Assistant.
 Turn on **Guests**. Then there is no setback even if all residents are away. Alternatively, a calendar event with “home office” or “zu Hause” in the title.
 

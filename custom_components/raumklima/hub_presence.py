@@ -15,6 +15,7 @@ from .const import (
     CONF_CALENDAR,
     CONF_CALENDAR_AWAY,
     CONF_CALENDAR_HOME,
+    CONF_HOME_SENSORS,
     CONF_LONG_AWAY_HOURS,
     CONF_PREHEAT_KM,
     KIND_PRESENCE,
@@ -23,6 +24,7 @@ from .decision_log import (
     CAT_PRESENCE,
 )
 from .logic import to_float
+from .occupancy import KIND_MMWAVE, KIND_PIR
 from .planning import (
     AWAY_STAGES,
     CAL_AWAY,
@@ -144,13 +146,17 @@ class PresenceMixin:
         geo = self._zone_geo()
         if not self.presence_configured or geo is None:
             self.persons = {}
+            self.sensed = []
             new = STAGE_HOME
             anyone = True
         else:
             self.persons = {p: self._person_status(p, geo, now) for p in self.residents}
-            anyone = any(p["present"] for p in self.persons.values())
+            phones = any(p["present"] for p in self.persons.values())
+            # Präsenzmelder: jemand ist zu Hause, auch ohne Handy (nicht im Urlaub – Katze, Blumengießer)
+            self.sensed = [] if (self.vacation or cal == CAL_AWAY) else self.sensed_rooms()
+            anyone = phones or bool(self.sensed)
             if anyone:
-                if self._was_present is False and self.vacation:
+                if self._was_present is False and self.vacation and phones:
                     _LOGGER.info("Ankunft – Urlaub beendet")
                     self.vacation = False
                     self.log.add(CAT_PRESENCE, "Urlaub beendet", "jemand ist angekommen")
@@ -292,6 +298,8 @@ class PresenceMixin:
             parts.append(
                 f"seit {mins / 60:.0f} h niemand da" if mins >= 120 else f"seit {mins:.0f} min niemand da (Wartezeit {float(self.opt(CONF_AWAY_DELAY)):.0f} min)"
             )
+        if self.sensed:
+            parts.append("Präsenzmelder: jemand in " + ", ".join(self.sensed))
         if not self.presence_configured:
             parts.append("Anwesenheit nicht eingerichtet – gilt als da")
         return "; ".join(parts)
@@ -322,7 +330,20 @@ class PresenceMixin:
         """Niemand da (auch während der Wartezeit/beim Vorheizen)."""
         if not self.presence_configured or self.guests or self.calendar_mode == CAL_HOME:
             return False
-        return not any(p.get("present") for p in self.persons.values())
+        return not any(p.get("present") for p in self.persons.values()) and not self.sensed
+
+    def sensed_rooms(self) -> list[str]:
+        """Räume, in denen ein Präsenzmelder gerade jemanden sieht (je nach Einstellung nur mmWave)."""
+        mode = self.opt(CONF_HOME_SENSORS) or "mmwave"
+        if mode == "off":
+            return []
+        kinds = (KIND_MMWAVE, KIND_PIR) if mode == "all" else (KIND_MMWAVE,)
+        return [r.name for r in self.rooms.values() if r.presence_sensors and r.seen_recently(kinds)]
+
+    def on_room_presence(self) -> None:
+        """Ein Raum meldet: jemand gekommen oder gegangen."""
+        if self.presence_configured:
+            self._evaluate_presence()
 
     def set_vacation(self, on: bool) -> None:
         self.vacation = on

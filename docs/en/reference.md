@@ -9,6 +9,7 @@
 | Set back after | 30 min | delay before “briefly away” applies |
 | “Away longer” from | 24 h | then setback “long” |
 | Preheat from | 10 km | approaching closer than this → preheat (0 = off) |
+| Presence sensors count | mmWave only | mmWave only / mmWave + PIR / none – if a sensor sees someone, the home counts as occupied (`home_sensors`) |
 | Calendar | – | `calendar.*`; a running event containing “vacation” etc. acts like vacation, “home office” etc. like guests |
 | … like vacation / … someone stays home | see [How it works](how-it-works.md#5-absence) | words, comma-separated |
 | Building type | old, renovated | temperature factor for mould protection (0.60 / 0.70 / 0.80) |
@@ -39,6 +40,11 @@
 | Setback “briefly away” | 18 °C (bedroom, rarely used: 16) | |
 | Setback “away longer” | 16 °C | |
 | Sunny side | off | 1 °C less when sun is forecast |
+| Presence sensors | – | `binary_sensor` entities (`presence_sensors`) |
+| Kind of sensors | automatic | automatic / mmWave / PIR (`presence_kind`) |
+| Lower empty room | automatic | automatic (living room, kitchen, rarely used – only with mmWave) / yes / no (`room_eco`) |
+| … when empty for | 30 min | `room_eco_after` |
+| … by | 1.5 °C | `room_eco_drop`; never below “briefly away” and mould protection |
 | Light signal: lights | – | `light` entities that blink on notices (`signal_lights`) |
 | Light signal: blink on | please air, please close | `light_signals`: `open`, `close`, `done`, `problem` |
 | CO₂ sensor | – | optional; from 1000 ppm “please air the room” |

@@ -9,6 +9,7 @@
 **Room card:**
 - The **arc** shows the current temperature, the **knob** the target. **−/+** in 0.5 °C steps, **⏻** turns the room on/off.
 - Below the temperature you see what currently applies: *Target 20 °C*, *Set back 18 °C · desired 20°*, *Heating paused*, *Frost protection* or *Sun helps*.
+- With presence sensors, **“Someone in the room”** or **“Room empty for 25 min”** (or “– lowered”) appears below the name; in the overview a person icon marks occupied rooms.
 - When a window is open, **“Window open since 14:32 · 12 min”** appears below the name – the duration counts up live. In the overview, the tile shows the duration next to the window icon.
 - While airing, a **countdown** runs with the recommended airing time.
 - The tiles show humidity, CO₂ (if a sensor is configured), dew point, valve position, outdoor climate, radiator temperature and offset.
@@ -89,7 +90,7 @@ Here **everything is visible and can be changed directly**:
 
 ![General](../images/einstellungen-allgemein.png)
 
-**Per room:** desired temperature, room type, home, setback values, sunny side, heat-up time, humidity limit, minimum temperature and maximum cooling while airing, window logic and delays, night airing, window detection without contact, **light signal** (lights, colours, test), notices on/off, calibrate. Devices and technical settings via *Change devices & technical settings*.
+**Per room:** desired temperature, room type, home, setback values, sunny side, heat-up time, humidity limit, minimum temperature and maximum cooling while airing, window logic and delays, night airing, window detection without contact, **presence sensors** (sensors, kind, lower empty room), **light signal** (lights, colours, test), notices on/off, calibrate. Devices and technical settings via *Change devices & technical settings*.
 
 ![Room](../images/einstellungen-raum.png)
 

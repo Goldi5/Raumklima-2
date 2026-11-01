@@ -100,10 +100,31 @@ Heating only happens when it is really cold outside – what counts is the **hea
 
 **Sunny side:** rooms with large south- or west-facing windows can be marked as *sunny side* (Settings → room → Temperature). If the hourly forecast shows mostly sun for the next 3 hours (condition “sunny” or at most 30 % cloud cover) and the room is almost warm, it heats **1 °C less** – the sun does the rest. This stays until the forecast no longer shows sun (no back and forth). Requires a `weather.*` source with an hourly forecast.
 
+## 8. Presence sensors
+
+Per room you can add one or more presence or motion sensors (*Settings → room → Presence sensors*). Raumklima distinguishes two kinds – and trusts them differently:
+
+| | mmWave (radar) | PIR (motion sensor) |
+|---|---|---|
+| Examples | Aqara FP2/FP1E, Everything Presence, Tuya radar | Hue Motion, IKEA, Aqara P1 |
+| sees | also people sitting still or sleeping | only movement |
+| room counts as empty | 3 min after the last detection | 20 min after the last movement |
+| counts for “someone is home” | yes | only if turned on (pets!) |
+| lower empty room automatically | yes (living room, kitchen, rarely used) | only if turned on |
+
+The kind is detected from the device class (`occupancy`/`presence` = mmWave, `motion` = PIR) and can be fixed per room. A sensor that is unavailable is ignored; if all are, the room is never lowered.
+
+**Someone is home:** if a sensor sees someone, the home counts as occupied – even when all phones are away (visitors, children without a phone, phone off). Under *General → Presence → Presence sensors count*: **mmWave only** (default), **mmWave + PIR** or **none**. During **vacation** sensors never count – the cat in front of the radar doesn't end your vacation.
+
+**Lower empty room:** if the room has been empty for an adjustable time (default 30 min), it heats by an adjustable amount less (default 1.5 °C) – never below “briefly away” and mould protection. When someone comes in, it goes straight back to the desired temperature. *Automatic* means: only in living room, kitchen and rarely used rooms and only with an mmWave sensor. Bedrooms, children's rooms and bathrooms stay warm unless you turn it on explicitly. Radiators are slow – short absences save little, hence the waiting time.
+
+**Light signal:** if a room is empty according to its sensors, its lights don't blink.
+
 ## Priority
 
 1. Window open → pause
 2. Heating paused → off (except safety minimum / frost protection)
 3. Everyone away → setback, but never below mould protection (only half as deep on frost nights)
-4. Sunny side and sun expected → 1 °C below desired
-5. Otherwise → desired temperature
+4. Room empty according to presence sensors → up to 1.5 °C less
+5. Sunny side and sun expected → 1 °C below desired
+6. Otherwise → desired temperature

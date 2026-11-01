@@ -43,6 +43,11 @@ from .const import (
     CONF_NOTIFY,
     CONF_OFF_METHOD,
     CONF_ON_PRESET,
+    CONF_PRESENCE,
+    CONF_PRESENCE_KIND,
+    CONF_ROOM_ECO,
+    CONF_ROOM_ECO_AFTER,
+    CONF_ROOM_ECO_DROP,
     CONF_ROOM_TYPE,
     CONF_SENSOR_STALE_MINUTES,
     CONF_SETBACK_LONG,
@@ -99,6 +104,7 @@ from .logic import (
     to_float,
     values_match,
 )
+from .occupancy import room_eco_target
 from .planning import (
     AWAY_STAGES,
     SOLAR_REDUCTION,
@@ -111,6 +117,7 @@ from .planning import (
 )
 from .room_health import HealthMixin
 from .room_lights import LightSignal
+from .room_presence import PresenceMixin
 from .room_trv import HEAT_PRESETS, MANUAL_OVERRIDE, TrvMixin
 from .room_windows import WindowMixin
 from .shared import domain_data, get_hub
@@ -129,6 +136,7 @@ REASON_SEASON = "season"
 REASON_FROST = "frost"
 REASON_VALVE_CARE = "valve_care"
 REASON_SOLAR = "solar"
+REASON_EMPTY = "room_empty"
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
     {
@@ -143,11 +151,16 @@ LIVE_OPTIONS = frozenset(
         CONF_SOLAR,
         CONF_LIGHTS,
         CONF_LIGHT_SIGNALS,
+        CONF_PRESENCE,
+        CONF_PRESENCE_KIND,
+        CONF_ROOM_ECO,
+        CONF_ROOM_ECO_AFTER,
+        CONF_ROOM_ECO_DROP,
     }
 )
 
 
-class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
+class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     """Steuert genau einen Raum."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -301,6 +314,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             self.night_since = dt_util.utcnow()
         self._ingest_sensor(self.hass.states.get(self.temp_sensor))
         await self.vent.async_start()
+        self.track_presence()
+        self.update_presence(initial=True)
 
         domain_data(self.hass)["rooms"][self.entry.entry_id] = self
         self._started = True
@@ -321,6 +336,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
                 setattr(self, attr, None)
         self.sync.cancel_all()
         self.lights.stop()
+        self.stop_presence()
         if self.vent:
             self.vent.async_stop()
         await self._store.async_save(self._stored_data())
@@ -371,6 +387,12 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             "night_airing": self.night_mode,
             "virtual_window": self.virtual_mode,
             "solar_gain": bool(self.config.get(CONF_SOLAR)),
+            "presence_sensors": self.sensor_kinds(),
+            "presence_kind": self.config.get(CONF_PRESENCE_KIND) or "auto",
+            "room_eco": self.room_eco_mode,
+            "room_eco_enabled": self.room_eco_enabled(),
+            "room_eco_after": self.room_eco_after,
+            "room_eco_drop": self.room_eco_drop,
             "signal_lights": self.lights.lights,
             "light_signals": self.lights.signals,
             "virtual_active": self.virtual_enabled(),
@@ -415,6 +437,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             "Einstellungen geändert",
             ", ".join(f"{k}: {self._fmt_opt(v)}" for k, v in changed.items()),
         )
+        if changed.keys() & {CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP}:
+            self.track_presence()
+            self.update_presence()
         if self.virtual_open_at is not None and not self.virtual_enabled():
             self._close_virtual("off")
         new_hub = self.hub
@@ -582,6 +607,15 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
                 return True, target, hub.stage
         self._manual_until = None
         self.frost_night_low = None
+        if self.room_eco_applies():
+            floor = self.setback_short
+            if self.humidity_sensor:
+                mold = mold_safe_min_temp(self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi)
+                if mold is not None:
+                    floor = max(floor, mold)
+            target = room_eco_target(self.target_temp, self.room_eco_drop, floor)
+            if target < self.target_temp:
+                return True, target, REASON_EMPTY
         if self._solar_applies(hub):
             return True, self.target_temp - SOLAR_REDUCTION, REASON_SOLAR
         return True, self.target_temp, REASON_NORMAL
@@ -927,6 +961,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin):
             REASON_SEASON: "Heizpause (mild draußen)",
             REASON_FROST: f"Heizpause, aber unter der Sicherung {fmt_temp(hub.frost_floor if hub else None)}",
             REASON_VALVE_CARE: "Sommerpflege: Ventil kurz öffnen",
+            REASON_EMPTY: f"Raum seit {self.room_eco_after:.0f} min leer (Präsenzmelder) – {fmt_temp(self.room_eco_drop)} weniger (Wunsch {fmt_temp(self.target_temp)})",
             REASON_SOLAR: f"Sonne erwartet – {fmt_temp(SOLAR_REDUCTION)} weniger, sie heizt mit (Wunsch {fmt_temp(self.target_temp)})",
             STAGE_AWAY_SHORT: f"alle weg – Absenkung „kurz weg“ {fmt_temp(self.setback_short)}",
             STAGE_AWAY_LONG: f"länger weg – Absenkung {fmt_temp(self.setback_long)}",

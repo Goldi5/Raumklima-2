@@ -74,6 +74,15 @@ CONF_LIGHTS: Final = "signal_lights"  # pro Raum: Lampen, die Lüft-Hinweise anz
 CONF_LIGHT_SIGNALS: Final = "light_signals"  # welche Hinweise blinken
 LIGHT_SIGNALS: Final = ["open", "close", "done", "problem"]
 DEFAULT_LIGHT_SIGNALS: Final = ["open", "close"]
+CONF_PRESENCE: Final = "presence_sensors"  # pro Raum: Präsenz-/Bewegungsmelder
+CONF_PRESENCE_KIND: Final = "presence_kind"  # auto / mmwave / pir
+CONF_ROOM_ECO: Final = "room_eco"  # leeren Raum absenken: auto / on / off
+CONF_ROOM_ECO_AFTER: Final = "room_eco_after"  # min leer, bevor abgesenkt wird
+CONF_ROOM_ECO_DROP: Final = "room_eco_drop"  # °C weniger
+CONF_HOME_SENSORS: Final = "home_sensors"  # Zentrale: welche Melder zählen für „jemand da“ (mmwave / all / off)
+PRESENCE_KINDS: Final = ["auto", "mmwave", "pir"]
+ROOM_ECO_MODES: Final = ["auto", "on", "off"]
+HOME_SENSOR_MODES: Final = ["mmwave", "all", "off"]
 # pro Raum
 CONF_SETBACK_SHORT: Final = "setback_short"
 CONF_SETBACK_LONG: Final = "setback_long"
@@ -150,6 +159,7 @@ HUB_DEFAULTS: Final = {
     CONF_CALENDAR_AWAY: "Urlaub, Reise, Dienstreise, verreist, vacation, trip",
     CONF_CALENDAR_HOME: "Homeoffice, Home-Office, zu Hause, home office, wfh",
     CONF_FROST_NIGHT: True,
+    CONF_HOME_SENSORS: "mmwave",
     "kinds_version": 2,
 }
 

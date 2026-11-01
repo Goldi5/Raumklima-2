@@ -98,10 +98,31 @@ Geheizt wird, wenn es draußen wirklich kalt ist – maßgeblich ist die **Heizg
 
 **Sonnenseite:** Räume mit großen Süd- oder Westfenstern kannst du als *Sonnenseite* markieren (Einstellungen → Raum → Temperatur). Zeigt die stündliche Vorhersage für die nächsten 3 Stunden überwiegend Sonne (Zustand „sonnig“ oder höchstens 30 % Bewölkung) und ist der Raum schon fast warm, heizt er **1 °C weniger** – die Sonne erledigt den Rest. Das gilt, bis die Sonne laut Vorhersage weg ist (kein Hin und Her). Braucht eine Wetterquelle `weather.*` mit stündlicher Vorhersage.
 
+## 8. Präsenzmelder
+
+Pro Raum lassen sich ein oder mehrere Präsenz- oder Bewegungsmelder eintragen (*Einstellungen → Raum → Präsenzmelder*). Raumklima unterscheidet zwei Arten – und vertraut ihnen unterschiedlich stark:
+
+| | mmWave (Radar) | PIR (Bewegungsmelder) |
+|---|---|---|
+| Beispiele | Aqara FP2/FP1E, Everything Presence, Tuya-Radar | Hue Motion, IKEA, Aqara P1 |
+| sieht | auch Stillsitzende und Schlafende | nur Bewegung |
+| Raum gilt als leer | 3 min nach der letzten Meldung | 20 min nach der letzten Bewegung |
+| zählt für „jemand zu Hause“ | ja | nur wenn eingeschaltet (Haustiere!) |
+| leeren Raum automatisch absenken | ja (Wohnraum, Küche, selten genutzt) | nur wenn eingeschaltet |
+
+Die Art wird aus der Geräteklasse erkannt (`occupancy`/`presence` = mmWave, `motion` = PIR) und kann je Raum fest eingestellt werden. Ist ein Melder nicht erreichbar, wird er ignoriert; sind alle weg, wird nie abgesenkt.
+
+**Jemand zu Hause:** Sieht ein Melder jemanden, gilt die Wohnung als bewohnt – auch wenn alle Handys weg sind (Besuch, Kinder ohne Handy, Handy aus). Unter *Allgemein → Anwesenheit → Präsenzmelder zählen*: **nur mmWave** (Standard), **mmWave + PIR** oder **keine**. Im **Urlaub** zählen Melder nie – die Katze vor dem Radar beendet den Urlaub nicht.
+
+**Leeren Raum absenken:** Ist der Raum eine einstellbare Zeit leer (Standard 30 min), heizt er um einen einstellbaren Wert weniger (Standard 1,5 °C) – nie unter „kurz weg“ und den Schimmelschutz. Kommt jemand herein, geht es sofort zurück auf den Wunsch. *Automatisch* heißt: nur in Wohnraum, Küche und selten genutzten Räumen und nur mit mmWave-Melder. Schlaf-, Kinderzimmer und Bad bleiben warm, außer du schaltest es ausdrücklich ein. Heizkörper reagieren träge – bei kurzen Abwesenheiten spart das wenig, darum die Wartezeit.
+
+**Lichtsignal:** Ist ein Raum laut Melder leer, blinken seine Lampen nicht.
+
 ## Vorrang
 
 1. Fenster offen → Pause
 2. Heizpause → aus (außer Sicherung bzw. Frostschutz)
 3. Alle weg → Absenkung, aber nie unter den Schimmelschutz (in Frostnächten nur halb so tief)
-4. Sonnenseite und Sonne erwartet → 1 °C unter Wunsch
-5. Sonst → Wunschtemperatur
+4. Raum laut Präsenzmelder leer → bis zu 1,5 °C weniger
+5. Sonnenseite und Sonne erwartet → 1 °C unter Wunsch
+6. Sonst → Wunschtemperatur

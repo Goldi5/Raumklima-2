@@ -193,6 +193,30 @@ How to set it up:
 Nothing blinks during quiet hours at night, while sleeping with the window open, or when nobody is home. Lights without colour simply blink bright.
 :::
 
+## Presence sensors: who is in the room?
+
+With presence sensors, Raumklima knows not only whether someone is home, but also **in which room**. There are two kinds:
+
+| What | **mmWave** (radar) | **PIR** (motion sensor) |
+|---|---|---|
+| sees | also people sitting still or sleeping | only movement |
+| room counts as empty | after 3 minutes | only after 20 minutes |
+| counts for “someone is home” | yes | no (pets!) – adjustable |
+
+**mmWave is much more reliable.** PIR works too, but Raumklima is more cautious with it.
+
+How to set it up:
+
+1. Dashboard → **Settings** → the room's tab.
+2. Section **Presence sensors** → choose a sensor in the list (mmWave or PIR is shown next to it) → **Add sensor**.
+3. **Lower empty room:** *Automatic* makes the living room, kitchen and rarely used rooms 1.5 °C cooler after 30 minutes without anyone – only with mmWave. With **Yes** it also applies to other rooms or to PIR.
+
+The room card then shows **“Someone in the room”** or **“Room empty for 25 min”**. When someone comes in, it heats back to the desired temperature right away.
+
+:::tip
+A sensor in the living room also stops Raumklima from wrongly thinking “everyone is away” – e.g. when a phone is off or a visitor is home alone. During vacation the sensors don't count, so the cat won't end your vacation.
+:::
+
 ## When everyone is away
 
 Raumklima notices through your phones when nobody is home anymore:
@@ -243,6 +267,7 @@ Not sure? Keep the defaults. They follow the recommendations of German consumer 
 | **Room → Temperature** | desired temperature, setback, sunny side |
 | **Room → Airing & humidity** | from which humidity to ask for airing |
 | **Room → Windows** | pause while a window is open, sleeping with the window open |
+| **Room → Presence sensors** | sensors, lower empty room |
 | **Room → Light signal** | lights that blink on notices |
 
 

@@ -86,6 +86,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self.last_present: datetime | None = None
         self.stage = STAGE_HOME
         self.persons: dict[str, dict[str, Any]] = {}
+        self.sensed: list[str] = []  # Räume, in denen ein Präsenzmelder jemanden sieht
         self._filters: dict[str, TrackerFilter] = {}
         self._seen: dict[str, datetime] = {}
         self._history: dict[str, deque[tuple[datetime, float]]] = {}
@@ -383,6 +384,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
             "vacation": self.vacation,
             "guests": self.guests,
             "persons": self.persons,
+            "sensed": self.sensed,
             "last_present": iso(self.last_present),
             "preheat_by": self._preheat_by if self.stage == STAGE_PREHEAT else None,
             "presence_configured": self.presence_configured,
