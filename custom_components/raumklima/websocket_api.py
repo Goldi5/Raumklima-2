@@ -455,8 +455,9 @@ def ws_report_export(hass: HomeAssistant, connection: websocket_api.ActiveConnec
     )
 
 
-def _pdf_entry(entry: dict) -> dict:
-    return {k: v for k, v in entry.items() if not k.startswith("_")} | {"url": f"{REPORT_URL}/{entry['file']}"}
+def _pdf_entry(entry: dict, hub: RaumklimaHub | None = None) -> dict:
+    url = (hub.pdf.signed_url(entry["file"]) if hub else None) or f"{REPORT_URL}/{entry['file']}"
+    return {k: v for k, v in entry.items() if not k.startswith("_") and k != "token"} | {"url": url}
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/report/pdf/list", vol.Optional("home"): vol.Any(None, str)})
@@ -466,7 +467,7 @@ def ws_pdf_list(hass: HomeAssistant, connection: websocket_api.ActiveConnection,
     hub = _hub_or_error(hass, connection, msg)
     if hub is None:
         return
-    connection.send_result(msg["id"], {"reports": [_pdf_entry(r) for r in hub.pdf.listing()]})
+    connection.send_result(msg["id"], {"reports": [_pdf_entry(r, hub) for r in hub.pdf.listing()]})
 
 
 @websocket_api.websocket_command(
@@ -494,7 +495,7 @@ async def ws_pdf_create(hass: HomeAssistant, connection: websocket_api.ActiveCon
     except Exception as err:  # noqa: BLE001
         connection.send_error(msg["id"], "failed", str(err))
         return
-    connection.send_result(msg["id"], _pdf_entry(entry))
+    connection.send_result(msg["id"], _pdf_entry(entry, hub))
 
 
 @websocket_api.websocket_command(

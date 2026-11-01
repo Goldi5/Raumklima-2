@@ -12,10 +12,11 @@ from http import HTTPStatus
 import logging
 from pathlib import Path
 import re
+import secrets
 from typing import TYPE_CHECKING, Any
 
 from aiohttp import web
-from homeassistant.components.http import HomeAssistantView
+from homeassistant.components.http import KEY_AUTHENTICATED, HomeAssistantView
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
@@ -143,6 +144,7 @@ class PdfReports:
         path = report_dir(self.hass) / name
         await self.hass.async_add_executor_job(_write, path, content)
         entry = {
+            "token": secrets.token_urlsafe(18),
             "file": name,
             "kind": kind,
             "start": start.isoformat(),
@@ -167,14 +169,19 @@ class PdfReports:
             self.index.remove(r)
             await self.hass.async_add_executor_job(lambda p=folder / r["file"]: p.unlink(missing_ok=True))
 
-    def signed_url(self, file: str, days: int = 30) -> str | None:
-        try:
-            from homeassistant.components.http.auth import async_sign_path
+    def signed_url(self, file: str) -> str | None:
+        """Link mit eigenem Schlüssel je Bericht.
 
-            return async_sign_path(self.hass, f"{URL}/{file}", timedelta(days=days), use_content_user=True)
-        except Exception as err:  # noqa: BLE001 – ohne Anmeldung kein Link, Push geht trotzdem
-            _LOGGER.debug("Link für %s nicht signierbar: %s", file, err)
+        Nicht über HA-Signaturen: die Companion App hängt beim Öffnen „external_auth=1“ an den Link,
+        danach passt die HA-Signatur nicht mehr und der Download wird abgelehnt.
+        """
+        entry = next((r for r in self.index if r["file"] == file), None)
+        if entry is None:
             return None
+        if not entry.get("token"):
+            entry["token"] = secrets.token_urlsafe(18)
+            self.hub.insights.save()
+        return f"{URL}/{file}?token={entry['token']}"
 
     async def async_send(self, entry: dict[str, Any], message: str | None = None) -> None:
         """Push mit Link an alle mit „Wochenbericht“ und – falls eingestellt – E-Mail mit Anhang."""
@@ -267,16 +274,18 @@ def summary_line(data: dict[str, Any], lang: str) -> str:
 
 
 class ReportView(HomeAssistantView):
-    """PDF ausliefern (angemeldet oder signierter Link)."""
+    """PDF ausliefern (angemeldet oder mit dem Schlüssel des Berichts)."""
 
     url = URL + "/{file}"
     name = "api:raumklima:report"
-    requires_auth = True
+    requires_auth = False  # selbst geprüft: Anmeldung, HA-Signatur oder Berichts-Schlüssel
 
     async def get(self, request: web.Request, file: str) -> web.StreamResponse:
         hass: HomeAssistant = request.app["hass"]
         if not FILE_RE.match(file):
             return web.Response(status=HTTPStatus.BAD_REQUEST)
+        if not request.get(KEY_AUTHENTICATED) and not _token_ok(hass, file, request.query.get("token")):
+            return web.Response(status=HTTPStatus.NOT_FOUND)
         path = report_dir(hass) / file
         if not await hass.async_add_executor_job(path.is_file):
             return web.Response(status=HTTPStatus.NOT_FOUND)
@@ -285,3 +294,12 @@ class ReportView(HomeAssistantView):
             headers={"Content-Type": "application/pdf", "Content-Disposition": f'inline; filename="{file}"', "Cache-Control": "no-store"},
         )
 
+
+def _token_ok(hass: HomeAssistant, file: str, token: str | None) -> bool:
+    if not token:
+        return False
+    for hub in all_hubs(hass):
+        for entry in hub.pdf.index:
+            if entry.get("file") == file and entry.get("token") and secrets.compare_digest(entry["token"], token):
+                return True
+    return False

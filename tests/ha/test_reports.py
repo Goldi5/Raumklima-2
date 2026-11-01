@@ -130,10 +130,13 @@ async def test_download_needs_login(hass: HomeAssistant, trv: FakeTrv, sensors, 
     hub, _room = await _ready(hass, tmp_path)
     entry = await hub.runtime_data.pdf.async_create("week", current=True)
     client = await hass_client_no_auth()
-    assert (await client.get(f"/api/raumklima/report/{entry['file']}")).status == 401
-    signed = hub.runtime_data.pdf.signed_url(entry["file"], days=1)
+    assert (await client.get(f"/api/raumklima/report/{entry['file']}")).status == 404
+    assert (await client.get(f"/api/raumklima/report/{entry['file']}?token=falsch")).status == 404
+    signed = hub.runtime_data.pdf.signed_url(entry["file"])
     assert signed
     assert (await client.get(signed)).status == 200
+    # Companion App hängt external_auth=1 an – muss trotzdem gehen
+    assert (await client.get(signed + "&external_auth=1")).status == 200
 
 
 def test_period_rules() -> None:

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.14.7 – 2026-11-01
+
+### Behoben
+- **Sicherheit: E-Mail-Passwort im Protokoll.** Beim Einrichten der E-Mail schrieb das Protokoll
+  („Einstellungen geändert“) das Passwort im Klartext mit. Jetzt steht dort nur „gesetzt“/„geändert“;
+  bereits gespeicherte Einträge werden beim Start bereinigt. **Wer 0.14.0–0.14.6 genutzt hat, sollte das
+  Mail-Passwort (App-Passwort) vorsichtshalber neu erzeugen.**
+- **„PDF öffnen“ aus der Push-Nachricht** wurde in der Companion App abgelehnt („ungültige Anmeldung“): die
+  App hängt `external_auth=1` an den Link, danach passte die Signatur nicht mehr. Berichte haben jetzt einen
+  eigenen Schlüssel im Link – funktioniert in der App, im Browser und aus der Berichtskarte.
+- Verlaufskarte stürzte ab („undefined is not iterable“), wenn der Verlauf nicht geladen werden konnte
+  oder keine Fühler gewählt waren.
+
 ## 0.14.6 – 2026-11-01
 
 ### Behoben

@@ -10,6 +10,7 @@ from collections import deque
 from collections.abc import Callable
 from datetime import datetime, timedelta
 import logging
+import re
 from typing import Any
 
 from homeassistant.core import HomeAssistant, callback
@@ -24,6 +25,14 @@ MAX_ENTRIES = 5000
 KEEP = timedelta(days=14)
 SAVE_DELAY = 60
 REPEAT_WINDOW = timedelta(minutes=2)
+SECRET_KEYS = frozenset({"mail_password"})
+# Ältere Versionen (0.14.x) haben das Mail-Passwort im Klartext ins Protokoll geschrieben
+_SECRET_RE = re.compile(r"(mail_password): .*?(?=, [a-z][a-z_]*: |$)", re.S)
+
+
+def scrub(text: str) -> str:
+    """Geheimnisse aus einem Protokolltext entfernen."""
+    return _SECRET_RE.sub(r"\1: geändert", text) if "mail_password" in text else text
 
 CAT_PRESENCE = "presence"
 CAT_SEASON = "season"
@@ -71,16 +80,24 @@ class DecisionLog:
         stored = await self._store.async_load()
         self._loaded = True
         early = list(self.entries)  # Einträge, die vor dem Laden entstanden sind (Start der Räume)
+        scrubbed = False
         if stored:
             self.entries.clear()
             self.entries.extend(stored.get("entries", []))
+            for entry in self.entries:
+                for key in ("why", "msg"):
+                    if isinstance(entry.get(key), str) and "mail_password" in entry[key]:
+                        entry[key] = scrub(entry[key])
+                        scrubbed = True
             self._seq = max(int(stored.get("seq", 0)), max((e.get("id", 0) for e in self.entries), default=0))
             for entry in early:
                 self._seq += 1
                 entry["id"] = self._seq
                 self.entries.append(entry)
         self._prune()
-        if early:
+        if scrubbed:
+            await self._store.async_save(self._data())  # Passwort sofort aus der Datei entfernen
+        elif early:
             self._store.async_delay_save(self._data, SAVE_DELAY)
 
     async def async_save(self) -> None:
@@ -108,6 +125,8 @@ class DecisionLog:
         **data: Any,
     ) -> dict[str, Any]:
         """Eintrag anlegen. „msg“ = was, „why“ = warum (beides für Menschen lesbar)."""
+        if why and "mail_password" in why:
+            why = scrub(why)
         now_iso = dt_util.utcnow().isoformat()
         # Gleiches kurz hintereinander zusammenfassen statt das Protokoll zu fluten
         cutoff = (dt_util.utcnow() - REPEAT_WINDOW).isoformat()

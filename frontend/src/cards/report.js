@@ -102,10 +102,12 @@ export class RaumklimaReportCard extends HTMLElement {
 
   async _download(url, file) {
     try {
-      // wie Home Assistant selbst (z. B. Backups): kurz gültiger, signierter Link
-      const s = await this._hass.callWS({ type: "auth/sign_path", path: url, expires: 120 });
+      // Link mit Berichts-Schlüssel (klappt auch in der Companion App); sonst kurz gültig signieren
+      const href = url.includes("token=")
+        ? url
+        : (await this._hass.callWS({ type: "auth/sign_path", path: url, expires: 120 })).path;
       const a = document.createElement("a");
-      a.href = s.path; a.download = file || ""; a.target = "_blank"; a.style.display = "none";
+      a.href = href; a.download = file || ""; a.target = "_blank"; a.style.display = "none";
       document.body.appendChild(a); a.dispatchEvent(new MouseEvent("click")); a.remove();
     } catch (e) {
       this._pdfMsg = t("Download fehlgeschlagen: {e}", { e: e.message || e });

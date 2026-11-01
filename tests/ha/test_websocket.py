@@ -103,3 +103,26 @@ async def test_no_hub_error(hass: HomeAssistant, hass_ws_client) -> None:
     msg = await client.receive_json()
     assert not msg["success"]
     assert msg["error"]["code"] == "no_hub"
+
+async def test_password_never_in_log(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    _hub, _room = setup
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id(
+        {"type": "raumklima/hub/update", "changes": {"mail_password": "Geheim-123,x", "mail_port": 587}}
+    )
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    await hass.async_block_till_done()
+    await client.send_json_auto_id({"type": "raumklima/log", "limit": 50})
+    msg = await client.receive_json()
+    text = str(msg["result"]["entries"])
+    assert "Geheim-123" not in text
+    assert "mail_password: gesetzt" in text
+
+
+def test_scrub_old_entries() -> None:
+    from custom_components.raumklima.decision_log import scrub
+
+    old = "mail_password: None → ab,c.9, mail_port: None → 587"
+    assert scrub(old) == "mail_password: geändert, mail_port: None → 587"
+    assert scrub("x: 1 → 2") == "x: 1 → 2"

@@ -55,9 +55,11 @@ export class RaumklimaHistoryCard extends HTMLElement {
   async _load() {
     if (!this._hass || !this._rooms) return;
     const ids = this._entities();
-    if (!ids.length) { this._data = {}; this._draw(); return; }
     const end = new Date();
     const start = new Date(end.getTime() - this._hours * 3600 * 1000);
+    // vor dem Laden setzen: auch ohne Fühler oder bei einem Fehler muss gezeichnet werden können
+    this._range = [start.getTime(), end.getTime()];
+    if (!ids.length) { this._data = {}; this._draw(); return; }
     try {
       const res = await this._hass.callWS({
         type: "history/history_during_period",
@@ -69,7 +71,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
         significant_changes_only: false,
       });
       this._data = res || {};
-      this._range = [start.getTime(), end.getTime()];
+      this._error = null;
     } catch (e) {
       this._data = {};
       this._error = String(e && e.message ? e.message : e);

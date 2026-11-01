@@ -1,4 +1,4 @@
-/* Raumklima 0.14.6 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.7 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -523,7 +523,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.14.6";
+  var RK_VERSION = "0.14.7";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1445,13 +1445,14 @@
     async _load() {
       if (!this._hass || !this._rooms) return;
       const ids = this._entities();
+      const end = /* @__PURE__ */ new Date();
+      const start = new Date(end.getTime() - this._hours * 3600 * 1e3);
+      this._range = [start.getTime(), end.getTime()];
       if (!ids.length) {
         this._data = {};
         this._draw();
         return;
       }
-      const end = /* @__PURE__ */ new Date();
-      const start = new Date(end.getTime() - this._hours * 3600 * 1e3);
       try {
         const res = await this._hass.callWS({
           type: "history/history_during_period",
@@ -1463,7 +1464,7 @@
           significant_changes_only: false
         });
         this._data = res || {};
-        this._range = [start.getTime(), end.getTime()];
+        this._error = null;
       } catch (e) {
         this._data = {};
         this._error = String(e && e.message ? e.message : e);
@@ -2932,9 +2933,9 @@
     }
     async _download(url, file) {
       try {
-        const s = await this._hass.callWS({ type: "auth/sign_path", path: url, expires: 120 });
+        const href = url.includes("token=") ? url : (await this._hass.callWS({ type: "auth/sign_path", path: url, expires: 120 })).path;
         const a = document.createElement("a");
-        a.href = s.path;
+        a.href = href;
         a.download = file || "";
         a.target = "_blank";
         a.style.display = "none";

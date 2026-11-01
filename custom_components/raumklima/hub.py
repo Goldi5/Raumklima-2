@@ -34,6 +34,7 @@ from .const import (
 )
 from .decision_log import (
     CAT_SETTINGS,
+    SECRET_KEYS,
     DecisionLog,
 )
 from .hub_notify import NotifyMixin
@@ -66,6 +67,15 @@ FORECAST_INTERVAL = timedelta(minutes=30)
 def _short(value: Any) -> str:
     text = str(value)
     return text if len(text) <= 40 else text[:37] + "…"
+
+
+def _change_text(key: str, old: Any, new: Any) -> str:
+    """Eine Zeile für das Protokoll – Geheimnisse (Passwort) nie im Klartext."""
+    if key in SECRET_KEYS:
+        if not new:
+            return f"{key}: entfernt"
+        return f"{key}: {'gesetzt' if not old else 'geändert'}"
+    return f"{key}: {_short(old)} → {_short(new)}"
 
 
 class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
@@ -277,7 +287,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
             self.log.add(
                 CAT_SETTINGS,
                 "Einstellungen geändert",
-                ", ".join(f"{k}: {_short(old.get(k))} → {_short(self.config.get(k))}" for k in changed[:8]),
+                ", ".join(_change_text(k, old.get(k), self.config.get(k)) for k in changed[:8]),
             )
         self._unsubscribe()
         self._filters.clear()
