@@ -50,7 +50,8 @@ async def test_create_and_list(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_p
     assert entry["file"].startswith("Raumklima-Monat-")
     path = tmp_path / "raumklima" / entry["file"]
     assert path.read_bytes()[:4] == b"%PDF"
-    assert entry["url"] == f"/api/raumklima/report/{entry['file']}"
+    assert entry["url"].startswith(f"/api/raumklima/report/{entry['file']}?token=")
+    assert "token" not in entry  # Schlüssel nur im Link
 
     await client.send_json_auto_id({"type": "raumklima/report/pdf/list"})
     msg = await client.receive_json()
@@ -76,10 +77,9 @@ async def test_send_push_link_and_email(hass: HomeAssistant, trv: FakeTrv, senso
     await pdf.async_send(entry)
     await hass.async_block_till_done()
     assert push[0].data["title"].startswith("📊 Heizbericht")
-    url = push[0].data["data"].get("url")
-    if url:  # signierter Link (Anmeldedienst vorhanden)
-        assert url.startswith(f"/api/raumklima/report/{entry['file']}?authSig=")
-        assert push[0].data["data"]["actions"][0]["uri"] == url
+    url = push[0].data["data"]["url"]
+    assert url.startswith(f"/api/raumklima/report/{entry['file']}?token=")
+    assert push[0].data["data"]["actions"][0]["uri"] == url
     assert mail[0].data["data"]["images"] == [str(tmp_path / "raumklima" / entry["file"])]
 
 

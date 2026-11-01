@@ -27,7 +27,7 @@ SAVE_DELAY = 60
 REPEAT_WINDOW = timedelta(minutes=2)
 SECRET_KEYS = frozenset({"mail_password"})
 # Ältere Versionen (0.14.x) haben das Mail-Passwort im Klartext ins Protokoll geschrieben
-_SECRET_RE = re.compile(r"(mail_password): .*?(?=, [a-z][a-z_]*: |$)", re.S)
+_SECRET_RE = re.compile(r"(mail_password): (?!(?:gesetzt|geändert|entfernt)(?:,|$)).*?(?=, [a-z][a-z_]*: |$)", re.S)
 
 
 def scrub(text: str) -> str:
