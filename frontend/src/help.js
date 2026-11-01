@@ -142,9 +142,9 @@ export const HELP = {
     "Welche Berichte automatisch als PDF entstehen: Woche (sonntags 18 Uhr), Monat (am 1.), Heizsaison (nach dem Saisonende). Sie kommen als Push an alle mit „Wochenbericht“ und stehen im Reiter Bericht zum Herunterladen.",
     "Which reports are created automatically as PDF: week (Sundays 18:00), month (on the 1st), heating season (after it ends). They are pushed to everyone with “weekly report” and listed in the Report tab for download.",
   ],
-  "PDF per E-Mail an": [
-    "Wohin der PDF-Bericht als Anhang geht. Am einfachsten direkt darunter „E-Mail einrichten“ antippen – Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Speichern & Test-Mail senden“. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort. Hast du schon einen Mail-Dienst in Home Assistant, kannst du auch den wählen.",
-    "Where the PDF report is sent as an attachment. Easiest: tap “Set up email” right below – pick your provider (fills in server and port), enter user, password and recipients, then “Save & send test email”. Gmail, iCloud and Outlook need an app password. If you already have a mail service in Home Assistant, you can choose that instead.",
+  "PDF per E-Mail": [
+    "Schickt jeden PDF-Bericht zusätzlich als Mail-Anhang. Einmal darunter „E-Mail einrichten“ aufklappen: Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Zugang prüfen“ und dann „Speichern & Test-Mail senden“ – danach ist der Schalter an. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort.",
+    "Also sends every PDF report as an email attachment. Open “Set up email” below once: pick your provider (fills in server and port), enter user, password and recipients, “Check login”, then “Save & send test email” – the switch is then on. Gmail, iCloud and Outlook need an app password.",
   ],
   Test: ["Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.", "Creates a weekly report now and sends it to all recipients and by email."],
   // ---------------------------------------------------------------- Raum: Temperatur

@@ -1,4 +1,4 @@
-/* Raumklima 0.14.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.14.5 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -484,7 +484,15 @@
     "Anmeldung": "Login",
     "Prüfe Zugang …": "Checking login …",
     "Alles in Ordnung – du kannst speichern und eine Test-Mail senden.": "All good – you can save and send a test email.",
-    "Da stimmt noch etwas nicht – siehe oben.": "Something isn't right yet – see above."
+    "Da stimmt noch etwas nicht – siehe oben.": "Something isn't right yet – see above.",
+    "PDF per E-Mail": "PDF by email",
+    "die PDF kommt als Anhang an die Empfänger unten": "the PDF is sent as an attachment to the recipients below",
+    "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail": "set up email below once – then every report also arrives by email",
+    "über {s}": "via {s}",
+    "Oder vorhandenen Mail-Dienst nutzen": "Or use an existing mail service",
+    "statt der Zugangsdaten oben": "instead of the login above",
+    "– nein, Zugangsdaten oben –": "– no, use the login above –",
+    "Bitte erst unten die Zugangsdaten eintragen und speichern.": "Please enter and save the login below first."
   };
 
   // src/i18n.js
@@ -515,7 +523,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.14.4";
+  var RK_VERSION = "0.14.5";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1788,9 +1796,9 @@
       "Welche Berichte automatisch als PDF entstehen: Woche (sonntags 18 Uhr), Monat (am 1.), Heizsaison (nach dem Saisonende). Sie kommen als Push an alle mit „Wochenbericht“ und stehen im Reiter Bericht zum Herunterladen.",
       "Which reports are created automatically as PDF: week (Sundays 18:00), month (on the 1st), heating season (after it ends). They are pushed to everyone with “weekly report” and listed in the Report tab for download."
     ],
-    "PDF per E-Mail an": [
-      "Wohin der PDF-Bericht als Anhang geht. Am einfachsten direkt darunter „E-Mail einrichten“ antippen – Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Speichern & Test-Mail senden“. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort. Hast du schon einen Mail-Dienst in Home Assistant, kannst du auch den wählen.",
-      "Where the PDF report is sent as an attachment. Easiest: tap “Set up email” right below – pick your provider (fills in server and port), enter user, password and recipients, then “Save & send test email”. Gmail, iCloud and Outlook need an app password. If you already have a mail service in Home Assistant, you can choose that instead."
+    "PDF per E-Mail": [
+      "Schickt jeden PDF-Bericht zusätzlich als Mail-Anhang. Einmal darunter „E-Mail einrichten“ aufklappen: Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Zugang prüfen“ und dann „Speichern & Test-Mail senden“ – danach ist der Schalter an. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort.",
+      "Also sends every PDF report as an email attachment. Open “Set up email” below once: pick your provider (fills in server and port), enter user, password and recipients, “Check login”, then “Save & send test email” – the switch is then on. Gmail, iCloud and Outlook need an app password."
     ],
     Test: ["Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.", "Creates a weekly report now and sends it to all recipients and by email."],
     // ---------------------------------------------------------------- Raum: Temperatur
@@ -2267,18 +2275,11 @@
           "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"
         ),
         this._row(
-          "PDF per E-Mail an",
-          (() => {
-            const cur = this._hubOpt("report_email") || "";
-            const others = [.../* @__PURE__ */ new Set([...ch.mail || [], ...cur.startsWith("notify.") ? [cur] : []])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
-            return `<select class="sel" data-sel="${H}" data-key="report_email" ${this._admin ? "" : "disabled"}>
-          <option value="" ${cur ? "" : "selected"}>${t("– keine E-Mail –")}</option>
-          <option value="raumklima" ${cur === "raumklima" ? "selected" : ""}>${t("Eigenes E-Mail-Konto (unten einrichten)")}</option>
-          ${others ? `<optgroup label="${t("Vorhandener Mail-Dienst in Home Assistant")}">${others}</optgroup>` : ""}</select>`;
-          })(),
-          "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang"
+          "PDF per E-Mail",
+          `<button class="tgl ${this._hubOpt("report_email") ? "on" : ""}" data-mailtoggle ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
+          this._hubOpt("report_email") ? "die PDF kommt als Anhang an die Empfänger unten" : "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail"
         ),
-        !String(this._hubOpt("report_email") || "").startsWith("notify.") ? this._mailSetup() : "",
+        this._mailSetup(ch.mail || []),
         this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : ""
       ].join("");
       const yes = (b) => b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`;
@@ -2402,9 +2403,11 @@
     </div>
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
     }
-    _mailSetup() {
+    _mailSetup(mailServices = []) {
       const o = (k) => this._mailForm && this._mailForm[k] !== void 0 ? this._mailForm[k] : this._hubOpt(k) ?? "";
-      const active = this._hubOpt("report_email") === "raumklima";
+      const cur = String(this._hubOpt("report_email") || "");
+      const viaService = cur.startsWith("notify.");
+      const active = cur === "raumklima";
       const ok = active && !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
       const open = this._mailOpen ?? (active && !ok);
       const dis = this._admin ? "" : "disabled";
@@ -2413,7 +2416,7 @@
       const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
       <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
       return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
-      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
+      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${viaService ? `<span class="ok">● ${t("über {s}", { s: esc(rkPretty(cur)) })}</span>` : ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
       <div class="mailform">
         <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
           <select class="sel" data-mailprov ${dis}><option value="">${t("– wählen –")}</option>${provs}<option value="other">${t("Anderer Anbieter")}</option></select></label>
@@ -2429,6 +2432,8 @@
         <div class="mailact"><button class="btn" data-mailcheck ${dis}><ha-icon icon="mdi:shield-check-outline"></ha-icon>${t("Zugang prüfen")}</button><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
         ${this._mailSteps ? `<div class="msteps">${this._mailSteps.map((s) => `<div class="mstep ${s.ok ? "ok" : "bad"}"><b>${s.ok ? "✓" : "✕"}</b><span><b>${esc(t({ connect: "Server erreichbar", tls: "Verschlüsselung", login: "Anmeldung", recipients: "Empfänger" }[s.step] || s.step))}</b> – ${esc(s.msg)}</span></div>`).join("")}</div>` : ""}
         ${this._mailMsg ? `<div class="hint ${this._mailMsg[0]}">${esc(this._mailMsg[1])}</div>` : ""}
+        ${mailServices.length || viaService ? `<label class="mf"><span>${t("Oder vorhandenen Mail-Dienst nutzen")}<small>${t("statt der Zugangsdaten oben")}</small></span>
+          <select class="sel" data-sel="hub" data-key="report_email" ${dis}><option value="${active ? "raumklima" : ""}">${t("– nein, Zugangsdaten oben –")}</option>${[.../* @__PURE__ */ new Set([...mailServices, ...viaService ? [cur] : []])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("")}</select></label>` : ""}
         <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
       </div></details>`;
     }
@@ -2625,6 +2630,20 @@
         }
         return out;
       };
+      $("[data-mailtoggle]").forEach((el) => el.addEventListener("click", () => {
+        if (this._hubOpt("report_email")) {
+          this._setHub({ report_email: null }, 200);
+          return;
+        }
+        if (this._hubOpt("mail_server") && this._hubOpt("mail_to")) {
+          this._setHub({ report_email: "raumklima" }, 200);
+          return;
+        }
+        this._mailOpen = true;
+        this._mailMsg = ["", t("Bitte erst unten die Zugangsdaten eintragen und speichern.")];
+        this._sig = null;
+        this._render();
+      }));
       $("[data-mailcheck]").forEach((el) => el.addEventListener("click", async () => {
         el.disabled = true;
         this._mailSteps = null;

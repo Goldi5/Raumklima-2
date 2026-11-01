@@ -484,4 +484,12 @@ export const EN = {
   "Prüfe Zugang …": "Checking login …",
   "Alles in Ordnung – du kannst speichern und eine Test-Mail senden.": "All good – you can save and send a test email.",
   "Da stimmt noch etwas nicht – siehe oben.": "Something isn't right yet – see above.",
+  "PDF per E-Mail": "PDF by email",
+  "die PDF kommt als Anhang an die Empfänger unten": "the PDF is sent as an attachment to the recipients below",
+  "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail": "set up email below once – then every report also arrives by email",
+  "über {s}": "via {s}",
+  "Oder vorhandenen Mail-Dienst nutzen": "Or use an existing mail service",
+  "statt der Zugangsdaten oben": "instead of the login above",
+  "– nein, Zugangsdaten oben –": "– no, use the login above –",
+  "Bitte erst unten die Zugangsdaten eintragen und speichern.": "Please enter and save the login below first.",
 };

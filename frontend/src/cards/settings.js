@@ -306,16 +306,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
       this._row("PDF-Berichte", `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => { const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k); return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`; }).join("")}</div>`,
         "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
-      this._row("PDF per E-Mail an", (() => {
-        const cur = this._hubOpt("report_email") || "";
-        const others = [...new Set([...(ch.mail || []), ...(cur.startsWith("notify.") ? [cur] : [])])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("");
-        return `<select class="sel" data-sel="${H}" data-key="report_email" ${this._admin ? "" : "disabled"}>
-          <option value="" ${cur ? "" : "selected"}>${t("– keine E-Mail –")}</option>
-          <option value="raumklima" ${cur === "raumklima" ? "selected" : ""}>${t("Eigenes E-Mail-Konto (unten einrichten)")}</option>
-          ${others ? `<optgroup label="${t("Vorhandener Mail-Dienst in Home Assistant")}">${others}</optgroup>` : ""}</select>`;
-      })(),
-        "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang"),
-      !String(this._hubOpt("report_email") || "").startsWith("notify.") ? this._mailSetup() : "",
+      this._row("PDF per E-Mail", `<button class="tgl ${this._hubOpt("report_email") ? "on" : ""}" data-mailtoggle ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
+        this._hubOpt("report_email") ? "die PDF kommt als Anhang an die Empfänger unten" : "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail"),
+      this._mailSetup(ch.mail || []),
       this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
     ].join("");
 
@@ -428,9 +421,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
   }
 
-  _mailSetup() {
+  _mailSetup(mailServices = []) {
     const o = (k) => this._mailForm && this._mailForm[k] !== undefined ? this._mailForm[k] : (this._hubOpt(k) ?? "");
-    const active = this._hubOpt("report_email") === "raumklima";
+    const cur = String(this._hubOpt("report_email") || "");
+    const viaService = cur.startsWith("notify.");
+    const active = cur === "raumklima";
     const ok = active && !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
     const open = this._mailOpen ?? (active && !ok);
     const dis = this._admin ? "" : "disabled";
@@ -439,7 +434,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
       <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
     return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
-      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
+      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${viaService ? `<span class="ok">● ${t("über {s}", { s: esc(rkPretty(cur)) })}</span>` : ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
       <div class="mailform">
         <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
           <select class="sel" data-mailprov ${dis}><option value="">${t("– wählen –")}</option>${provs}<option value="other">${t("Anderer Anbieter")}</option></select></label>
@@ -455,6 +450,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
         <div class="mailact"><button class="btn" data-mailcheck ${dis}><ha-icon icon="mdi:shield-check-outline"></ha-icon>${t("Zugang prüfen")}</button><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
         ${this._mailSteps ? `<div class="msteps">${this._mailSteps.map((s) => `<div class="mstep ${s.ok ? "ok" : "bad"}"><b>${s.ok ? "✓" : "✕"}</b><span><b>${esc(t({ connect: "Server erreichbar", tls: "Verschlüsselung", login: "Anmeldung", recipients: "Empfänger" }[s.step] || s.step))}</b> – ${esc(s.msg)}</span></div>`).join("")}</div>` : ""}
         ${this._mailMsg ? `<div class="hint ${this._mailMsg[0]}">${esc(this._mailMsg[1])}</div>` : ""}
+        ${mailServices.length || viaService ? `<label class="mf"><span>${t("Oder vorhandenen Mail-Dienst nutzen")}<small>${t("statt der Zugangsdaten oben")}</small></span>
+          <select class="sel" data-sel="hub" data-key="report_email" ${dis}><option value="${active ? "raumklima" : ""}">${t("– nein, Zugangsdaten oben –")}</option>${[...new Set([...mailServices, ...(viaService ? [cur] : [])])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("")}</select></label>` : ""}
         <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
       </div></details>`;
   }
@@ -626,6 +623,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
       }
       return out;
     };
+    $("[data-mailtoggle]").forEach((el) => el.addEventListener("click", () => {
+      if (this._hubOpt("report_email")) { this._setHub({ report_email: null }, 200); return; }
+      if (this._hubOpt("mail_server") && this._hubOpt("mail_to")) { this._setHub({ report_email: "raumklima" }, 200); return; }
+      this._mailOpen = true; // erst einrichten – Speichern schaltet ein
+      this._mailMsg = ["", t("Bitte erst unten die Zugangsdaten eintragen und speichern.")];
+      this._sig = null; this._render();
+    }));
     $("[data-mailcheck]").forEach((el) => el.addEventListener("click", async () => {
       el.disabled = true;
       this._mailSteps = null; this._mailMsg = ["", t("Prüfe Zugang …")]; this._sig = null; this._render();

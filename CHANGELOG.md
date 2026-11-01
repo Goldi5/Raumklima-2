@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.5 – 2026-11-01
+
+### Geändert
+- **E-Mail ohne Auswahlliste:** statt „PDF per E-Mail an“ mit Liste gibt es einen Schalter **„PDF per
+  E-Mail“** und direkt darunter „E-Mail einrichten“. Speichern schaltet den Versand ein; ein vorhandener
+  Mail-Dienst aus Home Assistant lässt sich – falls es einen gibt – im aufgeklappten Bereich wählen.
+
 ## 0.14.4 – 2026-11-01
 
 ### Neu
