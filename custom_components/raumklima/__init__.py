@@ -50,7 +50,7 @@ def is_hub_entry(entry: ConfigEntry) -> bool:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Karte (Frontend) einmalig bereitstellen und automatisch laden."""
-    from .hub import domain_data
+    from .shared import domain_data
     from .websocket_api import async_register_websocket
 
     domain_data(hass)
@@ -102,7 +102,7 @@ async def _async_register_resource(hass: HomeAssistant) -> None:
 
 def _ensure_hub(hass: HomeAssistant, room: ConfigEntry) -> None:
     """Zentrale einmalig anlegen – mit den bisherigen Einstellungen des Raums."""
-    from .hub import domain_data
+    from .shared import domain_data
 
     if any(is_hub_entry(e) for e in hass.config_entries.async_entries(DOMAIN)):
         return
@@ -130,7 +130,8 @@ def _ensure_hub(hass: HomeAssistant, room: ConfigEntry) -> None:
 
 async def async_setup_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> bool:
     """Einen Raum oder die Zentrale einrichten."""
-    from .hub import RaumklimaHub, domain_data
+    from .hub import RaumklimaHub
+    from .shared import domain_data
 
     if is_hub_entry(entry):
         hub = RaumklimaHub(hass, entry)
@@ -162,7 +163,7 @@ async def _async_hub_updated(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> bool:
     """Einen Raum oder die Zentrale entladen."""
-    from .hub import domain_data
+    from .shared import domain_data
 
     if is_hub_entry(entry):
         unloaded = await hass.config_entries.async_unload_platforms(entry, HUB_PLATFORMS)
@@ -185,6 +186,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) -
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Zentrale gelöscht → beim nächsten Raumstart neu anlegen dürfen."""
     if is_hub_entry(entry):
-        from .hub import domain_data
+        from .shared import domain_data
 
         domain_data(hass)["hub_flow"] = False

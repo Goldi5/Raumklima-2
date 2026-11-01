@@ -45,8 +45,9 @@ from .const import (
 )
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
-from .hub import RaumklimaHub, all_hubs, domain_data, get_hub
+from .hub import RaumklimaHub
 from .planning import NIGHT_MODES, VIRT_MODES
+from .shared import all_hubs, domain_data, get_hub
 
 _KINDS = [vol.In(KINDS)]
 _TARGETS = vol.Schema({str: _KINDS})
