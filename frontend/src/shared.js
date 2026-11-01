@@ -1,9 +1,13 @@
 // Gemeinsame Konstanten, Formatierung und Stile aller Raumklima-Karten
+import { loc, setLang, t, tmap } from "./i18n.js";
 import { RK_VERSION } from "./version.js";
 
-export { RK_VERSION };
+export { RK_VERSION, loc, setLang, t, tmap };
 
-export const STATUS = {
+// Text für einen regulären Ausdruck entschärfen (Raumnamen wie „Bad (OG)“)
+export const escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export const STATUS = tmap({
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
   idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
   window_open: { label: "Pausiert – Fenster offen", icon: "mdi:window-open-variant", tone: "air" },
@@ -13,29 +17,29 @@ export const STATUS = {
   season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
   setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
   night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" },
-};
+});
 
-export const PRESENCE = {
+export const PRESENCE = tmap({
   home: { label: "Jemand da", icon: "mdi:home-account", tone: "ok" },
   guests: { label: "Gäste da", icon: "mdi:account-group", tone: "ok" },
   preheat: { label: "Vorheizen", icon: "mdi:car-arrow-right", tone: "heat" },
   away_short: { label: "Alle weg", icon: "mdi:home-export-outline", tone: "eco" },
   away_long: { label: "Länger weg", icon: "mdi:bag-suitcase", tone: "eco" },
-};
-export const SEASON = {
+});
+export const SEASON = tmap({
   heating: { label: "Heizsaison", icon: "mdi:radiator", tone: "heat" },
   pause: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
   cold_snap: { label: "Kälteeinbruch", icon: "mdi:snowflake-thermometer", tone: "cold" },
   heat_today: { label: "Heute heizen", icon: "mdi:fire-circle", tone: "heat" },
   always: { label: "Immer heizen", icon: "mdi:radiator", tone: "heat" },
   manual_pause: { label: "Heizpause (Hand)", icon: "mdi:radiator-off", tone: "off" },
-};
+});
 
 // Entitäten der Zentrale „Allgemein“ finden (über translation_key)
 export function rkHomes(hass) {
   return Object.values(hass.entities || {})
     .filter((e) => e.platform === "raumklima" && e.translation_key === "presence" && hass.states[e.entity_id])
-    .map((e) => { const a = hass.states[e.entity_id].attributes; return { id: a.home_id, name: a.home_name || "Allgemein", dashboard: a.home_dashboard, presence: e.entity_id }; })
+    .map((e) => { const a = hass.states[e.entity_id].attributes; return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id }; })
     .filter((h) => h.id);
 }
 export function rkHub(hass, home) {
@@ -50,28 +54,28 @@ export function rkHub(hass, home) {
 
 // Zieltext je nach Plan (Abwesenheit, Heizpause, …)
 export function planText(a, off) {
-  if (off) return "Heizung aus";
+  if (off) return t("Heizung aus");
   const r = a.plan_reason;
-  if (r === "season") return "Heizpause";
-  if (r === "frost") return `Frostschutz <b>${fmt(a.effective_target)} °C</b>`;
-  if (r === "valve_care") return "Ventilpflege läuft";
+  if (r === "season") return t("Heizpause");
+  if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
+  if (r === "valve_care") return t("Ventilpflege läuft");
   if ((r === "away_short" || r === "away_long") && a.effective_target != null)
-    return `Abgesenkt <b>${fmt(a.effective_target)} °C</b> · Wunsch ${fmt(a.temperature)}°`;
-  if (r === "manual") return `Ziel <b>${fmt(a.temperature)} °C</b> · von Hand`;
-  return `Ziel <b>${fmt(a.temperature)} °C</b>`;
+    return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
+  if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
+  return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
 }
 
-export const VENT = {
+export const VENT = tmap({
   ok: null,
   please_open: { label: "Bitte lüften", icon: "mdi:air-filter", tone: "air" },
   airing: { label: "Lüftet", icon: "mdi:weather-windy", tone: "air" },
   done: { label: "Luft ausgetauscht – du kannst schließen", icon: "mdi:check-decagram", tone: "ok" },
   please_close: { label: "Lüftzeit erreicht – bitte schließen", icon: "mdi:window-closed-variant", tone: "warn" },
   too_cold: { label: "Raum kühlt aus – jetzt schließen", icon: "mdi:snowflake-alert", tone: "cold" },
-};
+});
 
 export const fmt = (v, d = 1) =>
-  v === null || v === undefined || isNaN(v) ? "–" : Number(v).toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+  v === null || v === undefined || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
 
 export const humTone = (h) => (h === null || h === undefined ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold");
 
@@ -132,10 +136,10 @@ export const STYLES = `
   .err { padding:16px; color: var(--rk-cold); }
 `;
 
-export function toneVar(t) { return `var(--rk-${t || "off"})`; }
+export function toneVar(tone) { return `var(--rk-${tone || "off"})`; }
 
 export const RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
-export const SEG = {
+export const SEG = tmap({
   season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
   setback: { c: "var(--rk-eco)", l: "Abgesenkt" },
   heating: { c: "var(--rk-heat)", l: "Heizt" },
@@ -145,7 +149,7 @@ export const SEG = {
   off: { c: "color-mix(in srgb, var(--rk-off) 45%, transparent)", l: "Aus" },
   sensor_unavailable: { c: "var(--rk-warn)", l: "Fühler fehlt" },
   trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" },
-};
+});
 
 export function rkRooms(hass, prefix, home) {
   const reg = Object.values(hass.entities || {});
@@ -156,7 +160,7 @@ export function rkRooms(hass, prefix, home) {
       const sib = {};
       reg.forEach((x) => { if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id; });
       const full = (st && st.attributes.friendly_name) || e.entity_id;
-      return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + prefix + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
+      return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + escRe(prefix) + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
     })
     .sort((a, b) => a.name.localeCompare(b.name));
   const mine = home ? rooms.filter((r) => !r.attrs.home || r.attrs.home === home) : rooms;
@@ -164,14 +168,14 @@ export function rkRooms(hass, prefix, home) {
   return mine;
 }
 
-export const RK_ROOM_TYPES = { living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", rarely_used: "Selten genutzt" };
-export const RK_CAL = { offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Keine" };
-export const RK_OFF = { auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" };
-export const RK_SYNC = { ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] };
-export const RK_BUILDING = { unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" };
-export const RK_NIGHT = { auto: "Automatisch", on: "Ja", off: "Nein" };
-export const RK_MODES = { auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" };
-export const RK_KINDS = {
+export const RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", rarely_used: "Selten genutzt" });
+export const RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Keine" });
+export const RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
+export const RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
+export const RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
+export const RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+export const RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
+export const RK_KINDS = tmap({
   vent_open: ["💧", "Bitte lüften"],
   vent_close: ["🪟", "Fenster schließen"],
   too_cold: ["🥶", "Raum kühlt aus"],
@@ -182,11 +186,11 @@ export const RK_KINDS = {
   trv_failure: ["⚠️", "Thermostat reagiert nicht"],
   health: ["🩺", "Gesundheit der Heizung"],
   report: ["📊", "Wochenbericht"],
-};
+});
 export const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report"];
-export const RK_SEV = { alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Prüfen"], info: ["air", "mdi:information-outline", "Hinweis"] };
+export const RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Prüfen"], info: ["air", "mdi:information-outline", "Hinweis"] });
 export function rkIssueList(issues, withRoom, prefix) {
-  if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.</div>`;
+  if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
   const order = { alert: 0, warn: 1, info: 2 };
   return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
     const sv = RK_SEV[i.severity] || RK_SEV.info;

@@ -1,4 +1,4 @@
-import { STATUS, STYLES, VENT, fmt, humTone, planText, toneVar } from "../shared.js";
+import { STATUS, STYLES, VENT, fmt, humTone, planText, setLang, t, toneVar } from "../shared.js";
 
 export class RaumklimaCard extends HTMLElement {
   static getConfigForm() {
@@ -7,7 +7,7 @@ export class RaumklimaCard extends HTMLElement {
         { name: "entity", required: true, selector: { entity: { domain: "climate", integration: "raumklima" } } },
         { name: "name", selector: { text: {} } },
       ],
-      computeLabel: (s) => ({ entity: "Raum (Raumklima-Thermostat)", name: "Anzeigename (optional)" }[s.name]),
+      computeLabel: (s) => ({ entity: t("Raum (Raumklima-Thermostat)"), name: t("Anzeigename (optional)") }[s.name]),
     };
   }
 
@@ -17,7 +17,7 @@ export class RaumklimaCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config.entity) throw new Error("Bitte ein Raumklima-Thermostat (entity) angeben");
+    if (!config.entity) throw new Error(t("Bitte ein Raumklima-Thermostat (entity) angeben"));
     this._config = config;
     this._pending = null;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
@@ -30,6 +30,7 @@ export class RaumklimaCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    setLang(hass);
     this._render();
   }
 
@@ -88,8 +89,8 @@ export class RaumklimaCard extends HTMLElement {
     const c = cur === null || cur === undefined ? start : pos(cur);
     let knob = "";
     if (!off && target !== null && target !== undefined) {
-      const t = pos(target);
-      const [kx, ky] = pt(t);
+      const tp = pos(target);
+      const [kx, ky] = pt(tp);
       knob = `<circle class="knob" cx="${kx}" cy="${ky}" r="11"/><circle cx="${kx}" cy="${ky}" r="4.5" fill="var(--tone)"/>`;
     }
     const [ax, ay] = pt(start, R + 18), [bx, by] = pt(start + sweep, R + 18);
@@ -106,7 +107,7 @@ export class RaumklimaCard extends HTMLElement {
     if (!this._hass || !this._config) return;
     const st = this._hass.states[this._config.entity];
     if (!st) {
-      this.shadowRoot.innerHTML = `<style>${STYLES}</style><ha-card><div class="err">Entität ${this._config.entity} nicht gefunden</div></ha-card>`;
+      this.shadowRoot.innerHTML = `<style>${STYLES}</style><ha-card><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
       return;
     }
     const a = st.attributes;
@@ -115,7 +116,7 @@ export class RaumklimaCard extends HTMLElement {
     const vent = VENT[a.ventilation] || null;
     const target = this._pending ?? a.temperature;
     const isOff = st.state === "off";
-    const name = this._config.name || a.friendly_name || "Raum";
+    const name = this._config.name || a.friendly_name || t("Raum");
     const winOpen = a.window_open;
     this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
     this._recMin = a.recommended_minutes || 5;
@@ -124,7 +125,7 @@ export class RaumklimaCard extends HTMLElement {
     if (vent && a.ventilation !== "ok") {
       const showBar = winOpen && this._openSince && ["airing", "please_close", "done"].includes(a.ventilation);
       const extra = a.ventilation === "please_open"
-        ? `<span>${fmt(a.current_humidity, 0)} % · ca. ${this._recMin} min</span>`
+        ? `<span>${t("{h} % · ca. {m} min", { h: fmt(a.current_humidity, 0), m: this._recMin })}</span>`
         : showBar ? `<span class="count" data-count>–</span>` : "";
       banner = `<div class="banner" style="--vt:${toneVar(vent.tone)}">
           <ha-icon icon="${vent.icon}"></ha-icon><span class="grow">${vent.label}${showBar ? ` · ${this._recMin} min` : ""}</span>${extra}
@@ -136,17 +137,17 @@ export class RaumklimaCard extends HTMLElement {
         <div class="v ${tone ? "tone" : ""}" style="${tone ? `--st:${toneVar(tone)}` : ""}">${value}</div></div>`;
 
     const stats = [
-      a.humidity_sensor ? stat("mdi:water-percent", "Feuchte", `${fmt(a.current_humidity, 0)} %`, humTone(a.current_humidity), sib.ventilation) : "",
-      a.dew_point !== undefined && a.dew_point !== null ? stat("mdi:water-thermometer", "Taupunkt", `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
-      stat("mdi:valve", "Ventil", a.valve_position === null || a.valve_position === undefined ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null),
+      a.humidity_sensor ? stat("mdi:water-percent", t("Feuchte"), `${fmt(a.current_humidity, 0)} %`, humTone(a.current_humidity), sib.ventilation) : "",
+      a.dew_point !== undefined && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
+      stat("mdi:valve", t("Ventil"), a.valve_position === null || a.valve_position === undefined ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null),
       a.outdoor_temperature !== undefined && a.outdoor_temperature !== null
-        ? stat("mdi:weather-partly-cloudy", "Außen", `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
-      stat("mdi:radiator", "Heizkörper", `${fmt(a.trv_temperature)}°`, null),
-      a.offset !== undefined && a.offset !== null ? stat("mdi:tune-variant", "Offset", `${a.offset > 0 ? "+" : ""}${fmt(a.offset)}°`, null, sib.offset) : "",
+        ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
+      stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
+      a.offset !== undefined && a.offset !== null ? stat("mdi:tune-variant", t("Offset"), `${a.offset > 0 ? "+" : ""}${fmt(a.offset)}°`, null, sib.offset) : "",
     ].join("");
 
     const syncCls = a.sync === "ok" ? "" : a.sync;
-    const syncLabel = { ok: "synchron", pending: "sendet …", failed: "keine Antwort" }[a.sync] || a.sync;
+    const syncLabel = { ok: t("synchron"), pending: t("sendet …"), failed: t("keine Antwort") }[a.sync] || a.sync;
     const notif = sib.notifications ? this._hass.states[sib.notifications] : null;
     const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
 
@@ -161,19 +162,19 @@ export class RaumklimaCard extends HTMLElement {
           ${this._arc(a.current_temperature, target, isOff)}
           <div class="center">
             <div class="now">${fmt(a.current_temperature)}<small>°C</small></div>
-            <div class="target">${this._pending != null ? `Ziel <b>${fmt(target)} °C</b>` : planText(a, isOff)}</div>
+            <div class="target">${this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff)}</div>
           </div>
         </div>
         <div class="ctrl">
-          <button class="round" data-step="-0.5" ${isOff ? "disabled" : ""} aria-label="kälter"><ha-icon icon="mdi:minus"></ha-icon></button>
-          <button class="round" data-power aria-label="an/aus" style="${isOff ? "" : "color:var(--tone)"}"><ha-icon icon="mdi:power"></ha-icon></button>
-          <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="wärmer"><ha-icon icon="mdi:plus"></ha-icon></button>
+          <button class="round" data-step="-0.5" ${isOff ? "disabled" : ""} aria-label="${t("kälter")}"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <button class="round" data-power aria-label="${t("an/aus")}" style="${isOff ? "" : "color:var(--tone)"}"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="${t("wärmer")}"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         ${banner}
         <div class="stats">${stats}</div>
         <div class="actions">
-          ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>Fensterlogik</button>` : ""}
-          ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>Hinweise</button>` : ""}
+          ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
+          ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
           <span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>
         </div>
       </ha-card>`;

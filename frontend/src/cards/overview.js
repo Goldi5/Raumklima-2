@@ -1,4 +1,4 @@
-import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, fmt, humTone, rkHomes, rkHub, toneVar } from "../shared.js";
+import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkHomes, rkHub, setLang, t, toneVar } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   static getConfigForm() {
@@ -7,14 +7,14 @@ export class RaumklimaOverviewCard extends HTMLElement {
         { name: "title", selector: { text: {} } },
         { name: "weather", selector: { entity: { domain: "weather" } } },
       ],
-      computeLabel: (s) => ({ title: "Titel", weather: "Wetter (optional)" }[s.name]),
+      computeLabel: (s) => ({ title: t("Titel"), weather: t("Wetter (optional)") }[s.name]),
     };
   }
-  static getStubConfig() { return { title: "Heizung" }; }
+  static getStubConfig() { return { title: t("Heizung") }; }
   setConfig(config) { this._config = config || {}; if (!this.shadowRoot) this.attachShadow({ mode: "open" }); }
   getCardSize() { return 4; }
   getGridOptions() { return { columns: 12, rows: "auto" }; }
-  set hass(hass) { this._hass = hass; this._render(); }
+  set hass(hass) { this._hass = hass; setLang(hass); this._render(); }
 
   _render() {
     if (!this._hass) return;
@@ -49,7 +49,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;
       const label = v && a.ventilation !== "ok" ? v.label : s.label;
       const prefix = this._config.strip_prefix ?? "";
-      const name = (a.friendly_name || "").replace(new RegExp("^" + prefix + "\\s*"), "");
+      const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
       return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.window_open ? `<ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>` : ""}</div>
@@ -57,7 +57,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
         <div class="rs">${label}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
-          <div class="rmeta">${off ? "aus" : a.plan_reason === "season" ? "Pause" : a.effective_target != null && a.effective_target < a.temperature ? `↓ ${fmt(a.effective_target)}° · Wunsch ${fmt(a.temperature)}°` : `Ziel ${fmt(a.temperature)}°`}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
+          <div class="rmeta">${off ? t("aus") : a.plan_reason === "season" ? t("Pause") : a.effective_target != null && a.effective_target < a.temperature ? t("↓ {v}° · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) }) : t("Ziel {v}°", { v: fmt(a.temperature) })}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
         </div>
       </div>`;
     };
@@ -94,15 +94,15 @@ export class RaumklimaOverviewCard extends HTMLElement {
     <ha-card style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
       ${homeBar}
       <div class="head">
-        <div style="flex:1;min-width:0"><div class="title">${this._config.title || "Heizung"}</div>
-          <div class="sub">${rooms.length} Räume · ${heating} heizen · ${windows} Fenster offen</div></div>
-        ${outT !== undefined && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>außen · ${fmt(outH, 0)} %</span></div>` : ""}
+        <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rooms.length, h: heating, w: windows })}</div></div>
+        ${outT !== undefined && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">
-        <span class="chip" style="--tone:${toneVar(heating ? "heat" : "off")}"><ha-icon icon="mdi:fire"></ha-icon>${heating} heizen</span>
-        <span class="chip" style="--tone:${toneVar(windows ? "air" : "off")}"><ha-icon icon="mdi:window-open-variant"></ha-icon>${windows} offen</span>
-        <span class="chip" style="--tone:${toneVar(warn ? "warn" : "ok")}"><ha-icon icon="${warn ? "mdi:alert-circle-outline" : "mdi:check-circle-outline"}"></ha-icon>${warn ? `${warn} Hinweis${warn > 1 ? "e" : ""}` : "alles gut"}</span>
-        <span class="chip" style="--tone:${toneVar(allSync ? "ok" : "warn")}"><ha-icon icon="mdi:sync"></ha-icon>${allSync ? "synchron" : "sendet …"}</span>
+        <span class="chip" style="--tone:${toneVar(heating ? "heat" : "off")}"><ha-icon icon="mdi:fire"></ha-icon>${t("{n} heizen", { n: heating })}</span>
+        <span class="chip" style="--tone:${toneVar(windows ? "air" : "off")}"><ha-icon icon="mdi:window-open-variant"></ha-icon>${t("{n} offen", { n: windows })}</span>
+        <span class="chip" style="--tone:${toneVar(warn ? "warn" : "ok")}"><ha-icon icon="${warn ? "mdi:alert-circle-outline" : "mdi:check-circle-outline"}"></ha-icon>${warn ? (warn > 1 ? t("{n} Hinweise", { n: warn }) : t("1 Hinweis")) : t("alles gut")}</span>
+        <span class="chip" style="--tone:${toneVar(allSync ? "ok" : "warn")}"><ha-icon icon="mdi:sync"></ha-icon>${allSync ? t("synchron") : t("sendet …")}</span>
         ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
       </div>
