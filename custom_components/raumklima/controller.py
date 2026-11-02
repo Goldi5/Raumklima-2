@@ -77,6 +77,8 @@ from .const import (
     OFF_HVAC,
     OFF_MIN_TEMP,
     OFF_PRESET,
+    OFF_SOURCE_TRV,
+    OFF_SOURCE_USER,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
     SETPOINT_MATCH_TOLERANCE,
@@ -85,6 +87,7 @@ from .const import (
     STATUS_IDLE,
     STATUS_NIGHT,
     STATUS_OFF,
+    STATUS_OFF_TRV,
     STATUS_SEASON,
     STATUS_SENSOR,
     STATUS_SETBACK,
@@ -196,6 +199,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         # Dauerhafter Zustand (Store)
         self.target_temp: float = 20.0
         self.hvac_on: bool = True
+        # Warum der Raum aus ist (None = an): OFF_SOURCE_USER / OFF_SOURCE_TRV
+        self.off_source: str | None = None
         self.window_logic: bool = True
         self.trv_on_preset: str | None = None
 
@@ -273,6 +278,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if stored:
             self.target_temp = float(stored.get("target_temp", self.target_temp))
             self.hvac_on = bool(stored.get("hvac_on", self.hvac_on))
+            self.off_source = stored.get("off_source") or (None if self.hvac_on else OFF_SOURCE_USER)
             self.window_logic = bool(stored.get("window_logic", self.window_logic))
             self.trv_on_preset = stored.get("trv_on_preset")
             self.preset_learned = stored.get("preset_learned")
@@ -281,6 +287,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
             self.target_temp = self.comfort_temp
             self.hvac_on = not self._is_trv_off(self._trv_state(), self._off_method())
+            self.off_source = None if self.hvac_on else OFF_SOURCE_TRV
             preset = self._trv_attr("preset_mode")
             if preset and preset != "off":
                 self.trv_on_preset = preset
@@ -361,6 +368,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return {
             "target_temp": self.target_temp,
             "hvac_on": self.hvac_on,
+            "off_source": self.off_source,
             "window_logic": self.window_logic,
             "trv_on_preset": self.trv_on_preset,
             "preset_learned": self.preset_learned,
@@ -692,7 +700,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if not self.trv_available():
             return STATUS_TRV
         if not self.hvac_on:
-            return STATUS_OFF
+            return STATUS_OFF_TRV if self.off_source == OFF_SOURCE_TRV else STATUS_OFF
         if self.paused:
             return STATUS_NIGHT if self.night_airing else STATUS_WINDOW
         on, _target, reason = self.plan()
@@ -744,6 +752,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if on != self.hvac_on:
             self.log(CAT_MANUAL, tr("Raum eingeschaltet") if on else tr("Raum ausgeschaltet"), tr("in Home Assistant"))
         self.hvac_on = on
+        self.off_source = None if on else OFF_SOURCE_USER
         self._save()
         self._notify()
         await self._apply()

@@ -229,6 +229,7 @@ STATUS_HEATING: Final = "heating"
 STATUS_IDLE: Final = "idle"
 STATUS_WINDOW: Final = "window_open"
 STATUS_OFF: Final = "off"
+STATUS_OFF_TRV: Final = "off_trv"  # aus, weil das Thermostat selbst abgeschaltet hat
 STATUS_SENSOR: Final = "sensor_unavailable"
 STATUS_TRV: Final = "trv_unavailable"
 STATUS_SEASON: Final = "season_off"
@@ -239,12 +240,17 @@ STATUSES: Final = [
     STATUS_IDLE,
     STATUS_WINDOW,
     STATUS_OFF,
+    STATUS_OFF_TRV,
     STATUS_SENSOR,
     STATUS_TRV,
     STATUS_SEASON,
     STATUS_SETBACK,
     STATUS_NIGHT,
 ]
+
+# Warum ein Raum aus ist – für die Anzeige („Aus" ist nicht gleich „Aus")
+OFF_SOURCE_USER: Final = "user"  # in Home Assistant abgeschaltet
+OFF_SOURCE_TRV: Final = "trv"  # am Thermostat abgeschaltet (Zeitplan, Boost, Drehrad)
 
 SYNC_OK: Final = "ok"
 SYNC_PENDING: Final = "pending"

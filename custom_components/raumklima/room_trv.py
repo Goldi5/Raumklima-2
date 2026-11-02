@@ -26,6 +26,7 @@ from .const import (
     OFF_HVAC,
     OFF_MIN_TEMP,
     OFF_PRESET,
+    OFF_SOURCE_TRV,
     OFFSET_MATCH_TOLERANCE,
     OFFSET_MAX,
     OFFSET_MIN,
@@ -113,6 +114,7 @@ class TrvMixin:
         if was_off != now_off and method != OFF_MIN_TEMP:
             if follow:
                 self.hvac_on = not now_off
+                self.off_source = OFF_SOURCE_TRV if now_off else None
                 self._save()
                 _LOGGER.info("%s: TRV am Gerät %s", self.name, "aus" if now_off else "an")
                 self.log(CAT_MANUAL, tr("Am Thermostat ausgeschaltet") if now_off else tr("Am Thermostat eingeschaltet"), tr("„Drehen am Thermostat übernehmen“ ist an"))

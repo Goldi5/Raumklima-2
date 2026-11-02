@@ -108,6 +108,24 @@ async def test_turn_off_and_on(hass: HomeAssistant, setup, trv: FakeTrv) -> None
     assert not trv.is_off
 
 
+async def test_status_says_off_in_home_assistant(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """„Aus" ist nicht gleich „Aus" (#3): in Home Assistant abgeschaltet."""
+    await hass.services.async_call("climate", "turn_off", {"entity_id": "climate.bad"}, blocking=True)
+    await hass.async_block_till_done()
+    attrs = hass.states.get("climate.bad").attributes
+    assert attrs["status"] == "off"
+    assert attrs["off_source"] == "user"
+
+
+async def test_status_says_off_at_thermostat(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Schaltet das Thermostat selbst ab (eigener Zeitplan, Boost, Drehrad), ist das an der Anzeige erkennbar."""
+    trv.set(preset_mode="off")
+    await hass.async_block_till_done()
+    attrs = hass.states.get("climate.bad").attributes
+    assert attrs["status"] == "off_trv"
+    assert attrs["off_source"] == "trv"
+
+
 async def test_unload_stops_all_timers(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     _hub, room = setup
     hass.states.async_set(WINDOW, "on")

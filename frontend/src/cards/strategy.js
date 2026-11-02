@@ -1,6 +1,28 @@
 import { ROOM_COLORS, escRe, setLang, t } from "../shared.js";
 
 
+// Reihenfolge der Räume: Stockwerk → Bereich → Name.
+// Über `sort:` im Dashboard umstellbar: "floor" (Standard), "area", "name".
+export function roomSort(config = {}) {
+  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+  const mode = config.sort || "floor";
+  const byName = (a, b) => collator.compare(a.name, b.name);
+  const areaName = (r) => (r.area ? r.area.name : "");
+  const floorName = (r) => (r.floor ? r.floor.name : "");
+  // Räume ohne Stockwerk kommen ans Ende
+  const level = (r) => (r.floor ? (r.floor.level ?? 0) : Number.MAX_SAFE_INTEGER);
+  return (a, b) => {
+    if (mode === "name") return byName(a, b);
+    if (mode === "area") {
+      return areaName(a) === areaName(b) ? byName(a, b) : collator.compare(areaName(a), areaName(b));
+    }
+    if (level(a) !== level(b)) return level(a) - level(b);
+    if (floorName(a) !== floorName(b)) return collator.compare(floorName(a), floorName(b));
+    return areaName(a) === areaName(b) ? byName(a, b) : collator.compare(areaName(a), areaName(b));
+  };
+}
+
+
 export class RaumklimaDashboardStrategy extends HTMLElement {
   static async generate(config, hass) {
     setLang(hass);
@@ -14,10 +36,14 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
         reg.forEach((x) => { if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id; });
         const full = (st && st.attributes.friendly_name) || e.entity_id;
         const name = prefix ? full.replace(new RegExp("^" + escRe(prefix) + "\\s*"), "") : full;
-        return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib };
+        const ent = (hass.entities || {})[e.entity_id] || {};
+        const dev = ent.device_id ? (hass.devices || {})[ent.device_id] || {} : {};
+        const area = (hass.areas || {})[ent.area_id || dev.area_id] || null;
+        const floor = area && area.floor_id ? (hass.floors || {})[area.floor_id] || null : null;
+        return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib, area, floor };
       })
       .filter((r) => !config.home || !r.attrs.home || r.attrs.home === config.home)
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort(roomSort(config));
     const H = config.home ? { home: config.home } : {};
     rooms.forEach((r, i) => { r.color = ROOM_COLORS[i % ROOM_COLORS.length]; });
     const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? undefined);

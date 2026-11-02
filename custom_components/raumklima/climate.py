@@ -92,6 +92,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
         c = self.controller
         return {
             "status": c.status,
+            "off_source": c.off_source,
             "window_open": c.window_open,
             "paused_by_window": c.paused,
             "trv_temperature": c.trv_temperature,

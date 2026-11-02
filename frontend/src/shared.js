@@ -16,6 +16,7 @@ export const STATUS = tmap({
   idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
   window_open: { label: "Pausiert – Fenster offen", icon: "mdi:window-open-variant", tone: "air" },
   off: { label: "Aus", icon: "mdi:power", tone: "off" },
+  off_trv: { label: "Aus – am Thermostat abgeschaltet", icon: "mdi:power-plug-off", tone: "off" },
   sensor_unavailable: { label: "Fühler ausgefallen", icon: "mdi:thermometer-alert", tone: "warn" },
   trv_unavailable: { label: "Thermostat nicht erreichbar", icon: "mdi:lan-disconnect", tone: "warn" },
   season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
