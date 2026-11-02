@@ -33,4 +33,4 @@
 - **Modernes Dashboard** mit Raumkarten, Verlauf, Zeitleiste, Heizbericht (auch als CSV und als **PDF** für Woche, Monat und Heizsaison – per Push, E-Mail oder Download) und einer komplett bearbeitbaren Einstellungsseite – auf Deutsch oder Englisch, je nach Sprache in Home Assistant.
 - **Eigene Automationen:** Geräte-Auslöser wie „Bitte lüften“, „Fenster geöffnet“ oder „Heizung pausiert“.
 
-Getestet mit Tuya **TRV602Z** (Zigbee2MQTT) und IKEA-Fühlern, funktioniert mit jedem `climate`-Thermostat in Home Assistant – Hinweise zu Matter/Thread unter [Installation](installation.md#matter--thread-thermostate).
+Getestet mit Tuya **TRV602Z** (Zigbee2MQTT) und IKEA-Fühlern, funktioniert mit jedem `climate`-Thermostat in Home Assistant – Hinweise je Gerätetyp (Shelly, Matter/Thread, Cloud …) unter [Welche Thermostate funktionieren?](installation.md#welche-thermostate-funktionieren).

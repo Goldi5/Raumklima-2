@@ -34,7 +34,7 @@ Dieses Handbuch erklärt Schritt für Schritt, wie du Raumklima einrichtest und 
 ## Was du brauchst
 
 - **Home Assistant** (Version 2026.5 oder neuer) mit **HACS**
-- pro Raum ein **Heizkörperthermostat**, das in Home Assistant erscheint
+- pro Raum ein (oder mehrere) **Heizkörperthermostat**, das in Home Assistant erscheint – egal ob Zigbee, Shelly, Matter oder Cloud
 - pro Raum einen **Temperaturfühler** (am besten mit Luftfeuchte)
 - optional: **Fensterkontakte**, ein **CO₂-Sensor**
 - für die Anwesenheit: die **Home-Assistant-App** auf euren Handys

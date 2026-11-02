@@ -3,7 +3,7 @@
 ## Setup
 
 ### Which thermostats work?
-Every radiator thermostat that shows up in Home Assistant as a “climate” device – whether via Zigbee, Z-Wave, Wi-Fi or Matter. Tested with the Tuya TRV602Z via Zigbee2MQTT.
+Every radiator thermostat that shows up in Home Assistant as a “climate” device and whose temperature can be set – whether Zigbee, Z-Wave, Wi-Fi, Shelly, Matter or cloud (Tado, Netatmo). If it has an offset setting, Raumklima corrects through it; otherwise it sets the setpoint higher or lower accordingly. Important: turn off the thermostat's own schedule and window detection. So far tested with the Tuya TRV602Z via Zigbee2MQTT – details and notes per device type under [Which thermostats work?](installation.md#which-thermostats-work).
 
 ### Do I really need an extra temperature sensor?
 Yes, one per room. The thermostat itself measures right next to the hot radiator and is often off. A simple Zigbee sensor (e.g. from IKEA or Aqara) somewhere in the middle of the room is enough.

@@ -37,16 +37,37 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
 - **Fertig:** Dashboard hinzufügen → **Raumklima** (Strategie). Baut die Reiter *Räume*, *Verlauf* und *Einstellungen* automatisch auf und passt sich an, wenn Räume dazukommen.
 - **Eigene Dashboards:** die Karten einzeln einsetzen – siehe [Bedienung](bedienung.md).
 
-## Matter & Thread-Thermostate
+## Welche Thermostate funktionieren?
 
-Raumklima steuert jedes Thermostat, das in Home Assistant als `climate`-Entität erscheint – also auch Matter-Geräte (z. B. Eve Thermo, Bosch, Aqara). Selbst getestet ist bisher nur das Tuya TRV602Z; Rückmeldungen zu Matter-Geräten gerne als Issue.
+Raumklima steuert **jedes Heizkörperthermostat, das in Home Assistant als `climate`-Entität erscheint** und dessen Temperatur sich einstellen lässt – egal ob über Zigbee, Z-Wave, WLAN, Bluetooth, Matter/Thread oder eine Cloud.
 
-Worauf es ankommt:
+| | Wofür | Wenn es fehlt |
+|---|---|---|
+| **Temperatur einstellbar** (Pflicht) | Steuerung | geht nicht |
+| **Eigene Temperaturmessung** | Ausgleich: wie viel wärmer es direkt am Heizkörper ist | Raumklima regelt ohne Ausgleich nach dem Raumfühler |
+| **Offset-Einstellung** (Zahl wie „Temperatur-Kalibrierung“) | Korrektur direkt im Thermostat | automatisch **Sollwert-Ausgleich** – Raumklima stellt das Thermostat entsprechend höher/tiefer; geht mit jedem Gerät |
+| **Ventilstellung** | Bericht, Hinweis „Heizkörper kommt kaum hinterher“ | nur diese Auswertungen fehlen |
+| **Ausschalten** (Preset „aus“, Modus „aus“) | Pause bei offenem Fenster, Heizpause | Raumklima stellt die niedrigste Temperatur ein |
 
-- **Ausschalten:** Matter-Thermostate haben meist keine Presets, aber den Modus „aus“. *Ausschalten über* auf **Automatisch** lassen – Raumklima nimmt dann „HVAC aus“.
-- **Kalibrierung:** Bietet Home Assistant für das Gerät eine Zahl-Entität für den Temperatur-Offset an, **Offset** wählen. Sonst **Sollwert-Ausgleich** – das funktioniert mit jedem Thermostat.
-- **Thread schläft:** Batteriebetriebene Thread-Geräte melden sich nur alle paar Sekunden. Kommt oft „Thermostat reagiert nicht“, unter *Technik* *Befehl prüfen nach* auf 30–40 s erhöhen.
-- **Eigene Fenstererkennung** des Thermostats ausschalten, sonst arbeiten beide gegeneinander.
+**Vor dem Start am Thermostat ausschalten:** eigene **Zeitpläne**, eigene **Fenstererkennung** und **Boost**/Automatik-Modi – sonst arbeiten Thermostat und Raumklima gegeneinander. Alte Automationen für dieselben Thermostate deaktivieren.
+
+### Hinweise je Gerätetyp
+
+- **Zigbee (z. B. Tuya, Aqara, Danfoss, Bosch, Moes):** meist mit Offset-Einstellung und eigener Temperatur – ideal. Tuya-Geräte über Zigbee2MQTT melden den Offset oft erst nach dem ersten Setzen; das erledigt Raumklima automatisch.
+- **Shelly (Shelly TRV, Shelly BLU TRV über BLU-Gateway):** erscheinen über die offizielle Shelly-Integration als `climate`-Entität. Ob Offset und Ventilstellung an Home Assistant weitergegeben werden, hängt von Modell und Firmware ab – ohne Offset greift der Sollwert-Ausgleich.
+- **Matter & Thread (z. B. Eve Thermo, Bosch, Aqara):** meist keine Presets, aber Modus „aus“ – *Ausschalten über* auf **Automatisch** lassen. Oft ohne Offset → **Sollwert-Ausgleich**. Batteriebetriebene Thread-Geräte melden sich nur alle paar Sekunden: Kommt oft „Thermostat reagiert nicht“, unter *Technik* *Befehl prüfen nach* auf 30–40 s erhöhen.
+- **Cloud-Geräte (z. B. Tado, Netatmo):** funktionieren, reagieren aber verzögert. Raumklima prüft jeden Befehl und wiederholt ihn – bei häufigen Meldungen *Befehl prüfen nach* erhöhen. Ohne Internet keine Steuerung.
+- **Homematic, Z-Wave & Co.:** wie oben – Hauptsache `climate`-Entität. Bei Funk mit Duty-Cycle (Homematic) lieber nicht zu oft verstellen; die Bremse gegen zu viele Befehle schützt zusätzlich.
+
+### Geprüfte Thermostate
+
+| Thermostat | Anbindung | Status |
+|---|---|---|
+| Tuya TRV602Z | Zigbee2MQTT | ✅ getestet (Offset, Ventilstellung, Presets) |
+| Shelly TRV / BLU TRV | Shelly | ❔ noch nicht getestet – Erfahrungsbericht willkommen |
+| Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ noch nicht getestet |
+
+Dein Thermostat läuft (oder nicht)? Bitte als [Issue](https://github.com/Goldi5/Raumklima-2/issues) melden – mit Modell, Anbindung und was funktioniert. So wächst diese Liste.
 
 ## Aktualisieren
 

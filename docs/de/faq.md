@@ -3,7 +3,7 @@
 ## Einrichtung
 
 ### Welche Thermostate funktionieren?
-Jedes Heizkörperthermostat, das in Home Assistant als „Klima“-Gerät (`climate`) erscheint – egal ob über Zigbee, Z-Wave, WLAN oder Matter. Getestet ist das Tuya TRV602Z mit Zigbee2MQTT.
+Jedes Heizkörperthermostat, das in Home Assistant als „Klima“-Gerät (`climate`) erscheint und dessen Temperatur sich einstellen lässt – egal ob Zigbee, Z-Wave, WLAN, Shelly, Matter oder Cloud (Tado, Netatmo). Hat es eine Offset-Einstellung, korrigiert Raumklima darüber, sonst stellt es den Sollwert entsprechend höher oder tiefer. Wichtig: Zeitplan und Fenstererkennung am Thermostat selbst ausschalten. Getestet ist bisher das Tuya TRV602Z mit Zigbee2MQTT – Details und Hinweise je Gerätetyp unter [Welche Thermostate funktionieren?](installation.md#welche-thermostate-funktionieren).
 
 ### Brauche ich unbedingt einen extra Temperaturfühler?
 Ja, pro Raum einen. Das Thermostat selbst misst direkt am warmen Heizkörper und liegt deshalb oft daneben. Ein einfacher Zigbee-Fühler (z. B. von IKEA oder Aqara) irgendwo mitten im Raum reicht.

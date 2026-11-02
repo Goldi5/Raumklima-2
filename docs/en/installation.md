@@ -37,16 +37,37 @@ As above, without step 4 – recipients, presence and heating season apply to al
 - **Ready-made:** Add dashboard → **Raumklima** (strategy). Builds the tabs *Rooms*, *History*, *Report*, *Log* and *Settings* automatically and adapts when rooms are added.
 - **Your own dashboards:** use the cards individually – see [Usage](usage.md).
 
-## Matter & Thread thermostats
+## Which thermostats work?
 
-Raumklima controls every thermostat that appears as a `climate` entity in Home Assistant – including Matter devices (e.g. Eve Thermo, Bosch, Aqara). So far only the Tuya TRV602Z has been tested by the author; feedback on Matter devices is welcome as an issue.
+Raumklima controls **every radiator thermostat that appears as a `climate` entity in Home Assistant** and whose temperature can be set – whether via Zigbee, Z-Wave, Wi-Fi, Bluetooth, Matter/Thread or a cloud.
 
-What matters:
+| | Used for | If missing |
+|---|---|---|
+| **Settable temperature** (required) | control | doesn't work |
+| **Own temperature reading** | compensation: how much warmer it is right at the radiator | Raumklima controls by the room sensor without compensation |
+| **Offset setting** (number like “temperature calibration”) | correction inside the thermostat | automatic **setpoint compensation** – Raumklima sets the thermostat higher/lower accordingly; works with every device |
+| **Valve position** | report, “radiator can't keep up” notice | only these analyses are missing |
+| **Turning off** (preset “off”, mode “off”) | pause with open window, heating pause | Raumklima sets the lowest temperature |
 
-- **Turning off:** Matter thermostats usually have no presets but do have the “off” mode. Leave *Turn off via* on **Automatic** – Raumklima then uses “HVAC off”.
-- **Calibration:** If Home Assistant offers a number entity for the temperature offset of the device, choose **Offset**. Otherwise use **Setpoint compensation** – that works with every thermostat.
-- **Thread sleeps:** battery-powered Thread devices only check in every few seconds. If “thermostat not responding” appears often, raise *Verify command after* under *Technical* to 30–40 s.
-- **Disable the thermostat's own window detection**, otherwise both work against each other.
+**Before you start, turn off on the thermostat:** its own **schedules**, its own **window detection** and **boost**/automatic modes – otherwise thermostat and Raumklima work against each other. Disable old automations for the same thermostats.
+
+### Notes per device type
+
+- **Zigbee (e.g. Tuya, Aqara, Danfoss, Bosch, Moes):** usually with offset setting and own temperature – ideal. Tuya devices via Zigbee2MQTT often report the offset only after it was set once; Raumklima does that automatically.
+- **Shelly (Shelly TRV, Shelly BLU TRV via BLU gateway):** appear as `climate` entities via the official Shelly integration. Whether offset and valve position are passed to Home Assistant depends on model and firmware – without offset, setpoint compensation is used.
+- **Matter & Thread (e.g. Eve Thermo, Bosch, Aqara):** usually no presets but an “off” mode – leave *Turn off via* on **Automatic**. Often without offset → **setpoint compensation**. Battery-powered Thread devices only check in every few seconds: if “thermostat not responding” appears often, raise *Verify command after* under *Technical* to 30–40 s.
+- **Cloud devices (e.g. Tado, Netatmo):** work, but react with a delay. Raumklima checks every command and repeats it – raise *Verify command after* if notices are frequent. No internet, no control.
+- **Homematic, Z-Wave & co.:** as above – as long as it's a `climate` entity. With duty-cycle radio (Homematic), avoid too frequent changes; the brake against too many commands adds protection.
+
+### Tested thermostats
+
+| Thermostat | Connection | Status |
+|---|---|---|
+| Tuya TRV602Z | Zigbee2MQTT | ✅ tested (offset, valve position, presets) |
+| Shelly TRV / BLU TRV | Shelly | ❔ not tested yet – reports welcome |
+| Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ not tested yet |
+
+Your thermostat works (or doesn't)? Please report it as an [issue](https://github.com/Goldi5/Raumklima-2/issues) – with model, connection and what works. That's how this list grows.
 
 ## Updating
 

@@ -36,7 +36,7 @@ This manual explains step by step how to set up Raumklima and use it day to day.
 ## What you need
 
 - **Home Assistant** (version 2026.5 or newer) with **HACS**
-- per room a **radiator thermostat** that shows up in Home Assistant
+- per room one (or more) **radiator thermostat** that shows up in Home Assistant – whether Zigbee, Shelly, Matter or cloud
 - per room a **temperature sensor** (ideally with humidity)
 - optional: **window contacts**, a **CO₂ sensor**
 - for presence detection: the **Home Assistant app** on your phones

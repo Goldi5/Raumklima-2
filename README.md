@@ -67,7 +67,7 @@ Ausführlich: [Installation & Einrichtung](docs/de/installation.md)
 ## Kompatibilität
 
 - Home Assistant 2026.5+ (Strategie), Integration ab 2025.10
-- Jedes `climate`-Thermostat; getestet mit Tuya **TRV602Z** über Zigbee2MQTT und IKEA-Fühlern; Hinweise zu [Matter/Thread](docs/de/installation.md#matter--thread-thermostate)
+- Jedes `climate`-Thermostat; getestet mit Tuya **TRV602Z** über Zigbee2MQTT und IKEA-Fühlern; Hinweise je Gerätetyp (Shelly, Matter/Thread, Cloud …): [Welche Thermostate funktionieren?](docs/de/installation.md#welche-thermostate-funktionieren)
 - Benachrichtigungen über jeden `notify`-Dienst (Companion App, Alexa Media, …)
 
 ## Lizenz & Mitmachen
