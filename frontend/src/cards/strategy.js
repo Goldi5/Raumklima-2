@@ -1,4 +1,4 @@
-import { ROOM_COLORS, escRe, setLang, t } from "../shared.js";
+import { ROOM_COLORS, escRe, rkHomes, setLang, t } from "../shared.js";
 
 
 // Reihenfolge der Räume: Stockwerk → Bereich → Name.
@@ -27,6 +27,13 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
   static async generate(config, hass) {
     setLang(hass);
     const prefix = config.strip_prefix ?? "";
+    // `home` ist die ID der Wohnung – der Name wird auch akzeptiert (beides steht in den Einstellungen)
+    const homeId = (() => {
+      const v = config.home;
+      if (!v) return "";
+      const hs = rkHomes(hass);
+      return (hs.find((h) => h.id === v) || hs.find((h) => h.name === v) || { id: v }).id;
+    })();
     const reg = Object.values(hass.entities || {});
     const rooms = reg
       .filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate."))
@@ -42,9 +49,9 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
         const floor = area && area.floor_id ? (hass.floors || {})[area.floor_id] || null : null;
         return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib, area, floor };
       })
-      .filter((r) => !config.home || !r.attrs.home || r.attrs.home === config.home)
+      .filter((r) => !homeId || !r.attrs.home || r.attrs.home === homeId)
       .sort(roomSort(config));
-    const H = config.home ? { home: config.home } : {};
+    const H = homeId ? { home: homeId } : {};
     rooms.forEach((r, i) => { r.color = ROOM_COLORS[i % ROOM_COLORS.length]; });
     const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? undefined);
 

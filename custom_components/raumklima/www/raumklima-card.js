@@ -1,13 +1,17 @@
-/* Raumklima 0.24.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.24.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
+    "Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen": "Could not create it – please check Settings → Dashboards",
     "Breite": "Latitude",
+    "Dashboard mit der Raumklima-Strategie anlegen": "Create dashboard with the Raumklima strategy",
+    "Dashboard „{d}“ angelegt": "Dashboard “{d}” created",
     "Dauer des Boosts": "Boost duration",
     "Boost · Ziel <b>{v} °C</b>": "Boost · target <b>{v} °C</b>",
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Advanced: solar gain",
     "Erweitert: Standort der Wohnung": "Advanced: location of the home",
+    "Für diese Wohnung gibt es noch kein Dashboard „{d}“ – der Knopf legt es mit der Raumklima-Strategie an (gefiltert auf diese Wohnung).": "This home has no dashboard “{d}” yet – the button creates it with the Raumklima strategy (filtered to this home).",
     "Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.": "No dashboard has been set up for this home yet – create one first, then you can switch.",
     "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Create a second home here (e.g. a holiday flat) with its own residents, zone and recipients. Existing rooms stay in this home.",
     "Handbuch (PDF)": "Manual (PDF)",
@@ -37,6 +41,7 @@
     "Werte von Home Assistant übernehmen": "Take over Home Assistant’s values",
     "West": "West",
     "Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit": "Home “{n}” created – dashboard “{d}” included",
+    "anlegen": "create",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "also learn daytime sleep: bedtime up to 09:00, getting up up to 17:00 – for night and rotating shifts",
     "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "heat 1 °C less when the sun is out – it warms the room",
     "egal – nur Vorhersage": "any – forecast only",
@@ -44,6 +49,7 @@
     "leeren – dann gilt Home Assistant": "clear – then Home Assistant applies",
     "nur Vorhersage": "forecast only",
     "von HA": "from HA",
+    "vorhanden": "present",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "during quiet time, bedrooms and rarely used rooms are set back – even when somebody is at home",
     "z. B. Ferienwohnung": "e.g. Holiday flat",
     "z. B. abends 19–21 Uhr wärmer": "e.g. warmer in the evening from 7 to 9 pm",
@@ -60,6 +66,7 @@
     "Zeitfenster": "Time window",
     "Wärmer für kurze Zeit (Boost)": "Warmer for a short while (boost)",
     "Wärmer für kurze Zeit": "Warmer for a short while",
+    "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} dashboard(s) created for your homes",
     "– keiner –": "– none –",
     "gerade: „{s}“": "now: “{s}”",
     "Termine mit diesen Wörtern steuern die Anwesenheit": "Events with these words control presence",
@@ -555,12 +562,16 @@
 
   // src/i18n/fr.js
   var FR = {
+    "Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen": "Création impossible – vérifie Réglages → Tableaux de bord",
     "Breite": "Latitude",
+    "Dashboard mit der Raumklima-Strategie anlegen": "Créer le tableau de bord avec la stratégie Raumklima",
+    "Dashboard „{d}“ angelegt": "Tableau de bord « {d} » créé",
     "Dauer des Boosts": "Durée du boost",
     "Boost · Ziel <b>{v} °C</b>": "Boost · cible <b>{v} °C</b>",
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Avancé : apport solaire",
     "Erweitert: Standort der Wohnung": "Avancé : emplacement du logement",
+    "Für diese Wohnung gibt es noch kein Dashboard „{d}“ – der Knopf legt es mit der Raumklima-Strategie an (gefiltert auf diese Wohnung).": "Ce logement n'a pas encore de tableau de bord « {d} » – le bouton le crée avec la stratégie Raumklima (filtré sur ce logement).",
     "Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.": "Aucun tableau de bord n’a encore été créé pour ce logement – créez-le d’abord, ensuite vous pourrez basculer.",
     "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Créer ici un second logement (p. ex. une résidence secondaire) avec ses propres habitants, sa zone et ses destinataires. Les pièces existantes restent dans ce logement.",
     "Handbuch (PDF)": "Manuel (PDF)",
@@ -590,6 +601,7 @@
     "Werte von Home Assistant übernehmen": "Reprendre les valeurs de Home Assistant",
     "West": "Ouest",
     "Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit": "Logement « {n} » créé – tableau de bord « {d} » inclus",
+    "anlegen": "créer",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "apprendre aussi le sommeil de jour : coucher jusqu’à 09:00, lever jusqu’à 17:00 – pour le travail de nuit et en équipes",
     "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "chauffer 1 °C de moins quand le soleil est là – il réchauffe la pièce",
     "egal – nur Vorhersage": "peu importe – prévision seule",
@@ -597,6 +609,7 @@
     "leeren – dann gilt Home Assistant": "vider – Home Assistant s’applique alors",
     "nur Vorhersage": "prévision seule",
     "von HA": "de HA",
+    "vorhanden": "présent",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "pendant l’heure de repos, les chambres et les pièces peu utilisées sont abaissées – même si quelqu’un est à la maison",
     "z. B. Ferienwohnung": "p. ex. résidence secondaire",
     "z. B. abends 19–21 Uhr wärmer": "p. ex. plus chaud le soir de 19 h à 21 h",
@@ -613,6 +626,7 @@
     "Zeitfenster": "Plage horaire",
     "Wärmer für kurze Zeit (Boost)": "Plus chaud un moment (boost)",
     "Wärmer für kurze Zeit": "Plus chaud un moment",
+    "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} tableau(x) de bord créé(s) pour tes logements",
     "– keiner –": "– aucun –",
     "gerade: „{s}“": "en cours : « {s} »",
     "Termine mit diesen Wörtern steuern die Anwesenheit": "Les événements contenant ces mots pilotent la présence",
@@ -1147,7 +1161,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.24.1";
+  var RK_VERSION = "0.24.3";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2869,6 +2883,21 @@
       this._cfgVer = (this._cfgVer || 0) + 1;
       this._sig = null;
       this._render();
+      if (this._admin && !this._dashRepaired && this._cfg) {
+        this._dashRepaired = true;
+        this._repairDashboards();
+      }
+    }
+    async _repairDashboards() {
+      const homes = this._cfg && this._cfg.homes || [];
+      let made = 0;
+      for (const h of homes) {
+        if (await this._ensureDashboard(h.dashboard, h.name, h.entry_id)) made++;
+      }
+      if (made) {
+        this._flash(t("{n} Dashboard(s) für deine Wohnungen angelegt", { n: made }));
+        this._render();
+      }
     }
     // ---------------------------------------------------------------- Speichern
     _hubOpt(key) {
@@ -3108,7 +3137,16 @@
       const homes = this._cfg.homes || [];
       const homeRows = [
         this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Ferienwohnung")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
-        this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
+        (() => {
+          const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
+          const dp = dh.dashboard || "";
+          const fehlt = this._admin && rkNeedsDashboard(this._hass.dashboards || {}, dp, String(this._hass && this._hass.panelUrl || "").replace(/^\//, ""));
+          return this._row(
+            "Dashboard",
+            `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc(dp || "heizung")}" ${this._admin ? "" : "disabled"}>${fehlt ? ` <button class="mini" data-mkdash="${esc(dp)}" title="${t("Dashboard mit der Raumklima-Strategie anlegen")}">${t("anlegen")}</button>` : ` <span class="lt">${t("vorhanden")}</span>`}`,
+            fehlt ? t("Für diese Wohnung gibt es noch kein Dashboard „{d}“ – der Knopf legt es mit der Raumklima-Strategie an (gefiltert auf diese Wohnung).", { d: dp }) : t("Adresse des Dashboards dieser Wohnung (für den Umschalter)")
+          );
+        })(),
         (() => {
           const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
           const hl = this._hass.config || {};
@@ -3611,6 +3649,16 @@
         const raw = el.value.trim().replace(",", ".");
         const v = raw === "" ? null : Math.max(-limit, Math.min(limit, parseFloat(raw)));
         this._setHub({ [key]: Number.isNaN(v) ? null : v }, 200);
+      }));
+      $("[data-mkdash]").forEach((el) => el.addEventListener("click", async () => {
+        const p = el.dataset.mkdash;
+        const made = await this._ensureDashboard(p, this._hubOpt("name") || p, this._cfg.hub.entry_id);
+        this._flash(made ? t("Dashboard „{d}“ angelegt", { d: made }) : t("Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen"));
+        if (made) {
+          await this._load();
+        } else {
+          this._render();
+        }
       }));
       $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {
         const inp = this.shadowRoot.getElementById("newHome");
@@ -4339,6 +4387,12 @@
     static async generate(config, hass) {
       setLang(hass);
       const prefix = config.strip_prefix ?? "";
+      const homeId = (() => {
+        const v = config.home;
+        if (!v) return "";
+        const hs = rkHomes(hass);
+        return (hs.find((h) => h.id === v) || hs.find((h) => h.name === v) || { id: v }).id;
+      })();
       const reg = Object.values(hass.entities || {});
       const rooms = reg.filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => {
         const st = hass.states[e.entity_id];
@@ -4353,8 +4407,8 @@
         const area = (hass.areas || {})[ent.area_id || dev.area_id] || null;
         const floor = area && area.floor_id ? (hass.floors || {})[area.floor_id] || null : null;
         return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib, area, floor };
-      }).filter((r) => !config.home || !r.attrs.home || r.attrs.home === config.home).sort(roomSort(config));
-      const H = config.home ? { home: config.home } : {};
+      }).filter((r) => !homeId || !r.attrs.home || r.attrs.home === homeId).sort(roomSort(config));
+      const H = homeId ? { home: homeId } : {};
       rooms.forEach((r, i) => {
         r.color = ROOM_COLORS[i % ROOM_COLORS.length];
       });

@@ -457,3 +457,11 @@ async def test_climate_exposes_trv_target(hass: HomeAssistant, setup, trv: FakeT
     st = hass.states.get("climate.bad")
     assert st is not None and st.attributes.get("trv_target") == ctrl.trv_target
 
+
+async def test_room_exposes_home_entry_id(hass: HomeAssistant, setup) -> None:
+    """`home` ist die ID der Wohnung – genau darauf filtert die Dashboard-Strategie (Issue #10)."""
+    hub, _room = setup  # setup liefert (Zentrale, Raum) als ConfigEntries
+    st = hass.states.get("climate.bad")
+    assert st is not None
+    assert st.attributes.get("home") == hub.entry_id
+

@@ -82,6 +82,23 @@ export class RaumklimaSettingsCard extends HTMLElement {
     this._cfgVer = (this._cfgVer || 0) + 1;
     this._sig = null;
     this._render();
+    // Fehlende Dashboards einmal je Sitzung nachziehen (z. B. Wohnung vor 0.24 angelegt)
+    if (this._admin && !this._dashRepaired && this._cfg) {
+      this._dashRepaired = true;
+      this._repairDashboards();
+    }
+  }
+
+  async _repairDashboards() {
+    const homes = (this._cfg && this._cfg.homes) || [];
+    let made = 0;
+    for (const h of homes) {
+      if (await this._ensureDashboard(h.dashboard, h.name, h.entry_id)) made++;
+    }
+    if (made) {
+      this._flash(t("{n} Dashboard(s) für deine Wohnungen angelegt", { n: made }));
+      this._render();
+    }
   }
 
   // ---------------------------------------------------------------- Speichern
@@ -306,7 +323,18 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const homes = this._cfg.homes || [];
     const homeRows = [
       this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Ferienwohnung")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
-      this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
+      (() => {
+        const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
+        const dp = dh.dashboard || "";
+        const fehlt = this._admin && rkNeedsDashboard(this._hass.dashboards || {}, dp, String((this._hass && this._hass.panelUrl) || "").replace(/^\//, ""));
+        return this._row("Dashboard",
+          `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc(dp || "heizung")}" ${this._admin ? "" : "disabled"}>${
+            fehlt ? ` <button class="mini" data-mkdash="${esc(dp)}" title="${t("Dashboard mit der Raumklima-Strategie anlegen")}">${t("anlegen")}</button>` : ` <span class="lt">${t("vorhanden")}</span>`
+          }`,
+          fehlt
+            ? t("Für diese Wohnung gibt es noch kein Dashboard „{d}“ – der Knopf legt es mit der Raumklima-Strategie an (gefiltert auf diese Wohnung).", { d: dp })
+            : t("Adresse des Dashboards dieser Wohnung (für den Umschalter)"));
+      })(),
       (() => {
         const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
         const hl = this._hass.config || {};
@@ -784,6 +812,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const raw = el.value.trim().replace(",", ".");
       const v = raw === "" ? null : Math.max(-limit, Math.min(limit, parseFloat(raw)));
       this._setHub({ [key]: Number.isNaN(v) ? null : v }, 200);
+    }));
+    $("[data-mkdash]").forEach((el) => el.addEventListener("click", async () => {
+      const p = el.dataset.mkdash;
+      const made = await this._ensureDashboard(p, this._hubOpt("name") || p, this._cfg.hub.entry_id);
+      this._flash(made ? t("Dashboard „{d}“ angelegt", { d: made }) : t("Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen"));
+      if (made) { await this._load(); } else { this._render(); }
     }));
     $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {
       const inp = this.shadowRoot.getElementById("newHome");

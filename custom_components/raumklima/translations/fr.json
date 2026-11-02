@@ -85,6 +85,13 @@
           "push_targets": "Vous pourrez choisir ensuite, par destinataire, quels messages il reçoit.",
           "building_type": "Détermine la prudence de la protection contre les moisissures en cas d’absence."
         }
+      },
+      "home": {
+        "title": "Logement",
+        "description": "À quel logement appartient la pièce ? Demandé uniquement s'il y a plusieurs logements.",
+        "data": {
+          "home": "Logement"
+        }
       }
     },
     "error": {
@@ -233,6 +240,13 @@
           "notifications": "Notifications – qui reçoit quoi",
           "presence": "Présence & abaissement",
           "season": "Saison & seuil de chauffage"
+        }
+      },
+      "home": {
+        "title": "Logement",
+        "description": "À quel logement appartient la pièce ? Demandé uniquement s'il y a plusieurs logements.",
+        "data": {
+          "home": "Logement"
         }
       }
     },

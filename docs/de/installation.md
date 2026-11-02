@@ -54,6 +54,15 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
   neue Version umgestellt.
 - **Zweite Wohnung:** *Wohnung anlegen* erzeugt das passende Dashboard gleich mit (Pfad `heizung-<name>`,
   Raumklima-Strategie, auf diese Wohnung gefiltert). Der Umschalter oben springt dann direkt dorthin.
+
+  Fehlt das Dashboard (etwa weil die Wohnung vor 0.24 angelegt wurde), steht in *Einstellungen → Wohnung →
+  Dashboard* der Knopf **anlegen**; die Seite prüft das beim Öffnen auch von selbst. Filter in einer eigenen
+  Konfiguration: `strategy: {type: custom:raumklima, home: <Wohnung>}` – dort passt die ID der Wohnung
+  ebenso wie ihr Name.
+- **Raum einer Wohnung zuordnen:** gibt es mehrere Wohnungen, fragt der Assistent beim Anlegen nach der
+  Wohnung. Einen bestehenden Raum umhängen: *Einstellungen → Raum → Wohnung* (die Zeile erscheint nur bei
+  mehreren Wohnungen) oder *Einstellungen → Geräte & Dienste → Raumklima → Raum → Konfigurieren* – der Raum
+  arbeitet danach sofort mit Bewohnern, Zone und Empfängern der anderen Wohnung.
 - **Zeitplan je Raum:** im Reiter *Einstellungen* → Raum → **Zeitplan** (bis zu sechs Zeitfenster mit
   Wochentagen, Von/Bis und Zieltemperatur).
 - **Reihenfolge der Räume:** nach **Stockwerk → Bereich → Name**; Räume ohne Stockwerk stehen am Ende.

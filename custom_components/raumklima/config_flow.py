@@ -54,6 +54,7 @@ from .const import (
     CONF_FOLLOW_TRV,
     CONF_FROST_FLOOR,
     CONF_HEATING_LIMIT,
+    CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_LONG_AWAY_HOURS,
     CONF_NAME,
@@ -407,8 +408,13 @@ def _valid_md(value: str) -> bool:
     return month.isdigit() and day.isdigit() and 1 <= int(month) <= 12 and 1 <= int(day) <= 31
 
 
+def _hub_entries(hass: HomeAssistant) -> list[ConfigEntry]:
+    """Alle Wohnungen (Zentrale-Einträge) – für die Auswahl, wenn es mehrere gibt."""
+    return [e for e in hass.config_entries.async_entries(DOMAIN) if e.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB]
+
+
 def _has_hub(hass: HomeAssistant) -> bool:
-    return any(e.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB for e in hass.config_entries.async_entries(DOMAIN))
+    return bool(_hub_entries(hass))
 
 
 # ------------------------------------------------------------------ Einrichtung
@@ -491,6 +497,10 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_SYNC_VERIFY_DELAY, CONF_SYNC_MAX_RETRIES, CONF_NOTIFY,
                 )}, **flat}
                 if _has_hub(self.hass):
+                    hubs = _hub_entries(self.hass)
+                    if len(hubs) > 1:
+                        return await self.async_step_home()
+                    self._data[CONF_HOME] = hubs[0].entry_id
                     return self._create_room()
                 return await self.async_step_hub()
         found = find_calibration_entity(self.hass, self._data[CONF_TRV])
@@ -503,6 +513,19 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=_room_schema(defaults, presets),
             errors=errors,
             description_placeholders={"found": found or "–"},
+        )
+
+    async def async_step_home(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Wohnung wählen – nur wenn es mehrere gibt."""
+        hubs = _hub_entries(self.hass)
+        if user_input is not None:
+            self._data[CONF_HOME] = user_input[CONF_HOME]
+            return self._create_room()
+        return self.async_show_form(
+            step_id="home",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_HOME): vol.In({e.entry_id: e.title for e in hubs})}
+            ),
         )
 
     async def async_step_hub(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
@@ -546,11 +569,15 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
 
     def __init__(self) -> None:
         self._options: dict[str, Any] = {}
+        self._home_asked = False
 
     def _current(self) -> dict[str, Any]:
         return {**DEFAULTS, **self.config_entry.data, **self.config_entry.options}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        # Bei mehreren Wohnungen zuerst fragen, zu welcher der Raum gehört
+        if user_input is None and not self._home_asked and len(_hub_entries(self.hass)) > 1:
+            return await self.async_step_home()
         errors: dict[str, str] = {}
         if user_input is not None:
             user_input.setdefault(CONF_HUMIDITY_SENSOR, None)
@@ -563,6 +590,25 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
                 return await self.async_step_room()
         return self.async_show_form(
             step_id="init", data_schema=_devices_schema(user_input or self._current(), with_name=False), errors=errors
+        )
+
+    async def async_step_home(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Wohnung des Raums – nur wenn es mehrere gibt."""
+        hubs = _hub_entries(self.hass)
+        if user_input is not None:
+            self._options[CONF_HOME] = user_input[CONF_HOME]
+            self._home_asked = True
+            return await self.async_step_init()
+        cur = self._current().get(CONF_HOME) or ""
+        return self.async_show_form(
+            step_id="home",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_HOME, default=cur if cur in {e.entry_id for e in hubs} else None): vol.In(
+                        {e.entry_id: e.title for e in hubs}
+                    )
+                }
+            ),
         )
 
     async def async_step_room(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:

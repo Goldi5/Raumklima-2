@@ -85,6 +85,13 @@
           "push_targets": "You can choose per recipient which messages they get later.",
           "building_type": "Determines how careful the mold guard is during absence."
         }
+      },
+      "home": {
+        "title": "Home",
+        "description": "Which home does the room belong to? Only asked when there is more than one home.",
+        "data": {
+          "home": "Home"
+        }
       }
     },
     "error": {
@@ -233,6 +240,13 @@
           "notifications": "Notifications – who gets what",
           "presence": "Presence & setback",
           "season": "Heating season & limit"
+        }
+      },
+      "home": {
+        "title": "Home",
+        "description": "Which home does the room belong to? Only asked when there is more than one home.",
+        "data": {
+          "home": "Home"
         }
       }
     },

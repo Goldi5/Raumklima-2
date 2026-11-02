@@ -54,6 +54,15 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
   nouvelle version.
 - **Second logement :** *Créer un logement* crée aussi son tableau de bord (chemin `heizung-<nom>`,
   stratégie Raumklima, filtré sur ce logement). Le sélecteur en haut y mène directement.
+
+  S’il manque (par exemple parce que le logement a été créé avant la 0.24), *Réglages → Logement → Tableau de
+  bord* propose le bouton **créer** ; la page le vérifie aussi d’elle-même à l’ouverture. Dans une
+  configuration personnelle : `strategy: {type: custom:raumklima, home: <logement>}` – l’ID du logement
+  fonctionne aussi bien que son nom.
+- **Affecter une pièce à un logement :** s'il y a plusieurs logements, l'assistant demande lequel. Pour
+  déplacer une pièce existante : *Réglages → pièce → logement* (la ligne n'apparaît qu'avec plusieurs
+  logements) ou *Réglages → Appareils et services → Raumklima → pièce → Configurer* – la pièce utilise
+  ensuite les habitants, la zone et les destinataires de l'autre logement.
 - **Planning par pièce :** dans l’onglet *Réglages* → pièce → **Planning** (jusqu’à six plages horaires avec
   jours de la semaine, de/à et température cible).
 - **Ordre des pièces :** **étage → zone → nom** ; les pièces sans étage viennent en dernier. Pour changer :

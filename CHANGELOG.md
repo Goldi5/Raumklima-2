@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.24.3 – 2026-11-02
+
+### Behoben
+- **Raum einer Wohnung zuordnen** (Issue #10): Neue Räume landeten immer in der ersten Wohnung – der
+  Assistent fragte die Wohnung nie, das Feld `home` blieb leer und der Raum hing an der Standard-Wohnung.
+  Bei mehreren Wohnungen kommt jetzt ein Schritt **Wohnung**. Bestehende Räume lassen sich in
+  *Einstellungen → Raum → Wohnung* (oder *Konfigurieren* am Raumeintrag) umhängen; der Raum bindet sofort
+  an die andere Wohnung um (Bewohner, Zone, Empfänger).
+
+## 0.24.2 – 2026-11-02
+
+### Behoben
+- **Dashboard einer Wohnung** (Issue #10): Die Strategie filtert über `home:` – dort steht die **ID der
+  Wohnung** (das Attribut `home` der Raum-Entitäten). „Dashboard anlegen“ schreibt genau diesen Wert;
+  `home:` akzeptiert zusätzlich den Wohnungsnamen, damit eine handgeschriebene Konfiguration nicht leer
+  bleibt.
+- **Fehlendes Dashboard ist jetzt sichtbar und nachholbar**: In *Einstellungen → Wohnung → Dashboard* steht
+  bei fehlendem Dashboard der Knopf „anlegen“ (legt es mit der Raumklima-Strategie an, gefiltert auf die
+  Wohnung). Zusätzlich prüft die Seite das beim Öffnen einmal je Sitzung (nur Admin) und zieht ein
+  fehlendes Dashboard nach – das hilft auch, wenn die Wohnung vor 0.24 angelegt wurde.
+
 ## 0.24.1 – 2026-11-02
 
 ### Neu

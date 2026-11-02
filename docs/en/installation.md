@@ -54,6 +54,13 @@ As above, without step 4 – recipients, presence and heating season apply to al
   version.
 - **Second home:** *Create home* also creates its dashboard (path `heizung-<name>`, Raumklima strategy,
   filtered to that home). The switcher at the top then jumps straight there.
+
+  If the dashboard is missing (for example because the home was created before 0.24), *Settings → Home →
+  Dashboard* offers a **create** button; the page also checks this by itself when it opens. In a config of
+  your own: `strategy: {type: custom:raumklima, home: <home>}` – the home's ID works as well as its name.
+- **Assigning a room to a home:** with several homes the setup asks which one. To move an existing room:
+  *Settings → room → home* (the row only appears with several homes) or *Settings → Devices & Services →
+  Raumklima → room → Configure* – the room then works with the other home's residents, zone and recipients.
 - **Schedule per room:** in the *Settings* tab → room → **Schedule** (up to six time windows with
   weekdays, from/to and target temperature).
 - **Room order:** **floor → area → name**; rooms without a floor come last. To change it, add

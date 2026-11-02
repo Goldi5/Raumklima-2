@@ -85,6 +85,13 @@
           "push_targets": "Später je Empfänger einstellbar, welche Nachrichten er bekommt.",
           "building_type": "Bestimmt, wie vorsichtig der Schimmelschutz bei Abwesenheit rechnet."
         }
+      },
+      "home": {
+        "title": "Wohnung",
+        "description": "Zu welcher Wohnung gehört der Raum? Wird nur gefragt, wenn es mehrere Wohnungen gibt.",
+        "data": {
+          "home": "Wohnung"
+        }
       }
     },
     "error": {
@@ -233,6 +240,13 @@
           "notifications": "Benachrichtigungen – wer bekommt was",
           "presence": "Anwesenheit & Absenkung",
           "season": "Heizsaison & Heizgrenze"
+        }
+      },
+      "home": {
+        "title": "Wohnung",
+        "description": "Zu welcher Wohnung gehört der Raum? Wird nur gefragt, wenn es mehrere Wohnungen gibt.",
+        "data": {
+          "home": "Wohnung"
         }
       }
     },
