@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.18.0 – 2026-11-02
+
+### Neu
+- **Reihenfolge der Räume im Dashboard** (Issue #4): Die Strategie sortiert die Räume jetzt nach
+  **Stockwerk → Bereich → Name** statt nur nach Namen. Über `sort:` in der Dashboard-Konfiguration
+  umstellbar: `floor` (Standard), `area` (nur Bereich) oder `name` (nur Name). Räume ohne Stockwerk
+  stehen am Ende.
+- **Erkennbar, warum ein Raum aus ist** (Issue #3): „Aus" und „abgesenkt" sahen gleich aus, obwohl sie
+  verschiedenes bedeuten – abgesenkt wird nur, was eingeschaltet ist. Raumkarte und Übersicht
+  unterscheiden jetzt **„Aus"** (in Home Assistant abgeschaltet) von **„Aus – am Thermostat
+  abgeschaltet"**. Letzteres passiert, wenn das Thermostat sich selbst abschaltet (eigener Zeitplan,
+  Boost, Drehrad) und *Erweitert → Drehen am Thermostat übernehmen* an ist. In der Abwesenheit zeigt die
+  Übersicht zusätzlich, wie viele Räume ausgeschaltet sind.
+- Neues Attribut `off_source` an `climate.<raum>` (`user` = in Home Assistant abgeschaltet,
+  `trv` = am Thermostat) und der Statuswert `off_trv` an `sensor.<raum>_status`.
+
+### Verhalten
+- Ein ausgeschalteter Raum wird weiterhin **nicht** abgesenkt – er heizt ohnehin nicht. Die Anzeige sagt
+  jetzt, warum er aus ist.
+
 ## 0.17.0 – 2026-11-02
 
 ### Neu

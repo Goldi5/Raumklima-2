@@ -35,6 +35,9 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
 ## Tableau de bord
 
 - **Prêt à l’emploi :** Ajouter un tableau de bord → **Raumklima** (stratégie). Construit automatiquement les onglets *Pièces*, *Historique*, *Rapport*, *Journal* et *Réglages* et s’adapte quand des pièces sont ajoutées.
+- **Ordre des pièces :** **étage → zone → nom** ; les pièces sans étage viennent en dernier. Pour changer :
+  `sort: area` (par zone) ou `sort: name` (par nom) dans la configuration du tableau de bord
+  (`strategy: {type: custom:raumklima, sort: area}`) – la valeur par défaut est `floor`.
 - **Vos propres tableaux de bord :** utilisez les cartes individuellement – voir [Utilisation](utilisation.md).
 
 ## Quels thermostats fonctionnent ?

@@ -74,8 +74,8 @@
 
 | Entité | Contenu |
 |---|---|
-| `climate.<room>` | thermostat ; les attributs incluent `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `offset`, `valve_position`, `co2`, valeurs d’aération |
-| `sensor.<room>_status` | chauffage · atteint · fenêtre ouverte · éteint · sonde/TRV manquant · chauffage en pause · abaissé · aération nocturne |
+| `climate.<room>` | thermostat ; les attributs incluent `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, `co2`, valeurs d’aération |
+| `sensor.<room>_status` | chauffage · atteint · fenêtre ouverte · éteint · éteint (au thermostat) · sonde/TRV manquant · chauffage en pause · abaissé · aération nocturne |
 | `sensor.<room>_sync` | ok · en attente · échec |
 | `sensor.<room>_calibration_offset` | décalage actuel |
 | `sensor.<room>_airing` | ok · veuillez ouvrir · aération · terminé · veuillez fermer · trop froid |
@@ -84,6 +84,10 @@
 | `switch.<room>_window_logic`, `…_airing_notifications` | |
 | `number.<room>_humidity_limit_please_air`, `…_minimum_temperature_while_airing`, `…_max_temperature_drop_while_airing` | |
 | `button.<room>_calibrate_now` | |
+
+> **Pourquoi une pièce est-elle éteinte ?** L’attribut `off_source` de `climate.<room>` le dit : `user` =
+> éteint dans Home Assistant, `trv` = éteint au thermostat (planning propre, boost, molette – avec *Avancé →
+> Suivre les changements au thermostat*). Seules les pièces allumées sont abaissées ; les éteintes restent éteintes.
 
 ## Entités du hub « Allgemein »
 

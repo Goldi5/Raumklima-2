@@ -35,6 +35,9 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
 ## Dashboard
 
 - **Fertig:** Dashboard hinzufügen → **Raumklima** (Strategie). Baut die Reiter *Räume*, *Verlauf* und *Einstellungen* automatisch auf und passt sich an, wenn Räume dazukommen.
+- **Reihenfolge der Räume:** nach **Stockwerk → Bereich → Name**; Räume ohne Stockwerk stehen am Ende.
+  Anders sortieren: in der Dashboard-Konfiguration `strategy: {type: custom:raumklima, sort: area}` (nach
+  Bereich) oder `sort: name` (nach Name) – Standard ist `floor`.
 - **Eigene Dashboards:** die Karten einzeln einsetzen – siehe [Bedienung](bedienung.md).
 
 ## Welche Thermostate funktionieren?

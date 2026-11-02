@@ -60,6 +60,9 @@ Schalte **Gäste da** ein. Dann wird nicht abgesenkt, auch wenn alle Bewohner we
 ### Wie stelle ich Urlaub ein?
 Schalter **Urlaub** an – oder einen Kalendertermin mit „Urlaub“ im Titel anlegen. Der Urlaub endet automatisch, sobald jemand nach Hause kommt.
 
+### Warum werden nicht alle Räume abgesenkt, wenn niemand da ist?
+Abgesenkt wird nur, was **eingeschaltet** ist. Ein ausgeschalteter Raum steht auf „aus“ und heizt ohnehin nicht – bei ihm gibt es nichts abzusenken. Steht in der Karte „Aus – am Thermostat abgeschaltet“, hat sich das Thermostat selbst abgeschaltet (eigener Zeitplan, Boost oder Drehrad) und Raumklima hat es übernommen, weil *Erweitert → Drehen am Thermostat übernehmen* an ist. Dann am Thermostat eigene Zeitpläne und Boost abschalten – oder diese Option ausschalten.
+
 ## Benachrichtigungen
 
 ### Ich bekomme keine Nachrichten.
@@ -104,3 +107,6 @@ Nur Administratoren dürfen Einstellungen ändern. Andere sehen „Nur Ansicht�
 
 ### Wie melde ich einen Fehler?
 Auf GitHub ein [Issue](https://github.com/Goldi5/Raumklima-2/issues) eröffnen und die Diagnose-Datei anhängen: *Einstellungen → Geräte & Dienste → Raumklima → Raum → ⋮ → Diagnose herunterladen*.
+
+### Kann ich die Räume im Dashboard sortieren?
+Die Reihenfolge ist **Stockwerk → Bereich → Name** und damit über Stockwerke und Bereiche in Home Assistant steuerbar (*Einstellungen → Bereiche & Zonen*); Räume ohne Stockwerk stehen am Ende. Anders sortieren: in der Dashboard-Konfiguration `strategy: {type: custom:raumklima, sort: area}` (nur Bereich) oder `sort: name` (nur Name).

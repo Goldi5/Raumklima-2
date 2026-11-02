@@ -67,8 +67,8 @@
 
 | Entität | Inhalt |
 |---|---|
-| `climate.<raum>` | Thermostat; Attribute u. a. `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `offset`, `valve_position`, Lüftungswerte |
-| `sensor.<raum>_status` | heizt · erreicht · Fenster offen · aus · Fühler/TRV fehlt · Heizpause · abgesenkt |
+| `climate.<raum>` | Thermostat; Attribute u. a. `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, Lüftungswerte |
+| `sensor.<raum>_status` | heizt · erreicht · Fenster offen · aus · aus (am Thermostat abgeschaltet) · Fühler/TRV fehlt · Heizpause · abgesenkt |
 | `sensor.<raum>_synchronisierung` | ok · ausstehend · fehlgeschlagen |
 | `sensor.<raum>_kalibrier_offset` | aktueller Offset |
 | `sensor.<raum>_luftung` | ok · bitte lüften · lüftet · ausgetauscht · bitte schließen · kühlt aus |
@@ -77,6 +77,10 @@
 | `switch.<raum>_fensterlogik`, `…_luftungs_benachrichtigungen` | |
 | `number.<raum>_feuchtegrenze…`, `…_mindesttemperatur…`, `…_max_abkuhlung…` | |
 | `button.<raum>_jetzt_kalibrieren` | |
+
+> **Warum ist ein Raum aus?** Das Attribut `off_source` an `climate.<raum>` sagt es: `user` = in Home Assistant
+> abgeschaltet, `trv` = am Thermostat (eigener Zeitplan, Boost, Drehrad – bei *Erweitert → Drehen am
+> Thermostat übernehmen*). Abgesenkt wird nur, was eingeschaltet ist; ausgeschaltete Räume bleiben aus.
 
 ## Entitäten der Zentrale „Allgemein“
 

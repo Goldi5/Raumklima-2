@@ -74,8 +74,8 @@
 
 | Entity | Content |
 |---|---|
-| `climate.<room>` | thermostat; attributes include `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `offset`, `valve_position`, `co2`, airing values |
-| `sensor.<room>_status` | heating · reached · window open · off · sensor/TRV missing · heating paused · set back · night airing |
+| `climate.<room>` | thermostat; attributes include `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, `co2`, airing values |
+| `sensor.<room>_status` | heating · reached · window open · off · off (at the thermostat) · sensor/TRV missing · heating paused · set back · night airing |
 | `sensor.<room>_sync` | ok · pending · failed |
 | `sensor.<room>_calibration_offset` | current offset |
 | `sensor.<room>_airing` | ok · please open · airing · done · please close · too cold |
@@ -84,6 +84,10 @@
 | `switch.<room>_window_logic`, `…_airing_notifications` | |
 | `number.<room>_humidity_limit_please_air`, `…_minimum_temperature_while_airing`, `…_max_temperature_drop_while_airing` | |
 | `button.<room>_calibrate_now` | |
+
+> **Why is a room off?** The `off_source` attribute on `climate.<room>` tells you: `user` = switched off in
+> Home Assistant, `trv` = switched off at the thermostat (its own schedule, boost, dial – with *Advanced →
+> Follow changes at the thermostat*). Only rooms that are on get set back; switched-off rooms stay off.
 
 ## Entities of the hub “Allgemein”
 

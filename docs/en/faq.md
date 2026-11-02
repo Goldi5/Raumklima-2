@@ -60,6 +60,9 @@ Turn on **Guests**. Then there is no setback even if all residents are away. Alt
 ### How do I set vacation?
 Turn on the **Vacation** switch – or create a calendar event with “vacation” in the title. Vacation ends automatically as soon as someone comes home.
 
+### Why aren't all rooms set back when nobody is home?
+Only rooms that are **switched on** get set back. A switched-off room is on “off” and doesn't heat anyway – there is nothing to set back. If the card says “Off – switched off at the thermostat”, the thermostat switched itself off (its own schedule, boost or dial) and Raumklima followed, because *Advanced → Follow changes at the thermostat* is on. Turn off the thermostat's own schedules and boost – or turn that option off.
+
 ## Notifications
 
 ### I don't get any messages.
@@ -106,3 +109,6 @@ Only administrators can change settings. Others see “View only”.
 
 ### How do I report a bug?
 Open an [issue](https://github.com/Goldi5/Raumklima-2/issues) on GitHub and attach the diagnostics file: *Settings → Devices & services → Raumklima → room → ⋮ → Download diagnostics*.
+
+### Can I sort the rooms in the dashboard?
+The order is **floor → area → name**, so you control it with floors and areas in Home Assistant (*Settings → Areas & zones*); rooms without a floor come last. To change it, add `sort: area` (by area) or `sort: name` (by name) to the dashboard config (`strategy: {type: custom:raumklima, sort: area}`).

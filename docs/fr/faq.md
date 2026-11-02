@@ -60,6 +60,9 @@ Activez **Invités**. Il n'y a alors pas d'abaissement même si tous les habitan
 ### Comment régler les vacances ?
 Activez l'interrupteur **Vacances** – ou créez un événement de calendrier avec « vacances » dans le titre. Les vacances se terminent automatiquement dès que quelqu'un rentre à la maison.
 
+### Pourquoi toutes les pièces ne sont-elles pas abaissées quand personne n’est là ?
+Seules les pièces **allumées** sont abaissées. Une pièce éteinte est sur « arrêt » et ne chauffe pas de toute façon – il n’y a rien à abaisser. Si la carte affiche « Arrêt – éteint au thermostat », le thermostat s’est éteint lui-même (planning propre, boost ou molette) et Raumklima l’a suivi, car *Avancé → Suivre les changements au thermostat* est activé. Désactivez alors les plannings et le boost du thermostat – ou cette option.
+
 ## Notifications
 
 ### Je ne reçois aucun message.
@@ -106,3 +109,6 @@ Seuls les administrateurs peuvent modifier les réglages. Les autres voient « L
 
 ### Comment signaler un bug ?
 Ouvrez une [issue](https://github.com/Goldi5/Raumklima-2/issues) sur GitHub et joignez le fichier de diagnostics : *Réglages → Appareils et services → Raumklima → pièce → ⋮ → Télécharger les diagnostics*.
+
+### Puis-je trier les pièces dans le tableau de bord ?
+L’ordre est **étage → zone → nom**, vous le pilotez donc avec les étages et les zones de Home Assistant (*Paramètres → Zones et étages*) ; les pièces sans étage viennent en dernier. Pour changer : `sort: area` (par zone) ou `sort: name` (par nom) dans la configuration du tableau de bord (`strategy: {type: custom:raumklima, sort: area}`).

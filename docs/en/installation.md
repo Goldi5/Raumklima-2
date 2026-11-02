@@ -35,6 +35,9 @@ As above, without step 4 – recipients, presence and heating season apply to al
 ## Dashboard
 
 - **Ready-made:** Add dashboard → **Raumklima** (strategy). Builds the tabs *Rooms*, *History*, *Report*, *Log* and *Settings* automatically and adapts when rooms are added.
+- **Room order:** **floor → area → name**; rooms without a floor come last. To change it, add
+  `sort: area` (by area) or `sort: name` (by name) to the dashboard config
+  (`strategy: {type: custom:raumklima, sort: area}`) – the default is `floor`.
 - **Your own dashboards:** use the cards individually – see [Usage](usage.md).
 
 ## Which thermostats work?
