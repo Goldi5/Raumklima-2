@@ -34,7 +34,26 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
 
 ## Tableau de bord
 
-- **Prêt à l’emploi :** Ajouter un tableau de bord → **Raumklima** (stratégie). Construit automatiquement les onglets *Pièces*, *Historique*, *Rapport*, *Journal* et *Réglages* et s’adapte quand des pièces sont ajoutées.
+- **Prêt à l’emploi en quatre étapes :**
+  1. *Réglages → Tableaux de bord → **Ajouter un tableau de bord*** – titre p. ex. « Chauffage ». Le nom est
+     libre ; il n’a pas besoin d’être « Raumklima » (et ce nom est peut-être déjà pris).
+  2. Le nouveau tableau de bord affiche d’abord **le tableau de bord standard** de Home Assistant – c’est
+     normal, la stratégie vient à l’étape suivante.
+  3. En haut à droite **Modifier** (crayon) → **menu à trois points → Modifier la configuration brute** →
+     remplacer tout le contenu par :
+
+     ```yaml
+     strategy:
+       type: custom:raumklima
+     ```
+
+  4. **Enregistrer** – terminé : les onglets *Pièces*, *Historique*, *Messages* et *Réglages* sont construits
+     automatiquement et s’enrichissent quand des pièces sont ajoutées.
+
+  La carte est enregistrée automatiquement comme ressource ; une ancienne ressource est basculée sur la
+  nouvelle version.
+- **Planning par pièce :** dans l’onglet *Réglages* → pièce → **Planning** (jusqu’à six plages horaires avec
+  jours de la semaine, de/à et température cible).
 - **Ordre des pièces :** **étage → zone → nom** ; les pièces sans étage viennent en dernier. Pour changer :
   `sort: area` (par zone) ou `sort: name` (par nom) dans la configuration du tableau de bord
   (`strategy: {type: custom:raumklima, sort: area}`) – la valeur par défaut est `floor`.

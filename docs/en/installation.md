@@ -34,7 +34,26 @@ As above, without step 4 – recipients, presence and heating season apply to al
 
 ## Dashboard
 
-- **Ready-made:** Add dashboard → **Raumklima** (strategy). Builds the tabs *Rooms*, *History*, *Report*, *Log* and *Settings* automatically and adapts when rooms are added.
+- **Ready-made in four steps:**
+  1. *Settings → Dashboards → **Add dashboard*** – title e.g. “Heating”. The name is free; it does not have
+     to be “Raumklima” (and that name may already be taken).
+  2. The new dashboard first shows **Home Assistant’s usual default dashboard** – that is normal, the
+     strategy only comes next.
+  3. Top right **Edit** (pencil) → **three-dot menu → Edit raw configuration** → replace the whole content
+     with:
+
+     ```yaml
+     strategy:
+       type: custom:raumklima
+     ```
+
+  4. **Save** – done: the tabs *Rooms*, *History*, *Messages* and *Settings* are built automatically and
+     grow as rooms are added.
+
+  The card is registered as a resource automatically; an existing older resource is switched to the new
+  version.
+- **Schedule per room:** in the *Settings* tab → room → **Schedule** (up to six time windows with
+  weekdays, from/to and target temperature).
 - **Room order:** **floor → area → name**; rooms without a floor come last. To change it, add
   `sort: area` (by area) or `sort: name` (by name) to the dashboard config
   (`strategy: {type: custom:raumklima, sort: area}`) – the default is `floor`.

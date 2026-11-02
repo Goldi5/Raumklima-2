@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.23.6 – 2026-11-02
+
+### Geändert
+- **Doku: Dashboard in vier Schritten** (Issue #10): Ein neues Home-Assistant-Dashboard startet mit der
+  Standard-Strategie – die Raumklima-Strategie muss einmal in der rohen Konfiguration eingetragen werden.
+  Die Anleitung zeigt jetzt genau diese Schritte (de/en/fr), sagt dass der Name frei wählbar ist, und
+  dass ein bereits vorhandenes Dashboard einfach bearbeitet wird.
+- **Doku: Zeitplan je Raum** steht jetzt direkt in der Installationsanleitung
+  (*Einstellungen → Raum → Zeitplan*).
+
+### Geplant
+- **Zeitpläne zwischen Räumen teilen** (Wunsch aus #10) in die ROADMAP aufgenommen.
+
 ## 0.23.5 – 2026-11-02
 
 ### Behoben

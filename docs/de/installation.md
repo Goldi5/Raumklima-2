@@ -34,7 +34,26 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
 
 ## Dashboard
 
-- **Fertig:** Dashboard hinzufügen → **Raumklima** (Strategie). Baut die Reiter *Räume*, *Verlauf* und *Einstellungen* automatisch auf und passt sich an, wenn Räume dazukommen.
+- **Fertig in vier Schritten:**
+  1. *Einstellungen → Dashboards → **Dashboard hinzufügen*** – als Titel z. B. „Heizung". Der Name ist frei
+     wählbar, „Raumklima" muss es nicht heißen (und ist vielleicht schon vergeben).
+  2. Das neue Dashboard zeigt zunächst das **übliche Standard-Dashboard** von Home Assistant – das ist
+     normal, die Strategie kommt erst im nächsten Schritt.
+  3. Oben rechts **Bearbeiten** (Stift) → **Dreipunkte-Menü → Rohe Konfiguration bearbeiten** → den
+     gesamten Inhalt ersetzen durch:
+
+     ```yaml
+     strategy:
+       type: custom:raumklima
+     ```
+
+  4. **Speichern** – fertig: die Reiter *Räume*, *Verlauf*, *Meldungen* und *Einstellungen* werden
+     automatisch aufgebaut und wachsen mit, wenn Räume dazukommen.
+
+  Die Karte wird als Ressource automatisch eingetragen; eine vorhandene ältere Ressource wird auf die
+  neue Version umgestellt.
+- **Zeitplan je Raum:** im Reiter *Einstellungen* → Raum → **Zeitplan** (bis zu sechs Zeitfenster mit
+  Wochentagen, Von/Bis und Zieltemperatur).
 - **Reihenfolge der Räume:** nach **Stockwerk → Bereich → Name**; Räume ohne Stockwerk stehen am Ende.
   Anders sortieren: in der Dashboard-Konfiguration `strategy: {type: custom:raumklima, sort: area}` (nach
   Bereich) oder `sort: name` (nach Name) – Standard ist `floor`.

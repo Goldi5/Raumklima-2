@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.23.5 (Early Release – Tester gesucht)
+Stand: Version 0.23.6 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -35,6 +35,8 @@ Stand: Version 0.23.5 (Early Release – Tester gesucht)
 - [x] **Vorheizen auf ein Zeitfenster** (0.20.0) – der Raum rechnet aus seiner gelernten Aufheizzeit
       (°C/h), wann er loslegen muss, um zum Beginn des nächsten Zeitfensters warm zu sein (10 min Puffer);
       ohne gelernte Zeit passiert nichts, bei Abwesenheit gewinnt die Absenkung.
+- [ ] **Zeitpläne zwischen Räumen teilen** – ein Zeitfenster einmal anlegen und mehreren Räumen zuweisen
+      (z. B. Wohnzimmer + Esszimmer abends gleich), statt es je Raum zu wiederholen.
 - [ ] **Sprachsteuerung (Assist)** – „Wie warm ist es im Bad?“, „Mach das Wohnzimmer wärmer“, „Muss ich lüften?“
 - [ ] **Sturm- und Regenwarnung** – Unwetter vorhergesagt und Fenster offen → Nachricht.
 - [ ] **Nutzung lernen und vorheizen** – aus den Präsenzmeldern („Arbeitszimmer ab 8 Uhr belegt“).
