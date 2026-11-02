@@ -191,6 +191,9 @@ class VentilationManager:
 
     def async_stop(self) -> None:
         self.live.end()
+        for unsub in self._unsubs:
+            unsub()
+        self._unsubs.clear()
 
     def _take_restored(self) -> datetime | None:
         """Den gespeicherten Öffnungszeitpunkt genau einmal übernehmen (nach einem Neustart)."""
@@ -198,9 +201,6 @@ class VentilationManager:
         if since is None or since > dt_util.utcnow():
             return None
         return since
-        for unsub in self._unsubs:
-            unsub()
-        self._unsubs.clear()
 
     def export(self) -> dict[str, Any]:
         return {

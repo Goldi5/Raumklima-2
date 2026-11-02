@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.23.5 – 2026-11-02
+
+### Behoben
+- **Lüftungs-Assistent meldete sich beim Entladen nicht ab (Regression aus 0.23.4)**: Beim Einbau der
+  Fenster-Zeit-Speicherung sind die Abmelde-Zeilen aus `async_stop` hinter das `return` der neuen Hilfs-
+  methode gerutscht. Folge: beim Neuladen der Integration lief der 30-Sekunden-Takt des alten Assistenten
+  weiter – doppelte Prüfungen, doppelte Meldungen, und der Test meldete einen hängenden Timer.
+  Wiederhergestellt; **betroffen war nur 0.23.4**.
+
 ## 0.23.4 – 2026-11-02
 
 ### Behoben
