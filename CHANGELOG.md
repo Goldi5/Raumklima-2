@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.22.1 – 2026-11-02
+
+### Behoben
+- **Sonne nach Fassade ohne eingestellten Standort:** Home Assistant meldet ohne Einrichtung `0/0`
+  als Standort. Damit hätte der Fassaden-Filter falsche Sonnenstände gerechnet. Jetzt gilt der Standort
+  erst als bekannt, wenn er von 0/0 abweicht – sonst bleibt es bei der reinen Vorhersage (wie ohne
+  Fassade). Der Standort kommt aus Home Assistant selbst (Einstellungen → System → Allgemein).
+
 ## 0.22.0 – 2026-11-02
 
 ### Neu

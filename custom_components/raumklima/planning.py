@@ -618,6 +618,11 @@ def sun_position(local: datetime, lat: float, lon: float) -> tuple[float, float]
     return azimuth % 360.0, elevation
 
 
+def location_known(lat: float | None, lon: float | None) -> bool:
+    """Echter Standort bekannt? Home Assistant liefert ohne Einrichtung 0/0."""
+    return lat is not None and lon is not None and not (lat == 0 and lon == 0)
+
+
 def facade_angle(facade: str | None) -> float | None:
     """Azimut einer Fassade („W" → 270). Leer oder unbekannt → None."""
     if not facade:
@@ -665,7 +670,7 @@ def sun_expected(
     # „clear“ nachts zählt nicht – die Sonne muss auch scheinen
     sunny = [h for h in ahead if _is_sunny(h) and h.condition != "clear-night"]
     angle = facade_angle(facade)
-    if angle is not None and lat is not None and lon is not None:
+    if angle is not None and location_known(lat, lon):
         sunny = [h for h in sunny if sun_on_facade(*sun_position(h.when, lat, lon), angle)]
     return len(sunny) >= SOLAR_MIN_SUNNY
 

@@ -20,6 +20,7 @@ from rk.planning import (
     facade_angle,
     haversine_km,
     in_season,
+    location_known,
     mold_safe_min_temp,
     next_schedule_window,
     parse_md,
@@ -450,6 +451,9 @@ def test_sun_expected_with_facade() -> None:
 
     # ohne Standort bleibt es bei der reinen Vorhersage
     assert sun_expected(nachmittag, now, "O") is True
+    # 0/0 ist der Home-Assistant-Standard ohne Einrichtung → nicht filtern
+    assert sun_expected(nachmittag, now, "O", 0.0, 0.0) is True
+    assert location_known(52.52, 13.40) and not location_known(0.0, 0.0) and not location_known(None, 13.4)
 
 
 def test_facade_options_match_planning() -> None:
