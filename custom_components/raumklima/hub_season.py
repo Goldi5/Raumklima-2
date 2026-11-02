@@ -13,6 +13,8 @@ from .const import (
     CONF_COLD_SNAP_TEMP,
     CONF_FROST_NIGHT,
     CONF_HEATING_LIMIT,
+    CONF_LATITUDE,
+    CONF_LONGITUDE,
     CONF_SEASON_END,
     CONF_SEASON_MODE,
     CONF_SEASON_START,
@@ -32,6 +34,7 @@ from .planning import (
     combined_mean,
     frost_night_min,
     in_season,
+    location_known,
     season_allows_heating,
     season_decision,
     season_step,
@@ -128,15 +131,22 @@ class SeasonMixin:
         self.forecast_hourly = hourly
         self._evaluate_season()
 
+    @property
+    def sun_location(self) -> tuple[float, float]:
+        """Standort der Wohnung: eigene Koordinaten, sonst die von Home Assistant.
+
+        Wichtig, wenn eine Wohnung fern überwacht wird (Home Assistant in Remscheid, Wohnung in
+        Berlin): der Sonnenstand hängt am Ort der Wohnung, nicht am Ort der Zentrale.
+        """
+        lat, lon = self.opt(CONF_LATITUDE), self.opt(CONF_LONGITUDE)
+        if location_known(lat, lon):
+            return float(lat), float(lon)
+        return self.hass.config.latitude, self.hass.config.longitude
+
     def sun_expected(self, facade: str | None = None) -> bool:
         """Scheint laut Vorhersage in den nächsten Stunden die Sonne auf diese Fassade?"""
-        return sun_expected(
-            self.forecast_hourly,
-            dt_util.utcnow(),
-            facade,
-            self.hass.config.latitude,
-            self.hass.config.longitude,
-        )
+        lat, lon = self.sun_location
+        return sun_expected(self.forecast_hourly, dt_util.utcnow(), facade, lat, lon)
 
     @property
     def frost_night(self) -> float | None:

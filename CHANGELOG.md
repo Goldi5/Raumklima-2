@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.23.0 – 2026-11-02
+
+### Neu
+- **Standort je Wohnung**: Unter *Wohnung → **Erweitert: Standort der Wohnung*** lassen sich Breite und
+  Länge setzen. Damit rechnet Raumklima den Sonnenstand dort, wo die Wohnung steht – nicht dort, wo Home
+  Assistant läuft. Genau der Fall „Home Assistant in Remscheid, überwachte Wohnung in Berlin“ (rund
+  25 Minuten Zeitversatz im Sonnenlauf, den die Fassadenprüfung sonst falsch ansetzt).
+- Ohne Angabe gilt weiter der Standort von Home Assistant; `0/0` zählt nicht als Standort.
+
 ## 0.22.2 – 2026-11-02
 
 ### Geändert

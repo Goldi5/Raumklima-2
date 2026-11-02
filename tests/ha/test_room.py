@@ -357,3 +357,22 @@ async def test_solar_uses_room_facade(hass: HomeAssistant, setup, trv: FakeTrv) 
     ctrl.plan()
     assert seen and all(v == "W" for v in seen)
 
+
+async def test_home_location_overrides_hass_location(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Eine fern überwachte Wohnung nutzt ihren eigenen Standort für den Sonnenstand."""
+    from custom_components.raumklima.const import CONF_LATITUDE, CONF_LONGITUDE
+    from custom_components.raumklima.shared import get_hub
+
+    _hub, _room = setup
+    hub = get_hub(hass, None)
+    assert hub.sun_location == (hass.config.latitude, hass.config.longitude)
+
+    hub.config[CONF_LATITUDE] = 52.51
+    hub.config[CONF_LONGITUDE] = 13.40
+    assert hub.sun_location == (52.51, 13.40)  # Berlin statt Remscheid
+
+    # 0/0 gilt nicht als Standort → Rückfall auf Home Assistant
+    hub.config[CONF_LATITUDE] = 0.0
+    hub.config[CONF_LONGITUDE] = 0.0
+    assert hub.sun_location == (hass.config.latitude, hass.config.longitude)
+

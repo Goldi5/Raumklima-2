@@ -1,15 +1,19 @@
-/* Raumklima 0.22.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.23.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
+    "Breite": "Latitude",
     "Dauer des Boosts": "Boost duration",
     "Boost · Ziel <b>{v} °C</b>": "Boost · target <b>{v} °C</b>",
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Advanced: solar gain",
+    "Erweitert: Standort der Wohnung": "Advanced: location of the home",
     "Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage).": "Room facade, simplified – assumes a clear view. A building, tree or balcony in front is not taken into account; in that case better leave it empty (forecast only).",
     "Handbuch (PDF)": "Manual (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Each night counts once (earliest event). Learning starts per weekday (shift work), otherwise by weekday/weekend (Fri→Sat, Sat→Sun); the typical value (median) of the last 6 weeks is learned once 4 nights are in. Quiet time begins 30 min before the typical bedtime and ends 30 min after getting up – but never shorter than configured.",
+    "Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Empty = Home Assistant’s location. For a home monitored remotely (e.g. a flat in Berlin while Home Assistant runs in Remscheid) enter the real coordinates here – Raumklima computes the sun’s position from them.",
+    "Länge": "Longitude",
     "Nord": "North",
     "Nordost": "North-east",
     "Nordwest": "North-west",
@@ -18,6 +22,7 @@
     "Ruhezeit · Ziel <b>{v} °C</b>": "Quiet time · target <b>{v} °C</b>",
     "Schichtdienst": "Shift work",
     "Sonne kommt aus": "Sun comes from",
+    "Standort der Wohnung": "Location of the home",
     "Süd": "South",
     "Südost": "South-east",
     "Südwest": "South-west",
@@ -543,14 +548,18 @@
 
   // src/i18n/fr.js
   var FR = {
+    "Breite": "Latitude",
     "Dauer des Boosts": "Durée du boost",
     "Boost · Ziel <b>{v} °C</b>": "Boost · cible <b>{v} °C</b>",
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Avancé : apport solaire",
+    "Erweitert: Standort der Wohnung": "Avancé : emplacement du logement",
     "Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage).": "Façade de la pièce, simplifié – suppose une vue dégagée. Un bâtiment, un arbre ou un balcon devant n’est pas pris en compte ; dans ce cas, mieux vaut laisser vide (prévision seule).",
     "Handbuch (PDF)": "Manuel (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Chaque nuit compte une fois (événement le plus tôt). L’apprentissage se fait d’abord par jour de la semaine (travail posté), sinon par semaine/week-end (ven→sam, sam→dim) ; la valeur typique (médiane) des 6 dernières semaines est apprise dès 4 nuits. L’heure de repos commence 30 min avant le coucher typique et se termine 30 min après le lever – mais jamais plus courte que le réglage.",
+    "Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Vide = emplacement de Home Assistant. Pour un logement surveillé à distance (p. ex. un appartement à Berlin alors que Home Assistant tourne à Remscheid), indiquez ici les vraies coordonnées – Raumklima en calcule la position du soleil.",
+    "Länge": "Longitude",
     "Nord": "Nord",
     "Nordost": "Nord-est",
     "Nordwest": "Nord-ouest",
@@ -559,6 +568,7 @@
     "Ruhezeit · Ziel <b>{v} °C</b>": "Heure de repos · cible <b>{v} °C</b>",
     "Schichtdienst": "Travail posté",
     "Sonne kommt aus": "Le soleil vient de",
+    "Standort der Wohnung": "Emplacement du logement",
     "Süd": "Sud",
     "Südost": "Sud-est",
     "Südwest": "Sud-ouest",
@@ -1112,7 +1122,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.22.2";
+  var RK_VERSION = "0.23.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2538,6 +2548,11 @@
       "During quiet time, bedrooms and rarely used rooms are set back to the setback temperature – even when somebody is at home. So the heating stays off while you sleep after a night shift. A time window and the dial on the thermostat take precedence.",
       "Pendant l’heure de repos, les chambres et les pièces peu utilisées passent à la température d’abaissement – même si quelqu’un est à la maison. Le chauffage reste donc arrêté pendant le sommeil après une nuit de travail. Une plage horaire et le bouton du thermostat restent prioritaires."
     ],
+    "Standort der Wohnung": [
+      "Die echten Koordinaten dieser Wohnung. Nötig, wenn Home Assistant woanders steht als die Wohnung – etwa eine Wohnung in Berlin, die aus Remscheid überwacht wird. Daraus rechnet Raumklima den Sonnenstand für den Sonnenabzug nach Fassade. Leer gelassen gilt der Standort von Home Assistant.",
+      "The real coordinates of this home. Needed when Home Assistant sits somewhere else than the home – for example a flat in Berlin monitored from Remscheid. Raumklima computes the sun’s position from it for the facade-based solar gain. Left empty, Home Assistant’s own location is used.",
+      "Les vraies coordonnées de ce logement. Nécessaire quand Home Assistant se trouve ailleurs que le logement – par exemple un appartement à Berlin surveillé depuis Remscheid. Raumklima en calcule la position du soleil pour l’apport solaire par façade. Laissé vide, l’emplacement de Home Assistant s’applique."
+    ],
     "Zeitfenster": [
       "Ein eigenes Zeitfenster für diesen Raum: Wochentage (keine Auswahl = jeden Tag), von/bis und Zieltemperatur, auch über Mitternacht. Es setzt nur den Sollwert – Fenster, Frost, Schimmel und Abwesenheit bleiben vorrangig, und bei gelerntem Raum wird rechtzeitig vorgeheizt.",
       "A time window for this room: weekdays (none selected = every day), from/to and target temperature, also across midnight. It only sets the target – windows, frost, mould and absence stay in charge, and a room with a learned heat-up rate starts preheating in time.",
@@ -3022,6 +3037,14 @@
       const homeRows = [
         this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Berlin")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
         this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
+        (() => {
+          const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
+          return `<details class="adv"${lat != null && lon != null ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row(
+            "Standort der Wohnung",
+            `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}></span>`,
+            t("Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.")
+          )}</details>`;
+        })(),
         this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Remscheid")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
         `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`
       ].join("");
@@ -3481,6 +3504,13 @@
         this._setHub({ [el.dataset.hubnum]: Number.isNaN(v) ? null : v }, 200);
       }));
       $("[data-hubtext]").forEach((el) => el.addEventListener("change", () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200)));
+      $("[data-hubgeo]").forEach((el) => el.addEventListener("change", () => {
+        const key = el.dataset.hubgeo;
+        const limit = key === "latitude" ? 90 : 180;
+        const raw = el.value.trim().replace(",", ".");
+        const v = raw === "" ? null : Math.max(-limit, Math.min(limit, parseFloat(raw)));
+        this._setHub({ [key]: Number.isNaN(v) ? null : v }, 200);
+      }));
       $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {
         const inp = this.shadowRoot.getElementById("newHome");
         const name = inp && inp.value.trim();

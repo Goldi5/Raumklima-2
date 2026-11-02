@@ -279,6 +279,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const homeRows = [
       this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Berlin")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
       this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
+      (() => {
+        const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
+        return `<details class="adv"${lat != null && lon != null ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row("Standort der Wohnung",
+          `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}></span>`,
+          t("Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand."),
+        )}</details>`;
+      })(),
       this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Remscheid")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
       `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`,
     ].join("");
@@ -714,6 +721,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._setHub({ [el.dataset.hubnum]: Number.isNaN(v) ? null : v }, 200);
     }));
     $("[data-hubtext]").forEach((el) => el.addEventListener("change", () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200)));
+    $("[data-hubgeo]").forEach((el) => el.addEventListener("change", () => {
+      const key = el.dataset.hubgeo;
+      const limit = key === "latitude" ? 90 : 180;
+      const raw = el.value.trim().replace(",", ".");
+      const v = raw === "" ? null : Math.max(-limit, Math.min(limit, parseFloat(raw)));
+      this._setHub({ [key]: Number.isNaN(v) ? null : v }, 200);
+    }));
     $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {
       const inp = this.shadowRoot.getElementById("newHome");
       const name = inp && inp.value.trim();

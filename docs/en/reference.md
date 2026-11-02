@@ -31,6 +31,7 @@
 | … quiet warning below | 12 °C | once per night |
 | Remind every | 5 min | repeat as long as the problem persists |
 | Weather source | – | `weather.*` (with forecast) or an outdoor temperature sensor |
+| Location of the home | – (Home Assistant) | coordinates for the sun’s position – needed when the home sits elsewhere than Home Assistant (under *Home → Advanced*) |
 | Learn times | on | sleep times from night airing and lights |
 | Public holidays | – | German state; the night before a holiday counts as weekend |
 | Sleep signals | – | lights/switches for bedtime and getting up |

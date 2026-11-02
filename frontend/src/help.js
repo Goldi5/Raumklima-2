@@ -216,6 +216,11 @@ export const HELP = {
     "During quiet time, bedrooms and rarely used rooms are set back to the setback temperature – even when somebody is at home. So the heating stays off while you sleep after a night shift. A time window and the dial on the thermostat take precedence.",
     "Pendant l’heure de repos, les chambres et les pièces peu utilisées passent à la température d’abaissement – même si quelqu’un est à la maison. Le chauffage reste donc arrêté pendant le sommeil après une nuit de travail. Une plage horaire et le bouton du thermostat restent prioritaires.",
   ],
+  "Standort der Wohnung": [
+    "Die echten Koordinaten dieser Wohnung. Nötig, wenn Home Assistant woanders steht als die Wohnung – etwa eine Wohnung in Berlin, die aus Remscheid überwacht wird. Daraus rechnet Raumklima den Sonnenstand für den Sonnenabzug nach Fassade. Leer gelassen gilt der Standort von Home Assistant.",
+    "The real coordinates of this home. Needed when Home Assistant sits somewhere else than the home – for example a flat in Berlin monitored from Remscheid. Raumklima computes the sun’s position from it for the facade-based solar gain. Left empty, Home Assistant’s own location is used.",
+    "Les vraies coordonnées de ce logement. Nécessaire quand Home Assistant se trouve ailleurs que le logement – par exemple un appartement à Berlin surveillé depuis Remscheid. Raumklima en calcule la position du soleil pour l’apport solaire par façade. Laissé vide, l’emplacement de Home Assistant s’applique.",
+  ],
   "Zeitfenster": [
     "Ein eigenes Zeitfenster für diesen Raum: Wochentage (keine Auswahl = jeden Tag), von/bis und Zieltemperatur, auch über Mitternacht. Es setzt nur den Sollwert – Fenster, Frost, Schimmel und Abwesenheit bleiben vorrangig, und bei gelerntem Raum wird rechtzeitig vorgeheizt.",
     "A time window for this room: weekdays (none selected = every day), from/to and target temperature, also across midnight. It only sets the target – windows, frost, mould and absence stay in charge, and a room with a learned heat-up rate starts preheating in time.",

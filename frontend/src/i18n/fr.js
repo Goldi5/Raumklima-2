@@ -1,14 +1,18 @@
 // Textes français des cartes. Clé = texte allemand (voir i18n.js).
 // Traduction initiale – corrections bienvenues via une issue GitHub.
 export const FR = {
+  "Breite": "Latitude",
   "Dauer des Boosts": "Durée du boost",
   "Boost · Ziel <b>{v} °C</b>": "Boost · cible <b>{v} °C</b>",
   "Boost": "Boost",
   "Erweitert: Sonneneintrag": "Avancé : apport solaire",
+  "Erweitert: Standort der Wohnung": "Avancé : emplacement du logement",
   "Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage).": "Façade de la pièce, simplifié – suppose une vue dégagée. Un bâtiment, un arbre ou un balcon devant n’est pas pris en compte ; dans ce cas, mieux vaut laisser vide (prévision seule).",
   "Handbuch (PDF)": "Manuel (PDF)",
   "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
   "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Chaque nuit compte une fois (événement le plus tôt). L’apprentissage se fait d’abord par jour de la semaine (travail posté), sinon par semaine/week-end (ven→sam, sam→dim) ; la valeur typique (médiane) des 6 dernières semaines est apprise dès 4 nuits. L’heure de repos commence 30 min avant le coucher typique et se termine 30 min après le lever – mais jamais plus courte que le réglage.",
+  "Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Vide = emplacement de Home Assistant. Pour un logement surveillé à distance (p. ex. un appartement à Berlin alors que Home Assistant tourne à Remscheid), indiquez ici les vraies coordonnées – Raumklima en calcule la position du soleil.",
+  "Länge": "Longitude",
   "Nord": "Nord",
   "Nordost": "Nord-est",
   "Nordwest": "Nord-ouest",
@@ -17,6 +21,7 @@ export const FR = {
   "Ruhezeit · Ziel <b>{v} °C</b>": "Heure de repos · cible <b>{v} °C</b>",
   "Schichtdienst": "Travail posté",
   "Sonne kommt aus": "Le soleil vient de",
+  "Standort der Wohnung": "Emplacement du logement",
   "Süd": "Sud",
   "Südost": "Sud-est",
   "Südwest": "Sud-ouest",

@@ -1,14 +1,18 @@
 // Englische Texte der Karten. Schlüssel = deutscher Text (siehe i18n.js).
 // Neue Texte: node test/extract.mjs listet alle Schlüssel, npm test meldet fehlende.
 export const EN = {
+  "Breite": "Latitude",
   "Dauer des Boosts": "Boost duration",
   "Boost · Ziel <b>{v} °C</b>": "Boost · target <b>{v} °C</b>",
   "Boost": "Boost",
   "Erweitert: Sonneneintrag": "Advanced: solar gain",
+  "Erweitert: Standort der Wohnung": "Advanced: location of the home",
   "Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage).": "Room facade, simplified – assumes a clear view. A building, tree or balcony in front is not taken into account; in that case better leave it empty (forecast only).",
   "Handbuch (PDF)": "Manual (PDF)",
   "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
   "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Each night counts once (earliest event). Learning starts per weekday (shift work), otherwise by weekday/weekend (Fri→Sat, Sat→Sun); the typical value (median) of the last 6 weeks is learned once 4 nights are in. Quiet time begins 30 min before the typical bedtime and ends 30 min after getting up – but never shorter than configured.",
+  "Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Empty = Home Assistant’s location. For a home monitored remotely (e.g. a flat in Berlin while Home Assistant runs in Remscheid) enter the real coordinates here – Raumklima computes the sun’s position from them.",
+  "Länge": "Longitude",
   "Nord": "North",
   "Nordost": "North-east",
   "Nordwest": "North-west",
@@ -17,6 +21,7 @@ export const EN = {
   "Ruhezeit · Ziel <b>{v} °C</b>": "Quiet time · target <b>{v} °C</b>",
   "Schichtdienst": "Shift work",
   "Sonne kommt aus": "Sun comes from",
+  "Standort der Wohnung": "Location of the home",
   "Süd": "South",
   "Südost": "South-east",
   "Südwest": "South-west",
