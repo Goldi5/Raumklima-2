@@ -1,13 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Doku
-- **Französisch vollständig** 🇫🇷: alle Doku-Seiten unter `docs/fr/` (Installation, Bedienung,
-  Funktionsweise, Benachrichtigungen, Referenz, FAQ, Fehlerbehebung, Entwickeln), das
-  **Handbuch als PDF** (`Raumklima-Manuel.pdf`, `handbook/fr.md`) und die Sprachumschaltung
-  in den READMEs.
-
 ## 0.17.0 – 2026-11-02
 
 ### Neu
@@ -16,6 +8,9 @@
   Einträge, die E-Mail-Prüfung und Fehlermeldungen der Karte kommen jetzt in der Systemsprache von
   Home Assistant (*Einstellungen → System → Allgemein*): Deutsch, Französisch, sonst Englisch. Eine Änderung
   der Sprache gilt sofort, ohne Neustart. Zahlen mit Dezimalkomma auf Deutsch und Französisch.
+- **Doku und Handbuch auch auf Französisch** 🇫🇷: alle Seiten unter `docs/fr/` (Installation, Bedienung,
+  Funktionsweise, Benachrichtigungen, Referenz, FAQ, Fehlerbehebung, Entwickeln), das Handbuch als PDF
+  (`Raumklima-Manuel.pdf`) und die Sprachumschaltung in den READMEs.
 - Ältere Protokolleinträge behalten die Sprache, in der sie geschrieben wurden.
 - Für Entwickler: Texte stehen in `msg_catalog.py`; ein Test prüft, dass jeder Text in allen Sprachen
   vorhanden ist und die Platzhalter passen.
