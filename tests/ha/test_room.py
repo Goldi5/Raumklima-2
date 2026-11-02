@@ -444,3 +444,16 @@ async def test_sun_location_prefers_zone(hass: HomeAssistant, setup, trv: FakeTr
     hub.config[CONF_LONGITUDE] = 7.19
     assert hub.sun_location == (51.18, 7.19)
 
+
+async def test_climate_exposes_trv_target(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Der Sollwert am Thermostat wird ausgeliefert – er erklärt abweichende Statusanzeigen (Issue #11)."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    # Der Wert spiegelt, was wirklich am Thermostat steht
+    geraet = hass.states.get("climate.trv_bad")
+    assert ctrl.trv_target == geraet.attributes.get("temperature")
+    st = hass.states.get("climate.bad")
+    assert st is not None and st.attributes.get("trv_target") == ctrl.trv_target
+

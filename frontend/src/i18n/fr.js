@@ -31,6 +31,7 @@ export const FR = {
   "Tageswerte je Raum als Tabelle (CSV)": "Valeurs journalières par pièce en tableau (CSV)",
   "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
   "Kalender": "Calendrier",
+  "Thermostat {v}°": "Thermostat {v}°",
   "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
   "Werte von Home Assistant übernehmen": "Reprendre les valeurs de Home Assistant",
   "West": "Ouest",

@@ -1,4 +1,4 @@
-/* Raumklima 0.24.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.24.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -32,6 +32,7 @@
     "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
     "Export fehlgeschlagen: {e}": "Export failed: {e}",
     "Kalender": "Calendar",
+    "Thermostat {v}°": "Thermostat {v}°",
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Preheating for schedule · <b>{v} °C</b>",
     "Werte von Home Assistant übernehmen": "Take over Home Assistant’s values",
     "West": "West",
@@ -584,6 +585,7 @@
     "Tageswerte je Raum als Tabelle (CSV)": "Valeurs journalières par pièce en tableau (CSV)",
     "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
     "Kalender": "Calendrier",
+    "Thermostat {v}°": "Thermostat {v}°",
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
     "Werte von Home Assistant übernehmen": "Reprendre les valeurs de Home Assistant",
     "West": "Ouest",
@@ -1145,7 +1147,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.24.0";
+  var RK_VERSION = "0.24.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1866,7 +1868,7 @@
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
           ${sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
@@ -1986,6 +1988,7 @@
         const off = r.state === "off";
         const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;
         const label = v && a.ventilation !== "ok" ? v.label : s.label;
+        const trvNote = a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : "";
         const prefix = this._config.strip_prefix ?? "";
         const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
         return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
@@ -1996,7 +1999,7 @@
           return s2 ? `<span title="${t("offen seit {c}", { c: rkClock(s2) })}">${rkDuration(Date.now() - s2)}</span>` : "";
         })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
-        <div class="rs">${label}</div>
+        <div class="rs">${label}${trvNote}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
           <div class="rmeta">${off ? t("aus") : a.plan_reason === "season" ? t("Pause") : a.effective_target != null && a.effective_target < a.temperature ? t("↓ {v}° · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) }) : t("Ziel {v}°", { v: fmt(a.temperature) })}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>

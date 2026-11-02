@@ -101,6 +101,15 @@ class TrvMixin:
         """Vom TRV gemeldete Ist-Temperatur (inkl. Offset)."""
         return to_float(self._trv_attr("current_temperature"))
 
+    @property
+    def trv_target(self) -> float | None:
+        """Sollwert, der gerade **am Thermostat** steht.
+
+        Kann von Raumklimas Ziel abweichen – etwa wenn am Gerät ein eigener Zeitplan läuft,
+        jemand von Hand gedreht hat oder ein Boost aktiv ist. Erklärt „Heizt“ trotz erreichtem Ziel.
+        """
+        return to_float(self._trv_attr("temperature"))
+
     def _detect_manual_change(self, old: State, new: State) -> None:
         """Änderungen direkt am TRV erkennen (nicht von uns gesendet)."""
         if self.sync.jobs or self.paused or self._apply_lock.locked():

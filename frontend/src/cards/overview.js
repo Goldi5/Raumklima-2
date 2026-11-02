@@ -76,6 +76,10 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const off = r.state === "off";
       const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;
       const label = v && a.ventilation !== "ok" ? v.label : s.label;
+      // Steht das Thermostat anders als Raumklimas Ziel? Das erklärt „Heizt“ bei erreichtem Ziel.
+      const trvNote = a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3
+        ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}`
+        : "";
       const prefix = this._config.strip_prefix ?? "";
       const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
       return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
@@ -83,7 +87,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => { const s = rkOpenSince(this._hass, a); return s ? `<span title="${t("offen seit {c}", { c: rkClock(s) })}">${rkDuration(Date.now() - s)}</span>` : ""; })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
-        <div class="rs">${label}</div>
+        <div class="rs">${label}${trvNote}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
           <div class="rmeta">${off ? t("aus") : a.plan_reason === "season" ? t("Pause") : a.effective_target != null && a.effective_target < a.temperature ? t("↓ {v}° · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) }) : t("Ziel {v}°", { v: fmt(a.temperature) })}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>

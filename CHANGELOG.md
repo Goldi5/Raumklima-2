@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.24.1 – 2026-11-02
+
+### Neu
+- **Sollwert am Thermostat wird angezeigt** (Issue #11): „Heizt“ und „Temperatur erreicht“ kommen vom
+  Thermostat selbst (`hvac_action`), nicht aus einem Vergleich Ist/Soll. Weicht der Sollwert **am Gerät**
+  von Raumklimas Ziel ab (eigener Zeitplan, Boost oder von Hand gedreht), steht das jetzt dabei:
+  „Heizt · Thermostat 24,0°“. Neues Attribut `trv_target` an `climate.<raum>`.
+
 ## 0.24.0 – 2026-11-02
 
 ### Neu
