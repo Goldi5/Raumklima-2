@@ -201,6 +201,26 @@ export const HELP = {
     "For rooms with large south or west windows: if sun is forecast and the room is almost warm, it heats 1 °C less – the sun does the rest.",
     "Pour les pièces avec de grandes fenêtres au sud ou à l’ouest : si le soleil est prévu et que la pièce est presque chaude, elle chauffe 1 °C de moins – le soleil fait le reste.",
   ],
+  "Sonne kommt aus": [
+    "Die Himmelsrichtung der Außenwand dieses Raums. Mit Fassade zählt nur Sonne, die nach Sonnenstand (Azimut und Höhe) wirklich hereinscheint – ein Westzimmer reagiert also erst nachmittags, ein Ostzimmer nur morgens. Ohne Angabe zählt jede sonnige Stunde der Vorhersage.",
+    "The compass direction of this room’s outside wall. With a facade, only sun that really comes in – judged by the sun’s azimuth and elevation – counts: a west room reacts in the afternoon, an east room only in the morning. Without a value, every sunny hour in the forecast counts.",
+    "L’orientation de la façade de cette pièce. Avec une façade, seul le soleil qui entre vraiment compte, d’après l’azimut et la hauteur du soleil : une pièce à l’ouest réagit l’après-midi, une pièce à l’est seulement le matin. Sans valeur, chaque heure ensoleillée de la prévision compte.",
+  ],
+  "Schichtdienst": [
+    "Lernt Bett- und Aufstehzeiten je Wochentag, nicht nur nach Werktag und Wochenende. Eingeschaltet werden auch Tagschlaf-Zeiten erkannt: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht.",
+    "Learns bedtime and getting-up times per weekday, not just weekday versus weekend. When on, daytime sleep is detected too: bedtime up to 09:00, getting up up to 17:00 – for night and rotating shifts.",
+    "Apprend le coucher et le lever par jour de la semaine, pas seulement semaine et week-end. Activé, le sommeil de jour est aussi détecté : coucher jusqu’à 09:00, lever jusqu’à 17:00 – pour le travail de nuit et en équipes.",
+  ],
+  "Ruhezeit senkt ab": [
+    "Während der Ruhezeit werden Schlafzimmer und selten genutzte Räume auf die Absenkung gebracht – auch wenn jemand zu Hause ist. So bleibt die Heizung aus, während nach der Nachtschicht geschlafen wird. Ein Zeitfenster und der Regler am Thermostat gehen vor.",
+    "During quiet time, bedrooms and rarely used rooms are set back to the setback temperature – even when somebody is at home. So the heating stays off while you sleep after a night shift. A time window and the dial on the thermostat take precedence.",
+    "Pendant l’heure de repos, les chambres et les pièces peu utilisées passent à la température d’abaissement – même si quelqu’un est à la maison. Le chauffage reste donc arrêté pendant le sommeil après une nuit de travail. Une plage horaire et le bouton du thermostat restent prioritaires.",
+  ],
+  "Zeitfenster": [
+    "Ein eigenes Zeitfenster für diesen Raum: Wochentage (keine Auswahl = jeden Tag), von/bis und Zieltemperatur, auch über Mitternacht. Es setzt nur den Sollwert – Fenster, Frost, Schimmel und Abwesenheit bleiben vorrangig, und bei gelerntem Raum wird rechtzeitig vorgeheizt.",
+    "A time window for this room: weekdays (none selected = every day), from/to and target temperature, also across midnight. It only sets the target – windows, frost, mould and absence stay in charge, and a room with a learned heat-up rate starts preheating in time.",
+    "Une plage horaire pour cette pièce : jours de la semaine (aucun = tous les jours), de/à et température cible, aussi après minuit. Elle ne règle que la consigne – fenêtre, gel, moisissures et absence restent prioritaires, et une pièce dont la vitesse de chauffe est apprise préchauffe à temps.",
+  ],
   "Absenkung „kurz weg“": [
     "Zieltemperatur, wenn alle kurz weg sind. Nie tiefer, als der Schimmelschutz erlaubt.",
     "Target temperature when everyone is briefly away. Never lower than mould protection allows.",

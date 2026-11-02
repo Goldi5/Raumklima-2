@@ -3,18 +3,21 @@
 from datetime import date, datetime, timedelta
 
 from rk.planning import (
+    FACADES,
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
     STAGE_GUESTS,
     STAGE_HOME,
     STAGE_PREHEAT,
     Fix,
+    ForecastHour,
     PresenceInput,
     SeasonConfig,
     SeasonState,
     TrackerFilter,
     approaching,
     combined_mean,
+    facade_angle,
     haversine_km,
     in_season,
     mold_safe_min_temp,
@@ -26,6 +29,9 @@ from rk.planning import (
     season_decision,
     season_step,
     setback_target,
+    sun_expected,
+    sun_on_facade,
+    sun_position,
 )
 
 BERLIN = (52.5146, 13.4986)  # Lichtenberg
@@ -390,3 +396,66 @@ def test_schedule_target() -> None:
     assert schedule_target([{"start": "kaputt", "end": "21:00", "temperature": 22.0}], montag) is None
     assert schedule_target([{"start": "19:00", "end": "21:00"}], montag) is None  # ohne Temperatur
     assert schedule_target(["quatsch"], montag) is None
+
+
+def test_sun_position() -> None:
+    """Sonnenstand: mittags hoch im Süden, morgens im Osten, abends im Westen."""
+    berlin = (52.52, 13.40)  # (Breite, Länge)
+    az_noon, el_noon = sun_position(datetime(2026, 6, 21, 12, 0), *berlin)
+    assert 185 <= az_noon <= 215, az_noon      # kurz nach Süden
+    assert 55 <= el_noon <= 63, el_noon        # Mittsommer hoch
+
+    az_morning, el_morning = sun_position(datetime(2026, 6, 21, 6, 0), *berlin)
+    assert 60 <= az_morning <= 120, az_morning  # Osthälfte
+    az_evening, _ = sun_position(datetime(2026, 6, 21, 18, 0), *berlin)
+    assert 240 <= az_evening <= 300, az_evening  # Westhälfte
+    assert el_morning < el_noon
+
+    # Winter: die Sonne steht deutlich tiefer
+    _, el_winter = sun_position(datetime(2026, 12, 21, 12, 0), *berlin)
+    assert 10 <= el_winter <= 20, el_winter
+
+
+def test_sun_on_facade() -> None:
+    """Nur Sonne, die wirklich auf die Fassade scheint."""
+    assert sun_on_facade(240.0, 30.0, FACADES["W"])       # Nachmittag, Westwand
+    assert not sun_on_facade(90.0, 30.0, FACADES["W"])    # Morgen, Westwand
+    assert not sun_on_facade(240.0, 5.0, FACADES["W"])    # zu tief, kein Eintrag
+    assert sun_on_facade(350.0, 25.0, FACADES["N"])       # Nordwand, knapp westlich
+    assert sun_on_facade(10.0, 25.0, FACADES["N"])        # und knapp östlich
+    assert sun_on_facade(180.0, 40.0, FACADES["S"])       # pralle Südsonne
+    assert not sun_on_facade(0.0, 40.0, FACADES["S"])     # Nordsonne erreicht Südfenster nicht
+    assert facade_angle("w") == 270.0 and facade_angle("") is None and facade_angle(None) is None
+    assert facade_angle("quatsch") is None
+
+
+def _sunny(when: datetime) -> ForecastHour:
+    return ForecastHour(when=when, temperature=20.0, condition="sunny")
+
+
+def test_sun_expected_with_facade() -> None:
+    """Westzimmer reagiert nachmittags, Ostzimmer morgens – ohne Fassade zählt alles."""
+    berlin = (52.52, 13.40)
+    nachmittag = [_sunny(datetime(2026, 6, 21, h, 0)) for h in (13, 14, 15)]
+    now = datetime(2026, 6, 21, 13, 0)
+    assert sun_expected(nachmittag, now) is True  # wie bisher
+    assert sun_expected(nachmittag, now, "W", *berlin) is True
+    assert sun_expected(nachmittag, now, "O", *berlin) is False
+    assert sun_expected(nachmittag, now, "S", *berlin) is True  # Süd sieht nachmittags noch Sonne
+
+    morgen = [_sunny(datetime(2026, 6, 21, h, 0)) for h in (5, 6, 7)]
+    frueh = datetime(2026, 6, 21, 5, 0)
+    assert sun_expected(morgen, frueh, "O", *berlin) is True
+    assert sun_expected(morgen, frueh, "W", *berlin) is False
+
+    # ohne Standort bleibt es bei der reinen Vorhersage
+    assert sun_expected(nachmittag, now, "O") is True
+
+
+def test_facade_options_match_planning() -> None:
+    """Auswahlliste in const.py und Rechnung in planning.py müssen gleich sein."""
+    from rk.const import SOLAR_FACADE_OPTIONS
+
+    assert SOLAR_FACADE_OPTIONS[0] == ""
+    assert SOLAR_FACADE_OPTIONS[1:] == list(FACADES)
+

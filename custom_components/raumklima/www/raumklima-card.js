@@ -1,21 +1,34 @@
-/* Raumklima 0.21.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.22.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
     "Dauer des Boosts": "Boost duration",
     "Boost · Ziel <b>{v} °C</b>": "Boost · target <b>{v} °C</b>",
     "Boost": "Boost",
+    "Fassade des Raums – mit Azimut zählt nur Sonne, die wirklich hereinscheint (leer = nur Vorhersage)": "Room facade – with azimuth only the sun that really comes in counts (empty = forecast only)",
     "Handbuch (PDF)": "Manual (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Each night counts once (earliest event). Learning starts per weekday (shift work), otherwise by weekday/weekend (Fri→Sat, Sat→Sun); the typical value (median) of the last 6 weeks is learned once 4 nights are in. Quiet time begins 30 min before the typical bedtime and ends 30 min after getting up – but never shorter than configured.",
+    "Nord": "North",
+    "Nordost": "North-east",
+    "Nordwest": "North-west",
+    "Ost": "East",
     "Ruhezeit senkt ab": "Quiet time sets back",
     "Ruhezeit · Ziel <b>{v} °C</b>": "Quiet time · target <b>{v} °C</b>",
     "Schichtdienst": "Shift work",
+    "Sonne kommt aus": "Sun comes from",
+    "Süd": "South",
+    "Südost": "South-east",
+    "Südwest": "South-west",
     "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
     "Export fehlgeschlagen: {e}": "Export failed: {e}",
     "Kalender": "Calendar",
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Preheating for schedule · <b>{v} °C</b>",
+    "West": "West",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "also learn daytime sleep: bedtime up to 09:00, getting up up to 17:00 – for night and rotating shifts",
+    "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "heat 1 °C less when the sun is out – it warms the room",
+    "egal – nur Vorhersage": "any – forecast only",
+    "nur Vorhersage": "forecast only",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "during quiet time, bedrooms and rarely used rooms are set back – even when somebody is at home",
     "z. B. abends 19–21 Uhr wärmer": "e.g. warmer in the evening from 7 to 9 pm",
     "von": "from",
@@ -532,17 +545,30 @@
     "Dauer des Boosts": "Durée du boost",
     "Boost · Ziel <b>{v} °C</b>": "Boost · cible <b>{v} °C</b>",
     "Boost": "Boost",
+    "Fassade des Raums – mit Azimut zählt nur Sonne, die wirklich hereinscheint (leer = nur Vorhersage)": "Façade de la pièce – avec l’azimut, seul le soleil qui entre vraiment compte (vide = prévision seule)",
     "Handbuch (PDF)": "Manuel (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Chaque nuit compte une fois (événement le plus tôt). L’apprentissage se fait d’abord par jour de la semaine (travail posté), sinon par semaine/week-end (ven→sam, sam→dim) ; la valeur typique (médiane) des 6 dernières semaines est apprise dès 4 nuits. L’heure de repos commence 30 min avant le coucher typique et se termine 30 min après le lever – mais jamais plus courte que le réglage.",
+    "Nord": "Nord",
+    "Nordost": "Nord-est",
+    "Nordwest": "Nord-ouest",
+    "Ost": "Est",
     "Ruhezeit senkt ab": "L’heure de repos abaisse",
     "Ruhezeit · Ziel <b>{v} °C</b>": "Heure de repos · cible <b>{v} °C</b>",
     "Schichtdienst": "Travail posté",
+    "Sonne kommt aus": "Le soleil vient de",
+    "Süd": "Sud",
+    "Südost": "Sud-est",
+    "Südwest": "Sud-ouest",
     "Tageswerte je Raum als Tabelle (CSV)": "Valeurs journalières par pièce en tableau (CSV)",
     "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
     "Kalender": "Calendrier",
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
+    "West": "Ouest",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "apprendre aussi le sommeil de jour : coucher jusqu’à 09:00, lever jusqu’à 17:00 – pour le travail de nuit et en équipes",
+    "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "chauffer 1 °C de moins quand le soleil est là – il réchauffe la pièce",
+    "egal – nur Vorhersage": "peu importe – prévision seule",
+    "nur Vorhersage": "prévision seule",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "pendant l’heure de repos, les chambres et les pièces peu utilisées sont abaissées – même si quelqu’un est à la maison",
     "z. B. abends 19–21 Uhr wärmer": "p. ex. plus chaud le soir de 19 h à 21 h",
     "von": "de",
@@ -1084,7 +1110,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.21.0";
+  var RK_VERSION = "0.22.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2489,6 +2515,26 @@
       "For rooms with large south or west windows: if sun is forecast and the room is almost warm, it heats 1 °C less – the sun does the rest.",
       "Pour les pièces avec de grandes fenêtres au sud ou à l’ouest : si le soleil est prévu et que la pièce est presque chaude, elle chauffe 1 °C de moins – le soleil fait le reste."
     ],
+    "Sonne kommt aus": [
+      "Die Himmelsrichtung der Außenwand dieses Raums. Mit Fassade zählt nur Sonne, die nach Sonnenstand (Azimut und Höhe) wirklich hereinscheint – ein Westzimmer reagiert also erst nachmittags, ein Ostzimmer nur morgens. Ohne Angabe zählt jede sonnige Stunde der Vorhersage.",
+      "The compass direction of this room’s outside wall. With a facade, only sun that really comes in – judged by the sun’s azimuth and elevation – counts: a west room reacts in the afternoon, an east room only in the morning. Without a value, every sunny hour in the forecast counts.",
+      "L’orientation de la façade de cette pièce. Avec une façade, seul le soleil qui entre vraiment compte, d’après l’azimut et la hauteur du soleil : une pièce à l’ouest réagit l’après-midi, une pièce à l’est seulement le matin. Sans valeur, chaque heure ensoleillée de la prévision compte."
+    ],
+    "Schichtdienst": [
+      "Lernt Bett- und Aufstehzeiten je Wochentag, nicht nur nach Werktag und Wochenende. Eingeschaltet werden auch Tagschlaf-Zeiten erkannt: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht.",
+      "Learns bedtime and getting-up times per weekday, not just weekday versus weekend. When on, daytime sleep is detected too: bedtime up to 09:00, getting up up to 17:00 – for night and rotating shifts.",
+      "Apprend le coucher et le lever par jour de la semaine, pas seulement semaine et week-end. Activé, le sommeil de jour est aussi détecté : coucher jusqu’à 09:00, lever jusqu’à 17:00 – pour le travail de nuit et en équipes."
+    ],
+    "Ruhezeit senkt ab": [
+      "Während der Ruhezeit werden Schlafzimmer und selten genutzte Räume auf die Absenkung gebracht – auch wenn jemand zu Hause ist. So bleibt die Heizung aus, während nach der Nachtschicht geschlafen wird. Ein Zeitfenster und der Regler am Thermostat gehen vor.",
+      "During quiet time, bedrooms and rarely used rooms are set back to the setback temperature – even when somebody is at home. So the heating stays off while you sleep after a night shift. A time window and the dial on the thermostat take precedence.",
+      "Pendant l’heure de repos, les chambres et les pièces peu utilisées passent à la température d’abaissement – même si quelqu’un est à la maison. Le chauffage reste donc arrêté pendant le sommeil après une nuit de travail. Une plage horaire et le bouton du thermostat restent prioritaires."
+    ],
+    "Zeitfenster": [
+      "Ein eigenes Zeitfenster für diesen Raum: Wochentage (keine Auswahl = jeden Tag), von/bis und Zieltemperatur, auch über Mitternacht. Es setzt nur den Sollwert – Fenster, Frost, Schimmel und Abwesenheit bleiben vorrangig, und bei gelerntem Raum wird rechtzeitig vorgeheizt.",
+      "A time window for this room: weekdays (none selected = every day), from/to and target temperature, also across midnight. It only sets the target – windows, frost, mould and absence stay in charge, and a room with a learned heat-up rate starts preheating in time.",
+      "Une plage horaire pour cette pièce : jours de la semaine (aucun = tous les jours), de/à et température cible, aussi après minuit. Elle ne règle que la consigne – fenêtre, gel, moisissures et absence restent prioritaires, et une pièce dont la vitesse de chauffe est apprise préchauffe à temps."
+    ],
     "Absenkung „kurz weg“": [
       "Zieltemperatur, wenn alle kurz weg sind. Nie tiefer, als der Schimmelschutz erlaubt.",
       "Target temperature when everyone is briefly away. Never lower than mould protection allows.",
@@ -2662,6 +2708,18 @@
   };
 
   // src/cards/settings.js
+  var RK_FACADES = () => [
+    { id: "", name: t("egal – nur Vorhersage") },
+    { id: "N", name: t("Nord") },
+    { id: "NO", name: t("Nordost") },
+    { id: "O", name: t("Ost") },
+    { id: "SO", name: t("Südost") },
+    { id: "S", name: t("Süd") },
+    { id: "SW", name: t("Südwest") },
+    { id: "W", name: t("West") },
+    { id: "NW", name: t("Nordwest") }
+  ];
+  var rkFacadeName = (v) => v ? (RK_FACADES().find((f) => f.id === v) || {}).name || v : t("nur Vorhersage");
   var RaumklimaSettingsCard = class extends HTMLElement {
     static getConfigForm() {
       return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }] };
@@ -3136,7 +3194,12 @@
         this._row(
           "Sonnenseite",
           editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
-          a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : "bei Sonne laut Vorhersage 1 °C weniger heizen – die Sonne wärmt mit"
+          a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit")
+        ),
+        this._row(
+          "Sonne kommt aus",
+          editable ? this._select(scope, "solar_facade", RK_FACADES(), this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "") : this._v(rkFacadeName(this._roomOpt(r, "solar_facade") ?? s.solar_facade)),
+          t("Fassade des Raums – mit Azimut zählt nur Sonne, die wirklich hereinscheint (leer = nur Vorhersage)")
         ),
         this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
         this._row(

@@ -69,6 +69,7 @@ from .const import (
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
     CONF_SOLAR,
+    CONF_SOLAR_FACADE,
     CONF_SYNC_MAX_RETRIES,
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
@@ -178,6 +179,7 @@ LIVE_OPTIONS = frozenset(
         CONF_VIRTUAL_WINDOW,
         CONF_HOME,
         CONF_SOLAR,
+        CONF_SOLAR_FACADE,
         CONF_LIGHTS,
         CONF_LIGHT_SIGNALS,
         CONF_PRESENCE,
@@ -437,6 +439,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "night_airing": self.night_mode,
             "virtual_window": self.virtual_mode,
             "solar_gain": bool(self.config.get(CONF_SOLAR)),
+            "solar_facade": self.config.get(CONF_SOLAR_FACADE) or "",
             "presence_sensors": self.sensor_kinds(),
             "presence_kind": self.config.get(CONF_PRESENCE_KIND) or "auto",
             "room_eco": self.room_eco_mode,
@@ -710,7 +713,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     def _solar_applies(self, hub: RaumklimaHub) -> bool:
         """Sonnen-Raum: bei erwarteter Sonne 1 °C weniger – einmal an, bis die Sonne weg ist (keine Schwingung)."""
-        if not self.config.get(CONF_SOLAR) or not hub.sun_expected():
+        if not self.config.get(CONF_SOLAR) or not hub.sun_expected(self.config.get(CONF_SOLAR_FACADE)):
             self._solar_active = False
             return False
         if not self._solar_active:

@@ -128,9 +128,15 @@ class SeasonMixin:
         self.forecast_hourly = hourly
         self._evaluate_season()
 
-    def sun_expected(self) -> bool:
-        """Scheint laut Vorhersage in den nächsten Stunden die Sonne?"""
-        return sun_expected(self.forecast_hourly, dt_util.utcnow())
+    def sun_expected(self, facade: str | None = None) -> bool:
+        """Scheint laut Vorhersage in den nächsten Stunden die Sonne auf diese Fassade?"""
+        return sun_expected(
+            self.forecast_hourly,
+            dt_util.utcnow(),
+            facade,
+            self.hass.config.latitude,
+            self.hass.config.longitude,
+        )
 
     @property
     def frost_night(self) -> float | None:

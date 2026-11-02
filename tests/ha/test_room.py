@@ -341,3 +341,19 @@ async def test_quiet_time_needs_bedroom_and_setting(hass: HomeAssistant, setup, 
     hub.config[CONF_QUIET_SETBACK] = False
     assert ctrl.plan()[2] != "sleep"
 
+
+async def test_solar_uses_room_facade(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Die Fassade des Raums wird an die Sonnenprüfung durchgereicht (Issue #5)."""
+    from custom_components.raumklima.const import CONF_SOLAR, CONF_SOLAR_FACADE
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    seen: list[object] = []
+    ctrl.hub.sun_expected = lambda facade=None: (seen.append(facade), True)[1]  # type: ignore[method-assign]
+    assert ctrl.apply_live_options({CONF_SOLAR: True, CONF_SOLAR_FACADE: "W"})
+    await hass.async_block_till_done()
+    assert ctrl.config[CONF_SOLAR_FACADE] == "W"
+    ctrl.plan()
+    assert seen and all(v == "W" for v in seen)
+

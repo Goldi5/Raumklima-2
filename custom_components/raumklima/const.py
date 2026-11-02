@@ -73,6 +73,8 @@ CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
 CONF_FROST_NIGHT: Final = "frost_night"  # in Frostnächten weniger absenken
 CONF_SOLAR: Final = "solar_gain"  # pro Raum: Sonne heizt mit
+CONF_SOLAR_FACADE: Final = "solar_facade"  # pro Raum: Fassade für den Sonnenabzug ("" = nur Vorhersage)
+SOLAR_FACADE_OPTIONS: Final = ["", "N", "NO", "O", "SO", "S", "SW", "W", "NW"]
 CONF_LIGHTS: Final = "signal_lights"  # pro Raum: Lampen, die Lüft-Hinweise anzeigen
 CONF_LIGHT_SIGNALS: Final = "light_signals"  # welche Hinweise blinken
 LIGHT_SIGNALS: Final = ["open", "close", "done", "problem"]

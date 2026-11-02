@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.22.0 – 2026-11-02
+
+### Neu
+- **Sonne nach Fassade (Azimut)** – Issue #5: Zur Sonnenseite gibt es jetzt die Angabe *Sonne kommt aus*
+  (N/NO/O/SO/S/SW/W/NW). Raumklima rechnet den Sonnenstand (Azimut und Höhenwinkel, NOAA-Formel) für jede
+  Vorhersagestunde und zählt nur Sonne, die auf **diese** Fassade scheint (±75°, Höhe über 10°). Ein
+  Westzimmer reagiert damit erst nachmittags, ein Ostzimmer nur morgens – vorher zählte jede sonnige Stunde.
+  Ohne Angabe bleibt alles wie bisher.
+
+### Hinweise
+- Der Sonnenstand kommt ohne Zusatzbibliothek aus (`planning.sun_position`, reine Mathematik, ±1°).
+  Ohne Standort in Home Assistant greift weiter die einfache Vorhersage.
+
 ## 0.21.0 – 2026-11-02
 
 ### Neu

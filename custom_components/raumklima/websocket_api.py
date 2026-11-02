@@ -54,6 +54,7 @@ from .const import (
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
     CONF_SOLAR,
+    CONF_SOLAR_FACADE,
     CONF_TTS,
     CONF_VALVE_CARE,
     CONF_VIRTUAL_WINDOW,
@@ -72,6 +73,7 @@ from .const import (
     SCHEDULE_TEMP_MAX,
     SCHEDULE_TEMP_MIN,
     SEASON_MODES,
+    SOLAR_FACADE_OPTIONS,
 )
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
@@ -186,6 +188,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
         vol.Optional(CONF_HOME): vol.Any(None, str),
         vol.Optional(CONF_SOLAR): bool,
+        vol.Optional(CONF_SOLAR_FACADE): vol.In(SOLAR_FACADE_OPTIONS),
         vol.Optional(CONF_LIGHTS): vol.All([vol.Match(r"^light\.")], vol.Length(max=10)),
         vol.Optional(CONF_LIGHT_SIGNALS): [vol.In(LIGHT_SIGNALS)],
         vol.Optional(CONF_PRESENCE): vol.All([vol.Match(r"^binary_sensor\.")], vol.Length(max=6)),

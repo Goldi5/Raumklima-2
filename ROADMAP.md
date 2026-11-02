@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.21.0 (Early Release – Tester gesucht)
+Stand: Version 0.22.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -25,6 +25,9 @@ Stand: Version 0.21.0 (Early Release – Tester gesucht)
 - [x] **Zeitpläne pro Raum** (0.19.0) – eigene Zeitfenster je Raum (bis zu 6) mit Wochentagen, Von/Bis und
       Zieltemperatur, auch über Mitternacht. *Bewusst ohne die HA-`schedule.*`-Helfer* – die Einstellungsseite
       bringt den Editor mit. Anwesenheit, Fenster, Frost, Schimmelschutz und Heizsaison bleiben vorrangig.
+- [x] **Sonne nach Fassade** (0.22.0) – Fassade je Raum (N/NO/O/…/NW); mit Sonnenstand (Azimut und
+      Höhenwinkel) zählt nur Sonne, die wirklich auf diese Wand scheint. Ein Westzimmer reagiert erst
+      nachmittags, ein Ostzimmer nur morgens (Issue #5).
 - [x] **Schichtdienst** (0.21.0) – Bett-/Aufstehzeiten werden je Wochentag gelernt; Option
       „Schichtdienst“ erkennt zusätzlich Tagschlaf (ins Bett bis 09:00, aufstehen bis 17:00). Option
       „Ruhezeit senkt ab“ bringt Schlafzimmer und selten genutzte Räume während der Ruhezeit auf die
