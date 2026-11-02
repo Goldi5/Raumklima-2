@@ -68,6 +68,8 @@ export function planText(a, off) {
     return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
   if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
   if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+  if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+  if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
 }
@@ -151,6 +153,10 @@ export const fmt = (v, d = 1) =>
 export const humTone = (h) => (h === null || h === undefined ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold");
 
 export const STYLES = `
+  .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 12px; border-radius:999px; font-weight:600; font-size:.84rem;
+    background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); color: var(--secondary-text-color); }
+  .boostbtn ha-icon { --mdc-icon-size:16px; }
+  .boostbtn.on { background: var(--rk-heat); color:#fff; }
   :host { --rk-heat:#ff7a45; --rk-ok:#2ec4a6; --rk-air:#4f9dff; --rk-warn:#ffb020; --rk-cold:#ff4d6d; --rk-off:#8a94a6; --rk-eco:#8b7cf6; }
   ha-card { display:block; position:relative; box-sizing:border-box; overflow:hidden; border-radius:28px; padding:20px; isolation:isolate;
     background: var(--ha-card-background, var(--card-background-color)); transition: box-shadow .3s; }
@@ -212,6 +218,22 @@ export const STYLES = `
 `;
 
 export function toneVar(tone) { return `var(--rk-${tone || "off"})`; }
+
+// ---------------------------------------------------------------- Zeitpläne
+const DAY_LOCALE = { de: "de-DE", en: "en-GB", fr: "fr-FR" };
+// 2.11.2026 ist ein Montag – daraus die Wochentagsnamen in der Systemsprache
+export function schedDayName(index) {
+  const d = new Date(2026, 10, 2 + Number(index));
+  return new Intl.DateTimeFormat(DAY_LOCALE[getLang()] || "en-GB", { weekday: "short" }).format(d);
+}
+export function schedDaysLabel(days) {
+  const list = (days || []).slice().sort((a, b) => a - b);
+  if (!list.length || list.length === 7) return t("täglich");
+  return list.map(schedDayName).join(" ");
+}
+export function schedSummary(w) {
+  return `${schedDaysLabel(w.days)} · ${w.start || "–"}–${w.end || "–"} · ${fmt(w.temperature)} °C`;
+}
 
 export const RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 export const SEG = tmap({
@@ -353,6 +375,17 @@ export const HISTORY_STYLES = `
 `;
 
 export const SETTINGS_STYLES = `
+  .sched { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .sched .days { display:flex; gap:4px; }
+  .sched .d { all:unset; cursor:pointer; width:32px; height:27px; line-height:27px; border-radius:8px; text-align:center; font-size:.78rem; font-weight:600;
+    background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); color: var(--secondary-text-color); }
+  .sched .d.on { background: var(--rk-heat); color:#fff; }
+  .sched input.tm { font:inherit; padding:5px 8px; border-radius:8px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
+    background: transparent; color: var(--primary-text-color); }
+  .sched .temp { min-width:58px; text-align:right; font-variant-numeric: tabular-nums; }
+  .sched .del { all:unset; cursor:pointer; padding:3px 7px; border-radius:8px; color: var(--rk-cold); }
+  .sched .add { all:unset; cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-top:8px; padding:7px 14px; border-radius:10px;
+    font-weight:600; background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); color: var(--primary-text-color); }
   ha-card.settings { container-type: inline-size; padding: 26px 28px; max-width: 1500px; margin: 12px auto; }
   @media (max-width: 600px) { ha-card.settings { padding: 18px 16px; margin: 0; } }
   ha-card.settings .htitle { font-size:1.45rem; }

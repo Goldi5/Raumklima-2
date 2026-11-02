@@ -436,6 +436,9 @@
       },
       "heat_today": {
         "name": "Heat today"
+      },
+      "boost": {
+        "name": "Warmer (boost)"
       }
     }
   },

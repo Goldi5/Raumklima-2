@@ -83,11 +83,17 @@
 | `binary_sensor.<room>_window`, `…_problem`, `…_mold_risk` | |
 | `switch.<room>_window_logic`, `…_airing_notifications` | |
 | `number.<room>_humidity_limit_please_air`, `…_minimum_temperature_while_airing`, `…_max_temperature_drop_while_airing` | |
+| `button.<room>_wärmer_boost` | starts the boost (“warmer for a short while”), pressing again ends it |
 | `button.<room>_calibrate_now` | |
 
 > **Why is a room off?** The `off_source` attribute on `climate.<room>` tells you: `user` = switched off in
 > Home Assistant, `trv` = switched off at the thermostat (its own schedule, boost, dial – with *Advanced →
 > Follow changes at the thermostat*). Only rooms that are on get set back; switched-off rooms stay off.
+
+> **Fixed heating times:** A room's `schedules` option is a list of
+> `{days, start, end, temperature}` (days: 0 = Monday … 6 = Sunday, empty = every day; times “HH:MM”, also
+> across midnight). `boost_temperature` (offset in K) and `boost_minutes` define the boost. The schedule only
+> sets the target temperature – windows, frost, mould, heating break and absence stay in charge.
 
 ## Entities of the hub “Allgemein”
 

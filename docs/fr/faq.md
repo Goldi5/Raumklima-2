@@ -20,6 +20,12 @@ Non. Sans contact, Raumklima détecte une fenêtre ouverte grâce à une chute s
 ### Dois-je écrire du YAML ?
 Non. Tout se fait dans la boîte de dialogue de configuration de Home Assistant et dans la page de réglages du tableau de bord.
 
+### Puis-je définir des heures de chauffe fixes ?
+Oui – sous *Réglages → pièce → Planning*. Vous y créez des plages horaires avec jours de la semaine, de/à et
+température cible, p. ex. « tous les jours 19–21 h 22 °C ». Le planning ne règle que la consigne : fenêtre, gel,
+moisissures, pause de chauffage et absence restent prioritaires. Pour « un peu plus chaud un moment », il y a le
+bouton **Plus chaud** (boost) sur la carte de pièce.
+
 ## Le chauffage ne fait pas ce que je veux
 
 ### La pièce ne chauffe pas alors qu'il fait froid.

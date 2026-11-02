@@ -76,11 +76,17 @@
 | `binary_sensor.<raum>_fenster`, `…_problem`, `…_schimmelrisiko` | |
 | `switch.<raum>_fensterlogik`, `…_luftungs_benachrichtigungen` | |
 | `number.<raum>_feuchtegrenze…`, `…_mindesttemperatur…`, `…_max_abkuhlung…` | |
+| `button.<raum>_wärmer_boost` | startet den Boost („Wärmer für kurze Zeit“), erneut drücken beendet ihn |
 | `button.<raum>_jetzt_kalibrieren` | |
 
 > **Warum ist ein Raum aus?** Das Attribut `off_source` an `climate.<raum>` sagt es: `user` = in Home Assistant
 > abgeschaltet, `trv` = am Thermostat (eigener Zeitplan, Boost, Drehrad – bei *Erweitert → Drehen am
 > Thermostat übernehmen*). Abgesenkt wird nur, was eingeschaltet ist; ausgeschaltete Räume bleiben aus.
+
+> **Feste Heizzeiten:** Die Option `schedules` eines Raums ist eine Liste aus
+> `{days, start, end, temperature}` (Tage: 0 = Montag … 6 = Sonntag, leer = jeden Tag; Zeiten „HH:MM“,
+> auch über Mitternacht). `boost_temperature` (Zusatz in K) und `boost_minutes` legen den Boost fest.
+> Der Zeitplan setzt nur den Sollwert – Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig.
 
 ## Entitäten der Zentrale „Allgemein“
 

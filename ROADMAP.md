@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.18.0 (Early Release – Tester gesucht)
+Stand: Version 0.19.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -18,11 +18,13 @@ Stand: Version 0.18.0 (Early Release – Tester gesucht)
 
 ## 🔥 Neue Funktionen
 
-- [ ] **Boost / Übersteuern mit Dauer** – z. B. „Bad 30 min wärmer“ vor dem Duschen oder „bis morgen früh 19 °C“,
-      danach automatisch zurück; als Knopf in der Raumkarte und als Preset der Raum-Entität.
-- [ ] **Zeitpläne pro Raum (optional)** – über die Zeitplan-Helfer von Home Assistant (`schedule.*`), z. B.
-      „Arbeitszimmer werktags 8–17 Uhr warm“; mehrere Pläne pro Raum, umschaltbar (z. B. Normal / Homeoffice /
-      Ferien). Anwesenheit, Fenster und Schimmelschutz bleiben vorrangig.
+- [x] **Boost mit Dauer** (0.19.0) – „Bad 30 min wärmer“: Knopf „Wärmer“ in der Raumkarte und
+      `button.<raum>_wärmer_boost`; Zusatz und Dauer sind je Raum einstellbar, danach gilt wieder Zeitplan
+      bzw. Automatik. Der Boost schlägt auch die Abwesenheits-Absenkung (bewusste Aktion), nicht aber Frost
+      oder Heizpause.
+- [x] **Zeitpläne pro Raum** (0.19.0) – eigene Zeitfenster je Raum (bis zu 6) mit Wochentagen, Von/Bis und
+      Zieltemperatur, auch über Mitternacht. *Bewusst ohne die HA-`schedule.*`-Helfer* – die Einstellungsseite
+      bringt den Editor mit. Anwesenheit, Fenster, Frost, Schimmelschutz und Heizsaison bleiben vorrangig.
 - [ ] **Sprachsteuerung (Assist)** – „Wie warm ist es im Bad?“, „Mach das Wohnzimmer wärmer“, „Muss ich lüften?“
 - [ ] **Sturm- und Regenwarnung** – Unwetter vorhergesagt und Fenster offen → Nachricht.
 - [ ] **Nutzung lernen und vorheizen** – aus den Präsenzmeldern („Arbeitszimmer ab 8 Uhr belegt“).

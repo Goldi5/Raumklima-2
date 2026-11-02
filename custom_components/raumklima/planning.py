@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 import math
+from typing import Any
 
 # ------------------------------------------------------------------ Konstanten
 STAGE_HOME = "home"
@@ -395,6 +396,38 @@ def in_time_window(local: datetime, start: str, end: str) -> bool:
     if s == e:
         return False
     return s <= now < e if s < e else now >= s or now < e
+
+
+def schedule_target(schedules: list[dict[str, Any]] | None, local: datetime) -> float | None:
+    """Zieltemperatur des gerade laufenden Zeitfensters (oder None).
+
+    ``days`` sind Wochentage (0 = Montag); leer oder fehlend heißt „jeden Tag“.
+    Überlappen sich Fenster, gewinnt das später in der Liste.
+    """
+    if not schedules:
+        return None
+    weekday = local.weekday()
+    target: float | None = None
+    for item in schedules:
+        if not isinstance(item, dict):
+            continue
+        days = item.get("days") or []
+        if days and weekday not in days:
+            continue
+        try:
+            inside = in_time_window(local, str(item.get("start") or ""), str(item.get("end") or ""))
+        except (TypeError, ValueError):
+            continue  # kaputte Zeitangabe ignorieren statt die Regelung zu stören
+        if not inside:
+            continue
+        temp = item.get("temperature")
+        if temp is None:
+            continue
+        try:
+            target = float(temp)
+        except (TypeError, ValueError):
+            continue
+    return target
 
 
 def night_airing_applies(mode: str, room_type: str | None, in_window: bool, someone_home: bool) -> bool:

@@ -436,6 +436,9 @@
       },
       "heat_today": {
         "name": "Chauffer aujourd’hui"
+      },
+      "boost": {
+        "name": "Plus chaud (boost)"
       }
     }
   },

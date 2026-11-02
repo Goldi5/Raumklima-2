@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.19.0 – 2026-11-02
+
+### Neu
+- **Zeitpläne pro Raum** (Issue #2): Bis zu sechs eigene Zeitfenster je Raum – Wochentage, Von/Bis und
+  Zieltemperatur, auch über Mitternacht (z. B. „Wohnzimmer täglich 19–21 Uhr 22 °C, sonst 20 °C“). Der
+  Zeitplan setzt nur den Sollwert: Fenster-Pause, Frostschutz, Schimmelschutz und Heizpause bleiben
+  vorrangig, und wenn niemand da ist, gewinnt die Absenkung. Kein Zwang zu den `schedule.*`-Helfern – der
+  Editor steckt in der Einstellungsseite.
+- **Boost („Wärmer für kurze Zeit“)**: Knopf „Wärmer“ in der Raumkarte und `button.<raum>_wärmer_boost`.
+  Zusatz zur Wunschtemperatur und Dauer sind je Raum einstellbar (Standard 2 K / 30 min, 5–240 min). Der
+  Boost schlägt die Abwesenheits-Absenkung, endet von selbst und lässt sich durch erneutes Drücken beenden.
+  Die Raumkarte zeigt die Restzeit.
+- Neues Attribut `boost_until` an `climate.<raum>`; neue Plan-Gründe `schedule` und `boost` (im Attribut
+  `plan_reason`), sichtbar als Hinweis in Karte und Einstellungen.
+
+### Hinweise
+- Die Zeitpläne werden in den Raum-Einstellungen gepflegt (Dashboard → Einstellungen → Raum → **Zeitplan**)
+  und wirken sofort, ohne Neustart.
+
 ## 0.18.0 – 2026-11-02
 
 ### Neu

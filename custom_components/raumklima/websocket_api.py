@@ -10,8 +10,14 @@ from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
 from .const import (
+    BOOST_MINUTES_MAX,
+    BOOST_MINUTES_MIN,
+    BOOST_TEMP_MAX,
+    BOOST_TEMP_MIN,
     BUILDING_TYPES,
     CONF_AWAY_DELAY,
+    CONF_BOOST_MINUTES,
+    CONF_BOOST_TEMP,
     CONF_BUILDING,
     CONF_CALENDAR,
     CONF_CALENDAR_AWAY,
@@ -39,6 +45,7 @@ from .const import (
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULES,
     CONF_SEASON_END,
     CONF_SEASON_MODE,
     CONF_SEASON_START,
@@ -59,6 +66,9 @@ from .const import (
     PRESENCE_KINDS,
     ROOM_ECO_MODES,
     ROOM_TYPE_OPTIONS,
+    SCHEDULE_MAX,
+    SCHEDULE_TEMP_MAX,
+    SCHEDULE_TEMP_MIN,
     SEASON_MODES,
 )
 from .decision_log import CATEGORIES
@@ -179,6 +189,27 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_ROOM_ECO): vol.In(ROOM_ECO_MODES),
         vol.Optional(CONF_ROOM_ECO_AFTER): vol.All(vol.Coerce(float), vol.Range(5, 240)),
         vol.Optional(CONF_ROOM_ECO_DROP): vol.All(vol.Coerce(float), vol.Range(0.5, 4)),
+        # Zeitpläne: {days: [0..6], start: "HH:MM", end: "HH:MM", temperature: °C}
+        vol.Optional(CONF_SCHEDULES): vol.Any(
+            None,
+            vol.All(
+                [
+                    {
+                        vol.Required("start"): vol.Match(r"^\d{1,2}:\d{2}$"),
+                        vol.Required("end"): vol.Match(r"^\d{1,2}:\d{2}$"),
+                        vol.Required("temperature"): vol.All(
+                            vol.Coerce(float), vol.Range(SCHEDULE_TEMP_MIN, SCHEDULE_TEMP_MAX)
+                        ),
+                        vol.Optional("days", default=[]): [
+                            vol.All(vol.Coerce(int), vol.Range(0, 6))
+                        ],
+                    }
+                ],
+                vol.Length(max=SCHEDULE_MAX),
+            ),
+        ),
+        vol.Optional(CONF_BOOST_TEMP): vol.All(vol.Coerce(float), vol.Range(BOOST_TEMP_MIN, BOOST_TEMP_MAX)),
+        vol.Optional(CONF_BOOST_MINUTES): vol.All(vol.Coerce(int), vol.Range(BOOST_MINUTES_MIN, BOOST_MINUTES_MAX)),
     }
 )
 

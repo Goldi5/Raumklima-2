@@ -20,6 +20,7 @@ from rk.planning import (
     mold_safe_min_temp,
     parse_md,
     presence_stage,
+    schedule_target,
     season_allows_heating,
     season_decision,
     season_step,
@@ -321,3 +322,40 @@ def test_frost_night() -> None:
     assert frost_night_min(_hours(now, ["clear-night"] * 13, temps=[0, -2, -4, -6, -8, -7, -6, -5, -4, -3, -2, -1, 0]), now) == -8
     assert frost_night_min(_hours(now, ["cloudy"] * 13, temps=[2] * 13), now) is None
     assert frost_night_setback(16.0, 21.0) == 18.5
+
+
+def test_schedule_target() -> None:
+    """Zeitfenster liefern den Sollwert – mit Wochentagen, Mitternacht und Überlappung."""
+    montag = datetime(2026, 11, 2, 19, 30)
+    assert montag.weekday() == 0  # 0 = Montag
+
+    abends = [{"days": [0], "start": "19:00", "end": "21:00", "temperature": 22.0}]
+    assert schedule_target(abends, montag) == 22.0
+    assert schedule_target(abends, datetime(2026, 11, 2, 18, 59)) is None   # davor
+    assert schedule_target(abends, datetime(2026, 11, 2, 21, 0)) is None    # Ende ist exklusiv
+    assert schedule_target(abends, datetime(2026, 11, 3, 20, 0)) is None    # anderer Wochentag
+
+    # ohne "days" gilt das Fenster jeden Tag
+    taeglich = [{"start": "08:00", "end": "09:00", "temperature": 21.0}]
+    assert schedule_target(taeglich, datetime(2026, 11, 3, 8, 30)) == 21.0
+
+    # über Mitternacht
+    nachts = [{"start": "22:00", "end": "06:00", "temperature": 17.0}]
+    assert schedule_target(nachts, datetime(2026, 11, 2, 23, 0)) == 17.0
+    assert schedule_target(nachts, datetime(2026, 11, 3, 5, 30)) == 17.0
+    assert schedule_target(nachts, datetime(2026, 11, 3, 12, 0)) is None
+
+    # überlappende Fenster: das später in der Liste stehende gewinnt
+    beide = [
+        {"start": "00:00", "end": "23:59", "temperature": 20.0},
+        {"start": "19:00", "end": "21:00", "temperature": 22.0},
+    ]
+    assert schedule_target(beide, montag) == 22.0
+    assert schedule_target(beide, datetime(2026, 11, 2, 12, 0)) == 20.0
+
+    # leere und kaputte Eingaben dürfen die Regelung nicht stören
+    assert schedule_target([], montag) is None
+    assert schedule_target(None, montag) is None
+    assert schedule_target([{"start": "kaputt", "end": "21:00", "temperature": 22.0}], montag) is None
+    assert schedule_target([{"start": "19:00", "end": "21:00"}], montag) is None  # ohne Temperatur
+    assert schedule_target(["quatsch"], montag) is None

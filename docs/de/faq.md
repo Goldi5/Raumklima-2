@@ -20,6 +20,9 @@ Nein. Ohne Kontakt erkennt Raumklima ein offenes Fenster am plötzlichen Tempera
 ### Muss ich etwas in YAML schreiben?
 Nein. Alles geht über die Einrichtung in Home Assistant und die Einstellungsseite im Dashboard.
 
+### Kann ich feste Heizzeiten einstellen?
+Ja – über *Einstellungen → Raum → Zeitplan*. Dort legst du Zeitfenster mit Wochentagen, Von/Bis und Zieltemperatur an, z. B. „täglich 19–21 Uhr 22 °C“. Der Zeitplan setzt nur den Sollwert: Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig. Für „kurz mal wärmer“ gibt es den Knopf **Wärmer** (Boost) in der Raumkarte.
+
 ## Die Heizung macht nicht, was ich will
 
 ### Der Raum heizt nicht, obwohl es kalt ist.

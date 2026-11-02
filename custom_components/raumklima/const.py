@@ -92,6 +92,17 @@ CONF_VIRTUAL_WINDOW: Final = "virtual_window"
 CONF_NIGHT_START: Final = "night_start"
 CONF_NIGHT_END: Final = "night_end"
 CONF_NIGHT_ALARM: Final = "night_alarm_temp"
+# Zeitpläne und Boost (pro Raum)
+CONF_SCHEDULES: Final = "schedules"  # Liste: {days: [0..6], start: "HH:MM", end: "HH:MM", temperature: °C}
+CONF_BOOST_TEMP: Final = "boost_temperature"  # Zusatz zur Wunschtemperatur in K
+CONF_BOOST_MINUTES: Final = "boost_minutes"  # Dauer eines Boosts in Minuten
+SCHEDULE_MAX: Final = 6  # Zeitfenster je Raum
+SCHEDULE_TEMP_MIN: Final = 5.0
+SCHEDULE_TEMP_MAX: Final = 30.0
+BOOST_TEMP_MIN: Final = 0.5
+BOOST_TEMP_MAX: Final = 5.0
+BOOST_MINUTES_MIN: Final = 5
+BOOST_MINUTES_MAX: Final = 240
 
 BUILDING_TYPES: Final = ["unrenovated", "renovated", "new"]
 SEASON_MODES: Final = ["auto", "always", "pause"]
@@ -196,6 +207,9 @@ DEFAULTS: Final = {
     CONF_SYNC_MAX_RETRIES: 5,
     CONF_FOLLOW_TRV: True,
     CONF_NOTIFY: True,
+    CONF_SCHEDULES: [],
+    CONF_BOOST_TEMP: 2.0,
+    CONF_BOOST_MINUTES: 30,
     "room_type": "living",
     "quiet_start": "22:00",
     "quiet_end": "07:00",

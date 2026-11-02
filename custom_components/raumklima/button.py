@@ -21,8 +21,25 @@ async def async_setup_entry(
     if is_hub_entry(entry):
         async_add_entities(hub_entities("button", entry.runtime_data))
         return
+    entities = [BoostButton(entry.runtime_data)]
     if entry.runtime_data.cal_mode != CAL_NONE:
-        async_add_entities([CalibrateButton(entry.runtime_data)])
+        entities.append(CalibrateButton(entry.runtime_data))
+    async_add_entities(entities)
+
+
+class BoostButton(RaumklimaEntity, ButtonEntity):
+    """Zeitlich begrenzt wärmer – erneut drücken beendet den Boost."""
+
+    _attr_translation_key = "boost"
+
+    def __init__(self, controller) -> None:
+        super().__init__(controller, "boost")
+
+    async def async_press(self) -> None:
+        if self.controller.boost_active:
+            await self.controller.async_clear_boost()
+        else:
+            await self.controller.async_set_boost()
 
 
 class CalibrateButton(RaumklimaEntity, ButtonEntity):

@@ -83,11 +83,17 @@
 | `binary_sensor.<room>_window`, `…_problem`, `…_mold_risk` | |
 | `switch.<room>_window_logic`, `…_airing_notifications` | |
 | `number.<room>_humidity_limit_please_air`, `…_minimum_temperature_while_airing`, `…_max_temperature_drop_while_airing` | |
+| `button.<room>_wärmer_boost` | lance le boost (« plus chaud un moment »), un second appui l’arrête |
 | `button.<room>_calibrate_now` | |
 
 > **Pourquoi une pièce est-elle éteinte ?** L’attribut `off_source` de `climate.<room>` le dit : `user` =
 > éteint dans Home Assistant, `trv` = éteint au thermostat (planning propre, boost, molette – avec *Avancé →
 > Suivre les changements au thermostat*). Seules les pièces allumées sont abaissées ; les éteintes restent éteintes.
+
+> **Heures de chauffe fixes :** L’option `schedules` d’une pièce est une liste de
+> `{days, start, end, temperature}` (jours : 0 = lundi … 6 = dimanche, vide = tous les jours ; heures « HH:MM »,
+> aussi après minuit). `boost_temperature` (surplus en K) et `boost_minutes` définissent le boost. Le planning ne
+> règle que la consigne – fenêtre, gel, moisissures, pause de chauffage et absence restent prioritaires.
 
 ## Entités du hub « Allgemein »
 

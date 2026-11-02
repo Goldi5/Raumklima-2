@@ -132,6 +132,23 @@ Hinter jeder Einstellung steht ein **„?“** – antippen klappt eine kurze Er
 
 **Sprache:** Die Karten folgen der Sprache in deinem Home-Assistant-Profil – Deutsch, Englisch oder Französisch. Texte aus der Integration selbst (Protokoll, Hinweise, Push, E-Mail-Prüfung) folgen der Systemsprache (*Einstellungen → System → Allgemein*); jede andere Sprache ergibt Englisch. Ältere Protokolleinträge behalten ihre Sprache.
 
+## Zeitplan & Boost
+
+**Feste Heizzeiten** stellst du je Raum in den Einstellungen ein: *Einstellungen → Raum → **Zeitplan →
+Zeitfenster hinzufügen***. Ein Zeitfenster hat Wochentage (keine Auswahl = jeden Tag), Von/Bis und eine
+Zieltemperatur; bis zu sechs Fenster je Raum, auch über Mitternacht (z. B. 22:00–06:00). Überlappen sich zwei
+Fenster, gilt das untere. Beispiel: „Wohnzimmer täglich 19–21 Uhr 22 °C, sonst 20 °C“ – dafür das
+Wunschtemperatur-Feld auf 20 °C und ein Fenster 19–21 Uhr mit 22 °C anlegen.
+
+Wichtig: Der Zeitplan setzt **nur den Sollwert**. Bei offenem Fenster wird weiterhin pausiert, Frost- und
+Schimmelschutz bleiben aktiv, in der Heizpause wird nicht geheizt – und wenn niemand zu Hause ist, gewinnt die
+Absenkung. Die Karte zeigt, wenn gerade ein Zeitplan gilt („Zeitplan · Ziel 22,0 °C“).
+
+**Boost („Wärmer für kurze Zeit“):** Der Knopf **Wärmer** in der Raumkarte (oder
+`button.<raum>_wärmer_boost`) heizt für eine feste Zeit wärmer – praktisch vor dem Duschen. Wie viel wärmer und
+wie lange, stellst du unter *Zeitplan* ein (Standard 2 K / 30 min). Die Karte zeigt während des Boosts die
+Restzeit; erneut drücken beendet ihn sofort. Der Boost gilt auch dann, wenn sonst abgesenkt würde.
+
 ## Mehrere Wohnungen
 
 Unter *Einstellungen → Allgemein → Wohnung* legst du eine weitere Wohnung an (z. B. Remscheid). Sie bekommt eine eigene Zentrale mit eigenen Bewohnern, Zone, Empfängern, Heizsaison, Schlafenszeiten, Bericht und Protokoll. Neue Räume ordnest du im Raum-Reiter unter *Wohnung* zu.

@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkRooms, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -121,6 +121,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._flash("Gespeichert – Raum übernimmt die Werte");
     } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
     await this._load();
+    if (this._sched) delete this._sched[entryId];
     for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
   }
   _flash(text) {
@@ -346,6 +347,73 @@ export class RaumklimaSettingsCard extends HTMLElement {
   }
 
   // ---------------------------------------------------------------- Raum
+  // ---------------------------------------------------------------- Zeitpläne
+  _schedList(id, stored) {
+    this._sched = this._sched || {};
+    if (!(id in this._sched)) {
+      this._sched[id] = (stored || []).map((w) => ({
+        days: [...(w.days || [])],
+        start: w.start || "19:00",
+        end: w.end || "21:00",
+        temperature: Number(w.temperature ?? 22),
+      }));
+    }
+    return this._sched[id];
+  }
+  _pushSched(id) {
+    const list = (this._sched[id] || []).map((w) => ({
+      days: [...(w.days || [])].sort((a, b) => a - b),
+      start: w.start,
+      end: w.end,
+      temperature: w.temperature,
+    }));
+    this._setRoom(id, { schedules: list }, 700);
+  }
+  _schedWin(id, w, i, ro) {
+    const days = w.days || [];
+    const on = (d) => !days.length || days.includes(d);
+    const btn = [0, 1, 2, 3, 4, 5, 6]
+      .map((d) => `<button class="d ${on(d) ? "on" : ""}" data-schedday="${id}|${i}|${d}" title="${esc(schedDayName(d))}">${esc(schedDayName(d))}</button>`)
+      .join("");
+    return `<div class="sched">
+      <div class="days">${btn}</div>
+      <input class="tm" type="time" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
+      <input class="tm" type="time" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      <span class="v temp">${fmt(w.temperature)} °C</span>
+      ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
+      <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
+    </div>`;
+  }
+  _scheduleGroup(r, id, editable) {
+    const s = r.attrs.settings || {};
+    const scope = `room:${id}`;
+    const ro = !editable;
+    const boostTemp = this._roomOpt(r, "boost_temperature") ?? s.boost_temperature ?? 2;
+    const boostMin = this._roomOpt(r, "boost_minutes") ?? s.boost_minutes ?? 30;
+    const list = this._schedList(id, this._roomOpt(r, "schedules") ?? s.schedules ?? []);
+    const rows = [
+      this._row(
+        "Wärmer für kurze Zeit (Boost)",
+        editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),
+        t("so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn")
+      ),
+      this._row(
+        "Dauer des Boosts",
+        editable ? this._optStepper(scope, "boost_minutes", boostMin, " min", 5, 5, 240) : this._v(`${boostMin} min`),
+        t("danach gilt wieder Zeitplan bzw. Automatik")
+      ),
+    ];
+    if (!list.length) {
+      rows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
+    } else {
+      list.forEach((w, i) => rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days)))));
+    }
+    if (!ro && list.length < 6) {
+      rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
+    }
+    return this._grp("Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
+  }
+
   _room(r) {
     const a = r.attrs, s = a.settings || {}, sib = r.sib;
     const cfgRoom = this._cfgRoom(r);
@@ -380,6 +448,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"),
         this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
       ].join(""))}
+      ${this._scheduleGroup(r, id, editable)}
       ${this._grp("Lüften & Feuchte", "mdi:water-percent", "air", [
         sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
@@ -558,6 +627,45 @@ export class RaumklimaSettingsCard extends HTMLElement {
       apply(el.dataset.opt, { [el.dataset.key]: v });
     }));
     $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
+    // Zeitplan bearbeiten: jede Änderung geht gesammelt (700 ms Pause) an den Raum
+    const sp = (v) => String(v).split("|");
+    $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
+      const id = el.dataset.schedadd;
+      const list = this._schedList(id, []);
+      if (list.length >= 6) return;
+      const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
+      const base = room ? (this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22) : 22;
+      list.push({ days: [], start: "19:00", end: "21:00", temperature: Math.round(base * 2) / 2 });
+      this._pushSched(id);
+    }));
+    $("[data-scheddel]").forEach((el) => el.addEventListener("click", () => {
+      const [id, i] = sp(el.dataset.scheddel);
+      this._schedList(id, []).splice(parseInt(i, 10), 1);
+      this._pushSched(id);
+    }));
+    $("[data-schedday]").forEach((el) => el.addEventListener("click", () => {
+      const [id, i, d] = sp(el.dataset.schedday);
+      const w = this._schedList(id, [])[parseInt(i, 10)];
+      if (!w) return;
+      const day = parseInt(d, 10);
+      w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
+      this._pushSched(id);
+    }));
+    $("[data-schedtime]").forEach((el) => el.addEventListener("change", () => {
+      const [id, i, which] = sp(el.dataset.schedtime);
+      const w = this._schedList(id, [])[parseInt(i, 10)];
+      if (!w || !el.value) return;
+      w[which] = el.value;
+      this._pushSched(id);
+    }));
+    $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
+      const [id, i] = sp(el.dataset.schedtemp);
+      const w = this._schedList(id, [])[parseInt(i, 10)];
+      if (!w) return;
+      const v = Math.round((w.temperature + 0.5 * parseInt(el.dataset.d, 10)) * 2) / 2;
+      w.temperature = Math.min(30, Math.max(5, v));
+      this._pushSched(id);
+    }));
     $("[data-seg]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val })));
     // nach der Auswahl Fokus lösen, sonst wartet die Karte mit dem Aktualisieren (Schutz beim Tippen)
     $("[data-sel]").forEach((el) => el.addEventListener("change", () => { el.blur(); apply(el.dataset.sel, { [el.dataset.key]: el.value || null }); }));

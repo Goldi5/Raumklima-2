@@ -155,3 +155,81 @@ async def test_diagnostics(hass: HomeAssistant, setup) -> None:
     hub_data = await async_get_config_entry_diagnostics(hass, hub)
     assert "decision_log" in hub_data
     assert hass.data[DOMAIN]["rooms"][room.entry_id].name == "Bad"
+
+
+async def test_schedule_sets_target(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Ein laufendes Zeitfenster setzt den Sollwert (Issue #2)."""
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": "00:00", "end": "23:59", "temperature": 23.5}]}
+    )
+    await hass.async_block_till_done()
+    on, target, reason = ctrl.plan()
+    assert reason == "schedule"
+    assert target == 23.5
+
+
+async def test_absence_beats_schedule(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Niemand da → abgesenkt, auch wenn ein Zeitfenster läuft."""
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.planning import STAGE_AWAY_LONG, STAGE_HOME
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": "00:00", "end": "23:59", "temperature": 23.5}]}
+    )
+    hub = get_hub(hass, None)
+    hub.stage = STAGE_AWAY_LONG
+    on, target, reason = ctrl.plan()
+    assert reason != "schedule"
+    assert target < 23.5
+    hub.stage = STAGE_HOME
+
+
+async def test_boost_is_warmer_and_beats_absence(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Boost ist wärmer als der Wunsch, schlägt die Abwesenheit und endet nach der Zeit."""
+    from custom_components.raumklima.planning import STAGE_AWAY_LONG, STAGE_HOME
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    await ctrl.async_set_boost(minutes=30, temperature=2.0)
+    assert ctrl.boost_active
+    on, target, reason = ctrl.plan()
+    assert reason == "boost"
+    assert target == min(ctrl.comfort_temp + 2.0, ctrl.trv_max)
+
+    hub = get_hub(hass, None)
+    hub.stage = STAGE_AWAY_LONG
+    assert ctrl.plan()[2] == "boost"  # bewusste Aktion schlägt die Absenkung
+
+    ctrl.boost_until = dt_util.utcnow() - timedelta(minutes=1)  # abgelaufen
+    assert ctrl.plan()[2] != "boost"
+    assert not ctrl.boost_active
+    hub.stage = STAGE_HOME
+
+
+async def test_boost_button_starts_and_stops(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Der Boost-Knopf startet den Boost und beendet ihn beim zweiten Druck."""
+    from homeassistant.helpers import entity_registry as er
+
+    _hub, room = setup
+    # über den translation_key finden – die Entitäts-ID hängt von der Sprache ab
+    eid = next(
+        e.entity_id
+        for e in er.async_get(hass).entities.values()
+        if e.platform == "raumklima" and e.translation_key == "boost"
+    )
+    assert hass.states.get(eid) is not None, "Boost-Knopf fehlt"
+    await hass.services.async_call("button", "press", {"entity_id": eid}, blocking=True)
+    await hass.async_block_till_done()
+    assert hass.states.get("climate.bad").attributes["boost_until"] is not None
+    await hass.services.async_call("button", "press", {"entity_id": eid}, blocking=True)
+    await hass.async_block_till_done()
+    assert hass.states.get("climate.bad").attributes["boost_until"] is None

@@ -138,6 +138,23 @@ Les modifications sont enregistrées après une courte pause et appliquées par 
 
 **Langue :** les cartes suivent la langue de votre profil Home Assistant – anglais, allemand ou français.
 
+## Planning et boost
+
+**Des heures de chauffe fixes** se règlent par pièce dans les réglages : *Réglages → pièce → **Planning →
+Ajouter une plage horaire***. Une plage horaire a des jours de la semaine (aucun choix = tous les jours), de/à
+et une température cible ; jusqu’à six plages par pièce, y compris au-delà de minuit (p. ex. 22:00–06:00). Si
+deux plages se chevauchent, la plus basse s’applique. Exemple : « salon tous les jours 19–21 h 22 °C, sinon
+20 °C » – réglez la température souhaitée sur 20 °C et ajoutez une plage 19–21 h à 22 °C.
+
+Important : le planning ne règle **que la consigne**. La fenêtre ouverte met toujours en pause, la protection
+contre le gel et les moisissures reste active, rien ne chauffe pendant la pause de chauffage – et si personne
+n’est là, l’abaissement l’emporte. La carte indique quand un planning s’applique (« Planning · cible 22,0 °C »).
+
+**Boost (« plus chaud un moment ») :** Le bouton **Plus chaud** de la carte de pièce (ou
+`button.<room>_wärmer_boost`) chauffe plus fort pendant une durée fixe – pratique avant la douche. Le surplus et
+la durée se règlent sous *Planning* (2 K / 30 min par défaut). La carte affiche le temps restant pendant le
+boost ; un second appui l’arrête aussitôt. Le boost s’applique même quand la pièce serait abaissée.
+
 ## Plusieurs maisons
 
 Sous *Réglages → Général → Maison*, vous pouvez créer une autre maison (p. ex. un appartement de vacances). Elle obtient son propre hub avec ses propres habitants, zone, destinataires, saison de chauffage, heures de sommeil, rapport et journal. Affectez les pièces dans l’onglet de la pièce sous *Maison*.

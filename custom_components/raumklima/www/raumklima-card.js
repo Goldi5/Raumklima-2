@@ -1,12 +1,29 @@
-/* Raumklima 0.18.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.19.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
+    "Dauer des Boosts": "Boost duration",
+    "Boost · Ziel <b>{v} °C</b>": "Boost · target <b>{v} °C</b>",
+    "Boost": "Boost",
     "Handbuch (PDF)": "Manual (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
     "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
     "Export fehlgeschlagen: {e}": "Export failed: {e}",
     "Kalender": "Calendar",
+    "z. B. abends 19–21 Uhr wärmer": "e.g. warmer in the evening from 7 to 9 pm",
+    "von": "from",
+    "täglich": "daily",
+    "so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn": "that much warmer than the desired temperature – the “Warmer” button on the room starts it",
+    "noch {m} min": "{m} min left",
+    "keine – die Automatik regelt wie gewohnt": "none – the automation works as usual",
+    "danach gilt wieder Zeitplan bzw. Automatik": "afterwards the schedule or the automation applies again",
+    "Zeitplan · Ziel <b>{v} °C</b>": "Schedule · target <b>{v} °C</b>",
+    "Zeitplan": "Schedule",
+    "Zeitfenster {n}": "Time window {n}",
+    "Zeitfenster hinzufügen": "Add time window",
+    "Zeitfenster": "Time window",
+    "Wärmer für kurze Zeit (Boost)": "Warmer for a short while (boost)",
+    "Wärmer für kurze Zeit": "Warmer for a short while",
     "– keiner –": "– none –",
     "gerade: „{s}“": "now: “{s}”",
     "Termine mit diesen Wörtern steuern die Anwesenheit": "Events with these words control presence",
@@ -505,11 +522,28 @@
 
   // src/i18n/fr.js
   var FR = {
+    "Dauer des Boosts": "Durée du boost",
+    "Boost · Ziel <b>{v} °C</b>": "Boost · cible <b>{v} °C</b>",
+    "Boost": "Boost",
     "Handbuch (PDF)": "Manuel (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
     "Tageswerte je Raum als Tabelle (CSV)": "Valeurs journalières par pièce en tableau (CSV)",
     "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
     "Kalender": "Calendrier",
+    "z. B. abends 19–21 Uhr wärmer": "p. ex. plus chaud le soir de 19 h à 21 h",
+    "von": "de",
+    "täglich": "tous les jours",
+    "so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn": "c’est le surplus par rapport à la température souhaitée – le bouton « Plus chaud » de la pièce le lance",
+    "noch {m} min": "encore {m} min",
+    "keine – die Automatik regelt wie gewohnt": "aucune – la régulation fonctionne comme d’habitude",
+    "danach gilt wieder Zeitplan bzw. Automatik": "ensuite, le planning ou la régulation s’applique de nouveau",
+    "Zeitplan · Ziel <b>{v} °C</b>": "Planning · cible <b>{v} °C</b>",
+    "Zeitplan": "Planning",
+    "Zeitfenster {n}": "Plage horaire {n}",
+    "Zeitfenster hinzufügen": "Ajouter une plage horaire",
+    "Zeitfenster": "Plage horaire",
+    "Wärmer für kurze Zeit (Boost)": "Plus chaud un moment (boost)",
+    "Wärmer für kurze Zeit": "Plus chaud un moment",
     "– keiner –": "– aucun –",
     "gerade: „{s}“": "en cours : « {s} »",
     "Termine mit diesen Wörtern steuern die Anwesenheit": "Les événements contenant ces mots pilotent la présence",
@@ -1036,7 +1070,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.18.0";
+  var RK_VERSION = "0.19.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1093,6 +1127,8 @@
       return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
     if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
     if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
   }
@@ -1166,6 +1202,10 @@
   var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
   var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
   var STYLES = `
+  .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 12px; border-radius:999px; font-weight:600; font-size:.84rem;
+    background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); color: var(--secondary-text-color); }
+  .boostbtn ha-icon { --mdc-icon-size:16px; }
+  .boostbtn.on { background: var(--rk-heat); color:#fff; }
   :host { --rk-heat:#ff7a45; --rk-ok:#2ec4a6; --rk-air:#4f9dff; --rk-warn:#ffb020; --rk-cold:#ff4d6d; --rk-off:#8a94a6; --rk-eco:#8b7cf6; }
   ha-card { display:block; position:relative; box-sizing:border-box; overflow:hidden; border-radius:28px; padding:20px; isolation:isolate;
     background: var(--ha-card-background, var(--card-background-color)); transition: box-shadow .3s; }
@@ -1227,6 +1267,16 @@
 `;
   function toneVar(tone) {
     return `var(--rk-${tone || "off"})`;
+  }
+  var DAY_LOCALE = { de: "de-DE", en: "en-GB", fr: "fr-FR" };
+  function schedDayName(index) {
+    const d = new Date(2026, 10, 2 + Number(index));
+    return new Intl.DateTimeFormat(DAY_LOCALE[getLang()] || "en-GB", { weekday: "short" }).format(d);
+  }
+  function schedDaysLabel(days) {
+    const list = (days || []).slice().sort((a, b) => a - b);
+    if (!list.length || list.length === 7) return t("täglich");
+    return list.map(schedDayName).join(" ");
   }
   var RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
   var SEG = tmap({
@@ -1363,6 +1413,17 @@
   .tleg i { width:14px; height:10px; border-radius:3px; background: var(--c); }
 `;
   var SETTINGS_STYLES = `
+  .sched { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .sched .days { display:flex; gap:4px; }
+  .sched .d { all:unset; cursor:pointer; width:32px; height:27px; line-height:27px; border-radius:8px; text-align:center; font-size:.78rem; font-weight:600;
+    background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); color: var(--secondary-text-color); }
+  .sched .d.on { background: var(--rk-heat); color:#fff; }
+  .sched input.tm { font:inherit; padding:5px 8px; border-radius:8px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
+    background: transparent; color: var(--primary-text-color); }
+  .sched .temp { min-width:58px; text-align:right; font-variant-numeric: tabular-nums; }
+  .sched .del { all:unset; cursor:pointer; padding:3px 7px; border-radius:8px; color: var(--rk-cold); }
+  .sched .add { all:unset; cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-top:8px; padding:7px 14px; border-radius:10px;
+    font-weight:600; background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); color: var(--primary-text-color); }
   ha-card.settings { container-type: inline-size; padding: 26px 28px; max-width: 1500px; margin: 12px auto; }
   @media (max-width: 600px) { ha-card.settings { padding: 18px 16px; margin: 0; } }
   ha-card.settings .htitle { font-size:1.45rem; }
@@ -1619,6 +1680,11 @@
       this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }));
     }
     _tick() {
+      const bl = this.shadowRoot && this.shadowRoot.querySelector("[data-boostleft]");
+      if (bl && this._boostUntil) {
+        const m = Math.max(0, Math.round((this._boostUntil - Date.now()) / 6e4));
+        bl.textContent = t("noch {m} min", { m });
+      }
       const since = this.shadowRoot && this.shadowRoot.querySelector("[data-since]");
       if (since && this._winSince) since.textContent = t("Fenster offen seit {c} · {d}", { c: rkClock(this._winSince), d: rkDuration(Date.now() - this._winSince) });
       const empty = this.shadowRoot && this.shadowRoot.querySelector("[data-empty]");
@@ -1678,6 +1744,7 @@
       const name = this._config.name || a.friendly_name || t("Raum");
       const winOpen = a.window_open;
       this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
+      this._boostUntil = a.boost_until ? Date.parse(a.boost_until) : null;
       this._winSince = rkOpenSince(this._hass, a);
       this._emptySince = a.occupied === false && a.empty_since ? Date.parse(a.empty_since) : null;
       this._roomEco = !!a.room_eco;
@@ -1711,6 +1778,7 @@
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
+          ${sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
@@ -1738,6 +1806,7 @@
       const p = this.shadowRoot.querySelector("[data-power]");
       if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
       this.shadowRoot.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call("switch", "toggle", { entity_id: b.dataset.toggle })));
+      this.shadowRoot.querySelectorAll("[data-boost]").forEach((b) => b.addEventListener("click", () => this._call("button", "press", { entity_id: b.dataset.boost })));
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));
       this._tick();
     }
@@ -2717,6 +2786,7 @@
         this._flash(t("Fehler: {e}", { e: e.message || e }));
       }
       await this._load();
+      if (this._sched) delete this._sched[entryId];
       for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
     }
     _flash(text) {
@@ -2950,6 +3020,70 @@
     </div>`;
     }
     // ---------------------------------------------------------------- Raum
+    // ---------------------------------------------------------------- Zeitpläne
+    _schedList(id, stored) {
+      this._sched = this._sched || {};
+      if (!(id in this._sched)) {
+        this._sched[id] = (stored || []).map((w) => ({
+          days: [...w.days || []],
+          start: w.start || "19:00",
+          end: w.end || "21:00",
+          temperature: Number(w.temperature ?? 22)
+        }));
+      }
+      return this._sched[id];
+    }
+    _pushSched(id) {
+      const list = (this._sched[id] || []).map((w) => ({
+        days: [...w.days || []].sort((a, b) => a - b),
+        start: w.start,
+        end: w.end,
+        temperature: w.temperature
+      }));
+      this._setRoom(id, { schedules: list }, 700);
+    }
+    _schedWin(id, w, i, ro) {
+      const days = w.days || [];
+      const on = (d) => !days.length || days.includes(d);
+      const btn = [0, 1, 2, 3, 4, 5, 6].map((d) => `<button class="d ${on(d) ? "on" : ""}" data-schedday="${id}|${i}|${d}" title="${esc(schedDayName(d))}">${esc(schedDayName(d))}</button>`).join("");
+      return `<div class="sched">
+      <div class="days">${btn}</div>
+      <input class="tm" type="time" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
+      <input class="tm" type="time" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      <span class="v temp">${fmt(w.temperature)} °C</span>
+      ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
+      <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
+    </div>`;
+    }
+    _scheduleGroup(r, id, editable) {
+      const s = r.attrs.settings || {};
+      const scope = `room:${id}`;
+      const ro = !editable;
+      const boostTemp = this._roomOpt(r, "boost_temperature") ?? s.boost_temperature ?? 2;
+      const boostMin = this._roomOpt(r, "boost_minutes") ?? s.boost_minutes ?? 30;
+      const list = this._schedList(id, this._roomOpt(r, "schedules") ?? s.schedules ?? []);
+      const rows = [
+        this._row(
+          "Wärmer für kurze Zeit (Boost)",
+          editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),
+          t("so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn")
+        ),
+        this._row(
+          "Dauer des Boosts",
+          editable ? this._optStepper(scope, "boost_minutes", boostMin, " min", 5, 5, 240) : this._v(`${boostMin} min`),
+          t("danach gilt wieder Zeitplan bzw. Automatik")
+        )
+      ];
+      if (!list.length) {
+        rows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
+      } else {
+        list.forEach((w, i) => rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days)))));
+      }
+      if (!ro && list.length < 6) {
+        rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
+      }
+      return this._grp("Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
+    }
     _room(r) {
       const a = r.attrs, s = a.settings || {}, sib = r.sib;
       const cfgRoom = this._cfgRoom(r);
@@ -2994,6 +3128,7 @@
         ),
         this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer")
       ].join(""))}
+      ${this._scheduleGroup(r, id, editable)}
       ${this._grp("Lüften & Feuchte", "mdi:water-percent", "air", [
         sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
@@ -3182,6 +3317,44 @@
         apply(el.dataset.opt, { [el.dataset.key]: v });
       }));
       $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
+      const sp = (v) => String(v).split("|");
+      $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
+        const id = el.dataset.schedadd;
+        const list = this._schedList(id, []);
+        if (list.length >= 6) return;
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
+        const base = room ? this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22 : 22;
+        list.push({ days: [], start: "19:00", end: "21:00", temperature: Math.round(base * 2) / 2 });
+        this._pushSched(id);
+      }));
+      $("[data-scheddel]").forEach((el) => el.addEventListener("click", () => {
+        const [id, i] = sp(el.dataset.scheddel);
+        this._schedList(id, []).splice(parseInt(i, 10), 1);
+        this._pushSched(id);
+      }));
+      $("[data-schedday]").forEach((el) => el.addEventListener("click", () => {
+        const [id, i, d] = sp(el.dataset.schedday);
+        const w = this._schedList(id, [])[parseInt(i, 10)];
+        if (!w) return;
+        const day = parseInt(d, 10);
+        w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
+        this._pushSched(id);
+      }));
+      $("[data-schedtime]").forEach((el) => el.addEventListener("change", () => {
+        const [id, i, which] = sp(el.dataset.schedtime);
+        const w = this._schedList(id, [])[parseInt(i, 10)];
+        if (!w || !el.value) return;
+        w[which] = el.value;
+        this._pushSched(id);
+      }));
+      $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
+        const [id, i] = sp(el.dataset.schedtemp);
+        const w = this._schedList(id, [])[parseInt(i, 10)];
+        if (!w) return;
+        const v = Math.round((w.temperature + 0.5 * parseInt(el.dataset.d, 10)) * 2) / 2;
+        w.temperature = Math.min(30, Math.max(5, v));
+        this._pushSched(id);
+      }));
       $("[data-seg]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val })));
       $("[data-sel]").forEach((el) => el.addEventListener("change", () => {
         el.blur();

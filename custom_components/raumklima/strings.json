@@ -431,6 +431,9 @@
       }
     },
     "button": {
+      "boost": {
+        "name": "Warmer (boost)"
+      },
       "calibrate": {
         "name": "Calibrate now"
       },

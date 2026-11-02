@@ -74,6 +74,11 @@ export class RaumklimaCard extends HTMLElement {
   }
 
   _tick() {
+    const bl = this.shadowRoot && this.shadowRoot.querySelector("[data-boostleft]");
+    if (bl && this._boostUntil) {
+      const m = Math.max(0, Math.round((this._boostUntil - Date.now()) / 60000));
+      bl.textContent = t("noch {m} min", { m });
+    }
     const since = this.shadowRoot && this.shadowRoot.querySelector("[data-since]");
     if (since && this._winSince) since.textContent = t("Fenster offen seit {c} · {d}", { c: rkClock(this._winSince), d: rkDuration(Date.now() - this._winSince) });
     const empty = this.shadowRoot && this.shadowRoot.querySelector("[data-empty]");
@@ -130,6 +135,7 @@ export class RaumklimaCard extends HTMLElement {
     const name = this._config.name || a.friendly_name || t("Raum");
     const winOpen = a.window_open;
     this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
+    this._boostUntil = a.boost_until ? Date.parse(a.boost_until) : null;
     this._winSince = rkOpenSince(this._hass, a);
     this._emptySince = a.occupied === false && a.empty_since ? Date.parse(a.empty_since) : null;
     this._roomEco = !!a.room_eco;
@@ -172,6 +178,7 @@ export class RaumklimaCard extends HTMLElement {
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
+          ${sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
@@ -200,6 +207,7 @@ export class RaumklimaCard extends HTMLElement {
     const p = this.shadowRoot.querySelector("[data-power]");
     if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
     this.shadowRoot.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call("switch", "toggle", { entity_id: b.dataset.toggle })));
+    this.shadowRoot.querySelectorAll("[data-boost]").forEach((b) => b.addEventListener("click", () => this._call("button", "press", { entity_id: b.dataset.boost })));
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));
     this._tick();
   }

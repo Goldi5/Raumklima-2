@@ -20,6 +20,9 @@ No. Without a contact, Raumklima detects an open window from a sudden temperatur
 ### Do I have to write YAML?
 No. Everything is done in the Home Assistant setup dialog and the settings page in the dashboard.
 
+### Can I set fixed heating times?
+Yes – under *Settings → room → Schedule*. There you create time windows with weekdays, from/to and a target temperature, e.g. “daily 7–9 pm 22 °C”. The schedule only sets the target temperature: windows, frost, mould, heating break and absence stay in charge. For “a bit warmer for a while” there is the **Warmer** (boost) button on the room card.
+
 ## The heating doesn't do what I want
 
 ### The room doesn't heat although it is cold.

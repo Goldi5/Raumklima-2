@@ -138,6 +138,22 @@ Changes are saved after a short pause and applied by the room right away (only c
 
 **Language:** the cards follow the language of your Home Assistant profile – English, German or French.
 
+## Schedule & boost
+
+**Fixed heating times** are set per room in the settings: *Settings → room → **Schedule → Add time window***.
+A time window has weekdays (no selection = every day), from/to and a target temperature; up to six windows per
+room, including across midnight (e.g. 22:00–06:00). If two windows overlap, the lower one wins. Example: “living
+room daily 7–9 pm 22 °C, otherwise 20 °C” – set the desired temperature to 20 °C and add a window 7–9 pm at 22 °C.
+
+Important: the schedule only sets the **target temperature**. Windows still pause heating, frost and mould
+protection stay active, no heating happens during the heating break – and when nobody is home, the setback wins.
+The card shows when a schedule is active (“Schedule · target 22.0 °C”).
+
+**Boost (“warmer for a short while”):** The **Warmer** button on the room card (or
+`button.<room>_wärmer_boost`) heats warmer for a fixed time – handy before a shower. How much warmer and for how
+long is set under *Schedule* (default 2 K / 30 min). The card shows the remaining time during a boost; pressing
+again ends it right away. The boost also applies when the room would otherwise be set back.
+
 ## Several homes
 
 Under *Settings → General → Home* you can create another home (e.g. a holiday flat). It gets its own hub with its own residents, zone, recipients, heating season, sleep times, report and log. Assign rooms in the room tab under *Home*.
