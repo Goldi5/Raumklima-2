@@ -16,7 +16,14 @@ from typing import Any
 from homeassistant.components.climate import HVACAction
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE
-from homeassistant.core import Event, EventStateChangedData, HomeAssistant, State, callback
+from homeassistant.core import (
+    Event,
+    EventStateChangedData,
+    HassJob,
+    HomeAssistant,
+    State,
+    callback,
+)
 from homeassistant.helpers.event import (
     async_call_later,
     async_track_state_change_event,
@@ -510,7 +517,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     @callback
     def _schedule(self, delay: float, action: Callable[[], Any]) -> Callable[[], None]:
-        return async_call_later(self.hass, delay, callback(lambda _now: action()))
+        job = HassJob(callback(lambda _now: action()), cancel_on_shutdown=True)
+        return async_call_later(self.hass, delay, job)
 
 
 

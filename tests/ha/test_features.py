@@ -100,7 +100,7 @@ async def test_frost_night_halves_setback(hass: HomeAssistant, trv: FakeTrv, sen
 # ------------------------------------------------------------------ Geräte-Auslöser
 async def test_device_triggers(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
     _hub, room = await _setup(hass)
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, room.entry_id)})
+    device = dr.async_get(hass).async_get_device_by_identifier((DOMAIN, room.entry_id), room.entry_id)
     triggers = await async_get_device_automations(hass, DeviceAutomationType.TRIGGER, device.id)
     types = {t["type"] for t in triggers}
     assert {"window_opened", "vent_please_open", "heating_paused"} <= types
