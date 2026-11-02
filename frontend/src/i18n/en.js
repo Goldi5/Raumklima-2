@@ -34,6 +34,7 @@ export const EN = {
   "Vorheizen für Zeitplan · <b>{v} °C</b>": "Preheating for schedule · <b>{v} °C</b>",
   "Werte von Home Assistant übernehmen": "Take over Home Assistant’s values",
   "West": "West",
+  "Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit": "Home “{n}” created – dashboard “{d}” included",
   "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "also learn daytime sleep: bedtime up to 09:00, getting up up to 17:00 – for night and rotating shifts",
   "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "heat 1 °C less when the sun is out – it warms the room",
   "egal – nur Vorhersage": "any – forecast only",

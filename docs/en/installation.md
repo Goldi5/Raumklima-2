@@ -52,6 +52,8 @@ As above, without step 4 – recipients, presence and heating season apply to al
 
   The card is registered as a resource automatically; an existing older resource is switched to the new
   version.
+- **Second home:** *Create home* also creates its dashboard (path `heizung-<name>`, Raumklima strategy,
+  filtered to that home). The switcher at the top then jumps straight there.
 - **Schedule per room:** in the *Settings* tab → room → **Schedule** (up to six time windows with
   weekdays, from/to and target temperature).
 - **Room order:** **floor → area → name**; rooms without a floor come last. To change it, add

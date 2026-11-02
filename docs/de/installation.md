@@ -52,6 +52,8 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
 
   Die Karte wird als Ressource automatisch eingetragen; eine vorhandene ältere Ressource wird auf die
   neue Version umgestellt.
+- **Zweite Wohnung:** *Wohnung anlegen* erzeugt das passende Dashboard gleich mit (Pfad `heizung-<name>`,
+  Raumklima-Strategie, auf diese Wohnung gefiltert). Der Umschalter oben springt dann direkt dorthin.
 - **Zeitplan je Raum:** im Reiter *Einstellungen* → Raum → **Zeitplan** (bis zu sechs Zeitfenster mit
   Wochentagen, Von/Bis und Zieltemperatur).
 - **Reihenfolge der Räume:** nach **Stockwerk → Bereich → Name**; Räume ohne Stockwerk stehen am Ende.

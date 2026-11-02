@@ -142,4 +142,6 @@ async def test_new_home_starts_empty(hass: HomeAssistant, setup, hass_ws_client)
     neu = hass.config_entries.async_get_entry(msg["result"]["entry_id"])
     assert not (neu.options or {}).get("recipients")
     assert not (neu.options or {}).get("weather_entity")
+    # Pfad für das automatisch anzulegende Dashboard kommt mit
+    assert msg["result"]["dashboard"] == "heizung-ferienwohnung"
 

@@ -1,4 +1,4 @@
-/* Raumklima 0.23.8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.24.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -35,6 +35,7 @@
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Preheating for schedule · <b>{v} °C</b>",
     "Werte von Home Assistant übernehmen": "Take over Home Assistant’s values",
     "West": "West",
+    "Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit": "Home “{n}” created – dashboard “{d}” included",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "also learn daytime sleep: bedtime up to 09:00, getting up up to 17:00 – for night and rotating shifts",
     "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "heat 1 °C less when the sun is out – it warms the room",
     "egal – nur Vorhersage": "any – forecast only",
@@ -586,6 +587,7 @@
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
     "Werte von Home Assistant übernehmen": "Reprendre les valeurs de Home Assistant",
     "West": "Ouest",
+    "Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit": "Logement « {n} » créé – tableau de bord « {d} » inclus",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "apprendre aussi le sommeil de jour : coucher jusqu’à 09:00, lever jusqu’à 17:00 – pour le travail de nuit et en équipes",
     "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "chauffer 1 °C de moins quand le soleil est là – il réchauffe la pièce",
     "egal – nur Vorhersage": "peu importe – prévision seule",
@@ -1143,7 +1145,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.23.8";
+  var RK_VERSION = "0.24.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1175,6 +1177,12 @@
     always: { label: "Immer heizen", icon: "mdi:radiator", tone: "heat" },
     manual_pause: { label: "Heizpause (Hand)", icon: "mdi:radiator-off", tone: "off" }
   });
+  function rkNeedsDashboard(dashboards, path, current = "") {
+    const p = String(path || "").replace(/^\//, "");
+    if (!p) return false;
+    if (p === String(current || "").replace(/^\//, "")) return false;
+    return !Object.prototype.hasOwnProperty.call(dashboards || {}, p);
+  }
   function rkHomes(hass) {
     return Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima" && e.translation_key === "presence" && hass.states[e.entity_id]).map((e) => {
       const a = hass.states[e.entity_id].attributes;
@@ -2920,6 +2928,33 @@
       if (this._sched) delete this._sched[entryId];
       for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
     }
+    // Für eine neue Wohnung gleich ein Dashboard mit der Raumklima-Strategie anlegen
+    async _ensureDashboard(path, name, entryId) {
+      const p = String(path || "").replace(/^\//, "");
+      const cur = String(this._hass && this._hass.panelUrl || "").replace(/^\//, "");
+      if (!rkNeedsDashboard(this._hass.dashboards || {}, p, cur)) return null;
+      try {
+        await this._hass.callWS({
+          type: "lovelace/dashboards/create",
+          url_path: p,
+          title: name,
+          icon: "mdi:home-thermometer",
+          show_in_sidebar: true,
+          require_admin: false
+        });
+        await this._hass.callWS({
+          type: "lovelace/config/save",
+          url_path: p,
+          config: { strategy: { type: "custom:raumklima", home: entryId } }
+        });
+        if (this._hass.dashboards) {
+          this._hass.dashboards[p] = this._hass.dashboards[p] || { title: name, mode: "storage", show_in_sidebar: true };
+        }
+        return p;
+      } catch (e) {
+        return null;
+      }
+    }
     _flash(text) {
       this._toast = t(text);
       clearTimeout(this._timers.toast);
@@ -3583,11 +3618,12 @@
         }
         try {
           const r = await this._hass.callWS({ type: "raumklima/home/create", name });
-          this._flash(t("Wohnung „{n}“ angelegt", { n: name }));
           this._home = r.entry_id;
           this._tab = "general";
           this._local = {};
-          setTimeout(() => this._load(), 1500);
+          const made = await this._ensureDashboard(r.dashboard, name, r.entry_id);
+          this._flash(made ? t("Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit", { n: name, d: made }) : t("Wohnung „{n}“ angelegt", { n: name }));
+          await this._load();
         } catch (e) {
           this._flash(t("Fehler: {e}", { e: e.message || e }));
         }

@@ -41,6 +41,13 @@ export const SEASON = tmap({
 });
 
 // Entitäten der Zentrale „Allgemein“ finden (über translation_key)
+// Braucht diese Wohnung noch ein eigenes Dashboard? (Pfad gesetzt, aber noch nicht vorhanden)
+export function rkNeedsDashboard(dashboards, path, current = "") {
+  const p = String(path || "").replace(/^\//, "");
+  if (!p) return false;
+  if (p === String(current || "").replace(/^\//, "")) return false;
+  return !Object.prototype.hasOwnProperty.call(dashboards || {}, p);
+}
 export function rkHomes(hass) {
   return Object.values(hass.entities || {})
     .filter((e) => e.platform === "raumklima" && e.translation_key === "presence" && hass.states[e.entity_id])

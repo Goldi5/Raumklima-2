@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -137,6 +137,34 @@ export class RaumklimaSettingsCard extends HTMLElement {
     await this._load();
     if (this._sched) delete this._sched[entryId];
     for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
+  }
+  // Für eine neue Wohnung gleich ein Dashboard mit der Raumklima-Strategie anlegen
+  async _ensureDashboard(path, name, entryId) {
+    const p = String(path || "").replace(/^\//, "");
+    const cur = String((this._hass && this._hass.panelUrl) || "").replace(/^\//, "");
+    if (!rkNeedsDashboard(this._hass.dashboards || {}, p, cur)) return null;
+    try {
+      await this._hass.callWS({
+        type: "lovelace/dashboards/create",
+        url_path: p,
+        title: name,
+        icon: "mdi:home-thermometer",
+        show_in_sidebar: true,
+        require_admin: false,
+      });
+      await this._hass.callWS({
+        type: "lovelace/config/save",
+        url_path: p,
+        config: { strategy: { type: "custom:raumklima", home: entryId } },
+      });
+      if (this._hass.dashboards) {
+        this._hass.dashboards[p] = this._hass.dashboards[p] || { title: name, mode: "storage", show_in_sidebar: true };
+      }
+      return p;
+    } catch (e) {
+      // Wohnung ist trotzdem angelegt – Dashboard lässt sich jederzeit von Hand erstellen
+      return null;
+    }
   }
   _flash(text) {
     this._toast = t(text);
@@ -763,9 +791,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
       if (!name) { this._flash("Bitte einen Namen eingeben"); return; }
       try {
         const r = await this._hass.callWS({ type: "raumklima/home/create", name });
-        this._flash(t("Wohnung „{n}“ angelegt", { n: name }));
         this._home = r.entry_id; this._tab = "general"; this._local = {};
-        setTimeout(() => this._load(), 1500);
+        const made = await this._ensureDashboard(r.dashboard, name, r.entry_id);
+        this._flash(made
+          ? t("Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit", { n: name, d: made })
+          : t("Wohnung „{n}“ angelegt", { n: name }));
+        await this._load();
       } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
     }));
     const roomList = (entry, key, fallback) => {

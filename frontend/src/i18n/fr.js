@@ -34,6 +34,7 @@ export const FR = {
   "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
   "Werte von Home Assistant übernehmen": "Reprendre les valeurs de Home Assistant",
   "West": "Ouest",
+  "Wohnung „{n}“ angelegt – Dashboard „{d}“ gleich mit": "Logement « {n} » créé – tableau de bord « {d} » inclus",
   "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "apprendre aussi le sommeil de jour : coucher jusqu’à 09:00, lever jusqu’à 17:00 – pour le travail de nuit et en équipes",
   "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "chauffer 1 °C de moins quand le soleil est là – il réchauffe la pièce",
   "egal – nur Vorhersage": "peu importe – prévision seule",

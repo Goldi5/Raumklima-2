@@ -139,3 +139,15 @@ async def test_csv_export(hass: HomeAssistant, trv: FakeTrv, sensors, hass_ws_cl
     lines = msg["result"]["csv"].strip().split("\n")
     assert lines[0].startswith("Datum;Raum;")
     assert len(lines) == 2 and ";Bad;" in lines[1]
+
+
+def test_dashboard_slug() -> None:
+    """Standard-Dashboardpfad einer Wohnung (auch für das automatische Anlegen)."""
+    from custom_components.raumklima.hub import dashboard_slug
+
+    assert dashboard_slug("Remscheid") == "heizung-remscheid"
+    assert dashboard_slug("Allgemein") == "heizung"
+    assert dashboard_slug("Ferien Wohnung") == "heizung-ferien-wohnung"
+    assert dashboard_slug("Größe") == "heizung-groesse"
+    assert dashboard_slug("") == "heizung"
+

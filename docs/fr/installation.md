@@ -52,6 +52,8 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
 
   La carte est enregistrée automatiquement comme ressource ; une ancienne ressource est basculée sur la
   nouvelle version.
+- **Second logement :** *Créer un logement* crée aussi son tableau de bord (chemin `heizung-<nom>`,
+  stratégie Raumklima, filtré sur ce logement). Le sélecteur en haut y mène directement.
 - **Planning par pièce :** dans l’onglet *Réglages* → pièce → **Planning** (jusqu’à six plages horaires avec
   jours de la semaine, de/à et température cible).
 - **Ordre des pièces :** **étage → zone → nom** ; les pièces sans étage viennent en dernier. Pour changer :

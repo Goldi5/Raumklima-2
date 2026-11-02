@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.24.0 – 2026-11-02
+
+### Neu
+- **Eine neue Wohnung bekommt ihr Dashboard automatisch**: *Wohnung anlegen* erzeugt jetzt gleich ein
+  Dashboard mit dem Pfad `heizung-<name>`, der Raumklima-Strategie und dem Filter auf die neue Wohnung.
+  Der Wohnungs-Umschalter funktioniert damit sofort, ohne dass jemand ein Dashboard von Hand anlegen
+  muss. Existiert der Pfad schon, bleibt das vorhandene Dashboard unangetastet.
+- Die Pfad-Regel steckt jetzt in `hub.dashboard_slug()` (Backend) und wird von `home/create`
+  mitgeliefert – Oberfläche und Backend können nicht auseinanderlaufen.
+
+### Hinweise
+- Angelegt wird über die Home-Assistant-Schnittstellen `lovelace/dashboards/create` und
+  `lovelace/config/save`, also denselben Weg, den die Oberfläche geht. Klappt das nicht (z. B. bei
+  YAML-Dashboards), bleibt die Wohnung trotzdem angelegt – dann das Dashboard von Hand erstellen.
+
 ## 0.23.8 – 2026-11-02
 
 ### Behoben

@@ -79,6 +79,15 @@ def _change_text(key: str, old: Any, new: Any) -> str:
     return f"{key}: {_short(old)} → {_short(new)}"
 
 
+def dashboard_slug(name: str) -> str:
+    """Standard-Dashboardpfad einer Wohnung: „heizung-<name>", „Allgemein" → „heizung"."""
+    slug = "".join(
+        c if c.isalnum() else "-"
+        for c in (name or "").lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+    ).strip("-")
+    return f"heizung-{slug}" if slug and slug != "allgemein" else "heizung"
+
+
 class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
     """Einstellungen und Zustände, die für die ganze Wohnung gelten."""
 
@@ -179,8 +188,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
     def dashboard(self) -> str:
         if self.opt("dashboard"):
             return str(self.opt("dashboard")).strip("/")
-        slug = "".join(c if c.isalnum() else "-" for c in self.name.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")).strip("-")
-        return f"heizung-{slug}" if slug and slug != "allgemein" else "heizung"
+        return dashboard_slug(self.name)
 
     # ------------------------------------------------------------ Lebenszyklus
     async def async_start(self) -> None:
