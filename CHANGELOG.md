@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.22.2 – 2026-11-02
+
+### Geändert
+- **Sonneneintrag in den Expertenbereich**: Die Fassade („Sonne kommt aus") steht nicht mehr zwischen
+  den Alltagseinstellungen, sondern unter *Raum → **Erweitert: Sonneneintrag*** – zugeklappt, sofern
+  nichts gesetzt ist. Es ist eine grobe Angabe für Sonderfälle, keine Pflicht.
+- Der Hinweis sagt jetzt klar, was die Angabe leistet und was nicht: **freie Sicht vorausgesetzt**.
+  Haus, Baum oder Balkon davor werden nicht gerechnet – dann besser leer lassen. Die **Etage** ist
+  bewusst kein Feld: der Sonnenstand ist in jeder Höhe gleich, unterschiedlich ist nur die Abschattung.
+
 ## 0.22.1 – 2026-11-02
 
 ### Behoben

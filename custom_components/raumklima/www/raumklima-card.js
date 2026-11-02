@@ -1,11 +1,12 @@
-/* Raumklima 0.22.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.22.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
     "Dauer des Boosts": "Boost duration",
     "Boost · Ziel <b>{v} °C</b>": "Boost · target <b>{v} °C</b>",
     "Boost": "Boost",
-    "Fassade des Raums – mit Azimut zählt nur Sonne, die wirklich hereinscheint (leer = nur Vorhersage)": "Room facade – with azimuth only the sun that really comes in counts (empty = forecast only)",
+    "Erweitert: Sonneneintrag": "Advanced: solar gain",
+    "Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage).": "Room facade, simplified – assumes a clear view. A building, tree or balcony in front is not taken into account; in that case better leave it empty (forecast only).",
     "Handbuch (PDF)": "Manual (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Each night counts once (earliest event). Learning starts per weekday (shift work), otherwise by weekday/weekend (Fri→Sat, Sat→Sun); the typical value (median) of the last 6 weeks is learned once 4 nights are in. Quiet time begins 30 min before the typical bedtime and ends 30 min after getting up – but never shorter than configured.",
@@ -545,7 +546,8 @@
     "Dauer des Boosts": "Durée du boost",
     "Boost · Ziel <b>{v} °C</b>": "Boost · cible <b>{v} °C</b>",
     "Boost": "Boost",
-    "Fassade des Raums – mit Azimut zählt nur Sonne, die wirklich hereinscheint (leer = nur Vorhersage)": "Façade de la pièce – avec l’azimut, seul le soleil qui entre vraiment compte (vide = prévision seule)",
+    "Erweitert: Sonneneintrag": "Avancé : apport solaire",
+    "Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage).": "Façade de la pièce, simplifié – suppose une vue dégagée. Un bâtiment, un arbre ou un balcon devant n’est pas pris en compte ; dans ce cas, mieux vaut laisser vide (prévision seule).",
     "Handbuch (PDF)": "Manuel (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Chaque nuit compte une fois (événement le plus tôt). L’apprentissage se fait d’abord par jour de la semaine (travail posté), sinon par semaine/week-end (ven→sam, sam→dim) ; la valeur typique (médiane) des 6 dernières semaines est apprise dès 4 nuits. L’heure de repos commence 30 min avant le coucher typique et se termine 30 min après le lever – mais jamais plus courte que le réglage.",
@@ -1110,7 +1112,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.22.1";
+  var RK_VERSION = "0.22.2";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1455,6 +1457,12 @@
   .tleg i { width:14px; height:10px; border-radius:3px; background: var(--c); }
 `;
   var SETTINGS_STYLES = `
+  details.adv { margin: 12px 0 2px; border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent); }
+  details.adv > summary { cursor: pointer; padding: 12px 2px 4px; font-size: .88rem; font-weight: 600; color: var(--secondary-text-color);
+    list-style: none; display: flex; align-items: center; gap: 8px; }
+  details.adv > summary::-webkit-details-marker { display: none; }
+  details.adv > summary::before { content: "▸"; font-size: .8rem; }
+  details.adv[open] > summary::before { content: "▾"; }
   .sched { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .sched .days { display:flex; gap:4px; }
   .sched .d { all:unset; cursor:pointer; width:32px; height:27px; line-height:27px; border-radius:8px; text-align:center; font-size:.78rem; font-weight:600;
@@ -2516,9 +2524,9 @@
       "Pour les pièces avec de grandes fenêtres au sud ou à l’ouest : si le soleil est prévu et que la pièce est presque chaude, elle chauffe 1 °C de moins – le soleil fait le reste."
     ],
     "Sonne kommt aus": [
-      "Die Himmelsrichtung der Außenwand dieses Raums. Mit Fassade zählt nur Sonne, die nach Sonnenstand (Azimut und Höhe) wirklich hereinscheint – ein Westzimmer reagiert also erst nachmittags, ein Ostzimmer nur morgens. Ohne Angabe zählt jede sonnige Stunde der Vorhersage.",
-      "The compass direction of this room’s outside wall. With a facade, only sun that really comes in – judged by the sun’s azimuth and elevation – counts: a west room reacts in the afternoon, an east room only in the morning. Without a value, every sunny hour in the forecast counts.",
-      "L’orientation de la façade de cette pièce. Avec une façade, seul le soleil qui entre vraiment compte, d’après l’azimut et la hauteur du soleil : une pièce à l’ouest réagit l’après-midi, une pièce à l’est seulement le matin. Sans valeur, chaque heure ensoleillée de la prévision compte."
+      "Die Himmelsrichtung der Außenwand dieses Raums. Mit Fassade zählt nur Sonne, die nach Sonnenstand (Azimut und Höhe) wirklich hereinscheint – ein Westzimmer reagiert also erst nachmittags, ein Ostzimmer nur morgens. Die Etage spielt keine Rolle: der Sonnenstand ist in jeder Höhe gleich, unterschiedlich ist nur, was im Weg steht (Haus, Baum, Balkon) – das ist bewusst nicht modelliert. Ohne Angabe zählt jede sonnige Stunde der Vorhersage.",
+      "The compass direction of this room’s outside wall. With a facade, only sun that really comes in – judged by the sun’s azimuth and elevation – counts: a west room reacts in the afternoon, an east room only in the morning. The floor does not matter: the sun’s position is the same at any height, only what is in the way differs (building, tree, balcony) – that is deliberately not modelled here. Without a value, every sunny hour in the forecast counts.",
+      "L’orientation de la façade de cette pièce. Avec une façade, seul le soleil qui entre vraiment compte, d’après l’azimut et la hauteur du soleil : une pièce à l’ouest réagit l’après-midi, une pièce à l’est seulement le matin. L’étage n’a pas d’importance : la position du soleil est identique à toute hauteur, seule diffère la présence d’obstacles (bâtiment, arbre, balcon) – volontairement non modélisée ici. Sans valeur, chaque heure ensoleillée de la prévision compte."
     ],
     "Schichtdienst": [
       "Lernt Bett- und Aufstehzeiten je Wochentag, nicht nur nach Werktag und Wochenende. Eingeschaltet werden auch Tagschlaf-Zeiten erkannt: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht.",
@@ -3196,11 +3204,14 @@
           editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
           a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit")
         ),
-        this._row(
-          "Sonne kommt aus",
-          editable ? this._select(scope, "solar_facade", RK_FACADES(), this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "") : this._v(rkFacadeName(this._roomOpt(r, "solar_facade") ?? s.solar_facade)),
-          t("Fassade des Raums – mit Azimut zählt nur Sonne, die wirklich hereinscheint (leer = nur Vorhersage)")
-        ),
+        (() => {
+          const fac = this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "";
+          return `<details class="adv"${fac ? " open" : ""}><summary>${t("Erweitert: Sonneneintrag")}</summary>${this._row(
+            "Sonne kommt aus",
+            editable ? this._select(scope, "solar_facade", RK_FACADES(), fac) : this._v(rkFacadeName(fac)),
+            t("Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage).")
+          )}</details>`;
+        })(),
         this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
         this._row(
           "Aufheizen",

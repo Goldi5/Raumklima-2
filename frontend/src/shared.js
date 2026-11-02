@@ -377,6 +377,12 @@ export const HISTORY_STYLES = `
 `;
 
 export const SETTINGS_STYLES = `
+  details.adv { margin: 12px 0 2px; border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent); }
+  details.adv > summary { cursor: pointer; padding: 12px 2px 4px; font-size: .88rem; font-weight: 600; color: var(--secondary-text-color);
+    list-style: none; display: flex; align-items: center; gap: 8px; }
+  details.adv > summary::-webkit-details-marker { display: none; }
+  details.adv > summary::before { content: "▸"; font-size: .8rem; }
+  details.adv[open] > summary::before { content: "▾"; }
   .sched { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .sched .days { display:flex; gap:4px; }
   .sched .d { all:unset; cursor:pointer; width:32px; height:27px; line-height:27px; border-radius:8px; text-align:center; font-size:.78rem; font-weight:600;

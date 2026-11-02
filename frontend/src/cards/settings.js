@@ -459,8 +459,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
         ((this._cfg && this._cfg.homes) || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row("Sonnenseite", editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
           a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit")),
-        this._row("Sonne kommt aus", editable ? this._select(scope, "solar_facade", RK_FACADES(), this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "") : this._v(rkFacadeName(this._roomOpt(r, "solar_facade") ?? s.solar_facade)),
-          t("Fassade des Raums – mit Azimut zählt nur Sonne, die wirklich hereinscheint (leer = nur Vorhersage)")),
+        (() => {
+          const fac = this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "";
+          return `<details class="adv"${fac ? " open" : ""}><summary>${t("Erweitert: Sonneneintrag")}</summary>${this._row("Sonne kommt aus",
+            editable ? this._select(scope, "solar_facade", RK_FACADES(), fac) : this._v(rkFacadeName(fac)),
+            t("Fassade des Raums, vereinfacht – freie Sicht vorausgesetzt. Haus, Baum oder Balkon davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage)."),
+          )}</details>`;
+        })(),
         this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
         this._row("Aufheizen", this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: (s.heatup && s.heatup.episodes) || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"),
