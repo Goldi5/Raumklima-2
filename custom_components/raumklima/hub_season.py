@@ -19,6 +19,7 @@ from .const import (
     CONF_SEASON_MODE,
     CONF_SEASON_START,
     CONF_VALVE_CARE,
+    CONF_ZONE,
     KIND_SEASON,
 )
 from .decision_log import (
@@ -141,6 +142,15 @@ class SeasonMixin:
         lat, lon = self.opt(CONF_LATITUDE), self.opt(CONF_LONGITUDE)
         if location_known(lat, lon):
             return float(lat), float(lon)
+        # Zone der Wohnung: steht bei den meisten richtig und spart die Handarbeit
+        zone = self.opt(CONF_ZONE)
+        if zone:
+            state = self.hass.states.get(str(zone))
+            if state is not None:
+                zlat = state.attributes.get("latitude")
+                zlon = state.attributes.get("longitude")
+                if location_known(zlat, zlon):
+                    return float(zlat), float(zlon)
         return self.hass.config.latitude, self.hass.config.longitude
 
     def sun_expected(self, facade: str | None = None) -> bool:

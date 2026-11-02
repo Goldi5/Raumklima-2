@@ -284,10 +284,19 @@ export class RaumklimaSettingsCard extends HTMLElement {
         const hl = this._hass.config || {};
         const haLat = hl.latitude != null ? fmt(hl.latitude, 4) : "–";
         const haLon = hl.longitude != null ? fmt(hl.longitude, 4) : "–";
+        const zn = this._hubOpt("zone") || "";
+        const zst = zn ? this._st(zn) : null;
+        const zlat = zst && zst.attributes ? zst.attributes.latitude : null;
+        const zlon = zst && zst.attributes ? zst.attributes.longitude : null;
         const own = lat != null || lon != null;
         return `<details class="adv"${own ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row("Standort der Wohnung",
           `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}> ${this._admin ? `<button class="mini" data-geohass title="${t("Werte von Home Assistant übernehmen")}">${t("von HA")}</button>${own ? `<button class="mini x" data-geoclear title="${t("leeren – dann gilt Home Assistant")}">✕</button>` : ""}` : ""}</span>`,
-          t("Leer lassen = es gilt der Standort von Home Assistant ({lat} / {lon}) – für die eigene Wohnung der Normalfall, nichts zu tun. Nur wenn diese Wohnung woanders liegt (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen; „von HA“ übernimmt sie sichtbar zum Anpassen.", { lat: haLat, lon: haLon }),
+          t("Leer lassen = es gilt der Standort aus der Zone dieser Wohnung ({zone}{zl}). Ist keine Zone gesetzt, gilt der Standort von Home Assistant ({lat} / {lon}). Nur eintragen, wenn die Wohnung woanders liegt – daraus rechnet Raumklima den Sonnenstand; „von HA“ übernimmt die HA-Werte zum Anpassen.", {
+            zone: zn || t("keine Zone gesetzt"),
+            zl: zlat != null && zlon != null ? `, ${fmt(zlat, 4)} / ${fmt(zlon, 4)}` : "",
+            lat: haLat,
+            lon: haLon,
+          }),
         )}</details>`;
       })(),
       this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",

@@ -29,7 +29,7 @@
 | Ruhezeit senkt ab | aus | Schlafzimmer und selten genutzte Räume werden während der Ruhezeit abgesenkt, auch wenn jemand da ist |
 | Erinnern alle | 5 min | Wiederholung, solange das Problem besteht |
 | Wetterquelle | – | `weather.*` (mit Vorhersage) oder Außentemperatur-Sensor |
-| Standort der Wohnung | – (Home Assistant) | Koordinaten für den Sonnenstand – nötig, wenn die Wohnung woanders liegt als Home Assistant (unter *Wohnung → Erweitert*) |
+| Standort der Wohnung | – (Zone der Wohnung, sonst Home Assistant) | Koordinaten für den Sonnenstand – nur nötig, wenn die Wohnung woanders liegt als ihre Zone (unter *Wohnung → Erweitert*) |
 | Fehler in HA-Glocke | an | zusätzliche Meldung in Home Assistant |
 
 ## Einstellungen je Raum

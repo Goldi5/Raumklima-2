@@ -126,3 +126,20 @@ def test_scrub_old_entries() -> None:
     old = "mail_password: None → ab,c.9, mail_port: None → 587"
     assert scrub(old) == "mail_password: geändert, mail_port: None → 587"
     assert scrub("x: 1 → 2") == "x: 1 → 2"
+
+
+async def test_new_home_starts_empty(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    """Eine neue Wohnung erbt weder Empfänger noch Wetter der bestehenden."""
+    from custom_components.raumklima.shared import get_hub
+
+    hub = get_hub(hass, None)
+    hub.config["recipients"] = {"notify.christian": ["too_cold"]}
+    hub.config["weather_entity"] = "weather.berlin"
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/home/create", "name": "Ferienwohnung"})
+    msg = await client.receive_json()
+    assert msg["success"]
+    neu = hass.config_entries.async_get_entry(msg["result"]["entry_id"])
+    assert not (neu.options or {}).get("recipients")
+    assert not (neu.options or {}).get("weather_entity")
+

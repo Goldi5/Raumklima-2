@@ -31,7 +31,7 @@
 | … avertissement discret en dessous de | 12 °C | une fois par nuit |
 | Rappeler toutes les | 5 min | répéter tant que le problème persiste |
 | Source météo | – | `weather.*` (avec prévision) ou une sonde de température extérieure |
-| Emplacement du logement | – (Home Assistant) | coordonnées pour la position du soleil – nécessaire quand le logement est ailleurs que Home Assistant (sous *Logement → Avancé*) |
+| Emplacement du logement | – (zone du logement, sinon Home Assistant) | coordonnées pour la position du soleil – nécessaire seulement si le logement est ailleurs que sa zone (sous *Logement → Avancé*) |
 | Apprendre les horaires | activé | heures de sommeil d’après l’aération nocturne et les lumières |
 | Jours fériés | – | Land allemand ; la nuit précédant un jour férié compte comme week-end |
 | Signaux de sommeil | – | lumières/interrupteurs pour le coucher et le lever |

@@ -589,14 +589,10 @@ async def ws_home_create(hass: HomeAssistant, connection: websocket_api.ActiveCo
     """Weitere Wohnung (eigene Zentrale) anlegen."""
     from homeassistant.config_entries import SOURCE_IMPORT
 
-    default = get_hub(hass)
-    inherit = {}
-    if default is not None:
-        # Empfänger und Wetter als Startwert übernehmen – pro Wohnung später änderbar
-        for key in ("recipients", "tts", "quiet_start", "quiet_end", "quiet_end_weekend", "weather_entity"):
-            inherit[key] = default.opt(key)
+    # Bewusst nichts von der bestehenden Wohnung übernehmen: fremde Empfänger, fremdes Wetter und
+    # fremde Zonen wären falsch (eine neue Wohnung liegt woanders und schickt sonst doppelt Meldungen).
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_IMPORT}, data={**inherit, "home_name": msg["name"].strip()}
+        DOMAIN, context={"source": SOURCE_IMPORT}, data={"home_name": msg["name"].strip()}
     )
     if result.get("type") != "create_entry":
         connection.send_error(msg["id"], "exists", tr("Diese Wohnung gibt es schon"))

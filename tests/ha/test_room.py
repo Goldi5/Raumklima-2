@@ -427,3 +427,20 @@ async def test_climate_exposes_window_open_since(hass: HomeAssistant, setup, trv
     st = hass.states.get("climate.bad")
     assert st is not None and st.attributes.get("window_open_since") == ctrl.vent.window_open_since.isoformat()
 
+
+async def test_sun_location_prefers_zone(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Ohne eigene Koordinaten zählt die Zone der Wohnung – nicht der Standort der Zentrale."""
+    from custom_components.raumklima.const import CONF_LATITUDE, CONF_LONGITUDE, CONF_ZONE
+    from custom_components.raumklima.shared import get_hub
+
+    _hub, _room = setup
+    hub = get_hub(hass, None)
+    hass.states.async_set("zone.gunterstr_berlin", "1", {"latitude": 52.5, "longitude": 13.4})
+    hub.config[CONF_ZONE] = "zone.gunterstr_berlin"
+    assert hub.sun_location == (52.5, 13.4)
+
+    # eigene Angabe schlägt die Zone
+    hub.config[CONF_LATITUDE] = 51.18
+    hub.config[CONF_LONGITUDE] = 7.19
+    assert hub.sun_location == (51.18, 7.19)
+

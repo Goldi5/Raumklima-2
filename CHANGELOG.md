@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.23.7 – 2026-11-02
+
+### Behoben
+- **Eine neue Wohnung erbt nichts mehr**: Beim Anlegen einer zweiten Wohnung wurden Empfänger,
+  Sprachausgaben, Ruhezeiten und die **Wetterquelle** der bestehenden Wohnung übernommen. Eine Wohnung in
+  einer anderen Stadt hätte damit mit dem Wetter der ersten gerechnet (Heizsaison, Frost, Sonne) und
+  doppelte Meldungen geschickt. Jetzt startet eine neue Wohnung leer – Bewohner, Zone, Empfänger und
+  Wetter werden bewusst selbst gewählt.
+- **Sonnenstand nimmt die Zone der Wohnung**: Ohne eigene Koordinaten gilt jetzt die Zone, die für die
+  Wohnung eingestellt ist (`zone.*` mit Koordinaten) – erst danach der Standort von Home Assistant. Für
+  den Normalfall „Home Assistant läuft woanders als die Wohnung“ stimmt der Sonnenstand damit ohne
+  Handarbeit; die Felder unter *Wohnung → Erweitert: Standort* bleiben für Sonderfälle.
+
 ## 0.23.6 – 2026-11-02
 
 ### Geändert
