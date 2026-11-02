@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 from homeassistant.core import HomeAssistant
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from .conftest import SENSOR, FakeTrv, hub_entry, room_entry
 
@@ -35,6 +38,10 @@ async def test_switch_to_always_via_options(hass: HomeAssistant, trv: FakeTrv, s
     hub, _room = await _setup(hass, season_mode="pause")
     assert trv.is_off
     hass.config_entries.async_update_entry(hub, options={**hub.options, "season_mode": "always"})
+    await hass.async_block_till_done()
+    # Der Raum wendet die neue Saison über einen kurzen Timer an – den hier auslösen,
+    # sonst ist der Test von der Rechner-Geschwindigkeit abhängig (CI-Flake).
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=5))
     await hass.async_block_till_done()
     assert not trv.is_off
 
