@@ -176,3 +176,25 @@ async def test_live_countdown_only_when_chosen(hass: HomeAssistant, trv: FakeTrv
     room.runtime_data.vent.update()
     await hass.async_block_till_done()
     assert not [c for c in calls if c.data.get("data", {}).get("live_update")]
+
+
+async def test_live_link_only_when_dashboard_exists(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Kein Deep-Link auf ein Dashboard, das es nicht gibt – sonst landet man woanders."""
+    from types import SimpleNamespace
+
+    calls = async_mock_service(hass, "notify", "mobile_app_antje")
+    ld = hass.data.get("lovelace")
+    if ld is not None and hasattr(ld, "dashboards"):
+        ld.dashboards.pop("gibt-es-nicht", None)
+    else:
+        hass.data["lovelace"] = SimpleNamespace(dashboards={})
+
+    _hub, room = await _setup(hass, {"recipients": {PHONE: ["live"]}, "dashboard": "gibt-es-nicht"})
+    hass.states.async_set(WINDOW, "on", {"device_class": "window"})
+    await hass.async_block_till_done()
+    room.runtime_data.vent.update()
+    await hass.async_block_till_done()
+    live = [c for c in calls if c.data.get("data", {}).get("live_update")]
+    assert live
+    assert "url" not in live[0].data["data"]
+

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.23.8 – 2026-11-02
+
+### Behoben
+- **Wohnungs-Umschalter landete auf dem Standard-Dashboard**: Der Umschalter hat auf `/<dashboard>` der
+  Zielwohnung verlinkt, ohne zu prüfen, ob dieses Dashboard überhaupt existiert. Bei einer neu angelegten
+  Wohnung ist das Feld zwar vorbelegt (z. B. `heizung-remscheid`), das Dashboard gibt es aber noch nicht –
+  der Klick führte ins Leere und Home Assistant zeigte das Standard-Dashboard. Jetzt wird nur verlinkt,
+  wenn das Ziel existiert; fehlt es, bleibt der Eintrag sichtbar, aber ohne Sprung (mit Hinweis im Tooltip).
+- **Gleiches Problem beim Lüft-Countdown**: Die Push-Nachricht enthielt einen Link auf das Dashboard der
+  Wohnung. Fehlt es, wird der Link jetzt weggelassen statt ins Leere zu zeigen.
+
 ## 0.23.7 – 2026-11-02
 
 ### Behoben

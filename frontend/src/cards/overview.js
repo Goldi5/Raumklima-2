@@ -39,7 +39,20 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
     const homes = rkHomes(this._hass);
     const curHome = this._config.home || (rooms[0] && rooms[0].attributes.home);
-    const homeBar = homes.length > 1 ? `<div class="homes">${homes.map((h) => `<a class="hm ${h.id === curHome ? "on" : ""}" ${h.id === curHome ? "" : `data-nav="/${esc(h.dashboard || "")}"`}><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</a>`).join("")}</div>` : "";
+    // Nur umschalten, wenn das Ziel-Dashboard wirklich existiert – sonst landet man auf dem Standard
+    const curPath = String((this._hass && this._hass.panelUrl) || "").replace(/^\//, "");
+    const dashTarget = (h) => {
+      const path = String(h.dashboard || "").replace(/^\//, "");
+      if (!path) return { ok: false, path };
+      const known = (this._hass && this._hass.dashboards) || {};
+      return { ok: path === curPath || Object.prototype.hasOwnProperty.call(known, path), path };
+    };
+    const homeBar = homes.length > 1 ? `<div class="homes">${homes.map((h) => {
+      const on = h.id === curHome;
+      const d = dashTarget(h);
+      const title = on || d.ok ? "" : t("Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.");
+      return `<a class="hm ${on ? "on" : ""}${d.ok || on ? "" : " nodash"}" ${on || !d.ok ? "" : `data-nav="/${esc(d.path)}"`} title="${esc(title)}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</a>`;
+    }).join("")}</div>` : "";
     const heating = rooms.filter((r) => r.attributes.status === "heating").length;
     const windows = rooms.filter((r) => r.attributes.window_open).length;
     // Ausgeschaltete Räume werden bei Abwesenheit nicht abgesenkt – das war bisher nicht erkennbar
@@ -104,6 +117,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
         color:var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
       .hm ha-icon { --mdc-icon-size:17px; }
       .hm.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); cursor:default; }
+      .hm.nodash { opacity:.5; cursor:default; }
       .rbottom { margin-top:auto; display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
       .rt { font-size:1.7rem; font-weight:300; letter-spacing:-.03em; font-variant-numeric: tabular-nums; color:var(--primary-text-color); line-height:1; }
       .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }

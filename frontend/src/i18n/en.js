@@ -7,6 +7,7 @@ export const EN = {
   "Boost": "Boost",
   "Erweitert: Sonneneintrag": "Advanced: solar gain",
   "Erweitert: Standort der Wohnung": "Advanced: location of the home",
+  "Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.": "No dashboard has been set up for this home yet – create one first, then you can switch.",
   "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Create a second home here (e.g. a holiday flat) with its own residents, zone and recipients. Existing rooms stay in this home.",
   "Handbuch (PDF)": "Manual (PDF)",
   "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",

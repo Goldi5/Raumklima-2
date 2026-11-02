@@ -7,6 +7,7 @@ export const FR = {
   "Boost": "Boost",
   "Erweitert: Sonneneintrag": "Avancé : apport solaire",
   "Erweitert: Standort der Wohnung": "Avancé : emplacement du logement",
+  "Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.": "Aucun tableau de bord n’a encore été créé pour ce logement – créez-le d’abord, ensuite vous pourrez basculer.",
   "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Créer ici un second logement (p. ex. une résidence secondaire) avec ses propres habitants, sa zone et ses destinataires. Les pièces existantes restent dans ce logement.",
   "Handbuch (PDF)": "Manuel (PDF)",
   "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",

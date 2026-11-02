@@ -1,4 +1,4 @@
-/* Raumklima 0.23.7 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.23.8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -8,6 +8,7 @@
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Advanced: solar gain",
     "Erweitert: Standort der Wohnung": "Advanced: location of the home",
+    "Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.": "No dashboard has been set up for this home yet – create one first, then you can switch.",
     "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Create a second home here (e.g. a holiday flat) with its own residents, zone and recipients. Existing rooms stay in this home.",
     "Handbuch (PDF)": "Manual (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
@@ -558,6 +559,7 @@
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Avancé : apport solaire",
     "Erweitert: Standort der Wohnung": "Avancé : emplacement du logement",
+    "Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.": "Aucun tableau de bord n’a encore été créé pour ce logement – créez-le d’abord, ensuite vous pourrez basculer.",
     "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Créer ici un second logement (p. ex. une résidence secondaire) avec ses propres habitants, sa zone et ses destinataires. Les pièces existantes restent dans ce logement.",
     "Handbuch (PDF)": "Manuel (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
@@ -1141,7 +1143,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.23.7";
+  var RK_VERSION = "0.23.8";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1942,7 +1944,19 @@
       const rooms = Object.values(this._hass.entities || {}).filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => this._hass.states[e.entity_id]).filter(Boolean).filter((r) => !this._config.home || !r.attributes.home || r.attributes.home === this._config.home).sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
       const homes = rkHomes(this._hass);
       const curHome = this._config.home || rooms[0] && rooms[0].attributes.home;
-      const homeBar = homes.length > 1 ? `<div class="homes">${homes.map((h) => `<a class="hm ${h.id === curHome ? "on" : ""}" ${h.id === curHome ? "" : `data-nav="/${esc(h.dashboard || "")}"`}><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</a>`).join("")}</div>` : "";
+      const curPath = String(this._hass && this._hass.panelUrl || "").replace(/^\//, "");
+      const dashTarget = (h) => {
+        const path = String(h.dashboard || "").replace(/^\//, "");
+        if (!path) return { ok: false, path };
+        const known = this._hass && this._hass.dashboards || {};
+        return { ok: path === curPath || Object.prototype.hasOwnProperty.call(known, path), path };
+      };
+      const homeBar = homes.length > 1 ? `<div class="homes">${homes.map((h) => {
+        const on = h.id === curHome;
+        const d = dashTarget(h);
+        const title = on || d.ok ? "" : t("Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.");
+        return `<a class="hm ${on ? "on" : ""}${d.ok || on ? "" : " nodash"}" ${on || !d.ok ? "" : `data-nav="/${esc(d.path)}"`} title="${esc(title)}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</a>`;
+      }).join("")}</div>` : "";
       const heating = rooms.filter((r) => r.attributes.status === "heating").length;
       const windows = rooms.filter((r) => r.attributes.window_open).length;
       const offRooms = rooms.filter((r) => r.state === "off").length;
@@ -2007,6 +2021,7 @@
         color:var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
       .hm ha-icon { --mdc-icon-size:17px; }
       .hm.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); cursor:default; }
+      .hm.nodash { opacity:.5; cursor:default; }
       .rbottom { margin-top:auto; display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
       .rt { font-size:1.7rem; font-weight:300; letter-spacing:-.03em; font-variant-numeric: tabular-nums; color:var(--primary-text-color); line-height:1; }
       .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }

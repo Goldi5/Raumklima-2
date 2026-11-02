@@ -90,7 +90,13 @@ class LiveCountdown:
             return
         first = not self._sent
         hub = c.hub
-        url = f"/{hub.dashboard}" if hub is not None and hub.dashboard else None
+        # Kein Deep-Link auf ein Dashboard, das es nicht gibt – sonst landet der Nutzer woanders
+        url = None
+        if hub is not None and hub.dashboard:
+            path = str(hub.dashboard).strip("/")
+            known = getattr(self.v.c.hass.data.get("lovelace"), "dashboards", None)
+            if known is None or path in known:
+                url = f"/{path}"
         payload = live_payload(c.name, state, self.v.duration, self.v.remaining_seconds, first, url)
         if first and hub is not None:
             hub.log.add(
