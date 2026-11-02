@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.23.1 – 2026-11-02
+
+### Geändert
+- **Klarere Bezeichnung: Fenster statt Fassade.** Es geht um die Richtung, in die die **Fenster** des
+  Raums zeigen – „Fassade" war die Bauphysik-Kurzform dafür (ein Wandfenster sitzt in der Außenwand und
+  hat damit dieselbe Richtung). Hinweis und Hilfe sagen jetzt „Fensterausrichtung", nennen den Fall
+  zweier Fensterseiten (die mit der größeren Glasfläche zählt) und grenzen Dachfenster aus.
+  Verhalten unverändert, der interne Schlüssel bleibt `solar_facade`.
+
 ## 0.23.0 – 2026-11-02
 
 ### Neu

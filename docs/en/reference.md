@@ -48,7 +48,7 @@
 | Setback “briefly away” | 18 °C (bedroom, rarely used: 16) | |
 | Setback “away longer” | 16 °C | |
 | Sunny side | off | 1 °C less when sun is forecast |
-| Sun comes from | – (forecast only) | facade N/NE/E/SE/S/SW/W/NW under *Room → Advanced*; with azimuth only sun that really comes in counts – assumes a clear view |
+| Sun comes from | – (forecast only) | window orientation N/NE/E/SE/S/SW/W/NW under *Room → Advanced*; with azimuth only sun that really comes through the window counts – assumes a clear view |
 | Presence sensors | – | `binary_sensor` entities (`presence_sensors`) |
 | Kind of sensors | automatic | automatic / mmWave / PIR (`presence_kind`) |
 | Lower empty room | automatic | automatic (living room, kitchen, rarely used – only with mmWave) / yes / no (`room_eco`) |

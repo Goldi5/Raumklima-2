@@ -43,7 +43,7 @@
 | Absenkung „kurz weg“ | 18 °C (Schlafzimmer, selten genutzt: 16) | |
 | Absenkung „länger weg“ | 16 °C | |
 | Sonnenseite | aus | bei erwarteter Sonne 1 °C weniger |
-| Sonne kommt aus | – (nur Vorhersage) | Fassade N/NO/O/SO/S/SW/W/NW unter *Raum → Erweitert*; mit Azimut zählt nur Sonne, die wirklich hereinscheint – freie Sicht vorausgesetzt |
+| Sonne kommt aus | – (nur Vorhersage) | Fensterausrichtung N/NO/O/SO/S/SW/W/NW unter *Raum → Erweitert*; mit Azimut zählt nur Sonne, die wirklich durchs Fenster kommt – freie Sicht vorausgesetzt |
 | Präsenzmelder | – | `binary_sensor`-Entitäten (`presence_sensors`) |
 | Art der Melder | Automatisch | Automatisch / mmWave / PIR (`presence_kind`) |
 | Leeren Raum absenken | Automatisch | Automatisch (Wohnraum, Küche, selten genutzt – nur mit mmWave) / Ja / Nein (`room_eco`) |

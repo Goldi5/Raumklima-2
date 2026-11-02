@@ -48,7 +48,7 @@
 | Abaissement « brève absence » | 18 °C (chambre, rarement utilisée : 16) | |
 | Abaissement « absent plus longtemps » | 16 °C | |
 | Côté ensoleillé | désactivé | 1 °C de moins quand du soleil est prévu |
-| Le soleil vient de | – (prévision seule) | façade N/NE/E/SE/S/SO/O/NO sous *Pièce → Avancé* ; avec l’azimut, seul le soleil qui entre vraiment compte – vue dégagée supposée |
+| Le soleil vient de | – (prévision seule) | orientation des fenêtres N/NE/E/SE/S/SO/O/NO sous *Pièce → Avancé* ; avec l’azimut, seul le soleil qui entre vraiment par la fenêtre compte – vue dégagée supposée |
 | Détecteurs de présence | – | entités `binary_sensor` (`presence_sensors`) |
 | Type de détecteurs | automatique | automatique / mmWave / PIR (`presence_kind`) |
 | Abaisser une pièce vide | automatique | automatique (salon, cuisine, rarement utilisée – uniquement avec mmWave) / oui / non (`room_eco`) |
