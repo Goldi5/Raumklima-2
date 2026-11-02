@@ -155,11 +155,18 @@ export class RaumklimaSettingsCard extends HTMLElement {
     if (this._sched) delete this._sched[entryId];
     for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
   }
+  // Bekannte Dashboards: die Zentrale ist maßgeblich, hass.dashboards nur Ersatz.
+  _dashKnown() {
+    const list = (this._cfg && this._cfg.dashboards) || [];
+    if (list.length) return Object.fromEntries(list.map((p) => [p, 1]));
+    return this._hass.dashboards || {};
+  }
+
   // Für eine neue Wohnung gleich ein Dashboard mit der Raumklima-Strategie anlegen
   async _ensureDashboard(path, name, entryId) {
     const p = String(path || "").replace(/^\//, "");
     const cur = String((this._hass && this._hass.panelUrl) || "").replace(/^\//, "");
-    if (!rkNeedsDashboard(this._hass.dashboards || {}, p, cur)) return null;
+    if (!rkNeedsDashboard(this._dashKnown(), p, cur)) return null;
     try {
       await this._hass.callWS({
         type: "lovelace/dashboards/create",
@@ -176,6 +183,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
       });
       if (this._hass.dashboards) {
         this._hass.dashboards[p] = this._hass.dashboards[p] || { title: name, mode: "storage", show_in_sidebar: true };
+      }
+      if (this._cfg && Array.isArray(this._cfg.dashboards) && !this._cfg.dashboards.includes(p)) {
+        this._cfg.dashboards.push(p);
       }
       return p;
     } catch (e) {
@@ -326,7 +336,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       (() => {
         const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
         const dp = dh.dashboard || "";
-        const fehlt = this._admin && rkNeedsDashboard(this._hass.dashboards || {}, dp, String((this._hass && this._hass.panelUrl) || "").replace(/^\//, ""));
+        const fehlt = this._admin && rkNeedsDashboard(this._dashKnown(), dp, String((this._hass && this._hass.panelUrl) || "").replace(/^\//, ""));
         return this._row("Dashboard",
           `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc(dp || "heizung")}" ${this._admin ? "" : "disabled"}>${
             fehlt ? ` <button class="mini" data-mkdash="${esc(dp)}" title="${t("Dashboard mit der Raumklima-Strategie anlegen")}">${t("anlegen")}</button>` : ` <span class="lt">${t("vorhanden")}</span>`

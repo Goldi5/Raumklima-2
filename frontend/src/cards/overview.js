@@ -19,6 +19,13 @@ export class RaumklimaOverviewCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     setLang(hass);
+    // Welche Dashboards gibt es wirklich? Die Zentrale weiß es verlässlicher als hass.dashboards.
+    if (!this._dashAsked) {
+      this._dashAsked = true;
+      hass.callWS({ type: "raumklima/dashboards" })
+        .then((r) => { this._known = new Set((r && r.dashboards) || []); this._render(); })
+        .catch(() => {});
+    }
     // nur bei Änderungen an Raumklima-Entitäten (und deren Fenstern) neu zeichnen
     const own = Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima").map((e) => e.entity_id);
     const wins = own.filter((id) => id.startsWith("climate.")).flatMap((id) => (hass.states[id] && hass.states[id].attributes.window_entities) || []);
@@ -45,7 +52,8 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const path = String(h.dashboard || "").replace(/^\//, "");
       if (!path) return { ok: false, path };
       const known = (this._hass && this._hass.dashboards) || {};
-      return { ok: path === curPath || Object.prototype.hasOwnProperty.call(known, path), path };
+      const server = this._known instanceof Set ? this._known.has(path) : false;
+      return { ok: path === curPath || server || Object.prototype.hasOwnProperty.call(known, path), path };
     };
     const homeBar = homes.length > 1 ? `<div class="homes">${homes.map((h) => {
       const on = h.id === curHome;

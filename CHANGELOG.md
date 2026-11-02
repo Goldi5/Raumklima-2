@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.24.4 – 2026-11-02
+
+### Behoben
+- **Wohnungs-Umschalter blieb ausgegraut** (Issue #10): Die Karte prüfte vorhandene Dashboards über
+  `hass.dashboards` im Browser. Je nach Stand und Benutzer ist diese Liste leer – dann blieb jede andere
+  Wohnung gesperrt, obwohl ihr Dashboard existiert. Die Karte fragt die Liste jetzt bei der Zentrale ab
+  (neuer Befehl `raumklima/dashboards`), die Einstellungsseite bekommt sie mit der Konfiguration;
+  `hass.dashboards` dient nur noch als Ersatz.
+
 ## 0.24.3 – 2026-11-02
 
 ### Behoben

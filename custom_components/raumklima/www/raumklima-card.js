@@ -1,4 +1,4 @@
-/* Raumklima 0.24.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.24.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1161,7 +1161,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.24.3";
+  var RK_VERSION = "0.24.4";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1948,6 +1948,14 @@
     set hass(hass) {
       this._hass = hass;
       setLang(hass);
+      if (!this._dashAsked) {
+        this._dashAsked = true;
+        hass.callWS({ type: "raumklima/dashboards" }).then((r) => {
+          this._known = new Set(r && r.dashboards || []);
+          this._render();
+        }).catch(() => {
+        });
+      }
       const own = Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima").map((e) => e.entity_id);
       const wins = own.filter((id) => id.startsWith("climate.")).flatMap((id) => hass.states[id] && hass.states[id].attributes.window_entities || []);
       if (!rkChanged(this, hass, [...own, ...wins]) && this.shadowRoot && this.shadowRoot.firstChild) return;
@@ -1973,7 +1981,8 @@
         const path = String(h.dashboard || "").replace(/^\//, "");
         if (!path) return { ok: false, path };
         const known = this._hass && this._hass.dashboards || {};
-        return { ok: path === curPath || Object.prototype.hasOwnProperty.call(known, path), path };
+        const server = this._known instanceof Set ? this._known.has(path) : false;
+        return { ok: path === curPath || server || Object.prototype.hasOwnProperty.call(known, path), path };
       };
       const homeBar = homes.length > 1 ? `<div class="homes">${homes.map((h) => {
         const on = h.id === curHome;
@@ -2960,11 +2969,17 @@
       if (this._sched) delete this._sched[entryId];
       for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
     }
+    // Bekannte Dashboards: die Zentrale ist maßgeblich, hass.dashboards nur Ersatz.
+    _dashKnown() {
+      const list = this._cfg && this._cfg.dashboards || [];
+      if (list.length) return Object.fromEntries(list.map((p) => [p, 1]));
+      return this._hass.dashboards || {};
+    }
     // Für eine neue Wohnung gleich ein Dashboard mit der Raumklima-Strategie anlegen
     async _ensureDashboard(path, name, entryId) {
       const p = String(path || "").replace(/^\//, "");
       const cur = String(this._hass && this._hass.panelUrl || "").replace(/^\//, "");
-      if (!rkNeedsDashboard(this._hass.dashboards || {}, p, cur)) return null;
+      if (!rkNeedsDashboard(this._dashKnown(), p, cur)) return null;
       try {
         await this._hass.callWS({
           type: "lovelace/dashboards/create",
@@ -2981,6 +2996,9 @@
         });
         if (this._hass.dashboards) {
           this._hass.dashboards[p] = this._hass.dashboards[p] || { title: name, mode: "storage", show_in_sidebar: true };
+        }
+        if (this._cfg && Array.isArray(this._cfg.dashboards) && !this._cfg.dashboards.includes(p)) {
+          this._cfg.dashboards.push(p);
         }
         return p;
       } catch (e) {
@@ -3140,7 +3158,7 @@
         (() => {
           const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
           const dp = dh.dashboard || "";
-          const fehlt = this._admin && rkNeedsDashboard(this._hass.dashboards || {}, dp, String(this._hass && this._hass.panelUrl || "").replace(/^\//, ""));
+          const fehlt = this._admin && rkNeedsDashboard(this._dashKnown(), dp, String(this._hass && this._hass.panelUrl || "").replace(/^\//, ""));
           return this._row(
             "Dashboard",
             `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc(dp || "heizung")}" ${this._admin ? "" : "disabled"}>${fehlt ? ` <button class="mini" data-mkdash="${esc(dp)}" title="${t("Dashboard mit der Raumklima-Strategie anlegen")}">${t("anlegen")}</button>` : ` <span class="lt">${t("vorhanden")}</span>`}`,

@@ -227,7 +227,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_room_update, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_room_update, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -248,6 +248,18 @@ def _mail_services(hass: HomeAssistant) -> list[str]:
             if name:
                 out.append(f"notify.{name}")
     return sorted(set(out))
+
+
+def _known_dashboards(hass: HomeAssistant) -> list[str]:
+    """Alle Dashboards, die Home Assistant kennt (auch ohne Seitenleiste).
+
+    Die Karte kann sich nicht auf ``hass.dashboards`` verlassen – je nach Stand und
+    Benutzer ist die Liste im Browser leer, dann wäre der Wohnungs-Umschalter dauerhaft
+    ausgegraut. Hier fragen wir die Wahrheit der Zentrale ab.
+    """
+    data = hass.data.get("lovelace")
+    known = getattr(data, "dashboards", None) if data is not None else None
+    return sorted(str(p) for p in (known or {}) if p)
 
 
 def _choices(hass: HomeAssistant) -> dict[str, Any]:
@@ -320,6 +332,7 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
                  "rooms": list(h.rooms)}
                 for h in all_hubs(hass)
             ],
+            "dashboards": _known_dashboards(hass),
             "kinds": KINDS,
             "choices": _choices(hass),
             "admin": connection.user.is_admin,
@@ -378,6 +391,13 @@ async def ws_mail_test(hass: HomeAssistant, connection: websocket_api.ActiveConn
         connection.send_error(msg["id"], "mail_failed", str(err))
         return
     connection.send_result(msg["id"], {"ok": True, "to": recipients(opts.get("mail_to"))})
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/dashboards"})
+@websocket_api.async_response
+async def ws_dashboards(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Vorhandene Dashboards – damit der Umschalter nur auf echte Ziele verlinkt."""
+    connection.send_result(msg["id"], {"dashboards": _known_dashboards(hass)})
 
 
 @websocket_api.websocket_command(
