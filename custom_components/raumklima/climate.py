@@ -73,11 +73,12 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
 
     @property
     def native_target_temperature(self) -> float:
-        return self.controller.target_temp
+        return self.controller.applied_target
 
     @property
     def target_temperature(self) -> float:
-        return self.controller.target_temp
+        """Das Ziel, das gerade gilt – nicht der Wunsch (der steht im Attribut ``wish``)."""
+        return self.controller.applied_target
 
     @property
     def min_temp(self) -> float:
@@ -107,6 +108,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "sync": c.sync_state,
             "valve_position": c.valve_position,
             "comfort_temperature": c.comfort_temp,
+            "wish": c.target_temp,
             "temperature_sensor": c.temp_sensor,
             "humidity_entity": c.humidity_sensor,
             "window_entities": c.windows,

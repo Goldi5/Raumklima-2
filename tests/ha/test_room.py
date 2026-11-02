@@ -480,3 +480,23 @@ async def test_window_open_und_close_speichern_sofort(hass: HomeAssistant, setup
     assert calls, "Beim Öffnen muss der Zustand gesichert werden"
     ctrl.vent.on_window_raw(False)
     assert len(calls) == 2, "Auch das Schließen muss gesichert werden"
+
+
+async def test_temperature_zeigt_angewendetes_ziel(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Aktives Zeitfenster: `temperature` ist das Fensterziel, `wish` der Wunsch (Issue #12)."""
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.target_temp = 17.0
+    assert ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": "00:00", "end": "23:59", "temperature": 19.0}]}
+    )
+    await hass.async_block_till_done()
+    await advance(hass, 5)
+
+    st = hass.states.get("climate.bad")
+    assert st is not None
+    assert st.attributes["temperature"] == 19.0, "Ziel ist das, worauf der Raum regelt"
+    assert st.attributes["wish"] == 17.0, "Wunsch bleibt der eingestellte Wert"

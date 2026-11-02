@@ -71,7 +71,7 @@
 
 | Entität | Inhalt |
 |---|---|
-| `climate.<raum>` | Thermostat; Attribute u. a. `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, Lüftungswerte |
+| `climate.<raum>` | Thermostat; `temperature` ist das **angewendete** Ziel (Zeitplan, Boost, Absenkung), `wish` der eingestellte Wunsch. Weitere Attribute: `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, Lüftungswerte |
 | `sensor.<raum>_status` | heizt · erreicht · Fenster offen · aus · aus (am Thermostat abgeschaltet) · Fühler/TRV fehlt · Heizpause · abgesenkt |
 | `sensor.<raum>_synchronisierung` | ok · ausstehend · fehlgeschlagen |
 | `sensor.<raum>_kalibrier_offset` | aktueller Offset |

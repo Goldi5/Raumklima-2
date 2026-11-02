@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.26.0 – 2026-11-02
+
+### Geändert
+- **`climate.<raum>` zeigt das angewendete Ziel** (Issue #12): `temperature` ist jetzt der Wert, auf den
+  der Raum gerade regelt — Zeitplan, Boost, Absenkung. Der eingestellte Wunsch steht im neuen Attribut
+  `wish` und wird weiterhin mit `climate.set_temperature` gesetzt. Damit sagen Home-Assistant-Kachel und
+  Raumklima-Karte dasselbe; die Karte zeigt bei Abweichung „Ziel 19,0° · Wunsch 17,0°".
+
+### Neu
+- **„Anwesenheit aus"** (Issue #10): Schalter in *Einstellungen → Allgemein → Anwesenheit & Absenkung*.
+  Aus heißt: keine Auswertung von Handys, Zone oder Kalender, keine Absenkung nach Abwesenheit, kein
+  Vorheizen, kein Absenken leerer Räume — gedacht für Wohnungen ohne brauchbare Ortung.
+
 ## 0.25.1 – 2026-11-02
 
 ### Behoben

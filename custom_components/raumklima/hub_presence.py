@@ -18,6 +18,7 @@ from .const import (
     CONF_HOME_SENSORS,
     CONF_LONG_AWAY_HOURS,
     CONF_PREHEAT_KM,
+    CONF_PRESENCE_OFF,
     KIND_PRESENCE,
 )
 from .decision_log import (
@@ -145,7 +146,8 @@ class PresenceMixin:
         cal = self._check_calendar()
         now = dt_util.utcnow()
         geo = self._zone_geo()
-        if not self.presence_configured or geo is None:
+        # Harter Schalter: keine Auswertung, keine Absenkung, kein Vorheizen (Issue #10)
+        if self.opt(CONF_PRESENCE_OFF) or not self.presence_configured or geo is None:
             self.persons = {}
             self.sensed = []
             new = STAGE_HOME

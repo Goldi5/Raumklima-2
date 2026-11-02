@@ -559,4 +559,6 @@ export const FR = {
   "Ventil Ø": "Vanne Ø",
   "Bitte Uhrzeit als HH:MM eingeben": "Merci d'indiquer l'heure au format HH:MM",
   "Ziel {v}° · Wunsch {w}°": "Consigne {v}° · souhait {w}°",
+  "Anwesenheit aus": "Présence désactivée",
+  "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "aucune évaluation : rien n'est abaissé selon la présence, rien n'est préchauffé, aucun message d'absence – prévu quand la localisation est impossible",
 };

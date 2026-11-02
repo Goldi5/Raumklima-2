@@ -1,4 +1,4 @@
-/* Raumklima 0.25.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.26.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -559,7 +559,9 @@
     "nicht erreichbar": "unreachable",
     "Ventil Ø": "Valve avg",
     "Bitte Uhrzeit als HH:MM eingeben": "Please enter the time as HH:MM",
-    "Ziel {v}° · Wunsch {w}°": "Target {v}° · wish {w}°"
+    "Ziel {v}° · Wunsch {w}°": "Target {v}° · wish {w}°",
+    "Anwesenheit aus": "Presence off",
+    "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "no evaluation at all: nothing is lowered for absence, nothing preheated, no away messages – for setups without any tracking"
   };
 
   // src/i18n/fr.js
@@ -1121,7 +1123,9 @@
     "nicht erreichbar": "injoignable",
     "Ventil Ø": "Vanne Ø",
     "Bitte Uhrzeit als HH:MM eingeben": "Merci d'indiquer l'heure au format HH:MM",
-    "Ziel {v}° · Wunsch {w}°": "Consigne {v}° · souhait {w}°"
+    "Ziel {v}° · Wunsch {w}°": "Consigne {v}° · souhait {w}°",
+    "Anwesenheit aus": "Présence désactivée",
+    "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "aucune évaluation : rien n'est abaissé selon la présence, rien n'est préchauffé, aucun message d'absence – prévu quand la localisation est impossible"
   };
 
   // src/i18n.js
@@ -1165,7 +1169,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.25.1";
+  var RK_VERSION = "0.26.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1258,7 +1262,7 @@
     if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "valve_care") return t("Ventilpflege läuft");
     if ((r === "away_short" || r === "away_long") && a.effective_target != null)
-      return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) });
+      return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.wish != null ? a.wish : a.temperature) });
     if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
     if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
@@ -1808,7 +1812,7 @@
       const st = this._hass.states[this._config.entity];
       if (!st) return;
       const a = st.attributes;
-      const base = this._pending ?? a.temperature ?? 20;
+      const base = this._pending ?? a.wish ?? a.temperature ?? 20;
       const next = Math.min(a.max_temp ?? 30, Math.max(a.min_temp ?? 5, Math.round((base + delta) * 2) / 2));
       this._pending = next;
       this._render();
@@ -2055,8 +2059,9 @@
         const prefix = this._config.strip_prefix ?? "";
         const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
         const applied = a.effective_target != null ? a.effective_target : a.temperature;
-        const wishDiffers = a.effective_target != null && a.temperature != null && Math.abs(a.effective_target - a.temperature) >= 0.05;
-        const targetText = off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? a.effective_target < a.temperature ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) }) : t("Ziel {v}°", { v: fmt(applied) });
+        const wish = a.wish != null ? a.wish : a.temperature;
+        const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
+        const targetText = off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
         return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
@@ -3133,7 +3138,12 @@
         return `<button class="chip2 ${on ? "" : "off"}" data-person="${p.id}" style="--c:${on ? info && info.present ? "var(--rk-ok)" : "var(--rk-eco)" : "var(--rk-off)"}" ${this._admin ? "" : "disabled"}><i></i>${esc(p.name)}${on && where ? ` · ${where}` : ""}</button>`;
       }).join("");
       const presRows = [
-        `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
+        `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
+        this._row(
+          "Anwesenheit aus",
+          this._optToggle(H, "presence_off", !!this._hubOpt("presence_off")),
+          "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist"
+        ),
         this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
         this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
         this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),

@@ -59,6 +59,7 @@ from .const import (
     CONF_ON_PRESET,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
+    CONF_PRESENCE_OFF,
     CONF_QUIET_SETBACK,
     CONF_ROOM_ECO,
     CONF_ROOM_ECO_AFTER,
@@ -294,6 +295,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             on_event=self._on_sync_event,
         )
         self._last_plan: tuple[bool, float, str] | None = None
+        self._peeking = False  # plan() nur lesen, keine Zustände verbrauchen
 
     # ================================================================ Lifecycle
     async def async_start(self) -> None:
@@ -643,7 +645,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             floor = hub.frost_floor
             cur = self.current_temperature
             if self._frost_active and (cur is None or cur >= floor + 1):
-                self._frost_active = False
+                if not self._peeking:
+                    self._frost_active = False
             elif not self._frost_active and cur is not None and cur < floor:
                 self._frost_active = True
             if self._frost_active:
@@ -676,8 +679,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if target < self.target_temp:
                 return True, target, hub.stage
         manual_until = self._manual_until
-        self._manual_until = None
-        self.frost_night_low = None
+        if not self._peeking:
+            self._manual_until = None
+            self.frost_night_low = None
         # Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne
         local_now = dt_util.now()
         sched = schedule_target(self.config.get(CONF_SCHEDULES), local_now)
@@ -701,7 +705,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             need = self.heatup.minutes_needed(want - cur, hub.outdoor_temp())
             if need is not None and local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:
                 return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
-        if self.room_eco_applies():
+        # „Anwesenheit aus": auch der leere Raum senkt nicht ab (Issue #10)
+        if self.room_eco_applies() and not hub.opt(CONF_PRESENCE_OFF):
             floor = self.setback_short
             if self.humidity_sensor:
                 mold = mold_safe_min_temp(self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi)
@@ -1094,6 +1099,20 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 await extra.apply(want_on, method, target)
             except Exception as err:  # noqa: BLE001 – ein Heizkörper darf die anderen nicht aufhalten
                 _LOGGER.warning("%s: weiteres Thermostat %s: %s", self.name, extra.entity_id, err)
+
+    def peek_plan(self) -> tuple[bool, float, str]:
+        """Wie ``plan()``, aber ohne den Von-Hand-Vorrang zu verbrauchen (für die Anzeige)."""
+        self._peeking = True
+        try:
+            return self.plan()
+        finally:
+            self._peeking = False
+
+    @property
+    def applied_target(self) -> float:
+        """Was gerade gilt: berechnetes Ziel (Zeitplan, Boost, Absenkung), sonst der Wunsch."""
+        on, target, _reason = self.peek_plan()
+        return target if on else self.target_temp
 
     @property
     def sync_state(self) -> str:

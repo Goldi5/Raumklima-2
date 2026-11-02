@@ -86,7 +86,8 @@ CONF_PRESENCE_KIND: Final = "presence_kind"  # auto / mmwave / pir
 CONF_ROOM_ECO: Final = "room_eco"  # leeren Raum absenken: auto / on / off
 CONF_ROOM_ECO_AFTER: Final = "room_eco_after"  # min leer, bevor abgesenkt wird
 CONF_ROOM_ECO_DROP: Final = "room_eco_drop"  # °C weniger
-CONF_HOME_SENSORS: Final = "home_sensors"  # Zentrale: welche Melder zählen für „jemand da“ (mmwave / all / off)
+CONF_HOME_SENSORS: Final = "home_sensors"
+CONF_PRESENCE_OFF: Final = "presence_off"  # Zentrale: welche Melder zählen für „jemand da“ (mmwave / all / off)
 PRESENCE_KINDS: Final = ["auto", "mmwave", "pir"]
 ROOM_ECO_MODES: Final = ["auto", "on", "off"]
 HOME_SENSOR_MODES: Final = ["mmwave", "all", "off"]
@@ -155,6 +156,7 @@ HUB_DEFAULTS: Final = {
     CONF_QUIET_SETBACK: False,
     "name": "",
     "dashboard": "",
+    "presence_off": False,
     "holiday_state": "",
     "sleep_signals": [],
     "repeat_minutes": 5,

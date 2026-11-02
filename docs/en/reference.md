@@ -78,7 +78,7 @@
 
 | Entity | Content |
 |---|---|
-| `climate.<room>` | thermostat; attributes include `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, `co2`, airing values |
+| `climate.<room>` | thermostat; `temperature` is the **applied** target (schedule, boost, setback), `wish` the configured wish. Further attributes: `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, `co2`, airing values |
 | `sensor.<room>_status` | heating · reached · window open · off · off (at the thermostat) · sensor/TRV missing · heating paused · set back · night airing |
 | `sensor.<room>_sync` | ok · pending · failed |
 | `sensor.<room>_calibration_offset` | current offset |

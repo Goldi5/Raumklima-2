@@ -559,4 +559,6 @@ export const EN = {
   "Ventil Ø": "Valve avg",
   "Bitte Uhrzeit als HH:MM eingeben": "Please enter the time as HH:MM",
   "Ziel {v}° · Wunsch {w}°": "Target {v}° · wish {w}°",
+  "Anwesenheit aus": "Presence off",
+  "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "no evaluation at all: nothing is lowered for absence, nothing preheated, no away messages – for setups without any tracking",
 };

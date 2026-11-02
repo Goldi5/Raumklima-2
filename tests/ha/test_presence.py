@@ -141,3 +141,23 @@ async def test_websocket_presence_live(hass: HomeAssistant, trv: FakeTrv, sensor
     await client.send_json_auto_id({"type": "raumklima/config"})
     msg = await client.receive_json()
     assert {"id": RADAR, "name": msg["result"]["choices"]["presence"][0]["name"], "kind": "mmwave"} in msg["result"]["choices"]["presence"]
+
+
+async def test_anwesenheit_aus_senkt_nicht_ab(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Harter Schalter „Anwesenheit aus": Stufe zurück auf zuhause, keine Absenkung (Issue #10)."""
+    from custom_components.raumklima.planning import STAGE_AWAY_LONG, STAGE_HOME
+
+    hub_entry, room = await _setup(hass, room_type="living")
+    c = room.runtime_data
+    hub = c.hub
+    wish = c.target_temp
+    hub.stage = STAGE_AWAY_LONG
+
+    hass.config_entries.async_update_entry(hub_entry, options={**hub_entry.options, "presence_off": True})
+    await hass.async_block_till_done()
+
+    assert hub.stage == STAGE_HOME
+    on, target, reason = c.plan()
+    assert on is True
+    assert target == wish
+    assert reason == "normal"

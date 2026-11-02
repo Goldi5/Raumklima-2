@@ -94,15 +94,16 @@ export class RaumklimaOverviewCard extends HTMLElement {
       // Angezeigt wird, worauf der Raum gerade regelt (Zeitplan, Boost, Absenkung).
       // Der Wunsch steht daneben, wenn er davon abweicht – sonst wirken HA-Dial und Karte widersprüchlich (Issue #12).
       const applied = a.effective_target != null ? a.effective_target : a.temperature;
-      const wishDiffers = a.effective_target != null && a.temperature != null && Math.abs(a.effective_target - a.temperature) >= 0.05;
+      const wish = a.wish != null ? a.wish : a.temperature;
+      const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
       const targetText = off
         ? t("aus")
         : a.plan_reason === "season"
           ? t("Pause")
           : wishDiffers
-            ? (a.effective_target < a.temperature
-              ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) })
-              : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) }))
+            ? (applied < wish
+              ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) })
+              : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }))
             : t("Ziel {v}°", { v: fmt(applied) });
       return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>

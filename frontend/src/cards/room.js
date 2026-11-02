@@ -58,7 +58,7 @@ export class RaumklimaCard extends HTMLElement {
     const st = this._hass.states[this._config.entity];
     if (!st) return;
     const a = st.attributes;
-    const base = this._pending ?? a.temperature ?? 20;
+    const base = this._pending ?? a.wish ?? a.temperature ?? 20;
     const next = Math.min(a.max_temp ?? 30, Math.max(a.min_temp ?? 5, Math.round((base + delta) * 2) / 2));
     this._pending = next;
     this._render();

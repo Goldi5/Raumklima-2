@@ -78,7 +78,7 @@
 
 | Entité | Contenu |
 |---|---|
-| `climate.<room>` | thermostat ; les attributs incluent `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, `co2`, valeurs d’aération |
+| `climate.<room>` | thermostat ; `temperature` est la consigne **appliquée** (programme, boost, abaissement), `wish` le souhait réglé. Autres attributs : `effective_target`, `plan_reason`, `presence`, `heating_mode`, `status`, `off_source`, `offset`, `valve_position`, `co2`, valeurs d’aération |
 | `sensor.<room>_status` | chauffage · atteint · fenêtre ouverte · éteint · éteint (au thermostat) · sonde/TRV manquant · chauffage en pause · abaissé · aération nocturne |
 | `sensor.<room>_sync` | ok · en attente · échec |
 | `sensor.<room>_calibration_offset` | décalage actuel |
