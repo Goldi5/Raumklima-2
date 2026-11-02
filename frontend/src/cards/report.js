@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, REPORT_STYLES, ROOM_COLORS, SETTINGS_STYLES, STYLES, esc, fmt, loc, rkIssueList, rkRooms, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, REPORT_STYLES, ROOM_COLORS, SETTINGS_STYLES, STYLES, esc, fmt, loc, rkIssueList, rkHomeId, rkRooms, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaReportCard extends HTMLElement {
@@ -27,7 +27,7 @@ export class RaumklimaReportCard extends HTMLElement {
     if (first) { this._colors(); this._load(); this._render(); }
   }
   _colors() {
-    const rooms = rkRooms(this._hass, this._config.strip_prefix || "", this._config.home);
+    const rooms = rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config));
     this._roomColor = (name) => {
       const r = rooms.find((x) => x.name === name) || rooms.find((x) => x.name.endsWith(" " + name) || name.endsWith(" " + x.name));
       return r ? r.color : null;

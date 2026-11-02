@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, REPORT_STYLES, SETTINGS_STYLES, STYLES, esc, escRe, loc, rkRooms, rkTime, setLang, t, tmap, toneVar, rkPaint } from "../shared.js";
+import { HISTORY_STYLES, REPORT_STYLES, SETTINGS_STYLES, STYLES, esc, escRe, loc, rkHomeId, rkRooms, rkTime, setLang, t, tmap, toneVar, rkPaint } from "../shared.js";
 
 const RK_LOG_CATS = tmap({
   presence: ["Anwesenheit", "mdi:home-account", "eco"],
@@ -106,7 +106,7 @@ export class RaumklimaLogCard extends HTMLElement {
     this._hass = hass;
     setLang(hass);
     if (first) {
-      this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._config.home);
+      this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
       if (this._config.entity) {
         const r = this._rooms.find((x) => x.id === this._config.entity);
         if (r) this._room = (r.attrs.settings || {}).entry_id || "";

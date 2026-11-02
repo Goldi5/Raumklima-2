@@ -77,7 +77,8 @@
           "zone": "Zone der Wohnung",
           "push_targets": "Benachrichtigungen an",
           "weather_entity": "Außenklima (Wetter oder Außensensor)",
-          "building_type": "Bauart"
+          "building_type": "Bauart",
+          "home_name": "Name der Wohnung"
         },
         "data_description": {
           "residents": "Personen, die hier wohnen oder zu Besuch heizen wollen. Sind alle weg, wird abgesenkt.",
@@ -91,6 +92,14 @@
         "description": "Zu welcher Wohnung gehört der Raum? Wird nur gefragt, wenn es mehrere Wohnungen gibt.",
         "data": {
           "home": "Wohnung"
+        }
+      },
+      "menu": {
+        "title": "Was möchtest du anlegen?",
+        "description": "Einen Raum in einer bestehenden Wohnung – oder eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Räumen, Bewohnern und Dashboard.",
+        "menu_options": {
+          "add_room": "Raum in einer bestehenden Wohnung",
+          "new_home": "Neue Wohnung"
         }
       }
     },

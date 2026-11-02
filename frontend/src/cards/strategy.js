@@ -1,4 +1,4 @@
-import { ROOM_COLORS, escRe, rkHomes, setLang, t } from "../shared.js";
+import { ROOM_COLORS, escRe, rkHomeId, rkHomes, setLang, t } from "../shared.js";
 
 
 // Reihenfolge der Räume: Stockwerk → Bereich → Name.
@@ -28,12 +28,7 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
     setLang(hass);
     const prefix = config.strip_prefix ?? "";
     // `home` ist die ID der Wohnung – der Name wird auch akzeptiert (beides steht in den Einstellungen)
-    const homeId = (() => {
-      const v = config.home;
-      if (!v) return "";
-      const hs = rkHomes(hass);
-      return (hs.find((h) => h.id === v) || hs.find((h) => h.name === v) || { id: v }).id;
-    })();
+    const homeId = rkHomeId(hass, config) || "";
     const reg = Object.values(hass.entities || {});
     const rooms = reg
       .filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate."))

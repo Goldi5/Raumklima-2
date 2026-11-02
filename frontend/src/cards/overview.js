@@ -1,4 +1,4 @@
-import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -38,14 +38,15 @@ export class RaumklimaOverviewCard extends HTMLElement {
 
   _render() {
     if (!this._hass) return;
+    const homeId = rkHomeId(this._hass, this._config);
     const rooms = Object.values(this._hass.entities || {})
       .filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate."))
       .map((e) => this._hass.states[e.entity_id])
       .filter(Boolean)
-      .filter((r) => !this._config.home || !r.attributes.home || r.attributes.home === this._config.home)
+      .filter((r) => !homeId || !r.attributes.home || r.attributes.home === homeId)
       .sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
     const homes = rkHomes(this._hass);
-    const curHome = this._config.home || (rooms[0] && rooms[0].attributes.home);
+    const curHome = homeId || (rooms[0] && rooms[0].attributes.home);
     // Nur umschalten, wenn das Ziel-Dashboard wirklich existiert – sonst landet man auf dem Standard
     const curPath = String((this._hass && this._hass.panelUrl) || "").replace(/^\//, "");
     const dashTarget = (h) => {

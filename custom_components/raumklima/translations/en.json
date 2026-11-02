@@ -77,7 +77,8 @@
           "zone": "Zone of the home",
           "push_targets": "Send notifications to",
           "weather_entity": "Outdoor climate (weather or outdoor sensor)",
-          "building_type": "Building type"
+          "building_type": "Building type",
+          "home_name": "Name of the home"
         },
         "data_description": {
           "residents": "People who live here. If all are away, heating is lowered.",
@@ -91,6 +92,14 @@
         "description": "Which home does the room belong to? Only asked when there is more than one home.",
         "data": {
           "home": "Home"
+        }
+      },
+      "menu": {
+        "title": "What would you like to add?",
+        "description": "A room in an existing home – or a second home (e.g. a holiday flat) with its own rooms, residents and dashboard.",
+        "menu_options": {
+          "add_room": "Room in an existing home",
+          "new_home": "New home"
         }
       }
     },

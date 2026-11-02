@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.25.0 – 2026-11-02
+
+### Neu
+- **Neue Wohnung direkt in der Integration:** *Einstellungen → Geräte & Dienste → Raumklima → Integration
+  hinzufügen* fragt jetzt zuerst „Raum in einer bestehenden Wohnung" oder „Neue Wohnung". Bei einer neuen
+  Wohnung wird der Raum gleich an sie gehängt (bisher landete jeder neue Raum in der ersten Wohnung).
+
+### Behoben
+- **Räume wurden in beiden Wohnungen angezeigt** (Issue #10): Karten ohne `home:` zeigten alle Räume –
+  ein selbst gebautes Dashboard wie „Heizung" (Berlin) listete also auch das Sportzimmer aus Remscheid.
+  Jetzt richtet sich jede Karte nach dem Dashboard, auf dem sie liegt (Pfad `heizung-<name>` → Wohnung),
+  ersatzweise nach `home:` in der Karten-Konfiguration. Betrifft Übersicht, Verlauf, Protokoll, Bericht,
+  Einstellungen und die Dashboard-Strategie.
+
 ## 0.24.4 – 2026-11-02
 
 ### Behoben

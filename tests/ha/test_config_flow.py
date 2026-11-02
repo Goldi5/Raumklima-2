@@ -41,8 +41,16 @@ async def test_first_room_creates_hub(hass: HomeAssistant, trv: FakeTrv, sensors
     assert sum(1 for e in entries if e.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB) == 1
 
 
-async def test_same_trv_twice_aborts(hass: HomeAssistant, setup) -> None:
+async def _flow_start(hass: HomeAssistant):
+    """Assistent starten – bei bestehender Wohnung kommt zuerst das Menü."""
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    if result["step_id"] == "menu":
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "add_room"})
+    return result
+
+
+async def test_same_trv_twice_aborts(hass: HomeAssistant, setup) -> None:
+    result = await _flow_start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"trv": TRV})
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "already_configured"
@@ -91,7 +99,7 @@ async def test_zweite_wohnung_fragt_nach_wohnung(hass: HomeAssistant, setup, sen
     zweite = await _zweite_wohnung(hass)
     trv2 = FakeTrv(hass, "climate.trv_kueche")
 
-    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    result = await _flow_start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"trv": trv2.entity_id})
     assert result["step_id"] == "devices"
     result = await hass.config_entries.flow.async_configure(
@@ -122,3 +130,30 @@ async def test_raum_in_andere_wohnung_verschieben(hass: HomeAssistant, setup, ha
     assert st is not None
     assert st.attributes["home"] == zweite.entry_id
     assert st.attributes["home_name"] == "Ferienwohnung"
+
+
+async def test_neue_wohnung_ueber_die_integration(hass: HomeAssistant, setup, sensors) -> None:
+    """„Neue Wohnung" im Assistenten: eigener Eintrag, und der Raum hängt daran."""
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    assert result["step_id"] == "menu"
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "new_home"})
+    assert result["step_id"] == "user"
+
+    trv2 = FakeTrv(hass, "climate.trv_kueche")
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"trv": trv2.entity_id})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"name": "Küche", "temperature_sensor": SENSOR, "window_sensors": []}
+    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], ROOM_STEP)
+    assert result["step_id"] == "hub"
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"name": "Ferienwohnung", "building_type": "renovated"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    home = result["result"].data[CONF_HOME]
+    hubs = {
+        e.entry_id: e.title
+        for e in hass.config_entries.async_entries(DOMAIN)
+        if e.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB
+    }
+    assert hubs.get(home) == "Ferienwohnung"

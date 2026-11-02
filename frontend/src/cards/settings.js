@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -67,7 +67,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
   }
 
   _homeId() {
-    return this._home || this._config.home || (this._cfg && this._cfg.hub && this._cfg.hub.entry_id) || null;
+    return this._home || rkHomeId(this._hass, this._config)
+      || (this._cfg && this._cfg.hub && this._cfg.hub.entry_id) || null;
   }
   _homeMsg() { const h = this._home || this._config.home; return h ? { home: h } : {}; }
   async _load() {

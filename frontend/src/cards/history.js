@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkRooms, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkHomeId, rkRooms, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaHistoryCard extends HTMLElement {
@@ -41,7 +41,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
     const first = !this._hass;
     this._hass = hass;
     setLang(hass);
-    if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._config.home);
+    if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
     if (first) this._load(); else this._draw(true);
   }
 

@@ -20,7 +20,7 @@ from homeassistant.config_entries import (
     OptionsFlowWithReload,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_entry_flow import section
+from homeassistant.data_entry_flow import FlowResultType, section
 from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er
 from homeassistant.helpers.selector import (
     BooleanSelector,
@@ -426,6 +426,7 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         self._data: dict[str, Any] = {}
         self._options: dict[str, Any] = {}
+        self._new_home = False
 
     async def async_step_import(self, data: dict[str, Any]) -> ConfigFlowResult:
         """Zentrale anlegen: „Allgemein“ automatisch beim ersten Raum, weitere Wohnungen auf Wunsch."""
@@ -449,6 +450,26 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Einstieg: neue Wohnung oder Raum zu einer bestehenden Wohnung."""
+        # Nur beim Start fragen – danach gehört das Formular dem Thermostat-Schritt.
+        if user_input is None and _has_hub(self.hass):
+            return await self.async_step_menu()
+        return await self.async_step_trv(user_input)
+
+    async def async_step_menu(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Auswahl: Raum ergänzen oder eine zweite Wohnung anlegen."""
+        return self.async_show_menu(step_id="menu", menu_options=["add_room", "new_home"])
+
+    async def async_step_add_room(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Raum zu einer bestehenden Wohnung hinzufügen."""
+        return await self.async_step_trv()
+
+    async def async_step_new_home(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Zweite Wohnung anlegen – der Raum wird direkt an sie gehängt."""
+        self._new_home = True
+        return await self.async_step_trv()
+
+    async def async_step_trv(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Schritt 1: Thermostat."""
         if user_input is not None:
             await self.async_set_unique_id(user_input[CONF_TRV])
@@ -496,6 +517,8 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_OFFSET_THRESHOLD, CONF_OFFSET_MIN_INTERVAL, CONF_SENSOR_STALE_MINUTES,
                     CONF_SYNC_VERIFY_DELAY, CONF_SYNC_MAX_RETRIES, CONF_NOTIFY,
                 )}, **flat}
+                if self._new_home:
+                    return await self.async_step_hub()
                 if _has_hub(self.hass):
                     hubs = _hub_entries(self.hass)
                     if len(hubs) > 1:
@@ -538,16 +561,26 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
                 "weather_entity": user_input.get("weather_entity"),
                 CONF_BUILDING: user_input.get(CONF_BUILDING, "renovated"),
             }
+            if self._new_home:
+                # Eigene Wohnung: erst anlegen, dann den Raum direkt daran hängen
+                hub["home_name"] = user_input[CONF_NAME]
+                result = await self.hass.config_entries.flow.async_init(
+                    DOMAIN, context={"source": SOURCE_IMPORT}, data=hub
+                )
+                if result.get("type") is FlowResultType.CREATE_ENTRY:
+                    self._data[CONF_HOME] = result["result"].entry_id
+                return self._create_room()
             self.hass.async_create_task(
                 self.hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_IMPORT}, data=hub)
             )
             return self._create_room()
         zones = [s.entity_id for s in self.hass.states.async_all("zone")]
+        schema = _hub_first_schema(self.hass, {CONF_ZONE: "zone.home" if "zone.home" in zones else None})
+        if self._new_home:
+            schema = schema.extend({vol.Required(CONF_NAME): TextSelector()})
         return self.async_show_form(
             step_id="hub",
-            data_schema=_hub_first_schema(
-                self.hass, {CONF_ZONE: "zone.home" if "zone.home" in zones else None}
-            ),
+            data_schema=schema,
         )
 
     def _create_room(self) -> ConfigFlowResult:

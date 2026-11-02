@@ -63,6 +63,10 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
   déplacer une pièce existante : *Réglages → pièce → logement* (la ligne n'apparaît qu'avec plusieurs
   logements) ou *Réglages → Appareils et services → Raumklima → pièce → Configurer* – la pièce utilise
   ensuite les habitants, la zone et les destinataires de l'autre logement.
+- **Second logement via l'intégration :** *Réglages → Appareils et services → Raumklima → Ajouter une
+  intégration* propose « pièce dans un logement existant » ou « nouveau logement » (nom, habitants, zone,
+  destinataires). Chaque logement a ses pièces et son tableau de bord ; les cartes suivent le tableau de
+  bord sur lequel elles se trouvent – Berlin n'affiche donc pas les pièces de Remscheid.
 - **Planning par pièce :** dans l’onglet *Réglages* → pièce → **Planning** (jusqu’à six plages horaires avec
   jours de la semaine, de/à et température cible).
 - **Ordre des pièces :** **étage → zone → nom** ; les pièces sans étage viennent en dernier. Pour changer :

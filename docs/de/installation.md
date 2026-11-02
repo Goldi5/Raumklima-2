@@ -63,6 +63,10 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
   Wohnung. Einen bestehenden Raum umhängen: *Einstellungen → Raum → Wohnung* (die Zeile erscheint nur bei
   mehreren Wohnungen) oder *Einstellungen → Geräte & Dienste → Raumklima → Raum → Konfigurieren* – der Raum
   arbeitet danach sofort mit Bewohnern, Zone und Empfängern der anderen Wohnung.
+- **Zweite Wohnung in der Integration:** *Einstellungen → Geräte & Dienste → Raumklima → Integration
+  hinzufügen* bietet „Raum in einer bestehenden Wohnung" oder „Neue Wohnung" (Name, Bewohner, Zone,
+  Empfänger). Jede Wohnung hat eigene Räume und ein eigenes Dashboard; Karten richten sich nach dem
+  Dashboard, auf dem sie liegen – Berlin zeigt also nicht die Räume von Remscheid.
 - **Zeitplan je Raum:** im Reiter *Einstellungen* → Raum → **Zeitplan** (bis zu sechs Zeitfenster mit
   Wochentagen, Von/Bis und Zieltemperatur).
 - **Reihenfolge der Räume:** nach **Stockwerk → Bereich → Name**; Räume ohne Stockwerk stehen am Ende.

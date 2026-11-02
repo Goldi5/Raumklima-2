@@ -54,6 +54,23 @@ export function rkHomes(hass) {
     .map((e) => { const a = hass.states[e.entity_id].attributes; return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id }; })
     .filter((h) => h.id);
 }
+// Welche Wohnung gehört zu dieser Karte? Aus der Konfiguration (ID oder Name),
+// sonst aus dem Dashboard, auf dem die Karte liegt (Pfad → Dashboard der Wohnung).
+export function rkHomeId(hass, config = {}) {
+  const hs = rkHomes(hass);
+  const want = String((config && config.home) || "").trim();
+  if (want) {
+    const hit = hs.find((h) => h.id === want) || hs.find((h) => h.name === want);
+    return hit ? hit.id : want;
+  }
+  const path = String((hass && hass.panelUrl) || "").replace(/^\//, "");
+  if (path) {
+    const byPath = hs.find((h) => String(h.dashboard || "").replace(/^\//, "") === path);
+    if (byPath) return byPath.id;
+  }
+  return null;
+}
+
 export function rkHub(hass, home) {
   const out = {};
   const reg = Object.values(hass.entities || {});

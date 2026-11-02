@@ -1,4 +1,4 @@
-/* Raumklima 0.24.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.25.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1161,7 +1161,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.24.4";
+  var RK_VERSION = "0.25.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1204,6 +1204,20 @@
       const a = hass.states[e.entity_id].attributes;
       return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id };
     }).filter((h) => h.id);
+  }
+  function rkHomeId(hass, config = {}) {
+    const hs = rkHomes(hass);
+    const want = String(config && config.home || "").trim();
+    if (want) {
+      const hit = hs.find((h) => h.id === want) || hs.find((h) => h.name === want);
+      return hit ? hit.id : want;
+    }
+    const path = String(hass && hass.panelUrl || "").replace(/^\//, "");
+    if (path) {
+      const byPath = hs.find((h) => String(h.dashboard || "").replace(/^\//, "") === path);
+      if (byPath) return byPath.id;
+    }
+    return null;
   }
   function rkHub(hass, home) {
     const out = {};
@@ -1973,9 +1987,10 @@
     }
     _render() {
       if (!this._hass) return;
-      const rooms = Object.values(this._hass.entities || {}).filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => this._hass.states[e.entity_id]).filter(Boolean).filter((r) => !this._config.home || !r.attributes.home || r.attributes.home === this._config.home).sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
+      const homeId = rkHomeId(this._hass, this._config);
+      const rooms = Object.values(this._hass.entities || {}).filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => this._hass.states[e.entity_id]).filter(Boolean).filter((r) => !homeId || !r.attributes.home || r.attributes.home === homeId).sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
       const homes = rkHomes(this._hass);
-      const curHome = this._config.home || rooms[0] && rooms[0].attributes.home;
+      const curHome = homeId || rooms[0] && rooms[0].attributes.home;
       const curPath = String(this._hass && this._hass.panelUrl || "").replace(/^\//, "");
       const dashTarget = (h) => {
         const path = String(h.dashboard || "").replace(/^\//, "");
@@ -2145,7 +2160,7 @@
       const first = !this._hass;
       this._hass = hass;
       setLang(hass);
-      if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._config.home);
+      if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
       if (first) this._load();
       else this._draw(true);
     }
@@ -2874,7 +2889,7 @@
       return false;
     }
     _homeId() {
-      return this._home || this._config.home || this._cfg && this._cfg.hub && this._cfg.hub.entry_id || null;
+      return this._home || rkHomeId(this._hass, this._config) || this._cfg && this._cfg.hub && this._cfg.hub.entry_id || null;
     }
     _homeMsg() {
       const h = this._home || this._config.home;
@@ -3923,7 +3938,7 @@
       }
     }
     _colors() {
-      const rooms = rkRooms(this._hass, this._config.strip_prefix || "", this._config.home);
+      const rooms = rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config));
       this._roomColor = (name) => {
         const r = rooms.find((x) => x.name === name) || rooms.find((x) => x.name.endsWith(" " + name) || name.endsWith(" " + x.name));
         return r ? r.color : null;
@@ -4238,7 +4253,7 @@
       this._hass = hass;
       setLang(hass);
       if (first) {
-        this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._config.home);
+        this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
         if (this._config.entity) {
           const r = this._rooms.find((x) => x.id === this._config.entity);
           if (r) this._room = (r.attrs.settings || {}).entry_id || "";
@@ -4405,12 +4420,7 @@
     static async generate(config, hass) {
       setLang(hass);
       const prefix = config.strip_prefix ?? "";
-      const homeId = (() => {
-        const v = config.home;
-        if (!v) return "";
-        const hs = rkHomes(hass);
-        return (hs.find((h) => h.id === v) || hs.find((h) => h.name === v) || { id: v }).id;
-      })();
+      const homeId = rkHomeId(hass, config) || "";
       const reg = Object.values(hass.entities || {});
       const rooms = reg.filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => {
         const st = hass.states[e.entity_id];

@@ -77,7 +77,8 @@
           "zone": "Zone du logement",
           "push_targets": "Envoyer les notifications à",
           "weather_entity": "Climat extérieur (météo ou sonde extérieure)",
-          "building_type": "Type de bâtiment"
+          "building_type": "Type de bâtiment",
+          "home_name": "Nom du logement"
         },
         "data_description": {
           "residents": "Les personnes qui habitent ici. Si toutes sont absentes, le chauffage est abaissé.",
@@ -91,6 +92,14 @@
         "description": "À quel logement appartient la pièce ? Demandé uniquement s'il y a plusieurs logements.",
         "data": {
           "home": "Logement"
+        }
+      },
+      "menu": {
+        "title": "Que veux-tu ajouter ?",
+        "description": "Une pièce dans un logement existant – ou un second logement (p. ex. résidence secondaire) avec ses pièces, habitants et tableau de bord.",
+        "menu_options": {
+          "add_room": "Pièce dans un logement existant",
+          "new_home": "Nouveau logement"
         }
       }
     },
