@@ -136,7 +136,7 @@ export class RaumklimaCard extends HTMLElement {
     this._recMin = a.recommended_minutes || 5;
 
     let banner = "";
-    if (vent && a.ventilation !== "ok") {
+    if (vent && a.ventilation !== "ok" && !a.night_airing) {
       const showBar = winOpen && this._openSince && ["airing", "please_close", "done"].includes(a.ventilation);
       const extra = a.ventilation === "please_open"
         ? `<span>${a.ventilation_reason === "co2" ? t("{c} ppm · ca. {m} min", { c: fmt(a.co2, 0), m: this._recMin }) : t("{h} % · ca. {m} min", { h: fmt(a.current_humidity, 0), m: this._recMin })}</span>`

@@ -111,7 +111,7 @@ class VentilationSensor(RaumklimaEntity, SensorEntity):
 
     @property
     def native_value(self) -> str:
-        return self.controller.vent.state
+        return self.controller.vent.shown_state
 
     @property
     def extra_state_attributes(self) -> dict:

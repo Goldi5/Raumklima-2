@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.1 – 2026-11-02
+
+### Behoben
+- **Nachtlüften:** Beim Schlafen mit offenem Fenster zeigten Raumkarte und Übersicht nach 10 Minuten
+  „Lüftzeit erreicht – bitte schließen“ mit abgelaufenem Countdown, und das Ereignis ging an Automationen
+  und Geräte-Auslöser. Jetzt zeigen Karte, Lüftungs-Sensor und Ereignisse beim Nachtlüften keinen
+  Lüft-Hinweis – die leise Kältewarnung und der Morgengruß bleiben.
+
 ## 0.15.0 – 2026-11-01
 
 ### Neu

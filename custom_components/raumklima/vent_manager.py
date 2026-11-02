@@ -109,6 +109,7 @@ class VentilationManager:
         self._repeat_count: dict[str, int] = {}
         self._night_alarm_sent = False
         self.live = LiveCountdown(self)
+        self._last_shown: str | None = None
         self._night_morning_sent: datetime | None = None
         self._unsubs: list[Callable[[], None]] = []
 
@@ -329,7 +330,12 @@ class VentilationManager:
             self._clear_phone_notification()
         if changed:
             self.live.update(new)
-            self.c.fire_event("ventilation", {"state": new, "reason": self.reason if new == VENT_PLEASE_OPEN else None})
+        shown = self.shown_state
+        if shown != self._last_shown:
+            self._last_shown = shown
+            self.c.fire_event("ventilation", {"state": shown, "reason": self.reason if shown == VENT_PLEASE_OPEN else None})
+            self.c.notify_listeners()
+        elif changed:
             self.c.notify_listeners()
 
     # ------------------------------------------------------------ Nachtlüften
@@ -587,10 +593,18 @@ class VentilationManager:
         self.c.save()
         self.c.notify_listeners()
 
+    @property
+    def shown_state(self) -> str:
+        """Was Karten, Sensor und Ereignisse zeigen: beim Schlafen mit offenem Fenster kein Lüft-Hinweis."""
+        if self.c.night_airing and self.state != VENT_PLEASE_OPEN:
+            return VENT_OK
+        return self.state
+
     def attributes(self) -> dict[str, Any]:
+        shown = self.shown_state
         return {
-            "ventilation": self.state,
-            "ventilation_reason": self.reason if self.state == VENT_PLEASE_OPEN else None,
+            "ventilation": shown,
+            "ventilation_reason": self.reason if shown == VENT_PLEASE_OPEN else None,
             "co2": self.c.current_co2,
             "co2_limit": CO2_LIMIT if self.c.co2_sensor else None,
             "humidity_limit": self.humidity_limit,

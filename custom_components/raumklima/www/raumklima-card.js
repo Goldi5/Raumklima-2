@@ -1,4 +1,4 @@
-/* Raumklima 0.15.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.15.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -528,7 +528,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.15.0";
+  var RK_VERSION = "0.15.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1174,7 +1174,7 @@
       this._roomEco = !!a.room_eco;
       this._recMin = a.recommended_minutes || 5;
       let banner = "";
-      if (vent && a.ventilation !== "ok") {
+      if (vent && a.ventilation !== "ok" && !a.night_airing) {
         const showBar = winOpen && this._openSince && ["airing", "please_close", "done"].includes(a.ventilation);
         const extra = a.ventilation === "please_open" ? `<span>${a.ventilation_reason === "co2" ? t("{c} ppm · ca. {m} min", { c: fmt(a.co2, 0), m: this._recMin }) : t("{h} % · ca. {m} min", { h: fmt(a.current_humidity, 0), m: this._recMin })}</span>` : showBar ? `<span class="count" data-count>–</span>` : "";
         banner = `<div class="banner" style="--vt:${toneVar(vent.tone)}">
