@@ -1,4 +1,4 @@
-/* Raumklima 0.23.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.23.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -8,11 +8,13 @@
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Advanced: solar gain",
     "Erweitert: Standort der Wohnung": "Advanced: location of the home",
+    "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Create a second home here (e.g. a holiday flat) with its own residents, zone and recipients. Existing rooms stay in this home.",
     "Handbuch (PDF)": "Manual (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Each night counts once (earliest event). Learning starts per weekday (shift work), otherwise by weekday/weekend (Fri→Sat, Sat→Sun); the typical value (median) of the last 6 weeks is learned once 4 nights are in. Quiet time begins 30 min before the typical bedtime and ends 30 min after getting up – but never shorter than configured.",
-    "Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Empty = Home Assistant’s location. For a home monitored remotely (e.g. a flat in Berlin while Home Assistant runs in Remscheid) enter the real coordinates here – Raumklima computes the sun’s position from them.",
+    "Leer = Standort von Home Assistant. Liegt diese Wohnung woanders als Home Assistant (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Empty = Home Assistant’s location. If this home sits elsewhere than Home Assistant (second home, holiday flat, a house you also monitor), enter the real coordinates here – Raumklima computes the sun’s position from them.",
     "Länge": "Longitude",
+    "Neue Wohnung, z. B. Ferienwohnung": "New home, e.g. holiday flat",
     "Nord": "North",
     "Nordost": "North-east",
     "Nordwest": "North-west",
@@ -36,6 +38,7 @@
     "egal – nur Vorhersage": "any – forecast only",
     "nur Vorhersage": "forecast only",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "during quiet time, bedrooms and rarely used rooms are set back – even when somebody is at home",
+    "z. B. Ferienwohnung": "e.g. Holiday flat",
     "z. B. abends 19–21 Uhr wärmer": "e.g. warmer in the evening from 7 to 9 pm",
     "von": "from",
     "täglich": "daily",
@@ -157,7 +160,6 @@
     "Frostschutz <b>{v} °C</b>": "Frost protection <b>{v} °C</b>",
     "Fühler ausgefallen": "Sensor failed",
     "Fühler fehlt": "Sensor missing",
-    "Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Create a second home here (e.g. a holiday flat) with its own residents, zone and recipients. Existing rooms stay in this home.",
     "Gebäude & Schimmelschutz": "Building & mould protection",
     "Geräte & Technik ändern": "Change devices & technical settings",
     "Gespart": "Saved",
@@ -232,7 +234,6 @@
     "Name der Wohnung": "Name of the home",
     "Nein": "No",
     "Neubau / gedämmt": "New / insulated",
-    "Neue Wohnung, z. B. Remscheid": "New home, e.g. Holiday flat",
     "Noch kein Empfänger – unten hinzufügen.": "No recipient yet – add one below.",
     "Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.": "No entries yet. From now on every decision appears here with its reason.",
     "Nur Ansicht – Ändern erfordert Admin": "View only – changes require admin",
@@ -400,7 +401,6 @@
     "wenn alle weg sind": "when everyone is away",
     "wenn sich jemand nähert": "when someone approaches",
     "wärmer": "warmer",
-    "z. B. Berlin": "e.g. Berlin",
     "zentral unter Allgemein → Wer bekommt was": "centrally under General → Who gets what",
     "zu": "closed",
     "zu mild für einen Vergleich": "too mild for a comparison",
@@ -554,11 +554,13 @@
     "Boost": "Boost",
     "Erweitert: Sonneneintrag": "Avancé : apport solaire",
     "Erweitert: Standort der Wohnung": "Avancé : emplacement du logement",
+    "Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Créer ici un second logement (p. ex. une résidence secondaire) avec ses propres habitants, sa zone et ses destinataires. Les pièces existantes restent dans ce logement.",
     "Handbuch (PDF)": "Manuel (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Chaque nuit compte une fois (événement le plus tôt). L’apprentissage se fait d’abord par jour de la semaine (travail posté), sinon par semaine/week-end (ven→sam, sam→dim) ; la valeur typique (médiane) des 6 dernières semaines est apprise dès 4 nuits. L’heure de repos commence 30 min avant le coucher typique et se termine 30 min après le lever – mais jamais plus courte que le réglage.",
-    "Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Vide = emplacement de Home Assistant. Pour un logement surveillé à distance (p. ex. un appartement à Berlin alors que Home Assistant tourne à Remscheid), indiquez ici les vraies coordonnées – Raumklima en calcule la position du soleil.",
+    "Leer = Standort von Home Assistant. Liegt diese Wohnung woanders als Home Assistant (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Vide = emplacement de Home Assistant. Si ce logement se trouve ailleurs que Home Assistant (second logement, résidence secondaire, maison également surveillée), indiquez ici les vraies coordonnées – Raumklima en calcule la position du soleil.",
     "Länge": "Longitude",
+    "Neue Wohnung, z. B. Ferienwohnung": "Nouveau logement, p. ex. résidence secondaire",
     "Nord": "Nord",
     "Nordost": "Nord-est",
     "Nordwest": "Nord-ouest",
@@ -582,6 +584,7 @@
     "egal – nur Vorhersage": "peu importe – prévision seule",
     "nur Vorhersage": "prévision seule",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "pendant l’heure de repos, les chambres et les pièces peu utilisées sont abaissées – même si quelqu’un est à la maison",
+    "z. B. Ferienwohnung": "p. ex. résidence secondaire",
     "z. B. abends 19–21 Uhr wärmer": "p. ex. plus chaud le soir de 19 h à 21 h",
     "von": "de",
     "täglich": "tous les jours",
@@ -703,7 +706,6 @@
     "Frostschutz <b>{v} °C</b>": "Hors-gel <b>{v} °C</b>",
     "Fühler ausgefallen": "Sonde en panne",
     "Fühler fehlt": "Sonde manquante",
-    "Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Créer ici un second logement (p. ex. une maison de vacances) avec ses propres habitants, sa zone et ses destinataires. Les pièces existantes restent dans ce logement.",
     "Gebäude & Schimmelschutz": "Bâtiment & protection contre les moisissures",
     "Geräte & Technik ändern": "Modifier appareils & réglages techniques",
     "Gespart": "Économisé",
@@ -778,7 +780,6 @@
     "Name der Wohnung": "Nom du logement",
     "Nein": "Non",
     "Neubau / gedämmt": "Neuf / isolé",
-    "Neue Wohnung, z. B. Remscheid": "Nouveau logement, p. ex. maison de vacances",
     "Noch kein Empfänger – unten hinzufügen.": "Pas encore de destinataire – ajoutez-en un ci-dessous.",
     "Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.": "Pas encore d’entrées. Désormais, chaque décision apparaît ici avec sa raison.",
     "Nur Ansicht – Ändern erfordert Admin": "Lecture seule – les modifications nécessitent un administrateur",
@@ -946,7 +947,6 @@
     "wenn alle weg sind": "quand tout le monde est parti",
     "wenn sich jemand nähert": "quand quelqu’un approche",
     "wärmer": "plus chaud",
-    "z. B. Berlin": "p. ex. Paris",
     "zentral unter Allgemein → Wer bekommt was": "de façon centrale sous Général → Qui reçoit quoi",
     "zu": "fermée",
     "zu mild für einen Vergleich": "trop doux pour une comparaison",
@@ -1096,11 +1096,22 @@
   var TABLES = { en: EN, fr: FR };
   var lang = "de";
   var locale = "de-DE";
+  var hour12 = null;
   function setLang(hass) {
     const l = String(hass && (hass.locale && hass.locale.language || hass.language) || "de");
     const low = l.toLowerCase();
     lang = low.startsWith("de") ? "de" : low.startsWith("fr") ? "fr" : "en";
     locale = lang === "de" ? "de-DE" : l;
+    const tf = String(hass && hass.locale && hass.locale.time_format || "language");
+    hour12 = tf === "12" ? true : tf === "24" ? false : null;
+  }
+  function timeOpts(extra) {
+    const opts = extra ? { ...extra } : {};
+    if (hour12 !== null) opts.hour12 = hour12;
+    return opts;
+  }
+  function rkTime(d, opts) {
+    return d.toLocaleTimeString(locale, timeOpts(opts));
   }
   var getLang = () => lang;
   var loc = () => locale;
@@ -1122,7 +1133,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.23.1";
+  var RK_VERSION = "0.23.2";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1211,7 +1222,7 @@
   }
   function rkClock(ms) {
     const d = new Date(ms);
-    const time = d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
+    const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
     return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
   }
   function rkPaint(host, html) {
@@ -2155,7 +2166,7 @@
     }
     _fmtTime(ts) {
       const d = new Date(ts);
-      return this._hours > 48 ? d.toLocaleDateString(loc(), { weekday: "short", day: "numeric" }) : d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
+      return this._hours > 48 ? d.toLocaleDateString(loc(), { weekday: "short", day: "numeric" }) : rkTime(d, { hour: "2-digit", minute: "2-digit" });
     }
     _shell(body) {
       const m = this._config.mode;
@@ -2265,7 +2276,7 @@
           const p = near(s.pts, ts);
           return `<div class="r" style="--c:${s.r.color}"><span><i></i>${s.r.name}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`;
         }).join("");
-        tip.innerHTML = `<div class="t">${new Date(ts).toLocaleString(loc(), { weekday: "short", hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
+        tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
         tip.style.display = "";
         const left = ev.clientX - chart.getBoundingClientRect().left;
         tip.style.left = `${left > chart.clientWidth / 2 ? left - tip.offsetWidth - 14 : left + 14}px`;
@@ -2549,9 +2560,9 @@
       "Pendant l’heure de repos, les chambres et les pièces peu utilisées passent à la température d’abaissement – même si quelqu’un est à la maison. Le chauffage reste donc arrêté pendant le sommeil après une nuit de travail. Une plage horaire et le bouton du thermostat restent prioritaires."
     ],
     "Standort der Wohnung": [
-      "Die echten Koordinaten dieser Wohnung. Nötig, wenn Home Assistant woanders steht als die Wohnung – etwa eine Wohnung in Berlin, die aus Remscheid überwacht wird. Daraus rechnet Raumklima den Sonnenstand für den Sonnenabzug nach Fassade. Leer gelassen gilt der Standort von Home Assistant.",
-      "The real coordinates of this home. Needed when Home Assistant sits somewhere else than the home – for example a flat in Berlin monitored from Remscheid. Raumklima computes the sun’s position from it for the facade-based solar gain. Left empty, Home Assistant’s own location is used.",
-      "Les vraies coordonnées de ce logement. Nécessaire quand Home Assistant se trouve ailleurs que le logement – par exemple un appartement à Berlin surveillé depuis Remscheid. Raumklima en calcule la position du soleil pour l’apport solaire par façade. Laissé vide, l’emplacement de Home Assistant s’applique."
+      "Die echten Koordinaten dieser Wohnung. Nötig, wenn Home Assistant woanders steht als die Wohnung – etwa bei einer zweiten Wohnung, einer Ferienwohnung oder einem mitüberwachten Haus. Daraus rechnet Raumklima den Sonnenstand für den Sonnenabzug nach Fensterausrichtung. Leer gelassen gilt der Standort von Home Assistant.",
+      "The real coordinates of this home. Needed when Home Assistant sits somewhere else than the home – for example a second home, a holiday flat or a house you also monitor. Raumklima computes the sun’s position from them for the window-based solar gain. Left empty, Home Assistant’s own location is used.",
+      "Les vraies coordonnées de ce logement. Nécessaire quand Home Assistant se trouve ailleurs que le logement – par exemple un second logement, une résidence secondaire ou une maison également surveillée. Raumklima en calcule la position du soleil pour l’apport solaire selon l’orientation des fenêtres. Laissé vide, l’emplacement de Home Assistant s’applique."
     ],
     "Zeitfenster": [
       "Ein eigenes Zeitfenster für diesen Raum: Wochentage (keine Auswahl = jeden Tag), von/bis und Zieltemperatur, auch über Mitternacht. Es setzt nur den Sollwert – Fenster, Frost, Schimmel und Abwesenheit bleiben vorrangig, und bei gelerntem Raum wird rechtzeitig vorgeheizt.",
@@ -3035,18 +3046,18 @@
       ].join("");
       const homes = this._cfg.homes || [];
       const homeRows = [
-        this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Berlin")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
+        this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Ferienwohnung")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
         this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
         (() => {
           const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
           return `<details class="adv"${lat != null && lon != null ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row(
             "Standort der Wohnung",
             `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}></span>`,
-            t("Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.")
+            t("Leer = Standort von Home Assistant. Liegt diese Wohnung woanders als Home Assistant (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.")
           )}</details>`;
         })(),
-        this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Remscheid")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
-        `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`
+        this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
+        `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`
       ].join("");
       const frsi = fmt({ unrenovated: 0.6, renovated: 0.7, new: 0.8 }[this._hubOpt("building_type")] || 0.7, 2);
       const buildRows = [
@@ -3074,9 +3085,9 @@
         <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
       const hm = (v) => String(v || "").slice(0, 5);
       const notiRows = [
-        this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
-        this._row("Wochenende bis", `<span class="v"><input type="time" class="inp" data-time="quiet_end_weekend" value="${hm(this._hubOpt("quiet_end_weekend"))}" ${this._admin ? "" : "disabled"}></span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
-        this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
+        this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+        this._row("Wochenende bis", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_end_weekend" value="${hm(this._hubOpt("quiet_end_weekend"))}" ${this._admin ? "" : "disabled"}></span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
+        this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
         this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
         this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
         this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
@@ -3128,6 +3139,15 @@
     }
     // ---------------------------------------------------------------- Raum
     // ---------------------------------------------------------------- Zeitpläne
+    // Raum-Referenz je Eintrag merken, damit Ereignisse aus dem Zeitplan-Editor immer aus der
+    // gespeicherten Konfiguration neu aufsetzen können (Issue #8: sonst überschreibt ein Klick
+    // die vorhandenen Zeitfenster mit einer leeren Liste).
+    _schedSeed(id) {
+      const r = (this._roomRefs || {})[id];
+      if (!r) return null;
+      const s = r.attrs.settings || {};
+      return this._roomOpt(r, "schedules") ?? s.schedules ?? [];
+    }
     _schedList(id, stored) {
       this._sched = this._sched || {};
       if (!(id in this._sched)) {
@@ -3155,14 +3175,16 @@
       const btn = [0, 1, 2, 3, 4, 5, 6].map((d) => `<button class="d ${on(d) ? "on" : ""}" data-schedday="${id}|${i}|${d}" title="${esc(schedDayName(d))}">${esc(schedDayName(d))}</button>`).join("");
       return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm" type="time" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm" type="time" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      <input class="tm" type="time" lang="${loc()}" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
+      <input class="tm" type="time" lang="${loc()}" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
     }
     _scheduleGroup(r, id, editable) {
+      this._roomRefs = this._roomRefs || {};
+      this._roomRefs[id] = r;
       const s = r.attrs.settings || {};
       const scope = `room:${id}`;
       const ro = !editable;
@@ -3435,7 +3457,7 @@
       const sp = (v) => String(v).split("|");
       $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
         const id = el.dataset.schedadd;
-        const list = this._schedList(id, []);
+        const list = this._schedList(id, this._schedSeed(id) || []);
         if (list.length >= 6) return;
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
         const base = room ? this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22 : 22;
@@ -3444,12 +3466,12 @@
       }));
       $("[data-scheddel]").forEach((el) => el.addEventListener("click", () => {
         const [id, i] = sp(el.dataset.scheddel);
-        this._schedList(id, []).splice(parseInt(i, 10), 1);
+        this._schedList(id, this._schedSeed(id) || []).splice(parseInt(i, 10), 1);
         this._pushSched(id);
       }));
       $("[data-schedday]").forEach((el) => el.addEventListener("click", () => {
         const [id, i, d] = sp(el.dataset.schedday);
-        const w = this._schedList(id, [])[parseInt(i, 10)];
+        const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
         if (!w) return;
         const day = parseInt(d, 10);
         w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
@@ -3457,14 +3479,14 @@
       }));
       $("[data-schedtime]").forEach((el) => el.addEventListener("change", () => {
         const [id, i, which] = sp(el.dataset.schedtime);
-        const w = this._schedList(id, [])[parseInt(i, 10)];
+        const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
         if (!w || !el.value) return;
         w[which] = el.value;
         this._pushSched(id);
       }));
       $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
         const [id, i] = sp(el.dataset.schedtemp);
-        const w = this._schedList(id, [])[parseInt(i, 10)];
+        const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
         if (!w) return;
         const v = Math.round((w.temperature + 0.5 * parseInt(el.dataset.d, 10)) * 2) / 2;
         w.temperature = Math.min(30, Math.max(5, v));
@@ -4059,7 +4081,7 @@
         if (changed) this._render();
         else {
           const st = this.shadowRoot.querySelector(".live .ts");
-          if (st) st.textContent = " · " + this._stamp.toLocaleTimeString(loc());
+          if (st) st.textContent = " · " + rkTime(this._stamp);
         }
       } catch (e) {
       }
@@ -4153,9 +4175,9 @@
         const room = this._roomOf(e);
         const roomName = room ? room.name : e.room ? this._strip(e.room) : null;
         html += `<div class="ev ${e.lvl === "warn" ? "warn" : ""} ${this._fresh && this._fresh.has && this._fresh.has(e.id) ? "new" : ""}" style="--c:${toneVar(meta[2])}">
-        <div class="tm">${d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" })}</div>
+        <div class="tm">${rkTime(d, { hour: "2-digit", minute: "2-digit" })}</div>
         <div class="ic" title="${meta[0]}"><ha-icon icon="${meta[1]}"></ha-icon></div>
-        <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}${e.n > 1 ? ` <span class="rep" title="${t("zuletzt {t}", { t: new Date(e.t_last || e.t).toLocaleTimeString(loc()) })}">×${e.n} · ${t("bis {t}", { t: new Date(e.t_last || e.t).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}</div>
+        <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}${e.n > 1 ? ` <span class="rep" title="${t("zuletzt {t}", { t: rkTime(new Date(e.t_last || e.t)) })}">×${e.n} · ${t("bis {t}", { t: rkTime(new Date(e.t_last || e.t), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}</div>
         ${e.why ? `<div class="wy"><b>${e.cat === "notify" && e.msg.indexOf("Knopf") !== 0 ? t("Inhalt") : e.cat === "device" || e.cat === "settings" ? t("Details") : t("Warum")}:</b> ${esc(this._strip(e.why))}</div>` : ""}</div></div>`;
       }
       if (cur !== null) html += `</div>`;
@@ -4170,7 +4192,7 @@
       this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
       <ha-card class="log" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:text-box-search-outline"></ha-icon><div>${esc(this._config.title || t("Protokoll"))}<div class="rsub">${t("Was wann warum entschieden wurde · 14 Tage")}</div></div></div>
-          <span class="live ${this._liveOff ? "off" : ""}" title="${t("neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen")}"><i></i>${this._liveOff ? t("alle 5 s") : "live"}<span class="ts">${this._stamp ? ` · ${this._stamp.toLocaleTimeString(loc())}` : ""}</span></span></div>
+          <span class="live ${this._liveOff ? "off" : ""}" title="${t("neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen")}"><i></i>${this._liveOff ? t("alle 5 s") : "live"}<span class="ts">${this._stamp ? ` · ${rkTime(this._stamp)}` : ""}</span></span></div>
         ${this._hiddenNew ? `<div class="hint" style="margin-top:8px">${t("+{n} neue Einträge sind durch die Filter ausgeblendet (z. B. Thermostat-Befehle).", { n: this._hiddenNew })} <button class="mini" data-showall>${t("Alle zeigen")}</button></div>` : ""}
         <div class="filters">
           <div class="chips">${roomChips}</div>

@@ -1,8 +1,8 @@
 // Gemeinsame Konstanten, Formatierung und Stile aller Raumklima-Karten
-import { getLang, loc, setLang, t, tmap } from "./i18n.js";
+import { getLang, loc, rkTime, setLang, t, timeOpts, time12, tmap } from "./i18n.js";
 import { RK_VERSION } from "./version.js";
 
-export { RK_VERSION, loc, setLang, t, tmap };
+export { RK_VERSION, loc, rkTime, setLang, t, time12, timeOpts, tmap };
 
 // Text für einen regulären Ausdruck entschärfen (Raumnamen wie „Bad (OG)“)
 // Handbuch als PDF (am neuesten GitHub-Release angehängt), in der Sprache der Karte
@@ -107,7 +107,7 @@ export function rkDuration(ms) {
 }
 export function rkClock(ms) {
   const d = new Date(ms);
-  const time = d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
+  const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
   return Date.now() - ms > 20 * 3600 * 1000 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
 }
 // Karte neu zeichnen, ohne dass die Seite nach oben springt: Höhe halten, Scrollposition merken.

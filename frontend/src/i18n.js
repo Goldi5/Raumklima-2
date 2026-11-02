@@ -9,12 +9,30 @@ const TABLES = { en: EN, fr: FR };
 
 let lang = "de";
 let locale = "de-DE";
+// HA-Profil: time_format ist "12", "24", "system" oder "language" – null = wie die Sprache es macht
+let hour12 = null;
 
 export function setLang(hass) {
   const l = String((hass && ((hass.locale && hass.locale.language) || hass.language)) || "de");
   const low = l.toLowerCase();
   lang = low.startsWith("de") ? "de" : low.startsWith("fr") ? "fr" : "en";
   locale = lang === "de" ? "de-DE" : l;
+  const tf = String((hass && hass.locale && hass.locale.time_format) || "language");
+  hour12 = tf === "12" ? true : tf === "24" ? false : null;
+}
+
+/** Zusatzoptionen für toLocaleTimeString: die HA-Einstellung schlägt Sprache und System. */
+export function timeOpts(extra) {
+  const opts = extra ? { ...extra } : {};
+  if (hour12 !== null) opts.hour12 = hour12;
+  return opts;
+}
+
+export const time12 = () => hour12;
+
+/** Uhrzeit in der Einstellung des Nutzers (12 h mit AM/PM oder 24 h). */
+export function rkTime(d, opts) {
+  return d.toLocaleTimeString(locale, timeOpts(opts));
 }
 
 export const getLang = () => lang;

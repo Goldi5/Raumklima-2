@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, REPORT_STYLES, SETTINGS_STYLES, STYLES, esc, escRe, loc, rkRooms, setLang, t, tmap, toneVar, rkPaint } from "../shared.js";
+import { HISTORY_STYLES, REPORT_STYLES, SETTINGS_STYLES, STYLES, esc, escRe, loc, rkRooms, rkTime, setLang, t, tmap, toneVar, rkPaint } from "../shared.js";
 
 const RK_LOG_CATS = tmap({
   presence: ["Anwesenheit", "mdi:home-account", "eco"],
@@ -97,7 +97,7 @@ export class RaumklimaLogCard extends HTMLElement {
       const changed = this._add(res.entries);
       this._stamp = new Date();
       if (changed) this._render();
-      else { const st = this.shadowRoot.querySelector(".live .ts"); if (st) st.textContent = " · " + this._stamp.toLocaleTimeString(loc()); }
+      else { const st = this.shadowRoot.querySelector(".live .ts"); if (st) st.textContent = " · " + rkTime(this._stamp); }
     } catch (e) { /* nächster Versuch in 5 s */ }
     this._polling = false;
   }
@@ -174,9 +174,9 @@ export class RaumklimaLogCard extends HTMLElement {
       const room = this._roomOf(e);
       const roomName = room ? room.name : e.room ? this._strip(e.room) : null;
       html += `<div class="ev ${e.lvl === "warn" ? "warn" : ""} ${this._fresh && this._fresh.has && this._fresh.has(e.id) ? "new" : ""}" style="--c:${toneVar(meta[2])}">
-        <div class="tm">${d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" })}</div>
+        <div class="tm">${rkTime(d, { hour: "2-digit", minute: "2-digit" })}</div>
         <div class="ic" title="${meta[0]}"><ha-icon icon="${meta[1]}"></ha-icon></div>
-        <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}${e.n > 1 ? ` <span class="rep" title="${t("zuletzt {t}", { t: new Date(e.t_last || e.t).toLocaleTimeString(loc()) })}">×${e.n} · ${t("bis {t}", { t: new Date(e.t_last || e.t).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}</div>
+        <div class="bd"><div class="ms">${roomName ? `<span class="rm" style="--rc:${room ? room.color : "var(--rk-off)"}">${esc(roomName)}</span>` : ""}${esc(this._strip(e.msg))}${e.n > 1 ? ` <span class="rep" title="${t("zuletzt {t}", { t: rkTime(new Date(e.t_last || e.t)) })}">×${e.n} · ${t("bis {t}", { t: rkTime(new Date(e.t_last || e.t), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}</div>
         ${e.why ? `<div class="wy"><b>${e.cat === "notify" && e.msg.indexOf("Knopf") !== 0 ? t("Inhalt") : e.cat === "device" || e.cat === "settings" ? t("Details") : t("Warum")}:</b> ${esc(this._strip(e.why))}</div>` : ""}</div></div>`;
     }
     if (cur !== null) html += `</div>`;
@@ -191,7 +191,7 @@ export class RaumklimaLogCard extends HTMLElement {
     this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${REPORT_STYLES}${LOG_STYLES}</style>
       <ha-card class="log" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:text-box-search-outline"></ha-icon><div>${esc(this._config.title || t("Protokoll"))}<div class="rsub">${t("Was wann warum entschieden wurde · 14 Tage")}</div></div></div>
-          <span class="live ${this._liveOff ? "off" : ""}" title="${t("neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen")}"><i></i>${this._liveOff ? t("alle 5 s") : "live"}<span class="ts">${this._stamp ? ` · ${this._stamp.toLocaleTimeString(loc())}` : ""}</span></span></div>
+          <span class="live ${this._liveOff ? "off" : ""}" title="${t("neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen")}"><i></i>${this._liveOff ? t("alle 5 s") : "live"}<span class="ts">${this._stamp ? ` · ${rkTime(this._stamp)}` : ""}</span></span></div>
         ${this._hiddenNew ? `<div class="hint" style="margin-top:8px">${t("+{n} neue Einträge sind durch die Filter ausgeblendet (z. B. Thermostat-Befehle).", { n: this._hiddenNew })} <button class="mini" data-showall>${t("Alle zeigen")}</button></div>` : ""}
         <div class="filters">
           <div class="chips">${roomChips}</div>

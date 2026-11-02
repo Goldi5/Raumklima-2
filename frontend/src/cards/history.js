@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkRooms, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkRooms, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaHistoryCard extends HTMLElement {
@@ -117,7 +117,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
     const d = new Date(ts);
     return this._hours > 48
       ? d.toLocaleDateString(loc(), { weekday: "short", day: "numeric" })
-      : d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" });
+      : rkTime(d, { hour: "2-digit", minute: "2-digit" });
   }
 
   _shell(body) {
@@ -208,7 +208,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
       const ts = t0 + ((px - padL) / (W - padL - padR)) * (t1 - t0);
       hl.setAttribute("x1", px); hl.setAttribute("x2", px); hl.style.display = "";
       const rows = series.map((s) => { const p = near(s.pts, ts); return `<div class="r" style="--c:${s.r.color}"><span><i></i>${s.r.name}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`; }).join("");
-      tip.innerHTML = `<div class="t">${new Date(ts).toLocaleString(loc(), { weekday: "short", hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
+      tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
       tip.style.display = "";
       const left = ev.clientX - chart.getBoundingClientRect().left;
       tip.style.left = `${left > chart.clientWidth / 2 ? left - tip.offsetWidth - 14 : left + 14}px`;

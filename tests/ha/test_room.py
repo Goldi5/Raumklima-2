@@ -376,3 +376,21 @@ async def test_home_location_overrides_hass_location(hass: HomeAssistant, setup,
     hub.config[CONF_LONGITUDE] = 0.0
     assert hub.sun_location == (hass.config.latitude, hass.config.longitude)
 
+
+async def test_settings_dump_has_schedules(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Der Zeitplan-Editor muss die gespeicherten Fenster sehen (Issue #8)."""
+    from custom_components.raumklima.const import CONF_BOOST_MINUTES, CONF_BOOST_TEMP, CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    fenster = {"days": [0, 2], "start": "19:00", "end": "21:00", "temperature": 22.0}
+    assert ctrl.apply_live_options(
+        {CONF_SCHEDULES: [fenster], CONF_BOOST_TEMP: 3.0, CONF_BOOST_MINUTES: 45}
+    )
+    await hass.async_block_till_done()
+    settings = ctrl.settings_summary()
+    assert settings["schedules"] == [fenster]
+    assert settings["boost_temperature"] == 3.0
+    assert settings["boost_minutes"] == 45
+

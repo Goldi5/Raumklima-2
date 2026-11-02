@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.23.2 – 2026-11-02
+
+### Behoben
+- **Zeitfenster im Editor verschwanden (Issue #8)**: Der Einstellungs-Dump enthielt die gespeicherten
+  Zeitfenster nicht. Der Editor startete deshalb leer, und der erste Klick schrieb diese leere Liste
+  zurück – damit waren alle Einträge weg. Zeitfenster und Boost-Werte stehen jetzt im Dump; zusätzlich
+  setzt der Editor bei jedem Ereignis aus der gespeicherten Konfiguration neu auf statt aus einer leeren
+  Liste. Das kann auch künftige Wege dieser Art nicht mehr auslöschen.
+- **Zeitformat folgt Home Assistant (Issue #7)**: Mit Sprache Englisch und Zeitformat „24 hours“ zeigte
+  die Karte trotzdem 12 h mit AM/PM. Log, Verlauf, „bis“-Zeiten und „seit“-Angaben richten sich jetzt
+  nach `hass.locale.time_format` – die HA-Einstellung schlägt die Sprache.
+
+### Geändert
+- **Neutrale Texte**: Die Beispiele im Standort-Hinweis und die Platzhalter der zweiten Wohnung nennen
+  keine Ortsnamen mehr („z. B. Ferienwohnung“) – gedacht für alle Anwender, nicht für einen Fall.
+
 ## 0.23.1 – 2026-11-02
 
 ### Geändert
@@ -14,8 +30,8 @@
 ### Neu
 - **Standort je Wohnung**: Unter *Wohnung → **Erweitert: Standort der Wohnung*** lassen sich Breite und
   Länge setzen. Damit rechnet Raumklima den Sonnenstand dort, wo die Wohnung steht – nicht dort, wo Home
-  Assistant läuft. Genau der Fall „Home Assistant in Remscheid, überwachte Wohnung in Berlin“ (rund
-  25 Minuten Zeitversatz im Sonnenlauf, den die Fassadenprüfung sonst falsch ansetzt).
+  Assistant läuft. Gedacht für zweite Wohnungen, Ferienwohnungen und mitüberwachte Häuser; über rund
+  6 Längengrade Unterschied verschiebt sich der Sonnenlauf um etwa 25 Minuten.
 - Ohne Angabe gilt weiter der Standort von Home Assistant; `0/0` zählt nicht als Standort.
 
 ## 0.22.2 – 2026-11-02

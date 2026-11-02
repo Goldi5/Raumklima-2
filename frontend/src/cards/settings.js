@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -277,17 +277,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // --- Wohnung
     const homes = this._cfg.homes || [];
     const homeRows = [
-      this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Berlin")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
+      this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Ferienwohnung")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
       this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
       (() => {
         const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
         return `<details class="adv"${lat != null && lon != null ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row("Standort der Wohnung",
           `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}></span>`,
-          t("Leer = Standort von Home Assistant. Für eine fern überwachte Wohnung (z. B. Wohnung in Berlin, Home Assistant läuft in Remscheid) hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand."),
+          t("Leer = Standort von Home Assistant. Liegt diese Wohnung woanders als Home Assistant (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand."),
         )}</details>`;
       })(),
-      this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Remscheid")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
-      `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`,
+      this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
+      `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`,
     ].join("");
 
     // --- Gebäude
@@ -322,9 +322,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // --- Allgemein Benachrichtigung
     const hm = (v) => String(v || "").slice(0, 5);
     const notiRows = [
-      this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
-      this._row("Wochenende bis", `<span class="v"><input type="time" class="inp" data-time="quiet_end_weekend" value="${hm(this._hubOpt("quiet_end_weekend"))}" ${this._admin ? "" : "disabled"}></span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
-      this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
+      this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+      this._row("Wochenende bis", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_end_weekend" value="${hm(this._hubOpt("quiet_end_weekend"))}" ${this._admin ? "" : "disabled"}></span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
+      this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
       this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
       this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
       this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
@@ -371,6 +371,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   // ---------------------------------------------------------------- Raum
   // ---------------------------------------------------------------- Zeitpläne
+  // Raum-Referenz je Eintrag merken, damit Ereignisse aus dem Zeitplan-Editor immer aus der
+  // gespeicherten Konfiguration neu aufsetzen können (Issue #8: sonst überschreibt ein Klick
+  // die vorhandenen Zeitfenster mit einer leeren Liste).
+  _schedSeed(id) {
+    const r = (this._roomRefs || {})[id];
+    if (!r) return null;
+    const s = r.attrs.settings || {};
+    return this._roomOpt(r, "schedules") ?? s.schedules ?? [];
+  }
   _schedList(id, stored) {
     this._sched = this._sched || {};
     if (!(id in this._sched)) {
@@ -400,14 +409,16 @@ export class RaumklimaSettingsCard extends HTMLElement {
       .join("");
     return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm" type="time" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm" type="time" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      <input class="tm" type="time" lang="${loc()}" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
+      <input class="tm" type="time" lang="${loc()}" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
   }
   _scheduleGroup(r, id, editable) {
+    this._roomRefs = this._roomRefs || {};
+    this._roomRefs[id] = r;
     const s = r.attrs.settings || {};
     const scope = `room:${id}`;
     const ro = !editable;
@@ -661,7 +672,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const sp = (v) => String(v).split("|");
     $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
       const id = el.dataset.schedadd;
-      const list = this._schedList(id, []);
+      const list = this._schedList(id, this._schedSeed(id) || []);
       if (list.length >= 6) return;
       const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
       const base = room ? (this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22) : 22;
@@ -670,12 +681,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }));
     $("[data-scheddel]").forEach((el) => el.addEventListener("click", () => {
       const [id, i] = sp(el.dataset.scheddel);
-      this._schedList(id, []).splice(parseInt(i, 10), 1);
+      this._schedList(id, this._schedSeed(id) || []).splice(parseInt(i, 10), 1);
       this._pushSched(id);
     }));
     $("[data-schedday]").forEach((el) => el.addEventListener("click", () => {
       const [id, i, d] = sp(el.dataset.schedday);
-      const w = this._schedList(id, [])[parseInt(i, 10)];
+      const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
       if (!w) return;
       const day = parseInt(d, 10);
       w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
@@ -683,14 +694,14 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }));
     $("[data-schedtime]").forEach((el) => el.addEventListener("change", () => {
       const [id, i, which] = sp(el.dataset.schedtime);
-      const w = this._schedList(id, [])[parseInt(i, 10)];
+      const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
       if (!w || !el.value) return;
       w[which] = el.value;
       this._pushSched(id);
     }));
     $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
       const [id, i] = sp(el.dataset.schedtemp);
-      const w = this._schedList(id, [])[parseInt(i, 10)];
+      const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
       if (!w) return;
       const v = Math.round((w.temperature + 0.5 * parseInt(el.dataset.d, 10)) * 2) / 2;
       w.temperature = Math.min(30, Math.max(5, v));
