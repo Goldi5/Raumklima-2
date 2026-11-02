@@ -130,7 +130,7 @@ Hinter jeder Einstellung steht ein **„?“** – antippen klappt eine kurze Er
 
 Änderungen werden nach einer kurzen Pause gespeichert und vom Raum sofort übernommen (nur beim Raumtyp startet der Raum kurz neu). Ändern dürfen nur Administratoren; andere Benutzer sehen die Seite nur an.
 
-**Sprache:** Die Karten folgen der Sprache in deinem Home-Assistant-Profil – Deutsch oder Englisch. Texte aus der Integration selbst (Protokoll, Hinweise, Push) bleiben deutsch.
+**Sprache:** Die Karten folgen der Sprache in deinem Home-Assistant-Profil – Deutsch, Englisch oder Französisch. Texte aus der Integration selbst (Protokoll, Hinweise, Push, E-Mail-Prüfung) folgen der Systemsprache (*Einstellungen → System → Allgemein*); jede andere Sprache ergibt Englisch. Ältere Protokolleinträge behalten ihre Sprache.
 
 ## Mehrere Wohnungen
 

@@ -80,7 +80,7 @@ Yes, with the Home Assistant app: tap **📱 Airing countdown** for the phone un
 ### What does “thermostat not responding” mean?
 A command didn't reach the thermostat even after several attempts – usually a radio problem or an empty battery. Raumklima keeps trying every 5 minutes.
 
-> Messages from the integration are currently in German.
+> Messages from the integration follow the Home Assistant system language (German, French, otherwise English).
 
 ## Savings and report
 

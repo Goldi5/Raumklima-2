@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.16.0 (Early Release – Tester gesucht)
+Stand: Version 0.17.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -11,8 +11,6 @@ Stand: Version 0.16.0 (Early Release – Tester gesucht)
       Home-Assistant-Version und Thermostat-Modell (ohne persönliche Daten).
 - [ ] **Issue-Vorlagen auf GitHub** – „Fehler“, „Idee“, „Mein Thermostat funktioniert / funktioniert nicht“;
       daraus eine Liste geprüfter Thermostate in der Doku.
-- [ ] **Englische Push-Nachrichten und Protokoll** – Dashboard und PDF-Berichte sind schon englisch,
-      die Meldungen der Integration noch deutsch.
 - [ ] **Einrichtungs-Checkliste als Karte** – Bewohner, Zone, Empfänger, Wetterquelle … werden automatisch
       abgehakt, sobald erledigt.
 - [ ] **Meldungen in den HA-Reparaturen** – „Batterie schwach“, „Fühler hängt“ usw. zusätzlich unter
@@ -65,7 +63,7 @@ Stand: Version 0.16.0 (Early Release – Tester gesucht)
 
 ## ✅ Erledigt (Auszug)
 
-Mehrere Heizkörper pro Raum · Lichtsignal pro Raum · Lüft-Countdown auf dem Sperrbildschirm · „Fenster offen seit …“ · Präsenzmelder
+Push-Nachrichten, Protokoll und Hinweise auf Deutsch, Englisch und Französisch · Französisch für Dashboard, Dialoge und PDF-Berichte · Mehrere Heizkörper pro Raum · Lichtsignal pro Raum · Lüft-Countdown auf dem Sperrbildschirm · „Fenster offen seit …“ · Präsenzmelder
 (mmWave/PIR) · PDF-Heizbericht (Woche, Monat, Saison) mit Note, Euro-Schätzung, Wärmebild und Spartipps ·
 E-Mail-Versand direkt in Raumklima · „?“-Erklärungen in den Einstellungen · Handbuch als PDF (DE/EN).
 Details im [CHANGELOG](CHANGELOG.md).
@@ -75,7 +73,7 @@ Details im [CHANGELOG](CHANGELOG.md).
 ### 🇬🇧 Summary
 
 **Next (tester phase):** “report a bug” button with prefilled GitHub issue · issue templates and a list of
-tested thermostats · English push messages and log · setup checklist card · health problems in HA Repairs.
+tested thermostats · setup checklist card · health problems in HA Repairs.
 **Features:** boost / override with duration · optional schedules per room via HA `schedule.*` helpers (several,
 switchable) · voice control (Assist) · storm/rain warning · learn room usage from presence sensors and preheat ·
 sleep times from bedroom presence sensor · monitor-only rooms · direct valve control (e.g. SONOFF TRVZB) ·

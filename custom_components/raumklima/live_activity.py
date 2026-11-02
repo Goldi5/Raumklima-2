@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 
 from .const import KIND_LIVE
 from .decision_log import CAT_NOTIFY
+from .msg import N_, tr
 from .ventilation import VENT_AIRING, VENT_DONE, VENT_PLEASE_CLOSE, VENT_TOO_COLD
 
 if TYPE_CHECKING:
@@ -27,10 +28,10 @@ LIVE_STATES = (VENT_AIRING, VENT_DONE, VENT_PLEASE_CLOSE, VENT_TOO_COLD)
 
 # Zustand → (Text, Symbol, Farbe)
 LOOK: dict[str, tuple[str, str, str]] = {
-    VENT_AIRING: ("Fenster offen – empfohlen {dur} min", "mdi:window-open-variant", "#2196F3"),
-    VENT_DONE: ("Luft ausgetauscht – du kannst schließen", "mdi:check-circle-outline", "#4CAF50"),
-    VENT_PLEASE_CLOSE: ("Lüftzeit erreicht – bitte schließen", "mdi:window-closed-variant", "#FF9800"),
-    VENT_TOO_COLD: ("Raum kühlt aus – bitte jetzt schließen", "mdi:snowflake-thermometer", "#F44336"),
+    VENT_AIRING: (N_("Fenster offen – empfohlen {dur} min"), "mdi:window-open-variant", "#2196F3"),
+    VENT_DONE: (N_("Luft ausgetauscht – du kannst schließen"), "mdi:check-circle-outline", "#4CAF50"),
+    VENT_PLEASE_CLOSE: (N_("Lüftzeit erreicht – bitte schließen"), "mdi:window-closed-variant", "#FF9800"),
+    VENT_TOO_COLD: (N_("Raum kühlt aus – bitte jetzt schließen"), "mdi:snowflake-thermometer", "#F44336"),
 }
 
 
@@ -50,7 +51,7 @@ def live_payload(room: str, state: str, minutes: int, remaining: int | None, fir
         data |= {"silent": True, "alert_once": True}
     if url:
         data["url"] = url
-    return {"title": f"Lüften · {room}", "message": text.format(dur=minutes), "data": data}
+    return {"title": tr("Lüften · {room}", room=room), "message": tr(text, dur=minutes), "data": data}
 
 
 class LiveCountdown:
@@ -94,7 +95,7 @@ class LiveCountdown:
         if first and hub is not None:
             hub.log.add(
                 CAT_NOTIFY,
-                "Lüft-Countdown aufs Handy",
+                tr("Lüft-Countdown aufs Handy"),
                 f"{self.v.duration} min → " + ", ".join(t.removeprefix("notify.mobile_app_") for t in targets),
                 kind=KIND_LIVE,
                 room=c.name,

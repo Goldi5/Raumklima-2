@@ -22,6 +22,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import CONF_SEASON_END, CONF_SEASON_START, KIND_REPORT
 from .mailer import BUILTIN, MailError, recipients, send as mail_send
+from .msg import tr
 from .report_data import MONTH, SEASON, WEEK, build, period, report_lang
 from .shared import all_hubs
 from .stats import week_message
@@ -165,7 +166,7 @@ class PdfReports:
         self.index[:] = [r for r in self.index if r["file"] != name] + [entry]
         await self._prune(kind)
         hub.insights.save()
-        hub.log.add("notify", f"PDF-Bericht erstellt: {name}", f"{start.isoformat()} – {end.isoformat()}")
+        hub.log.add("notify", tr("PDF-Bericht erstellt: {name}", name=name), f"{start.isoformat()} – {end.isoformat()}")
         entry["_data"] = data
         return entry
 
@@ -216,9 +217,9 @@ class PdfReports:
                 await self.hass.async_add_executor_job(
                     mail_send, dict(self.hub.entry.options), title.replace("📊 ", ""), f"{message}\n\n{tx['mail']}", [path]
                 )
-                self.hub.log.add("notify", f"PDF-Bericht per E-Mail: {entry['file']}", ", ".join(recipients(self.hub.opt("mail_to"))))
+                self.hub.log.add("notify", tr("PDF-Bericht per E-Mail: {file}", file=entry["file"]), ", ".join(recipients(self.hub.opt("mail_to"))))
             except MailError as err:
-                self.hub.log.add("notify", "E-Mail mit Heizbericht fehlgeschlagen", str(err), level="warn")
+                self.hub.log.add("notify", tr("E-Mail mit Heizbericht fehlgeschlagen"), str(err), level="warn")
                 _LOGGER.warning("E-Mail mit Heizbericht fehlgeschlagen: %s", err)
         elif email:
             domain, _, service = str(email).partition(".")
@@ -227,7 +228,7 @@ class PdfReports:
                 await self.hass.services.async_call(
                     domain, service, {"title": title.replace("📊 ", ""), "message": f"{message}\n\n{tx['mail']}", "data": {"images": [path]}}
                 )
-                self.hub.log.add("notify", f"PDF-Bericht per E-Mail: {entry['file']}", email)
+                self.hub.log.add("notify", tr("PDF-Bericht per E-Mail: {file}", file=entry["file"]), email)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("E-Mail mit Heizbericht an %s fehlgeschlagen: %s", email, err)
 

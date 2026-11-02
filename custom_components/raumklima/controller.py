@@ -105,6 +105,7 @@ from .logic import (
     to_float,
     values_match,
 )
+from .msg import tr
 from .occupancy import room_eco_target
 from .planning import (
     AWAY_STAGES,
@@ -443,7 +444,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.config.update(changed)
         self.log(
             CAT_SETTINGS,
-            "Einstellungen geändert",
+            tr("Einstellungen geändert"),
             ", ".join(f"{k}: {self._fmt_opt(v)}" for k, v in changed.items()),
         )
         if changed.keys() & {CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP}:
@@ -463,7 +464,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     @staticmethod
     def _fmt_opt(value: Any) -> str:
         if value is None or value == "":
-            return "Standard"
+            return tr("Standard")
         if isinstance(value, float):
             return fmt_temp(value) if value < 40 else f"{value:.0f}"
         return str(value)
@@ -485,7 +486,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         for entity_id in lights:
             st = self.hass.states.get(entity_id)
             names.append(st.name if st else entity_id)
-        self.log(CAT_NOTIFY, f"Lichtsignal: {what}", ", ".join(names))
+        self.log(CAT_NOTIFY, tr("Lichtsignal: {what}", what=tr(what)), ", ".join(names))
 
 
 
@@ -713,8 +714,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if new != self.target_temp:
             self.log(
                 CAT_MANUAL,
-                f"Wunschtemperatur {fmt_temp(self.target_temp)} → {fmt_temp(new)}",
-                "in Home Assistant geändert" + ("; Absenkung für 3 h ausgesetzt" if override else ""),
+                tr("Wunschtemperatur {old} → {new}", old=fmt_temp(self.target_temp), new=fmt_temp(new)),
+                tr("in Home Assistant geändert") + (tr("; Absenkung für 3 h ausgesetzt") if override else ""),
             )
         self.target_temp = new
         self._save()
@@ -733,7 +734,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             # Raum war aus (Sollwert-Rest wie 5 °C) → mit Wunschtemperatur starten
             self.target_temp = self.comfort_temp
         if on != self.hvac_on:
-            self.log(CAT_MANUAL, f"Raum {'eingeschaltet' if on else 'ausgeschaltet'}", "in Home Assistant")
+            self.log(CAT_MANUAL, tr("Raum eingeschaltet") if on else tr("Raum ausgeschaltet"), tr("in Home Assistant"))
         self.hvac_on = on
         self._save()
         self._notify()
@@ -832,7 +833,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                     if self.hub is not None:
                         self.hub.note_trv_blip(self, seconds)
                 else:
-                    self.log(CAT_DEVICE, "Thermostat wieder erreichbar", f"nach {seconds / 60:.0f} min – offene Befehle werden sofort gesendet")
+                    self.log(CAT_DEVICE, tr("Thermostat wieder erreichbar"), tr("nach {m} min – offene Befehle werden sofort gesendet", m=f"{seconds / 60:.0f}"))
             self.hass.async_create_task(self.sync.retry_all_now())
             return
         if not (is_ok and was_ok):
@@ -910,7 +911,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                     low = self.trv_min
                     await self.sync.request(
                         "mode",
-                        f"Minimaltemperatur {fmt_temp(low)}",
+                        tr("Minimaltemperatur {t}", t=fmt_temp(low)),
                         lambda: self._call_climate("set_temperature", temperature=low),
                         lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
                     )
@@ -959,7 +960,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self._last_cal_send = dt_util.utcnow()
             await self.sync.request(
                 "setpoint",
-                f"Sollwert {fmt_temp(setpoint)}",
+                tr("Sollwert {t}", t=fmt_temp(setpoint)),
                 lambda: self._call_climate("set_temperature", temperature=setpoint),
                 lambda: values_match(
                     self._trv_attr(ATTR_TEMPERATURE), setpoint, SETPOINT_MATCH_TOLERANCE
@@ -997,22 +998,25 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._last_plan = key
         hub = self.hub
         why = {
-            REASON_NORMAL: f"Wunschtemperatur {fmt_temp(self.target_temp)}",
-            REASON_MANUAL: "von Hand wärmer gestellt – Absenkung 3 h ausgesetzt",
-            REASON_SEASON: "Heizpause (mild draußen)",
-            REASON_FROST: f"Heizpause, aber unter der Sicherung {fmt_temp(hub.frost_floor if hub else None)}",
-            REASON_VALVE_CARE: "Sommerpflege: Ventil kurz öffnen",
-            REASON_EMPTY: f"Raum seit {self.room_eco_after:.0f} min leer (Präsenzmelder) – {fmt_temp(self.room_eco_drop)} weniger (Wunsch {fmt_temp(self.target_temp)})",
-            REASON_SOLAR: f"Sonne erwartet – {fmt_temp(SOLAR_REDUCTION)} weniger, sie heizt mit (Wunsch {fmt_temp(self.target_temp)})",
-            STAGE_AWAY_SHORT: f"alle weg – Absenkung „kurz weg“ {fmt_temp(self.setback_short)}",
-            STAGE_AWAY_LONG: f"länger weg – Absenkung {fmt_temp(self.setback_long)}",
+            REASON_NORMAL: tr("Wunschtemperatur {t}", t=fmt_temp(self.target_temp)),
+            REASON_MANUAL: tr("von Hand wärmer gestellt – Absenkung 3 h ausgesetzt"),
+            REASON_SEASON: tr("Heizpause (mild draußen)"),
+            REASON_FROST: tr("Heizpause, aber unter der Sicherung {t}", t=fmt_temp(hub.frost_floor if hub else None)),
+            REASON_VALVE_CARE: tr("Sommerpflege: Ventil kurz öffnen"),
+            REASON_EMPTY: tr(
+                "Raum seit {m} min leer (Präsenzmelder) – {d} weniger (Wunsch {t})",
+                m=f"{self.room_eco_after:.0f}", d=fmt_temp(self.room_eco_drop), t=fmt_temp(self.target_temp),
+            ),
+            REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
+            STAGE_AWAY_SHORT: tr("alle weg – Absenkung „kurz weg“ {t}", t=fmt_temp(self.setback_short)),
+            STAGE_AWAY_LONG: tr("länger weg – Absenkung {t}", t=fmt_temp(self.setback_long)),
         }.get(reason, reason)
         if self.frost_night_low is not None and reason in AWAY_STAGES:
-            why += f", Frostnacht ({fmt_temp(self.frost_night_low)} erwartet): nur halb so tief abgesenkt"
+            why += tr(", Frostnacht ({t} erwartet): nur halb so tief abgesenkt", t=fmt_temp(self.frost_night_low))
         elif reason == STAGE_AWAY_LONG and target > self.setback_long:
-            why += f", Schimmelschutz hält {fmt_temp(target)} (Feuchte {self.current_humidity or 0:.0f} %)"
-        msg = f"Ziel {fmt_temp(target)}" if on else "Heizung aus"
-        self.log(CAT_TARGET, ("Start: " if first else "") + msg, why, target=target, reason=reason)
+            why += tr(", Schimmelschutz hält {t} (Feuchte {h} %)", t=fmt_temp(target), h=f"{self.current_humidity or 0:.0f}")
+        msg = tr("Ziel {t}", t=fmt_temp(target)) if on else tr("Heizung aus")
+        self.log(CAT_TARGET, (tr("Start: ") if first else "") + msg, why, target=target, reason=reason)
 
 
 

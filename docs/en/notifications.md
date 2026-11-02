@@ -20,7 +20,7 @@ Under **Settings → General → Who gets what** you choose for each recipient w
 
 **Recipients** are `notify` services, e.g. `notify.mobile_app_iphone` or your own service such as `notify.christian`. **Test** sends a sample message.
 
-> The message texts are currently in German.
+> The message texts follow the Home Assistant system language (*Settings → System → General*): German, French, otherwise English.
 
 ## Learning sleep times
 
@@ -68,7 +68,7 @@ When the window is closed, the display disappears. Tapping it opens the Raumklim
 
 The timer runs on the phone itself – Raumklima only sends an update when the state changes, which saves battery and push budget. Not while sleeping with the window open and not when the window was only detected from a temperature drop.
 
-> The texts on the lock screen are currently in German.
+> The texts on the lock screen follow the Home Assistant system language as well.
 
 ## Light signal in the room
 

@@ -24,6 +24,7 @@ from .logic import (
     any_open,
     is_valid,
 )
+from .msg import dec, tr
 from .planning import (
     NIGHT_AUTO,
     NIGHT_OFF,
@@ -62,7 +63,7 @@ class WindowMixin:
         """(Nachtlüften?, Begründung für das Protokoll)."""
         hub = self.hub
         if hub is None:
-            return False, "keine Zentrale"
+            return False, tr("keine Zentrale")
         local = dt_util.now()
         room_type = self.vent.room_type if self.vent else self.config.get(CONF_ROOM_TYPE)
         times = hub.times_for(local)
@@ -71,15 +72,20 @@ class WindowMixin:
         home = not hub.nobody_home
         applies = night_airing_applies(self.night_mode, room_type, in_window, home)
         if self.night_mode == NIGHT_OFF:
-            why = "Nachtlüften ist für diesen Raum aus"
+            why = tr("Nachtlüften ist für diesen Raum aus")
         elif self.night_mode != NIGHT_ON and room_type not in NIGHT_ROOM_TYPES:
-            why = "kein Schlafraum"
+            why = tr("kein Schlafraum")
         elif not in_window:
-            why = f"{local:%H:%M} liegt nicht im Nachtlüften-Fenster {start}–{end}" + (" (gelernt)" if times["source"]["night_start"] == "learned" else "")
+            why = tr("{time} liegt nicht im Nachtlüften-Fenster {start}–{end}", time=f"{local:%H:%M}", start=start, end=end) + (
+                tr(" (gelernt)") if times["source"]["night_start"] == "learned" else ""
+            )
         elif not home:
-            why = "niemand zu Hause"
+            why = tr("niemand zu Hause")
         else:
-            why = f"{'Schlafraum' if self.night_mode != NIGHT_ON else 'Nachtlüften an'}, {local:%H:%M} im Fenster {start}–{end}, jemand da"
+            why = tr(
+                "{what}, {time} im Fenster {start}–{end}, jemand da",
+                what=tr("Schlafraum") if self.night_mode != NIGHT_ON else tr("Nachtlüften an"), time=f"{local:%H:%M}", start=start, end=end,
+            )
         return applies, why
 
     @property
@@ -134,10 +140,10 @@ class WindowMixin:
         self._virtual_low = value
         self.log(
             CAT_WINDOW,
-            "Fenster vermutlich offen",
-            f"Temperatur in wenigen Minuten um {fmt_temp(drop)} gefallen"
-            + (f", draußen {fmt_temp(outdoor)}" if outdoor is not None else "")
-            + " – Heizung pausiert, bis es wieder wärmer wird (höchstens 30 min)",
+            tr("Fenster vermutlich offen"),
+            tr("Temperatur in wenigen Minuten um {t} gefallen", t=fmt_temp(drop))
+            + (tr(", draußen {t}", t=fmt_temp(outdoor)) if outdoor is not None else "")
+            + tr(" – Heizung pausiert, bis es wieder wärmer wird (höchstens 30 min)"),
         )
         self._virtual_cancel = self._schedule(VIRT_MAX_OPEN.total_seconds() + 5, lambda: self._close_virtual("max"))
         self._evaluate_windows()
@@ -152,8 +158,8 @@ class WindowMixin:
         self.virtual_open_at = None
         self.log(
             CAT_WINDOW,
-            "Fenster vermutlich wieder zu",
-            f"Temperatur steigt wieder (nach {minutes:.0f} min)" if reason == "recovered" else f"nach {minutes:.0f} min – Heizung läuft wieder",
+            tr("Fenster vermutlich wieder zu"),
+            tr("Temperatur steigt wieder (nach {m} min)", m=f"{minutes:.0f}") if reason == "recovered" else tr("nach {m} min – Heizung läuft wieder", m=f"{minutes:.0f}"),
         )
         self._evaluate_windows()
 
@@ -179,23 +185,23 @@ class WindowMixin:
             night, why = self.night_reason()
             if night:
                 self.night_since = dt_util.utcnow()
-                self.log(CAT_WINDOW, "Fenster auf – Nachtlüften", f"{why}: keine Lüft-Hinweise, Heizung wartet bis zum Schließen")
+                self.log(CAT_WINDOW, tr("Fenster auf – Nachtlüften"), tr("{why}: keine Lüft-Hinweise, Heizung wartet bis zum Schließen", why=why))
                 if self.hub is not None:
                     self.hub.record_sleep("bed", dt_util.now(), f"Fenster {self.name}")
             else:
                 if self.hub is not None:
                     self.hub.insights.count_airing(self.entry.entry_id)
-                self.log(CAT_WINDOW, "Fenster auf", f"normales Lüften ({why})" if self.night_mode != NIGHT_OFF and why != "kein Schlafraum" else None)
+                self.log(CAT_WINDOW, tr("Fenster auf"), tr("normales Lüften ({why})", why=why) if self.night_mode != NIGHT_OFF and why != tr("kein Schlafraum") else None)
         elif not raw:
             if self.night_since is not None:
                 hours = (dt_util.utcnow() - self.night_since).total_seconds() / 3600
-                self.log(CAT_WINDOW, "Fenster zu – Nachtlüften beendet", f"nach {hours:.1f} h".replace(".", ","))
+                self.log(CAT_WINDOW, tr("Fenster zu – Nachtlüften beendet"), tr("nach {h} h", h=dec(hours)))
                 if self.hub is not None and hours >= 3:
                     self.hub.record_sleep("wake", dt_util.now(), f"Fenster {self.name}")
             else:
                 if self.hub is not None and self.vent and self.vent.open_minutes >= 30:
                     self.hub.insights.count(self.entry.entry_id, "airings_long")
-                self.log(CAT_WINDOW, "Fenster zu")
+                self.log(CAT_WINDOW, tr("Fenster zu"))
             self.night_since = None
         if raw != was_raw:
             self.fire_event("window", {"state": "open" if raw else "closed", "virtual": self._raw_virtual or was_virtual, "night": self.night_since is not None})
@@ -226,8 +232,8 @@ class WindowMixin:
             if not self.window_logic:
                 pass
             elif raw:
-                self.log(CAT_TARGET, "Heizung pausiert", f"Fenster seit {delay:.0f} s offen")
+                self.log(CAT_TARGET, tr("Heizung pausiert"), tr("Fenster seit {s} s offen", s=f"{delay:.0f}"))
             else:
-                self.log(CAT_TARGET, "Heizung läuft weiter", f"Fenster seit {delay:.0f} s zu – Ziel {fmt_temp(self.plan()[1])}")
+                self.log(CAT_TARGET, tr("Heizung läuft weiter"), tr("Fenster seit {s} s zu – Ziel {t}", s=f"{delay:.0f}", t=fmt_temp(self.plan()[1])))
             self._notify()
             self.hass.async_create_task(self._apply())

@@ -42,6 +42,7 @@ from .hub_presence import PresenceMixin
 from .hub_season import SeasonMixin
 from .hub_sleep import SleepMixin
 from .insights import Insights
+from .msg import tr
 from .planning import (
     BUILDING_FRSI,
     STAGE_HOME,
@@ -73,8 +74,8 @@ def _change_text(key: str, old: Any, new: Any) -> str:
     """Eine Zeile für das Protokoll – Geheimnisse (Passwort) nie im Klartext."""
     if key in SECRET_KEYS:
         if not new:
-            return f"{key}: entfernt"
-        return f"{key}: {'gesetzt' if not old else 'geändert'}"
+            return f"{key}: {tr('entfernt')}"
+        return f"{key}: {tr('gesetzt') if not old else tr('geändert')}"
     return f"{key}: {_short(old)} → {_short(new)}"
 
 
@@ -286,7 +287,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         if changed:
             self.log.add(
                 CAT_SETTINGS,
-                "Einstellungen geändert",
+                tr("Einstellungen geändert"),
                 ", ".join(_change_text(k, old.get(k), self.config.get(k)) for k in changed[:8]),
             )
         self._unsubscribe()

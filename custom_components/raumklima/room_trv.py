@@ -51,6 +51,7 @@ from .logic import (
     to_float,
     values_match,
 )
+from .msg import tr
 from .planning import (
     AWAY_STAGES,
 )
@@ -114,9 +115,9 @@ class TrvMixin:
                 self.hvac_on = not now_off
                 self._save()
                 _LOGGER.info("%s: TRV am Gerät %s", self.name, "aus" if now_off else "an")
-                self.log(CAT_MANUAL, f"Am Thermostat {'ausgeschaltet' if now_off else 'eingeschaltet'}", "„Drehen am Thermostat übernehmen“ ist an")
+                self.log(CAT_MANUAL, tr("Am Thermostat ausgeschaltet") if now_off else tr("Am Thermostat eingeschaltet"), tr("„Drehen am Thermostat übernehmen“ ist an"))
             else:
-                self.log(CAT_MANUAL, "Am Thermostat geschaltet – zurückgestellt", "„Drehen am Thermostat übernehmen“ ist aus")
+                self.log(CAT_MANUAL, tr("Am Thermostat geschaltet – zurückgestellt"), tr("„Drehen am Thermostat übernehmen“ ist aus"))
                 self.hass.async_create_task(self._apply())
             return
         if now_off:
@@ -140,7 +141,11 @@ class TrvMixin:
                 return
             if self._handle_preset_fight(new_p):
                 return
-            self.log(CAT_DEVICE, f"Preset am Thermostat „{new_p}“ – stelle „{self._on_preset()}“ wieder her", "Preset-Wechsel laden am Gerät alte Werte, das ist kein Wunsch")
+            self.log(
+                CAT_DEVICE,
+                tr("Preset am Thermostat „{new}“ – stelle „{back}“ wieder her", new=new_p, back=self._on_preset()),
+                tr("Preset-Wechsel laden am Gerät alte Werte, das ist kein Wunsch"),
+            )
             self.hass.async_create_task(self._apply())
             return
         if self.cal_mode == CAL_TARGET:
@@ -164,8 +169,8 @@ class TrvMixin:
             away = self.plan()[2] in AWAY_STAGES
             self.log(
                 CAT_MANUAL,
-                f"Am Thermostat gedreht: {fmt_temp(new_t)}",
-                "wird neue Wunschtemperatur" + ("; Absenkung für 3 h ausgesetzt" if away else ""),
+                tr("Am Thermostat gedreht: {t}", t=fmt_temp(new_t)),
+                tr("wird neue Wunschtemperatur") + (tr("; Absenkung für 3 h ausgesetzt") if away else ""),
             )
             if away:
                 self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
@@ -212,8 +217,8 @@ class TrvMixin:
             self._save()
             self.log(
                 CAT_DEVICE,
-                f"Thermostat bleibt bei „{new_p}“ – wird übernommen",
-                f"es ist {len(same)}× in 10 min von selbst darauf gesprungen; „{new_p}“ regelt genauso auf den Sollwert, also kein Hin und Her mehr",
+                tr("Thermostat bleibt bei „{p}“ – wird übernommen", p=new_p),
+                tr("es ist {n}× in 10 min von selbst darauf gesprungen; „{p}“ regelt genauso auf den Sollwert, also kein Hin und Her mehr", n=len(same), p=new_p),
                 level="warn",
             )
             self.hass.async_create_task(self._apply())
@@ -221,8 +226,8 @@ class TrvMixin:
         self._restore_paused_until = now + PRESET_BACKOFF
         self.log(
             CAT_DEVICE,
-            f"Thermostat springt immer wieder auf „{new_p}“ – 30 min Pause",
-            "damit Thermostat und Integration sich nicht endlos verstellen (Batterie). Zeitplan oder Automatik am Thermostat prüfen.",
+            tr("Thermostat springt immer wieder auf „{p}“ – 30 min Pause", p=new_p),
+            tr("damit Thermostat und Integration sich nicht endlos verstellen (Batterie). Zeitplan oder Automatik am Thermostat prüfen."),
             level="warn",
         )
         return True
@@ -271,15 +276,20 @@ class TrvMixin:
                 self._sends.clear()
                 self.log(
                     CAT_DEVICE,
-                    "Zu viele Befehle – 15 min Pause",
-                    f"{len(recent)} Befehle in 10 min ans Thermostat; irgendetwas stellt es immer wieder zurück. Schützt die Batterie.",
+                    tr("Zu viele Befehle – 15 min Pause"),
+                    tr("{n} Befehle in 10 min ans Thermostat; irgendetwas stellt es immer wieder zurück. Schützt die Batterie.", n=len(recent)),
                     level="warn",
                 )
-            self.log(CAT_DEVICE, f"Thermostat: {job.description}", job.why)
+            self.log(CAT_DEVICE, tr("Thermostat: {what}", what=job.description), job.why)
         elif event == "confirmed":
-            self.log(CAT_DEVICE, f"Thermostat bestätigt: {job.description}", f"nach {job.attempts} Versuchen")
+            self.log(CAT_DEVICE, tr("Thermostat bestätigt: {what}", what=job.description), tr("nach {n} Versuchen", n=job.attempts))
         elif event == "failed":
-            self.log(CAT_DEVICE, f"Thermostat reagiert nicht: {job.description}", f"{job.attempts} Versuche ohne Bestätigung – versuche weiter alle 5 min", level="warn")
+            self.log(
+                CAT_DEVICE,
+                tr("Thermostat reagiert nicht: {what}", what=job.description),
+                tr("{n} Versuche ohne Bestätigung – versuche weiter alle 5 min", n=job.attempts),
+                level="warn",
+            )
 
     # ================================================================ Offset
     def _cal_interval_passed(self) -> bool:
@@ -351,7 +361,7 @@ class TrvMixin:
         entity = self.cal_entity
         await self.sync.request(
             "offset",
-            f"Offset {fmt_temp(new)}",
+            tr("Offset {t}", t=fmt_temp(new)),
             lambda: self.hass.services.async_call(
                 "number",
                 "set_value",
@@ -363,7 +373,7 @@ class TrvMixin:
                 new,
                 OFFSET_MATCH_TOLERANCE,
             ),
-            why=f"Raumfühler {fmt_temp(self._ext_value)}, Thermostat misst {fmt_temp(self.trv_temperature)}",
+            why=tr("Raumfühler {room}, Thermostat misst {trv}", room=fmt_temp(self._ext_value), trv=fmt_temp(self.trv_temperature)),
         )
 
     # ================================================================ Meldungen
@@ -376,8 +386,8 @@ class TrvMixin:
         if hub and hub.has_targets(KIND_TRV_FAILURE):
             hub.notify(
                 KIND_TRV_FAILURE,
-                f"⚠️ {self.name}: Thermostat reagiert nicht",
-                f"{job.description} wurde nach {job.attempts} Versuchen nicht bestätigt.",
+                tr("⚠️ {room}: Thermostat reagiert nicht", room=self.name),
+                tr("{what} wurde nach {n} Versuchen nicht bestätigt.", what=job.description, n=job.attempts),
                 speak=False,
             )
         notify_bell = hub.opt("notify_on_failure") if hub else self.config[CONF_NOTIFY]
@@ -385,12 +395,11 @@ class TrvMixin:
             return
         persistent_notification.async_create(
             self.hass,
-            (
-                f"{job.description} wurde nach {job.attempts} Versuchen nicht vom "
-                f"Thermostat bestätigt. Raumklima versucht es alle "
-                f"{SLOW_RETRY_INTERVAL // 60} min weiter."
+            tr(
+                "{what} wurde nach {n} Versuchen nicht vom Thermostat bestätigt. Raumklima versucht es alle {m} min weiter.",
+                what=job.description, n=job.attempts, m=SLOW_RETRY_INTERVAL // 60,
             ),
-            title=f"Raumklima {self.name}: Thermostat reagiert nicht",
+            title=tr("Raumklima {room}: Thermostat reagiert nicht", room=self.name),
             notification_id=self._notification_id(),
         )
 

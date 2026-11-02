@@ -73,6 +73,7 @@ from .mailer import (
     send as mail_send,
     verify as mail_verify,
 )
+from .msg import tr
 from .occupancy import sensor_kind
 from .planning import NIGHT_MODES, VIRT_MODES
 from .report_data import REPORT_KINDS
@@ -87,7 +88,7 @@ def _hub_or_error(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
     """Zentrale der gewünschten Wohnung – oder Fehler an die Karte senden."""
     hub = get_hub(hass, msg.get("home"))
     if hub is None:
-        connection.send_error(msg["id"], "no_hub", "Raumklima Allgemein ist nicht eingerichtet")
+        connection.send_error(msg["id"], "no_hub", tr("Raumklima Allgemein ist nicht eingerichtet"))
     return hub
 
 def _md(value: Any) -> str:
@@ -95,7 +96,7 @@ def _md(value: Any) -> str:
     text = str(value)
     month, _, day = text.partition("-")
     if not (month.isdigit() and day.isdigit() and 1 <= int(month) <= 12 and 1 <= int(day) <= 31):
-        raise vol.Invalid("Format MM-TT erwartet")
+        raise vol.Invalid(tr("Format MM-TT erwartet"))
     return f"{int(month):02d}-{int(day):02d}"
 
 
@@ -103,10 +104,10 @@ def _time(value: Any) -> str:
     """'HH:MM' oder 'HH:MM:SS' prüfen."""
     parts = str(value).split(":")
     if len(parts) not in (2, 3) or not all(p.isdigit() for p in parts):
-        raise vol.Invalid("Format HH:MM erwartet")
+        raise vol.Invalid(tr("Format HH:MM erwartet"))
     h, m = int(parts[0]), int(parts[1])
     if not (0 <= h < 24 and 0 <= m < 60):
-        raise vol.Invalid("Ungültige Uhrzeit")
+        raise vol.Invalid(tr("Ungültige Uhrzeit"))
     return f"{h:02d}:{m:02d}:00"
 
 
@@ -329,7 +330,7 @@ async def ws_mail_test(hass: HomeAssistant, connection: websocket_api.ActiveConn
         return
     try:
         await hass.async_add_executor_job(
-            mail_send, opts, "Raumklima – Test-Mail", "Hallo! So kommen die Heizberichte von Raumklima an. / This is how Raumklima heating reports arrive."
+            mail_send, opts, tr("Raumklima – Test-Mail"), tr("Hallo! So kommen die Heizberichte von Raumklima an.")
         )
     except MailError as err:
         connection.send_error(msg["id"], "mail_failed", str(err))
@@ -349,7 +350,7 @@ async def ws_mail_test(hass: HomeAssistant, connection: websocket_api.ActiveConn
 async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     entry = hass.config_entries.async_get_entry(msg["entry_id"])
     if entry is None or entry.domain != DOMAIN:
-        connection.send_error(msg["id"], "not_found", "Raum nicht gefunden")
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
         return
     try:
         changes = ROOM_CHANGES(msg["changes"])
@@ -393,10 +394,10 @@ async def ws_notify_test(hass: HomeAssistant, connection: websocket_api.ActiveCo
 def ws_light_test(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     room = domain_data(hass)["rooms"].get(msg["entry_id"])
     if room is None:
-        connection.send_error(msg["id"], "not_found", "Raum nicht gefunden")
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
         return
     if not room.lights.start(msg["signal"]):
-        connection.send_error(msg["id"], "no_lights", "Keine Lampe gewählt")
+        connection.send_error(msg["id"], "no_lights", tr("Keine Lampe gewählt"))
         return
     connection.send_result(msg["id"], {"ok": True})
 
@@ -486,7 +487,7 @@ async def ws_pdf_create(hass: HomeAssistant, connection: websocket_api.ActiveCon
     if hub is None:
         return
     if msg["send"] and not connection.user.is_admin:
-        connection.send_error(msg["id"], "unauthorized", "Nur Administratoren können verschicken")
+        connection.send_error(msg["id"], "unauthorized", tr("Nur Administratoren können verschicken"))
         return
     try:
         entry = await hub.pdf.async_create(msg["kind"], current=msg["current"])
@@ -556,6 +557,6 @@ async def ws_home_create(hass: HomeAssistant, connection: websocket_api.ActiveCo
         DOMAIN, context={"source": SOURCE_IMPORT}, data={**inherit, "home_name": msg["name"].strip()}
     )
     if result.get("type") != "create_entry":
-        connection.send_error(msg["id"], "exists", "Diese Wohnung gibt es schon")
+        connection.send_error(msg["id"], "exists", tr("Diese Wohnung gibt es schon"))
         return
     connection.send_result(msg["id"], {"entry_id": result["result"].entry_id})

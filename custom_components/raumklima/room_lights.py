@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.core import HomeAssistant, State
 
 from .const import CONF_LIGHT_SIGNALS, CONF_LIGHTS, DEFAULT_LIGHT_SIGNALS
+from .msg import N_
 
 if TYPE_CHECKING:
     from .controller import RaumklimaController
@@ -23,10 +24,10 @@ _LOGGER = logging.getLogger(__name__)
 
 # Signal → (Farbe, Name fürs Protokoll)
 COLORS: dict[str, tuple[tuple[int, int, int], str]] = {
-    "open": ((0, 90, 255), "blau – bitte lüften"),
-    "close": ((255, 110, 0), "orange – bitte schließen"),
-    "done": ((0, 200, 60), "grün – Luft ausgetauscht"),
-    "problem": ((255, 0, 0), "rot – Problem"),
+    "open": ((0, 90, 255), N_("blau – bitte lüften")),
+    "close": ((255, 110, 0), N_("orange – bitte schließen")),
+    "done": ((0, 200, 60), N_("grün – Luft ausgetauscht")),
+    "problem": ((255, 0, 0), N_("rot – Problem")),
 }
 _COLOR_MODES = {"hs", "xy", "rgb", "rgbw", "rgbww"}
 BLINKS = 3

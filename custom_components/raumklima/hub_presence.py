@@ -24,6 +24,7 @@ from .decision_log import (
     CAT_PRESENCE,
 )
 from .logic import to_float
+from .msg import N_, dec, tr
 from .occupancy import KIND_MMWAVE, KIND_PIR
 from .planning import (
     AWAY_STAGES,
@@ -55,11 +56,11 @@ _LOGGER = logging.getLogger(__name__)
 PREHEAT_HOLD = timedelta(minutes=90)
 
 STAGE_TEXT = {
-    STAGE_HOME: "jemand da",
-    STAGE_GUESTS: "Gäste da",
-    STAGE_PREHEAT: "Vorheizen",
-    STAGE_AWAY_SHORT: "kurz weg",
-    STAGE_AWAY_LONG: "länger weg",
+    STAGE_HOME: N_("jemand da"),
+    STAGE_GUESTS: N_("Gäste da"),
+    STAGE_PREHEAT: N_("Vorheizen"),
+    STAGE_AWAY_SHORT: N_("kurz weg"),
+    STAGE_AWAY_LONG: N_("länger weg"),
 }
 
 
@@ -115,10 +116,10 @@ class PresenceMixin:
                         far = haversine_km(lat, lon, geo[0], geo[1]) if lat is not None and lon is not None else None
                         self.log.add(
                             CAT_PRESENCE,
-                            f"Ortung von {name} ignoriert",
-                            (f"{tracker}: Sprung auf {far:.0f} km" if far is not None else tracker)
-                            + (f", Genauigkeit {accuracy:.0f} m" if accuracy > 200 else " – zu schnell für echte Bewegung (z. B. VPN)")
-                            + "; wird erst übernommen, wenn sie 30 min stabil bleibt",
+                            tr("Ortung von {name} ignoriert", name=name),
+                            (tr("{tracker}: Sprung auf {km} km", tracker=tracker, km=f"{far:.0f}") if far is not None else tracker)
+                            + (tr(", Genauigkeit {m} m", m=f"{accuracy:.0f}") if accuracy > 200 else tr(" – zu schnell für echte Bewegung (z. B. VPN)"))
+                            + tr("; wird erst übernommen, wenn sie 30 min stabil bleibt"),
                         )
             fix = flt.accepted
             if fix is None:
@@ -159,7 +160,7 @@ class PresenceMixin:
                 if self._was_present is False and self.vacation and phones:
                     _LOGGER.info("Ankunft – Urlaub beendet")
                     self.vacation = False
-                    self.log.add(CAT_PRESENCE, "Urlaub beendet", "jemand ist angekommen")
+                    self.log.add(CAT_PRESENCE, tr("Urlaub beendet"), tr("jemand ist angekommen"))
                 self.last_present = now
                 self._preheat_until = None
             elif self.last_present is None:
@@ -182,7 +183,7 @@ class PresenceMixin:
                 if self._preheat_until is None:
                     who = (coming or timely)[0]
                     self._preheat_reason = (
-                        f"{who['name']} ist in ~{who['eta_min']:.0f} min da, Aufheizen dauert ~{need} min"
+                        tr("{who} ist in ~{eta} min da, Aufheizen dauert ~{need} min", who=who["name"], eta=f"{who['eta_min']:.0f}", need=need)
                         if who in timely else None
                     )
                 self._preheat_until = now + PREHEAT_HOLD
@@ -208,7 +209,7 @@ class PresenceMixin:
             _LOGGER.info("Anwesenheit: %s → %s", old, new)
             self.log.add(
                 CAT_PRESENCE,
-                f"Anwesenheit: {STAGE_TEXT.get(old, old)} → {STAGE_TEXT.get(new, new)}",
+                tr("Anwesenheit: {old} → {new}", old=tr(STAGE_TEXT.get(old, old)), new=tr(STAGE_TEXT.get(new, new))),
                 self._presence_why(new),
                 stage=new,
             )
@@ -243,8 +244,8 @@ class PresenceMixin:
             self._blip_logged = now
             self.log.add(
                 "device",
-                "Kurze Verbindungsunterbrechung zu allen Thermostaten",
-                f"{seconds:.0f} s – heute {len(day)}× (Zigbee2MQTT, MQTT oder VPN); die Regelung holt alles nach",
+                tr("Kurze Verbindungsunterbrechung zu allen Thermostaten"),
+                tr("{s} s – heute {n}× (Zigbee2MQTT, MQTT oder VPN); die Regelung holt alles nach", s=f"{seconds:.0f}", n=len(day)),
                 level="info",
             )
 
@@ -268,11 +269,11 @@ class PresenceMixin:
         mode, summary = self.calendar_event()
         if mode != self.calendar_mode:
             if mode == CAL_AWAY:
-                self.log.add(CAT_PRESENCE, f"Kalender: „{summary}“ – wie Urlaub", "Termin läuft; Absenkung „länger weg“, sobald niemand da ist")
+                self.log.add(CAT_PRESENCE, tr("Kalender: „{s}“ – wie Urlaub", s=summary), tr("Termin läuft; Absenkung „länger weg“, sobald niemand da ist"))
             elif mode == CAL_HOME:
-                self.log.add(CAT_PRESENCE, f"Kalender: „{summary}“ – jemand bleibt zu Hause", "Termin läuft; es wird nicht abgesenkt")
+                self.log.add(CAT_PRESENCE, tr("Kalender: „{s}“ – jemand bleibt zu Hause", s=summary), tr("Termin läuft; es wird nicht abgesenkt"))
             else:
-                self.log.add(CAT_PRESENCE, "Kalender: Termin vorbei", "Anwesenheit wieder nach Ortung")
+                self.log.add(CAT_PRESENCE, tr("Kalender: Termin vorbei"), tr("Anwesenheit wieder nach Ortung"))
             self.calendar_mode = mode
             self.calendar_summary = summary
         return mode
@@ -280,47 +281,47 @@ class PresenceMixin:
     def _presence_why(self, stage: str) -> str:
         parts = []
         if self.calendar_mode:
-            parts.append(f"Kalender: „{self.calendar_summary}“")
+            parts.append(tr("Kalender: „{s}“", s=self.calendar_summary))
         if stage == STAGE_GUESTS:
-            parts.append("Schalter „Gäste da“ ist an")
+            parts.append(tr("Schalter „Gäste da“ ist an"))
         if self.vacation:
-            parts.append("Urlaub ist an")
+            parts.append(tr("Urlaub ist an"))
         if stage == STAGE_PREHEAT and self._preheat_by:
-            parts.append(self._preheat_reason or f"{self._preheat_by} nähert sich (Vorheizen ab {float(self.opt(CONF_PREHEAT_KM)):.0f} km)")
+            parts.append(self._preheat_reason or tr("{who} nähert sich (Vorheizen ab {km} km)", who=self._preheat_by, km=f"{float(self.opt(CONF_PREHEAT_KM)):.0f}"))
         for p in self.persons.values():
             if p["present"]:
-                parts.append(f"{p['name']} ist da")
+                parts.append(tr("{name} ist da", name=p["name"]))
             elif p["distance_km"] is not None:
-                parts.append(f"{p['name']} {p['distance_km']:.1f} km entfernt".replace(".", ",") + (" und kommt näher" if p["approaching"] else ""))
+                parts.append(tr("{name} {km} km entfernt", name=p["name"], km=dec(p["distance_km"])) + (tr(" und kommt näher") if p["approaching"] else ""))
             else:
-                parts.append(f"{p['name']}: Ort unbekannt")
+                parts.append(tr("{name}: Ort unbekannt", name=p["name"]))
         if stage in AWAY_STAGES and self.last_present:
             mins = (dt_util.utcnow() - self.last_present).total_seconds() / 60
             parts.append(
-                f"seit {mins / 60:.0f} h niemand da" if mins >= 120 else f"seit {mins:.0f} min niemand da (Wartezeit {float(self.opt(CONF_AWAY_DELAY)):.0f} min)"
+                tr("seit {h} h niemand da", h=f"{mins / 60:.0f}") if mins >= 120 else tr("seit {m} min niemand da (Wartezeit {w} min)", m=f"{mins:.0f}", w=f"{float(self.opt(CONF_AWAY_DELAY)):.0f}")
             )
         if self.sensed:
-            parts.append("Präsenzmelder: jemand in " + ", ".join(self.sensed))
+            parts.append(tr("Präsenzmelder: jemand in {rooms}", rooms=", ".join(self.sensed)))
         if not self.presence_configured:
-            parts.append("Anwesenheit nicht eingerichtet – gilt als da")
+            parts.append(tr("Anwesenheit nicht eingerichtet – gilt als da"))
         return "; ".join(parts)
 
     def _announce_stage(self, old: str, new: str) -> None:
         if new == STAGE_AWAY_SHORT:
-            self.notify(KIND_PRESENCE, "🏠 Alle weg", f"Heizung{self._where()} ist abgesenkt (kurze Abwesenheit).")
+            self.notify(KIND_PRESENCE, tr("🏠 Alle weg"), tr("Heizung{where} ist abgesenkt (kurze Abwesenheit).", where=self._where()))
         elif new == STAGE_AWAY_LONG:
-            self.notify(KIND_PRESENCE, "🧳 Länger weg", f"Heizung{self._where()} ist auf die Abwesenheits-Temperatur abgesenkt.")
+            self.notify(KIND_PRESENCE, tr("🧳 Länger weg"), tr("Heizung{where} ist auf die Abwesenheits-Temperatur abgesenkt.", where=self._where()))
         elif new == STAGE_PREHEAT:
-            who = self._preheat_by or "Jemand"
+            who = self._preheat_by or tr("Jemand")
             dist = next((p["distance_km"] for p in self.persons.values() if p["name"] == who), None)
             extra = f" ({dist:.0f} km)" if dist is not None else ""
-            self.notify(KIND_PRESENCE, f"🚗 {who} kommt{extra}", "Heize schon mal vor.")
+            self.notify(KIND_PRESENCE, tr("🚗 {who} kommt{extra}", who=who, extra=extra), tr("Heize schon mal vor."))
         elif old in AWAY_STAGES and new == STAGE_HOME:
-            self.notify(KIND_PRESENCE, "👋 Willkommen", "Räume heizen wieder auf Wunschtemperatur.")
+            self.notify(KIND_PRESENCE, tr("👋 Willkommen"), tr("Räume heizen wieder auf Wunschtemperatur."))
 
     def _where(self) -> str:
         """„ in Berlin“ – nur wenn es mehrere Wohnungen gibt."""
-        return f" in {self.name}" if len(all_hubs(self.hass)) > 1 else ""
+        return tr(" in {name}", name=self.name) if len(all_hubs(self.hass)) > 1 else ""
 
     @property
     def away(self) -> bool:

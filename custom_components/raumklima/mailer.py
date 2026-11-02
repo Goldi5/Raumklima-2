@@ -14,6 +14,8 @@ import smtplib
 import ssl
 from typing import Any
 
+from .msg import tr
+
 MAIL_KEYS = ("mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to")
 SECURITY = ["starttls", "ssl", "none"]
 BUILTIN = "raumklima"  # Wert für report_email: eingebauter Versand
@@ -65,7 +67,7 @@ def build_message(opts: dict[str, Any], subject: str, body: str, attachments: li
 def send(opts: dict[str, Any], subject: str, body: str, attachments: list[str] | None = None, timeout: float = 20.0) -> None:
     """Blockierend senden (im Executor aufrufen). Wirft MailError mit verständlichem Text."""
     if not configured(opts):
-        raise MailError("E-Mail ist nicht vollständig eingerichtet (Server, Absender, Empfänger).")
+        raise MailError(tr("E-Mail ist nicht vollständig eingerichtet (Server, Absender, Empfänger)."))
     server = str(opts["mail_server"]).strip()
     security = opts.get("mail_security") or "starttls"
     port = int(opts.get("mail_port") or (465 if security == "ssl" else 587))
@@ -84,16 +86,16 @@ def send(opts: dict[str, Any], subject: str, body: str, attachments: list[str] |
             smtp.send_message(msg)
     except smtplib.SMTPAuthenticationError as err:
         raise MailError(
-            "Anmeldung abgelehnt – Benutzer/Passwort prüfen. Bei Gmail, iCloud, Outlook u. a. ein App-Passwort verwenden."
+            tr("Anmeldung abgelehnt – Benutzer/Passwort prüfen. Bei Gmail, iCloud, Outlook u. a. ein App-Passwort verwenden.")
         ) from err
     except smtplib.SMTPRecipientsRefused as err:
-        raise MailError("Der Mail-Server lehnt die Empfänger-Adresse ab – Schreibweise prüfen.") from err
+        raise MailError(tr("Der Mail-Server lehnt die Empfänger-Adresse ab – Schreibweise prüfen.")) from err
     except (smtplib.SMTPConnectError, smtplib.SMTPServerDisconnected, ssl.SSLError, ConnectionError, TimeoutError) as err:
-        raise MailError(f"Mail-Server {server}:{port} nicht erreichbar ({err.__class__.__name__}) – Server, Port und Verschlüsselung prüfen.") from err
+        raise MailError(tr("Mail-Server {server} nicht erreichbar ({err}) – Server, Port und Verschlüsselung prüfen.", server=f"{server}:{port}", err=err.__class__.__name__)) from err
     except smtplib.SMTPException as err:
-        raise MailError(f"Mail-Server meldet einen Fehler: {err}") from err
+        raise MailError(tr("Mail-Server meldet einen Fehler: {err}", err=err)) from err
     except OSError as err:
-        raise MailError(f"Mail-Server {server}:{port} nicht erreichbar ({err}) – Server, Port und Internetverbindung prüfen.") from err
+        raise MailError(tr("Mail-Server {server} nicht erreichbar ({err}) – Server, Port und Internetverbindung prüfen.", server=f"{server}:{port}", err=err)) from err
 
 
 def verify(opts: dict[str, Any], timeout: float = 15.0) -> list[dict[str, Any]]:
@@ -110,7 +112,7 @@ def verify(opts: dict[str, Any], timeout: float = 15.0) -> list[dict[str, Any]]:
 
     server = str(opts.get("mail_server") or "").strip()
     if not server:
-        add("connect", False, "Kein Mail-Server eingetragen – Anbieter wählen oder Server eingeben.")
+        add("connect", False, tr("Kein Mail-Server eingetragen – Anbieter wählen oder Server eingeben."))
         return steps
     security = opts.get("mail_security") or "starttls"
     port = int(opts.get("mail_port") or (465 if security == "ssl" else 587))
@@ -121,37 +123,37 @@ def verify(opts: dict[str, Any], timeout: float = 15.0) -> list[dict[str, Any]]:
         else:
             smtp = smtplib.SMTP(server, port, timeout=timeout)
     except ssl.SSLError as err:
-        add("connect", False, f"{server}:{port} antwortet, aber die verschlüsselte Verbindung klappt nicht ({err.reason or err}) – Verschlüsselung/Port prüfen (587 = STARTTLS, 465 = SSL/TLS).")
+        add("connect", False, tr("{server} antwortet, aber die verschlüsselte Verbindung klappt nicht ({err}) – Verschlüsselung/Port prüfen (587 = STARTTLS, 465 = SSL/TLS).", server=f"{server}:{port}", err=err.reason or err))
         return steps
     except (OSError, smtplib.SMTPException) as err:
-        add("connect", False, f"{server}:{port} nicht erreichbar ({err}) – Server, Port und Internetverbindung prüfen.")
+        add("connect", False, tr("{server} nicht erreichbar ({err}) – Server, Port und Internetverbindung prüfen.", server=f"{server}:{port}", err=err))
         return steps
     with smtp:
-        add("connect", True, f"{server}:{port} erreichbar")
+        add("connect", True, tr("{server} erreichbar", server=f"{server}:{port}"))
         try:
             if security == "starttls":
                 smtp.starttls(context=context)
-                add("tls", True, "Verbindung verschlüsselt (STARTTLS)")
+                add("tls", True, tr("Verbindung verschlüsselt (STARTTLS)"))
             elif security == "ssl":
-                add("tls", True, "Verbindung verschlüsselt (SSL/TLS)")
+                add("tls", True, tr("Verbindung verschlüsselt (SSL/TLS)"))
             else:
-                add("tls", True, "ohne Verschlüsselung – nur im eigenen Netz empfehlenswert")
+                add("tls", True, tr("ohne Verschlüsselung – nur im eigenen Netz empfehlenswert"))
         except (smtplib.SMTPException, ssl.SSLError, OSError) as err:
-            add("tls", False, f"Verschlüsselung fehlgeschlagen ({err}) – „SSL/TLS“ mit Port 465 oder „STARTTLS“ mit Port 587 versuchen.")
+            add("tls", False, tr("Verschlüsselung fehlgeschlagen ({err}) – „SSL/TLS“ mit Port 465 oder „STARTTLS“ mit Port 587 versuchen.", err=err))
             return steps
         user = str(opts.get("mail_user") or "")
         if user:
             try:
                 smtp.login(user, str(opts.get("mail_password") or ""))
-                add("login", True, f"Anmeldung als {user} erfolgreich")
+                add("login", True, tr("Anmeldung als {user} erfolgreich", user=user))
             except smtplib.SMTPAuthenticationError:
-                add("login", False, "Anmeldung abgelehnt – Benutzer/Passwort prüfen. Bei Gmail, iCloud, Outlook u. a. ein App-Passwort verwenden.")
+                add("login", False, tr("Anmeldung abgelehnt – Benutzer/Passwort prüfen. Bei Gmail, iCloud, Outlook u. a. ein App-Passwort verwenden."))
                 return steps
             except (smtplib.SMTPException, OSError) as err:
-                add("login", False, f"Anmeldung nicht möglich ({err}).")
+                add("login", False, tr("Anmeldung nicht möglich ({err}).", err=err))
                 return steps
         else:
-            add("login", True, "ohne Anmeldung (kein Benutzer eingetragen)")
+            add("login", True, tr("ohne Anmeldung (kein Benutzer eingetragen)"))
         to = recipients(opts.get("mail_to"))
-        add("recipients", bool(to), ", ".join(to) if to else "Noch kein Empfänger eingetragen.")
+        add("recipients", bool(to), ", ".join(to) if to else tr("Noch kein Empfänger eingetragen."))
     return steps

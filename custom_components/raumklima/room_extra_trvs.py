@@ -38,6 +38,7 @@ from .const import (
 from .decision_log import CAT_DEVICE, fmt_temp
 from .health import Issue
 from .logic import calc_offset, calc_target_setpoint, choose_on_preset, clamp, is_valid, to_float, values_match
+from .msg import tr
 from .sync import SyncJob, SyncManager
 
 if TYPE_CHECKING:
@@ -173,7 +174,7 @@ class ExtraTrv:
             else:
                 low = self.tmin
                 await self.sync.request(
-                    "mode", f"Minimaltemperatur {fmt_temp(low)}", lambda: self._call("set_temperature", temperature=low), lambda: self._is_off(OFF_MIN_TEMP)
+                    "mode", tr("Minimaltemperatur {t}", t=fmt_temp(low)), lambda: self._call("set_temperature", temperature=low), lambda: self._is_off(OFF_MIN_TEMP)
                 )
             return
         if method == OFF_PRESET:
@@ -196,7 +197,7 @@ class ExtraTrv:
         setpoint = self.setpoint_for(target)
         await self.sync.request(
             "setpoint",
-            f"Sollwert {fmt_temp(setpoint)}",
+            tr("Sollwert {t}", t=fmt_temp(setpoint)),
             lambda: self._call("set_temperature", temperature=setpoint),
             lambda: values_match(self.attr(ATTR_TEMPERATURE), setpoint, SETPOINT_MATCH_TOLERANCE),
         )
@@ -231,10 +232,10 @@ class ExtraTrv:
             return
         await self.sync.request(
             "offset",
-            f"Offset {fmt_temp(new)}",
+            tr("Offset {t}", t=fmt_temp(new)),
             lambda: self.hass.services.async_call("number", "set_value", {ATTR_ENTITY_ID: entity, "value": new}, blocking=True),
             lambda: values_match((self.hass.states.get(entity) or State(entity, "unknown")).state, new, OFFSET_MATCH_TOLERANCE),
-            why=f"Raumfühler {fmt_temp(self.c._ext_value)}, Thermostat misst {fmt_temp(self.temperature)}",
+            why=tr("Raumfühler {room}, Thermostat misst {trv}", room=fmt_temp(self.c._ext_value), trv=fmt_temp(self.temperature)),
         )
 
     @callback
@@ -242,13 +243,13 @@ class ExtraTrv:
         if event == "send":
             self.c.log(CAT_DEVICE, f"{self.name}: {job.description}", job.why)
         elif event == "failed":
-            self.c.log(CAT_DEVICE, f"{self.name} reagiert nicht: {job.description}", f"{job.attempts} Versuche ohne Bestätigung", level="warn")
+            self.c.log(CAT_DEVICE, tr("{name} reagiert nicht: {what}", name=self.name, what=job.description), tr("{n} Versuche ohne Bestätigung", n=job.attempts), level="warn")
 
     def issues(self) -> list[Issue]:
         if not self.available():
-            return [Issue(f"extra_trv_down:{self.entity_id}", "warn", f"{self.name} nicht erreichbar", "Ein weiteres Thermostat im Raum meldet sich nicht – Batterie oder Funk prüfen. Die anderen Heizkörper heizen weiter.")]
+            return [Issue(f"extra_trv_down:{self.entity_id}", "warn", tr("{name} nicht erreichbar", name=self.name), tr("Ein weiteres Thermostat im Raum meldet sich nicht – Batterie oder Funk prüfen. Die anderen Heizkörper heizen weiter."))]
         if self.sync.state == "failed":
-            return [Issue(f"extra_trv_sync:{self.entity_id}", "warn", f"{self.name} reagiert nicht", "Befehle an dieses Thermostat werden nicht bestätigt – es wird weiter versucht.")]
+            return [Issue(f"extra_trv_sync:{self.entity_id}", "warn", tr("{name} reagiert nicht", name=self.name), tr("Befehle an dieses Thermostat werden nicht bestätigt – es wird weiter versucht."))]
         return []
 
     def summary(self) -> dict[str, Any]:

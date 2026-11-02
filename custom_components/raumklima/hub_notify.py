@@ -15,6 +15,7 @@ from .const import (
 from .decision_log import (
     CAT_NOTIFY,
 )
+from .msg import tr
 from .planning import (
     in_time_window,
 )
@@ -84,12 +85,12 @@ class NotifyMixin:
         tts = [] if not speak or quiet or only else self.targets(kind, "tts")
         if push or tts:
             level = (data.get("push") or {}).get("interruption-level", "active")
-            how = {"passive": "leise", "time-sensitive": "dringend (auch in der Ruhezeit)"}.get(level, "normal")
+            how = {"passive": tr("leise"), "time-sensitive": tr("dringend (auch in der Ruhezeit)")}.get(level, tr("normal"))
             self.log.add(
                 CAT_NOTIFY,
                 f"{title}",
-                f"{message} → " + ", ".join([_who(t) for t in push] + [f"{_who(t)} (Sprache)" for t in tts])
-                + f"; {how}" + (" – Ruhezeit" if quiet else ""),
+                f"{message} → " + ", ".join([_who(t) for t in push] + [tr("{who} (Sprache)", who=_who(t)) for t in tts])
+                + f"; {how}" + (tr(" – Ruhezeit") if quiet else ""),
                 kind=kind,
                 room=getattr(room, "name", None),
                 entry_id=getattr(getattr(room, "entry", None), "entry_id", None),
@@ -125,6 +126,6 @@ class NotifyMixin:
         await self.hass.services.async_call(
             "notify",
             service,
-            {"title": "✅ Raumklima", "message": "Testnachricht – so sehen Hinweise der Heizung aus."},
+            {"title": "✅ Raumklima", "message": tr("Testnachricht – so sehen Hinweise der Heizung aus.")},
             blocking=True,
         )

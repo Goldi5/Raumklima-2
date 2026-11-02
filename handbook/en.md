@@ -17,7 +17,7 @@ This manual explains step by step how to set up Raumklima and use it day to day.
 **In short:** set it up once, then everything runs by itself. You only step in when you want something different.
 :::
 
-> The screenshots show the German interface. In English, the cards follow your Home Assistant language; messages from the integration are currently German.
+> The screenshots show the German interface. Cards, push messages and the log follow your Home Assistant language (English, German or French).
 
 ## What Raumklima does for you
 
@@ -263,7 +263,7 @@ If you enter your **heating costs per year** under *Settings → General → Bui
 - **By email:** *Settings → General → Notifications – general → PDF by email* → tap **Set up email** right below, pick your provider (e.g. Gmail), enter user, password and recipients, test them with **Check login** and then tap **Save & send test email**. Gmail, iCloud and Outlook need an app password.
 
 :::tip
-The report follows the Home Assistant language: German for German, English for every other language.
+The report follows the Home Assistant language: German, French, English for every other language. Push messages, the log and notices do the same.
 :::
 
 The **Log** tab lists every decision with its reason – handy when you wonder “why is it so cold right now?”

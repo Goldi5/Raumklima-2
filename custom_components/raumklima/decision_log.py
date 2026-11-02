@@ -18,6 +18,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
+from .msg import dec, tr
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,12 +28,12 @@ SAVE_DELAY = 60
 REPEAT_WINDOW = timedelta(minutes=2)
 SECRET_KEYS = frozenset({"mail_password"})
 # Ältere Versionen (0.14.x) haben das Mail-Passwort im Klartext ins Protokoll geschrieben
-_SECRET_RE = re.compile(r"(mail_password): (?!(?:gesetzt|geändert|entfernt)(?:,|$)).*?(?=, [a-z][a-z_]*: |$)", re.S)
+_SECRET_RE = re.compile(r"(mail_password): (?!(?:gesetzt|geändert|entfernt|set|changed|removed|défini|modifié|supprimé)(?:,|$)).*?(?=, [a-z][a-z_]*: |$)", re.S)
 
 
 def scrub(text: str) -> str:
     """Geheimnisse aus einem Protokolltext entfernen."""
-    return _SECRET_RE.sub(r"\1: geändert", text) if "mail_password" in text else text
+    return _SECRET_RE.sub(lambda m: f"{m.group(1)}: {tr('geändert')}", text) if "mail_password" in text else text
 
 CAT_PRESENCE = "presence"
 CAT_SEASON = "season"
@@ -60,7 +61,7 @@ def fmt_temp(value: float | None, digits: int = 1) -> str:
     """20.5 → „20,5 °C“."""
     if value is None:
         return "–"
-    return f"{value:.{digits}f} °C".replace(".", ",").replace("-", "−")
+    return f"{dec(value, digits)} °C".replace("-", "−")
 
 
 class DecisionLog:

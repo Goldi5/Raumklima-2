@@ -25,6 +25,7 @@ from .decision_log import (
     fmt_temp,
 )
 from .logic import to_float
+from .msg import N_, dec, tr
 from .planning import (
     ForecastHour,
     SeasonConfig,
@@ -47,12 +48,12 @@ _LOGGER = logging.getLogger(__name__)
 HEAT_TODAY = timedelta(hours=24)
 
 SEASON_TEXT = {
-    "heating": "Heizen",
-    "pause": "Heizpause",
-    "cold_snap": "Kälteeinbruch",
-    "heat_today": "Heute heizen",
-    "always": "Immer heizen",
-    "manual_pause": "Heizpause (von Hand)",
+    "heating": N_("Heizen"),
+    "pause": N_("Heizpause"),
+    "cold_snap": N_("Kälteeinbruch"),
+    "heat_today": N_("Heute heizen"),
+    "always": N_("Immer heizen"),
+    "manual_pause": N_("Heizpause (von Hand)"),
 }
 
 
@@ -171,7 +172,7 @@ class SeasonMixin:
             _LOGGER.info("Heizbetrieb: %s → %s", old, new)
             self.log.add(
                 CAT_SEASON,
-                f"Heizbetrieb: {SEASON_TEXT.get(old, old)} → {SEASON_TEXT.get(new, new)}",
+                tr("Heizbetrieb: {old} → {new}", old=tr(SEASON_TEXT.get(old, old)), new=tr(SEASON_TEXT.get(new, new))),
                 self._season_why(new),
                 decision=new,
                 mean_past=self.mean_past,
@@ -186,47 +187,47 @@ class SeasonMixin:
 
     def _season_why(self, decision: str) -> str:
         limit = float(self.opt(CONF_HEATING_LIMIT))
-        base = (
-            f"Ø letzte 24 h {fmt_temp(self.mean_past)}, Vorhersage 24 h {fmt_temp(self.mean_forecast)}, "
-            f"zusammen {fmt_temp(self.mean_combined)} – Heizgrenze {fmt_temp(limit, 0)}"
+        base = tr(
+            "Ø letzte 24 h {past}, Vorhersage 24 h {fc}, zusammen {comb} – Heizgrenze {limit}",
+            past=fmt_temp(self.mean_past), fc=fmt_temp(self.mean_forecast), comb=fmt_temp(self.mean_combined), limit=fmt_temp(limit, 0),
         )
         reason = {
-            "heating": "unter der Heizgrenze" if self.in_season else "Heizsaison",
-            "pause": "seit 48 h mild" if self.in_season else "außerhalb der Heizsaison",
-            "cold_snap": f"3 Tage unter {fmt_temp(float(self.opt(CONF_COLD_SNAP_TEMP)), 0)} – Kälteeinbruch",
-            "heat_today": "„Heute heizen“ gedrückt (24 h)",
-            "always": "Betriebsart „Immer heizen“",
-            "manual_pause": "Betriebsart „Heizpause“",
+            "heating": tr("unter der Heizgrenze") if self.in_season else tr("Heizsaison"),
+            "pause": tr("seit 48 h mild") if self.in_season else tr("außerhalb der Heizsaison"),
+            "cold_snap": tr("3 Tage unter {t} – Kälteeinbruch", t=fmt_temp(float(self.opt(CONF_COLD_SNAP_TEMP)), 0)),
+            "heat_today": tr("„Heute heizen“ gedrückt (24 h)"),
+            "always": tr("Betriebsart „Immer heizen“"),
+            "manual_pause": tr("Betriebsart „Heizpause“"),
         }.get(decision, "")
         return f"{reason}; {base}" if reason else base
 
     def _announce_season(self, old: str, new: str) -> None:
         mean = self.mean_combined
         limit = float(self.opt(CONF_HEATING_LIMIT))
-        detail = f"Außen-Mittel {mean:.1f} °C, Heizgrenze {limit:.0f} °C." if mean is not None else ""
+        detail = tr("Außen-Mittel {mean} °C, Heizgrenze {limit} °C.", mean=dec(mean), limit=f"{limit:.0f}") if mean is not None else ""
         heating_now = season_allows_heating(new)
         if heating_now == season_allows_heating(old):
             return
         if old in ("heat_today", "always", "manual_pause") or new in ("heat_today", "always", "manual_pause"):
             return  # von Hand ausgelöst – keine Meldung nötig
         if new == "heating":
-            self.notify(KIND_SEASON, "🍂 Heizsaison", f"Es ist kühl genug – die Heizung arbeitet wieder. {detail}")
+            self.notify(KIND_SEASON, tr("🍂 Heizsaison"), tr("Es ist kühl genug – die Heizung arbeitet wieder. {detail}", detail=detail))
         elif new == "cold_snap":
-            self.notify(KIND_SEASON, "🥶 Kälteeinbruch", f"Seit 3 Tagen kalt – es wird trotz Sommerzeit geheizt. {detail}")
+            self.notify(KIND_SEASON, tr("🥶 Kälteeinbruch"), tr("Seit 3 Tagen kalt – es wird trotz Sommerzeit geheizt. {detail}", detail=detail))
         elif new == "pause":
-            self.notify(KIND_SEASON, "☀️ Heizpause", f"Draußen ist es mild genug – die Heizung pausiert. {detail}")
+            self.notify(KIND_SEASON, tr("☀️ Heizpause"), tr("Draußen ist es mild genug – die Heizung pausiert. {detail}", detail=detail))
 
     @property
     def heating_allowed(self) -> bool:
         return season_allows_heating(self.decision)
 
     def heat_today(self) -> None:
-        self.log.add(CAT_MANUAL, "„Heute heizen“ gedrückt", "heizt 24 h, egal wie mild es ist")
+        self.log.add(CAT_MANUAL, tr("„Heute heizen“ gedrückt"), tr("heizt 24 h, egal wie mild es ist"))
         self.heat_today_until = dt_util.utcnow() + HEAT_TODAY
         self._evaluate_season()
 
     def cancel_heat_today(self) -> None:
-        self.log.add(CAT_MANUAL, "„Heute heizen“ beendet")
+        self.log.add(CAT_MANUAL, tr("„Heute heizen“ beendet"))
         self.heat_today_until = None
         self._evaluate_season()
 
@@ -237,6 +238,6 @@ class SeasonMixin:
         if self.heating_allowed:
             return
         _LOGGER.info("Sommerpflege: Ventile werden kurz bewegt")
-        self.log.add(CAT_SEASON, "Sommerpflege: Ventile werden kurz geöffnet", "mittwochs 11 Uhr in der Heizpause, damit nichts festsitzt")
+        self.log.add(CAT_SEASON, tr("Sommerpflege: Ventile werden kurz geöffnet"), tr("mittwochs 11 Uhr in der Heizpause, damit nichts festsitzt"))
         for room in list(self.rooms.values()):
             self.hass.async_create_task(room.async_valve_care())

@@ -30,6 +30,7 @@ from .const import (
 )
 from .live_activity import LiveCountdown
 from .logic import to_float
+from .msg import N_, dec, tr, weekday
 from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
     CO2_LIMIT,
@@ -72,12 +73,12 @@ KIND_OF = {
 }
 
 MESSAGES = {
-    VENT_PLEASE_OPEN: ("💧 {room}: Bitte lüften", "Luftfeuchte {hum:.0f} % – bitte ca. {dur} min stoßlüften."),
-    VENT_PLEASE_CLOSE: ("🪟 {room}: Fenster schließen", "Lüftzeit von {dur} min erreicht – bitte schließen."),
-    VENT_TOO_COLD: ("🥶 {room}: Raum kühlt aus", "Nur noch {temp:.1f} °C – bitte jetzt schließen."),
-    VENT_DONE: ("✅ {room}: Luft ausgetauscht", "Luftfeuchte wieder {hum:.0f} % – du kannst schließen."),
+    VENT_PLEASE_OPEN: (N_("💧 {room}: Bitte lüften"), N_("Luftfeuchte {hum} % – bitte ca. {dur} min stoßlüften.")),
+    VENT_PLEASE_CLOSE: (N_("🪟 {room}: Fenster schließen"), N_("Lüftzeit von {dur} min erreicht – bitte schließen.")),
+    VENT_TOO_COLD: (N_("🥶 {room}: Raum kühlt aus"), N_("Nur noch {temp} °C – bitte jetzt schließen.")),
+    VENT_DONE: (N_("✅ {room}: Luft ausgetauscht"), N_("Luftfeuchte wieder {hum} % – du kannst schließen.")),
 }
-MESSAGE_CO2 = ("🫁 {room}: Bitte lüften", "CO₂ {co2:.0f} ppm – die Luft ist verbraucht, bitte ca. {dur} min stoßlüften.")
+MESSAGE_CO2 = (N_("🫁 {room}: Bitte lüften"), N_("CO₂ {co2} ppm – die Luft ist verbraucht, bitte ca. {dur} min stoßlüften."))
 
 
 class VentilationManager:
@@ -352,8 +353,8 @@ class VentilationManager:
             self._night_alarm_sent = True
             hub.notify(
                 KIND_TOO_COLD,
-                f"🌙 {self.c.name}: sehr kalt",
-                f"Das Fenster ist offen und es sind nur noch {temp:.1f} °C. Vielleicht doch schließen?".replace(".", ",", 1),
+                tr("🌙 {room}: sehr kalt", room=self.c.name),
+                tr("Das Fenster ist offen und es sind nur noch {temp} °C. Vielleicht doch schließen?", temp=dec(temp)),
                 data={"tag": f"{self._tag()}_night", "group": "raumklima", "push": {"interruption-level": "passive"}},
                 speak=False,
                 room=self.c,
@@ -376,8 +377,8 @@ class VentilationManager:
         self.hass.async_create_task(
             self._send(
                 VENT_PLEASE_CLOSE,
-                f"☀️ {self.c.name}: Fenster noch offen",
-                "Guten Morgen! Die Heizung wartet – sobald das Fenster zu ist, wird der Raum wieder warm.",
+                tr("☀️ {room}: Fenster noch offen", room=self.c.name),
+                tr("Guten Morgen! Die Heizung wartet – sobald das Fenster zu ist, wird der Raum wieder warm."),
                 speak=False,
             )
         )
@@ -398,8 +399,8 @@ class VentilationManager:
         self._window_away_sent = now
         hub.notify(
             KIND_WINDOW_AWAY,
-            f"🚪 {self.c.name}: Fenster offen",
-            f"Seit {self.open_minutes:.0f} min offen – und niemand ist zu Hause.",
+            tr("🚪 {room}: Fenster offen", room=self.c.name),
+            tr("Seit {m} min offen – und niemand ist zu Hause.", m=f"{self.open_minutes:.0f}"),
             data={"tag": f"{self._tag()}_away", "group": "raumklima"},
             room=self.c,
         )
@@ -444,19 +445,19 @@ class VentilationManager:
         if kind == VENT_PLEASE_OPEN and self.reason == "co2":
             title, body = MESSAGE_CO2
         elif kind == VENT_DONE and self.humidity is None:
-            body = "CO₂ wieder {co2:.0f} ppm – du kannst schließen."
+            body = N_("CO₂ wieder {co2} ppm – du kannst schließen.")
         values = {
             "room": self.c.name,
-            "hum": self.humidity or 0,
+            "hum": f"{self.humidity or 0:.0f}",
             "dur": self.duration,
-            "temp": self.c.current_temperature or 0,
-            "co2": self.c.current_co2 or 0,
+            "temp": dec(self.c.current_temperature or 0),
+            "co2": f"{self.c.current_co2 or 0:.0f}",
         }
         self.hass.async_create_task(
             self._send(
                 kind,
-                title.format(**values),
-                body.format(**values),
+                tr(title, **values),
+                tr(body, **values),
                 speak=(kind == VENT_TOO_COLD or count >= TTS_AFTER_REPEATS)
                 and kind != VENT_DONE
                 and not calm,
@@ -464,7 +465,11 @@ class VentilationManager:
             )
         )
         if kind == VENT_TOO_COLD and count + 1 == TOO_COLD_LOUD:
-            self.c.log("notify", "„Raum kühlt aus“ ab jetzt leise", f"schon {TOO_COLD_LOUD}× laut gemeldet – weitere Erinnerungen alle {TOO_COLD_QUIET_REPEAT} min ohne Ton")
+            self.c.log(
+                "notify",
+                tr("„Raum kühlt aus“ ab jetzt leise"),
+                tr("schon {n}× laut gemeldet – weitere Erinnerungen alle {m} min ohne Ton", n=TOO_COLD_LOUD, m=TOO_COLD_QUIET_REPEAT),
+            )
 
     def _mute_until(self) -> datetime:
         """„Heute nicht mehr“: tagsüber bis Mitternacht, abends/nachts bis zum (gelernten) Morgen."""
@@ -479,7 +484,7 @@ class VentilationManager:
 
     def _mute_label(self) -> str:
         until = self._mute_until()
-        return "Heute nicht mehr" if (until.hour, until.minute) == (0, 0) else f"Bis {until:%H:%M} Uhr"
+        return tr("Heute nicht mehr") if (until.hour, until.minute) == (0, 0) else tr("Bis {time} Uhr", time=f"{until:%H:%M}")
 
     def _tag(self) -> str:
         return f"raumklima_{self.c.entry.entry_id}"
@@ -499,8 +504,8 @@ class VentilationManager:
                     "tag": self._tag(),
                     "group": "raumklima",
                     "actions": [
-                        {"action": self._action_id("DONE"), "title": "Erledigt"},
-                        {"action": self._action_id("SNOOZE"), "title": f"In {SNOOZE_MINUTES} min erinnern"},
+                        {"action": self._action_id("DONE"), "title": tr("Erledigt")},
+                        {"action": self._action_id("SNOOZE"), "title": tr("In {m} min erinnern", m=SNOOZE_MINUTES)},
                         {"action": self._action_id("MUTE"), "title": self._mute_label()},
                     ],
                 },
@@ -514,8 +519,8 @@ class VentilationManager:
             "tag": self._tag(),
             "group": "raumklima",
             "actions": [
-                {"action": self._action_id("DONE"), "title": "Erledigt"},
-                {"action": self._action_id("SNOOZE"), "title": f"In {SNOOZE_MINUTES} min erinnern"},
+                {"action": self._action_id("DONE"), "title": tr("Erledigt")},
+                {"action": self._action_id("SNOOZE"), "title": tr("In {m} min erinnern", m=SNOOZE_MINUTES)},
                 {"action": self._action_id("MUTE"), "title": self._mute_label()},
             ],
             "push": {"interruption-level": "time-sensitive" if kind == VENT_TOO_COLD else "active"},
@@ -568,13 +573,13 @@ class VentilationManager:
             self.snooze_until = now + timedelta(minutes=SNOOZE_MINUTES)
         _LOGGER.info("%s: Benachrichtigungs-Aktion %s", self.c.name, action)
         until = self.muted_until if action == self._action_id("MUTE") else self.snooze_until
-        label = {"MUTE": "„Heute nicht mehr“", "SNOOZE": "„Später erinnern“", "DONE": "„Erledigt“"}.get(
+        label = {"MUTE": tr("„Heute nicht mehr“"), "SNOOZE": tr("„Später erinnern“"), "DONE": tr("„Erledigt“")}.get(
             action.removeprefix("RAUMKLIMA_").split("_", 1)[0], action
         )
         self.c.log(
             "notify",
-            f"Knopf {label} in der Push gedrückt",
-            f"keine Lüft-Hinweise bis {'MoDiMiDoFrSaSo'[dt_util.as_local(until).weekday() * 2:][:2]} {dt_util.as_local(until):%H:%M}" if until else None,
+            tr("Knopf {label} in der Push gedrückt", label=label),
+            tr("keine Lüft-Hinweise bis {day} {time}", day=weekday(dt_util.as_local(until).weekday()), time=f"{dt_util.as_local(until):%H:%M}") if until else None,
         )
         self.c.notify_listeners()
 

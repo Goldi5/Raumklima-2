@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
+from .msg import sdec, tr
+
 SEV_INFO = "info"
 SEV_WARN = "warn"
 SEV_ALERT = "alert"
@@ -48,9 +50,9 @@ def check_battery(levels: dict[str, float]) -> list[Issue]:
         if level is None:
             continue
         if level < BATTERY_ALERT:
-            issues.append(Issue(f"battery:{name}", SEV_ALERT, "Batterie fast leer", f"{name}: noch {level:.0f} % – bald wechseln."))
+            issues.append(Issue(f"battery:{name}", SEV_ALERT, tr("Batterie fast leer"), tr("{name}: noch {level} % – bald wechseln.", name=name, level=f"{level:.0f}")))
         elif level < BATTERY_WARN:
-            issues.append(Issue(f"battery:{name}", SEV_WARN, "Batterie schwach", f"{name}: noch {level:.0f} %."))
+            issues.append(Issue(f"battery:{name}", SEV_WARN, tr("Batterie schwach"), tr("{name}: noch {level} %.", name=name, level=f"{level:.0f}")))
     return issues
 
 
@@ -72,9 +74,12 @@ def check_not_warming(history: list[HistoryPoint], now: datetime) -> Issue | Non
     return Issue(
         "not_warming",
         SEV_WARN,
-        "Raum wird nicht warm",
-        f"Ventil seit 2 h zu {sum(valves) / len(valves):.0f} % offen, Temperatur nur "
-        f"{last.temp - first.temp:+.1f} K. Heizkörper entlüften, Ventilstift oder Vorlauf prüfen.",
+        tr("Raum wird nicht warm"),
+        tr(
+            "Ventil seit 2 h zu {valve} % offen, Temperatur nur {rise} K. Heizkörper entlüften, Ventilstift oder Vorlauf prüfen.",
+            valve=f"{sum(valves) / len(valves):.0f}",
+            rise=sdec(last.temp - first.temp),
+        ),
     )
 
 
@@ -86,8 +91,12 @@ def check_sensor_frozen(hours_unchanged: float | None, trv_delta: float | None) 
         return Issue(
             "sensor_frozen",
             SEV_WARN,
-            "Fühler meldet sich nicht",
-            f"Seit {hours_unchanged:.0f} h derselbe Wert, das Thermostat misst {trv_delta:+.1f} K Änderung. Batterie/Funk des Fühlers prüfen.",
+            tr("Fühler meldet sich nicht"),
+            tr(
+                "Seit {hours} h derselbe Wert, das Thermostat misst {delta} K Änderung. Batterie/Funk des Fühlers prüfen.",
+                hours=f"{hours_unchanged:.0f}",
+                delta=sdec(trv_delta),
+            ),
         )
     return None
 
@@ -103,8 +112,11 @@ def check_sensor_missing(hours_without_value: float | None) -> Issue | None:
     return Issue(
         "sensor_missing",
         SEV_WARN,
-        "Raumfühler meldet sich nicht",
-        f"Seit {hours_without_value:.0f} h keine Werte – geregelt wird solange mit dem Fühler am Thermostat. Batterie und Funk des Fühlers prüfen.",
+        tr("Raumfühler meldet sich nicht"),
+        tr(
+            "Seit {hours} h keine Werte – geregelt wird solange mit dem Fühler am Thermostat. Batterie und Funk des Fühlers prüfen.",
+            hours=f"{hours_without_value:.0f}",
+        ),
     )
 
 
@@ -112,28 +124,32 @@ def check_connection(blips_24h: int, typical_seconds: float | None) -> Issue | N
     """Alle Thermostate gleichzeitig kurz weg → Verbindung (Zigbee2MQTT/MQTT/VPN), nicht die Geräte."""
     if blips_24h < CONNECTION_BLIPS:
         return None
-    dur = f", je ~{typical_seconds:.0f} s" if typical_seconds else ""
+    dur = tr(", je ~{s} s", s=f"{typical_seconds:.0f}") if typical_seconds else ""
     return Issue(
         "connection",
         SEV_INFO,
-        "Verbindung zu den Thermostaten wackelt",
-        f"In 24 h waren {blips_24h}× alle Thermostate gleichzeitig kurz weg{dur}. Das liegt an Zigbee2MQTT, MQTT oder dem VPN, nicht an den Geräten; die Regelung holt alles nach.",
+        tr("Verbindung zu den Thermostaten wackelt"),
+        tr(
+            "In 24 h waren {n}× alle Thermostate gleichzeitig kurz weg{dur}. Das liegt an Zigbee2MQTT, MQTT oder dem VPN, nicht an den Geräten; die Regelung holt alles nach.",
+            n=blips_24h,
+            dur=dur,
+        ),
     )
 
 
 def check_radio(unavailable_events_24h: int, sync_failed: bool) -> Issue | None:
     if sync_failed:
-        return Issue("radio", SEV_ALERT, "Thermostat reagiert nicht", "Befehle werden nicht bestätigt – Funkverbindung oder Batterie prüfen.")
+        return Issue("radio", SEV_ALERT, tr("Thermostat reagiert nicht"), tr("Befehle werden nicht bestätigt – Funkverbindung oder Batterie prüfen."))
     if unavailable_events_24h >= RADIO_EVENTS:
-        return Issue("radio", SEV_WARN, "Funk wackelt", f"Thermostat war in 24 h {unavailable_events_24h}× nicht erreichbar.")
+        return Issue("radio", SEV_WARN, tr("Funk wackelt"), tr("Thermostat war in 24 h {n}× nicht erreichbar.", n=unavailable_events_24h))
     return None
 
 
 def check_window(open_hours: float | None, unavailable_hours: float | None) -> Issue | None:
     if unavailable_hours is not None and unavailable_hours >= WINDOW_UNAVAILABLE_HOURS:
-        return Issue("window_sensor", SEV_WARN, "Fensterkontakt meldet sich nicht", f"Seit {unavailable_hours:.0f} h keine Rückmeldung – Batterie prüfen.")
+        return Issue("window_sensor", SEV_WARN, tr("Fensterkontakt meldet sich nicht"), tr("Seit {hours} h keine Rückmeldung – Batterie prüfen.", hours=f"{unavailable_hours:.0f}"))
     if open_hours is not None and open_hours >= WINDOW_OPEN_HOURS:
-        return Issue("window_open_long", SEV_INFO, "Fenster seit über einem Tag offen", f"Seit {open_hours:.0f} h offen – Kontakt verrutscht oder wirklich offen?")
+        return Issue("window_open_long", SEV_INFO, tr("Fenster seit über einem Tag offen"), tr("Seit {hours} h offen – Kontakt verrutscht oder wirklich offen?", hours=f"{open_hours:.0f}"))
     return None
 
 
@@ -162,8 +178,11 @@ def check_hydraulic(history: list[HistoryPoint], now: datetime, step_minutes: fl
     return Issue(
         "hydraulic",
         SEV_INFO,
-        "Heizkörper kommt kaum hinterher",
-        f"In den letzten 24 h war das Ventil {wide * 100:.0f} % der Heizzeit fast ganz offen, das Ziel wurde nur "
-        f"{reached * 100:.0f} % der Zeit erreicht. Mögliche Ursachen: hydraulischer Abgleich fehlt, "
-        "Vorlauftemperatur der Heizung zu niedrig oder Heizkörper zu klein für den Raum.",
+        tr("Heizkörper kommt kaum hinterher"),
+        tr(
+            "In den letzten 24 h war das Ventil {wide} % der Heizzeit fast ganz offen, das Ziel wurde nur {reached} % der Zeit erreicht. "
+            "Mögliche Ursachen: hydraulischer Abgleich fehlt, Vorlauftemperatur der Heizung zu niedrig oder Heizkörper zu klein für den Raum.",
+            wide=f"{wide * 100:.0f}",
+            reached=f"{reached * 100:.0f}",
+        ),
     )

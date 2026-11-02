@@ -54,6 +54,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     from .websocket_api import async_register_websocket
 
     domain_data(hass)
+    _follow_language(hass)
     await _async_register_card(hass)
     async_register_websocket(hass)
     if getattr(hass, "http", None) is not None:
@@ -61,6 +62,22 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
         hass.http.register_view(ReportView())
     return True
+
+
+def _follow_language(hass: HomeAssistant) -> None:
+    """Meldungen in der Sprache von Home Assistant; Änderungen gelten sofort."""
+    from homeassistant.const import EVENT_CORE_CONFIG_UPDATE
+    from homeassistant.core import Event, callback
+
+    from .msg import set_language
+
+    set_language(hass.config.language)
+
+    @callback
+    def _changed(_event: Event) -> None:
+        set_language(hass.config.language)
+
+    hass.bus.async_listen(EVENT_CORE_CONFIG_UPDATE, _changed)
 
 
 async def _async_register_card(hass: HomeAssistant) -> None:

@@ -25,7 +25,7 @@ The report starts collecting when the integration is installed; meaningful value
 Reload the page. In the app: Settings → Companion app → *Reset frontend cache*.
 
 **The cards are in German.**
-The cards follow your Home Assistant profile language; every language except German shows English. Log entries and push messages from the integration are currently German.
+The cards follow your Home Assistant profile language (German, French, otherwise English). Log entries and push messages follow the system language under *Settings → System → General*; older log entries keep the language they were written in.
 
 **The settings page can't be edited.**
 Only administrators can change settings. Other users see “View only”.

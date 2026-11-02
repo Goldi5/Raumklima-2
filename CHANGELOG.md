@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.17.0 – 2026-11-02
+
+### Neu
+- **Meldungen mehrsprachig** 🇩🇪 🇬🇧 🇫🇷: Push-Nachrichten, Protokoll, Hinweise im Gesundheitscheck,
+  Lüft-Countdown auf dem Sperrbildschirm, Knöpfe in der Push („Erledigt“, „In 10 min erinnern“), Lichtsignal-
+  Einträge, die E-Mail-Prüfung und Fehlermeldungen der Karte kommen jetzt in der Systemsprache von
+  Home Assistant (*Einstellungen → System → Allgemein*): Deutsch, Französisch, sonst Englisch. Eine Änderung
+  der Sprache gilt sofort, ohne Neustart. Zahlen mit Dezimalkomma auf Deutsch und Französisch.
+- Ältere Protokolleinträge behalten die Sprache, in der sie geschrieben wurden.
+- Für Entwickler: Texte stehen in `msg_catalog.py`; ein Test prüft, dass jeder Text in allen Sprachen
+  vorhanden ist und die Platzhalter passen.
+
 ## 0.16.0 – 2026-11-02
 
 ### Neu

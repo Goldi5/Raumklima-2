@@ -14,6 +14,7 @@ from .decision_log import (
     CAT_SETTINGS,
 )
 from .holidays_de import holiday_name
+from .msg import tr
 from .sleep import BED, WAKE, effective_times, is_weekend_night, night_of
 
 if TYPE_CHECKING:
@@ -53,11 +54,11 @@ class SleepMixin:
         if kind == BED:
             when = dt_util.as_local(self.signals.bed_at) if self.signals.bed_at else local
             names = ", ".join(self._entity_name(e) for e in self.sleep_signals)
-            self.log.add(CAT_PRESENCE, "Schlafenszeit erkannt", f"{names} seit {when:%H:%M} aus – Ruhezeit gilt ab jetzt")
+            self.log.add(CAT_PRESENCE, tr("Schlafenszeit erkannt"), tr("{names} seit {time} aus – Ruhezeit gilt ab jetzt", names=names, time=f"{when:%H:%M}"))
             self.record_sleep(BED, when, "Licht")
         else:
             self._woke_night = night_of(local).isoformat()
-            self.log.add(CAT_PRESENCE, "Aufgestanden erkannt", f"{self._entity_name(entity_id or '')} ist an – Ruhezeit endet")
+            self.log.add(CAT_PRESENCE, tr("Aufgestanden erkannt"), tr("{name} ist an – Ruhezeit endet", name=self._entity_name(entity_id or "")))
             self.record_sleep(WAKE, local, "Licht")
         self._save()
         self._changed()
@@ -76,11 +77,14 @@ class SleepMixin:
         self.sleep.prune(local.date())
         after = self.sleep.learned(weekend).as_dict()
         if (before["bed"], before["wake"]) != (after["bed"], after["wake"]) and (after["bed"] or after["wake"]):
-            label = "Wochenende" if weekend else "werktags"
+            label = tr("Wochenende") if weekend else tr("werktags")
             self.log.add(
                 CAT_SETTINGS,
-                f"Schlafenszeiten gelernt ({label})",
-                f"ins Bett ~{after['bed'] or '–'} ({after['nights_bed']} Nächte), aufstehen ~{after['wake'] or '–'} ({after['nights_wake']} Nächte)",
+                tr("Schlafenszeiten gelernt ({label})", label=label),
+                tr(
+                    "ins Bett ~{bed} ({nb} Nächte), aufstehen ~{wake} ({nw} Nächte)",
+                    bed=after["bed"] or "–", nb=after["nights_bed"], wake=after["wake"] or "–", nw=after["nights_wake"],
+                ),
             )
         self._save()
 

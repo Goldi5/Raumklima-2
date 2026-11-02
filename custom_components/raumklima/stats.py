@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any
 
+from .msg import tr
+
 ENERGY_PER_KELVIN = 0.06  # Faustregel Verbraucherzentrale: ~6 % Heizenergie je Grad
 HDD_BASE = 15.0  # Heizgradtage-Basis = Heizgrenze
 MAX_DAYS = 400
@@ -279,16 +281,17 @@ def compare(current: dict[str, Any], previous: dict[str, Any]) -> float | None:
 def week_message(cur: dict[str, Any], change: float | None) -> str:
     """Kurztext für die Wochen-Push."""
     t = cur["total"]
-    parts = [f"{t['heating_h']:.0f} Heizstunden"]
+    parts = [tr("{h} Heizstunden", h=f"{t['heating_h']:.0f}")]
     if change is not None:
-        parts[0] += f" ({'+' if change > 0 else '−' if change < 0 else '±'}{abs(change):.0f} % ggü. Vorwoche, wetterbereinigt)"
+        sign = "+" if change > 0 else "−" if change < 0 else "±"
+        parts[0] += tr(" ({c} % ggü. Vorwoche, wetterbereinigt)", c=f"{sign}{abs(change):.0f}")
     if t["setback_h"]:
-        parts.append(f"{t['setback_h']:.0f} h abgesenkt, ≈ {cur['total']['saving_pct']:.0f} % gespart")
+        parts.append(tr("{h} h abgesenkt, ≈ {p} % gespart", h=f"{t['setback_h']:.0f}", p=f"{cur['total']['saving_pct']:.0f}"))
     if t["on_target_pct"] is not None:
-        parts.append(f"{t['on_target_pct']} % auf Zieltemperatur")
+        parts.append(tr("{p} % auf Zieltemperatur", p=t["on_target_pct"]))
     humid = sorted(((n, r["humid_h"]) for n, r in cur["rooms"].items() if r["humid_h"] >= 2), key=lambda x: -x[1])
     if humid:
-        parts.append(", ".join(f"{n} {h:.0f} h zu feucht" for n, h in humid[:2]))
+        parts.append(", ".join(tr("{room} {h} h zu feucht", room=n, h=f"{h:.0f}") for n, h in humid[:2]))
     return " · ".join(parts)
 
 

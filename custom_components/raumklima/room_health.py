@@ -33,6 +33,7 @@ from .health import (
 from .logic import (
     to_float,
 )
+from .msg import dec, tr
 from .stats import RoomSample
 
 _LOGGER = logging.getLogger(__name__)
@@ -123,10 +124,10 @@ class HealthMixin:
         if ep is not None:
             self.log(
                 CAT_TARGET,
-                f"Aufgeheizt: +{fmt_temp(ep.rise)} in {ep.minutes:.0f} min",
-                f"{ep.rate:.1f} °C pro Stunde".replace(".", ",")
-                + (f" bei {fmt_temp(ep.outdoor)} draußen" if ep.outdoor is not None else "")
-                + f" – gelernt aus {len(self.heatup.episodes)} Aufheizvorgängen",
+                tr("Aufgeheizt: +{rise} in {m} min", rise=fmt_temp(ep.rise), m=f"{ep.minutes:.0f}"),
+                tr("{rate} °C pro Stunde", rate=dec(ep.rate))
+                + (tr(" bei {t} draußen", t=fmt_temp(ep.outdoor)) if ep.outdoor is not None else "")
+                + tr(" – gelernt aus {n} Aufheizvorgängen", n=len(self.heatup.episodes)),
             )
             self._save()
         self.health_hist.append(
@@ -157,7 +158,7 @@ class HealthMixin:
                 if self.trv_temperature is not None and self._trv_at_ext_change is not None
                 else None,
             ),
-            Issue("throttled", "warn", "Thermostat und Integration verstellen sich", "Zu viele Befehle in kurzer Zeit – die Integration pausiert kurz. Zeitplan/Automatik am Thermostat oder andere Automationen prüfen.")
+            Issue("throttled", "warn", tr("Thermostat und Integration verstellen sich"), tr("Zu viele Befehle in kurzer Zeit – die Integration pausiert kurz. Zeitplan/Automatik am Thermostat oder andere Automationen prüfen."))
             if self.throttled_until and now < self.throttled_until else None,
             check_sensor_missing(
                 None if self.sensor_ok else (now - (self._ext_time or self._started_at)).total_seconds() / 3600
@@ -189,8 +190,8 @@ class HealthMixin:
         self._unavail_events.append(self._trv_down_since)
         self.log(
             CAT_DEVICE,
-            "Thermostat nicht erreichbar",
-            "seit über einer Minute keine Verbindung – letzter Stand bleibt, Befehle werden nachgeholt",
+            tr("Thermostat nicht erreichbar"),
+            tr("seit über einer Minute keine Verbindung – letzter Stand bleibt, Befehle werden nachgeholt"),
             level="warn",
         )
 

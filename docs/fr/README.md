@@ -38,7 +38,7 @@ Tout thermostat de radiateur qui apparaît comme entité `climate` dans Home Ass
 | Assistants de configuration | ✅ |
 | Tableau de bord et cartes, explications « ? » | ✅ |
 | Rapports PDF | ✅ |
-| Notifications push et journal | ✅ (à partir de la version 0.17) |
+| Notifications push, journal et messages d’erreur | ✅ (selon la langue du système Home Assistant) |
 | Documentation détaillée et manuel PDF | en allemand et en anglais |
 
 ## Aide

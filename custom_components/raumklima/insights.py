@@ -14,6 +14,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, KIND_HEALTH, KIND_REPORT
 from .health import SEV_INFO, Issue, check_connection
+from .msg import tr
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
 if TYPE_CHECKING:
@@ -151,9 +152,9 @@ class Insights:
             for issue in issues:
                 if issue.code not in old:
                     room.fire_event("health", {"state": "problem", "code": issue.code, "title": issue.title, "severity": issue.severity})
-                    room.log("health", f"Problem erkannt: {issue.title}", issue.message, level="info" if issue.severity == SEV_INFO else "warn")
+                    room.log("health", tr("Problem erkannt: {title}", title=issue.title), issue.message, level="info" if issue.severity == SEV_INFO else "warn")
             for code in old - {i.code for i in issues}:
-                room.log("health", "Problem behoben", code)
+                room.log("health", tr("Problem behoben"), code)
             if {i.code for i in issues} != old:
                 changed = True
                 room.notify_listeners()
@@ -290,7 +291,7 @@ class Insights:
     async def _weekly(self, today: date, short: str) -> None:
         """Wochenbericht als PDF mit Link – sonst wie bisher nur die Kurzfassung."""
         if not await self.hub.pdf.async_weekly(today, short):
-            self.hub.notify(KIND_REPORT, "📊 Heizung diese Woche", short, speak=False)
+            self.hub.notify(KIND_REPORT, tr("📊 Heizung diese Woche"), short, speak=False)
 
     @callback
     def _on_daily(self, now: datetime) -> None:

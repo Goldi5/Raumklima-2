@@ -26,6 +26,7 @@ from custom_components.raumklima.const import (
     HUB_DEFAULTS,
     HUB_UNIQUE_ID,
 )
+from custom_components.raumklima.msg import set_language
 
 TRV = "climate.trv_bad"
 SENSOR = "sensor.bad_temperatur"
@@ -41,7 +42,13 @@ def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
 def no_frontend(hass: HomeAssistant) -> Generator[None]:
     """Karte/Ressourcen brauchen das Frontend (hass_frontend) – im Test überspringen."""
     hass.config.components.add("frontend")
-    with patch("custom_components.raumklima._async_register_card", return_value=None):
+    # Meldungen in den Tests auf Deutsch (Übersetzungen prüft tests/test_msg.py); die
+    # Entitätsnamen bleiben englisch wie bisher (hass.config.language = "en").
+    set_language("de")
+    with (
+        patch("custom_components.raumklima._async_register_card", return_value=None),
+        patch("custom_components.raumklima._follow_language", return_value=None),
+    ):
         yield
 
 
