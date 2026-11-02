@@ -91,6 +91,19 @@ export class RaumklimaOverviewCard extends HTMLElement {
         : "";
       const prefix = this._config.strip_prefix ?? "";
       const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
+      // Angezeigt wird, worauf der Raum gerade regelt (Zeitplan, Boost, Absenkung).
+      // Der Wunsch steht daneben, wenn er davon abweicht – sonst wirken HA-Dial und Karte widersprüchlich (Issue #12).
+      const applied = a.effective_target != null ? a.effective_target : a.temperature;
+      const wishDiffers = a.effective_target != null && a.temperature != null && Math.abs(a.effective_target - a.temperature) >= 0.05;
+      const targetText = off
+        ? t("aus")
+        : a.plan_reason === "season"
+          ? t("Pause")
+          : wishDiffers
+            ? (a.effective_target < a.temperature
+              ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) })
+              : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) }))
+            : t("Ziel {v}°", { v: fmt(applied) });
       return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
@@ -99,7 +112,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
         <div class="rs">${label}${trvNote}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
-          <div class="rmeta">${off ? t("aus") : a.plan_reason === "season" ? t("Pause") : a.effective_target != null && a.effective_target < a.temperature ? t("↓ {v}° · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) }) : t("Ziel {v}°", { v: fmt(a.temperature) })}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
+          <div class="rmeta">${targetText}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
         </div>
       </div>`;
     };

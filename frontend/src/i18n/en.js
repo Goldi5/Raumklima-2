@@ -557,4 +557,6 @@ export const EN = {
   "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert": "get the same commands, each with its own check and correction",
   "nicht erreichbar": "unreachable",
   "Ventil Ø": "Valve avg",
+  "Bitte Uhrzeit als HH:MM eingeben": "Please enter the time as HH:MM",
+  "Ziel {v}° · Wunsch {w}°": "Target {v}° · wish {w}°",
 };

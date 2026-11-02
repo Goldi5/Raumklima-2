@@ -465,3 +465,18 @@ async def test_room_exposes_home_entry_id(hass: HomeAssistant, setup) -> None:
     assert st is not None
     assert st.attributes.get("home") == hub.entry_id
 
+
+
+async def test_window_open_und_close_speichern_sofort(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Beim Öffnen und Schließen wird sofort gesichert (Issue #9)."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    calls: list[int] = []
+    ctrl.save = lambda: calls.append(1)  # type: ignore[method-assign]
+
+    ctrl.vent.on_window_raw(True)
+    assert calls, "Beim Öffnen muss der Zustand gesichert werden"
+    ctrl.vent.on_window_raw(False)
+    assert len(calls) == 2, "Auch das Schließen muss gesichert werden"

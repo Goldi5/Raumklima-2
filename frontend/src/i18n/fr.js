@@ -557,4 +557,6 @@ export const FR = {
   "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert": "reçoivent les mêmes commandes, chacun avec sa propre vérification et sa propre correction",
   "nicht erreichbar": "injoignable",
   "Ventil Ø": "Vanne Ø",
+  "Bitte Uhrzeit als HH:MM eingeben": "Merci d'indiquer l'heure au format HH:MM",
+  "Ziel {v}° · Wunsch {w}°": "Consigne {v}° · souhait {w}°",
 };

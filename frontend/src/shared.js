@@ -54,6 +54,29 @@ export function rkHomes(hass) {
     .map((e) => { const a = hass.states[e.entity_id].attributes; return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id }; })
     .filter((h) => h.id);
 }
+// Eigene Zeitfelder: <input type="time"> zeichnet der Browser in der Sprache des
+// Betriebssystems (12 h mit AM/PM) – unabhängig von der Zeiteinstellung in Home Assistant.
+// Deshalb HH:MM als Textfeld, hier wird die Eingabe geprüft und vereinheitlicht.
+export function rkTimeValue(text) {
+  const s = String(text || "").trim();
+  const parts = s.split(/[:. ]+/).filter(Boolean);
+  const digits = s.replace(/\D/g, "");
+  let h;
+  let min;
+  if (parts.length >= 2) {
+    h = parseInt(parts[0], 10);
+    min = parseInt(parts[1], 10);
+  } else if (digits.length <= 2) {
+    h = parseInt(digits, 10);
+    min = 0;
+  } else {
+    h = parseInt(digits.slice(0, digits.length - 2), 10);
+    min = parseInt(digits.slice(-2), 10);
+  }
+  if (!Number.isFinite(h) || !Number.isFinite(min) || h < 0 || h > 23 || min < 0 || min > 59) return "";
+  return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+}
+
 // Welche Wohnung gehört zu dieser Karte? Aus der Konfiguration (ID oder Name),
 // sonst aus dem Dashboard, auf dem die Karte liegt (Pfad → Dashboard der Wohnung).
 export function rkHomeId(hass, config = {}) {
@@ -416,6 +439,8 @@ export const SETTINGS_STYLES = `
   .sched .d.on { background: var(--rk-heat); color:#fff; }
   .sched input.tm { font:inherit; padding:5px 8px; border-radius:8px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
     background: transparent; color: var(--primary-text-color); }
+  /* HH:MM-Felder: der Browser würde <input type="time"> je nach Betriebssystem mit AM/PM zeichnen */
+  .inp.hm, .sched input.tm { width: 76px; text-align: center; font-variant-numeric: tabular-nums; }
   .sched .temp { min-width:58px; text-align:right; font-variant-numeric: tabular-nums; }
   .sched .del { all:unset; cursor:pointer; padding:3px 7px; border-radius:8px; color: var(--rk-cold); }
   .sched .add { all:unset; cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-top:8px; padding:7px 14px; border-radius:10px;

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.25.1 – 2026-11-02
+
+### Behoben
+- **Zeitfelder zeigten AM/PM** (Issue #7): `<input type="time">` wird vom Browser in der Sprache des
+  Betriebssystems gezeichnet – die Zeiteinstellung von Home Assistant zählt dabei nicht. Ruhezeit,
+  Wochenende, Nachtlüften und die Zeitfenster im Zeitplan sind jetzt eigene HH:MM-Felder; die Eingabe wird
+  geprüft und vereinheitlicht („7:5", „0730", „7.05" → „07:05").
+- **Fenster-Timer nach Neustart wieder bei null** (Issue #9): Der Öffnungszeitpunkt wurde nur zusammen mit
+  anderen Änderungen gespeichert – stand der Raum sonst still, ging er verloren. Beim Öffnen und Schließen
+  wird jetzt sofort gesichert.
+- **Kachel zeigte bei aktivem Zeitplan den Wunsch statt des Ziels** (Issue #12): Angezeigt wird der Wert,
+  auf den der Raum gerade regelt; weicht der Wunsch ab, steht er daneben („Ziel 19,0° · Wunsch 17,0°").
+  In Home Assistant bleibt `temperature` weiterhin der Wunsch – dort ist es der Wert, den man einstellt.
+
 ## 0.25.0 – 2026-11-02
 
 ### Neu

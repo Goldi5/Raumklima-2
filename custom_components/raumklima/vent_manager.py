@@ -286,12 +286,16 @@ class VentilationManager:
             self._repeat_count.pop(VENT_TOO_COLD, None)
             self._night_alarm_sent = False
             self._night_morning_sent = None
+            # Sofort sichern: sonst überlebt der Öffnungszeitpunkt keinen Neustart,
+            # solange der Raum sonst nichts zu tun hat (Issue #9).
+            self.c.save()
         elif not is_open and self.window_open_since:
             self.window_open_since = None
             self._restored_since = None
             self.temp_at_open = None
             self._last_sent.pop(VENT_PLEASE_OPEN, None)
             self.humidity_high_since = None if (self.humidity or 0) < self.humidity_limit else dt_util.utcnow()
+            self.c.save()
         self.update()
 
     @callback

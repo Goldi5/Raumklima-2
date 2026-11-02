@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, rkTimeValue, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -401,10 +401,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
     // --- Allgemein Benachrichtigung
     const hm = (v) => String(v || "").slice(0, 5);
+    // Eigene HH:MM-Felder – der Browser würde sonst je nach Betriebssystem AM/PM zeichnen (Issue #7)
+    const tf = (key, val) => `<input type="text" class="inp hm" inputmode="numeric" maxlength="5" placeholder="HH:MM" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
     const notiRows = [
-      this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
-      this._row("Wochenende bis", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_end_weekend" value="${hm(this._hubOpt("quiet_end_weekend"))}" ${this._admin ? "" : "disabled"}></span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
-      this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
+      this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+      this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
+      this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
       this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
       this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
       this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
@@ -489,8 +491,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
       .join("");
     return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm" type="time" lang="${loc()}" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm" type="time" lang="${loc()}" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
+      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
@@ -775,8 +777,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
     $("[data-schedtime]").forEach((el) => el.addEventListener("change", () => {
       const [id, i, which] = sp(el.dataset.schedtime);
       const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
-      if (!w || !el.value) return;
-      w[which] = el.value;
+      if (!w) return;
+      const v = rkTimeValue(el.value);
+      if (!v) {
+        this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
+        el.value = w[which] || "";
+        return;
+      }
+      el.value = v;
+      w[which] = v;
       this._pushSched(id);
     }));
     $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
@@ -797,7 +806,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
       this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
     }));
-    $("[data-time]").forEach((el) => el.addEventListener("change", () => el.value && this._setHub({ [el.dataset.time]: el.value + ":00" }, 200)));
+    $("[data-time]").forEach((el) => el.addEventListener("change", () => {
+      const key = el.dataset.time;
+      const v = rkTimeValue(el.value);
+      if (!v) {
+        this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
+        el.value = String(this._hubOpt(key) || "").slice(0, 5);
+        return;
+      }
+      el.value = v;
+      this._setHub({ [key]: v + ":00" }, 200);
+    }));
     $("[data-person]").forEach((el) => el.addEventListener("click", () => {
       const list = [...(this._hubOpt("residents") || [])];
       const i = list.indexOf(el.dataset.person);

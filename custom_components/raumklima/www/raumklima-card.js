@@ -1,4 +1,4 @@
-/* Raumklima 0.25.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.25.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -557,7 +557,9 @@
     "Haupt-Thermostat": "main thermostat",
     "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert": "get the same commands, each with its own check and correction",
     "nicht erreichbar": "unreachable",
-    "Ventil Ø": "Valve avg"
+    "Ventil Ø": "Valve avg",
+    "Bitte Uhrzeit als HH:MM eingeben": "Please enter the time as HH:MM",
+    "Ziel {v}° · Wunsch {w}°": "Target {v}° · wish {w}°"
   };
 
   // src/i18n/fr.js
@@ -1117,7 +1119,9 @@
     "Haupt-Thermostat": "thermostat principal",
     "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert": "reçoivent les mêmes commandes, chacun avec sa propre vérification et sa propre correction",
     "nicht erreichbar": "injoignable",
-    "Ventil Ø": "Vanne Ø"
+    "Ventil Ø": "Vanne Ø",
+    "Bitte Uhrzeit als HH:MM eingeben": "Merci d'indiquer l'heure au format HH:MM",
+    "Ziel {v}° · Wunsch {w}°": "Consigne {v}° · souhait {w}°"
   };
 
   // src/i18n.js
@@ -1161,7 +1165,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.25.0";
+  var RK_VERSION = "0.25.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1204,6 +1208,25 @@
       const a = hass.states[e.entity_id].attributes;
       return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id };
     }).filter((h) => h.id);
+  }
+  function rkTimeValue(text) {
+    const s = String(text || "").trim();
+    const parts = s.split(/[:. ]+/).filter(Boolean);
+    const digits = s.replace(/\D/g, "");
+    let h;
+    let min;
+    if (parts.length >= 2) {
+      h = parseInt(parts[0], 10);
+      min = parseInt(parts[1], 10);
+    } else if (digits.length <= 2) {
+      h = parseInt(digits, 10);
+      min = 0;
+    } else {
+      h = parseInt(digits.slice(0, digits.length - 2), 10);
+      min = parseInt(digits.slice(-2), 10);
+    }
+    if (!Number.isFinite(h) || !Number.isFinite(min) || h < 0 || h > 23 || min < 0 || min > 59) return "";
+    return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
   }
   function rkHomeId(hass, config = {}) {
     const hs = rkHomes(hass);
@@ -1539,6 +1562,8 @@
   .sched .d.on { background: var(--rk-heat); color:#fff; }
   .sched input.tm { font:inherit; padding:5px 8px; border-radius:8px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
     background: transparent; color: var(--primary-text-color); }
+  /* HH:MM-Felder: der Browser würde <input type="time"> je nach Betriebssystem mit AM/PM zeichnen */
+  .inp.hm, .sched input.tm { width: 76px; text-align: center; font-variant-numeric: tabular-nums; }
   .sched .temp { min-width:58px; text-align:right; font-variant-numeric: tabular-nums; }
   .sched .del { all:unset; cursor:pointer; padding:3px 7px; border-radius:8px; color: var(--rk-cold); }
   .sched .add { all:unset; cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-top:8px; padding:7px 14px; border-radius:10px;
@@ -2029,6 +2054,9 @@
         const trvNote = a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : "";
         const prefix = this._config.strip_prefix ?? "";
         const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
+        const applied = a.effective_target != null ? a.effective_target : a.temperature;
+        const wishDiffers = a.effective_target != null && a.temperature != null && Math.abs(a.effective_target - a.temperature) >= 0.05;
+        const targetText = off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? a.effective_target < a.temperature ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(a.temperature) }) : t("Ziel {v}°", { v: fmt(applied) });
         return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
@@ -2040,7 +2068,7 @@
         <div class="rs">${label}${trvNote}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
-          <div class="rmeta">${off ? t("aus") : a.plan_reason === "season" ? t("Pause") : a.effective_target != null && a.effective_target < a.temperature ? t("↓ {v}° · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.temperature) }) : t("Ziel {v}°", { v: fmt(a.temperature) })}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
+          <div class="rmeta">${targetText}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>
         </div>
       </div>`;
       };
@@ -3229,10 +3257,11 @@
         <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
         <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
       const hm = (v) => String(v || "").slice(0, 5);
+      const tf = (key, val) => `<input type="text" class="inp hm" inputmode="numeric" maxlength="5" placeholder="HH:MM" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
       const notiRows = [
-        this._row("Ruhezeit", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_start" value="${hm(this._hubOpt("quiet_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="quiet_end" value="${hm(this._hubOpt("quiet_end"))}" ${this._admin ? "" : "disabled"}></span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
-        this._row("Wochenende bis", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="quiet_end_weekend" value="${hm(this._hubOpt("quiet_end_weekend"))}" ${this._admin ? "" : "disabled"}></span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
-        this._row("Nachtlüften", `<span class="v"><input type="time" class="inp" lang="${loc()}" data-time="night_start" value="${hm(this._hubOpt("night_start"))}" ${this._admin ? "" : "disabled"}> – <input type="time" class="inp" lang="${loc()}" data-time="night_end" value="${hm(this._hubOpt("night_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
+        this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+        this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
+        this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
         this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
         this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
         this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
@@ -3320,8 +3349,8 @@
       const btn = [0, 1, 2, 3, 4, 5, 6].map((d) => `<button class="d ${on(d) ? "on" : ""}" data-schedday="${id}|${i}|${d}" title="${esc(schedDayName(d))}">${esc(schedDayName(d))}</button>`).join("");
       return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm" type="time" lang="${loc()}" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm" type="time" lang="${loc()}" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
+      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
@@ -3625,8 +3654,15 @@
       $("[data-schedtime]").forEach((el) => el.addEventListener("change", () => {
         const [id, i, which] = sp(el.dataset.schedtime);
         const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
-        if (!w || !el.value) return;
-        w[which] = el.value;
+        if (!w) return;
+        const v = rkTimeValue(el.value);
+        if (!v) {
+          this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
+          el.value = w[which] || "";
+          return;
+        }
+        el.value = v;
+        w[which] = v;
         this._pushSched(id);
       }));
       $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
@@ -3651,7 +3687,17 @@
         const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
         this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
       }));
-      $("[data-time]").forEach((el) => el.addEventListener("change", () => el.value && this._setHub({ [el.dataset.time]: el.value + ":00" }, 200)));
+      $("[data-time]").forEach((el) => el.addEventListener("change", () => {
+        const key = el.dataset.time;
+        const v = rkTimeValue(el.value);
+        if (!v) {
+          this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
+          el.value = String(this._hubOpt(key) || "").slice(0, 5);
+          return;
+        }
+        el.value = v;
+        this._setHub({ [key]: v + ":00" }, 200);
+      }));
       $("[data-person]").forEach((el) => el.addEventListener("click", () => {
         const list = [...this._hubOpt("residents") || []];
         const i = list.indexOf(el.dataset.person);
