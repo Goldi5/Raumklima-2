@@ -149,6 +149,11 @@ Absenkung. Die Karte zeigt, wenn gerade ein Zeitplan gilt („Zeitplan · Ziel 2
 wie lange, stellst du unter *Zeitplan* ein (Standard 2 K / 30 min). Die Karte zeigt während des Boosts die
 Restzeit; erneut drücken beendet ihn sofort. Der Boost gilt auch dann, wenn sonst abgesenkt würde.
 
+**Vorheizen:** Damit es zum Beginn eines Fensters schon warm ist, rechnet der Raum aus seiner gelernten
+Aufheizzeit aus, wann er loslegen muss, und fängt rechtzeitig an (10 Minuten Puffer). Die Karte zeigt dann
+„Vorheizen für Zeitplan“. Das passiert nur, wenn jemand zu Hause ist und der Raum seine Aufheizzeit schon
+gelernt hat – sie wächst mit jeder Aufheizung von selbst.
+
 ## Mehrere Wohnungen
 
 Unter *Einstellungen → Allgemein → Wohnung* legst du eine weitere Wohnung an (z. B. Remscheid). Sie bekommt eine eigene Zentrale mit eigenen Bewohnern, Zone, Empfängern, Heizsaison, Schlafenszeiten, Bericht und Protokoll. Neue Räume ordnest du im Raum-Reiter unter *Wohnung* zu.

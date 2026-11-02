@@ -9,6 +9,7 @@ export const EN = {
   "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
   "Export fehlgeschlagen: {e}": "Export failed: {e}",
   "Kalender": "Calendar",
+  "Vorheizen für Zeitplan · <b>{v} °C</b>": "Preheating for schedule · <b>{v} °C</b>",
   "z. B. abends 19–21 Uhr wärmer": "e.g. warmer in the evening from 7 to 9 pm",
   "von": "from",
   "täglich": "daily",

@@ -155,6 +155,11 @@ n’est là, l’abaissement l’emporte. La carte indique quand un planning s�
 la durée se règlent sous *Planning* (2 K / 30 min par défaut). La carte affiche le temps restant pendant le
 boost ; un second appui l’arrête aussitôt. Le boost s’applique même quand la pièce serait abaissée.
 
+**Préchauffage :** Pour que la pièce soit déjà chaude au début d’une plage, Raumklima déduit de la vitesse
+de chauffe apprise quand commencer et démarre à temps (10 minutes de marge). La carte affiche alors
+« Préchauffage pour le planning ». Cela n’arrive que si quelqu’un est à la maison et que la pièce a déjà
+appris sa vitesse de chauffe – elle progresse à chaque chauffe, rien à régler.
+
 ## Plusieurs maisons
 
 Sous *Réglages → Général → Maison*, vous pouvez créer une autre maison (p. ex. un appartement de vacances). Elle obtient son propre hub avec ses propres habitants, zone, destinataires, saison de chauffage, heures de sommeil, rapport et journal. Affectez les pièces dans l’onglet de la pièce sous *Maison*.

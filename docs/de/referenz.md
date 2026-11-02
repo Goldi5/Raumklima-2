@@ -87,6 +87,7 @@
 > `{days, start, end, temperature}` (Tage: 0 = Montag … 6 = Sonntag, leer = jeden Tag; Zeiten „HH:MM“,
 > auch über Mitternacht). `boost_temperature` (Zusatz in K) und `boost_minutes` legen den Boost fest.
 > Der Zeitplan setzt nur den Sollwert – Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig.
+> Bei gelerntem Raum wird rechtzeitig vorgeheizt, damit es zum Fensterbeginn warm ist.
 
 ## Entitäten der Zentrale „Allgemein“
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.20.0 – 2026-11-02
+
+### Neu
+- **Vorheizen auf ein Zeitfenster**: Der Raum rechnet aus seiner gelernten Aufheizzeit (°C/h), wann er
+  loslegen muss, um zum Beginn des nächsten Zeitfensters warm zu sein – plus 10 Minuten Puffer. Im Beispiel
+  „Wohnzimmer 19–21 Uhr 22 °C“ heißt das: rechtzeitig vor 19 Uhr wird angefangen, wenn es sonst nicht
+  reichen würde. Neuer Plan-Grund `schedule_preheat` (Attribut `plan_reason`), in der Karte als
+  „Vorheizen für Zeitplan · Ziel 22,0 °C“ sichtbar.
+
+### Hinweise
+- Vorgeheizt wird nur, wenn der Raum seine Aufheizrate schon gelernt hat (mindestens drei Aufheizvorgänge)
+  und jemand zu Hause ist. Ohne gelernte Zeit passiert nichts, bei Abwesenheit gewinnt die Absenkung. Die
+  Aufheizrate wächst mit jeder Aufheizung von selbst – nichts einzustellen.
+
 ## 0.19.0 – 2026-11-02
 
 ### Neu

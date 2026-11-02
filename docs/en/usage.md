@@ -154,6 +154,11 @@ The card shows when a schedule is active (“Schedule · target 22.0 °C”).
 long is set under *Schedule* (default 2 K / 30 min). The card shows the remaining time during a boost; pressing
 again ends it right away. The boost also applies when the room would otherwise be set back.
 
+**Preheating:** So the room is already warm when a window begins, Raumklima works out from the learned
+heat-up rate when it has to start and begins in time (10 minutes of buffer). The card then shows
+“Preheating for schedule”. This only happens when somebody is at home and the room has already learned its
+heat-up rate – it grows with every heat-up, nothing to configure.
+
 ## Several homes
 
 Under *Settings → General → Home* you can create another home (e.g. a holiday flat). It gets its own hub with its own residents, zone, recipients, heating season, sleep times, report and log. Assign rooms in the room tab under *Home*.

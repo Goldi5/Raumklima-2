@@ -94,6 +94,7 @@
 > `{days, start, end, temperature}` (days: 0 = Monday … 6 = Sunday, empty = every day; times “HH:MM”, also
 > across midnight). `boost_temperature` (offset in K) and `boost_minutes` define the boost. The schedule only
 > sets the target temperature – windows, frost, mould, heating break and absence stay in charge.
+> In a room with a learned heat-up rate it starts in time so the room is warm when the window begins.
 
 ## Entities of the hub “Allgemein”
 

@@ -233,3 +233,60 @@ async def test_boost_button_starts_and_stops(hass: HomeAssistant, setup, trv: Fa
     await hass.services.async_call("button", "press", {"entity_id": eid}, blocking=True)
     await hass.async_block_till_done()
     assert hass.states.get("climate.bad").attributes["boost_until"] is None
+
+
+async def test_preheats_before_schedule_window(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Mit gelernter Aufheizzeit wird vor dem Zeitfenster angefangen (Phase 4)."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    # gelernter Wert: 1 K/h (drei Episoden sind das Minimum für eine Rate)
+    ctrl.heatup.episodes = [{"rate": 1.0, "outdoor": 5.0, "minutes": 60, "rise": 1.0}] * 3
+    start = (dt_util.now() + timedelta(minutes=60)).strftime("%H:%M")
+    ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": start, "end": "23:59", "temperature": 26.0}]}
+    )
+    await hass.async_block_till_done()
+    on, target, reason = ctrl.plan()
+    assert reason == "schedule_preheat"
+    assert on is True
+    assert target == 26.0
+
+
+async def test_preheat_only_with_rate_and_when_somebody_is_home(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Ohne gelernte Aufheizzeit und bei Abwesenheit wird nicht vorgeheizt."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.planning import STAGE_AWAY_LONG, STAGE_HOME
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    start = (dt_util.now() + timedelta(minutes=60)).strftime("%H:%M")
+    ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": start, "end": "23:59", "temperature": 26.0}]}
+    )
+    await hass.async_block_till_done()
+
+    # nichts gelernt → kein Vorheizen
+    ctrl.heatup.episodes = []
+    assert ctrl.plan()[2] != "schedule_preheat"
+
+    # gelernt, aber niemand da → die Absenkung gewinnt
+    ctrl.heatup.episodes = [{"rate": 1.0, "outdoor": 5.0, "minutes": 60, "rise": 1.0}] * 3
+    hub = get_hub(hass, None)
+    hub.stage = STAGE_AWAY_LONG
+    on, target, reason = ctrl.plan()
+    assert reason != "schedule_preheat"
+    assert target < 26.0
+    hub.stage = STAGE_HOME
+

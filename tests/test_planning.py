@@ -18,6 +18,7 @@ from rk.planning import (
     haversine_km,
     in_season,
     mold_safe_min_temp,
+    next_schedule_window,
     parse_md,
     presence_stage,
     schedule_target,
@@ -322,6 +323,36 @@ def test_frost_night() -> None:
     assert frost_night_min(_hours(now, ["clear-night"] * 13, temps=[0, -2, -4, -6, -8, -7, -6, -5, -4, -3, -2, -1, 0]), now) == -8
     assert frost_night_min(_hours(now, ["cloudy"] * 13, temps=[2] * 13), now) is None
     assert frost_night_setback(16.0, 21.0) == 18.5
+
+
+def test_next_schedule_window() -> None:
+    """Das nächste kommende Fenster wird gefunden – mit Wochentagen, Mitternacht und Horizont."""
+    abends = [{"days": [0], "start": "19:00", "end": "21:00", "temperature": 22.0}]
+    # Montag 18:00 → heute 19:00
+    assert next_schedule_window(abends, datetime(2026, 11, 2, 18, 0)) == (datetime(2026, 11, 2, 19, 0), 22.0)
+    # das laufende Fenster zählt nicht, der nächste Termin liegt außerhalb des Horizonts
+    assert next_schedule_window(abends, datetime(2026, 11, 2, 20, 0)) is None
+    # mit größerem Horizont kommt der Termin nächste Woche
+    gross = next_schedule_window(abends, datetime(2026, 11, 2, 20, 0), horizon_minutes=8 * 24 * 60)
+    assert gross == (datetime(2026, 11, 9, 19, 0), 22.0)
+
+    # ohne "days" gilt jeden Tag; über Mitternacht rutscht es auf den Folgetag
+    taeglich = [{"start": "07:00", "end": "08:00", "temperature": 21.0}]
+    assert next_schedule_window(taeglich, datetime(2026, 11, 2, 23, 0)) == (datetime(2026, 11, 3, 7, 0), 21.0)
+
+    # mehrere Fenster: das frühere gewinnt, egal in welcher Reihenfolge sie stehen
+    beide = [
+        {"days": [0], "start": "19:00", "end": "21:00", "temperature": 22.0},
+        {"days": [0], "start": "06:00", "end": "07:00", "temperature": 20.0},
+    ]
+    assert next_schedule_window(beide, datetime(2026, 11, 2, 5, 0)) == (datetime(2026, 11, 2, 6, 0), 20.0)
+
+    # kaputte oder unvollständige Eingaben werden übersprungen
+    assert next_schedule_window([], datetime(2026, 11, 2, 18, 0)) is None
+    assert next_schedule_window(None, datetime(2026, 11, 2, 18, 0)) is None
+    assert next_schedule_window([{"start": "kaputt", "temperature": 22.0}], datetime(2026, 11, 2, 18, 0)) is None
+    assert next_schedule_window([{"start": "19:00"}], datetime(2026, 11, 2, 18, 0)) is None
+    assert next_schedule_window(["quatsch"], datetime(2026, 11, 2, 18, 0)) is None
 
 
 def test_schedule_target() -> None:

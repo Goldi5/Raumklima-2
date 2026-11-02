@@ -103,6 +103,7 @@ BOOST_TEMP_MIN: Final = 0.5
 BOOST_TEMP_MAX: Final = 5.0
 BOOST_MINUTES_MIN: Final = 5
 BOOST_MINUTES_MAX: Final = 240
+PREHEAT_MARGIN_MINUTES: Final = 10  # Puffer, damit es pünktlich warm ist
 
 BUILDING_TYPES: Final = ["unrenovated", "renovated", "new"]
 SEASON_MODES: Final = ["auto", "always", "pause"]

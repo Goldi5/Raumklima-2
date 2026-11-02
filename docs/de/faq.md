@@ -21,7 +21,7 @@ Nein. Ohne Kontakt erkennt Raumklima ein offenes Fenster am plötzlichen Tempera
 Nein. Alles geht über die Einrichtung in Home Assistant und die Einstellungsseite im Dashboard.
 
 ### Kann ich feste Heizzeiten einstellen?
-Ja – über *Einstellungen → Raum → Zeitplan*. Dort legst du Zeitfenster mit Wochentagen, Von/Bis und Zieltemperatur an, z. B. „täglich 19–21 Uhr 22 °C“. Der Zeitplan setzt nur den Sollwert: Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig. Für „kurz mal wärmer“ gibt es den Knopf **Wärmer** (Boost) in der Raumkarte.
+Ja – über *Einstellungen → Raum → Zeitplan*. Dort legst du Zeitfenster mit Wochentagen, Von/Bis und Zieltemperatur an, z. B. „täglich 19–21 Uhr 22 °C“. Der Zeitplan setzt nur den Sollwert: Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig. Für „kurz mal wärmer“ gibt es den Knopf **Wärmer** (Boost) in der Raumkarte. Hat der Raum seine Aufheizzeit schon gelernt, fängt er rechtzeitig vor dem Fenster an zu heizen, damit es zum Beginn warm ist.
 
 ## Die Heizung macht nicht, was ich will
 

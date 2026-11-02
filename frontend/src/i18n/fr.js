@@ -9,6 +9,7 @@ export const FR = {
   "Tageswerte je Raum als Tabelle (CSV)": "Valeurs journalières par pièce en tableau (CSV)",
   "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
   "Kalender": "Calendrier",
+  "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
   "z. B. abends 19–21 Uhr wärmer": "p. ex. plus chaud le soir de 19 h à 21 h",
   "von": "de",
   "täglich": "tous les jours",

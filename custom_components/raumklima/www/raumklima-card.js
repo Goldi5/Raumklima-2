@@ -1,4 +1,4 @@
-/* Raumklima 0.19.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.20.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -10,6 +10,7 @@
     "Tageswerte je Raum als Tabelle (CSV)": "Daily values per room as a table (CSV)",
     "Export fehlgeschlagen: {e}": "Export failed: {e}",
     "Kalender": "Calendar",
+    "Vorheizen für Zeitplan · <b>{v} °C</b>": "Preheating for schedule · <b>{v} °C</b>",
     "z. B. abends 19–21 Uhr wärmer": "e.g. warmer in the evening from 7 to 9 pm",
     "von": "from",
     "täglich": "daily",
@@ -530,6 +531,7 @@
     "Tageswerte je Raum als Tabelle (CSV)": "Valeurs journalières par pièce en tableau (CSV)",
     "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
     "Kalender": "Calendrier",
+    "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
     "z. B. abends 19–21 Uhr wärmer": "p. ex. plus chaud le soir de 19 h à 21 h",
     "von": "de",
     "täglich": "tous les jours",
@@ -1070,7 +1072,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.19.0";
+  var RK_VERSION = "0.20.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1129,6 +1131,7 @@
     if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "schedule_preheat" && a.effective_target != null) return t("Vorheizen für Zeitplan · <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
   }

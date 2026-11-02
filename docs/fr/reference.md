@@ -94,6 +94,7 @@
 > `{days, start, end, temperature}` (jours : 0 = lundi … 6 = dimanche, vide = tous les jours ; heures « HH:MM »,
 > aussi après minuit). `boost_temperature` (surplus en K) et `boost_minutes` définissent le boost. Le planning ne
 > règle que la consigne – fenêtre, gel, moisissures, pause de chauffage et absence restent prioritaires.
+> Dans une pièce dont la vitesse de chauffe est apprise, le chauffage démarre à temps pour qu’elle soit chaude au début de la plage.
 
 ## Entités du hub « Allgemein »
 

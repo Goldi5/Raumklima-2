@@ -24,7 +24,7 @@ Non. Tout se fait dans la boîte de dialogue de configuration de Home Assistant 
 Oui – sous *Réglages → pièce → Planning*. Vous y créez des plages horaires avec jours de la semaine, de/à et
 température cible, p. ex. « tous les jours 19–21 h 22 °C ». Le planning ne règle que la consigne : fenêtre, gel,
 moisissures, pause de chauffage et absence restent prioritaires. Pour « un peu plus chaud un moment », il y a le
-bouton **Plus chaud** (boost) sur la carte de pièce.
+bouton **Plus chaud** (boost) sur la carte de pièce. Une fois la vitesse de chauffe apprise, la pièce démarre à temps pour être chaude au début de la plage.
 
 ## Le chauffage ne fait pas ce que je veux
 

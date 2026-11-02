@@ -430,6 +430,43 @@ def schedule_target(schedules: list[dict[str, Any]] | None, local: datetime) -> 
     return target
 
 
+def next_schedule_window(
+    schedules: list[dict[str, Any]] | None, local: datetime, horizon_minutes: int = 24 * 60
+) -> tuple[datetime, float] | None:
+    """Beginn und Zieltemperatur des nächsten kommenden Zeitfensters (noch nicht begonnen).
+
+    Damit lässt sich vorheizen: ist der Raum früher warm als das Fenster beginnt, wird
+    rechtzeitig angefangen. ``days`` wie bei :func:`schedule_target`.
+    """
+    if not schedules:
+        return None
+    best: tuple[datetime, float] | None = None
+    for item in schedules:
+        if not isinstance(item, dict) or item.get("temperature") is None:
+            continue
+        try:
+            parts = (str(item.get("start") or "").split(":") + ["0", "0"])[:2]
+            start_h, start_m = int(parts[0]), int(parts[1])
+            temp = float(item["temperature"])
+        except (TypeError, ValueError):
+            continue
+        days = item.get("days") or []
+        for offset in range(0, 8):
+            day = local.date() + timedelta(days=offset)
+            if days and day.weekday() not in days:
+                continue
+            when = local.replace(
+                year=day.year, month=day.month, day=day.day,
+                hour=start_h, minute=start_m, second=0, microsecond=0,
+            )
+            if when <= local:
+                continue  # heute schon vorbei → nächster passender Tag
+            if (when - local).total_seconds() <= horizon_minutes * 60 and (best is None or when < best[0]):
+                best = (when, temp)
+            break  # der früheste Termin dieses Fensters genügt
+    return best
+
+
 def night_airing_applies(mode: str, room_type: str | None, in_window: bool, someone_home: bool) -> bool:
     """Fenster geht gerade auf: Schlafen bei offenem Fenster statt Stoßlüften?"""
     if mode == NIGHT_OFF or not in_window or not someone_home:

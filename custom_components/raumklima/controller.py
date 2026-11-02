@@ -86,6 +86,7 @@ from .const import (
     OFF_PRESET,
     OFF_SOURCE_TRV,
     OFF_SOURCE_USER,
+    PREHEAT_MARGIN_MINUTES,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
     SETPOINT_MATCH_TOLERANCE,
@@ -131,6 +132,7 @@ from .planning import (
     STAGE_AWAY_SHORT,
     frost_night_setback,
     mold_safe_min_temp,
+    next_schedule_window,
     schedule_target,
     setback_defaults,
     setback_target,
@@ -160,6 +162,7 @@ REASON_SOLAR = "solar"
 REASON_EMPTY = "room_empty"
 REASON_SCHEDULE = "schedule"
 REASON_BOOST = "boost"
+REASON_SCHEDULE_PREHEAT = "schedule_preheat"
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
     {
@@ -666,9 +669,18 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._manual_until = None
         self.frost_night_low = None
         # Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne
-        sched = schedule_target(self.config.get(CONF_SCHEDULES), dt_util.now())
+        local_now = dt_util.now()
+        sched = schedule_target(self.config.get(CONF_SCHEDULES), local_now)
         if sched is not None:
             return True, min(sched, self.trv_max), REASON_SCHEDULE
+        # Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit
+        nxt = next_schedule_window(self.config.get(CONF_SCHEDULES), local_now)
+        cur = self.current_temperature
+        if nxt is not None and cur is not None:
+            start, want = nxt
+            need = self.heatup.minutes_needed(want - cur, hub.outdoor_temp())
+            if need is not None and local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:
+                return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
         if self.room_eco_applies():
             floor = self.setback_short
             if self.humidity_sensor:
