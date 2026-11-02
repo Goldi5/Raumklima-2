@@ -1,4 +1,4 @@
-/* Raumklima 0.23.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.23.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -12,7 +12,7 @@
     "Handbuch (PDF)": "Manual (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Setup, features and frequently asked questions",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Each night counts once (earliest event). Learning starts per weekday (shift work), otherwise by weekday/weekend (Fri→Sat, Sat→Sun); the typical value (median) of the last 6 weeks is learned once 4 nights are in. Quiet time begins 30 min before the typical bedtime and ends 30 min after getting up – but never shorter than configured.",
-    "Leer = Standort von Home Assistant. Liegt diese Wohnung woanders als Home Assistant (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Empty = Home Assistant’s location. If this home sits elsewhere than Home Assistant (second home, holiday flat, a house you also monitor), enter the real coordinates here – Raumklima computes the sun’s position from them.",
+    "Leer lassen = es gilt der Standort von Home Assistant ({lat} / {lon}) – für die eigene Wohnung der Normalfall, nichts zu tun. Nur wenn diese Wohnung woanders liegt (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen; „von HA“ übernimmt sie sichtbar zum Anpassen.": "Leave it empty = Home Assistant’s location applies ({lat} / {lon}) – the normal case for your own home, nothing to do. Only if this home sits elsewhere (second home, holiday flat, a house you also monitor) enter the real coordinates here; “from HA” copies them so you can adjust.",
     "Länge": "Longitude",
     "Neue Wohnung, z. B. Ferienwohnung": "New home, e.g. holiday flat",
     "Nord": "North",
@@ -32,11 +32,14 @@
     "Export fehlgeschlagen: {e}": "Export failed: {e}",
     "Kalender": "Calendar",
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Preheating for schedule · <b>{v} °C</b>",
+    "Werte von Home Assistant übernehmen": "Take over Home Assistant’s values",
     "West": "West",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "also learn daytime sleep: bedtime up to 09:00, getting up up to 17:00 – for night and rotating shifts",
     "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "heat 1 °C less when the sun is out – it warms the room",
     "egal – nur Vorhersage": "any – forecast only",
+    "leeren – dann gilt Home Assistant": "clear – then Home Assistant applies",
     "nur Vorhersage": "forecast only",
+    "von HA": "from HA",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "during quiet time, bedrooms and rarely used rooms are set back – even when somebody is at home",
     "z. B. Ferienwohnung": "e.g. Holiday flat",
     "z. B. abends 19–21 Uhr wärmer": "e.g. warmer in the evening from 7 to 9 pm",
@@ -558,7 +561,7 @@
     "Handbuch (PDF)": "Manuel (PDF)",
     "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
     "Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Chaque nuit compte une fois (événement le plus tôt). L’apprentissage se fait d’abord par jour de la semaine (travail posté), sinon par semaine/week-end (ven→sam, sam→dim) ; la valeur typique (médiane) des 6 dernières semaines est apprise dès 4 nuits. L’heure de repos commence 30 min avant le coucher typique et se termine 30 min après le lever – mais jamais plus courte que le réglage.",
-    "Leer = Standort von Home Assistant. Liegt diese Wohnung woanders als Home Assistant (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.": "Vide = emplacement de Home Assistant. Si ce logement se trouve ailleurs que Home Assistant (second logement, résidence secondaire, maison également surveillée), indiquez ici les vraies coordonnées – Raumklima en calcule la position du soleil.",
+    "Leer lassen = es gilt der Standort von Home Assistant ({lat} / {lon}) – für die eigene Wohnung der Normalfall, nichts zu tun. Nur wenn diese Wohnung woanders liegt (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen; „von HA“ übernimmt sie sichtbar zum Anpassen.": "Laisser vide = l’emplacement de Home Assistant s’applique ({lat} / {lon}) – le cas normal pour votre propre logement, rien à faire. Seulement si ce logement se trouve ailleurs (second logement, résidence secondaire, maison également surveillée), indiquez ici les vraies coordonnées ; « de HA » les reprend pour les ajuster.",
     "Länge": "Longitude",
     "Neue Wohnung, z. B. Ferienwohnung": "Nouveau logement, p. ex. résidence secondaire",
     "Nord": "Nord",
@@ -578,11 +581,14 @@
     "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
     "Kalender": "Calendrier",
     "Vorheizen für Zeitplan · <b>{v} °C</b>": "Préchauffage pour le planning · <b>{v} °C</b>",
+    "Werte von Home Assistant übernehmen": "Reprendre les valeurs de Home Assistant",
     "West": "Ouest",
     "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht": "apprendre aussi le sommeil de jour : coucher jusqu’à 09:00, lever jusqu’à 17:00 – pour le travail de nuit et en équipes",
     "bei Sonne 1 °C weniger heizen – die Sonne wärmt mit": "chauffer 1 °C de moins quand le soleil est là – il réchauffe la pièce",
     "egal – nur Vorhersage": "peu importe – prévision seule",
+    "leeren – dann gilt Home Assistant": "vider – Home Assistant s’applique alors",
     "nur Vorhersage": "prévision seule",
+    "von HA": "de HA",
     "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist": "pendant l’heure de repos, les chambres et les pièces peu utilisées sont abaissées – même si quelqu’un est à la maison",
     "z. B. Ferienwohnung": "p. ex. résidence secondaire",
     "z. B. abends 19–21 Uhr wärmer": "p. ex. plus chaud le soir de 19 h à 21 h",
@@ -1133,7 +1139,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.23.2";
+  var RK_VERSION = "0.23.3";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2560,9 +2566,9 @@
       "Pendant l’heure de repos, les chambres et les pièces peu utilisées passent à la température d’abaissement – même si quelqu’un est à la maison. Le chauffage reste donc arrêté pendant le sommeil après une nuit de travail. Une plage horaire et le bouton du thermostat restent prioritaires."
     ],
     "Standort der Wohnung": [
-      "Die echten Koordinaten dieser Wohnung. Nötig, wenn Home Assistant woanders steht als die Wohnung – etwa bei einer zweiten Wohnung, einer Ferienwohnung oder einem mitüberwachten Haus. Daraus rechnet Raumklima den Sonnenstand für den Sonnenabzug nach Fensterausrichtung. Leer gelassen gilt der Standort von Home Assistant.",
-      "The real coordinates of this home. Needed when Home Assistant sits somewhere else than the home – for example a second home, a holiday flat or a house you also monitor. Raumklima computes the sun’s position from them for the window-based solar gain. Left empty, Home Assistant’s own location is used.",
-      "Les vraies coordonnées de ce logement. Nécessaire quand Home Assistant se trouve ailleurs que le logement – par exemple un second logement, une résidence secondaire ou une maison également surveillée. Raumklima en calcule la position du soleil pour l’apport solaire selon l’orientation des fenêtres. Laissé vide, l’emplacement de Home Assistant s’applique."
+      "Die echten Koordinaten dieser Wohnung. Leer lassen ist der Normalfall: dann gilt der Standort von Home Assistant (steht unter dem Feld). Nur wenn die Wohnung woanders liegt als Home Assistant – zweite Wohnung, Ferienwohnung, mitüberwachtes Haus – hier die echten Koordinaten eintragen, daraus rechnet Raumklima den Sonnenstand. Der Knopf „von HA“ übernimmt die Home-Assistant-Werte sichtbar, damit du sie anpassen kannst; das ✕ leert die Felder wieder.",
+      "The real coordinates of this home. Leaving it empty is the normal case: Home Assistant’s location applies (shown below the field). Only when the home sits elsewhere than Home Assistant – second home, holiday flat, a house you also monitor – enter the real coordinates here; Raumklima computes the sun’s position from them. The “from HA” button copies Home Assistant’s values so you can adjust them; ✕ clears the fields again.",
+      "Les vraies coordonnées de ce logement. Laisser vide est le cas normal : l’emplacement de Home Assistant s’applique (indiqué sous le champ). Si le logement se trouve ailleurs que Home Assistant – second logement, résidence secondaire, maison également surveillée – indiquez ici les vraies coordonnées ; Raumklima en calcule la position du soleil. Le bouton « de HA » reprend les valeurs de Home Assistant pour les ajuster ; ✕ vide les champs."
     ],
     "Zeitfenster": [
       "Ein eigenes Zeitfenster für diesen Raum: Wochentage (keine Auswahl = jeden Tag), von/bis und Zieltemperatur, auch über Mitternacht. Es setzt nur den Sollwert – Fenster, Frost, Schimmel und Abwesenheit bleiben vorrangig, und bei gelerntem Raum wird rechtzeitig vorgeheizt.",
@@ -3050,10 +3056,14 @@
         this._row("Dashboard", `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc((homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {}).dashboard || "heizung")}" ${this._admin ? "" : "disabled"}>`, "Adresse des Dashboards dieser Wohnung (für den Umschalter)"),
         (() => {
           const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
-          return `<details class="adv"${lat != null && lon != null ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row(
+          const hl = this._hass.config || {};
+          const haLat = hl.latitude != null ? fmt(hl.latitude, 4) : "–";
+          const haLon = hl.longitude != null ? fmt(hl.longitude, 4) : "–";
+          const own = lat != null || lon != null;
+          return `<details class="adv"${own ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row(
             "Standort der Wohnung",
-            `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}></span>`,
-            t("Leer = Standort von Home Assistant. Liegt diese Wohnung woanders als Home Assistant (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen – daraus rechnet Raumklima den Sonnenstand.")
+            `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}> ${this._admin ? `<button class="mini" data-geohass title="${t("Werte von Home Assistant übernehmen")}">${t("von HA")}</button>${own ? `<button class="mini x" data-geoclear title="${t("leeren – dann gilt Home Assistant")}">✕</button>` : ""}` : ""}</span>`,
+            t("Leer lassen = es gilt der Standort von Home Assistant ({lat} / {lon}) – für die eigene Wohnung der Normalfall, nichts zu tun. Nur wenn diese Wohnung woanders liegt (zweite Wohnung, Ferienwohnung, mitüberwachtes Haus), hier die echten Koordinaten eintragen; „von HA“ übernimmt sie sichtbar zum Anpassen.", { lat: haLat, lon: haLon })
           )}</details>`;
         })(),
         this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
@@ -3526,6 +3536,11 @@
         this._setHub({ [el.dataset.hubnum]: Number.isNaN(v) ? null : v }, 200);
       }));
       $("[data-hubtext]").forEach((el) => el.addEventListener("change", () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200)));
+      $("[data-geohass]").forEach((el) => el.addEventListener("click", () => {
+        const c = this._hass.config || {};
+        this._setHub({ latitude: c.latitude, longitude: c.longitude }, 200);
+      }));
+      $("[data-geoclear]").forEach((el) => el.addEventListener("click", () => this._setHub({ latitude: null, longitude: null }, 200)));
       $("[data-hubgeo]").forEach((el) => el.addEventListener("change", () => {
         const key = el.dataset.hubgeo;
         const limit = key === "latitude" ? 90 : 180;

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.23.3 – 2026-11-02
+
+### Neu
+- **Standort: „von HA“-Knopf**: Unter *Wohnung → Erweitert: Standort der Wohnung* steht jetzt der
+  Home-Assistant-Standort sichtbar unter dem Feld, und ein Knopf **von HA** übernimmt Breite und Länge
+  zum Anpassen; das ✕ leert die Felder wieder (dann gilt Home Assistant). Klarstellung im Text: **leer
+  lassen ist der Normalfall** – nichts einzutragen, keine Pflicht.
+
 ## 0.23.2 – 2026-11-02
 
 ### Behoben
