@@ -394,3 +394,36 @@ async def test_settings_dump_has_schedules(hass: HomeAssistant, setup, trv: Fake
     assert settings["boost_temperature"] == 3.0
     assert settings["boost_minutes"] == 45
 
+
+async def test_window_open_since_survives_restart(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Der Öffnungszeitpunkt wandert in den Speicher und wird genau einmal übernommen (Issue #9)."""
+    from custom_components.raumklima.shared import domain_data
+    from custom_components.raumklima.vent_manager import VentilationManager
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    alt = dt_util.utcnow() - timedelta(hours=3)
+    ctrl.vent.window_open_since = alt
+
+    stored = ctrl._stored_data()
+    assert stored["vent"]["window_open_since"] == alt.isoformat()
+
+    # Neustart: neuer Lüftungs-Assistent übernimmt den gespeicherten Zeitpunkt
+    neu = VentilationManager(ctrl, None)
+    neu.load(stored["vent"])
+    assert neu._take_restored() == alt
+    assert neu._take_restored() is None  # nur einmal – danach gilt „jetzt"
+
+
+async def test_climate_exposes_window_open_since(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Die Karte bekommt den Öffnungszeitpunkt als Attribut (Grundlage für den Timer)."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    hass.states.async_set(WINDOW, "on", {"device_class": "window"})
+    await hass.async_block_till_done()
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.vent.window_open_since is not None
+    st = hass.states.get("climate.bad")
+    assert st is not None and st.attributes.get("window_open_since") == ctrl.vent.window_open_since.isoformat()
+

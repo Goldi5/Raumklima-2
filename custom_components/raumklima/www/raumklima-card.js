@@ -1,4 +1,4 @@
-/* Raumklima 0.23.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.23.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1139,7 +1139,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.23.3";
+  var RK_VERSION = "0.23.4";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1214,8 +1214,8 @@
   function rkOpenSince(hass, a) {
     if (!a || !a.window_open) return null;
     const times = (a.window_entities || []).map((e) => hass.states[e]).filter((s) => s && s.state === "on" && s.last_changed).map((s) => Date.parse(s.last_changed));
-    if (times.length) return Math.min(...times);
-    return a.window_open_since ? Date.parse(a.window_open_since) : null;
+    if (a.window_open_since) times.push(Date.parse(a.window_open_since));
+    return times.length ? Math.min(...times.filter((x) => !isNaN(x))) : null;
   }
   function rkDuration(ms) {
     const s = Math.max(0, Math.floor(ms / 1e3));

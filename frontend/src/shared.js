@@ -92,8 +92,10 @@ export function rkOpenSince(hass, a) {
     .map((e) => hass.states[e])
     .filter((s) => s && s.state === "on" && s.last_changed)
     .map((s) => Date.parse(s.last_changed));
-  if (times.length) return Math.min(...times);
-  return a.window_open_since ? Date.parse(a.window_open_since) : null;
+  // Eigener Zeitpunkt zählt mit: nach einem Neustart setzt Home Assistant last_changed neu,
+  // der Raum weiß aber noch, seit wann das Fenster offen ist (Issue #9).
+  if (a.window_open_since) times.push(Date.parse(a.window_open_since));
+  return times.length ? Math.min(...times.filter((x) => !isNaN(x))) : null;
 }
 // Dauer kurz: „45 s“, „12 min“, „1 h 05 min“, „2 Tg. 3 h“
 export function rkDuration(ms) {

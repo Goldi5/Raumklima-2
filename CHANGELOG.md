@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.23.4 – 2026-11-02
+
+### Behoben
+- **Fenster-Timer überlebt einen Neustart (Issue #9)**: „Seit wann ist das Fenster offen?“ wurde nur im
+  Arbeitsspeicher gehalten. Nach einem Neustart von Home Assistant begann der Zähler bei 0 – ein den
+  ganzen Tag offenes Fenster galt plötzlich als fünf Minuten offen. Der Zeitpunkt wird jetzt mitgespeichert,
+  beim Start einmalig übernommen und beim Schließen verworfen. Die Karte nimmt den frühesten bekannten
+  Zeitpunkt (eigener Wert oder `last_changed` des Kontakts), neues Attribut `window_open_since`.
+
+### Hinweise
+- Grenze: Wird das Fenster während der Ausfallzeit geschlossen und danach wieder geöffnet, kann der
+  Zeitpunkt zu früh liegen – der Timer zeigt dann „länger offen“ statt zu kurz. Bewusst in die sichere
+  Richtung gewählt.
+
 ## 0.23.3 – 2026-11-02
 
 ### Neu

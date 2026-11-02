@@ -112,6 +112,7 @@ class VentilationManager:
         self.live = LiveCountdown(self)
         self._last_shown: str | None = None
         self._night_morning_sent: datetime | None = None
+        self._restored_since: datetime | None = None  # aus dem Speicher, einmalig zu übernehmen
         self._unsubs: list[Callable[[], None]] = []
 
     def load(self, stored: dict[str, Any] | None) -> None:
@@ -124,6 +125,8 @@ class VentilationManager:
             self.min_temp = float(stored.get("min_temp", self.min_temp))
         self.max_drop = float(stored.get("max_drop", self.max_drop))
         self.enabled = bool(stored.get("enabled", self.enabled))
+        # Seit wann das Fenster offen ist, überlebt einen Neustart (Issue #9)
+        self._restored_since = dt_util.parse_datetime(stored.get("window_open_since") or "")
 
     # ------------------------------------------------------------ Zentrale oder Raum
     def _hub_opt(self, key: str, room_key: str, fallback: Any) -> Any:
@@ -182,12 +185,19 @@ class VentilationManager:
             self.hass.bus.async_listen(NOTIFY_ACTION_EVENT, self._on_notify_action)
         )
         if self.c.window_open:
-            self.window_open_since = dt_util.utcnow()
+            self.window_open_since = self._take_restored() or dt_util.utcnow()
             self.temp_at_open = self.c.current_temperature
         self.update()
 
     def async_stop(self) -> None:
         self.live.end()
+
+    def _take_restored(self) -> datetime | None:
+        """Den gespeicherten Öffnungszeitpunkt genau einmal übernehmen (nach einem Neustart)."""
+        since, self._restored_since = self._restored_since, None
+        if since is None or since > dt_util.utcnow():
+            return None
+        return since
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
@@ -199,6 +209,7 @@ class VentilationManager:
             "min_temp": self.min_temp,
             "max_drop": self.max_drop,
             "enabled": self.enabled,
+            "window_open_since": self.window_open_since.isoformat() if self.window_open_since else None,
         }
 
     # ------------------------------------------------------------ Messwerte
@@ -269,7 +280,7 @@ class VentilationManager:
     def on_window_raw(self, is_open: bool) -> None:
         """Vom Controller bei echtem Fensterwechsel (ohne Verzögerung)."""
         if is_open and not self.window_open_since:
-            self.window_open_since = dt_util.utcnow()
+            self.window_open_since = self._take_restored() or dt_util.utcnow()
             self.temp_at_open = self.c.current_temperature
             self._repeat_count.pop(VENT_PLEASE_CLOSE, None)
             self._repeat_count.pop(VENT_TOO_COLD, None)
@@ -277,6 +288,7 @@ class VentilationManager:
             self._night_morning_sent = None
         elif not is_open and self.window_open_since:
             self.window_open_since = None
+            self._restored_since = None
             self.temp_at_open = None
             self._last_sent.pop(VENT_PLEASE_OPEN, None)
             self.humidity_high_since = None if (self.humidity or 0) < self.humidity_limit else dt_util.utcnow()

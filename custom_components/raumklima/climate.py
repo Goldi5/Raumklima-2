@@ -95,6 +95,11 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "off_source": c.off_source,
             "boost_until": c.boost_until.isoformat() if c.boost_active else None,
             "window_open": c.window_open,
+            "window_open_since": (
+                c.vent.window_open_since.isoformat()
+                if c.vent is not None and c.vent.window_open_since is not None
+                else None
+            ),
             "paused_by_window": c.paused,
             "trv_temperature": c.trv_temperature,
             "offset": c.offset,
