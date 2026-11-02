@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.0 – 2026-11-02
+
+### Neu
+- **Französisch** 🇫🇷: Einrichtungsdialoge, Dashboard-Karten, alle „?“-Erklärungen und die PDF-Berichte
+  (inkl. Push-Titel und Dateinamen) – automatisch, wenn Home Assistant auf Französisch steht. Kurze
+  französische Dokumentation unter `docs/fr/`. Erste Übersetzung – Korrekturen gern als Issue.
+- Andere Sprachen zeigen weiterhin Englisch.
+
 ## 0.15.1 – 2026-11-02
 
 ### Behoben

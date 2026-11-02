@@ -1,0 +1,455 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ajouter une pièce",
+        "description": "Étape 1 sur 3 : quel thermostat appartient à la pièce ?",
+        "data": {
+          "trv": "Thermostat de radiateur (TRV)"
+        },
+        "data_description": {
+          "trv": "Le vrai thermostat sur le radiateur."
+        }
+      },
+      "devices": {
+        "title": "Sondes & fenêtres",
+        "description": "Étape 2 sur 3 : suggestions issues de la pièce du thermostat – merci de vérifier.",
+        "data": {
+          "name": "Nom de la pièce",
+          "trv": "Thermostat de radiateur (TRV)",
+          "temperature_sensor": "Sonde de température externe",
+          "humidity_sensor": "Capteur d’humidité (facultatif)",
+          "window_sensors": "Contacts de fenêtre/porte (facultatif)",
+          "co2_sensor": "Capteur de CO₂ (facultatif)",
+          "extra_trvs": "Thermostats supplémentaires dans cette pièce (facultatif)"
+        },
+        "data_description": {
+          "trv": "Le vrai thermostat sur le radiateur.",
+          "temperature_sensor": "Utilisée pour la régulation à la place de la sonde du radiateur.",
+          "window_sensors": "Si l’un est ouvert, le chauffage se met en pause.",
+          "co2_sensor": "À partir de 1000 ppm, l’assistant d’aération demande d’aérer.",
+          "extra_trvs": "Pour les pièces avec plusieurs radiateurs : ces thermostats reçoivent les mêmes commandes que le thermostat principal, chacun avec sa propre vérification et correction."
+        }
+      },
+      "room": {
+        "title": "La pièce",
+        "description": "Étape 3 sur 3 : comment doit-il faire ici ?",
+        "data": {
+          "room_type": "Type de pièce",
+          "comfort_temperature": "Température souhaitée (facultatif)",
+          "setback_short": "Abaissement « brève absence »",
+          "setback_long": "Abaissement « absent longtemps »"
+        },
+        "data_description": {
+          "room_type": "Définit des valeurs par défaut adaptées ; ajustez-les ensuite avec les réglages numériques de l’appareil.",
+          "comfort_temperature": "Vide = valeur par défaut du type de pièce. Utilisée au premier démarrage et à la remise en marche d’une pièce arrêtée.",
+          "setback_short": "Quand tous les habitants sont absents (après le délai). Suggestion : pièces de vie 18 °C, chambre 16 °C.",
+          "setback_long": "Après 24 h ou en vacances. Pas en dessous de 16 °C recommandé ; la protection contre les moisissures garde automatiquement les pièces humides plus chaudes."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Avancé (technique)",
+            "description": "Détecté automatiquement – à modifier seulement en cas de problème.",
+            "data": {
+              "calibration_mode": "Type de calibrage",
+              "calibration_entity": "Entité de calibrage/décalage du TRV",
+              "off_method": "Comment éteindre le TRV",
+              "on_preset": "Préréglage utilisé pour chauffer (marche)",
+              "window_open_delay": "Délai fenêtre ouverte",
+              "window_close_delay": "Délai fenêtre fermée",
+              "follow_trv_changes": "Reprendre les réglages faits sur le TRV"
+            },
+            "data_description": {
+              "calibration_mode": "Décalage : le TRV reçoit en continu une valeur de correction pour « voir » la température de la pièce (recommandé). Consigne : la consigne du TRV est ajustée – pour les TRV sans décalage.",
+              "calibration_entity": "En général « …local_temperature_calibration ». Détecté automatiquement : {found}",
+              "off_method": "Automatique choisit la bonne méthode. TRV Tuya : en général « préréglage arrêt ».",
+              "on_preset": "Dans ce préréglage, le TRV doit réguler sur la consigne envoyée. Automatique choisit p. ex. « eco » et évite « on » – sur le TRV602Z, « on » signifie vanne ouverte en permanence.",
+              "follow_trv_changes": "Désactivé : les modifications faites sur l’appareil sont annulées (comme un verrouillage enfant)."
+            }
+          }
+        }
+      },
+      "hub": {
+        "title": "Pour tout le logement",
+        "description": "Uniquement pour la première pièce. Modifiable ensuite sous Raumklima → Allgemein ou dans le tableau de bord.",
+        "data": {
+          "residents": "Qui habite ici ?",
+          "zone": "Zone du logement",
+          "push_targets": "Envoyer les notifications à",
+          "weather_entity": "Climat extérieur (météo ou sonde extérieure)",
+          "building_type": "Type de bâtiment"
+        },
+        "data_description": {
+          "residents": "Les personnes qui habitent ici. Si toutes sont absentes, le chauffage est abaissé.",
+          "zone": "La zone de ce logement (pas forcément « Home »).",
+          "push_targets": "Vous pourrez choisir ensuite, par destinataire, quels messages il reçoit.",
+          "building_type": "Détermine la prudence de la protection contre les moisissures en cas d’absence."
+        }
+      }
+    },
+    "error": {
+      "calibration_entity_required": "Le calibrage par décalage nécessite une entité de calibrage.",
+      "same_entity": "La sonde et le thermostat doivent être différents.",
+      "invalid_date": "Utilisez le format MM-JJ, p. ex. 10-01.",
+      "extra_is_main": "Le thermostat principal ne peut pas être aussi un thermostat supplémentaire."
+    },
+    "abort": {
+      "already_configured": "Ce thermostat est déjà attribué à une pièce."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Appareils",
+        "data": {
+          "trv": "Thermostat de radiateur (TRV)",
+          "temperature_sensor": "Sonde de température externe",
+          "humidity_sensor": "Capteur d’humidité (facultatif)",
+          "window_sensors": "Contacts de fenêtre/porte (facultatif)",
+          "co2_sensor": "Capteur de CO₂ (facultatif)",
+          "extra_trvs": "Thermostats supplémentaires dans cette pièce (facultatif)"
+        },
+        "data_description": {
+          "trv": "Le vrai thermostat sur le radiateur.",
+          "temperature_sensor": "Utilisée pour la régulation à la place de la sonde du radiateur.",
+          "window_sensors": "Si l’un est ouvert, le chauffage se met en pause.",
+          "co2_sensor": "À partir de 1000 ppm, l’assistant d’aération demande d’aérer.",
+          "extra_trvs": "Pour les pièces avec plusieurs radiateurs : ces thermostats reçoivent les mêmes commandes que le thermostat principal, chacun avec sa propre vérification et correction."
+        }
+      },
+      "room": {
+        "title": "La pièce",
+        "data": {
+          "room_type": "Type de pièce",
+          "comfort_temperature": "Température souhaitée (facultatif)",
+          "setback_short": "Abaissement « brève absence »",
+          "setback_long": "Abaissement « absent longtemps »"
+        },
+        "data_description": {
+          "room_type": "Définit des valeurs par défaut adaptées ; ajustez-les ensuite avec les réglages numériques de l’appareil.",
+          "comfort_temperature": "Vide = valeur par défaut du type de pièce. Utilisée au premier démarrage et à la remise en marche d’une pièce arrêtée.",
+          "setback_short": "Quand tous les habitants sont absents (après le délai). Suggestion : pièces de vie 18 °C, chambre 16 °C.",
+          "setback_long": "Après 24 h ou en vacances. Pas en dessous de 16 °C recommandé ; la protection contre les moisissures garde automatiquement les pièces humides plus chaudes."
+        },
+        "sections": {
+          "advanced": {
+            "name": "Avancé (technique)",
+            "description": "Détecté automatiquement – à modifier seulement en cas de problème.",
+            "data": {
+              "calibration_mode": "Type de calibrage",
+              "calibration_entity": "Entité de calibrage/décalage du TRV",
+              "off_method": "Comment éteindre le TRV",
+              "on_preset": "Préréglage utilisé pour chauffer (marche)",
+              "window_open_delay": "Délai fenêtre ouverte",
+              "window_close_delay": "Délai fenêtre fermée",
+              "follow_trv_changes": "Reprendre les réglages faits sur le TRV"
+            },
+            "data_description": {
+              "calibration_mode": "Décalage : le TRV reçoit en continu une valeur de correction pour « voir » la température de la pièce (recommandé). Consigne : la consigne du TRV est ajustée – pour les TRV sans décalage.",
+              "calibration_entity": "En général « …local_temperature_calibration ». Détecté automatiquement : {found}",
+              "off_method": "Automatique choisit la bonne méthode. TRV Tuya : en général « préréglage arrêt ».",
+              "on_preset": "Dans ce préréglage, le TRV doit réguler sur la consigne envoyée. Automatique choisit p. ex. « eco » et évite « on » – sur le TRV602Z, « on » signifie vanne ouverte en permanence.",
+              "follow_trv_changes": "Désactivé : les modifications faites sur l’appareil sont annulées (comme un verrouillage enfant)."
+            }
+          }
+        }
+      },
+      "technical": {
+        "title": "Technique",
+        "data": {
+          "offset_threshold": "N’envoyer le décalage que si la variation atteint au moins",
+          "offset_min_interval": "Délai minimal entre deux calibrages",
+          "sensor_stale_minutes": "Sonde considérée comme figée après",
+          "sync_verify_delay": "Vérifier la commande après",
+          "sync_max_retries": "Répétitions avant notification"
+        },
+        "data_description": {
+          "sync_verify_delay": "On vérifie alors si le TRV a appliqué la commande ; sinon elle est répétée à intervalles croissants. Utile en cas de courtes coupures de connexion.",
+          "sensor_stale_minutes": "Ensuite, le TRV utilise sa propre sonde et l’état affiche un avertissement."
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "data": {
+          "push_targets": "Notifications push à",
+          "tts_targets_hub": "Annonces vocales sur (facultatif)",
+          "quiet_start": "Heures calmes à partir de",
+          "quiet_end": "Heures calmes jusqu’à",
+          "repeat_minutes": "Répéter le rappel toutes les",
+          "weather_entity": "Climat extérieur (météo ou sonde extérieure)",
+          "notify_on_failure": "Notifier si le TRV ne répond pas"
+        },
+        "data_description": {
+          "push_targets": "p. ex. notify.mobile_app_… — les messages iOS ont des boutons d’action.",
+          "tts_targets_hub": "Annonce seulement quand la pièce se refroidit ou après des rappels répétés, jamais pendant les heures calmes.",
+          "quiet_start": "Push silencieux uniquement pendant les heures calmes.",
+          "weather_entity": "Utilisé pour la durée d’aération, le seuil de chauffage et la protection contre les moisissures.",
+          "notify_on_failure": "Message dans la cloche de Home Assistant."
+        }
+      },
+      "kinds": {
+        "title": "Qui reçoit quoi ?",
+        "description": "Choisissez les messages par destinataire."
+      },
+      "presence": {
+        "title": "Présence",
+        "data": {
+          "residents": "Qui habite ici ?",
+          "zone": "Zone du logement",
+          "away_delay": "Abaisser le chauffage après",
+          "long_away_hours": "« Absent longtemps » après",
+          "preheat_km": "Préchauffer à moins de",
+          "building_type": "Type de bâtiment"
+        },
+        "data_description": {
+          "residents": "Compte dès qu’un de leurs téléphones est dans la zone. Les sauts impossibles (p. ex. VPN) et les positions imprécises sont ignorés.",
+          "away_delay": "Pour qu’une courte course ne déclenche rien.",
+          "preheat_km": "Si quelqu’un approche à moins de cette distance, le chauffage démarre plus tôt. 0 = désactivé."
+        }
+      },
+      "season": {
+        "title": "Saison de chauffage",
+        "data": {
+          "season_mode": "Mode",
+          "season_start": "Saison de chauffage à partir du (MM-JJ)",
+          "season_end": "Saison de chauffage jusqu’au (MM-JJ)",
+          "heating_limit": "Seuil de chauffage (moyenne extérieure journalière)",
+          "cold_snap_temp": "Vague de froid sous",
+          "frost_floor": "Sécurité : toujours chauffer en dessous de",
+          "valve_care": "Dégommage d’été des vannes"
+        },
+        "data_description": {
+          "season_mode": "Automatique : selon la saison et la température extérieure. Toujours / pause : manuel.",
+          "heating_limit": "Au-dessus de cette moyenne des dernières 24 h et de la prévision, le chauffage se met en pause (après 2 jours doux).",
+          "cold_snap_temp": "Hors saison, le chauffage fonctionne si la moyenne journalière reste en dessous pendant 3 jours.",
+          "frost_floor": "Si une pièce descend en dessous, elle chauffe même pendant la pause.",
+          "valve_care": "Le mercredi à 11 h pendant la pause : ouvrir les vannes 3 minutes pour qu’elles ne se grippent pas."
+        }
+      },
+      "hub_menu": {
+        "title": "Raumklima général",
+        "description": "Que voulez-vous modifier ? Tout est aussi disponible dans les paramètres du tableau de bord.",
+        "menu_options": {
+          "notifications": "Notifications – qui reçoit quoi",
+          "presence": "Présence & abaissement",
+          "season": "Saison & seuil de chauffage"
+        }
+      }
+    },
+    "error": {
+      "calibration_entity_required": "Le calibrage par décalage nécessite une entité de calibrage.",
+      "same_entity": "La sonde et le thermostat doivent être différents.",
+      "invalid_date": "Utilisez le format MM-JJ, p. ex. 10-01.",
+      "extra_is_main": "Le thermostat principal ne peut pas être aussi un thermostat supplémentaire."
+    }
+  },
+  "selector": {
+    "calibration_mode": {
+      "options": {
+        "offset": "Décalage (recommandé)",
+        "target": "Ajuster la consigne",
+        "none": "Pas de calibrage"
+      }
+    },
+    "room_type": {
+      "options": {
+        "living": "Séjour",
+        "kitchen": "Cuisine",
+        "bedroom": "Chambre",
+        "bathroom": "Salle de bain",
+        "children": "Chambre d’enfant",
+        "rarely_used": "Peu utilisée (invités)"
+      }
+    },
+    "on_preset": {
+      "options": {
+        "auto_detect": "Automatique"
+      }
+    },
+    "building_type": {
+      "options": {
+        "unrenovated": "Ancien bâtiment non rénové",
+        "renovated": "Ancien bâtiment rénové",
+        "new": "Neuf / bien isolé"
+      }
+    },
+    "season_mode": {
+      "options": {
+        "auto": "Automatique",
+        "always": "Toujours chauffer",
+        "pause": "Pause de chauffage"
+      }
+    },
+    "kind": {
+      "options": {
+        "vent_open": "💧 Merci d’aérer",
+        "vent_close": "🪟 Fermer la fenêtre",
+        "too_cold": "🥶 La pièce se refroidit",
+        "vent_done": "✅ Air renouvelé",
+        "window_away": "🚪 Fenêtre ouverte, personne à la maison",
+        "presence": "🏠 Absence & préchauffage",
+        "season": "🍂 Début/fin de la saison de chauffage",
+        "trv_failure": "⚠️ Le thermostat ne répond pas",
+        "health": "🩺 Santé du chauffage",
+        "report": "📊 Rapport hebdomadaire",
+        "live": "📱 Compte à rebours d’aération sur l’écran verrouillé"
+      }
+    },
+    "off_method": {
+      "options": {
+        "auto": "Automatique",
+        "preset": "Préréglage « arrêt »",
+        "hvac": "Mode HVAC « arrêt »",
+        "min_temp": "Température minimale"
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "raumklima": {
+        "name": "Thermostat"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "État",
+        "state": {
+          "heating": "Chauffe",
+          "idle": "Cible atteinte",
+          "window_open": "En pause – fenêtre ouverte",
+          "off": "Arrêt",
+          "sensor_unavailable": "Sonde indisponible",
+          "trv_unavailable": "Thermostat indisponible",
+          "season_off": "Pause de chauffage",
+          "setback": "Abaissé – personne à la maison",
+          "night_airing": "Aération nocturne – fenêtre ouverte"
+        }
+      },
+      "presence": {
+        "name": "Présence",
+        "state": {
+          "home": "Quelqu’un est là",
+          "guests": "Invités",
+          "preheat": "Préchauffage",
+          "away_short": "Brève absence",
+          "away_long": "Absent longtemps"
+        }
+      },
+      "heating_mode": {
+        "name": "Mode de chauffage",
+        "state": {
+          "heating": "Saison de chauffage",
+          "pause": "Pause de chauffage",
+          "cold_snap": "Vague de froid",
+          "heat_today": "Chauffer aujourd’hui",
+          "always": "Toujours chauffer",
+          "manual_pause": "Pause (manuelle)"
+        }
+      },
+      "outdoor_mean": {
+        "name": "Moyenne extérieure journalière"
+      },
+      "health": {
+        "name": "Santé"
+      },
+      "sync": {
+        "name": "Synchronisation",
+        "state": {
+          "ok": "OK",
+          "pending": "En attente",
+          "failed": "Échec"
+        }
+      },
+      "offset": {
+        "name": "Décalage de calibrage"
+      },
+      "ventilation": {
+        "name": "Aération",
+        "state": {
+          "ok": "OK",
+          "please_open": "Merci d’aérer",
+          "airing": "Aération",
+          "done": "Air renouvelé",
+          "please_close": "Merci de fermer",
+          "too_cold": "Refroidissement – fermer"
+        }
+      },
+      "dew_point": {
+        "name": "Point de rosée"
+      },
+      "abs_humidity": {
+        "name": "Humidité absolue"
+      },
+      "recommended_duration": {
+        "name": "Durée d’aération recommandée"
+      }
+    },
+    "binary_sensor": {
+      "window": {
+        "name": "Fenêtre"
+      },
+      "problem": {
+        "name": "Problème"
+      },
+      "mold_risk": {
+        "name": "Risque de moisissures"
+      }
+    },
+    "switch": {
+      "window_logic": {
+        "name": "Logique fenêtre"
+      },
+      "notifications": {
+        "name": "Notifications d’aération"
+      },
+      "vacation": {
+        "name": "Vacances"
+      },
+      "guests": {
+        "name": "Invités"
+      }
+    },
+    "select": {
+      "season_mode": {
+        "name": "Mode saison de chauffage",
+        "state": {
+          "auto": "Automatique",
+          "always": "Toujours chauffer",
+          "pause": "Pause de chauffage"
+        }
+      }
+    },
+    "number": {
+      "humidity_limit": {
+        "name": "Seuil d’humidité « merci d’aérer »"
+      },
+      "min_temp": {
+        "name": "Température minimale pendant l’aération"
+      },
+      "max_drop": {
+        "name": "Baisse de température max. pendant l’aération"
+      }
+    },
+    "button": {
+      "calibrate": {
+        "name": "Calibrer maintenant"
+      },
+      "heat_today": {
+        "name": "Chauffer aujourd’hui"
+      }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "vent_please_open": "L’assistant d’aération demande d’aérer",
+      "vent_please_close": "Durée d’aération atteinte – merci de fermer",
+      "vent_too_cold": "La pièce se refroidit pendant l’aération",
+      "vent_done": "Air renouvelé",
+      "window_opened": "Fenêtre ouverte",
+      "window_closed": "Fenêtre fermée",
+      "heating_paused": "Chauffage en pause (fenêtre)",
+      "heating_resumed": "Chauffage repris",
+      "health_problem": "Le contrôle de santé a trouvé un problème"
+    }
+  }
+}

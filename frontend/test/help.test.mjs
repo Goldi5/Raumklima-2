@@ -14,8 +14,8 @@ test("Erklärungen passen zu Einstellungen", () => {
 
 test("Erklärungen zweisprachig und nicht leer", () => {
   for (const [k, v] of Object.entries(HELP)) {
-    assert.equal(v.length, 2, k);
-    assert.ok(v[0].length > 20 && v[1].length > 20, k);
+    assert.equal(v.length, 3, k);
+    assert.ok(v[0].length > 20 && v[1].length > 20 && v[2].length > 20, k);
   }
 });
 

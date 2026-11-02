@@ -254,12 +254,21 @@ TIPS = {
         "tilt": "{n}× the window was open longer than 30 min – tilted windows cool the walls; better air wide open for 5–10 min.",
         "eur": " (≈ {e} € a year)",
     },
+    "fr": {
+        "share": "{room} représente {p} % des heures de chauffe – 1 °C de moins y économise ≈ 6 % de son énergie de chauffage{eur}.",
+        "warm": "{room} était en moyenne à {t} °C – chaque degré de moins économise ≈ 6 %.",
+        "night": "La nuit (0–5 h), le chauffage tourne à {p} % de son niveau de jour – un abaissement nocturne économise de l’énergie (p. ex. baisser la température souhaitée le soir par une automatisation).",
+        "mild": "Le chauffage a fonctionné {n} jours doux (moyenne journalière ≥ 15 °C) – vérifier le seuil de chauffage ou les températures souhaitées.",
+        "all": "1 °C de moins dans toutes les pièces économise ≈ {e} € par an (estimation d’après vos coûts de chauffage).",
+        "tilt": "{n}× la fenêtre est restée ouverte plus de 30 min – l’oscillo-battant refroidit les murs ; mieux vaut aérer en grand 5–10 min.",
+        "eur": " (≈ {e} € par an)",
+    },
 }
 
 
 def _n(v: float, lang: str, d: int = 1) -> str:
     t = f"{v:.{d}f}"
-    return t.replace(".", ",") if lang == "de" else t
+    return t.replace(".", ",") if lang in ("de", "fr") else t
 
 
 def saving_tips(

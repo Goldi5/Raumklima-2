@@ -27,8 +27,9 @@ SEV_COLOR = {"alert": ALERT, "warn": WARN, "info": AIR, "good": OK}
 MONTHS = {
     "de": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
     "en": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "fr": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
 }
-WEEKDAYS = {"de": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"], "en": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+WEEKDAYS = {"de": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"], "en": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "fr": ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]}
 
 L = {
     "de": {
@@ -249,6 +250,115 @@ L = {
         "footer": "Raumklima for Home Assistant · page {p}/{n}",
         "none": "–",
     },
+    "fr": {
+        "brand": "RAUMKLIMA · RAPPORT DE CHAUFFAGE",
+        "week": "Semaine {w}",
+        "month": "{m} {y}",
+        "season": "Saison de chauffage {a}/{b}",
+        "created": "créé le {d}",
+        "heating": "Heures de chauffe",
+        "heating_sub": "toutes les pièces",
+        "saving": "Économies",
+        "saving_sub": "par l’abaissement",
+        "comfort": "Temps de confort",
+        "comfort_sub": "à la température cible",
+        "outdoor": "Extérieur moy.",
+        "outdoor_sub": "{h} degrés-jours de chauffage",
+        "vs_prev": "{c} vs période préc.",
+        "compare": "Comparaison",
+        "metric": "Indicateur",
+        "this": "Cette période",
+        "prev": "Précédente",
+        "ya": "Il y a un an",
+        "m_heating": "Heures de chauffe",
+        "m_valve": "Heures vanne pleine ouverture",
+        "m_hdd": "Degrés-jours de chauffage",
+        "m_outdoor": "Température extérieure moy.",
+        "m_setback": "Abaissé (h)",
+        "m_comfort": "À la température cible",
+        "m_humid": "Trop humide (h)",
+        "m_airings": "Aérations",
+        "m_airing": "Fenêtre ouverte (h)",
+        "m_weather": "Corrigé du climat",
+        "chart": "Heures de chauffe par jour et température extérieure",
+        "chart_season": "Heures de chauffe par mois et température extérieure",
+        "rooms": "Pièces",
+        "room": "Pièce",
+        "c_heat": "Chauffe h",
+        "c_temp": "Moy. °C",
+        "c_hum": "Moy. %",
+        "c_humid": "humide h",
+        "c_air": "Aérations",
+        "c_win": "Fenêtre h",
+        "c_set": "Abaissé h",
+        "c_ok": "à la cible",
+        "findings": "Constats et conseils",
+        "nodata": "Pas encore de mesures pour cette période.",
+        "score": "Note Raumklima",
+        "score_sub": "{p} points sur 100",
+        "score_hist": "Évolution",
+        "money": "≈ {e} € économisés (estimation)",
+        "c_trend": "Évolution °C / %",
+        "ranking": "Classement",
+        "r_eco": "Pièce la plus économe",
+        "r_eco_v": "{v} h pleine charge/jour",
+        "r_warm": "Pièce la plus chaude",
+        "r_comfort": "Meilleur temps de confort",
+        "r_improved": "Plus forte amélioration",
+        "weekday": "Semaine et week-end",
+        "wd": "En semaine",
+        "we": "Week-end",
+        "w_heat": "Heures de chauffe par jour",
+        "w_comfort": "À la température cible",
+        "w_away": "Personne à la maison (h par jour)",
+        "w_temp": "Température moy.",
+        "humidity": "Humidité et moisissures",
+        "h_light": "État",
+        "h_avg": "Humidité moy.",
+        "h_humid": "humide h",
+        "h_mold": "moisissures h",
+        "h_co2": "CO2 moy. ppm",
+        "h_co2h": "CO2 > 1000 h",
+        "h_problem": "Pièce à problème : {r} – aérer brièvement plus souvent, garder les portes fermées pendant la douche/la cuisine.",
+        "h_none": "Pas de capteur d’humidité – analyse impossible.",
+        "airing": "Bilan d’aération",
+        "a_n": "Aérations",
+        "a_avg": "Durée moy.",
+        "a_long": "> 30 min",
+        "a_asked": "« Aérer »",
+        "a_done": "terminé",
+        "a_cold": "refroidit",
+        "a_ok": "Réussite",
+        "a_none": "Aucune aération enregistrée pour l’instant.",
+        "heatmap": "Quand chauffe-t-on ?",
+        "heatmap_sub": "Part du temps de chauffe – par jour de la semaine et par heure (toutes les pièces)",
+        "heatmap_none": "La carte de chaleur est collectée à partir de maintenant – elle apparaîtra ici après quelques jours.",
+        "presence": "Présence",
+        "p_away": "Personne à la maison",
+        "p_preheat": "Préchauffé",
+        "p_arrive": "Chaud à l’arrivée",
+        "p_occ": "Pièce occupée (détecteurs de présence)",
+        "p_heatup": "Temps de montée pour +2 °C",
+        "p_times": "{n}×",
+        "reliability": "Fiabilité",
+        "x_failed": "sans réponse h",
+        "x_down": "injoignable h",
+        "x_blips": "Courtes coupures de connexion avec tous les thermostats : {n}×",
+        "x_bat": "Piles",
+        "x_ok": "Aucune panne – tous les thermostats ont répondu de façon fiable.",
+        "highlights": "Retour sur la saison de chauffage",
+        "s_first": "Premier jour de chauffe",
+        "s_last": "Dernier jour de chauffe",
+        "s_cold": "Jour le plus froid",
+        "s_pause": "Plus longue pause de chauffage",
+        "s_pause_v": "{n} jours (jusqu’au {d})",
+        "s_top": "Mois au besoin le plus élevé",
+        "tips": "Conseils d’économie",
+        "notes": "Heures de chauffe : temps pendant lequel un thermostat chauffe. Corrigé du climat : ouverture de vanne par degré-jour – "
+        "une semaine plus froide ne compte pas comme moins bonne. Économies : règle empirique ~6 % par degré d’abaissement.",
+        "footer": "Raumklima pour Home Assistant · page {p}/{n}",
+        "none": "–",
+    },
 }
 
 _REPLACE = {
@@ -268,7 +378,7 @@ def num(value: Any, lang: str, digits: int = 1, unit: str = "") -> str:
     if value is None:
         return L[lang]["none"]
     text = f"{value:.{digits}f}"
-    if lang == "de":
+    if lang in ("de", "fr"):
         text = text.replace(".", ",")
     return text + unit
 
@@ -281,7 +391,11 @@ def signed(value: float | None, lang: str) -> str:
 
 
 def date_text(d: date, lang: str) -> str:
-    return d.strftime("%d.%m.%Y") if lang == "de" else d.strftime("%d %b %Y")
+    if lang == "de":
+        return d.strftime("%d.%m.%Y")
+    if lang == "fr":
+        return d.strftime("%d/%m/%Y")
+    return d.strftime("%d %b %Y")
 
 
 def title_for(kind: str, start: date, end: date, lang: str) -> str:

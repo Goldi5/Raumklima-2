@@ -21,8 +21,9 @@ MIN_COVERAGE = 0.5  # Vorjahr nur, wenn mind. die Hälfte der Zeit Daten da sind
 
 
 def report_lang(language: str | None) -> str:
-    """Deutsch bleibt Deutsch, alles andere wird Englisch."""
-    return "de" if (language or "").lower().startswith("de") else "en"
+    """Deutsch bleibt Deutsch, Französisch Französisch, alles andere wird Englisch."""
+    low = (language or "").lower()
+    return "de" if low.startswith("de") else "fr" if low.startswith("fr") else "en"
 
 
 def _md(value: str, year: int) -> date:
@@ -139,13 +140,29 @@ TEXT = {
         "issue": "{room}: {title}",
         "fine": "Nothing unusual – everything looks good.",
     },
+    "fr": {
+        "humid": "{room} : {h} h au-dessus du seuil d’humidité – aérer brièvement plus souvent (5–10 min).",
+        "mold": "{room} : {h} h avec risque de moisissures – aérer et ne pas trop abaisser.",
+        "target": "{room} : seulement {p} % du temps à la cible – vérifier vanne, radiateur ou température de départ.",
+        "tilt": "{room} : fenêtre ouverte {h} h pour {n} aérations – mieux vaut aérer en grand brièvement que laisser en oscillo-battant.",
+        "night": "{room} : {h} h de sommeil fenêtre ouverte.",
+        "arrive": "Il faisait chaud seulement à {p} % des arrivées – augmenter la distance de préchauffage.",
+        "more": "Corrigé du climat, {c} % de chauffage en plus que la période précédente.",
+        "less": "Corrigé du climat, {c} % de chauffage en moins que la période précédente.",
+        "more_ya": "Corrigé du climat, {c} % de plus qu’il y a un an.",
+        "less_ya": "Corrigé du climat, {c} % de moins qu’il y a un an.",
+        "saving": "L’abaissement a économisé environ {s} % d’énergie de chauffage.",
+        "empty": "{room} : {h} h abaissée car personne n’était dans la pièce.",
+        "issue": "{room} : {title}",
+        "fine": "Rien d’anormal – tout va bien.",
+    },
 }
 ORDER = {"alert": 0, "warn": 1, "info": 2, "good": 3}
 
 
 def _n(value: float, lang: str, digits: int = 0) -> str:
     text = f"{value:.{digits}f}"
-    return text.replace(".", ",") if lang == "de" else text
+    return text.replace(".", ",") if lang in ("de", "fr") else text
 
 
 def findings(data: dict[str, Any], issues: list[dict[str, Any]], lang: str) -> list[tuple[str, str]]:

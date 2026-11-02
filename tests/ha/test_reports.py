@@ -59,7 +59,7 @@ async def test_create_and_list(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_p
 
 
 async def test_language_follows_home_assistant(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path) -> None:
-    hub, _room = await _ready(hass, tmp_path, lang="fr")
+    hub, _room = await _ready(hass, tmp_path, lang="it")
     entry = await hub.runtime_data.pdf.async_create("week", current=True)
     assert "-Week-" in entry["file"] and entry["lang"] == "en"
     hass.config.language = "de"

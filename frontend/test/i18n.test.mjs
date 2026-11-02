@@ -7,6 +7,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { EN } from "../src/i18n/en.js";
+import { FR } from "../src/i18n/fr.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -14,6 +15,15 @@ test("alle Texte übersetzt", () => {
   const keys = JSON.parse(execFileSync(process.execPath, [join(here, "extract.mjs")], { encoding: "utf8" }));
   const missing = keys.filter((k) => !(k in EN));
   assert.deepEqual(missing, [], "fehlende englische Texte in src/i18n/en.js");
+});
+
+test("alle Texte auf Französisch", () => {
+  const missing = Object.keys(EN).filter((k) => !(k in FR));
+  assert.deepEqual(missing, [], "fehlende französische Texte in src/i18n/fr.js");
+  for (const [de, fr] of Object.entries(FR)) {
+    const ph = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(",");
+    assert.equal(ph(fr), ph(de), `Platzhalter (fr) in „${de}“`);
+  }
 });
 
 test("Platzhalter stimmen überein", () => {

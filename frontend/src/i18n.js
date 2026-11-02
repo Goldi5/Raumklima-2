@@ -1,16 +1,19 @@
 // Übersetzung der Karten. Deutsch ist die Ausgangssprache und zugleich der Schlüssel:
 //   t("Heizt") → "Heating" (en), sonst unverändert.
 //   t("{n} Räume", { n: 3 }) → "3 rooms"
-// Sprache folgt Home Assistant (Profil → Sprache); alles außer Deutsch zeigt Englisch.
-// Texte aus der Integration selbst (Protokoll, Hinweise) bleiben deutsch.
+// Sprache folgt Home Assistant (Profil → Sprache): Deutsch, Französisch, sonst Englisch.
 import { EN } from "./i18n/en.js";
+import { FR } from "./i18n/fr.js";
+
+const TABLES = { en: EN, fr: FR };
 
 let lang = "de";
 let locale = "de-DE";
 
 export function setLang(hass) {
   const l = String((hass && ((hass.locale && hass.locale.language) || hass.language)) || "de");
-  lang = l.toLowerCase().startsWith("de") ? "de" : "en";
+  const low = l.toLowerCase();
+  lang = low.startsWith("de") ? "de" : low.startsWith("fr") ? "fr" : "en";
   locale = lang === "de" ? "de-DE" : l;
 }
 
@@ -18,7 +21,7 @@ export const getLang = () => lang;
 export const loc = () => locale;
 
 export function t(de, vars) {
-  let s = lang === "de" ? de : (EN[de] ?? de);
+  let s = lang === "de" ? de : (TABLES[lang][de] ?? EN[de] ?? de);
   if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
   return s;
 }

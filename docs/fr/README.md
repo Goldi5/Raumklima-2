@@ -1,0 +1,47 @@
+# Raumklima – documentation (français)
+
+🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇬🇧 [English documentation](../en/README.md)
+
+**Raumklima** transforme chaque thermostat de radiateur (TRV) de Home Assistant en thermostat d’ambiance intelligent : il régule selon une vraie sonde dans la pièce, se met en pause quand une fenêtre est ouverte, vous guide pour aérer, abaisse la température quand personne n’est là – avec protection contre les moisissures – et ne chauffe que quand il fait vraiment froid dehors.
+
+> Raumklima est en **version de test (early release)**. La traduction française est nouvelle – les corrections sont les bienvenues via une [issue](https://github.com/Goldi5/Raumklima-2/issues).
+
+## En bref
+
+- **Régulation selon la sonde de la pièce** au lieu de la sonde du radiateur – décalage (offset) automatique ou compensation de consigne.
+- **Fenêtre ouverte = pause**, puis reprise avec le réglage précédent ; fenêtre ouverte détectée aussi **sans contact** grâce à la chute de température. Plusieurs radiateurs et autant de contacts de fenêtre que nécessaire par pièce.
+- **Assistant d’aération** : humidité et CO₂, durée d’aération selon la température extérieure, « l’aération assèche-t-elle vraiment ? », alerte « la pièce se refroidit », **aération nocturne** ; compte à rebours sur l’écran verrouillé et **signal lumineux**.
+- **Absence** : habitants + zone, abaissement « brève absence » / « absent longtemps », préchauffage selon la distance et l’heure d’arrivée, calendrier (vacances, télétravail), **détecteurs de présence** (mmWave et PIR).
+- **Saison de chauffage** selon la moyenne journalière et la prévision météo, côté ensoleillé, nuits de gel.
+- **Notifications** par destinataire, heures calmes, heures de sommeil apprises, annonces vocales.
+- **Rapports PDF** (semaine, mois, saison) avec note A–F, comparaison avec l’année précédente, conseils d’économie – en téléchargement, en push ou **par e-mail**.
+- **Contrôle de santé** : piles, radio, sonde bloquée, « la pièce ne chauffe pas », équilibrage hydraulique.
+- **Tableau de bord** complet avec un **« ? »** d’explication derrière chaque réglage – en allemand, anglais ou français selon la langue de Home Assistant.
+
+## Installation
+
+1. **HACS** → ⋮ → **Dépôts personnalisés** → `https://github.com/Goldi5/Raumklima-2`, catégorie **Intégration**.
+2. Chercher **Raumklima** dans HACS → **Télécharger**, puis redémarrer Home Assistant.
+3. **Paramètres → Appareils et services → Ajouter une intégration → Raumklima** : choisir le thermostat, la sonde de la pièce, les fenêtres et le type de pièce.
+4. **Paramètres → Tableaux de bord → + Ajouter un tableau de bord → Raumklima** – le tableau de bord se construit tout seul.
+
+**Avant de commencer**, désactivez sur le thermostat ses propres plannings, sa détection de fenêtre et ses modes « boost » – sinon le thermostat et Raumklima travaillent l’un contre l’autre.
+
+## Quels thermostats ?
+
+Tout thermostat de radiateur qui apparaît comme entité `climate` dans Home Assistant et dont on peut régler la température – Zigbee, Z-Wave, Wi-Fi, Shelly, Matter/Thread ou cloud (Tado, Netatmo). Sans réglage de décalage, Raumklima utilise automatiquement la compensation de consigne. Testé jusqu’ici : Tuya TRV602Z (Zigbee2MQTT). Détails (en anglais) : [Which thermostats work?](../en/installation.md#which-thermostats-work)
+
+## Langue
+
+| Partie | Français |
+|---|---|
+| Assistants de configuration | ✅ |
+| Tableau de bord et cartes, explications « ? » | ✅ |
+| Rapports PDF | ✅ |
+| Notifications push et journal | ✅ (à partir de la version 0.17) |
+| Documentation détaillée et manuel PDF | en allemand et en anglais |
+
+## Aide
+
+- Documentation détaillée (anglais) : [docs/en](../en/README.md) · FAQ : [docs/en/faq.md](../en/faq.md)
+- Signaler un bug ou une idée : [issues GitHub](https://github.com/Goldi5/Raumklima-2/issues)

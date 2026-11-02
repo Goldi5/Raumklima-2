@@ -26,7 +26,8 @@ def _data(days: int = 60, humidity: float = 55.0, mold: bool = False):
 def test_lang():
     assert report_lang("de") == "de"
     assert report_lang("de-CH") == "de"
-    assert report_lang("fr") == "en"
+    assert report_lang("fr") == "fr"
+    assert report_lang("it") == "en"
     assert report_lang(None) == "en"
 
 
@@ -50,7 +51,7 @@ def test_findings_fine_and_issues_en():
 
 def test_render_pdf_de_en_and_empty():
     rooms, home = _data()
-    for lang in ("de", "en"):
+    for lang in ("de", "en", "fr"):
         for kind, start in (("week", TODAY - timedelta(days=6)), ("month", date(2026, 10, 1)), ("season", date(2026, 10, 1))):
             pdf = render(build(rooms, home, kind, start, TODAY, [], lang), "Berlin", datetime(2026, 11, 1, 18))
             assert pdf[:4] == b"%PDF" and len(pdf) > 3000

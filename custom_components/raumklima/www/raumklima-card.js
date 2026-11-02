@@ -1,4 +1,4 @@
-/* Raumklima 0.15.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.16.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -500,18 +500,520 @@
     "Ventil Ø": "Valve avg"
   };
 
+  // src/i18n/fr.js
+  var FR = {
+    "Handbuch (PDF)": "Manuel (PDF)",
+    "Anleitung, Funktionen und häufige Fragen": "Installation, fonctions et questions fréquentes",
+    "Tageswerte je Raum als Tabelle (CSV)": "Valeurs journalières par pièce en tableau (CSV)",
+    "Export fehlgeschlagen: {e}": "Échec de l’export : {e}",
+    "Kalender": "Calendrier",
+    "– keiner –": "– aucun –",
+    "gerade: „{s}“": "en cours : « {s} »",
+    "Termine mit diesen Wörtern steuern die Anwesenheit": "Les événements contenant ces mots pilotent la présence",
+    "… wie Urlaub": "… comme vacances",
+    "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist": "séparés par des virgules ; abaisser comme « absent longtemps » dès que personne n’est là",
+    "… jemand bleibt zu Hause": "… quelqu’un reste à la maison",
+    "Komma-getrennt; dann wird nicht abgesenkt": "séparés par des virgules ; pas d’abaissement dans ce cas",
+    "Frostnacht: weniger absenken": "Nuit de gel : abaisser moins",
+    "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm": "sous −5 °C prévus, abaissement réduit de moitié – la pièce se réchauffe plus vite",
+    "Sonnenseite": "Côté ensoleillé",
+    "gerade: Sonne erwartet – 1 °C weniger": "en cours : soleil prévu – 1 °C de moins",
+    "bei Sonne laut Vorhersage 1 °C weniger heizen – die Sonne wärmt mit": "chauffer 1 °C de moins quand le soleil est prévu – le soleil aide",
+    "Sonne heizt mit · Ziel <b>{v} °C</b>": "Le soleil aide · cible <b>{v} °C</b>",
+    "+{n} neue Einträge sind durch die Filter ausgeblendet (z. B. Thermostat-Befehle).": "+{n} nouvelles entrées sont masquées par les filtres (p. ex. commandes au thermostat).",
+    "1 Hinweis": "1 remarque",
+    "24 h heizen": "Chauffer 24 h",
+    "3 Tage darunter → heizt auch außerhalb der Saison": "3 jours en dessous → chauffe aussi hors saison",
+    "7 T": "7 j",
+    "<b>{v} %</b> warm bei Ankunft": "<b>{v} %</b> chaud à l’arrivée",
+    "<b>{v} h</b> abgesenkt": "<b>{v} h</b> abaissé",
+    "<b>{v} h</b> geheizt": "<b>{v} h</b> chauffé",
+    "Abgesenkt": "Abaissé",
+    "Abgesenkt <b>{v} °C</b> · Wunsch {w}°": "Abaissé <b>{v} °C</b> · souhaité {w}°",
+    "Abgesenkt – niemand da": "Abaissé – personne à la maison",
+    "Absenken nach": "Abaisser après",
+    "Absenkung kurz / länger": "Abaissement court / long",
+    "Absenkung „kurz weg“": "Abaissement « brève absence »",
+    "Absenkung „länger weg“": "Abaissement « absent longtemps »",
+    "Abwesenheit & Vorheizen": "Absence & préchauffage",
+    "Adresse des Dashboards dieser Wohnung (für den Umschalter)": "Chemin du tableau de bord de ce logement (pour le sélecteur)",
+    "Alle Räume": "Toutes les pièces",
+    "Alle Räume auf einen Blick": "Toutes les pièces en un coup d’œil",
+    "Alle Räume und Außenklima auf einen Blick": "Toutes les pièces et le climat extérieur en un coup d’œil",
+    "Alle weg": "Tout le monde est parti",
+    "Alle zeigen": "Tout afficher",
+    "Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.": "Tout va bien – thermostats, sondes, piles et radio sans anomalie.",
+    "Allgemein": "Général",
+    "Als Push hinzufügen": "Ajouter en push",
+    "Als Sprachansage": "Ajouter en annonce vocale",
+    "Altbau saniert": "Ancien bâtiment rénové",
+    "Altbau unsaniert": "Ancien bâtiment non rénové",
+    "Anwesenheit": "Présence",
+    "Anwesenheit & Absenkung": "Présence & abaissement",
+    "Anzeigename (optional)": "Nom affiché (facultatif)",
+    "Aufheizen": "Montée en température",
+    "Aufstehen": "Lever",
+    "Aus": "Arrêt",
+    "Ausschalten über": "Éteindre via",
+    "Automatisch": "Automatique",
+    "Außen": "Extérieur",
+    "Bad": "Salle de bain",
+    "CO₂-Sensor": "Capteur de CO₂",
+    "ab 1000 ppm: „Bitte lüften“": "à partir de 1000 ppm : « Merci d’aérer »",
+    "Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge). Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Barres = durée équivalente des vannes entièrement ouvertes (mesure de la chaleur fournie). Points = degrés-jours de chauffage : plus il faisait froid dehors, plus ils sont hauts. Des barres hautes par temps doux indiquent des fenêtres ouvertes ou des températures souhaitées trop élevées.",
+    "Bauart": "Type de bâtiment",
+    "Beenden": "Arrêter",
+    "Bei {p} % der Ankünfte war es schon warm": "À {p} % des arrivées, il faisait déjà chaud",
+    "Benachrichtigungen": "Notifications",
+    "Benachrichtigungen allgemein": "Notifications – général",
+    "Bericht": "Rapport",
+    "Bericht nicht verfügbar: {e}": "Rapport indisponible : {e}",
+    "Betriebsart": "Mode",
+    "Bewohner und Zone wählen, dann ist es aktiv": "Choisir les habitants et la zone pour activer",
+    "Bitte als MM-TT eingeben, z. B. 10-01": "Saisir au format MM-JJ, p. ex. 10-01",
+    "Bitte ein Raumklima-Thermostat (entity) angeben": "Indiquer un thermostat Raumklima (entité)",
+    "Bitte einen Namen eingeben": "Saisir un nom",
+    "Bitte lüften": "Merci d’aérer",
+    "Dashboard": "Tableau de bord",
+    "Daten seit {d}": "Données depuis le {d}",
+    "Der Bericht sammelt ab jetzt jede Minute, was die Heizung tut. Nach ein paar Stunden stehen hier die ersten Werte, aussagekräftig wird es nach einer Woche.": "Dès maintenant, le rapport enregistre chaque minute ce que fait le chauffage. Les premières valeurs apparaissent après quelques heures ; il devient parlant après une semaine.",
+    "Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.": "En cas d’absence prolongée, la protection contre les moisissures calcule avec le point le plus froid du mur (facteur de température {f} selon DIN 4108-2). Si l’air est humide, l’abaissement est plus faible – l’air chaud retient plus d’humidité et le mur reste sous 80 % d’humidité.",
+    "Details": "Détails",
+    "Die Ersparnis ist eine Abschätzung nach der Faustregel der Verbraucherzentrale (≈ 6 % weniger Heizenergie je Grad Absenkung). „Wetterbereinigt“ vergleicht den Heizbedarf je Heizgradtag – ein kalter Monat macht ihn also nicht schlechter.": "L’économie est une estimation selon la règle empirique (≈ 6 % d’énergie de chauffage en moins par degré d’abaissement). « Corrigé du climat » compare le besoin de chauffage par degré-jour – un mois froid ne le dégrade donc pas.",
+    "Diese Woche": "Cette semaine",
+    "Dieser Monat": "Ce mois-ci",
+    "Draußen": "Extérieur",
+    "Draußen gerade {v} °C": "Actuellement {v} °C dehors",
+    "Drehen am Thermostat übernehmen": "Reprendre les réglages faits au thermostat",
+    "Dringend": "Urgent",
+    "Einschalten mit": "Allumer avec",
+    "Einstellungen": "Paramètres",
+    "Einstellungen konnten nicht geladen werden: {e}": "Impossible de charger les paramètres : {e}",
+    "Empfohlene Lüftdauer": "Durée d’aération recommandée",
+    "Empfänger": "Destinataires",
+    "Entität {e} nicht gefunden": "Entité {e} introuvable",
+    "Erinnern alle": "Rappeler toutes les",
+    "Erreicht": "Atteinte",
+    "Fehler auch in der HA-Glocke": "Afficher aussi les erreurs dans les notifications HA",
+    "Fehler: {e}": "Erreur : {e}",
+    "Fehlgeschlagen": "Échec",
+    "Feiertage": "Jours fériés",
+    "Fenster": "Fenêtres",
+    "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß": "Une fenêtre de chambre ouverte pendant cette période compte comme sommeil fenêtre ouverte – pas de rappels d’aération, un bonjour le matin",
+    "Fenster offen": "Fenêtre ouverte",
+    "Fenster offen, niemand da": "Fenêtre ouverte, personne à la maison",
+    "Fenster schließen": "Fermer la fenêtre",
+    "Fensterkontakt offen": "Contact de fenêtre ouvert",
+    "Fensterlogik": "Logique fenêtre",
+    "Feuchte": "Humidité",
+    "Feuchtefühler": "Capteur d’humidité",
+    "Feuchtegrenze": "Seuil d’humidité",
+    "Format MM-TT, außerhalb nur bei Kälteeinbruch": "Format MM-JJ ; en dehors seulement en cas de vague de froid",
+    "Frostschutz <b>{v} °C</b>": "Hors-gel <b>{v} °C</b>",
+    "Fühler ausgefallen": "Sonde en panne",
+    "Fühler fehlt": "Sonde manquante",
+    "Für eine zweite Wohnung (z. B. Remscheid) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.": "Créer ici un second logement (p. ex. une maison de vacances) avec ses propres habitants, sa zone et ses destinataires. Les pièces existantes restent dans ce logement.",
+    "Gebäude & Schimmelschutz": "Bâtiment & protection contre les moisissures",
+    "Geräte & Technik ändern": "Modifier appareils & réglages techniques",
+    "Gespart": "Économisé",
+    "Gespeichert": "Enregistré",
+    "Gespeichert – Raum übernimmt die Werte": "Enregistré – la pièce applique les valeurs",
+    "Gestern": "Hier",
+    "Gesundheit": "Santé",
+    "Gesundheit der Heizung": "Santé du chauffage",
+    "Gäste da": "Invités présents",
+    "HGT": "DJC",
+    "Heizbedarf pro Tag": "Besoin de chauffage par jour",
+    "Heizbericht": "Rapport de chauffage",
+    "Heizgradtage (Kälte draußen)": "Degrés-jours de chauffage (froid dehors)",
+    "Heizgrenze": "Seuil de chauffage",
+    "Heizkörper": "Radiateur",
+    "Heizpause": "Chauffage en pause",
+    "Heizpause (Hand)": "Chauffage en pause (manuel)",
+    "Heizsaison": "Saison de chauffage",
+    "Heizsaison & Heizgrenze": "Saison & seuil de chauffage",
+    "Heizsaison Start/Ende": "Début/fin de la saison de chauffage",
+    "Heizstunden": "Heures de chauffe",
+    "Heizt": "Chauffe",
+    "Heizung": "Chauffage",
+    "Heizung & Fenster": "Chauffage & fenêtres",
+    "Heizung & Fenster (Zeitleiste)": "Chauffage & fenêtres (chronologie)",
+    "Heizung aus": "Chauffage arrêté",
+    "Heizung bei offenem Fenster pausieren": "Mettre le chauffage en pause quand une fenêtre est ouverte",
+    "Heizung, Lüften und Klima aller Raumklima-Räume – baut sich automatisch auf": "Chauffage, aération et climat de toutes les pièces Raumklima – se construit tout seul",
+    "Heute": "Aujourd’hui",
+    "Heute heizen": "Chauffer aujourd’hui",
+    "Hinweis": "Info",
+    "Hinweise": "Remarques",
+    "Hinweise für diesen Raum": "Remarques pour cette pièce",
+    "Immer heizen": "Toujours chauffer",
+    "Inhalt": "Contenu",
+    "Ins Bett": "Coucher",
+    "Ja": "Oui",
+    "Jede Nacht zählt einmal (frühestes Ereignis), getrennt nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.": "Chaque nuit compte une fois (premier événement), séparément pour la semaine et le week-end (ven→sam, sam→dim) ; la valeur typique (médiane) des 6 dernières semaines est apprise dès que 4 nuits sont enregistrées. Les heures calmes commencent 30 min avant l’heure de coucher typique et finissent 30 min après le lever – mais jamais plus courtes que réglé.",
+    "Jemand da": "Quelqu’un est là",
+    "Jetzt": "Maintenant",
+    "Jetzt kalibrieren": "Calibrer maintenant",
+    "Kalibrierung": "Calibrage",
+    "Keine": "Aucune",
+    "Keine Daten im Zeitraum": "Aucune donnée sur la période",
+    "Keine Einträge für diese Auswahl.": "Aucune entrée pour cette sélection.",
+    "Keine Ruhezeit": "Pas d’heures calmes",
+    "Kinderzimmer": "Chambre d’enfant",
+    "Kontakte": "Contacts",
+    "Kälteeinbruch": "Vague de froid",
+    "Kälteeinbruch unter": "Vague de froid sous",
+    "Küche": "Cuisine",
+    "Lade Bericht …": "Chargement du rapport …",
+    "Lade Einstellungen …": "Chargement des paramètres …",
+    "Lade Verlauf …": "Chargement de l’historique …",
+    "Licht aus – alle schlafen": "Lumières éteintes – tout le monde dort",
+    "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden": "Lumières : toutes éteintes 20 min le soir = coucher, une allumée le matin = levé",
+    "Luft ausgetauscht": "Air renouvelé",
+    "Luft ausgetauscht – du kannst schließen": "Air renouvelé – vous pouvez fermer",
+    "Luftfeuchte": "Humidité",
+    "Länger weg": "Absent longtemps",
+    "Lüften & Feuchte": "Aération & humidité",
+    "Lüftet": "Aération",
+    "Lüftzeit erreicht – bitte schließen": "Durée d’aération atteinte – merci de fermer",
+    "Max. Abkühlung beim Lüften": "Refroidissement max. pendant l’aération",
+    "Mindesttemperatur beim Lüften": "Température minimale pendant l’aération",
+    "Minimaltemperatur": "Température minimale",
+    "Minimum Lüften": "Aération minimale",
+    "Modus „aus“": "Mode « arrêt »",
+    "Nachrichten": "Messages",
+    "Nachtlüften": "Aération nocturne",
+    "Nachtlüften – Fenster offen": "Aération nocturne – fenêtre ouverte",
+    "Name der Wohnung": "Nom du logement",
+    "Nein": "Non",
+    "Neubau / gedämmt": "Neuf / isolé",
+    "Neue Wohnung, z. B. Remscheid": "Nouveau logement, p. ex. maison de vacances",
+    "Noch kein Empfänger – unten hinzufügen.": "Pas encore de destinataire – ajoutez-en un ci-dessous.",
+    "Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.": "Pas encore d’entrées. Désormais, chaque décision apparaît ici avec sa raison.",
+    "Nur Ansicht – Ändern erfordert Admin": "Lecture seule – les modifications nécessitent un administrateur",
+    "Offenes Fenster an Temperatursturz erkennen": "Détecter une fenêtre ouverte à la chute de température",
+    "Offset": "Décalage",
+    "Offset am Thermostat": "Décalage au thermostat",
+    "Pause": "Pause",
+    "Pause nach": "Pause après",
+    "Pausiert – Fenster offen": "En pause – fenêtre ouverte",
+    "Preset „aus“": "Préréglage « arrêt »",
+    "Preset „{p}“": "Préréglage « {p} »",
+    "Protokoll": "Journal",
+    "Protokoll nicht verfügbar: {e}": "Journal indisponible : {e}",
+    "Prüfen": "À vérifier",
+    "Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.": "Vérifie toutes les 10 minutes : piles, pièce qui ne chauffe pas malgré la vanne ouverte, sonde bloquée, coupures radio, contact de fenêtre muet. Les alertes vont à tous ceux qui ont « 🩺 Santé ».",
+    "Push aufs Handy": "Push sur le téléphone",
+    "Raum": "Pièce",
+    "Raum (Raumklima-Thermostat)": "Pièce (thermostat Raumklima)",
+    "Raum kühlt aus": "La pièce se refroidit",
+    "Raum kühlt aus – jetzt schließen": "La pièce se refroidit – fermer maintenant",
+    "Raum ±1 °C am Ziel": "Pièce à ±1 °C de la cible",
+    "Raumklima – Einstellungen": "Raumklima – Paramètres",
+    "Raumklima – Heizbericht": "Raumklima – Rapport de chauffage",
+    "Raumklima – Protokoll": "Raumklima – Journal",
+    "Raumklima – Raum": "Raumklima – Pièce",
+    "Raumklima – Verlauf": "Raumklima – Historique",
+    "Raumklima – Übersicht": "Raumklima – Aperçu",
+    "Raumtemperatur": "Température de la pièce",
+    "Raumtyp": "Type de pièce",
+    "Ruhezeit": "Heures calmes",
+    "Ruhezeit gerade aktiv": "Heures calmes actives",
+    "Ruhezeit wirksam": "Heures calmes effectives",
+    "Räume": "Pièces",
+    "Sa und So endet die Ruhezeit später – zum Ausschlafen": "Le samedi et le dimanche, les heures calmes finissent plus tard – pour faire la grasse matinée",
+    "Schlaf-Signale": "Signaux de sommeil",
+    "Schlafen bei offenem Fenster": "Dormir fenêtre ouverte",
+    "Schlafenszeiten": "Heures de sommeil",
+    "Schlafzimmer": "Chambre",
+    "Selten genutzt": "Peu utilisée",
+    "Sicherung": "Minimum de sécurité",
+    "Signal hinzufügen": "Ajouter un signal",
+    "So,Mo,Di,Mi,Do,Fr,Sa": "Di,Lu,Ma,Me,Je,Ve,Sa",
+    "Sollwert-Ausgleich": "Compensation de consigne",
+    "Sommerpflege Ventile": "Dégommage d’été des vannes",
+    "Sprachansage · nie in der Ruhezeit": "Annonce vocale · jamais pendant les heures calmes",
+    "Suchen … (z. B. Offset, Heizpause)": "Rechercher … (p. ex. décalage, pause)",
+    "Synchron": "Synchronisé",
+    "TRV weg": "TRV absent",
+    "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)": "Moyenne extérieure journalière ; au-dessus, le chauffage se met en pause (après 2 jours doux)",
+    "Taupunkt": "Point de rosée",
+    "Temperatur": "Température",
+    "Temperatur erreicht": "Température atteinte",
+    "Temperatur, Luftfeuchte oder Zeitleiste aller Räume": "Température, humidité ou chronologie de toutes les pièces",
+    "Temperaturfühler": "Sonde de température",
+    "Test": "Test",
+    "Testnachricht an {n} gesendet": "Message de test envoyé à {n}",
+    "Thermostat": "Thermostat",
+    "Thermostat & Fühler": "Thermostat & sondes",
+    "Thermostat nicht erreichbar": "Thermostat injoignable",
+    "Thermostat reagiert nicht": "Le thermostat ne répond pas",
+    "Thermostat, Lüften und Klima eines Raums": "Thermostat, aération et climat d’une pièce",
+    "Thermostat-Befehle": "Commandes au thermostat",
+    "Tippe auf einen Raum, um seine Einstellungen zu ändern.": "Touchez une pièce pour en modifier les paramètres.",
+    "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist.": "Touchez pour sélectionner/désélectionner. Compte dès qu’un de leurs téléphones est dans la zone.",
+    "Titel": "Titre",
+    "Typ": "Type",
+    "Urlaub": "Vacances",
+    "Ventil": "Vanne",
+    "Ventil voll offen ≈ {v} h": "Vanne entièrement ouverte ≈ {v} h",
+    "Ventil ≈ {v} h": "Vanne ≈ {v} h",
+    "Ventilpflege läuft": "Dégommage des vannes en cours",
+    "Verlauf": "Historique",
+    "Verlauf nicht verfügbar: {e}": "Historique indisponible : {e}",
+    "Von Hand": "Manuel",
+    "Vorheizen": "Préchauffage",
+    "Vorheizen ab": "Préchauffer à partir de",
+    "Vormonat": "mois précédent",
+    "Vorwoche": "semaine précédente",
+    "Warum": "Pourquoi",
+    "Was eingestellt ist, wer welche Hinweise bekommt – mit Reglern": "Ce qui est réglé et qui reçoit quelles remarques – avec des réglages",
+    "Was wann warum entschieden wurde · 14 Tage": "Ce qui a été décidé, quand et pourquoi · 14 jours",
+    "Was wann warum entschieden wurde – live, mit Filtern": "Ce qui a été décidé, quand et pourquoi – en direct, avec filtres",
+    "Weiter nach": "Reprendre après",
+    "Wer bekommt was": "Qui reçoit quoi",
+    "Wer wohnt hier?": "Qui habite ici ?",
+    "Werktags": "En semaine",
+    "Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.": "Les valeurs modifiées avec + / − sont enregistrées après une courte pause et appliquées aussitôt par la pièce. Les appareils (thermostat, sondes, contacts) et la technique se modifient sous « Modifier appareils & réglages techniques » → roue dentée de la pièce « {r} ».",
+    "Wetter (optional)": "Météo (facultatif)",
+    "Wetterbereinigt": "Corrigé du climat",
+    "Wetterquelle": "Source météo",
+    "Wird übertragen": "Envoi en cours",
+    "Woche und Monat: Heizstunden, Ersparnis, wetterbereinigter Vergleich, Gesundheit": "Semaine et mois : heures de chauffe, économies, comparaison corrigée du climat, santé",
+    "Wochenbericht": "Rapport hebdomadaire",
+    "Wochenende": "Week-end",
+    "Wochenende bis": "Week-end jusqu’à",
+    "Wohlfühlbereich": "Zone de confort",
+    "Wohlfühlzeit": "Temps de confort",
+    "Wohnraum": "Séjour",
+    "Wohnung": "Logement",
+    "Wohnung (Zone)": "Logement (zone)",
+    "Wohnung anlegen": "Créer un logement",
+    "Wohnung „{n}“ angelegt": "Logement « {n} » créé",
+    "Wunsch": "Souhaité",
+    "Wunschtemperatur": "Température souhaitée",
+    "Zeiten lernen": "Apprendre les horaires",
+    "Ziel & Heizung": "Cible & chauffage",
+    "Ziel <b>{v} °C</b>": "Cible <b>{v} °C</b>",
+    "Ziel <b>{v} °C</b> · von Hand": "Cible <b>{v} °C</b> · manuel",
+    "Ziel {v}°": "Cible {v}°",
+    "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer": "à partir de 24 h ou en vacances – la protection contre les moisissures garde les pièces humides plus chaudes",
+    "aktuell {v} °C": "actuellement {v} °C",
+    "alle 5 s": "toutes les 5 s",
+    "alle waren da": "tout le monde était là",
+    "alles gut": "tout va bien",
+    "an": "activé",
+    "an/aus": "marche/arrêt",
+    "aus": "désactivé",
+    "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie": "d’après l’aération nocturne et les lumières – prolonge seulement les heures calmes et l’aération nocturne, ne les raccourcit jamais",
+    "außen {v} °C": "extérieur {v} °C",
+    "außen · {h} %": "extérieur · {h} %",
+    "bei {v} °C draußen": "par {v} °C dehors",
+    "beim Einschalten und als Grundwert": "à l’allumage et comme valeur de base",
+    "bis": "à",
+    "bis {t}": "jusqu’à {t}",
+    "da": "présent",
+    "damit kurze Wege nichts auslösen": "pour que les petits trajets ne déclenchent rien",
+    "darunter: „Raum kühlt aus“": "en dessous : « La pièce se refroidit »",
+    "durch Absenkung (6 % je Grad)": "grâce à l’abaissement (6 % par degré)",
+    "einmal pro Nacht": "une fois par nuit",
+    "endet automatisch bei Ankunft": "se termine automatiquement à l’arrivée",
+    "entfernen": "retirer",
+    "erscheint im Umschalter oben im Dashboard": "apparaît dans le sélecteur en haut du tableau de bord",
+    "fällt ein Raum darunter, heizt er immer": "si une pièce descend en dessous, elle chauffe toujours",
+    "für milde, aber kühle Tage": "pour les jours doux mais frais",
+    "gelernt": "appris",
+    "gerade: Fenster vermutlich offen · ": "en cours : fenêtre probablement ouverte · ",
+    "im Schnitt −{v} °C": "en moyenne −{v} °C",
+    "ja": "oui",
+    "je Heizgradtag ggü. {vs}": "par degré-jour par rapport à {vs}",
+    "jetzt": "maintenant",
+    "keine": "aucun",
+    "keine Antwort": "pas de réponse",
+    "keine Personen in HA": "aucune personne dans HA",
+    "keiner": "aucun",
+    "kälter": "plus froid",
+    "lernt noch ({n}/3)": "apprend encore ({n}/3)",
+    "mehr": "plus",
+    "mittwochs 11 Uhr kurz öffnen": "ouvrir brièvement le mercredi à 11 h",
+    "morgen: {h} – Ruhezeit wie am Wochenende": "demain : {h} – heures calmes comme le week-end",
+    "nein": "non",
+    "neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen": "les nouvelles entrées arrivent aussitôt ; vérification en plus toutes les 5 s",
+    "nicht absenken, auch wenn alle Bewohner weg sind": "ne pas abaisser, même si tous les habitants sont absents",
+    "niemand": "personne",
+    "noch keine {vs}": "pas encore de {vs}",
+    "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut": "seules les urgences (refroidissement, fenêtre ouverte en absence, erreurs de thermostat) sont sonores",
+    "offen": "ouverte",
+    "prüft nach {s} s · bis zu {n} Wiederholungen": "vérifie après {s} s · jusqu’à {n} répétitions",
+    "sammelt noch": "collecte en cours",
+    "sendet …": "envoi …",
+    "solange das Problem besteht": "tant que le problème persiste",
+    "synchron": "synchronisé",
+    "umschalten": "basculer",
+    "unbekannt": "inconnu",
+    "weniger": "moins",
+    "wenn alle weg sind": "quand tout le monde est parti",
+    "wenn sich jemand nähert": "quand quelqu’un approche",
+    "wärmer": "plus chaud",
+    "z. B. Berlin": "p. ex. Paris",
+    "zentral unter Allgemein → Wer bekommt was": "de façon centrale sous Général → Qui reçoit quoi",
+    "zu": "fermée",
+    "zu mild für einen Vergleich": "trop doux pour une comparaison",
+    "zuletzt {t}": "dernière fois {t}",
+    "{d} ggü. {vs}": "{d} par rapport à {vs}",
+    "{h} % · Taupunkt {d} °C": "{h} % · point de rosée {d} °C",
+    "{h} % · ca. {m} min": "{h} % · env. {m} min",
+    "{c} ppm · ca. {m} min": "{c} ppm · env. {m} min",
+    "{n} Heizgradtage": "{n} degrés-jours de chauffage",
+    "{n} Hinweise": "{n} remarques",
+    "{n} Räume": "{n} pièces",
+    "{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.": "{n} logements : {list}. Chacun a ses propres habitants, zone, destinataires, saison de chauffage et journal ; une pièce s’attribue dans la pièce sous « Logement ».",
+    "{n} heizen": "{n} chauffent",
+    "{n} offen": "{n} ouvertes",
+    "{n}/4 Nächte": "{n}/4 nuits",
+    "{n}× vorgeheizt": "préchauffé {n}×",
+    "{r} Räume · {h} heizen · {w} Fenster offen": "{r} pièces · {h} chauffent · {w} fenêtres ouvertes",
+    "{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird": "{r} °C/h avec la météo actuelle · d’après {n} montées en température · détermine quand préchauffer",
+    "{v} h Fenster offen": "{v} h fenêtre ouverte",
+    "{v} h Nachtlüften": "{v} h d’aération nocturne",
+    "{v} h Schimmelrisiko": "{v} h de risque de moisissures",
+    "{v} h zu feucht": "{v} h trop humide",
+    "~{m} min für +2 °C": "~{m} min pour +2 °C",
+    "Ältere laden": "Charger plus ancien",
+    "Ø 24 h {p} · Vorhersage {f}": "Ø 24 h {p} · prévision {f}",
+    "Ø <b>{v} %</b> Feuchte": "Ø <b>{v} %</b> d’humidité",
+    "Übertragung": "Transmission",
+    "– keine –": "– aucune –",
+    "– wählen –": "– choisir –",
+    "„Länger weg“ ab": "« Absent longtemps » à partir de",
+    "„Raumklima Allgemein“ wird gerade eingerichtet – bitte die Seite gleich neu laden.": "« Raumklima Général » est en cours de configuration – rechargez la page dans un instant.",
+    "… leise warnen unter": "… alerte discrète sous",
+    "↓ {v}° · Wunsch {w}°": "↓ {v}° · souhaité {w}°",
+    "Ausprobieren": "Essayer",
+    "Bitte schließen": "Merci de fermer",
+    "Blau = lüften · Orange = schließen · Grün = fertig · Rot = Problem": "Bleu = aérer · orange = fermer · vert = terminé · rouge = problème",
+    "Blinken bei": "Clignoter pour",
+    "Lampe hinzufügen": "Ajouter une lampe",
+    "Lampen": "Lampes",
+    "Lampen blinken blau": "Les lampes clignotent en bleu",
+    "Lichtsignal": "Signal lumineux",
+    "Lüft-Countdown auf dem Sperrbildschirm": "Compte à rebours d’aération sur l’écran verrouillé",
+    "Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.": "Pas pendant les heures calmes, pas en dormant fenêtre ouverte et pas quand personne n’est là. Les lampes sans couleur clignotent simplement en blanc.",
+    "Problem mit der Heizung": "Problème de chauffage",
+    "blinken 3× in der Farbe des Hinweises, danach wie vorher": "clignotent 3× dans la couleur de la remarque, puis reviennent à leur état précédent",
+    "Fenster offen seit {c} · {d}": "Fenêtre ouverte depuis {c} · {d}",
+    "offen seit {c}": "ouverte depuis {c}",
+    "{d} Tg. {h} h": "{d} j {h} h",
+    "{h} h {m} min": "{h} h {m} min",
+    "{n} min": "{n} min",
+    "{n} s": "{n} s",
+    "Art": "Type",
+    "Jemand im Raum": "Quelqu’un dans la pièce",
+    "Leeren Raum absenken": "Abaisser la pièce vide",
+    "Melder": "Détecteurs",
+    "Melder hinzufügen": "Ajouter un détecteur",
+    "PIR": "PIR",
+    "Präsenzmelder": "Détecteurs de présence",
+    "Präsenzmelder zählen": "Détecteurs de présence pris en compte",
+    "Raum leer · Ziel <b>{v} °C</b>": "Pièce vide · cible <b>{v} °C</b>",
+    "gerade jemand in: {r}": "quelqu’un dans : {r}",
+    "jemand im Raum": "quelqu’un dans la pièce",
+    "leer": "vide",
+    "leer – abgesenkt": "vide – abaissée",
+    "mmWave": "mmWave",
+    "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung": "mmWave (radar) voit aussi les personnes immobiles · PIR seulement le mouvement",
+    "mmWave + PIR": "mmWave + PIR",
+    "nur mmWave": "mmWave uniquement",
+    "… um": "… de",
+    "… wenn leer seit": "… si vide depuis",
+    "Raum leer seit {d}": "Pièce vide depuis {d}",
+    "Raum leer seit {d} – abgesenkt": "Pièce vide depuis {d} – abaissée",
+    "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie": "si un détecteur voit quelqu’un, pas d’abaissement – le PIR réagit aussi aux animaux, donc mmWave uniquement par défaut ; en vacances, les détecteurs ne comptent jamais",
+    "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung": "Automatique : mouvement = PIR, présence/occupation = mmWave. Vide après 3 min (mmWave) ou 20 min (PIR) sans détection",
+    "Automatisch: ja (mmWave, passender Raumtyp)": "Automatique : oui (mmWave, type de pièce adapté)",
+    "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave": "Automatique : non – seulement séjour, cuisine, peu utilisée et seulement avec mmWave",
+    "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück": "jamais sous « brève absence » ni la protection contre les moisissures ; retour immédiat quand quelqu’un entre",
+    "Bericht gesendet: {f}": "Rapport envoyé : {f}",
+    "Download fehlgeschlagen: {e}": "Échec du téléchargement : {e}",
+    "Herunterladen": "Télécharger",
+    "Mail-Dienst (SMTP) in Home Assistant einrichten, dann hier wählen – die PDF kommt als Anhang": "configurer un service mail (SMTP) dans Home Assistant puis le choisir ici – le PDF arrive en pièce jointe",
+    "Monat": "Mois",
+    "Noch keine PDF-Berichte. Sie entstehen automatisch: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach dem Saisonende – oder jetzt mit den Knöpfen oben (bis heute).": "Pas encore de rapports PDF. Ils sont créés automatiquement : semaine le dimanche à 18 h, mois le 1er, saison de chauffage après sa fin – ou maintenant avec les boutons ci-dessus (jusqu’à aujourd’hui).",
+    "PDF konnte nicht erstellt werden: {e}": "Impossible de créer le PDF : {e}",
+    "PDF per E-Mail an": "Envoyer le PDF à",
+    "PDF-Berichte": "Rapports PDF",
+    "Woche": "Semaine",
+    "Wochenbericht jetzt senden": "Envoyer le rapport hebdomadaire maintenant",
+    "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“": "création automatique : semaine le dimanche à 18 h, mois le 1er, saison de chauffage après sa fin – push avec lien à tous ceux qui ont « rapport hebdomadaire »",
+    "bis heute": "jusqu’à aujourd’hui",
+    "– keine E-Mail –": "– pas d’e-mail –",
+    "Heizkosten pro Jahr": "Coûts de chauffage par an",
+    "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)": "facultatif, d’après votre facture – uniquement pour l’estimation en euros du rapport PDF (économies, « 1 °C de moins = … € »)",
+    "z. B. 1400": "p. ex. 1400",
+    "Erklärung": "Explication",
+    "Anbieter": "Fournisseur",
+    "Anderer Anbieter": "Autre fournisseur",
+    "Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.": "Le mot de passe est enregistré uniquement dans Home Assistant et n’est jamais affiché. Astuce : pour Gmail, créez un mot de passe dédié à Raumklima sous myaccount.google.com → Sécurité → Mots de passe d’application.",
+    "E-Mail einrichten": "Configurer l’e-mail",
+    "Raumklima (direkt hier einrichten)": "Raumklima (configurer ici)",
+    "Sende Test-Mail …": "Envoi de l’e-mail de test …",
+    "Server-Einstellungen": "Paramètres du serveur",
+    "Speichern & Test-Mail senden": "Enregistrer & envoyer un e-mail de test",
+    "Test-Mail an {to} gesendet – bitte Posteingang (und Spam) prüfen.": "E-mail de test envoyé à {to} – vérifiez votre boîte de réception (et les spams).",
+    "Verschlüsselung": "Chiffrement",
+    "eingerichtet": "configuré",
+    "füllt Server, Port und Verschlüsselung aus": "renseigne serveur, port et chiffrement",
+    "gespeichert – leer lassen zum Behalten": "enregistré – laisser vide pour le conserver",
+    "noch nicht eingerichtet": "pas encore configuré",
+    "„Raumklima“ wählen und unten die Zugangsdaten eintragen – die PDF kommt als Anhang": "choisir « Raumklima » et saisir les identifiants ci-dessous – le PDF arrive en pièce jointe",
+    "Benutzer": "Utilisateur",
+    "Passwort": "Mot de passe",
+    "Server": "Serveur",
+    "Port": "Port",
+    "Absender": "Expéditeur",
+    "meist deine E-Mail-Adresse": "généralement votre adresse e-mail",
+    "bei Gmail, iCloud, Outlook: App-Passwort": "pour Gmail, iCloud, Outlook : mot de passe d’application",
+    "mehrere mit Komma": "plusieurs séparés par des virgules",
+    "leer = Benutzer": "vide = utilisateur",
+    "hier antippen": "toucher ici",
+    "unten bei „E-Mail einrichten“ die Zugangsdaten eintragen – die PDF kommt als Anhang": "saisir les identifiants ci-dessous sous « Configurer l’e-mail » – le PDF arrive en pièce jointe",
+    "Eigenes E-Mail-Konto (unten einrichten)": "Compte e-mail personnel (configurer ci-dessous)",
+    "Vorhandener Mail-Dienst in Home Assistant": "Service mail existant dans Home Assistant",
+    "Zugang prüfen": "Vérifier l’accès",
+    "Server erreichbar": "Serveur joignable",
+    "Anmeldung": "Connexion",
+    "Prüfe Zugang …": "Vérification de l’accès …",
+    "Alles in Ordnung – du kannst speichern und eine Test-Mail senden.": "Tout est en ordre – vous pouvez enregistrer et envoyer un e-mail de test.",
+    "Da stimmt noch etwas nicht – siehe oben.": "Quelque chose ne va pas encore – voir ci-dessus.",
+    "PDF per E-Mail": "PDF par e-mail",
+    "die PDF kommt als Anhang an die Empfänger unten": "le PDF est envoyé en pièce jointe aux destinataires ci-dessous",
+    "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail": "configurer l’e-mail une fois ci-dessous – ensuite chaque rapport arrive aussi par e-mail",
+    "über {s}": "via {s}",
+    "Oder vorhandenen Mail-Dienst nutzen": "Ou utiliser un service mail existant",
+    "statt der Zugangsdaten oben": "au lieu des identifiants ci-dessus",
+    "– nein, Zugangsdaten oben –": "– non, identifiants ci-dessus –",
+    "Bitte erst unten die Zugangsdaten eintragen und speichern.": "Saisissez et enregistrez d’abord les identifiants ci-dessous.",
+    "Weitere Thermostate": "Thermostats supplémentaires",
+    "Haupt-Thermostat": "thermostat principal",
+    "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert": "reçoivent les mêmes commandes, chacun avec sa propre vérification et sa propre correction",
+    "nicht erreichbar": "injoignable",
+    "Ventil Ø": "Vanne Ø"
+  };
+
   // src/i18n.js
+  var TABLES = { en: EN, fr: FR };
   var lang = "de";
   var locale = "de-DE";
   function setLang(hass) {
     const l = String(hass && (hass.locale && hass.locale.language || hass.language) || "de");
-    lang = l.toLowerCase().startsWith("de") ? "de" : "en";
+    const low = l.toLowerCase();
+    lang = low.startsWith("de") ? "de" : low.startsWith("fr") ? "fr" : "en";
     locale = lang === "de" ? "de-DE" : l;
   }
   var getLang = () => lang;
   var loc = () => locale;
   function t(de, vars) {
-    let s = lang === "de" ? de : EN[de] ?? de;
+    let s = lang === "de" ? de : TABLES[lang][de] ?? EN[de] ?? de;
     if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m);
     return s;
   }
@@ -528,7 +1030,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.15.1";
+  var RK_VERSION = "0.16.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1693,294 +2195,375 @@
 
   // src/help.js
   var HELP = {
-    // ---------------------------------------------------------------- Anwesenheit
     "Wer wohnt hier?": [
       "Die Personen, deren Handys zählen. Ist keine davon in der Wohnungs-Zone, gilt die Wohnung nach der Wartezeit als leer und Raumklima senkt ab. Personen legst du in Home Assistant unter Einstellungen → Personen an und verknüpfst dort das Handy (Home-Assistant-App).",
-      "The people whose phones count. If none of them is in the home zone, the home counts as empty after the waiting time and Raumklima lowers the temperature. People are created in Home Assistant under Settings → People, where you also link their phone (Home Assistant app)."
+      "The people whose phones count. If none of them is in the home zone, the home counts as empty after the waiting time and Raumklima lowers the temperature. People are created in Home Assistant under Settings → People, where you also link their phone (Home Assistant app).",
+      "Les personnes dont les téléphones comptent. Si aucune n’est dans la zone du logement, celui-ci est considéré comme vide après le délai d’attente et Raumklima abaisse la température. Les personnes se créent dans Home Assistant sous Paramètres → Personnes, où l’on associe aussi le téléphone (application Home Assistant)."
     ],
     "Wohnung (Zone)": [
       "Der Bereich auf der Karte, der als „zu Hause“ gilt. Meist „Home“; bei mehreren Wohnungen je Wohnung eine eigene Zone (Einstellungen → Bereiche & Zonen).",
-      "The area on the map that counts as “home”. Usually “Home”; with several homes, one zone per home (Settings → Areas & zones)."
+      "The area on the map that counts as “home”. Usually “Home”; with several homes, one zone per home (Settings → Areas & zones).",
+      "La zone sur la carte qui compte comme « à la maison ». Le plus souvent « Home » ; avec plusieurs logements, une zone par logement (Paramètres → Pièces & zones)."
     ],
     "Absenken nach": [
       "So lange muss die Wohnung leer sein, bevor abgesenkt wird – damit kurz Brötchen holen nichts auslöst. 30 Minuten sind ein guter Wert.",
-      "How long the home must be empty before lowering – so that popping out for bread doesn't trigger anything. 30 minutes is a good value."
+      "How long the home must be empty before lowering – so that popping out for bread doesn't trigger anything. 30 minutes is a good value.",
+      "Durée pendant laquelle le logement doit être vide avant d’abaisser – pour qu’aller chercher du pain ne déclenche rien. 30 minutes est une bonne valeur."
     ],
     "„Länger weg“ ab": [
       "Nach so vielen Stunden ohne jemanden wird von „kurz weg“ auf „länger weg“ umgeschaltet – dann wird tiefer abgesenkt (z. B. über Nacht weg oder auf Reisen).",
-      "After this many hours without anyone home, “briefly away” switches to “away longer” and the temperature is lowered further (e.g. away overnight or travelling)."
+      "After this many hours without anyone home, “briefly away” switches to “away longer” and the temperature is lowered further (e.g. away overnight or travelling).",
+      "Après autant d’heures sans personne, on passe de « brève absence » à « absent longtemps » – l’abaissement est alors plus fort (p. ex. absent la nuit ou en voyage)."
     ],
     "Vorheizen ab": [
       "Kommt jemand näher als diese Entfernung, wird schon vorgeheizt, damit es bei der Ankunft warm ist. Zusätzlich heizt Raumklima nach der gelernten Aufheizzeit vor. 0 schaltet das Vorheizen nach Entfernung aus.",
-      "When someone gets closer than this distance, heating starts early so it is warm on arrival. Raumklima also preheats based on the learned heat-up time. 0 turns distance-based preheating off."
+      "When someone gets closer than this distance, heating starts early so it is warm on arrival. Raumklima also preheats based on the learned heat-up time. 0 turns distance-based preheating off.",
+      "Quand quelqu’un s’approche à moins de cette distance, le préchauffage commence pour qu’il fasse chaud à l’arrivée. Raumklima préchauffe aussi selon le temps de montée en température appris. 0 désactive le préchauffage par la distance."
     ],
     "Präsenzmelder zählen": [
       "Sieht ein Präsenzmelder in einem Raum jemanden, gilt die Wohnung als bewohnt – auch wenn alle Handys weg sind (Besuch, Kinder ohne Handy). „Nur mmWave“ ist der sichere Standard, weil Bewegungsmelder (PIR) auch auf Haustiere reagieren. Im Urlaub zählen Melder nie.",
-      "If a presence sensor sees someone in a room, the home counts as occupied – even when all phones are away (visitors, children without a phone). “mmWave only” is the safe default because motion sensors (PIR) also react to pets. During vacation sensors never count."
+      "If a presence sensor sees someone in a room, the home counts as occupied – even when all phones are away (visitors, children without a phone). “mmWave only” is the safe default because motion sensors (PIR) also react to pets. During vacation sensors never count.",
+      "Si un détecteur de présence voit quelqu’un dans une pièce, le logement est considéré comme occupé – même si tous les téléphones sont partis (invités, enfants sans téléphone). « mmWave uniquement » est le réglage sûr par défaut, car les détecteurs de mouvement (PIR) réagissent aussi aux animaux. En vacances, les détecteurs ne comptent jamais."
     ],
-    Urlaub: [
+    "Urlaub": [
       "Senkt sofort tief ab („länger weg“), egal wo die Handys sind. Endet automatisch, sobald jemand nach Hause kommt.",
-      "Lowers the temperature right away (“away longer”), no matter where the phones are. Ends automatically as soon as someone comes home."
+      "Lowers the temperature right away (“away longer”), no matter where the phones are. Ends automatically as soon as someone comes home.",
+      "Abaisse fortement tout de suite (« absent longtemps »), où que soient les téléphones. Se termine automatiquement dès que quelqu’un rentre."
     ],
     "Gäste da": [
       "Solange an, wird nicht abgesenkt – auch wenn alle Bewohner weg sind. Praktisch, wenn Besuch ohne Handy in Home Assistant da ist.",
-      "While on, nothing is lowered – even if all residents are away. Handy when visitors without a phone in Home Assistant are staying."
+      "While on, nothing is lowered – even if all residents are away. Handy when visitors without a phone in Home Assistant are staying.",
+      "Tant qu’il est activé, rien n’est abaissé – même si tous les habitants sont partis. Pratique quand des invités sans téléphone dans Home Assistant sont présents."
     ],
-    Kalender: [
+    "Kalender": [
       "Ein Kalender aus Home Assistant. Läuft gerade ein Termin mit einem der Urlaubs-Wörter im Titel, wirkt er wie der Urlaubsschalter; mit einem der Zuhause-Wörter wie „Gäste da“.",
-      "A calendar from Home Assistant. If an event with one of the vacation words in its title is running, it acts like the vacation switch; with one of the at-home words like “guests”."
+      "A calendar from Home Assistant. If an event with one of the vacation words in its title is running, it acts like the vacation switch; with one of the at-home words like “guests”.",
+      "Un calendrier de Home Assistant. Si un événement contenant l’un des mots « vacances » est en cours, il agit comme l’interrupteur Vacances ; avec l’un des mots « à la maison », comme « Invités présents »."
     ],
     "… wie Urlaub": [
       "Wörter im Termintitel, die „verreist“ bedeuten, durch Komma getrennt. Groß-/Kleinschreibung egal.",
-      "Words in the event title that mean “travelling”, separated by commas. Case doesn't matter."
+      "Words in the event title that mean “travelling”, separated by commas. Case doesn't matter.",
+      "Mots du titre d’un événement qui signifient « en voyage », séparés par des virgules. Majuscules/minuscules indifférentes."
     ],
     "… jemand bleibt zu Hause": [
       "Wörter im Termintitel, bei denen nicht abgesenkt werden soll, z. B. Homeoffice – auch wenn das Handy kurz woanders ist.",
-      "Words in the event title for which nothing should be lowered, e.g. home office – even if the phone is briefly elsewhere."
+      "Words in the event title for which nothing should be lowered, e.g. home office – even if the phone is briefly elsewhere.",
+      "Mots du titre d’un événement pour lesquels il ne faut pas abaisser, p. ex. télétravail – même si le téléphone est brièvement ailleurs."
     ],
-    // ---------------------------------------------------------------- Heizsaison
-    Betriebsart: [
+    "Betriebsart": [
       "Automatisch: geheizt wird nur, wenn es draußen kalt genug ist (Heizgrenze, Heizsaison, Kälteeinbruch). Immer heizen: ganzjährig. Heizpause: nie – außer ein Raum fällt unter die Sicherung.",
-      "Automatic: heating only when it is cold enough outside (heating limit, season, cold snap). Always heat: all year. Heating pause: never – unless a room drops below the safety minimum."
+      "Automatic: heating only when it is cold enough outside (heating limit, season, cold snap). Always heat: all year. Heating pause: never – unless a room drops below the safety minimum.",
+      "Automatique : chauffe seulement quand il fait assez froid dehors (seuil de chauffage, saison, vague de froid). Toujours chauffer : toute l’année. Chauffage en pause : jamais – sauf si une pièce descend sous le minimum de sécurité."
     ],
-    Heizgrenze: [
+    "Heizgrenze": [
       "Liegt das Tagesmittel draußen (gemessen + Vorhersage) über diesem Wert, braucht das Haus keine Heizung – Raumklima macht Pause. 15 °C passt für die meisten Häuser; gut gedämmt eher 12–14 °C.",
-      "If the daily mean outside (measured + forecast) is above this value, the building needs no heating and Raumklima pauses. 15 °C suits most homes; well insulated rather 12–14 °C."
+      "If the daily mean outside (measured + forecast) is above this value, the building needs no heating and Raumklima pauses. 15 °C suits most homes; well insulated rather 12–14 °C.",
+      "Si la moyenne journalière extérieure (mesurée + prévue) dépasse cette valeur, la maison n’a pas besoin de chauffage – Raumklima fait une pause. 15 °C convient à la plupart des maisons ; bien isolée plutôt 12–14 °C."
     ],
-    Heizsaison: [
+    "Heizsaison": [
       "Der Zeitraum, in dem normalerweise geheizt wird (Monat-Tag). Außerhalb wird nur bei einem Kälteeinbruch geheizt. Am Tag nach dem Ende kommt auch der Saisonbericht.",
-      "The period in which you normally heat (month-day). Outside of it, heating only runs during a cold snap. The day after it ends, the season report is created."
+      "The period in which you normally heat (month-day). Outside of it, heating only runs during a cold snap. The day after it ends, the season report is created.",
+      "Période où l’on chauffe normalement (mois-jour). En dehors, on ne chauffe qu’en cas de vague de froid. Le lendemain de la fin arrive aussi le rapport de saison."
     ],
     "Kälteeinbruch unter": [
       "Ist es außerhalb der Heizsaison 3 Tage lang kälter als dieser Wert, wird trotzdem geheizt – z. B. bei einem kalten Mai.",
-      "If it is colder than this for 3 days outside the heating season, heating runs anyway – e.g. in a cold May."
+      "If it is colder than this for 3 days outside the heating season, heating runs anyway – e.g. in a cold May.",
+      "S’il fait plus froid que cette valeur pendant 3 jours hors saison, on chauffe quand même – p. ex. lors d’un mois de mai froid."
     ],
-    Sicherung: [
+    "Sicherung": [
       "Fällt ein Raum während der Heizpause unter diese Temperatur, heizt er trotzdem – Schutz vor Auskühlen und Schimmel.",
-      "If a room drops below this temperature during the heating pause, it heats anyway – protection against cooling down and mould."
+      "If a room drops below this temperature during the heating pause, it heats anyway – protection against cooling down and mould.",
+      "Si une pièce descend sous cette température pendant la pause de chauffage, elle chauffe quand même – protection contre le refroidissement et les moisissures."
     ],
     "Frostnacht: weniger absenken": [
       "Sagt die Vorhersage −5 °C oder kälter, wird bei Abwesenheit nur halb so tief abgesenkt. So kühlen die Wände nicht zu stark aus und der Raum ist schneller wieder warm.",
-      "If the forecast says −5 °C or colder, setback during absence is only half as deep. Walls don't cool down too much and the room warms up faster."
+      "If the forecast says −5 °C or colder, setback during absence is only half as deep. Walls don't cool down too much and the room warms up faster.",
+      "Si la prévision annonce −5 °C ou moins, l’abaissement en cas d’absence est réduit de moitié. Les murs refroidissent moins et la pièce se réchauffe plus vite."
     ],
     "Sommerpflege Ventile": [
       "Im Sommer öffnet Raumklima mittwochs um 11 Uhr die Ventile kurz ganz, damit sie nicht festsitzen.",
-      "In summer Raumklima briefly opens the valves fully on Wednesdays at 11:00 so they don't get stuck."
+      "In summer Raumklima briefly opens the valves fully on Wednesdays at 11:00 so they don't get stuck.",
+      "En été, Raumklima ouvre brièvement les vannes en grand le mercredi à 11 h pour qu’elles ne se grippent pas."
     ],
     "Heute heizen": [
       "Für milde, aber kühle Tage: heizt 24 Stunden lang, auch wenn die Heizgrenze eigentlich eine Pause vorsieht.",
-      "For mild but chilly days: heats for 24 hours even though the heating limit would normally pause."
+      "For mild but chilly days: heats for 24 hours even though the heating limit would normally pause.",
+      "Pour les jours doux mais frais : chauffe pendant 24 heures, même si le seuil de chauffage prévoit une pause."
     ],
-    // ---------------------------------------------------------------- Schlafen
     "Zeiten lernen": [
       "Raumklima merkt sich, wann ihr ins Bett geht und aufsteht (Nachtlüften, Licht aus/an) und passt Ruhezeit und Nachtlüften daran an – verlängert sie nur, verkürzt sie nie.",
-      "Raumklima learns when you go to bed and get up (night airing, lights off/on) and adjusts quiet hours and night airing – it only extends them, never shortens."
+      "Raumklima learns when you go to bed and get up (night airing, lights off/on) and adjusts quiet hours and night airing – it only extends them, never shortens.",
+      "Raumklima retient quand vous allez au lit et vous levez (aération nocturne, lumières éteintes/allumées) et adapte les heures calmes et l’aération nocturne – il les prolonge seulement, ne les raccourcit jamais."
     ],
-    Feiertage: [
+    "Feiertage": [
       "Dein Bundesland: Die Nacht vor einem Feiertag gilt dann wie Wochenende (längere Ruhezeit am Morgen).",
-      "Your German state: the night before a public holiday then counts like a weekend (longer quiet hours in the morning)."
+      "Your German state: the night before a public holiday then counts like a weekend (longer quiet hours in the morning).",
+      "Votre Land (Allemagne) : la nuit précédant un jour férié compte alors comme un week-end (heures calmes plus longues le matin)."
     ],
     "Schlaf-Signale": [
       "Lampen oder Schalter, an denen Raumklima den Schlaf erkennt: abends alle aus = ins Bett, morgens eins an = aufgestanden.",
-      "Lights or switches Raumklima uses to detect sleep: all off in the evening = bedtime, one on in the morning = up."
+      "Lights or switches Raumklima uses to detect sleep: all off in the evening = bedtime, one on in the morning = up.",
+      "Lampes ou interrupteurs qui permettent à Raumklima de reconnaître le sommeil : tout éteint le soir = coucher, un allumé le matin = levé."
     ],
-    // ---------------------------------------------------------------- Wohnung
     "Name der Wohnung": [
       "Erscheint im Umschalter oben im Dashboard und in Nachrichten – wichtig, wenn du mehrere Wohnungen hast.",
-      "Shown in the switcher at the top of the dashboard and in messages – important if you have several homes."
+      "Shown in the switcher at the top of the dashboard and in messages – important if you have several homes.",
+      "Apparaît dans le sélecteur en haut du tableau de bord et dans les messages – important si vous avez plusieurs logements."
     ],
-    Dashboard: [
+    "Dashboard": [
       "Pfad des Raumklima-Dashboards dieser Wohnung. Antippen einer Live-Aktivität oder eines Berichts öffnet diese Seite.",
-      "Path of this home's Raumklima dashboard. Tapping a live activity or a report opens this page."
+      "Path of this home's Raumklima dashboard. Tapping a live activity or a report opens this page.",
+      "Chemin du tableau de bord Raumklima de ce logement. Toucher une activité en direct ou un rapport ouvre cette page."
     ],
-    Bauart: [
+    "Bauart": [
       "Wie gut die Außenwände dämmen. Daraus berechnet der Schimmelschutz, wie kalt die kälteste Wandstelle wird – bei einem unsanierten Altbau wird deshalb weniger abgesenkt.",
-      "How well the outer walls insulate. Mould protection uses this to calculate how cold the coldest spot on the wall gets – an unrenovated old building is lowered less."
+      "How well the outer walls insulate. Mould protection uses this to calculate how cold the coldest spot on the wall gets – an unrenovated old building is lowered less.",
+      "Qualité d’isolation des murs extérieurs. La protection contre les moisissures en déduit la température du point le plus froid du mur – dans un ancien bâtiment non rénové, l’abaissement est donc plus faible."
     ],
     "Heizkosten pro Jahr": [
       "Optional: deine Heizkosten pro Jahr laut Abrechnung. Nur für den PDF-Bericht – er rechnet die Ersparnis grob in Euro um und zeigt, was 1 °C weniger im Jahr bringt. Leer lassen = keine Euro-Angaben.",
-      "Optional: your yearly heating costs from your bill. Only for the PDF report – it roughly converts savings into euros and shows what 1 °C less saves per year. Leave empty = no euro figures."
+      "Optional: your yearly heating costs from your bill. Only for the PDF report – it roughly converts savings into euros and shows what 1 °C less saves per year. Leave empty = no euro figures.",
+      "Facultatif : vos coûts de chauffage annuels d’après la facture. Uniquement pour le rapport PDF – il convertit grossièrement l’économie en euros et montre ce que rapporte 1 °C de moins par an. Laisser vide = pas de montants en euros."
     ],
-    // ---------------------------------------------------------------- Benachrichtigungen
-    Ruhezeit: [
+    "Ruhezeit": [
       "In dieser Zeit kommen Nachrichten leise an und es gibt keine Sprachansagen. Nur Dringendes ist laut: Raum kühlt aus, Fenster offen während niemand da ist, Thermostat reagiert nicht.",
-      "During this time messages arrive silently and there are no voice announcements. Only urgent ones are loud: room cooling down, window open while nobody is home, thermostat not responding."
+      "During this time messages arrive silently and there are no voice announcements. Only urgent ones are loud: room cooling down, window open while nobody is home, thermostat not responding.",
+      "Pendant cette période, les messages arrivent en silence et il n’y a pas d’annonces vocales. Seules les urgences sont sonores : pièce qui se refroidit, fenêtre ouverte en l’absence de tous, thermostat qui ne répond pas."
     ],
     "Wochenende bis": [
       "Am Wochenende endet die Ruhezeit erst zu dieser Uhrzeit – zum Ausschlafen.",
-      "On weekends quiet hours end only at this time – for sleeping in."
+      "On weekends quiet hours end only at this time – for sleeping in.",
+      "Le week-end, les heures calmes ne se terminent qu’à cette heure – pour faire la grasse matinée."
     ],
-    Nachtlüften: [
+    "Nachtlüften": [
       "Wird ein Schlafzimmerfenster in diesem Zeitfenster geöffnet, gilt es als „Schlafen bei offenem Fenster“: keine Lüft-Hinweise, die Heizung wartet bis zum Schließen, morgens ein Gruß.",
-      "If a bedroom window is opened in this time window, it counts as “sleeping with the window open”: no airing notices, heating waits until it is closed, a good-morning message."
+      "If a bedroom window is opened in this time window, it counts as “sleeping with the window open”: no airing notices, heating waits until it is closed, a good-morning message.",
+      "Si une fenêtre de chambre est ouverte pendant cette plage, cela compte comme « dormir fenêtre ouverte » : pas de rappels d’aération, le chauffage attend la fermeture, un bonjour le matin."
     ],
     "… leise warnen unter": [
       "Wird es beim Schlafen mit offenem Fenster kälter als dieser Wert, kommt einmal pro Nacht eine leise Warnung.",
-      "If it gets colder than this while sleeping with the window open, a quiet warning is sent once per night."
+      "If it gets colder than this while sleeping with the window open, a quiet warning is sent once per night.",
+      "S’il fait plus froid que cette valeur en dormant fenêtre ouverte, une alerte discrète est envoyée une fois par nuit."
     ],
     "Erinnern alle": [
       "Besteht ein Problem weiter (z. B. Fenster offen, Raum kühlt aus), erinnert Raumklima in diesem Abstand – höchstens einige Male.",
-      "If a problem persists (e.g. window open, room cooling down), Raumklima reminds you at this interval – only a few times."
+      "If a problem persists (e.g. window open, room cooling down), Raumklima reminds you at this interval – only a few times.",
+      "Si un problème persiste (p. ex. fenêtre ouverte, pièce qui se refroidit), Raumklima rappelle à cet intervalle – quelques fois au maximum."
     ],
-    Wetterquelle: [
+    "Wetterquelle": [
       "Woher die Außentemperatur und die Vorhersage kommen. Am besten ein Wetterdienst mit Vorhersage, z. B. weather.forecast_home – nötig für Heizgrenze, Lüftdauer, Sonnenseite und Frostnacht.",
-      "Where the outdoor temperature and forecast come from. Ideally a weather service with a forecast, e.g. weather.forecast_home – needed for heating limit, airing time, sunny side and frost nights."
+      "Where the outdoor temperature and forecast come from. Ideally a weather service with a forecast, e.g. weather.forecast_home – needed for heating limit, airing time, sunny side and frost nights.",
+      "D’où viennent la température extérieure et la prévision. Idéalement un service météo avec prévision, p. ex. weather.forecast_home – nécessaire pour le seuil de chauffage, la durée d’aération, le côté ensoleillé et les nuits de gel."
     ],
     "Fehler auch in der HA-Glocke": [
       "Reagiert ein Thermostat nicht, erscheint zusätzlich eine Meldung in der Glocke von Home Assistant.",
-      "If a thermostat doesn't respond, an additional notification appears in Home Assistant's bell."
+      "If a thermostat doesn't respond, an additional notification appears in Home Assistant's bell.",
+      "Si un thermostat ne répond pas, une notification apparaît en plus dans la cloche de Home Assistant."
     ],
     "PDF-Berichte": [
       "Welche Berichte automatisch als PDF entstehen: Woche (sonntags 18 Uhr), Monat (am 1.), Heizsaison (nach dem Saisonende). Sie kommen als Push an alle mit „Wochenbericht“ und stehen im Reiter Bericht zum Herunterladen.",
-      "Which reports are created automatically as PDF: week (Sundays 18:00), month (on the 1st), heating season (after it ends). They are pushed to everyone with “weekly report” and listed in the Report tab for download."
+      "Which reports are created automatically as PDF: week (Sundays 18:00), month (on the 1st), heating season (after it ends). They are pushed to everyone with “weekly report” and listed in the Report tab for download.",
+      "Quels rapports sont créés automatiquement en PDF : semaine (dimanche 18 h), mois (le 1er), saison de chauffage (après sa fin). Ils sont envoyés en push à tous ceux qui ont « Rapport hebdomadaire » et sont téléchargeables dans l’onglet Rapport."
     ],
     "PDF per E-Mail": [
       "Schickt jeden PDF-Bericht zusätzlich als Mail-Anhang. Einmal darunter „E-Mail einrichten“ aufklappen: Anbieter wählen (füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen, „Zugang prüfen“ und dann „Speichern & Test-Mail senden“ – danach ist der Schalter an. Bei Gmail, iCloud und Outlook braucht es ein App-Passwort.",
-      "Also sends every PDF report as an email attachment. Open “Set up email” below once: pick your provider (fills in server and port), enter user, password and recipients, “Check login”, then “Save & send test email” – the switch is then on. Gmail, iCloud and Outlook need an app password."
+      "Also sends every PDF report as an email attachment. Open “Set up email” below once: pick your provider (fills in server and port), enter user, password and recipients, “Check login”, then “Save & send test email” – the switch is then on. Gmail, iCloud and Outlook need an app password.",
+      "Envoie en plus chaque rapport PDF en pièce jointe. Ouvrez une fois « Configurer l’e-mail » ci-dessous : choisissez le fournisseur (renseigne serveur et port), saisissez utilisateur, mot de passe et destinataires, « Vérifier l’accès » puis « Enregistrer & envoyer un e-mail de test » – l’interrupteur est alors activé. Gmail, iCloud et Outlook nécessitent un mot de passe d’application."
     ],
-    Test: ["Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.", "Creates a weekly report now and sends it to all recipients and by email."],
-    // ---------------------------------------------------------------- Raum: Temperatur
-    Wunschtemperatur: [
+    "Test": [
+      "Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.",
+      "Creates a weekly report now and sends it to all recipients and by email.",
+      "Crée maintenant un rapport hebdomadaire et l’envoie à tous les destinataires et par e-mail."
+    ],
+    "Wunschtemperatur": [
       "So warm soll der Raum sein, wenn jemand da ist. Gemessen wird mit dem Raumfühler, nicht am Heizkörper. Jedes Grad weniger spart etwa 6 % Heizenergie.",
-      "How warm the room should be when someone is home. Measured with the room sensor, not at the radiator. Each degree less saves about 6 % heating energy."
+      "How warm the room should be when someone is home. Measured with the room sensor, not at the radiator. Each degree less saves about 6 % heating energy.",
+      "La température voulue dans la pièce quand quelqu’un est là. Mesurée avec la sonde de la pièce, pas au radiateur. Chaque degré de moins économise environ 6 % d’énergie de chauffage."
     ],
-    Raumtyp: [
+    "Raumtyp": [
       "Setzt passende Standardwerte für Wunschtemperatur, Feuchtegrenze, Mindesttemperatur und Absenkung (Bad wärmer und feuchter, Schlafzimmer kühler). Beim Wechsel startet der Raum kurz neu.",
-      "Sets suitable defaults for desired temperature, humidity limit, minimum temperature and setback (bathroom warmer and more humid, bedroom cooler). Changing it restarts the room briefly."
+      "Sets suitable defaults for desired temperature, humidity limit, minimum temperature and setback (bathroom warmer and more humid, bedroom cooler). Changing it restarts the room briefly.",
+      "Définit des valeurs par défaut adaptées pour la température souhaitée, le seuil d’humidité, la température minimale et l’abaissement (salle de bain plus chaude et plus humide, chambre plus fraîche). En cas de changement, la pièce redémarre brièvement."
     ],
-    Wohnung: [
+    "Wohnung": [
       "Zu welcher Wohnung der Raum gehört – bestimmt Bewohner, Zone, Empfänger und Bericht.",
-      "Which home the room belongs to – determines residents, zone, recipients and report."
+      "Which home the room belongs to – determines residents, zone, recipients and report.",
+      "Le logement auquel appartient la pièce – détermine habitants, zone, destinataires et rapport."
     ],
-    Sonnenseite: [
+    "Sonnenseite": [
       "Für Räume mit großen Süd- oder Westfenstern: Ist Sonne vorhergesagt und der Raum schon fast warm, heizt er 1 °C weniger – die Sonne erledigt den Rest.",
-      "For rooms with large south or west windows: if sun is forecast and the room is almost warm, it heats 1 °C less – the sun does the rest."
+      "For rooms with large south or west windows: if sun is forecast and the room is almost warm, it heats 1 °C less – the sun does the rest.",
+      "Pour les pièces avec de grandes fenêtres au sud ou à l’ouest : si le soleil est prévu et que la pièce est presque chaude, elle chauffe 1 °C de moins – le soleil fait le reste."
     ],
     "Absenkung „kurz weg“": [
       "Zieltemperatur, wenn alle kurz weg sind. Nie tiefer, als der Schimmelschutz erlaubt.",
-      "Target temperature when everyone is briefly away. Never lower than mould protection allows."
+      "Target temperature when everyone is briefly away. Never lower than mould protection allows.",
+      "Température cible quand tout le monde est brièvement absent. Jamais plus bas que ce que permet la protection contre les moisissures."
     ],
     "Absenkung „länger weg“": [
       "Zieltemperatur bei längerer Abwesenheit oder Urlaub. Feuchte Räume bleiben automatisch wärmer (Schimmelschutz).",
-      "Target temperature during longer absence or vacation. Humid rooms automatically stay warmer (mould protection)."
+      "Target temperature during longer absence or vacation. Humid rooms automatically stay warmer (mould protection).",
+      "Température cible en cas d’absence prolongée ou de vacances. Les pièces humides restent automatiquement plus chaudes (protection contre les moisissures)."
     ],
-    Aufheizen: [
+    "Aufheizen": [
       "Wie lange der Raum braucht, um 2 °C wärmer zu werden – Raumklima lernt das aus jedem Aufheizen und heizt danach rechtzeitig vor, bevor jemand ankommt.",
-      "How long the room needs to get 2 °C warmer – Raumklima learns this from every heat-up and then preheats in time before someone arrives."
+      "How long the room needs to get 2 °C warmer – Raumklima learns this from every heat-up and then preheats in time before someone arrives.",
+      "Temps nécessaire à la pièce pour gagner 2 °C – Raumklima l’apprend à chaque montée en température et préchauffe ensuite à temps avant l’arrivée de quelqu’un."
     ],
-    // ---------------------------------------------------------------- Raum: Lüften
-    Feuchtegrenze: [
+    "Feuchtegrenze": [
       "Ab dieser Luftfeuchte (15 Minuten lang) kommt „Bitte lüften“ – aber nur, wenn Lüften auch trocknet, die Luft draußen also trockener ist. Ändern über Geräte & Technik.",
-      "From this humidity (for 15 minutes) you get “please air the room” – but only if airing actually dries, i.e. the outside air is drier. Change it under devices & technical settings."
+      "From this humidity (for 15 minutes) you get “please air the room” – but only if airing actually dries, i.e. the outside air is drier. Change it under devices & technical settings.",
+      "À partir de cette humidité (pendant 15 minutes) arrive « Merci d’aérer » – mais seulement si l’aération assèche vraiment, donc si l’air extérieur est plus sec. Se modifie dans Appareils & réglages techniques."
     ],
-    Feuchtefühler: [
+    "Feuchtefühler": [
       "Sensor für die Luftfeuchte im Raum – nötig für Lüft-Hinweise und Schimmelschutz.",
-      "Sensor for the room's humidity – needed for airing notices and mould protection."
+      "Sensor for the room's humidity – needed for airing notices and mould protection.",
+      "Capteur d’humidité de la pièce – nécessaire pour les rappels d’aération et la protection contre les moisissures."
     ],
     "Mindesttemperatur beim Lüften": [
       "Fällt der Raum beim Lüften darunter, kommt „Raum kühlt aus – bitte schließen“.",
-      "If the room drops below this while airing, you get “room cooling down – please close”."
+      "If the room drops below this while airing, you get “room cooling down – please close”.",
+      "Si la pièce descend en dessous pendant l’aération, arrive « La pièce se refroidit – merci de fermer »."
     ],
     "Max. Abkühlung beim Lüften": [
       "Kühlt der Raum beim Lüften um mehr als diesen Wert ab, kommt ebenfalls „bitte schließen“ – so kühlen die Wände nicht aus.",
-      "If the room cools down by more than this while airing, you also get “please close” – so the walls don't cool down."
+      "If the room cools down by more than this while airing, you also get “please close” – so the walls don't cool down.",
+      "Si la pièce se refroidit de plus que cette valeur pendant l’aération, arrive aussi « merci de fermer » – pour que les murs ne refroidissent pas."
     ],
-    Jetzt: ["Aktuelle Feuchte und Taupunkt im Raum.", "Current humidity and dew point in the room."],
+    "Jetzt": [
+      "Aktuelle Feuchte und Taupunkt im Raum.",
+      "Current humidity and dew point in the room.",
+      "Humidité et point de rosée actuels dans la pièce."
+    ],
     "Empfohlene Lüftdauer": [
       "Wie lange stoßlüften reicht – je kälter es draußen ist, desto kürzer (im Winter oft nur 5 Minuten).",
-      "How long airing wide open is enough – the colder it is outside, the shorter (often only 5 minutes in winter)."
+      "How long airing wide open is enough – the colder it is outside, the shorter (often only 5 minutes in winter).",
+      "Durée suffisante pour aérer en grand – plus il fait froid dehors, plus elle est courte (souvent 5 minutes en hiver)."
     ],
-    // ---------------------------------------------------------------- Raum: Fenster
     "Heizung bei offenem Fenster pausieren": [
       "Ist ein Fenster offen, stoppt die Heizung; danach geht es mit der vorherigen Einstellung weiter. Schalte die eingebaute Fenstererkennung des Thermostats aus, damit sich beides nicht stört.",
-      "When a window is open, heating stops; afterwards it continues with the previous setting. Turn off the thermostat's built-in window detection so the two don't interfere."
+      "When a window is open, heating stops; afterwards it continues with the previous setting. Turn off the thermostat's built-in window detection so the two don't interfere.",
+      "Si une fenêtre est ouverte, le chauffage s’arrête ; ensuite il reprend avec le réglage précédent. Désactivez la détection de fenêtre intégrée au thermostat pour éviter les conflits."
     ],
     "Pause nach": [
       "So lange muss das Fenster offen sein, bevor die Heizung pausiert – kurzes Öffnen löst nichts aus.",
-      "How long the window must be open before heating pauses – briefly opening it doesn't trigger anything."
+      "How long the window must be open before heating pauses – briefly opening it doesn't trigger anything.",
+      "Durée pendant laquelle la fenêtre doit être ouverte avant la pause du chauffage – une courte ouverture ne déclenche rien."
     ],
     "Weiter nach": [
       "So lange muss das Fenster zu sein, bevor wieder geheizt wird.",
-      "How long the window must be closed before heating resumes."
+      "How long the window must be closed before heating resumes.",
+      "Durée pendant laquelle la fenêtre doit être fermée avant que le chauffage reprenne."
     ],
     "Schlafen bei offenem Fenster": [
       "Wird abends im Schlafzimmer gelüftet, gilt das als Nachtlüften: keine Lüft-Hinweise, die Heizung wartet, morgens ein Gruß. Automatisch = ja für Schlafzimmer und selten genutzte Räume.",
-      "If the bedroom window is opened in the evening, it counts as night airing: no airing notices, heating waits, a good-morning message. Automatic = yes for bedrooms and rarely used rooms."
+      "If the bedroom window is opened in the evening, it counts as night airing: no airing notices, heating waits, a good-morning message. Automatic = yes for bedrooms and rarely used rooms.",
+      "Si l’on aère la chambre le soir, cela compte comme aération nocturne : pas de rappels d’aération, le chauffage attend, un bonjour le matin. Automatique = oui pour les chambres et les pièces peu utilisées."
     ],
-    Kontakte: ["Die Fensterkontakte dieses Raums und ihr Zustand. Ändern über Geräte & Technik.", "This room's window contacts and their state. Change them under devices & technical settings."],
+    "Kontakte": [
+      "Die Fensterkontakte dieses Raums und ihr Zustand. Ändern über Geräte & Technik.",
+      "This room's window contacts and their state. Change them under devices & technical settings.",
+      "Les contacts de fenêtre de cette pièce et leur état. Se modifient dans Appareils & réglages techniques."
+    ],
     "Offenes Fenster an Temperatursturz erkennen": [
       "Ohne (funktionierenden) Fensterkontakt: Fällt die Temperatur in 6 Minuten um 1 °C, nimmt Raumklima ein offenes Fenster an und pausiert. Automatisch = nur, wenn kein Kontakt zuverlässig meldet.",
-      "Without a (working) window contact: if the temperature drops 1 °C in 6 minutes, Raumklima assumes an open window and pauses. Automatic = only if no contact reports reliably."
+      "Without a (working) window contact: if the temperature drops 1 °C in 6 minutes, Raumklima assumes an open window and pauses. Automatic = only if no contact reports reliably.",
+      "Sans contact de fenêtre (fonctionnel) : si la température baisse de 1 °C en 6 minutes, Raumklima suppose une fenêtre ouverte et fait une pause. Automatique = seulement si aucun contact ne signale de façon fiable."
     ],
-    // ---------------------------------------------------------------- Raum: Präsenz
-    Melder: [
+    "Melder": [
       "Präsenz- oder Bewegungsmelder in diesem Raum. mmWave (Radar) sieht auch Stillsitzende – sehr zuverlässig. PIR sieht nur Bewegung; Raumklima wartet deshalb länger, bevor der Raum als leer gilt.",
-      "Presence or motion sensors in this room. mmWave (radar) also sees people sitting still – very reliable. PIR only sees movement, so Raumklima waits longer before the room counts as empty."
+      "Presence or motion sensors in this room. mmWave (radar) also sees people sitting still – very reliable. PIR only sees movement, so Raumklima waits longer before the room counts as empty.",
+      "Détecteurs de présence ou de mouvement de cette pièce. Le mmWave (radar) voit aussi les personnes immobiles – très fiable. Le PIR ne voit que le mouvement ; Raumklima attend donc plus longtemps avant de considérer la pièce comme vide."
     ],
-    Art: [
+    "Art": [
       "Automatisch: Geräteklasse „Bewegung“ = PIR, „Anwesenheit/Belegung“ = mmWave. Stimmt das bei deinem Melder nicht, hier fest einstellen.",
-      "Automatic: device class “motion” = PIR, “presence/occupancy” = mmWave. If that's wrong for your sensor, set it here."
+      "Automatic: device class “motion” = PIR, “presence/occupancy” = mmWave. If that's wrong for your sensor, set it here.",
+      "Automatique : classe d’appareil « mouvement » = PIR, « présence/occupation » = mmWave. Si cela ne correspond pas à votre détecteur, réglez-le ici."
     ],
     "Leeren Raum absenken": [
       "Ist niemand im Raum, wird er etwas kühler – kommt jemand herein, sofort wieder warm. Automatisch = nur Wohnraum, Küche und selten genutzte Räume und nur mit mmWave. Schlafzimmer und Bad bleiben warm, außer du stellst „Ja“ ein.",
-      "If nobody is in the room it gets a little cooler – when someone comes in, it warms up right away. Automatic = only living room, kitchen and rarely used rooms and only with mmWave. Bedrooms and bathrooms stay warm unless you set “yes”."
+      "If nobody is in the room it gets a little cooler – when someone comes in, it warms up right away. Automatic = only living room, kitchen and rarely used rooms and only with mmWave. Bedrooms and bathrooms stay warm unless you set “yes”.",
+      "Quand personne n’est dans la pièce, elle devient un peu plus fraîche – quand quelqu’un entre, elle se réchauffe aussitôt. Automatique = seulement séjour, cuisine et pièces peu utilisées, et seulement avec mmWave. Chambres et salle de bain restent chaudes, sauf si vous choisissez « Oui »."
     ],
     "… wenn leer seit": [
       "So lange muss der Raum leer sein, bevor abgesenkt wird. Heizkörper reagieren träge – zu kurz spart kaum etwas.",
-      "How long the room must be empty before lowering. Radiators are slow – too short saves hardly anything."
+      "How long the room must be empty before lowering. Radiators are slow – too short saves hardly anything.",
+      "Durée pendant laquelle la pièce doit être vide avant d’abaisser. Les radiateurs réagissent lentement – trop court n’économise presque rien."
     ],
     "… um": [
       "So viel kühler wird der leere Raum – nie unter „kurz weg“ und den Schimmelschutz.",
-      "How much cooler the empty room gets – never below “briefly away” and mould protection."
+      "How much cooler the empty room gets – never below “briefly away” and mould protection.",
+      "De combien la pièce vide est refroidie – jamais sous « brève absence » ni la protection contre les moisissures."
     ],
-    // ---------------------------------------------------------------- Raum: Lichtsignal
-    Lampen: [
+    "Lampen": [
       "Lampen, die bei Hinweisen dreimal farbig blinken und danach wieder so sind wie vorher. Nicht in der Ruhezeit, beim Nachtlüften, wenn niemand da ist oder der Raum leer ist.",
-      "Lights that blink three times in colour on notices and then return to how they were. Not during quiet hours, night airing, when nobody is home or the room is empty."
+      "Lights that blink three times in colour on notices and then return to how they were. Not during quiet hours, night airing, when nobody is home or the room is empty.",
+      "Lampes qui clignotent trois fois en couleur lors des remarques puis reviennent à leur état précédent. Pas pendant les heures calmes, l’aération nocturne, quand personne n’est là ou quand la pièce est vide."
     ],
     "Blinken bei": [
       "Bei welchen Hinweisen geblinkt wird: blau = bitte lüften, orange = bitte schließen/kühlt aus, grün = Luft ausgetauscht, rot = Problem mit der Heizung.",
-      "Which notices make the lights blink: blue = please air, orange = please close/cooling down, green = air exchanged, red = heating problem."
+      "Which notices make the lights blink: blue = please air, orange = please close/cooling down, green = air exchanged, red = heating problem.",
+      "Pour quelles remarques les lampes clignotent : bleu = merci d’aérer, orange = merci de fermer/refroidissement, vert = air renouvelé, rouge = problème de chauffage."
     ],
-    Ausprobieren: ["Lässt die Lampen jetzt einmal blau blinken.", "Makes the lights blink blue once now."],
-    // ---------------------------------------------------------------- Raum: Benachrichtigungen & Technik
+    "Ausprobieren": [
+      "Lässt die Lampen jetzt einmal blau blinken.",
+      "Makes the lights blink blue once now.",
+      "Fait clignoter les lampes une fois en bleu maintenant."
+    ],
     "Hinweise für diesen Raum": [
       "Aus = dieser Raum schickt keine Lüft-Hinweise und keinen Lüft-Countdown. Geregelt wird trotzdem.",
-      "Off = this room sends no airing notices and no airing countdown. It is still controlled."
+      "Off = this room sends no airing notices and no airing countdown. It is still controlled.",
+      "Désactivé = cette pièce n’envoie ni rappels d’aération ni compte à rebours. Elle reste régulée."
     ],
-    Empfänger: ["Wer Nachrichten bekommt, stellst du zentral unter Allgemein → Wer bekommt was ein.", "Who gets messages is set centrally under General → Who gets what."],
-    Thermostat: ["Das Thermostat am Heizkörper. Ändern über Geräte & Technik.", "The radiator thermostat. Change it under devices & technical settings."],
+    "Empfänger": [
+      "Wer Nachrichten bekommt, stellst du zentral unter Allgemein → Wer bekommt was ein.",
+      "Who gets messages is set centrally under General → Who gets what.",
+      "Qui reçoit les messages se règle de façon centrale sous Général → Qui reçoit quoi."
+    ],
+    "Thermostat": [
+      "Das Thermostat am Heizkörper. Ändern über Geräte & Technik.",
+      "The radiator thermostat. Change it under devices & technical settings.",
+      "Le thermostat du radiateur. Se modifie dans Appareils & réglages techniques."
+    ],
     "Weitere Thermostate": [
       "Für Räume mit mehreren Heizkörpern. Diese Thermostate bekommen dieselben Befehle wie das Haupt-Thermostat (an/aus, Preset, Sollwert) – jedes mit eigener Prüfung, eigenem Korrekturwert und eigener Fehlermeldung. Fällt eins aus, heizen die anderen weiter. Hinzufügen oder entfernen über Geräte & Technik → Zahnrad beim Raum.",
-      "For rooms with several radiators. These thermostats get the same commands as the main thermostat (on/off, preset, setpoint) – each with its own check, its own correction and its own failure notice. If one fails, the others keep heating. Add or remove them under devices & technical settings → gear icon of the room."
+      "For rooms with several radiators. These thermostats get the same commands as the main thermostat (on/off, preset, setpoint) – each with its own check, its own correction and its own failure notice. If one fails, the others keep heating. Add or remove them under devices & technical settings → gear icon of the room.",
+      "Pour les pièces avec plusieurs radiateurs. Ces thermostats reçoivent les mêmes commandes que le thermostat principal (marche/arrêt, préréglage, consigne) – chacun avec sa propre vérification, sa propre correction et sa propre alerte. Si l’un tombe en panne, les autres continuent de chauffer. Ajouter ou retirer dans Appareils & réglages techniques → roue dentée de la pièce."
     ],
-    Temperaturfühler: [
+    "Temperaturfühler": [
       "Der Fühler, nach dem geregelt wird – am besten in Raummitte, nicht am Heizkörper oder in der Sonne.",
-      "The sensor used for control – ideally in the middle of the room, not at the radiator or in the sun."
+      "The sensor used for control – ideally in the middle of the room, not at the radiator or in the sun.",
+      "La sonde selon laquelle on régule – idéalement au milieu de la pièce, pas au radiateur ni au soleil."
     ],
     "CO₂-Sensor": [
       "Optional: ab 1000 ppm kommt „Bitte lüften“, „Luft ausgetauscht“ erst unter 800 ppm.",
-      "Optional: from 1000 ppm you get “please air the room”, “air exchanged” only below 800 ppm."
+      "Optional: from 1000 ppm you get “please air the room”, “air exchanged” only below 800 ppm.",
+      "Facultatif : à partir de 1000 ppm arrive « Merci d’aérer », « Air renouvelé » seulement sous 800 ppm."
     ],
-    Kalibrierung: [
+    "Kalibrierung": [
       "Wie das Thermostat dazu gebracht wird, die Raumtemperatur zu „sehen“: Offset (Korrekturwert am Thermostat), Sollwert-Ausgleich (Ziel am Thermostat anpassen) oder keine.",
-      "How the thermostat is made to “see” the room temperature: offset (correction value on the thermostat), setpoint compensation (adjust the thermostat target) or none."
+      "How the thermostat is made to “see” the room temperature: offset (correction value on the thermostat), setpoint compensation (adjust the thermostat target) or none.",
+      "Comment le thermostat est amené à « voir » la température de la pièce : décalage (valeur de correction au thermostat), compensation de consigne (adapter la cible au thermostat) ou aucune."
     ],
     "Einschalten mit": [
       "Mit welcher Betriebsart das Thermostat heizt. Automatisch meidet Modi, bei denen manche Thermostate das Ventil einfach ganz öffnen.",
-      "Which mode the thermostat heats with. Automatic avoids modes in which some thermostats simply open the valve fully."
+      "Which mode the thermostat heats with. Automatic avoids modes in which some thermostats simply open the valve fully.",
+      "Le mode avec lequel le thermostat chauffe. Automatique évite les modes où certains thermostats ouvrent simplement la vanne en grand."
     ],
     "Ausschalten über": [
       "Wie „aus“ ans Thermostat geht: Preset „aus“, HVAC „aus“ oder Minimaltemperatur – je nachdem, was dein Gerät zuverlässig kann.",
-      "How “off” is sent to the thermostat: preset “off”, HVAC “off” or minimum temperature – whatever your device handles reliably."
+      "How “off” is sent to the thermostat: preset “off”, HVAC “off” or minimum temperature – whatever your device handles reliably.",
+      "Comment « arrêt » est envoyé au thermostat : préréglage « arrêt », mode HVAC « arrêt » ou température minimale – selon ce que votre appareil gère de façon fiable."
     ],
     "Drehen am Thermostat übernehmen": [
       "Ja: Drehst du am Thermostat, wird das die neue Wunschtemperatur. Nein: Raumklima stellt den Wert zurück.",
-      "Yes: turning the thermostat sets the new desired temperature. No: Raumklima resets the value."
+      "Yes: turning the thermostat sets the new desired temperature. No: Raumklima resets the value.",
+      "Oui : si vous tournez le thermostat, cela devient la nouvelle température souhaitée. Non : Raumklima remet la valeur."
     ],
-    Übertragung: [
+    "Übertragung": [
       "Jeder Befehl wird nach kurzer Zeit geprüft und bei Bedarf wiederholt – gegen Funk- und VPN-Aussetzer. „Synchron“ heißt: Thermostat hat bestätigt.",
-      "Every command is checked after a short time and repeated if needed – against radio and VPN drops. “In sync” means the thermostat has confirmed."
+      "Every command is checked after a short time and repeated if needed – against radio and VPN drops. “In sync” means the thermostat has confirmed.",
+      "Chaque commande est vérifiée peu après et répétée si nécessaire – contre les coupures radio et VPN. « Synchronisé » signifie que le thermostat a confirmé."
     ]
   };
 
@@ -2154,7 +2737,7 @@
       this._helpOpen = this._helpOpen || /* @__PURE__ */ new Set();
       const open = help && this._helpOpen.has(label);
       const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
-      const box = open ? `<div class="helpbox">${esc(help[getLang() === "de" ? 0 : 1])}</div>` : "";
+      const box = open ? `<div class="helpbox">${esc(help[{ de: 0, en: 1, fr: 2 }[getLang()] ?? 1])}</div>` : "";
       return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
     }
     _v(text, mute) {

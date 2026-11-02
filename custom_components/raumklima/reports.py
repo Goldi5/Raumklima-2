@@ -41,6 +41,7 @@ DEFAULT_REPORT_PDF = [WEEK, MONTH, SEASON]
 NAMES = {
     "de": {WEEK: "Woche", MONTH: "Monat", SEASON: "Heizsaison"},
     "en": {WEEK: "Week", MONTH: "Month", SEASON: "Season"},
+    "fr": {WEEK: "Semaine", MONTH: "Mois", SEASON: "Saison"},
 }
 PUSH = {
     "de": {
@@ -56,6 +57,13 @@ PUSH = {
         SEASON: "📊 Heating season {s} – summary",
         "open": "Open PDF",
         "mail": "Heating report attached as PDF.",
+    },
+    "fr": {
+        WEEK: "📊 Rapport de chauffage semaine {w}",
+        MONTH: "📊 Rapport de chauffage {m}",
+        SEASON: "📊 Saison de chauffage {s} – bilan",
+        "open": "Ouvrir le PDF",
+        "mail": "Rapport de chauffage en pièce jointe (PDF).",
     },
 }
 
@@ -75,7 +83,7 @@ def file_name(kind: str, start: date, end: date, lang: str, current: bool, home:
     else:
         part = f"{start.year}-{str(end.year)[-2:]}"
     if current:
-        part += f"-{'Stand' if lang == 'de' else 'until'}-{end.isoformat()}"
+        part += f"-{ {'de': 'Stand', 'fr': 'au'}.get(lang, 'until') }-{end.isoformat()}"
     prefix = "Raumklima" + (f"-{re.sub(r'[^A-Za-z0-9]+', '-', home).strip('-')}" if home else "")
     return f"{prefix}-{NAMES[lang][kind]}-{part}.pdf"
 
@@ -262,6 +270,16 @@ def summary_line(data: dict[str, Any], lang: str) -> str:
     if lang == "de":
         return week_message(cur, data.get("change"))
     t = cur["total"]
+    if lang == "fr":
+        parts = [f"{t['heating_h']:.0f} heures de chauffe"]
+        if data.get("change") is not None:
+            c = data["change"]
+            parts[0] += f" ({'+' if c > 0 else '-' if c < 0 else '±'}{abs(c):.0f} % vs période précédente, corrigé du climat)"
+        if t["setback_h"]:
+            parts.append(f"≈ {t['saving_pct']:.0f} % économisés par l’abaissement".replace(".", ","))
+        if t["on_target_pct"] is not None:
+            parts.append(f"{t['on_target_pct']} % à la cible")
+        return " · ".join(parts)
     parts = [f"{t['heating_h']:.0f} heating hours"]
     if data.get("change") is not None:
         c = data["change"]

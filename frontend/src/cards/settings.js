@@ -139,7 +139,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     this._helpOpen = this._helpOpen || new Set();
     const open = help && this._helpOpen.has(label);
     const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
-    const box = open ? `<div class="helpbox">${esc(help[getLang() === "de" ? 0 : 1])}</div>` : "";
+    const box = open ? `<div class="helpbox">${esc(help[{ de: 0, en: 1, fr: 2 }[getLang()] ?? 1])}</div>` : "";
     return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
   }
   _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`; }
