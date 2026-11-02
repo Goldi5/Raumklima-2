@@ -2,7 +2,7 @@ name: Release
 
 # Erstellt automatisch ein GitHub-Release, sobald sich die Version in der
 # manifest.json ändert (Tag vX.Y.Z, Text aus CHANGELOG.md), und hängt das
-# Handbuch als PDF an (Deutsch und Englisch). Ändert sich nur das Handbuch,
+# Handbuch als PDF an (Deutsch, Englisch und Französisch). Ändert sich nur das Handbuch,
 # werden die PDFs am bestehenden Release ersetzt.
 on:
   push:
@@ -13,6 +13,7 @@ on:
       - handbook/**
       - docs/de/faq.md
       - docs/en/faq.md
+      - docs/fr/faq.md
       - docs/images/**
   workflow_dispatch:
 
@@ -67,7 +68,7 @@ jobs:
             --title "Raumklima v${{ steps.v.outputs.version }}" \
             --notes-file notes.md \
             --target "${{ github.sha }}" \
-            handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf
+            handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf handbook/dist/Raumklima-Manuel.pdf
 
       - name: Handbuch am bestehenden Release ersetzen
         if: steps.check.outputs.exists == 'true'
@@ -75,4 +76,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "v${{ steps.v.outputs.version }}" --clobber \
-            handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf
+            handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf handbook/dist/Raumklima-Manuel.pdf

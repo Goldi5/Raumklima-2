@@ -6,12 +6,25 @@
 
 > Raumklima est en **version de test (early release)**. La traduction française est nouvelle – les corrections sont les bienvenues via une [issue](https://github.com/Goldi5/Raumklima-2/issues).
 
+## Pages
+
+| Page | Sujet |
+|---|---|
+| [Installation et configuration](installation.md) | HACS, première pièce, réglages généraux, Matter/Thread |
+| [Utilisation](utilisation.md) | Tableau de bord, cartes, rapport, journal, page de réglages |
+| [Fonctionnement](fonctionnement.md) | Régulation, décalage, fenêtres, fiabilité, aération, absence, protection anti-moisissure, saison de chauffage |
+| [Notifications](notifications.md) | Qui reçoit quoi, heures calmes, heures de sommeil, actions, voix |
+| [Référence](reference.md) | Tous les réglages, entités, déclencheurs d’appareil, événements |
+| [FAQ](faq.md) | Questions fréquentes pour débuter |
+| [Dépannage](depannage.md) | Problèmes et solutions |
+| [Développement](developpement.md) | Tests, construction de la carte, structure du code |
+
 ## En bref
 
 - **Régulation selon la sonde de la pièce** au lieu de la sonde du radiateur – décalage (offset) automatique ou compensation de consigne.
 - **Fenêtre ouverte = pause**, puis reprise avec le réglage précédent ; fenêtre ouverte détectée aussi **sans contact** grâce à la chute de température. Plusieurs radiateurs et autant de contacts de fenêtre que nécessaire par pièce.
 - **Assistant d’aération** : humidité et CO₂, durée d’aération selon la température extérieure, « l’aération assèche-t-elle vraiment ? », alerte « la pièce se refroidit », **aération nocturne** ; compte à rebours sur l’écran verrouillé et **signal lumineux**.
-- **Absence** : habitants + zone, abaissement « brève absence » / « absent longtemps », préchauffage selon la distance et l’heure d’arrivée, calendrier (vacances, télétravail), **détecteurs de présence** (mmWave et PIR).
+- **Absence** : habitants + zone, abaissement « absence courte » / « absence prolongée », préchauffage selon la distance et l’heure d’arrivée, calendrier (vacances, télétravail), **détecteurs de présence** (mmWave et PIR).
 - **Saison de chauffage** selon la moyenne journalière et la prévision météo, côté ensoleillé, nuits de gel.
 - **Notifications** par destinataire, heures calmes, heures de sommeil apprises, annonces vocales.
 - **Rapports PDF** (semaine, mois, saison) avec note A–F, comparaison avec l’année précédente, conseils d’économie – en téléchargement, en push ou **par e-mail**.
@@ -29,7 +42,7 @@
 
 ## Quels thermostats ?
 
-Tout thermostat de radiateur qui apparaît comme entité `climate` dans Home Assistant et dont on peut régler la température – Zigbee, Z-Wave, Wi-Fi, Shelly, Matter/Thread ou cloud (Tado, Netatmo). Sans réglage de décalage, Raumklima utilise automatiquement la compensation de consigne. Testé jusqu’ici : Tuya TRV602Z (Zigbee2MQTT). Détails (en anglais) : [Which thermostats work?](../en/installation.md#which-thermostats-work)
+Tout thermostat de radiateur qui apparaît comme entité `climate` dans Home Assistant et dont on peut régler la température – Zigbee, Z-Wave, Wi-Fi, Shelly, Matter/Thread ou cloud (Tado, Netatmo). Sans réglage de décalage, Raumklima utilise automatiquement la compensation de consigne. Testé jusqu’ici : Tuya TRV602Z (Zigbee2MQTT). Détails : [Quels thermostats fonctionnent ?](installation.md#quels-thermostats-fonctionnent-)
 
 ## Langue
 
@@ -39,9 +52,10 @@ Tout thermostat de radiateur qui apparaît comme entité `climate` dans Home Ass
 | Tableau de bord et cartes, explications « ? » | ✅ |
 | Rapports PDF | ✅ |
 | Notifications push, journal et messages d’erreur | ✅ (selon la langue du système Home Assistant) |
-| Documentation détaillée et manuel PDF | en allemand et en anglais |
+| Documentation détaillée et manuel PDF | ✅ en français, allemand et anglais |
 
 ## Aide
 
-- Documentation détaillée (anglais) : [docs/en](../en/README.md) · FAQ : [docs/en/faq.md](../en/faq.md)
+- Installation et première pièce : [installation](installation.md) · Questions fréquentes : [FAQ](faq.md) · Problèmes : [dépannage](depannage.md)
+- Documentation en d’autres langues : [allemand](../de/README.md) · [anglais](../en/README.md)
 - Signaler un bug ou une idée : [issues GitHub](https://github.com/Goldi5/Raumklima-2/issues)

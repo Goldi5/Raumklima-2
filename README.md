@@ -4,7 +4,7 @@
 
 **Aktuelle Version: 0.17.0** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
 
-> 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf)
+> 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) · [Français](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manuel.pdf)
 
 ![Räume](docs/images/raeume.png)
 
@@ -51,18 +51,18 @@ Ausführlich: [Installation & Einrichtung](docs/de/installation.md)
 
 ## Dokumentation
 
-| | Deutsch | English |
-|---|---|---|
-| 📘 Handbuch (PDF, für Einsteiger) | [Raumklima-Handbuch.pdf](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) | [Raumklima-Manual.pdf](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) |
-| Übersicht | [README](docs/de/README.md) | [README](docs/en/README.md) |
-| Installation & Einrichtung | [installation](docs/de/installation.md) | [installation](docs/en/installation.md) |
-| Bedienung | [bedienung](docs/de/bedienung.md) | [usage](docs/en/usage.md) |
-| So funktioniert's | [funktionsweise](docs/de/funktionsweise.md) | [how it works](docs/en/how-it-works.md) |
-| Benachrichtigungen | [benachrichtigungen](docs/de/benachrichtigungen.md) | [notifications](docs/en/notifications.md) |
-| Referenz | [referenz](docs/de/referenz.md) | [reference](docs/en/reference.md) |
-| Häufige Fragen | [faq](docs/de/faq.md) | [faq](docs/en/faq.md) |
-| Fehlerbehebung | [fehlerbehebung](docs/de/fehlerbehebung.md) | [troubleshooting](docs/en/troubleshooting.md) |
-| Entwickeln | [entwickeln](docs/de/entwickeln.md) | [development](docs/en/development.md) |
+| | Deutsch | English | Français |
+|---|---|---|---|
+| 📘 Handbuch (PDF, für Einsteiger) | [Raumklima-Handbuch.pdf](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) | [Raumklima-Manual.pdf](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) | [Raumklima-Manuel.pdf](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manuel.pdf) |
+| Übersicht | [README](docs/de/README.md) | [README](docs/en/README.md) | [README](docs/fr/README.md) |
+| Installation & Einrichtung | [installation](docs/de/installation.md) | [installation](docs/en/installation.md) | [installation](docs/fr/installation.md) |
+| Bedienung | [bedienung](docs/de/bedienung.md) | [usage](docs/en/usage.md) | [utilisation](docs/fr/utilisation.md) |
+| So funktioniert's | [funktionsweise](docs/de/funktionsweise.md) | [how it works](docs/en/how-it-works.md) | [fonctionnement](docs/fr/fonctionnement.md) |
+| Benachrichtigungen | [benachrichtigungen](docs/de/benachrichtigungen.md) | [notifications](docs/en/notifications.md) | [notifications](docs/fr/notifications.md) |
+| Referenz | [referenz](docs/de/referenz.md) | [reference](docs/en/reference.md) | [reference](docs/fr/reference.md) |
+| Häufige Fragen | [faq](docs/de/faq.md) | [faq](docs/en/faq.md) | [faq](docs/fr/faq.md) |
+| Fehlerbehebung | [fehlerbehebung](docs/de/fehlerbehebung.md) | [troubleshooting](docs/en/troubleshooting.md) | [dépannage](docs/fr/depannage.md) |
+| Entwickeln | [entwickeln](docs/de/entwickeln.md) | [development](docs/en/development.md) | [développement](docs/fr/developpement.md) |
 
 ## Kompatibilität
 

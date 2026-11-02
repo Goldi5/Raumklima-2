@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Doku
+- **Französisch vollständig** 🇫🇷: alle Doku-Seiten unter `docs/fr/` (Installation, Bedienung,
+  Funktionsweise, Benachrichtigungen, Referenz, FAQ, Fehlerbehebung, Entwickeln), das
+  **Handbuch als PDF** (`Raumklima-Manuel.pdf`, `handbook/fr.md`) und die Sprachumschaltung
+  in den READMEs.
+
 ## 0.17.0 – 2026-11-02
 
 ### Neu

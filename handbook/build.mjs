@@ -1,4 +1,5 @@
-// Baut das Handbuch als PDF: handbook/de.md → dist/Raumklima-Handbuch.pdf, en.md → dist/Raumklima-Manual.pdf
+// Baut das Handbuch als PDF: handbook/de.md → dist/Raumklima-Handbuch.pdf, en.md → dist/Raumklima-Manual.pdf,
+// fr.md → dist/Raumklima-Manuel.pdf
 //   npm ci && npx playwright install chromium && npm run build
 // Eigener Chromium-Pfad: CHROMIUM_PATH=/pfad/zu/chrome npm run build
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -13,6 +14,7 @@ const VERSION = manifest.version;
 const BOOKS = [
   { src: "de.md", out: "Raumklima-Handbuch.pdf", date: "de-DE" },
   { src: "en.md", out: "Raumklima-Manual.pdf", date: "en-GB" },
+  { src: "fr.md", out: "Raumklima-Manuel.pdf", date: "fr-FR" },
 ];
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
