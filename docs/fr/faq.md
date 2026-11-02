@@ -20,6 +20,9 @@ Non. Sans contact, Raumklima détecte une fenêtre ouverte grâce à une chute s
 ### Dois-je écrire du YAML ?
 Non. Tout se fait dans la boîte de dialogue de configuration de Home Assistant et dans la page de réglages du tableau de bord.
 
+### Je travaille en horaires décalés – est-ce possible ?
+Oui. L’abaissement et le préchauffage suivent votre présence réelle (téléphone), pas l’horloge – que vous rentriez à 6 h ou à 1 h du matin. En plus, *Réglages → Général → Heures de sommeil* propose l’option **Travail posté** : le coucher et le lever sont alors appris par jour de la semaine et le sommeil de jour est détecté aussi (coucher jusqu’à 09:00, lever jusqu’à 17:00). Avec **L’heure de repos abaisse**, les chambres et les pièces peu utilisées sont abaissées pendant l’heure de repos – le chauffage reste donc arrêté pendant votre sommeil après une nuit de travail. Une plage horaire en cours et le bouton du thermostat restent prioritaires.
+
 ### Puis-je définir des heures de chauffe fixes ?
 Oui – sous *Réglages → pièce → Planning*. Vous y créez des plages horaires avec jours de la semaine, de/à et
 température cible, p. ex. « tous les jours 19–21 h 22 °C ». Le planning ne règle que la consigne : fenêtre, gel,

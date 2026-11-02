@@ -117,6 +117,7 @@ Ici, **tout est visible et modifiable directement** :
 - *Saison de chauffage et limite :* mode, limite de chauffage, période de la saison, coup de froid, minimum de sécurité, nuit de gel, exercice des vannes en été, **Chauffer aujourd’hui**. Au-dessus, la moyenne extérieure actuelle et la prévision.
 - *Qui reçoit quoi :* touchez les types de messages par destinataire, envoyez un **Test**, ajoutez ou supprimez des destinataires (push ou voix).
 - *Notifications – général :* heures calmes (week-end séparément), plage d’aération nocturne, intervalle de rappel, source météo, erreurs dans la cloche de notification de HA.
+- *Heures de sommeil :* apprendre les horaires, **travail posté** (sommeil de jour aussi), **l’heure de repos abaisse**, jours fériés, signaux de sommeil – en dessous, ce qui a été appris.
 - *Heures de sommeil :* apprentissage activé/désactivé, jours fériés (Land allemand), signaux de sommeil, heures apprises.
 - *Bâtiment et protection contre les moisissures :* type de bâtiment.
 - *Maison :* nom et tableau de bord de la maison, créer une autre maison.

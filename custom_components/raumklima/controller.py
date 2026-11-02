@@ -59,6 +59,7 @@ from .const import (
     CONF_ON_PRESET,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
+    CONF_QUIET_SETBACK,
     CONF_ROOM_ECO,
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
@@ -127,6 +128,7 @@ from .msg import tr
 from .occupancy import room_eco_target
 from .planning import (
     AWAY_STAGES,
+    NIGHT_ROOM_TYPES,
     SOLAR_REDUCTION,
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
@@ -163,6 +165,7 @@ REASON_EMPTY = "room_empty"
 REASON_SCHEDULE = "schedule"
 REASON_BOOST = "boost"
 REASON_SCHEDULE_PREHEAT = "schedule_preheat"
+REASON_SLEEP = "sleep"
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
     {
@@ -666,6 +669,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
             if target < self.target_temp:
                 return True, target, hub.stage
+        manual_until = self._manual_until
         self._manual_until = None
         self.frost_night_low = None
         # Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne
@@ -673,6 +677,16 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         sched = schedule_target(self.config.get(CONF_SCHEDULES), local_now)
         if sched is not None:
             return True, min(sched, self.trv_max), REASON_SCHEDULE
+        # Ruhezeit: Schlafräume werden abgesenkt, auch wenn jemand zu Hause ist – nach einer
+        # Nachtschicht wird tagsüber geschlafen. Der Regler am Thermostat gilt weiter.
+        if (
+            hub.opt(CONF_QUIET_SETBACK)
+            and hub.quiet_now()
+            and self.config.get(CONF_ROOM_TYPE) in NIGHT_ROOM_TYPES
+        ):
+            if manual_until and now < manual_until:
+                return True, self.target_temp, REASON_MANUAL
+            return True, self.setback_long, REASON_SLEEP
         # Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit
         nxt = next_schedule_window(self.config.get(CONF_SCHEDULES), local_now)
         cur = self.current_temperature
@@ -1104,6 +1118,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 m=f"{self.room_eco_after:.0f}", d=fmt_temp(self.room_eco_drop), t=fmt_temp(self.target_temp),
             ),
             REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
+            REASON_SLEEP: tr("Ruhezeit – Schlafraum abgesenkt auf {t}", t=fmt_temp(self.setback_long)),
             STAGE_AWAY_SHORT: tr("alle weg – Absenkung „kurz weg“ {t}", t=fmt_temp(self.setback_short)),
             STAGE_AWAY_LONG: tr("länger weg – Absenkung {t}", t=fmt_temp(self.setback_long)),
         }.get(reason, reason)

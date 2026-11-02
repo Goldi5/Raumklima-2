@@ -25,6 +25,8 @@
 | Summer valve exercise | on | open valves for 3 min on Wednesdays at 11:00 |
 | Recipients | – | message types per `notify` service |
 | Quiet hours | 22:00–07:00 (weekend until 09:00) | only urgent messages are loud, no announcements |
+| Shift work | off | learns bedtime/getting-up per weekday and also detects daytime sleep (bedtime up to 09:00, getting up up to 17:00) |
+| Quiet time sets back | off | bedrooms and rarely used rooms are set back during quiet time, even when somebody is at home |
 | Night airing | 20:00–03:00 | window opened in a bedroom during this time = sleeping with the window open |
 | … quiet warning below | 12 °C | once per night |
 | Remind every | 5 min | repeat as long as the problem persists |

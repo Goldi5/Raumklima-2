@@ -113,6 +113,7 @@ Hier ist **alles zu sehen und direkt änderbar**:
 - *Heizsaison & Heizgrenze:* Betriebsart, Heizgrenze, Saisonzeitraum, Kälteeinbruch, Sicherung, Sommerpflege, **Heute heizen**. Darüber das aktuelle Außen-Mittel und die Vorhersage.
 - *Wer bekommt was:* je Empfänger die Nachrichtenarten antippen, **Test** senden, Empfänger hinzufügen oder entfernen (Push oder Sprachansage).
 - *Benachrichtigungen allgemein:* Ruhezeit, Erinnerungsabstand, Wetterquelle, Fehler in der HA-Glocke.
+- *Schlafenszeiten:* Zeiten lernen, **Schichtdienst** (auch Tagschlaf), **Ruhezeit senkt ab**, Feiertage, Schlaf-Signale – darunter steht, was gelernt wurde.
 - *Gebäude & Schimmelschutz:* Bauart.
 - *Alle Räume auf einen Blick:* Tabelle; antippen öffnet den Raum.
 

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.core import callback
 from homeassistant.util import dt as dt_util
 
+from .const import CONF_LEARN_SHIFT
 from .decision_log import (
     CAT_PRESENCE,
     CAT_SETTINGS,
@@ -35,6 +36,12 @@ class SleepMixin:
     def sleep_signals(self) -> list[str]:
         return [e for e in (self.opt("sleep_signals") or []) if isinstance(e, str)]
 
+    def _sync_learn_opts(self) -> None:
+        """Schichtdienst-Einstellung an Lerner und Signalauswertung durchreichen."""
+        shift = bool(self.opt(CONF_LEARN_SHIFT))
+        self.sleep.shift = shift
+        self.signals.shift = shift
+
     def _signals_on(self) -> bool:
         return any(
             (st := self.hass.states.get(e)) is not None and st.state == "on" for e in self.sleep_signals
@@ -50,6 +57,7 @@ class SleepMixin:
     def _handle_signal(self, kind: str | None, entity_id: str | None = None) -> None:
         if kind is None:
             return
+        self._sync_learn_opts()
         local = dt_util.now()
         if kind == BED:
             when = dt_util.as_local(self.signals.bed_at) if self.signals.bed_at else local
@@ -57,7 +65,7 @@ class SleepMixin:
             self.log.add(CAT_PRESENCE, tr("Schlafenszeit erkannt"), tr("{names} seit {time} aus – Ruhezeit gilt ab jetzt", names=names, time=f"{when:%H:%M}"))
             self.record_sleep(BED, when, "Licht")
         else:
-            self._woke_night = night_of(local).isoformat()
+            self._woke_night = self.sleep.night_for(local).isoformat()
             self.log.add(CAT_PRESENCE, tr("Aufgestanden erkannt"), tr("{name} ist an – Ruhezeit endet", name=self._entity_name(entity_id or "")))
             self.record_sleep(WAKE, local, "Licht")
         self._save()
@@ -69,13 +77,14 @@ class SleepMixin:
 
     def record_sleep(self, kind: str, local: datetime, source: str) -> None:
         """Bett-/Aufstehereignis lernen (auch von Räumen beim Nachtlüften)."""
-        night = night_of(local)
+        self._sync_learn_opts()
+        night = self.sleep.night_for(local)
         weekend = is_weekend_night(night, self.holiday_state)
-        before = self.sleep.learned(weekend).as_dict()
+        before = self.sleep.learned(weekend, night).as_dict()
         if not self.sleep.record(kind, local, source):
             return
         self.sleep.prune(local.date())
-        after = self.sleep.learned(weekend).as_dict()
+        after = self.sleep.learned(weekend, night).as_dict()
         if (before["bed"], before["wake"]) != (after["bed"], after["wake"]) and (after["bed"] or after["wake"]):
             label = tr("Wochenende") if weekend else tr("werktags")
             self.log.add(
@@ -92,11 +101,12 @@ class SleepMixin:
         """Wirksame Ruhe- und Nachtlüftzeiten für die Nacht, zu der „local“ gehört."""
         local = local or dt_util.now()
         self.sleep.state = self.holiday_state
-        night = night_of(local)
+        self._sync_learn_opts()
+        night = self.sleep.night_for(local)
         weekend = is_weekend_night(night, self.holiday_state)
         end = str(self.opt("quiet_end_weekend") or self.opt("quiet_end")) if weekend else str(self.opt("quiet_end"))
         out = effective_times(
-            self.sleep.learned(weekend),
+            self.sleep.learned(weekend, night),
             str(self.opt("quiet_start")),
             end,
             str(self.opt("night_start")),

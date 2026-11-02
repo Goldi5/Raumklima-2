@@ -44,6 +44,8 @@ CONF_NOTIFY_TARGETS: Final = "notify_targets"
 CONF_TTS_TARGETS: Final = "tts_targets"
 CONF_QUIET_START: Final = "quiet_start"
 CONF_QUIET_END: Final = "quiet_end"
+CONF_LEARN_SHIFT: Final = "learn_shift"  # Schichtdienst: Tagschlaf mitlernen
+CONF_QUIET_SETBACK: Final = "quiet_setback"  # Ruhezeit senkt Schlafräume ab
 CONF_REPEAT_MINUTES: Final = "repeat_minutes"
 CONF_COMFORT_TEMP: Final = "comfort_temperature"
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
@@ -145,6 +147,8 @@ HUB_DEFAULTS: Final = {
     "quiet_end": "07:00:00",
     "quiet_end_weekend": "09:00:00",
     "learn_times": True,
+    CONF_LEARN_SHIFT: False,
+    CONF_QUIET_SETBACK: False,
     "name": "",
     "dashboard": "",
     "holiday_state": "",

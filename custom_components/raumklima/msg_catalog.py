@@ -22,6 +22,7 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Raum ausgeschaltet", "Room switched off", "Pièce désactivée"),
     ("Boost {t} für {m} min", "Boost {t} for {m} min", "Boost {t} pendant {m} min"),
     ("Boost beendet", "Boost ended", "Boost terminé"),
+    ("Ruhezeit – Schlafraum abgesenkt auf {t}", "Quiet time – bedroom set back to {t}", "Heure de repos – chambre abaissée à {t}"),
     ("Sollwert {t}", "Setpoint {t}", "Consigne {t}"),
     ("Wunschtemperatur {t}", "Desired temperature {t}", "Température souhaitée {t}"),
     ("von Hand wärmer gestellt – Absenkung 3 h ausgesetzt", "turned up by hand – setback paused for 3 h", "monté à la main – abaissement suspendu 3 h"),

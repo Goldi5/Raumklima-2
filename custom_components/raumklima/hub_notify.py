@@ -19,7 +19,6 @@ from .msg import tr
 from .planning import (
     in_time_window,
 )
-from .sleep import night_of
 
 if TYPE_CHECKING:
     pass
@@ -48,7 +47,7 @@ class NotifyMixin:
         if self.sleep_signals:
             if self.signals.asleep:
                 return True
-            if self._woke_night == night_of(now).isoformat():
+            if self._woke_night == self.sleep.night_for(now).isoformat():
                 return False  # Licht an am Morgen: alle wach
         times = self.times_for(now)
         return in_time_window(now, times["quiet_start"], times["quiet_end"])

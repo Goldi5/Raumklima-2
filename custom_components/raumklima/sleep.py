@@ -4,9 +4,12 @@ Quellen:
 - Nachtlüften: Fenster geht abends im Schlafraum auf → „ins Bett“, geht morgens zu → „aufgestanden“.
 - Schlaf-Signale (z. B. Licht im Wohnzimmer): abends alle aus → „ins Bett“, morgens eins an → „aufgestanden“.
 
-Jede Nacht zählt einmal (früheste Bettzeit, frühestes Aufstehen). Werktags- und
-Wochenend-Nächte (Fr→Sa, Sa→So) werden getrennt gelernt. Gelernte Zeiten verlängern die
-Ruhezeit und das Nachtlüften-Fenster nur – sie verkürzen nie, was eingestellt ist.
+Jede Nacht zählt einmal (früheste Bettzeit, frühestes Aufstehen). Gelernt wird zuerst je
+Wochentag der Nacht (Schichtdienst), dann nach Tagestyp (Werktag / Wochenende inkl.
+Feiertagsvorabend), zuletzt über alle Nächte – jedes Feld einzeln. Mit ``shift`` (Schichtdienst)
+werden zusätzlich Tagschlaf-Zeiten erkannt: ins Bett bis 09:00, aufstehen bis 17:00. Gelernte
+Zeiten verlängern die Ruhezeit und das Nachtlüften-Fenster nur – sie verkürzen nie, was
+eingestellt ist.
 """
 
 from __future__ import annotations
@@ -24,12 +27,16 @@ KEEP_DAYS = 42  # 6 Wochen
 MIN_NIGHTS = 4  # ab so vielen Nächten gilt ein Wert als gelernt
 BED_WINDOW = ("19:00", "03:30")  # nur hier zählt „ins Bett“
 WAKE_WINDOW = ("04:30", "12:30")  # nur hier zählt „aufgestanden“
+# Schichtdienst: nach der Nachtschicht wird morgens schlafen gegangen, mittags aufgestanden
+BED_WINDOW_SHIFT = ("19:00", "09:00")
+WAKE_WINDOW_SHIFT = ("03:00", "17:00")
 SIGNAL_OFF_MINUTES = 20  # so lange müssen abends alle Signale aus sein
 QUIET_BEFORE_BED = 30  # Ruhezeit beginnt so viel vor der Bettzeit
 QUIET_AFTER_WAKE = 30  # und endet so viel nach dem Aufstehen
 NIGHT_MARGIN = 30  # Nachtlüften-Fenster um so viel weiter als gelernt
 NIGHT_END_CAP = "06:00"
 ROUND = 5  # Minuten
+SHIFT_DAY_UNTIL = 17  # ab wann ein Ereignis zur eigenen Nacht gehört (Schichtdienst)
 
 
 def _minutes(value: str) -> int:
@@ -51,6 +58,15 @@ def in_window(local: datetime, window: tuple[str, str]) -> bool:
 def night_of(local: datetime) -> date:
     """Zu welcher Nacht gehört der Zeitpunkt? (Nacht = Datum des Abends)."""
     return (local - timedelta(hours=12)).date()
+
+
+def shift_night_of(local: datetime) -> date:
+    """Nacht aus Sicht des Schichtdienstes.
+
+    Nach einer Nachtschicht wird morgens schlafen gegangen und mittags aufgestanden – beides
+    gehört zur Nacht davor. Ab ``SHIFT_DAY_UNTIL`` liegt das Ereignis in der eigenen Nacht.
+    """
+    return (local - timedelta(days=1)).date() if local.hour < SHIFT_DAY_UNTIL else local.date()
 
 
 def is_weekend_night(night: date, state: str | None = None) -> bool:
@@ -88,8 +104,21 @@ class SleepLearner:
 
     def __init__(self) -> None:
         self.state: str | None = None  # Bundesland für Feiertage
+        self.shift = False  # Schichtdienst: auch Tagschlaf lernen
         # Nacht (ISO-Datum) → {"bed": iso, "bed_src": str, "wake": iso, "wake_src": str}
         self.nights: dict[str, dict[str, str]] = {}
+
+    def night_for(self, local: datetime) -> date:
+        """Zu welcher Nacht gehört der Zeitpunkt? (Schichtdienst beachtet den Tagschlaf.)"""
+        return shift_night_of(local) if self.shift else night_of(local)
+
+    @property
+    def bed_window(self) -> tuple[str, str]:
+        return BED_WINDOW_SHIFT if self.shift else BED_WINDOW
+
+    @property
+    def wake_window(self) -> tuple[str, str]:
+        return WAKE_WINDOW_SHIFT if self.shift else WAKE_WINDOW
 
     # ------------------------------------------------------------ Speicher
     def load(self, data: dict[str, Any] | None) -> None:
@@ -101,10 +130,10 @@ class SleepLearner:
     # ------------------------------------------------------------ Ereignisse
     def record(self, kind: str, local: datetime, source: str) -> bool:
         """Ereignis übernehmen. True, wenn es die Nacht verändert hat."""
-        window = BED_WINDOW if kind == BED else WAKE_WINDOW
+        window = self.bed_window if kind == BED else self.wake_window
         if not in_window(local, window):
             return False
-        night = night_of(local).isoformat()
+        night = self.night_for(local).isoformat()
         entry = self.nights.setdefault(night, {})
         current = entry.get(kind)
         if current is not None and datetime.fromisoformat(current) <= local:
@@ -121,11 +150,13 @@ class SleepLearner:
             del self.nights[key]
 
     # ------------------------------------------------------------ Auswertung
-    def learned(self, weekend: bool) -> Learned:
+    def _aggregate(self, nights: list[date]) -> Learned:
+        """Typische Zeiten über die übergebenen Nächte."""
         beds: list[int] = []
         wakes: list[int] = []
-        for night, entry in self.nights.items():
-            if is_weekend_night(date.fromisoformat(night), self.state) != weekend:
+        for night in nights:
+            entry = self.nights.get(night.isoformat())
+            if not entry:
                 continue
             if entry.get(BED):
                 beds.append(_from_noon(datetime.fromisoformat(entry[BED])))
@@ -137,6 +168,37 @@ class SleepLearner:
             nights_bed=len(beds),
             nights_wake=len(wakes),
         )
+
+    def learned(self, weekend: bool, night: date | None = None) -> Learned:
+        """Typische Zeiten.
+
+        Ohne ``night`` wie bisher nur nach Tagestyp. Mit ``night`` wird jedes Feld einzeln
+        aufgelöst: erst der Wochentag dieser Nacht (Schichtdienst), dann der Tagestyp, dann
+        alle Nächte. Reicht der Wochentag noch nicht, greift automatisch das Übliche.
+        """
+        dates = [date.fromisoformat(k) for k in self.nights]
+        if night is None:
+            return self._aggregate([d for d in dates if is_weekend_night(d, self.state) == weekend])
+        weekend_night = is_weekend_night(night, self.state)
+        pools = [
+            [d for d in dates if d.weekday() == night.weekday()],
+            [d for d in dates if is_weekend_night(d, self.state) == weekend_night],
+            dates,
+        ]
+        bed: int | None = None
+        wake: int | None = None
+        nights_bed = nights_wake = 0
+        for pool in pools:
+            got = self._aggregate(pool)
+            if bed is None and got.bed is not None:
+                bed, nights_bed = got.bed, got.nights_bed
+            if wake is None and got.wake is not None:
+                wake, nights_wake = got.wake, got.nights_wake
+            if bed is not None and wake is not None:
+                break
+        if bed is None and wake is None:
+            return self._aggregate(pools[1])
+        return Learned(bed=bed, wake=wake, nights_bed=nights_bed, nights_wake=nights_wake)
 
 
 def _earlier(a: int, b: int) -> int:
@@ -190,12 +252,19 @@ class SignalTracker:
     all_off_since: datetime | None = None
     asleep: bool = False
     bed_at: datetime | None = None
+    shift: bool = False  # Schichtdienst: auch Tagschlaf erkennen
+
+    def _bed_window(self) -> tuple[str, str]:
+        return BED_WINDOW_SHIFT if self.shift else BED_WINDOW
+
+    def _wake_window(self) -> tuple[str, str]:
+        return WAKE_WINDOW_SHIFT if self.shift else WAKE_WINDOW
 
     def update(self, any_on: bool, local: datetime) -> str | None:
         """Neuer Gesamtzustand. Gibt BED/WAKE zurück, wenn etwas erkannt wurde."""
         if any_on:
             self.all_off_since = None
-            if self.asleep and in_window(local, WAKE_WINDOW):
+            if self.asleep and in_window(local, self._wake_window()):
                 self.asleep = False
                 return WAKE
             return None
@@ -206,12 +275,12 @@ class SignalTracker:
     def tick(self, local: datetime) -> str | None:
         """Regelmäßig aufrufen: wird „alle aus“ lang genug zur Bettzeit?"""
         if self.asleep or self.all_off_since is None:
-            if self.asleep and not in_window(local, BED_WINDOW) and not in_window(local, WAKE_WINDOW):
+            if self.asleep and not in_window(local, self._bed_window()) and not in_window(local, self._wake_window()):
                 self.asleep = False  # Mittag: Nacht ist sicher vorbei
             return None
         if local - self.all_off_since < timedelta(minutes=SIGNAL_OFF_MINUTES):
             return None
-        if not in_window(self.all_off_since, BED_WINDOW):
+        if not in_window(self.all_off_since, self._bed_window()):
             return None
         self.asleep = True
         self.bed_at = self.all_off_since

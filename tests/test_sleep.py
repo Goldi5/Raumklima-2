@@ -1,6 +1,6 @@
 """Tests für das Lernen der Schlaf- und Aufstehzeiten."""
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from rk.sleep import BED, WAKE, SignalTracker, SleepLearner, effective_times
 
@@ -75,3 +75,58 @@ def test_signal_tracker():
     st2 = SignalTracker()
     st2.update(False, datetime(2026, 10, 31, 14, 0))  # nachmittags aus: keine Bettzeit
     assert st2.tick(datetime(2026, 10, 31, 15, 0)) is None
+
+
+def test_learns_per_weekday_for_shift_work():
+    """Schichtdienst: je Wochentag eigene Zeiten, sonst greift das Übliche."""
+    lr = SleepLearner()
+    mon = datetime(2026, 10, 5)  # Montag
+    for week in range(5):
+        base = mon + timedelta(days=7 * week)
+        # Montagnacht: spät ins Bett, früh raus
+        lr.record(BED, base.replace(hour=23, minute=30), "test")
+        lr.record(WAKE, (base + timedelta(days=1)).replace(hour=6, minute=0), "test")
+        # Dienstagnacht: früh ins Bett, spät raus
+        lr.record(BED, (base + timedelta(days=1)).replace(hour=21, minute=0), "test")
+        lr.record(WAKE, (base + timedelta(days=2)).replace(hour=8, minute=30), "test")
+
+    montag = lr.learned(False, date(2026, 10, 5))
+    assert montag.as_dict()["bed"] == "23:30" and montag.as_dict()["wake"] == "06:00"
+    dienstag = lr.learned(False, date(2026, 10, 6))
+    assert dienstag.as_dict()["bed"] == "21:00" and dienstag.as_dict()["wake"] == "08:30"
+    # Mittwoch hat keine eigenen Nächte → Rückfall auf den Tagestyp, nichts erfunden
+    mittwoch = lr.learned(False, date(2026, 10, 7))
+    assert mittwoch.bed is not None and mittwoch.bed not in (montag.bed, dienstag.bed or 0)
+    # ohne Nacht-Angabe bleibt es wie bisher der Tagestyp
+    assert lr.learned(False).nights_bed == 10
+
+
+def test_shift_windows_learn_daytime_sleep():
+    """Ohne Schichtdienst zählt 07:00 nicht als Bettzeit, mit Schichtdienst schon."""
+    nachtschicht = datetime(2026, 10, 6, 7, 0)  # 07:00 nach der Nachtschicht
+    mittag = datetime(2026, 10, 6, 14, 0)  # 14:00 aufgestanden
+
+    plain = SleepLearner()
+    assert not plain.record(BED, nachtschicht, "test")
+    assert not plain.record(WAKE, mittag, "test")
+
+    shift = SleepLearner()
+    shift.shift = True
+    assert shift.record(BED, nachtschicht, "test")
+    assert shift.record(WAKE, mittag, "test")
+    # Bettzeit und Aufstehen gehören zur selben Nacht (der Nacht davor)
+    nacht = shift.nights["2026-10-05"]
+    assert nacht["bed"].endswith("07:00:00") and nacht["wake"].endswith("14:00:00")
+    assert shift.night_for(datetime(2026, 10, 6, 7, 0)) == date(2026, 10, 5)
+    assert shift.night_for(datetime(2026, 10, 6, 14, 0)) == date(2026, 10, 5)
+    assert plain.night_for(datetime(2026, 10, 6, 14, 0)) == date(2026, 10, 6)
+
+
+def test_signal_tracker_shift_detects_daytime_sleep():
+    """Licht aus um 08:00: nur mit Schichtdienst gilt das als „ins Bett“."""
+    st = SignalTracker(shift=True)
+    d = datetime(2026, 10, 6, 8, 0)
+    assert st.update(False, d) is None
+    assert st.tick(d + timedelta(minutes=21)) == BED
+    assert st.asleep
+

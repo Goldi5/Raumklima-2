@@ -20,6 +20,9 @@ Nein. Ohne Kontakt erkennt Raumklima ein offenes Fenster am plötzlichen Tempera
 ### Muss ich etwas in YAML schreiben?
 Nein. Alles geht über die Einrichtung in Home Assistant und die Einstellungsseite im Dashboard.
 
+### Ich arbeite im Schichtdienst – geht das?
+Ja. Die Absenkung und das Vorheizen hängen an deiner tatsächlichen Anwesenheit (Handy), nicht an der Uhr – egal ob du um 6 Uhr früh oder um 1 Uhr nachts heimkommst. Zusätzlich gibt es unter *Einstellungen → Allgemein → Schlafenszeiten* die Option **Schichtdienst**: damit werden Bett- und Aufstehzeiten je Wochentag gelernt und auch Tagschlaf erkannt (ins Bett bis 09:00, aufstehen bis 17:00). Mit **Ruhezeit senkt ab** werden Schlafzimmer und selten genutzte Räume während der Ruhezeit abgesenkt – so bleibt die Heizung aus, während du nach der Nachtschicht schläfst. Ein laufendes Zeitfenster und der Regler am Thermostat gehen weiter vor.
+
 ### Kann ich feste Heizzeiten einstellen?
 Ja – über *Einstellungen → Raum → Zeitplan*. Dort legst du Zeitfenster mit Wochentagen, Von/Bis und Zieltemperatur an, z. B. „täglich 19–21 Uhr 22 °C“. Der Zeitplan setzt nur den Sollwert: Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig. Für „kurz mal wärmer“ gibt es den Knopf **Wärmer** (Boost) in der Raumkarte. Hat der Raum seine Aufheizzeit schon gelernt, fängt er rechtzeitig vor dem Fenster an zu heizen, damit es zum Beginn warm ist.
 

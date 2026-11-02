@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.21.0 – 2026-11-02
+
+### Neu
+- **Schichtdienst**: Bett- und Aufstehzeiten werden jetzt **je Wochentag** gelernt (vorher nur
+  Werktag/Wochenende). Reicht ein Wochentag noch nicht, greift automatisch der Tagestyp, dann alle
+  Nächte – nichts muss eingestellt werden. Neue Option *Schichtdienst* (Einstellungen → Allgemein →
+  Schlafenszeiten): damit wird zusätzlich **Tagschlaf** erkannt – ins Bett bis 09:00, aufstehen bis
+  17:00. Bettzeit und Aufstehen eines Tagschlafs gehören dabei zur selben Nacht.
+- **Ruhezeit senkt ab** (neue Option, Standard aus): Während der Ruhezeit werden **Schlafzimmer und
+  selten genutzte Räume** auf die Absenkung gebracht – auch wenn jemand zu Hause ist. Genau das
+  braucht der Schichtdienst: nach der Nachtschicht wird tagsüber geschlafen und die Heizung bleibt
+  aus. Neue Plan-Grund `sleep` (in der Karte „Ruhezeit · Ziel X °C“).
+
+### Hinweise
+- Vorrang: ein laufendes **Zeitfenster** und der **Regler am Thermostat** (3 h) schlagen die
+  Ruhezeit; vorgeheizt wird während der Ruhezeit nicht. Andere Räume als Schlafzimmer/selten genutzt
+  bleiben unberührt.
+- Beide Optionen sind neu und standardmäßig **aus** – ohne sie ändert sich nichts.
+
 ## 0.20.0 – 2026-11-02
 
 ### Neu

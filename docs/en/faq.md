@@ -20,6 +20,9 @@ No. Without a contact, Raumklima detects an open window from a sudden temperatur
 ### Do I have to write YAML?
 No. Everything is done in the Home Assistant setup dialog and the settings page in the dashboard.
 
+### I work shifts – does that work?
+Yes. Setback and preheating follow your actual presence (phone), not the clock – whether you get home at 6 am or 1 am. On top of that, *Settings → General → Sleep times* has the **shift work** option: bedtime and getting-up times are then learned per weekday and daytime sleep is detected too (bedtime up to 09:00, getting up up to 17:00). With **quiet time sets back**, bedrooms and rarely used rooms are set back during quiet time – so the heating stays off while you sleep after a night shift. A running time window and the dial on the thermostat still take precedence.
+
 ### Can I set fixed heating times?
 Yes – under *Settings → room → Schedule*. There you create time windows with weekdays, from/to and a target temperature, e.g. “daily 7–9 pm 22 °C”. The schedule only sets the target temperature: windows, frost, mould, heating break and absence stay in charge. For “a bit warmer for a while” there is the **Warmer** (boost) button on the room card. Once the room has learned its heat-up rate, it starts heating in time so it is warm when the window begins.
 

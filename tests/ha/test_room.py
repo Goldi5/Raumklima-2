@@ -290,3 +290,54 @@ async def test_preheat_only_with_rate_and_when_somebody_is_home(hass: HomeAssist
     assert target < 26.0
     hub.stage = STAGE_HOME
 
+
+async def test_quiet_time_sets_back_bedroom(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Ruhezeit senkt den Schlafraum ab, auch wenn jemand zu Hause ist (Schichtdienst)."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_QUIET_SETBACK, CONF_ROOM_TYPE
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    now = dt_util.now()
+    hub.config["quiet_start"] = (now - timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config["quiet_end"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config[CONF_QUIET_SETBACK] = True
+    ctrl.config[CONF_ROOM_TYPE] = "bedroom"
+
+    on, target, reason = ctrl.plan()
+    assert reason == "sleep"
+    assert on is True
+    assert target == ctrl.setback_long
+
+
+async def test_quiet_time_needs_bedroom_and_setting(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Ruhezeit senkt nur Schlafräume ab – und nur, wenn es eingeschaltet ist."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_QUIET_SETBACK, CONF_ROOM_TYPE
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    now = dt_util.now()
+    hub.config["quiet_start"] = (now - timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config["quiet_end"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
+
+    # eingeschaltet, aber kein Schlafraum (Bad) → kein Absenken
+    hub.config[CONF_QUIET_SETBACK] = True
+    assert ctrl.config[CONF_ROOM_TYPE] == "bathroom"
+    assert ctrl.plan()[2] != "sleep"
+
+    # Schlafraum, aber nicht eingeschaltet → kein Absenken
+    ctrl.config[CONF_ROOM_TYPE] = "bedroom"
+    hub.config[CONF_QUIET_SETBACK] = False
+    assert ctrl.plan()[2] != "sleep"
+

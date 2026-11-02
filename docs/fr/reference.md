@@ -25,6 +25,8 @@
 | Exercice des vannes en été | activé | ouvrir les vannes 3 min le mercredi à 11:00 |
 | Destinataires | – | types de messages par service `notify` |
 | Heures calmes | 22:00–07:00 (week-end jusqu’à 09:00) | seuls les messages urgents sont sonores, aucune annonce |
+| Travail posté | désactivé | apprend le coucher/lever par jour de la semaine et détecte aussi le sommeil de jour (coucher jusqu’à 09:00, lever jusqu’à 17:00) |
+| L’heure de repos abaisse | désactivé | les chambres et les pièces peu utilisées sont abaissées pendant l’heure de repos, même si quelqu’un est là |
 | Aération nocturne | 20:00–03:00 | fenêtre ouverte dans une chambre pendant cette plage = dormir fenêtre ouverte |
 | … avertissement discret en dessous de | 12 °C | une fois par nuit |
 | Rappeler toutes les | 5 min | répéter tant que le problème persiste |

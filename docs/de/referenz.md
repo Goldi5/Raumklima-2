@@ -25,6 +25,8 @@
 | Frostnacht: weniger absenken | an | Vorhersage ≤ −5 °C in 12 h → Absenkung nur halb so tief |
 | Empfänger | – | je `notify`-Dienst die Nachrichtenarten |
 | Ruhezeit | 22:00–07:00 | nur Dringendes laut, keine Ansagen |
+| Schichtdienst | aus | lernt Bett-/Aufstehzeiten je Wochentag und erkennt auch Tagschlaf (ins Bett bis 09:00, aufstehen bis 17:00) |
+| Ruhezeit senkt ab | aus | Schlafzimmer und selten genutzte Räume werden während der Ruhezeit abgesenkt, auch wenn jemand da ist |
 | Erinnern alle | 5 min | Wiederholung, solange das Problem besteht |
 | Wetterquelle | – | `weather.*` (mit Vorhersage) oder Außentemperatur-Sensor |
 | Fehler in HA-Glocke | an | zusätzliche Meldung in Home Assistant |

@@ -117,6 +117,7 @@ Here **everything is visible and can be changed directly**:
 - *Heating season & limit:* mode, heating limit, season period, cold snap, safety minimum, frost night, summer valve exercise, **Heat today**. Above it the current outdoor mean and the forecast.
 - *Who gets what:* tap the message types per recipient, send a **Test**, add or remove recipients (push or voice).
 - *Notifications – general:* quiet hours (weekend separately), night airing window, reminder interval, weather source, errors in the HA notification bell.
+- *Sleep times:* learn times, **shift work** (daytime sleep too), **quiet time sets back**, holidays, sleep signals – below you see what has been learned.
 - *Sleep times:* learning on/off, public holidays (German state), sleep signals, learned times.
 - *Building & mould protection:* building type.
 - *Home:* name and dashboard of the home, create another home.
