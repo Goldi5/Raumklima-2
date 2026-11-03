@@ -23,6 +23,7 @@ const RK_GROUP_OF = {
   "Präsenzmelder": "presence",
   "Benachrichtigungen": "notify",
   "Darstellung": "layout",
+  "Lernen & Warum": "learn",
 };
 const RK_GROUP_META = {
   home: { label: "Wohnung", icon: "mdi:home-outline" },
@@ -717,6 +718,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
           (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? (s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig") : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")),
       ].join(""))}
       ${this._presenceGroup(r, id, editable)}
+      ${this._learnGroup(r)}
       ${this._lightGroup(r, id, editable)}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
@@ -826,6 +828,58 @@ export class RaumklimaSettingsCard extends HTMLElement {
     ].join(""));
   }
 
+  // ---------------------------------------------------------------- Lernen & Warum
+  _learnGroup(r) {
+    const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
+    if (!id || a.monitor) return "";
+    const eps = Number(h.episodes || 0);
+    const sure = eps >= 6 ? [t("belastbar"), "ok"] : eps >= 3 ? [t("brauchbar"), "warn"] : [t("noch unsicher"), "off"];
+    const rows = [
+      this._row(t("Aufheizrate"), this._v(h.rate != null ? t("{v} °C/h", { v: fmt(h.rate, 1) }) : t("noch nicht gelernt"), h.rate == null),
+        t("aus {n} Aufheizvorgängen gemessen", { n: eps })),
+      this._row(t("Vorheizen für 2 K"), this._v(h.minutes_2k != null ? t("{n} min", { n: h.minutes_2k }) : "–", h.minutes_2k == null),
+        t("so früh beginnt das Vorheizen vor einem Zeitfenster")),
+      this._row(t("Wie sicher?"), `<span class="chip2" style="--c:var(--rk-${sure[1]})"><i></i>${sure[0]}</span>`,
+        t("mehr Aufheizvorgänge, verlässlichere Vorhersage")),
+      this._row(t("Gerade gilt"), `<span class="v">${planText(a, false)}</span>`, t("so entscheidet die Automatik im Moment")),
+      `<div class="row whyhead"><div class="l"><span class="lbl">${t("Warum? Letzte Entscheidungen")}</span><small>${t("was zuletzt entschieden wurde und weshalb")}</small></div></div>`,
+      `<div class="why" data-why="${esc(id)}"><div class="hint">${t("Lade …")}</div></div>`,
+    ];
+    return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", rows.join(""));
+  }
+
+  _whyHtml(list) {
+    if (!list.length) return `<div class="hint">${t("Noch keine Entscheidungen protokolliert.")}</div>`;
+    return list.map((e) => {
+      const d = new Date(e.t);
+      const when = isNaN(d.getTime()) ? "" : d.toLocaleString(loc(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      const many = e.n > 1 ? ` ×${e.n}` : "";
+      const why = e.why ? `<small>${esc(e.why)}</small>` : "";
+      return `<div class="whyrow"><span class="wtime">${esc(when)}</span><div class="wl"><b>${esc(e.msg)}${many}</b>${why}</div></div>`;
+    }).join("");
+  }
+
+  async _whyFetch() {
+    const root = this.shadowRoot;
+    const box = root && root.querySelector("[data-why]");
+    if (!box) return;
+    const id = box.dataset.why;
+    this._why = this._why || {};
+    if (this._why[id]) { box.innerHTML = this._whyHtml(this._why[id]); return; }
+    if (this._whyBusy) return;
+    this._whyBusy = true;
+    try {
+      const res = await this._hass.callWS({ type: "raumklima/log", entry_id: id, limit: 25 });
+      this._why[id] = res.entries || [];
+      const html = this._whyHtml(this._why[id]);
+      root.querySelectorAll("[data-why]").forEach((el) => { if (el.dataset.why === id) el.innerHTML = html; });
+    } catch (e) {
+      box.innerHTML = `<div class="hint">${t("Protokoll konnte nicht geladen werden.")}</div>`;
+    } finally {
+      this._whyBusy = false;
+    }
+  }
+
   // ---------------------------------------------------------------- Rendern
   _render() {
     if (!this._hass || !this._rooms) return;
@@ -863,6 +917,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       </ha-card>`);
     this._bind();
     this._filter();
+    this._whyFetch();
   }
 
   // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.

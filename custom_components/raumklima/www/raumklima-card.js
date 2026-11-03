@@ -1,4 +1,4 @@
-/* Raumklima 0.39.10 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.40.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -598,7 +598,26 @@
     "große Karte": "Large card",
     "lädt …": "loading …",
     "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "The order applies to the generated dashboard and the overview; “Tile” hides the large room page, “off” hides the room entirely. The colour tints the card’s edge and accents.",
-    "Farbe": "Colour"
+    "Farbe": "Colour",
+    "Aufheizrate": "Heat-up rate",
+    "Gerade gilt": "Currently applies",
+    "Lade …": "Loading …",
+    "Lernen & Warum": "Learning & why",
+    "Noch keine Entscheidungen protokolliert.": "No decisions recorded yet.",
+    "Protokoll konnte nicht geladen werden.": "The log could not be loaded.",
+    "Vorheizen für 2 K": "Preheat for 2 K",
+    "Warum? Letzte Entscheidungen": "Why? Recent decisions",
+    "Wie sicher?": "How reliable?",
+    "aus {n} Aufheizvorgängen gemessen": "measured from {n} heat-up runs",
+    "belastbar": "reliable",
+    "brauchbar": "usable",
+    "mehr Aufheizvorgänge, verlässlichere Vorhersage": "more heat-up runs, more reliable prediction",
+    "noch nicht gelernt": "not learned yet",
+    "noch unsicher": "still uncertain",
+    "so entscheidet die Automatik im Moment": "this is how the automation decides right now",
+    "so früh beginnt das Vorheizen vor einem Zeitfenster": "preheating starts this early before a schedule window",
+    "was zuletzt entschieden wurde und weshalb": "what was decided recently and why",
+    "{v} °C/h": "{v} °C/h"
   };
 
   // src/i18n/fr.js
@@ -1199,7 +1218,26 @@
     "große Karte": "Grande carte",
     "lädt …": "chargement …",
     "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "L’ordre s’applique au tableau de bord généré et à l’aperçu ; « Tuile » masque la grande page de la pièce, « aus » masque complètement la pièce. La couleur colore le bord et les accents de la carte.",
-    "Farbe": "Couleur"
+    "Farbe": "Couleur",
+    "Aufheizrate": "Vitesse de montée",
+    "Gerade gilt": "S'applique actuellement",
+    "Lade …": "Chargement …",
+    "Lernen & Warum": "Apprentissage & pourquoi",
+    "Noch keine Entscheidungen protokolliert.": "Aucune décision enregistrée pour l'instant.",
+    "Protokoll konnte nicht geladen werden.": "Le journal n'a pas pu être chargé.",
+    "Vorheizen für 2 K": "Préchauffage pour 2 K",
+    "Warum? Letzte Entscheidungen": "Pourquoi ? Décisions récentes",
+    "Wie sicher?": "Fiabilité ?",
+    "aus {n} Aufheizvorgängen gemessen": "mesuré sur {n} montées en température",
+    "belastbar": "fiable",
+    "brauchbar": "utilisable",
+    "mehr Aufheizvorgänge, verlässlichere Vorhersage": "plus de montées mesurées, prévision plus fiable",
+    "noch nicht gelernt": "pas encore appris",
+    "noch unsicher": "encore incertain",
+    "so entscheidet die Automatik im Moment": "voilà comment l'automatisme décide en ce moment",
+    "so früh beginnt das Vorheizen vor einem Zeitfenster": "le préchauffage démarre aussi tôt avant une plage horaire",
+    "was zuletzt entschieden wurde und weshalb": "ce qui a été décidé récemment et pourquoi",
+    "{v} °C/h": "{v} °C/h"
   };
 
   // src/i18n.js
@@ -1243,7 +1281,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.39.10";
+  var RK_VERSION = "0.40.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1873,6 +1911,15 @@
   .mini { all:unset; cursor:pointer; padding:5px 10px; border-radius:10px; font-size:.8rem; font-weight:650; color: var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
   .mini.x { padding:5px 9px; }
   .addrow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:14px; }
+  /* „Warum?" – Zeit links, Entscheidung und Begründung rechts. */
+  .why { margin-top:4px; }
+  .whyhead { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .whyrow { display:grid; grid-template-columns:104px minmax(0,1fr); column-gap:18px;
+            padding:9px 2px; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .whyrow:first-of-type { border-top:0; }
+  .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .whyrow .wl b { font-size:.9rem; font-weight:600; }
+  .whyrow .wl small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.35; }
   .msgs { display:grid; gap:10px; }
   .msg { display:grid; grid-template-columns: 40px 1fr auto; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
   .msg .e { font-size:1.5rem; text-align:center; }
@@ -3109,7 +3156,8 @@
     "Lichtsignal": "air",
     "Präsenzmelder": "presence",
     "Benachrichtigungen": "notify",
-    "Darstellung": "layout"
+    "Darstellung": "layout",
+    "Lernen & Warum": "learn"
   };
   var RK_GROUP_META = {
     home: { label: "Wohnung", icon: "mdi:home-outline" },
@@ -3825,6 +3873,7 @@
         )
       ].join(""))}
       ${this._presenceGroup(r, id, editable)}
+      ${this._learnGroup(r)}
       ${this._lightGroup(r, id, editable)}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
@@ -3937,6 +3986,69 @@
         `<div class="hint">${t("Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.")}</div>`
       ].join(""));
     }
+    // ---------------------------------------------------------------- Lernen & Warum
+    _learnGroup(r) {
+      const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
+      if (!id || a.monitor) return "";
+      const eps = Number(h.episodes || 0);
+      const sure = eps >= 6 ? [t("belastbar"), "ok"] : eps >= 3 ? [t("brauchbar"), "warn"] : [t("noch unsicher"), "off"];
+      const rows = [
+        this._row(
+          t("Aufheizrate"),
+          this._v(h.rate != null ? t("{v} °C/h", { v: fmt(h.rate, 1) }) : t("noch nicht gelernt"), h.rate == null),
+          t("aus {n} Aufheizvorgängen gemessen", { n: eps })
+        ),
+        this._row(
+          t("Vorheizen für 2 K"),
+          this._v(h.minutes_2k != null ? t("{n} min", { n: h.minutes_2k }) : "–", h.minutes_2k == null),
+          t("so früh beginnt das Vorheizen vor einem Zeitfenster")
+        ),
+        this._row(
+          t("Wie sicher?"),
+          `<span class="chip2" style="--c:var(--rk-${sure[1]})"><i></i>${sure[0]}</span>`,
+          t("mehr Aufheizvorgänge, verlässlichere Vorhersage")
+        ),
+        this._row(t("Gerade gilt"), `<span class="v">${planText(a, false)}</span>`, t("so entscheidet die Automatik im Moment")),
+        `<div class="row whyhead"><div class="l"><span class="lbl">${t("Warum? Letzte Entscheidungen")}</span><small>${t("was zuletzt entschieden wurde und weshalb")}</small></div></div>`,
+        `<div class="why" data-why="${esc(id)}"><div class="hint">${t("Lade …")}</div></div>`
+      ];
+      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", rows.join(""));
+    }
+    _whyHtml(list) {
+      if (!list.length) return `<div class="hint">${t("Noch keine Entscheidungen protokolliert.")}</div>`;
+      return list.map((e) => {
+        const d = new Date(e.t);
+        const when = isNaN(d.getTime()) ? "" : d.toLocaleString(loc(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+        const many = e.n > 1 ? ` ×${e.n}` : "";
+        const why = e.why ? `<small>${esc(e.why)}</small>` : "";
+        return `<div class="whyrow"><span class="wtime">${esc(when)}</span><div class="wl"><b>${esc(e.msg)}${many}</b>${why}</div></div>`;
+      }).join("");
+    }
+    async _whyFetch() {
+      const root = this.shadowRoot;
+      const box = root && root.querySelector("[data-why]");
+      if (!box) return;
+      const id = box.dataset.why;
+      this._why = this._why || {};
+      if (this._why[id]) {
+        box.innerHTML = this._whyHtml(this._why[id]);
+        return;
+      }
+      if (this._whyBusy) return;
+      this._whyBusy = true;
+      try {
+        const res = await this._hass.callWS({ type: "raumklima/log", entry_id: id, limit: 25 });
+        this._why[id] = res.entries || [];
+        const html = this._whyHtml(this._why[id]);
+        root.querySelectorAll("[data-why]").forEach((el) => {
+          if (el.dataset.why === id) el.innerHTML = html;
+        });
+      } catch (e) {
+        box.innerHTML = `<div class="hint">${t("Protokoll konnte nicht geladen werden.")}</div>`;
+      } finally {
+        this._whyBusy = false;
+      }
+    }
     // ---------------------------------------------------------------- Rendern
     _render() {
       if (!this._hass || !this._rooms) return;
@@ -3971,6 +4083,7 @@
       </ha-card>`);
       this._bind();
       this._filter();
+      this._whyFetch();
     }
     // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
     _filter() {
@@ -3999,6 +4112,9 @@
       const visible = secs.filter((el) => el.style.display !== "none");
       secs.forEach((el) => el.classList.toggle("solo", visible.length === 1 && el.style.display !== "none"));
       root.querySelector(".groups")?.classList.toggle("solo", visible.length === 1);
+      root.querySelectorAll(".railbtn").forEach((b) => {
+        if (!root.querySelector(`.grp[data-g="${b.dataset.g}"]`)) b.remove();
+      });
       root.querySelectorAll(".railbtn").forEach((b) => {
         const g = b.dataset.g;
         b.classList.toggle("empty", !present.has(g));

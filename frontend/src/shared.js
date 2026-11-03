@@ -707,6 +707,15 @@ export const SETTINGS_STYLES = `
   .mini { all:unset; cursor:pointer; padding:5px 10px; border-radius:10px; font-size:.8rem; font-weight:650; color: var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
   .mini.x { padding:5px 9px; }
   .addrow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:14px; }
+  /* „Warum?" – Zeit links, Entscheidung und Begründung rechts. */
+  .why { margin-top:4px; }
+  .whyhead { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .whyrow { display:grid; grid-template-columns:104px minmax(0,1fr); column-gap:18px;
+            padding:9px 2px; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .whyrow:first-of-type { border-top:0; }
+  .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .whyrow .wl b { font-size:.9rem; font-weight:600; }
+  .whyrow .wl small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.35; }
   .msgs { display:grid; gap:10px; }
   .msg { display:grid; grid-template-columns: 40px 1fr auto; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
   .msg .e { font-size:1.5rem; text-align:center; }
