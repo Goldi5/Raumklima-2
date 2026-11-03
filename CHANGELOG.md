@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.45.3 – 2026-11-03
+
+### Behoben
+- **Einstellungen sind jetzt genau so breit wie die Übersicht:** Der Reiter war ein Panel-View, alle
+  anderen sind Sections-Views – dadurch war die Karte schmaler und anders eingerückt. Jetzt gleicher
+  View-Typ und volle Breite.
+
 ## 0.45.2 – 2026-11-03
 
 ### Geändert

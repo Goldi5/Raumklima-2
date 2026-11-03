@@ -76,9 +76,11 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
       ],
     };
 
+    // Gleicher View-Typ wie die Übersicht (Sections statt Panel) – sonst ist die Karte schmaler.
     const settingsView = {
-      title: t("Einstellungen"), path: "einstellungen", icon: "mdi:tune-variant", type: "panel",
-      cards: [{ type: "custom:raumklima-settings-card", ...H, strip_prefix: prefix }],
+      title: t("Einstellungen"), path: "einstellungen", icon: "mdi:tune-variant",
+      type: "sections", max_columns: 1,
+      sections: [{ type: "grid", column_span: 1, cards: [{ type: "custom:raumklima-settings-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
     const reportView = {
