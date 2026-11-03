@@ -15,7 +15,6 @@ from typing import Any
 
 from homeassistant.components.climate import HVACAction
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE
 from homeassistant.core import (
     Event,
     EventStateChangedData,
@@ -92,7 +91,6 @@ from .const import (
     PREHEAT_MARGIN_MINUTES,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
-    SETPOINT_MATCH_TOLERANCE,
     SLOW_RETRY_INTERVAL,
     STATUS_HEATING,
     STATUS_IDLE,
@@ -125,7 +123,6 @@ from .logic import (
     is_valid,
     plausible_reading,
     to_float,
-    values_match,
     window_open_state,
 )
 from .msg import tr
@@ -1099,7 +1096,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                     await self.sync.request(
                         "mode",
                         tr("Minimaltemperatur {t}", t=fmt_temp(low)),
-                        lambda: self._call_climate("set_temperature", temperature=low),
+                        lambda: self._write_setpoint(low),
                         lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
                     )
                 await self._apply_extras(False, method)
@@ -1107,7 +1104,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
             # --- an: zuerst Modus, dann Sollwert
             if method == OFF_PRESET:
-                preset = self._on_preset()
+                preset = "comfort" if self.target_via == "comfort_temperature" else self._on_preset()
                 current = self._trv_attr("preset_mode")
                 if current in HEAT_PRESETS and current != "none" or (current == "none" and preset == "none"):
                     self.sync.cancel("mode")  # regelt schon auf den Sollwert – Preset nicht umstellen
@@ -1148,10 +1145,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             await self.sync.request(
                 "setpoint",
                 tr("Sollwert {t}", t=fmt_temp(setpoint)),
-                lambda: self._call_climate("set_temperature", temperature=setpoint),
-                lambda: values_match(
-                    self._trv_attr(ATTR_TEMPERATURE), setpoint, SETPOINT_MATCH_TOLERANCE
-                ),
+                lambda: self._write_setpoint(setpoint),
+                lambda: self._setpoint_matches(setpoint),
             )
             await self._apply_extras(True, method)
 

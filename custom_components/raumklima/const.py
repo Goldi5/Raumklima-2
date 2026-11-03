@@ -32,6 +32,10 @@ CONF_WINDOW_CLOSE_DELAY: Final = "window_close_delay"
 CONF_OFFSET_THRESHOLD: Final = "offset_threshold"
 CONF_OFFSET_MIN_INTERVAL: Final = "offset_min_interval"
 CONF_SENSOR_STALE_MINUTES: Final = "sensor_stale_minutes"
+# Wie der Sollwert ans Thermostat geht: über den Sollwert selbst oder über eine
+# Zahl-Entität (Tuya TRV602Z: preset "comfort" + comfort_temperature).
+CONF_TARGET_VIA: Final = "target_via"
+TARGET_VIA_MODES: Final = ["auto", "setpoint", "comfort_temperature"]
 CONF_SYNC_VERIFY_DELAY: Final = "sync_verify_delay"
 CONF_SYNC_MAX_RETRIES: Final = "sync_max_retries"
 CONF_FOLLOW_TRV: Final = "follow_trv_changes"
@@ -242,11 +246,10 @@ CALIBRATION_INTERVAL: Final = 600  # s
 SLOW_RETRY_INTERVAL: Final = 300  # s – nach max. Versuchen weiter alle 5 min
 PRESET_GRACE_SECONDS: Final = 60  # s – Sollwert-Änderungen nach Preset-Wechsel ignorieren
 
-# Bevorzugte "an"-Presets (Reihenfolge). "on" steht hinten: bei vielen Geräten ist es der
-# manuelle Modus (Tuya TRV602Z: system_mode "heat"), bei anderen "Ventil dauerhaft offen".
-# Wo "manual"/"heat" angeboten werden, gewinnen sie.
-ON_PRESET_CANDIDATES: Final = ["manual", "heat", "eco", "comfort", "none", "on"]
-ON_PRESET_AVOID: Final = ["off", "antifrost", "auto", "boost", "holiday", "away"]
+# Bevorzugte "an"-Presets (Reihenfolge). "on" fehlt: beim Tuya TRV602Z bedeutet es
+# "Ventil dauerhaft offen" (gemessen 100 %) – dort regelt "comfort" über comfort_temperature.
+ON_PRESET_CANDIDATES: Final = ["manual", "heat", "eco", "comfort", "none"]
+ON_PRESET_AVOID: Final = ["on", "off", "antifrost", "auto", "boost", "holiday", "away"]
 CONF_ON_PRESET: Final = "on_preset"
 ON_PRESET_AUTO: Final = "auto_detect"
 

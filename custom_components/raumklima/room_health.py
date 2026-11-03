@@ -302,6 +302,7 @@ class HealthMixin:
             check_trv_mode(
                 trv_state.state if trv_state else None,
                 (trv_state.attributes or {}).get("preset_mode") if trv_state else None,
+                device_preset=self.target_via == "comfort_temperature",
             ),
             check_window(
                 self.vent.open_minutes / 60 if self.window_open else None,

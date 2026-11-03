@@ -134,6 +134,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "sync": c.sync_state,
             "valve_position": c.valve_position,
             "valve_sensor": c.valve_sensor,
+            "target_via": c.target_via,
             "comfort_temperature": c.comfort_temp,
             "calibration_mode": c.cal_mode,
             "wish": None if c.monitor else c.target_temp,

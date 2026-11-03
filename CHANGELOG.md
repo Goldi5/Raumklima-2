@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.39.2 – 2026-11-03
+
+### Behoben
+- **Tuya TRV602Z: `preset "on"` öffnet das Ventil dauerhaft** (im Betrieb gemessen: 100 % bei 21 °C
+  Raumtemperatur und 14,5 °C Sollwert). Raumklima schreibt den Sollwert bei diesen Geräten jetzt über
+  `preset "comfort"` + `…_comfort_temperature` – der Wert, den das Gerät wirklich regelt. `"on"` gilt
+  wieder als „nicht regeln" und wird gemieden; die Warnung „eigener Abschlag" entfällt in diesem Modus.
+- Layout-Reihenfolge/Ausblenden wirkt jetzt auch in der Übersichtskarte (Zustandsobjekte ohne `id`).
+
 ## Unreleased
 
 Sammelstelle für den nächsten Release. Hier landen Änderungen, bis sie zu einer Version

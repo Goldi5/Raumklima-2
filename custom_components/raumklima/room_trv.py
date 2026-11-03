@@ -9,6 +9,7 @@ from typing import Any
 from homeassistant.components import persistent_notification
 from homeassistant.const import ATTR_ENTITY_ID, ATTR_TEMPERATURE
 from homeassistant.core import State, callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -20,6 +21,7 @@ from .const import (
     CONF_OFFSET_MIN_INTERVAL,
     CONF_OFFSET_THRESHOLD,
     CONF_ON_PRESET,
+    CONF_TARGET_VIA,
     DOMAIN,
     KIND_TRV_FAILURE,
     OFF_AUTO,
@@ -277,6 +279,60 @@ class TrvMixin:
             {ATTR_ENTITY_ID: self.trv, **data},
             blocking=True,
         )
+
+    def _find_comfort_number(self) -> str | None:
+        """Zahl-Entität mit der Komfort-Temperatur am Thermostat-Gerät.
+
+        Tuya TRV602Z kennt keinen manuellen Modus für den Sollwert: ``preset "on"`` öffnet das
+        Ventil dauerhaft (gemessen 100 %). Geregelt wird dort über ``preset "comfort"`` und die
+        Zahl ``…_comfort_temperature``.
+        """
+        registry = er.async_get(self.hass)
+        entry = registry.async_get(self.trv)
+        if entry is None or not entry.device_id:
+            return None
+        for other in er.async_entries_for_device(registry, entry.device_id):
+            if other.domain == "number" and str(other.entity_id).endswith("_comfort_temperature"):
+                return other.entity_id
+        return None
+
+    @property
+    def comfort_number(self) -> str | None:
+        if not hasattr(self, "_comfort_num"):
+            self._comfort_num = self._find_comfort_number()
+        return self._comfort_num
+
+    @property
+    def target_via(self) -> str:
+        """Wohin der Sollwert geschrieben wird."""
+        wanted = str(self.config.get(CONF_TARGET_VIA) or "auto")
+        if wanted != "auto":
+            return wanted
+        presets = self._trv_attr("preset_modes") or []
+        if self.comfort_number and "comfort" in presets:
+            return "comfort_temperature"
+        return "setpoint"
+
+    async def _write_setpoint(self, value: float) -> None:
+        """Sollwert schreiben – je Gerät an der richtigen Stelle."""
+        if self.target_via == "comfort_temperature" and self.comfort_number:
+            if str(self._trv_attr("preset_mode") or "").lower() != "comfort":
+                await self._call_climate("set_preset_mode", preset_mode="comfort")
+            await self.hass.services.async_call(
+                "number",
+                "set_value",
+                {ATTR_ENTITY_ID: self.comfort_number, "value": round(float(value), 1)},
+                blocking=True,
+            )
+            return
+        await self._call_climate("set_temperature", temperature=value)
+
+    def _setpoint_matches(self, value: float) -> bool:
+        """Bestätigt das Gerät den Sollwert? (an der Stelle, an die wir schreiben)"""
+        if self.target_via == "comfort_temperature" and self.comfort_number:
+            state = self.hass.states.get(self.comfort_number)
+            return values_match(state.state if state else None, value, SETPOINT_MATCH_TOLERANCE)
+        return values_match(self._trv_attr(ATTR_TEMPERATURE), value, SETPOINT_MATCH_TOLERANCE)
 
     @callback
     def _on_sync_event(self, event: str, job: SyncJob) -> None:

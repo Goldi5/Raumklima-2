@@ -52,3 +52,9 @@ def test_zeitplan_hat_vorrang_vor_preset() -> None:
     issue = check_trv_mode("auto", "eco")
     assert issue is not None
     assert issue.title == "Thermostat arbeitet nach eigenem Zeitplan"
+
+
+def test_geraete_preset_comfort_ist_kein_abschlag() -> None:
+    """Beim TRV602Z ist comfort der richtige Modus (Sollwert über comfort_temperature)."""
+    assert check_trv_mode("heat", "comfort", device_preset=True) is None
+    assert check_trv_mode("heat", "comfort", device_preset=False) is not None

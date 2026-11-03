@@ -63,7 +63,7 @@ def check_battery(levels: dict[str, float]) -> list[Issue]:
     return issues
 
 
-def check_trv_mode(mode: str | None, preset: str | None) -> Issue | None:
+def check_trv_mode(mode: str | None, preset: str | None, *, device_preset: bool = False) -> Issue | None:
     """Thermostat arbeitet seinen eigenen Zeitplan ab (Issue #13).
 
     Viele Geräte (Tuya, Bosch, Homematic) führen im Modus „Auto“ einen eingebauten Wochenplan.
@@ -93,7 +93,7 @@ def check_trv_mode(mode: str | None, preset: str | None) -> Issue | None:
                 "Tuya „on“)."
             ),
         )
-    if preset in TRV_OFFSET_PRESETS:
+    if preset in TRV_OFFSET_PRESETS and not device_preset:
         return Issue(
             "trv_mode",
             SEV_WARN,

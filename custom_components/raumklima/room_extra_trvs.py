@@ -45,10 +45,8 @@ if TYPE_CHECKING:
     from .controller import RaumklimaController
 
 _LOGGER = logging.getLogger(__name__)
-# "on" gehört dazu: beim Tuya TRV602Z schaltet es auf system_mode "heat" (manuell, Sollwert gilt),
-# Z2M-Konverter deviceMode 5. Vorher galt es hier als "Ventil dauerhaft offen" – dadurch hat
-# Raumklima den manuellen Modus sofort wieder auf "comfort"/"eco" zurückgeschrieben.
-HEAT_PRESETS = frozenset({"manual", "heat", "eco", "comfort", "none", "on"})
+# "on" fehlt bewusst: beim Tuya TRV602Z öffnet es das Ventil dauerhaft (gemessen: 100 %).
+HEAT_PRESETS = frozenset({"manual", "heat", "eco", "comfort", "none"})
 
 
 class ExtraTrv:
