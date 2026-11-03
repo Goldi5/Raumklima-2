@@ -22,6 +22,10 @@ RADIO_EVENTS = 3  # Ausfälle in 24 h
 # Betriebsarten, in denen ein Thermostat seinen eigenen Zeitplan abarbeitet
 TRV_SCHEDULE_MODES = ("auto",)
 TRV_SCHEDULE_PRESETS = ("auto", "schedule", "program", "programme", "timed", "timer")
+# Dauerzustände: das Gerät heizt dauerhaft oder gar nicht, egal was wir schreiben.
+TRV_FIXED_PRESETS = ("on", "off", "antifrost")
+# Eigene Abschläge/Aufschläge im Gerät (Tuya: eco/comfort, Bosch: boost).
+TRV_OFFSET_PRESETS = ("eco", "comfort", "boost")
 WINDOW_OPEN_HOURS = 24.0
 WINDOW_UNAVAILABLE_HOURS = 2.0
 
@@ -65,19 +69,42 @@ def check_trv_mode(mode: str | None, preset: str | None) -> Issue | None:
     Viele Geräte (Tuya, Bosch, Homematic) führen im Modus „Auto“ einen eingebauten Wochenplan.
     Der überschreibt den Sollwert, den Raumklima schreibt – der Raum heizt dann gegen den Plan.
     """
-    schedule = str(mode or "").lower() in TRV_SCHEDULE_MODES or str(preset or "").lower() in TRV_SCHEDULE_PRESETS
-    if not schedule:
-        return None
-    return Issue(
-        "trv_mode",
-        SEV_WARN,
-        tr("Thermostat arbeitet nach eigenem Zeitplan"),
-        tr(
-            "Das Gerät steht auf „Auto“ und folgt seinem eingebauten Wochenplan – damit kann es dem "
-            "widersprechen, was Raumklima vorgibt. Am Thermostat auf „Heat“ stellen (nicht „Auto“), dann "
-            "regelt Raumklima allein."
-        ),
-    )
+    mode = str(mode or "").lower()
+    preset = str(preset or "").lower()
+    if mode in TRV_SCHEDULE_MODES or preset in TRV_SCHEDULE_PRESETS:
+        return Issue(
+            "trv_mode",
+            SEV_WARN,
+            tr("Thermostat arbeitet nach eigenem Zeitplan"),
+            tr(
+                "Das Gerät steht auf „Auto“ und folgt seinem eingebauten Wochenplan – damit kann es dem "
+                "widersprechen, was Raumklima vorgibt. Am Thermostat auf „Heat“ stellen (nicht „Auto“), dann "
+                "regelt Raumklima allein."
+            ),
+        )
+    if preset in TRV_FIXED_PRESETS:
+        return Issue(
+            "trv_mode",
+            SEV_WARN,
+            tr("Thermostat steht auf Dauerbetrieb"),
+            tr(
+                "Ein Dauer-Preset (an / aus / Frostschutz) überstimmt den Sollwert: das Ventil bleibt auf oder "
+                "zu, egal was Raumklima schreibt. Am Thermostat auf „Heat“ und das Preset auf „none“ oder "
+                "„manual“ stellen."
+            ),
+        )
+    if preset in TRV_OFFSET_PRESETS:
+        return Issue(
+            "trv_mode",
+            SEV_WARN,
+            tr("Thermostat rechnet mit eigenem Abschlag"),
+            tr(
+                "Presets wie „eco“, „comfort“ oder „boost“ verändern den Sollwert direkt im Gerät – Raumklima "
+                "regelt dann gegen einen Versatz, der nirgends auftaucht. Preset auf „none“ stellen, damit der "
+                "Sollwert von Raumklima 1:1 gilt."
+            ),
+        )
+    return None
 
 
 def check_not_warming(history: list[HistoryPoint], now: datetime) -> Issue | None:

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.35.0 – 2026-11-03
+
+### Neu
+- **Warnung bei Dauer-Presets und Geräte-Abschlägen am Thermostat.** Bisher wurde nur der Modus „Auto“
+  erkannt. Tuya-Geräte (TRV602 und Verwandte) drücken ihre Betriebsart aber ins **Preset**: „on“/„off“/
+  „antifrost“ überstimmen jeden Sollwert, „eco“/„comfort“/„boost“ rechnen mit einem eigenen Abschlag im
+  Gerät. Beides steht jetzt in der Gesundheitsliste – mit dem Hinweis, auf „Heat“ und Preset „none“ zu
+  stellen. Meldungen de/en/fr.
+
 ## 0.34.1 – 2026-11-03
 
 ### Behoben

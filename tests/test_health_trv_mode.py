@@ -22,3 +22,28 @@ def test_handbetrieb_ist_in_ordnung() -> None:
     assert check_trv_mode("heat", "manual") is None
     assert check_trv_mode("off", "manual") is None
     assert check_trv_mode(None, None) is None
+
+
+def test_dauer_preset_wird_erkannt() -> None:
+    issue = check_trv_mode("heat", "on")
+    assert issue is not None
+    assert issue.title == "Thermostat steht auf Dauerbetrieb"
+    assert check_trv_mode("heat", "antifrost") is not None
+
+
+def test_geraeteabschlag_wird_erkannt() -> None:
+    issue = check_trv_mode("heat", "eco")
+    assert issue is not None
+    assert issue.title == "Thermostat rechnet mit eigenem Abschlag"
+    assert check_trv_mode("heat", "comfort") is not None
+
+
+def test_manuelles_preset_ist_in_ordnung() -> None:
+    assert check_trv_mode("heat", "none") is None
+    assert check_trv_mode("heat", None) is None
+
+
+def test_zeitplan_hat_vorrang_vor_preset() -> None:
+    issue = check_trv_mode("auto", "eco")
+    assert issue is not None
+    assert issue.title == "Thermostat arbeitet nach eigenem Zeitplan"

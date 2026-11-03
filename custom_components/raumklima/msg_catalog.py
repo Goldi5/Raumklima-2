@@ -8,6 +8,26 @@ from __future__ import annotations
 
 _ROWS: list[tuple[str, str, str]] = [
     (
+        "Thermostat steht auf Dauerbetrieb",
+        "Thermostat is set to permanent operation",
+        "Le thermostat est en fonctionnement permanent",
+    ),
+    (
+        "Ein Dauer-Preset (an / aus / Frostschutz) überstimmt den Sollwert: das Ventil bleibt auf oder zu, egal was Raumklima schreibt. Am Thermostat auf „Heat“ und das Preset auf „none“ oder „manual“ stellen.",
+        "A permanent preset (on / off / frost protection) overrides the setpoint: the valve stays open or closed no matter what Raumklima sends. Set the thermostat to “Heat” and the preset to “none” or “manual”.",
+        "Un préréglage permanent (marche / arrêt / hors gel) écrase la consigne : la vanne reste ouverte ou fermée, quoi que Raumklima envoie. Réglez le thermostat sur « Heat » et le préréglage sur « none » ou « manual ».",
+    ),
+    (
+        "Thermostat rechnet mit eigenem Abschlag",
+        "Thermostat applies its own offset",
+        "Le thermostat applique son propre décalage",
+    ),
+    (
+        "Presets wie „eco“, „comfort“ oder „boost“ verändern den Sollwert direkt im Gerät – Raumklima regelt dann gegen einen Versatz, der nirgends auftaucht. Preset auf „none“ stellen, damit der Sollwert von Raumklima 1:1 gilt.",
+        "Presets such as “eco”, “comfort” or “boost” change the setpoint inside the device – Raumklima then regulates against an offset that is nowhere visible. Set the preset to “none” so the setpoint is applied 1:1.",
+        "Les préréglages « eco », « comfort » ou « boost » modifient la consigne directement dans l’appareil – Raumklima régule alors avec un décalage invisible. Réglez le préréglage sur « none » pour que la consigne s’applique telle quelle.",
+    ),
+    (
         "Thermostat arbeitet nach eigenem Zeitplan",
         "Thermostat follows its own schedule",
         "Le thermostat suit son propre programme",
