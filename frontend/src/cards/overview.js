@@ -1,4 +1,4 @@
-import { PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkLayout, rkLayoutApply, rkLayoutColor, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -26,6 +26,13 @@ export class RaumklimaOverviewCard extends HTMLElement {
         .then((r) => { this._known = new Set((r && r.dashboards) || []); this._render(); })
         .catch(() => {});
     }
+    // Darstellung je Wohnung (Reihenfolge, Ausblenden, Farbe)
+    if (!this._layoutAsked) {
+      this._layoutAsked = true;
+      rkLayout(hass, rkHomeId(hass, this._config))
+        .then((L) => { this._layout = L; this._render(); })
+        .catch(() => {});
+    }
     // nur bei Änderungen an Raumklima-Entitäten (und deren Fenstern) neu zeichnen
     const own = Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima").map((e) => e.entity_id);
     const wins = own.filter((id) => id.startsWith("climate.")).flatMap((id) => (hass.states[id] && hass.states[id].attributes.window_entities) || []);
@@ -45,6 +52,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .filter(Boolean)
       .filter((r) => !homeId || !r.attributes.home || r.attributes.home === homeId)
       .sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
+    const rows = rkLayoutApply(rooms, this._layout);
     const homes = rkHomes(this._hass);
     const curHome = homeId || (rooms[0] && rooms[0].attributes.home);
     // Nur umschalten, wenn das Ziel-Dashboard wirklich existiert – sonst landet man auf dem Standard
@@ -62,15 +70,15 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const title = on || d.ok ? "" : t("Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.");
       return `<a class="hm ${on ? "on" : ""}${d.ok || on ? "" : " nodash"}" ${on || !d.ok ? "" : `data-nav="/${esc(d.path)}"`} title="${esc(title)}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</a>`;
     }).join("")}</div>` : "";
-    const heating = rooms.filter((r) => r.attributes.status === "heating").length;
-    const windows = rooms.filter((r) => r.attributes.window_open).length;
+    const heating = rows.filter((r) => r.attributes.status === "heating").length;
+    const windows = rows.filter((r) => r.attributes.window_open).length;
     // Ausgeschaltete Räume werden bei Abwesenheit nicht abgesenkt – das war bisher nicht erkennbar
-    const offRooms = rooms.filter((r) => r.state === "off").length;
-    const warn = rooms.filter((r) => ["please_open", "please_close", "too_cold"].includes(r.attributes.ventilation) || r.attributes.sync === "failed" || ["sensor_unavailable", "trv_unavailable"].includes(r.attributes.status)).length;
+    const offRooms = rows.filter((r) => r.state === "off").length;
+    const warn = rows.filter((r) => ["please_open", "please_close", "too_cold"].includes(r.attributes.ventilation) || r.attributes.sync === "failed" || ["sensor_unavailable", "trv_unavailable"].includes(r.attributes.status)).length;
     const w = this._config.weather ? this._hass.states[this._config.weather] : null;
-    const outT = w ? w.attributes.temperature : rooms.map((r) => r.attributes.outdoor_temperature).find((v) => v !== undefined && v !== null);
-    const outH = w ? w.attributes.humidity : rooms.map((r) => r.attributes.outdoor_humidity).find((v) => v !== undefined && v !== null);
-    const allSync = rooms.every((r) => r.attributes.sync === "ok");
+    const outT = w ? w.attributes.temperature : rows.map((r) => r.attributes.outdoor_temperature).find((v) => v !== undefined && v !== null);
+    const outH = w ? w.attributes.humidity : rows.map((r) => r.attributes.outdoor_humidity).find((v) => v !== undefined && v !== null);
+    const allSync = rows.every((r) => r.attributes.sync === "ok");
     const hubIds = rkHub(this._hass, curHome);
     const presSt = hubIds.presence ? this._hass.states[hubIds.presence] : null;
     const seasSt = hubIds.heating_mode ? this._hass.states[hubIds.heating_mode] : null;
@@ -157,7 +165,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
-          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rooms.length, h: heating, w: windows })}</div></div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}</div></div>
         ${outT !== undefined && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">
@@ -169,7 +177,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
         ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
       </div>
-      <div class="rooms">${rooms.map(row).join("")}</div>
+      <div class="rooms">${rows.map(row).join("")}</div>
     </ha-card>`;
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) =>
       b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));

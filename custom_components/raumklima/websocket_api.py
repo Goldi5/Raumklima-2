@@ -230,7 +230,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -428,6 +428,46 @@ async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveCo
     if not live:
         await hass.config_entries.async_reload(entry.entry_id)
     connection.send_result(msg["id"], {"ok": True, "reloaded": not live})
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/layout/get", vol.Optional("home"): vol.Any(None, str)}
+)
+@websocket_api.async_response
+async def ws_layout_get(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Darstellung (Reihenfolge, ausgeblendet, Größe, Farbe) einer Wohnung lesen."""
+    from .layout import layout_for
+
+    home = msg.get("home")
+    if home is None:
+        hub = _hub_or_error(hass, connection, msg)
+        if hub is None:
+            return
+        home = hub.entry.entry_id
+    connection.send_result(msg["id"], {"home": home, "layout": layout_for(hass, home)})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/layout/save",
+        vol.Required("layout"): dict,
+        vol.Optional("home"): vol.Any(None, str),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_layout_save(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Darstellung einer Wohnung speichern."""
+    from .layout import async_save
+
+    home = msg.get("home")
+    if home is None:
+        hub = _hub_or_error(hass, connection, msg)
+        if hub is None:
+            return
+        home = hub.entry.entry_id
+    saved = await async_save(hass, home, msg["layout"])
+    connection.send_result(msg["id"], {"home": home, "layout": saved})
 
 
 @websocket_api.websocket_command(

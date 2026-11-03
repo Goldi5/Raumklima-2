@@ -591,4 +591,11 @@ export const EN = {
   "Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten.": "Reset all settings of this room to their defaults? Devices and home stay as they are.",
   "Auf Standard zurückgesetzt": "Reset to defaults",
   "Alles auf Standard": "Everything at default",
+  "Darstellung": "Appearance",
+  "Kachel": "Tile",
+  "Reihenfolge": "Order",
+  "Speichern": "Save",
+  "große Karte": "Large card",
+  "lädt …": "loading …",
+  "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "The order applies to the generated dashboard and the overview; “Tile” hides the large room page, “off” hides the room entirely. The colour tints the card’s edge and accents.",
 };

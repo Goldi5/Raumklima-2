@@ -590,7 +590,14 @@
     "Auf Standard zurücksetzen": "Reset to default",
     "Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten.": "Reset all settings of this room to their defaults? Devices and home stay as they are.",
     "Auf Standard zurückgesetzt": "Reset to defaults",
-    "Alles auf Standard": "Everything at default"
+    "Alles auf Standard": "Everything at default",
+    "Darstellung": "Appearance",
+    "Kachel": "Tile",
+    "Reihenfolge": "Order",
+    "Speichern": "Save",
+    "große Karte": "Large card",
+    "lädt …": "loading …",
+    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "The order applies to the generated dashboard and the overview; “Tile” hides the large room page, “off” hides the room entirely. The colour tints the card’s edge and accents."
   };
 
   // src/i18n/fr.js
@@ -1183,7 +1190,14 @@
     "Auf Standard zurücksetzen": "Réinitialiser",
     "Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten.": "Réinitialiser tous les réglages de cette pièce ? Les appareils et la maison restent inchangés.",
     "Auf Standard zurückgesetzt": "Réinitialisé",
-    "Alles auf Standard": "Tout par défaut"
+    "Alles auf Standard": "Tout par défaut",
+    "Darstellung": "Apparence",
+    "Kachel": "Tuile",
+    "Reihenfolge": "Ordre",
+    "Speichern": "Enregistrer",
+    "große Karte": "Grande carte",
+    "lädt …": "chargement …",
+    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "L’ordre s’applique au tableau de bord généré et à l’aperçu ; « Tuile » masque la grande page de la pièce, « aus » masque complètement la pièce. La couleur colore le bord et les accents de la carte."
   };
 
   // src/i18n.js
@@ -1530,6 +1544,37 @@
     sensor_unavailable: { c: "var(--rk-warn)", l: "Fühler fehlt" },
     trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" }
   });
+  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
+  var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
+  function rkLayout(hass, home) {
+    const key = String(home || "");
+    if (!RK_LAYOUT_CACHE.has(key)) {
+      RK_LAYOUT_CACHE.set(
+        key,
+        hass.callWS({ type: "raumklima/layout/get", home: home || null }).then((r) => ({ ...RK_LAYOUT_EMPTY, ...r && r.layout || {} })).catch(() => ({ ...RK_LAYOUT_EMPTY }))
+      );
+    }
+    return RK_LAYOUT_CACHE.get(key);
+  }
+  function rkLayoutRemember(layout, home) {
+    if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
+  }
+  function rkLayoutApply(rooms, layout) {
+    const L = layout || RK_LAYOUT_EMPTY;
+    const hidden = new Set(L.hidden || []);
+    const order = L.order || [];
+    const pos = (r) => {
+      const i = order.indexOf(r.id);
+      return i < 0 ? order.length : i;
+    };
+    return rooms.filter((r) => !hidden.has(r.id)).sort((a, b) => pos(a) - pos(b));
+  }
+  function rkLayoutSize(layout, id) {
+    return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
+  }
+  function rkLayoutColor(layout, id) {
+    return ((layout || RK_LAYOUT_EMPTY).color || {})[id] || null;
+  }
   function rkRooms(hass, prefix, home) {
     const reg = Object.values(hass.entities || {});
     const rooms = reg.filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => {
@@ -1687,6 +1732,11 @@
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .crumb b { color:var(--primary-text-color); font-weight:600; }
+  .dotbtn { all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; background:var(--c); border:2px solid transparent; }
+  .dotbtn.on { border-color: var(--primary-text-color); }
+  .lname { display:inline-flex; align-items:center; gap:4px; }
+  .lname .mini { all:unset; cursor:pointer; padding:0 4px; color:var(--secondary-text-color); font-size:.8rem; }
+  .lname .mini[disabled] { opacity:.25; cursor:default; }
   .resetbar { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin:8px 4px 0; font-size:.82rem; color:var(--secondary-text-color); }
   .resetbar .btn { padding:6px 12px; font-size:.82rem; }
   .searchrow { display:flex; gap:8px; align-items:center; margin:10px 4px 0; }
@@ -2131,6 +2181,14 @@
         }).catch(() => {
         });
       }
+      if (!this._layoutAsked) {
+        this._layoutAsked = true;
+        rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
+          this._layout = L;
+          this._render();
+        }).catch(() => {
+        });
+      }
       const own = Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima").map((e) => e.entity_id);
       const wins = own.filter((id) => id.startsWith("climate.")).flatMap((id) => hass.states[id] && hass.states[id].attributes.window_entities || []);
       if (!rkChanged(this, hass, [...own, ...wins]) && this.shadowRoot && this.shadowRoot.firstChild) return;
@@ -2150,6 +2208,7 @@
       if (!this._hass) return;
       const homeId = rkHomeId(this._hass, this._config);
       const rooms = Object.values(this._hass.entities || {}).filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => this._hass.states[e.entity_id]).filter(Boolean).filter((r) => !homeId || !r.attributes.home || r.attributes.home === homeId).sort((a, b) => (a.attributes.friendly_name || "").localeCompare(b.attributes.friendly_name || ""));
+      const rows = rkLayoutApply(rooms, this._layout);
       const homes = rkHomes(this._hass);
       const curHome = homeId || rooms[0] && rooms[0].attributes.home;
       const curPath = String(this._hass && this._hass.panelUrl || "").replace(/^\//, "");
@@ -2166,14 +2225,14 @@
         const title = on || d.ok ? "" : t("Für diese Wohnung ist noch kein eigenes Dashboard eingerichtet – erst anlegen, dann lässt sich umschalten.");
         return `<a class="hm ${on ? "on" : ""}${d.ok || on ? "" : " nodash"}" ${on || !d.ok ? "" : `data-nav="/${esc(d.path)}"`} title="${esc(title)}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</a>`;
       }).join("")}</div>` : "";
-      const heating = rooms.filter((r) => r.attributes.status === "heating").length;
-      const windows = rooms.filter((r) => r.attributes.window_open).length;
-      const offRooms = rooms.filter((r) => r.state === "off").length;
-      const warn = rooms.filter((r) => ["please_open", "please_close", "too_cold"].includes(r.attributes.ventilation) || r.attributes.sync === "failed" || ["sensor_unavailable", "trv_unavailable"].includes(r.attributes.status)).length;
+      const heating = rows.filter((r) => r.attributes.status === "heating").length;
+      const windows = rows.filter((r) => r.attributes.window_open).length;
+      const offRooms = rows.filter((r) => r.state === "off").length;
+      const warn = rows.filter((r) => ["please_open", "please_close", "too_cold"].includes(r.attributes.ventilation) || r.attributes.sync === "failed" || ["sensor_unavailable", "trv_unavailable"].includes(r.attributes.status)).length;
       const w = this._config.weather ? this._hass.states[this._config.weather] : null;
-      const outT = w ? w.attributes.temperature : rooms.map((r) => r.attributes.outdoor_temperature).find((v) => v !== void 0 && v !== null);
-      const outH = w ? w.attributes.humidity : rooms.map((r) => r.attributes.outdoor_humidity).find((v) => v !== void 0 && v !== null);
-      const allSync = rooms.every((r) => r.attributes.sync === "ok");
+      const outT = w ? w.attributes.temperature : rows.map((r) => r.attributes.outdoor_temperature).find((v) => v !== void 0 && v !== null);
+      const outH = w ? w.attributes.humidity : rows.map((r) => r.attributes.outdoor_humidity).find((v) => v !== void 0 && v !== null);
+      const allSync = rows.every((r) => r.attributes.sync === "ok");
       const hubIds = rkHub(this._hass, curHome);
       const presSt = hubIds.presence ? this._hass.states[hubIds.presence] : null;
       const seasSt = hubIds.heating_mode ? this._hass.states[hubIds.heating_mode] : null;
@@ -2246,7 +2305,7 @@
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
-          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rooms.length, h: heating, w: windows })}</div></div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}</div></div>
         ${outT !== void 0 && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">
@@ -2258,7 +2317,7 @@
         ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
       </div>
-      <div class="rooms">${rooms.map(row).join("")}</div>
+      <div class="rooms">${rows.map(row).join("")}</div>
     </ha-card>`;
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
       this.shadowRoot.querySelectorAll("[data-nav]").forEach((el) => el.addEventListener("click", () => {
@@ -2999,7 +3058,8 @@
     "Fenster": "air",
     "Lichtsignal": "air",
     "Präsenzmelder": "presence",
-    "Benachrichtigungen": "notify"
+    "Benachrichtigungen": "notify",
+    "Darstellung": "layout"
   };
   var RK_GROUP_META = {
     home: { label: "Wohnung", icon: "mdi:home-outline" },
@@ -3012,6 +3072,7 @@
     layout: { label: "Darstellung", icon: "mdi:view-dashboard-outline" },
     advanced: { label: "Erweitert", icon: "mdi:cog-outline" }
   };
+  var RK_LAYOUT_COLORS = ["#1eb6a6", "#34a86e", "#e8982e", "#e2643c", "#7c6adc", "#3c8cdc", "#c94f8a", "#7a8288"];
   var RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "notify", "learn", "layout", "advanced"];
   var RK_FACADES = () => [
     { id: "", name: t("egal – nur Vorhersage") },
@@ -3057,7 +3118,10 @@
       this._hass = hass;
       setLang(hass);
       this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._homeId());
-      if (first) this._load();
+      if (first) {
+        this._load();
+        this._loadLayout();
+      }
       const hubIds = rkHub(hass, this._homeId());
       const sig = JSON.stringify([
         this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)]),
@@ -3486,7 +3550,49 @@
       ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
       ${this._grp("Wohnung", "mdi:home-switch-outline", "air", homeRows)}
       ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>${t("Raum")}</th><th>${t("Typ")}</th><th>${t("Wunsch")}</th><th>${t("Absenkung kurz / länger")}</th><th>${t("Minimum Lüften")}</th><th>${t("Feuchte")}</th><th>${t("Fensterlogik")}</th><th>${t("Hinweise")}</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._layoutGroup()}
     </div>`;
+    }
+    // ---------------------------------------------------------------- Darstellung (A3)
+    _loadLayout() {
+      const home = this._homeId();
+      rkLayout(this._hass, home).then((L) => {
+        if (JSON.stringify(L) === JSON.stringify(this._layout || {})) return;
+        this._layout = L;
+        this._sig = null;
+        this._render();
+      }).catch(() => {
+      });
+    }
+    _layoutSave() {
+      const home = this._homeId();
+      const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
+      rkLayoutRemember(L, home);
+      this._hass.callWS({ type: "raumklima/layout/save", home, layout: L }).then(() => this._flash(t("Gespeichert"))).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+    }
+    _layoutList() {
+      const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
+      return rkLayoutApply(this._rooms || [], L);
+    }
+    _layoutGroup() {
+      if (!this._layout) {
+        return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", this._row("Reihenfolge", this._v("lädt …", true)));
+      }
+      const L = this._layout;
+      const list = this._layoutList();
+      const rows = list.map((r, i) => {
+        const size = (L.size || {})[r.id] || "big";
+        const col = (L.color || {})[r.id] || "";
+        const arrow = (dir, glyph, on) => `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} title="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
+        const sizes = [["big", t("große Karte")], ["tile", t("Kachel")], ["off", t("aus")]].map(([k, lab]) => `<button class="chip2 ${size === k ? "" : "off"}" data-lsize="${r.id}" data-v="${k}">${lab}</button>`).join("");
+        const dots = RK_LAYOUT_COLORS.map(
+          (c) => `<button class="dotbtn ${col === c ? "on" : ""}" style="--c:${c}" data-lcolor="${r.id}" data-v="${c}" title="${c}" aria-label="${c}"></button>`
+        ).join("");
+        return this._row(`<span class="lname">${arrow(-1, "▲", i > 0)}${arrow(1, "▼", i < list.length - 1)} ${esc(r.name)}</span>`, `<div class="chips">${sizes}${dots}</div>`);
+      }).join("");
+      const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
+      <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
+      return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", rows + foot);
     }
     // ---------------------------------------------------------------- Raum
     // ---------------------------------------------------------------- Zeitpläne
@@ -3857,6 +3963,33 @@
         this._group = el.dataset.g;
         this._filter();
       }));
+      $("[data-lmove]").forEach((el) => el.addEventListener("click", () => {
+        const L = this._layout;
+        const list = this._layoutList().map((r) => r.id);
+        const i = list.indexOf(el.dataset.lmove);
+        const j = i + parseInt(el.dataset.dir, 10);
+        if (i < 0 || j < 0 || j >= list.length) return;
+        [list[i], list[j]] = [list[j], list[i]];
+        this._layout = { ...L, order: list };
+        this._layoutSave();
+        this._sig = null;
+        this._filter();
+      }));
+      $("[data-lsize]").forEach((el) => el.addEventListener("click", () => {
+        const L = this._layout;
+        this._layout = { ...L, size: { ...L.size || {}, [el.dataset.lsize]: el.dataset.v } };
+        this._layoutSave();
+        this._sig = null;
+        this._render();
+      }));
+      $("[data-lcolor]").forEach((el) => el.addEventListener("click", () => {
+        const L = this._layout;
+        this._layout = { ...L, color: { ...L.color || {}, [el.dataset.lcolor]: el.dataset.v } };
+        this._layoutSave();
+        this._sig = null;
+        this._render();
+      }));
+      $("[data-lsave]").forEach((el) => el.addEventListener("click", () => this._layoutSave()));
       $("[data-resetroom]").forEach((el) => el.addEventListener("click", () => {
         if (!window.confirm(t("Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten."))) return;
         ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom }).then(() => this._flash(t("Auf Standard zurückgesetzt"))).catch(() => {
@@ -4766,8 +4899,10 @@
         return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib, area, floor };
       }).filter((r) => !homeId || !r.attrs.home || r.attrs.home === homeId).sort(roomSort(config));
       const H = homeId ? { home: homeId } : {};
-      rooms.forEach((r, i) => {
-        r.color = ROOM_COLORS[i % ROOM_COLORS.length];
+      const layout = await rkLayout(hass, homeId).catch(() => null);
+      const shown = rkLayoutApply(rooms, layout);
+      shown.forEach((r, i) => {
+        r.color = rkLayoutColor(layout, r.id) || ROOM_COLORS[i % ROOM_COLORS.length];
       });
       const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? void 0);
       const roomsView = {
@@ -4780,7 +4915,7 @@
           { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
           // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
           // sie erscheinen nur als Kachel in der Übersicht.
-          ...rooms.filter((r) => r.attrs.monitor !== true).map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] }))
+          ...shown.filter((r) => r.attrs.monitor !== true && rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] }))
         ]
       };
       const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });

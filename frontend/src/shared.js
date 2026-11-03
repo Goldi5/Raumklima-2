@@ -357,6 +357,44 @@ export const SEG = tmap({
   trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" },
 });
 
+// ---------------------------------------------------------------- Darstellung je Wohnung (A3)
+const RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
+const RK_LAYOUT_CACHE = new Map();
+
+export function rkLayout(hass, home) {
+  const key = String(home || "");
+  if (!RK_LAYOUT_CACHE.has(key)) {
+    RK_LAYOUT_CACHE.set(
+      key,
+      hass.callWS({ type: "raumklima/layout/get", home: home || null })
+        .then((r) => ({ ...RK_LAYOUT_EMPTY, ...((r && r.layout) || {}) }))
+        .catch(() => ({ ...RK_LAYOUT_EMPTY })),
+    );
+  }
+  return RK_LAYOUT_CACHE.get(key);
+}
+
+export function rkLayoutRemember(layout, home) {
+  if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
+}
+
+/** Ausblenden und Reihenfolge anwenden. Räume ohne Eintrag behalten ihre alte Reihenfolge. */
+export function rkLayoutApply(rooms, layout) {
+  const L = layout || RK_LAYOUT_EMPTY;
+  const hidden = new Set(L.hidden || []);
+  const order = L.order || [];
+  const pos = (r) => { const i = order.indexOf(r.id); return i < 0 ? order.length : i; };
+  return rooms.filter((r) => !hidden.has(r.id)).sort((a, b) => pos(a) - pos(b));
+}
+
+export function rkLayoutSize(layout, id) {
+  return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
+}
+
+export function rkLayoutColor(layout, id) {
+  return ((layout || RK_LAYOUT_EMPTY).color || {})[id] || null;
+}
+
 export function rkRooms(hass, prefix, home) {
   const reg = Object.values(hass.entities || {});
   const rooms = reg
@@ -518,6 +556,11 @@ export const SETTINGS_STYLES = `
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .crumb b { color:var(--primary-text-color); font-weight:600; }
+  .dotbtn { all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; background:var(--c); border:2px solid transparent; }
+  .dotbtn.on { border-color: var(--primary-text-color); }
+  .lname { display:inline-flex; align-items:center; gap:4px; }
+  .lname .mini { all:unset; cursor:pointer; padding:0 4px; color:var(--secondary-text-color); font-size:.8rem; }
+  .lname .mini[disabled] { opacity:.25; cursor:default; }
   .resetbar { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin:8px 4px 0; font-size:.82rem; color:var(--secondary-text-color); }
   .resetbar .btn { padding:6px 12px; font-size:.82rem; }
   .searchrow { display:flex; gap:8px; align-items:center; margin:10px 4px 0; }

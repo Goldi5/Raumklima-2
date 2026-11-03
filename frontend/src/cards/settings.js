@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, rkSchedSortKey, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutRemember, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 
 // Gruppen (Phase 1): bestehende Gruppen-Überschriften werden auf die neue Leiste abgebildet.
 // So bleibt der Inhalt unverändert, während die Navigation klar wird.
@@ -22,6 +22,7 @@ const RK_GROUP_OF = {
   "Lichtsignal": "air",
   "Präsenzmelder": "presence",
   "Benachrichtigungen": "notify",
+  "Darstellung": "layout",
 };
 const RK_GROUP_META = {
   home: { label: "Wohnung", icon: "mdi:home-outline" },
@@ -34,6 +35,7 @@ const RK_GROUP_META = {
   layout: { label: "Darstellung", icon: "mdi:view-dashboard-outline" },
   advanced: { label: "Erweitert", icon: "mdi:cog-outline" },
 };
+const RK_LAYOUT_COLORS = ["#1eb6a6", "#34a86e", "#e8982e", "#e2643c", "#7c6adc", "#3c8cdc", "#c94f8a", "#7a8288"];
 const RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "notify", "learn", "layout", "advanced"];
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
@@ -78,7 +80,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
     this._hass = hass;
     setLang(hass);
     this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._homeId());
-    if (first) this._load();
+    if (first) {
+      this._load();
+      this._loadLayout();
+    }
     const hubIds = rkHub(hass, this._homeId());
     const sig = JSON.stringify([
       this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)]),
@@ -487,7 +492,60 @@ export class RaumklimaSettingsCard extends HTMLElement {
       ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
       ${this._grp("Wohnung", "mdi:home-switch-outline", "air", homeRows)}
       ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>${t("Raum")}</th><th>${t("Typ")}</th><th>${t("Wunsch")}</th><th>${t("Absenkung kurz / länger")}</th><th>${t("Minimum Lüften")}</th><th>${t("Feuchte")}</th><th>${t("Fensterlogik")}</th><th>${t("Hinweise")}</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._layoutGroup()}
     </div>`;
+  }
+
+  // ---------------------------------------------------------------- Darstellung (A3)
+  _loadLayout() {
+    const home = this._homeId();
+    rkLayout(this._hass, home)
+      .then((L) => {
+        if (JSON.stringify(L) === JSON.stringify(this._layout || {})) return;
+        this._layout = L;
+        this._sig = null;
+        this._render();
+      })
+      .catch(() => {});
+  }
+
+  _layoutSave() {
+    const home = this._homeId();
+    const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
+    rkLayoutRemember(L, home);
+    this._hass
+      .callWS({ type: "raumklima/layout/save", home, layout: L })
+      .then(() => this._flash(t("Gespeichert")))
+      .catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+  }
+
+  _layoutList() {
+    const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
+    return rkLayoutApply(this._rooms || [], L);
+  }
+
+  _layoutGroup() {
+    if (!this._layout) {
+      return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", this._row("Reihenfolge", this._v("lädt …", true)));
+    }
+    const L = this._layout;
+    const list = this._layoutList();
+    const rows = list.map((r, i) => {
+      const size = (L.size || {})[r.id] || "big";
+      const col = (L.color || {})[r.id] || "";
+      const arrow = (dir, glyph, on) =>
+        `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} title="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
+      const sizes = [["big", t("große Karte")], ["tile", t("Kachel")], ["off", t("aus")]]
+        .map(([k, lab]) => `<button class="chip2 ${size === k ? "" : "off"}" data-lsize="${r.id}" data-v="${k}">${lab}</button>`)
+        .join("");
+      const dots = RK_LAYOUT_COLORS.map(
+        (c) => `<button class="dotbtn ${col === c ? "on" : ""}" style="--c:${c}" data-lcolor="${r.id}" data-v="${c}" title="${c}" aria-label="${c}"></button>`,
+      ).join("");
+      return this._row(`<span class="lname">${arrow(-1, "▲", i > 0)}${arrow(1, "▼", i < list.length - 1)} ${esc(r.name)}</span>`, `<div class="chips">${sizes}${dots}</div>`);
+    }).join("");
+    const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
+      <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
+    return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", rows + foot);
   }
 
   // ---------------------------------------------------------------- Raum
@@ -837,6 +895,33 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
     $("[data-tab]").forEach((el) => el.addEventListener("click", () => { this._tab = el.dataset.tab; this._sig = null; this._render(); }));
     $(".railbtn").forEach((el) => el.addEventListener("click", () => { this._group = el.dataset.g; this._filter(); }));
+    $("[data-lmove]").forEach((el) => el.addEventListener("click", () => {
+      const L = this._layout;
+      const list = this._layoutList().map((r) => r.id);
+      const i = list.indexOf(el.dataset.lmove);
+      const j = i + parseInt(el.dataset.dir, 10);
+      if (i < 0 || j < 0 || j >= list.length) return;
+      [list[i], list[j]] = [list[j], list[i]];
+      this._layout = { ...L, order: list };
+      this._layoutSave();
+      this._sig = null;
+      this._filter();
+    }));
+    $("[data-lsize]").forEach((el) => el.addEventListener("click", () => {
+      const L = this._layout;
+      this._layout = { ...L, size: { ...(L.size || {}), [el.dataset.lsize]: el.dataset.v } };
+      this._layoutSave();
+      this._sig = null;
+      this._render();
+    }));
+    $("[data-lcolor]").forEach((el) => el.addEventListener("click", () => {
+      const L = this._layout;
+      this._layout = { ...L, color: { ...(L.color || {}), [el.dataset.lcolor]: el.dataset.v } };
+      this._layoutSave();
+      this._sig = null;
+      this._render();
+    }));
+    $("[data-lsave]").forEach((el) => el.addEventListener("click", () => this._layoutSave()));
     $("[data-resetroom]").forEach((el) => el.addEventListener("click", () => {
       if (!window.confirm(t("Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten."))) return;
       ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom })

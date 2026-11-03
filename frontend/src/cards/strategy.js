@@ -1,4 +1,4 @@
-import { ROOM_COLORS, escRe, rkHomeId, rkHomes, setLang, t } from "../shared.js";
+import { ROOM_COLORS, escRe, rkHomeId, rkHomes, rkLayout, rkLayoutApply, rkLayoutColor, rkLayoutSize, setLang, t } from "../shared.js";
 
 
 // Reihenfolge der Räume: Stockwerk → Bereich → Name.
@@ -47,7 +47,10 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
       .filter((r) => !homeId || !r.attrs.home || r.attrs.home === homeId)
       .sort(roomSort(config));
     const H = homeId ? { home: homeId } : {};
-    rooms.forEach((r, i) => { r.color = ROOM_COLORS[i % ROOM_COLORS.length]; });
+    // Darstellung je Wohnung: Ausblenden, Reihenfolge und Farbe aus dem Layout-Speicher
+    const layout = await rkLayout(hass, homeId).catch(() => null);
+    const shown = rkLayoutApply(rooms, layout);
+    shown.forEach((r, i) => { r.color = rkLayoutColor(layout, r.id) || ROOM_COLORS[i % ROOM_COLORS.length]; });
     const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? undefined);
 
     const roomsView = {
@@ -56,7 +59,7 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
         { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
         // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
         // sie erscheinen nur als Kachel in der Übersicht.
-        ...rooms.filter((r) => r.attrs.monitor !== true).map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] })),
+        ...shown.filter((r) => r.attrs.monitor !== true && rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] })),
       ],
     };
 
