@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.39.5 – 2026-11-03
+
+### Geändert
+- **Zwei Spalten nur, wenn mindestens zwei Gruppen sichtbar sind.** Bei einer einzelnen Gruppe
+  (z. B. „Raum" → „Temperatur") nutzt sie jetzt die volle Breite statt links zu kleben.
+
 ## 0.39.4 – 2026-11-03
 
 ### Geändert

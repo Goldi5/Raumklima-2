@@ -621,11 +621,12 @@ export const SETTINGS_STYLES = `
   .railbtn.on { background: color-mix(in srgb, var(--rk-heat) 16%, transparent); color:var(--primary-text-color); }
   .railbtn.empty { display:none; }
   .nosearch { padding:24px 8px; text-align:center; color:var(--secondary-text-color); font-size:.95rem; }
-  .groups { display:grid; grid-template-columns: 1fr; gap:18px; margin-top:14px; }
+  /* Zwei Spalten, sobald die Karte breit genug ist (iPad quer) – sonst wie bisher eine. */
+  .groups { display:grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap:18px; margin-top:14px; align-items:start; }
   @container (min-width: 720px) { .groups { grid-template-columns: 1fr 1fr; } }
   @container (min-width: 1000px) { .grp.cols .rws { columns: 2; column-gap: 56px; } .grp.cols .row { break-inside: avoid; } }
   .grp { border-radius:24px; padding:20px 22px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); min-width:0; }
-  .grp.span { grid-column: 1 / -1; }
+  .grp.span, .grp.solo { grid-column: 1 / -1; }
   .gh { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
   .gh .ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); flex:none; }
   .gh .ic ha-icon { --mdc-icon-size:22px; }
