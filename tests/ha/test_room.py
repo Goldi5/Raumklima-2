@@ -609,3 +609,43 @@ async def test_ventilsensor_wird_am_geraet_erkannt(hass: HomeAssistant, setup, t
     ctrl.trv = "climate.ally_thermostat"
 
     assert ctrl._find_valve_sensor() == "sensor.ally_valve_opening"
+
+
+async def test_dachluke_zaehlt_als_fenster(hass: HomeAssistant, sensors) -> None:
+    """Eine Dachluke (cover) wird wie ein Fensterkontakt behandelt."""
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    from custom_components.raumklima.const import (
+        CONF_NAME,
+        CONF_TEMP_SENSOR,
+        CONF_TRV,
+        CONF_WINDOWS,
+        DOMAIN,
+    )
+
+    hass.states.async_set("cover.dachluke", "closed", {"current_position": 0, "device_class": "window"})
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = MockConfigEntry(
+        domain=DOMAIN,
+        title="Gästebad",
+        unique_id="cover.dachluke",
+        data={
+            CONF_NAME: "Gästebad",
+            CONF_TRV: TRV,
+            CONF_TEMP_SENSOR: SENSOR,
+            CONF_WINDOWS: ["cover.dachluke"],
+        },
+        options={"room_type": "bathroom", "window_open_delay": 10, "window_close_delay": 10},
+    )
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(room.entry_id)
+    await hass.async_block_till_done()
+
+    ctrl = room.runtime_data
+    assert ctrl.window_open is False
+
+    hass.states.async_set("cover.dachluke", "open", {"current_position": 100})
+    await hass.async_block_till_done()
+    await advance(hass, 20)
+    assert ctrl.window_open is True

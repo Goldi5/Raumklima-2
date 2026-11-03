@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, rkTimeValue, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -550,7 +550,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const id = s.entry_id;
     const scope = `room:${id}`;
     const sync = RK_SYNC[a.sync] || ["–", "off"];
-    const contacts = (a.window_entities || []).map((w) => { const st = this._st(w); const open = st && st.state === "on"; return `<span class="chip2" style="--c:${open ? "var(--rk-air)" : "var(--rk-off)"}"><i></i>${esc(this._name(w).replace(/^.*?(fenster|window)/i, (m, x) => x))} · ${open ? t("offen") : t("zu")}</span>`; }).join("") || `<span class="v mute">${t("keine")}</span>`;
+    const contacts = (a.window_entities || []).map((w) => { const st = this._st(w); const open = !!(st && rkWindowOpen(this._hass, w)); return `<span class="chip2" style="--c:${open ? "var(--rk-air)" : "var(--rk-off)"}"><i></i>${esc(this._name(w).replace(/^.*?(fenster|window)/i, (m, x) => x))} · ${open ? t("offen") : t("zu")}</span>`; }).join("") || `<span class="v mute">${t("keine")}</span>`;
     const offTxt = a.offset !== undefined && a.offset !== null ? t("aktuell {v} °C", { v: (a.offset > 0 ? "+" : "") + fmt(a.offset, 1) }) : "";
     const comfort = this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature;
     const roomType = this._roomOpt(r, "room_type") ?? s.room_type;

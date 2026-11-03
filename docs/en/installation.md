@@ -61,6 +61,9 @@ As above, without step 4 – recipients, presence and heating season apply to al
 - **Assigning a room to a home:** with several homes the setup asks which one. To move an existing room:
   *Settings → room → home* (the row only appears with several homes) or *Settings → Devices & Services →
   Raumklima → room → Configure* – the room then works with the other home's residents, zone and recipients.
+- **Window contacts or roof windows:** Windows accept contacts (`binary_sensor`) **and** roof windows or
+  hatches (`cover`). A hatch counts as open when it reports `open`/`opening` or its position is above 0 % —
+  a dome opened for ventilation behaves like a tilted window.
 - **Room without heating (monitor only):** *Add integration* → **"Monitor only (no heating)"**. For rooms
   that are only measured – underfloor heating without an actuator, rented flat, cellar. Needs just a
   temperature sensor (humidity, CO₂ and window contacts optional); nothing is switched.

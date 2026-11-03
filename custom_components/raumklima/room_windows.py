@@ -23,6 +23,7 @@ from .decision_log import (
 from .logic import (
     any_open,
     is_valid,
+    window_open_state,
 )
 from .msg import dec, tr
 from .planning import (
@@ -168,7 +169,7 @@ class WindowMixin:
             self._window_unavail_since.setdefault(entity_id, dt_util.utcnow())
             return  # Verbindungsabbruch: letzten echten Zustand behalten
         self._window_unavail_since.pop(entity_id, None)
-        self._last_valid_windows[entity_id] = new.state
+        self._last_valid_windows[entity_id] = window_open_state(entity_id, new)
         self._evaluate_windows()
 
     def _evaluate_windows(self) -> None:

@@ -63,6 +63,9 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
   Wohnung. Einen bestehenden Raum umhängen: *Einstellungen → Raum → Wohnung* (die Zeile erscheint nur bei
   mehreren Wohnungen) oder *Einstellungen → Geräte & Dienste → Raumklima → Raum → Konfigurieren* – der Raum
   arbeitet danach sofort mit Bewohnern, Zone und Empfängern der anderen Wohnung.
+- **Fensterkontakte oder Dachluken:** Als Fenster werden Kontakte (`binary_sensor`) **und** Luken/Dachfenster
+  (`cover`) akzeptiert. Eine Luke gilt als offen, wenn sie `open`/`opening` meldet oder ihre Position über
+  0 % liegt — eine Kuppel, die zum Lüften aufgeht, zählt also wie ein gekipptes Fenster.
 - **Raum ohne Heizung (nur überwachen):** *Integration hinzufügen* → **„Nur überwachen (ohne Heizung)"**.
   Für Räume, die nur gemessen werden sollen – Fußbodenheizung ohne Aktor, Mietwohnung, Keller. Verlangt nur
   einen Temperaturfühler (Feuchte, CO₂ und Fensterkontakte sind optional); es wird nichts geschaltet.

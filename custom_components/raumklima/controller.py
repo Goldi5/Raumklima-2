@@ -126,6 +126,7 @@ from .logic import (
     plausible_reading,
     to_float,
     values_match,
+    window_open_state,
 )
 from .msg import tr
 from .occupancy import room_eco_target
@@ -362,7 +363,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         for entity in self.windows:
             state = self.hass.states.get(entity)
             if state and is_valid(state.state):
-                self._last_valid_windows[entity] = state.state
+                self._last_valid_windows[entity] = window_open_state(entity, state)
         self._window_raw = any_open(self._last_valid_windows, self.windows)
         self.window_paused = self._window_raw
         if self._window_raw and self.night_applies():
@@ -990,7 +991,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         for entity in self.windows:
             state = self.hass.states.get(entity)
             if state and is_valid(state.state):
-                self._last_valid_windows[entity] = state.state
+                self._last_valid_windows[entity] = window_open_state(entity, state)
         self._evaluate_windows()
         self.hass.async_create_task(self._apply())
 

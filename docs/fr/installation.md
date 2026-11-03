@@ -63,6 +63,9 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
   déplacer une pièce existante : *Réglages → pièce → logement* (la ligne n'apparaît qu'avec plusieurs
   logements) ou *Réglages → Appareils et services → Raumklima → pièce → Configurer* – la pièce utilise
   ensuite les habitants, la zone et les destinataires de l'autre logement.
+- **Contacts de fenêtre ou fenêtres de toit :** l’intégration accepte les contacts (`binary_sensor`) **et**
+  les fenêtres/lucarnes (`cover`). Une lucarne est considérée ouverte si elle indique `open`/`opening` ou si
+  sa position dépasse 0 % — une coupole ouverte pour aérer compte comme une fenêtre entrouverte.
 - **Pièce sans chauffage (surveillance uniquement) :** *Ajouter une intégration* → **« Surveiller
   uniquement (sans chauffage) »**. Pour les pièces seulement mesurées – chauffage au sol sans actionneur,
   location, cave. Une sonde de température suffit (humidité, CO₂ et contacts de fenêtre facultatifs) ; rien

@@ -224,7 +224,7 @@ def _monitor_schema() -> vol.Schema:
                 EntitySelectorConfig(domain="sensor", device_class="carbon_dioxide")
             ),
             vol.Optional(CONF_WINDOWS): EntitySelector(
-                EntitySelectorConfig(domain="binary_sensor", multiple=True)
+                EntitySelectorConfig(domain=["binary_sensor", "cover"], multiple=True)
             ),
         }
     )
@@ -258,7 +258,7 @@ def _devices_schema(
             ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="carbon_dioxide")),
             vol.Optional(
                 CONF_WINDOWS, description=_suggest(defaults.get(CONF_WINDOWS))
-            ): EntitySelector(EntitySelectorConfig(domain="binary_sensor", multiple=True)),
+            ): EntitySelector(EntitySelectorConfig(domain=["binary_sensor", "cover"], multiple=True)),
             vol.Optional(
                 CONF_EXTRA_TRVS, description=_suggest(defaults.get(CONF_EXTRA_TRVS))
             ): EntitySelector(EntitySelectorConfig(domain="climate", multiple=True)),

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 import math
+from typing import Any
 
 INVALID = ("unavailable", "unknown", None, "")
 
@@ -85,6 +86,30 @@ def values_match(actual: object, expected: float, tolerance: float) -> bool:
     """Vergleich mit Toleranz (Tuya rundet Werte)."""
     value = to_float(actual)
     return value is not None and abs(value - expected) <= tolerance
+
+
+COVER_OPEN_STATES = ("open", "opening")
+
+
+def window_open_state(entity_id: str, state: Any) -> str | None:
+    """Fensterkontakt **oder** Dachluke/Dachfenster (``cover``) auf „on"/„off" bringen.
+
+    Eine Kuppel zum Lüften liefert ``open``/``closed`` statt ``on``/``off``; eine
+    teilweise geöffnete Luke (``current_position`` > 0) lüftet ebenfalls.
+    """
+    raw = str(getattr(state, "state", state) or "")
+    if not is_valid(raw):
+        return None
+    if str(entity_id).startswith("cover."):
+        if raw in COVER_OPEN_STATES:
+            return "on"
+        attrs = getattr(state, "attributes", None) or {}
+        pos = attrs.get("current_position")
+        try:
+            return "on" if pos is not None and float(pos) > 0 else "off"
+        except (TypeError, ValueError):
+            return "off"
+    return "on" if raw == "on" else "off"
 
 
 def any_open(last_valid: Mapping[str, str | None], entities: Iterable[str]) -> bool:

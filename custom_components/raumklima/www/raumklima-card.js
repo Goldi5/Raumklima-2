@@ -1,4 +1,4 @@
-/* Raumklima 0.30.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.31.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1189,7 +1189,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.30.1";
+  var RK_VERSION = "0.31.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1300,9 +1300,19 @@
     please_close: { label: "Lüftzeit erreicht – bitte schließen", icon: "mdi:window-closed-variant", tone: "warn" },
     too_cold: { label: "Raum kühlt aus – jetzt schließen", icon: "mdi:snowflake-alert", tone: "cold" }
   });
+  function rkWindowOpen(hass, id) {
+    const st = hass.states[id];
+    if (!st) return false;
+    if (String(id).startsWith("cover.")) {
+      if (["open", "opening"].includes(st.state)) return true;
+      const pos = st.attributes && st.attributes.current_position;
+      return pos != null && Number(pos) > 0;
+    }
+    return st.state === "on";
+  }
   function rkOpenSince(hass, a) {
     if (!a || !a.window_open) return null;
-    const times = (a.window_entities || []).map((e) => hass.states[e]).filter((s) => s && s.state === "on" && s.last_changed).map((s) => Date.parse(s.last_changed));
+    const times = (a.window_entities || []).map((e) => hass.states[e]).filter((s) => s && (s.state === "on" || (s.entity_id || "").startsWith("cover.") && ["open", "opening"].includes(s.state)) && s.last_changed).map((s) => Date.parse(s.last_changed));
     if (a.window_open_since) times.push(Date.parse(a.window_open_since));
     return times.length ? Math.min(...times.filter((x) => !isNaN(x))) : null;
   }
@@ -3442,7 +3452,7 @@
       const sync = RK_SYNC[a.sync] || ["–", "off"];
       const contacts = (a.window_entities || []).map((w) => {
         const st = this._st(w);
-        const open = st && st.state === "on";
+        const open = !!(st && rkWindowOpen(this._hass, w));
         return `<span class="chip2" style="--c:${open ? "var(--rk-air)" : "var(--rk-off)"}"><i></i>${esc(this._name(w).replace(/^.*?(fenster|window)/i, (m, x) => x))} · ${open ? t("offen") : t("zu")}</span>`;
       }).join("") || `<span class="v mute">${t("keine")}</span>`;
       const offTxt = a.offset !== void 0 && a.offset !== null ? t("aktuell {v} °C", { v: (a.offset > 0 ? "+" : "") + fmt(a.offset, 1) }) : "";

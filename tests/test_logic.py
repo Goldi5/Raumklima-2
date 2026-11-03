@@ -113,3 +113,18 @@ def test_on_preset_remembered_fallback_unless_avoided() -> None:
 
 def test_on_preset_none_available() -> None:
     assert choose_on_preset(["off"], None, None, candidates=CAND, avoid=AVOID) is None
+
+
+def test_fensterzustand_aus_cover() -> None:
+    """Dachluke (cover) zählt als Fenster: open/opening oder teilweise geöffnet."""
+    from types import SimpleNamespace
+
+    from custom_components.raumklima.logic import window_open_state
+
+    assert window_open_state("cover.luke", SimpleNamespace(state="open", attributes={})) == "on"
+    assert window_open_state("cover.luke", SimpleNamespace(state="opening", attributes={})) == "on"
+    assert window_open_state("cover.luke", SimpleNamespace(state="closed", attributes={"current_position": 0})) == "off"
+    assert window_open_state("cover.luke", SimpleNamespace(state="closed", attributes={"current_position": 30})) == "on"
+    assert window_open_state("binary_sensor.fenster", SimpleNamespace(state="on", attributes={})) == "on"
+    assert window_open_state("binary_sensor.fenster", SimpleNamespace(state="off", attributes={})) == "off"
+    assert window_open_state("cover.luke", SimpleNamespace(state="unavailable", attributes={})) is None

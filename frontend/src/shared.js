@@ -132,12 +132,24 @@ export const VENT = tmap({
   too_cold: { label: "Raum kühlt aus – jetzt schließen", icon: "mdi:snowflake-alert", tone: "cold" },
 });
 
+// Ist ein Fenster offen? Kontakt (binary_sensor) oder Dachluke (cover).
+export function rkWindowOpen(hass, id) {
+  const st = hass.states[id];
+  if (!st) return false;
+  if (String(id).startsWith("cover.")) {
+    if (["open", "opening"].includes(st.state)) return true;
+    const pos = st.attributes && st.attributes.current_position;
+    return pos != null && Number(pos) > 0;
+  }
+  return st.state === "on";
+}
+
 // Seit wann ist ein Fenster offen? Frühester Wechsel der offenen Kontakte, sonst Raumklimas eigener Zeitpunkt.
 export function rkOpenSince(hass, a) {
   if (!a || !a.window_open) return null;
   const times = (a.window_entities || [])
     .map((e) => hass.states[e])
-    .filter((s) => s && s.state === "on" && s.last_changed)
+    .filter((s) => s && (s.state === "on" || (s.entity_id || "").startsWith("cover.") && ["open", "opening"].includes(s.state)) && s.last_changed)
     .map((s) => Date.parse(s.last_changed));
   // Eigener Zeitpunkt zählt mit: nach einem Neustart setzt Home Assistant last_changed neu,
   // der Raum weiß aber noch, seit wann das Fenster offen ist (Issue #9).

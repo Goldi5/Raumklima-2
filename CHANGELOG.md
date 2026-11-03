@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.31.0 – 2026-11-03
+
+### Neu
+- **Dachluke/Dachfenster als Fenster nutzen:** In der Fenster-Auswahl lassen sich jetzt auch `cover`-Geräte
+  wählen, nicht nur Kontakte (`binary_sensor`). Eine Kuppel oder Luke gilt als offen, wenn sie `open` oder
+  `opening` meldet — oder wenn ihre Position über 0 % liegt (teilweise geöffnet lüftet ebenfalls).
+  Alles andere (Lüftungshinweise, „seit wann offen", Heizpause) läuft unverändert.
+
 ## 0.30.1 – 2026-11-03
 
 ### Geändert
