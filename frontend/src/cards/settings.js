@@ -780,6 +780,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
         ${homeBar}
         <div class="tabs">${tabs}</div>
         <div class="crumb" id="rkc"></div>
+        ${room ? `<div class="resetbar">${(() => {
+          const n = (((room.attrs.settings || {}).changed) || []).length;
+          return n
+            ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n: n })}</span><button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>`
+            : `<span>${t("Alles auf Standard")}</span>`;
+        })()}</div>` : ""}
         <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
         <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
@@ -831,6 +837,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
     $("[data-tab]").forEach((el) => el.addEventListener("click", () => { this._tab = el.dataset.tab; this._sig = null; this._render(); }));
     $(".railbtn").forEach((el) => el.addEventListener("click", () => { this._group = el.dataset.g; this._filter(); }));
+    $("[data-resetroom]").forEach((el) => el.addEventListener("click", () => {
+      if (!window.confirm(t("Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten."))) return;
+      ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom })
+        .then(() => this._flash(t("Auf Standard zurückgesetzt")))
+        .catch(() => {});
+    }));
     const search = this.shadowRoot.querySelector("#rks");
     if (search) search.addEventListener("input", () => { this._search = search.value; this._filter(); });
     $("[data-tgl]").forEach((el) => el.addEventListener("click", () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl })));

@@ -585,7 +585,12 @@
     "Frostschutz {v}°": "Frost {v}°",
     "Ziel {v}°": "Target {v}°",
     "Einstellung suchen …": "Search settings …",
-    "Kein Treffer – anderen Begriff versuchen": "No match – try another term"
+    "Kein Treffer – anderen Begriff versuchen": "No match – try another term",
+    "{n} Einstellungen vom Standard abweichend": "{n} settings differ from the default",
+    "Auf Standard zurücksetzen": "Reset to default",
+    "Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten.": "Reset all settings of this room to their defaults? Devices and home stay as they are.",
+    "Auf Standard zurückgesetzt": "Reset to defaults",
+    "Alles auf Standard": "Everything at default"
   };
 
   // src/i18n/fr.js
@@ -1173,7 +1178,12 @@
     "Frostschutz {v}°": "Hors gel {v}°",
     "Ziel {v}°": "Consigne {v}°",
     "Einstellung suchen …": "Rechercher un réglage …",
-    "Kein Treffer – anderen Begriff versuchen": "Aucun résultat – essayez un autre terme"
+    "Kein Treffer – anderen Begriff versuchen": "Aucun résultat – essayez un autre terme",
+    "{n} Einstellungen vom Standard abweichend": "{n} réglages diffèrent de la valeur par défaut",
+    "Auf Standard zurücksetzen": "Réinitialiser",
+    "Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten.": "Réinitialiser tous les réglages de cette pièce ? Les appareils et la maison restent inchangés.",
+    "Auf Standard zurückgesetzt": "Réinitialisé",
+    "Alles auf Standard": "Tout par défaut"
   };
 
   // src/i18n.js
@@ -1677,6 +1687,8 @@
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .crumb b { color:var(--primary-text-color); font-weight:600; }
+  .resetbar { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin:8px 4px 0; font-size:.82rem; color:var(--secondary-text-color); }
+  .resetbar .btn { padding:6px 12px; font-size:.82rem; }
   .searchrow { display:flex; gap:8px; align-items:center; margin:10px 4px 0; }
   .searchrow input { flex:1; min-width:0; padding:10px 14px; border-radius:12px; border:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent);
     background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); color:var(--primary-text-color); font-size:.95rem; }
@@ -3782,6 +3794,10 @@
         ${homeBar}
         <div class="tabs">${tabs}</div>
         <div class="crumb" id="rkc"></div>
+        ${room ? `<div class="resetbar">${(() => {
+        const n = ((room.attrs.settings || {}).changed || []).length;
+        return n ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n })}</span><button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>` : `<span>${t("Alles auf Standard")}</span>`;
+      })()}</div>` : ""}
         <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
         <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
@@ -3840,6 +3856,11 @@
       $(".railbtn").forEach((el) => el.addEventListener("click", () => {
         this._group = el.dataset.g;
         this._filter();
+      }));
+      $("[data-resetroom]").forEach((el) => el.addEventListener("click", () => {
+        if (!window.confirm(t("Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten."))) return;
+        ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom }).then(() => this._flash(t("Auf Standard zurückgesetzt"))).catch(() => {
+        });
       }));
       const search = this.shadowRoot.querySelector("#rks");
       if (search) search.addEventListener("input", () => {

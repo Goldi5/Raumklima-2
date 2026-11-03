@@ -253,7 +253,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._listeners: list[Callable[[], None]] = []
         self._apply_lock = asyncio.Lock()
         self.valve_sensor: str | None = None
-        self._valve_hunt_left = 60  # Versuche über Zustandsänderungen
+        self._valve_hunt_until: datetime | None = None  # Zeitfenster für die Nachsuche
+        self._valve_last_try: datetime | None = None
         self._frost_active = False
         self._solar_active = False
         self.frost_night_low: float | None = None
@@ -433,8 +434,15 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         cfg = self.config
         vent = self.vent
         hub = self.hub
+        entry = self.hass.config_entries.async_get_entry(self.entry.entry_id) or self.entry
+        own = {**(entry.data or {}), **(entry.options or {})}
+        changed = sorted(k for k, v in DEFAULTS.items() if k in own and own.get(k) != v)
+        for key in (CONF_SCHEDULES, CONF_PRESENCE, CONF_LIGHTS, CONF_SOLAR_FACADE):
+            if own.get(key):
+                changed.append(key)
         return {
             "entry_id": self.entry.entry_id,
+            "changed": changed,
             "trv": self.trv,
             "room_type": vent.room_type if vent else cfg.get(CONF_ROOM_TYPE),
             "weather_entity": vent.weather if vent else cfg.get(CONF_WEATHER),
@@ -899,11 +907,18 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         old = event.data["old_state"]
         new = event.data["new_state"]
 
-        if self.valve_sensor is None and self._valve_hunt_left > 0:
-            # MQTT/Zigbee legen die Ventilstellung erst nach dem Start an (#15). Statt eines
-            # eigenen Timers nutzen wir die ohnehin laufenden Zustandsänderungen – begrenzt.
-            self._valve_hunt_left -= 1
-            self._try_valve_sensor()
+        if self.valve_sensor is None:
+            # MQTT/Zigbee legen die Ventilstellung erst nach dem Start an (#15). Nachgesehen wird
+            # in den ersten 30 Minuten, aber höchstens alle 15 Sekunden – beim Startfeuer sonst
+            # sofort aufgebraucht.
+            now = dt_util.utcnow()
+            if self._valve_hunt_until is None:
+                self._valve_hunt_until = now + timedelta(minutes=30)
+            if now < self._valve_hunt_until and (
+                self._valve_last_try is None or (now - self._valve_last_try).total_seconds() >= 15
+            ):
+                self._valve_last_try = now
+                self._try_valve_sensor()
 
         if entity_id in self.windows:
             self._on_window(entity_id, new)

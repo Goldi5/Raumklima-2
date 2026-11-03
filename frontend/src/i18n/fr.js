@@ -586,4 +586,9 @@ export const FR = {
   "Ziel {v}°": "Consigne {v}°",
   "Einstellung suchen …": "Rechercher un réglage …",
   "Kein Treffer – anderen Begriff versuchen": "Aucun résultat – essayez un autre terme",
+  "{n} Einstellungen vom Standard abweichend": "{n} réglages diffèrent de la valeur par défaut",
+  "Auf Standard zurücksetzen": "Réinitialiser",
+  "Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten.": "Réinitialiser tous les réglages de cette pièce ? Les appareils et la maison restent inchangés.",
+  "Auf Standard zurückgesetzt": "Réinitialisé",
+  "Alles auf Standard": "Tout par défaut",
 };

@@ -64,6 +64,7 @@ from .const import (
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
     CONF_ZONE,
+    DEFAULTS,
     DOMAIN,
     HOME_SENSOR_MODES,
     HUB_DEFAULTS,
@@ -229,7 +230,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_room_update, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -427,6 +428,36 @@ async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveCo
     if not live:
         await hass.config_entries.async_reload(entry.entry_id)
     connection.send_result(msg["id"], {"ok": True, "reloaded": not live})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/room/reset",
+        vol.Required("entry_id"): str,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_room_reset(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Raum-Einstellungen auf die Standardwerte zurückstellen (Geräte bleiben)."""
+    entry = hass.config_entries.async_get_entry(msg["entry_id"])
+    if entry is None or entry.domain != DOMAIN:
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
+        return
+    options = dict(entry.options or {})
+    options.update(DEFAULTS)
+    # Listen/Zeichenketten ohne Standardwert ausdrücklich leeren
+    options.update(
+        {
+            CONF_SCHEDULES: [],
+            CONF_PRESENCE: [],
+            CONF_LIGHTS: [],
+            CONF_SOLAR_FACADE: "",
+        }
+    )
+    hass.config_entries.async_update_entry(entry, options=options)
+    await hass.config_entries.async_reload(entry.entry_id)
+    connection.send_result(msg["id"], {"ok": True})
 
 
 @websocket_api.websocket_command(

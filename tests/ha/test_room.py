@@ -726,6 +726,20 @@ async def test_ventilsensor_ueber_bereich_des_geraets(hass: HomeAssistant, setup
     assert ctrl._find_valve_sensor() == "sensor.werkstatt_valve_opening"
 
 
+async def test_geaenderte_einstellungen_werden_gemeldet(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Die Karte zeigt, wie viele Einstellungen vom Standard abweichen."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    before = ctrl.settings_summary()["changed"]
+    assert "window_open_delay" not in before
+
+    hass.config_entries.async_update_entry(room, options={**room.options, "window_open_delay": 30})
+    await hass.async_block_till_done()
+    assert "window_open_delay" in ctrl.settings_summary()["changed"]
+
+
 async def test_dachluke_zaehlt_als_fenster(hass: HomeAssistant, sensors) -> None:
     """Eine Dachluke (cover) wird wie ein Fensterkontakt behandelt."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry

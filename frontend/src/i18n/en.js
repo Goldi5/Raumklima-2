@@ -586,4 +586,9 @@ export const EN = {
   "Ziel {v}°": "Target {v}°",
   "Einstellung suchen …": "Search settings …",
   "Kein Treffer – anderen Begriff versuchen": "No match – try another term",
+  "{n} Einstellungen vom Standard abweichend": "{n} settings differ from the default",
+  "Auf Standard zurücksetzen": "Reset to default",
+  "Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten.": "Reset all settings of this room to their defaults? Devices and home stay as they are.",
+  "Auf Standard zurückgesetzt": "Reset to defaults",
+  "Alles auf Standard": "Everything at default",
 };
