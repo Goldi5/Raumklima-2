@@ -619,4 +619,12 @@ export const EN = {
   "was zuletzt entschieden wurde und weshalb": "what was decided recently and why",
   "{v} °C/h": "{v} °C/h",
   "Lüften ab {v} °C": "Airing from {v} °C",
+  "Absenkung": "Setback",
+  "Fensterlogik an": "Window logic on",
+  "Hinweise an": "Notifications on",
+  "Kalender antippen – Tag und Monat zählen, das Jahr ist egal": "Tap the calendar – day and month matter, the year does not",
+  "auf ~{v}": "up ~{v}",
+  "ins Bett ~{v}": "to bed ~{v}",
+  "noch zu wenige Nächte – 4 sind nötig": "not enough nights yet – 4 are needed",
+  "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} of 4 nights (bed) · {w} of 4 (getting up)",
 };

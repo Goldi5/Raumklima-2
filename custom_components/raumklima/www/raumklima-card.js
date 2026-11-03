@@ -1,4 +1,4 @@
-/* Raumklima 0.40.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.41.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -618,7 +618,15 @@
     "so früh beginnt das Vorheizen vor einem Zeitfenster": "preheating starts this early before a schedule window",
     "was zuletzt entschieden wurde und weshalb": "what was decided recently and why",
     "{v} °C/h": "{v} °C/h",
-    "Lüften ab {v} °C": "Airing from {v} °C"
+    "Lüften ab {v} °C": "Airing from {v} °C",
+    "Absenkung": "Setback",
+    "Fensterlogik an": "Window logic on",
+    "Hinweise an": "Notifications on",
+    "Kalender antippen – Tag und Monat zählen, das Jahr ist egal": "Tap the calendar – day and month matter, the year does not",
+    "auf ~{v}": "up ~{v}",
+    "ins Bett ~{v}": "to bed ~{v}",
+    "noch zu wenige Nächte – 4 sind nötig": "not enough nights yet – 4 are needed",
+    "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} of 4 nights (bed) · {w} of 4 (getting up)"
   };
 
   // src/i18n/fr.js
@@ -1239,7 +1247,15 @@
     "so früh beginnt das Vorheizen vor einem Zeitfenster": "le préchauffage démarre aussi tôt avant une plage horaire",
     "was zuletzt entschieden wurde und weshalb": "ce qui a été décidé récemment et pourquoi",
     "{v} °C/h": "{v} °C/h",
-    "Lüften ab {v} °C": "Aérer dès {v} °C"
+    "Lüften ab {v} °C": "Aérer dès {v} °C",
+    "Absenkung": "Abaissement",
+    "Fensterlogik an": "Logique fenêtre active",
+    "Hinweise an": "Notifications actives",
+    "Kalender antippen – Tag und Monat zählen, das Jahr ist egal": "Touchez le calendrier – le jour et le mois comptent, l'année non",
+    "auf ~{v}": "lever ~{v}",
+    "ins Bett ~{v}": "au lit ~{v}",
+    "noch zu wenige Nächte – 4 sind nötig": "pas encore assez de nuits – 4 sont nécessaires",
+    "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} nuits sur 4 (coucher) · {w} sur 4 (lever)"
   };
 
   // src/i18n.js
@@ -1283,7 +1299,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.40.1";
+  var RK_VERSION = "0.41.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1810,7 +1826,9 @@
   .nosearch { padding:24px 8px; text-align:center; color:var(--secondary-text-color); font-size:.95rem; }
   /* Ein Dokument: alle Gruppen untereinander als Abschnitte, keine Einzelkarten. */
   .groups { display:block; margin-top:10px; }
-  .grp { min-width:0; padding:16px 2px 6px; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent); }
+  /* Farbe als Abgrenzung: Trennlinie und Titel tragen den Ton der Gruppe. */
+  .grp { min-width:0; padding:16px 2px 6px; border-top:1px solid color-mix(in srgb, var(--g, var(--primary-text-color)) 30%, transparent); }
+  .grp > .gh b { color: color-mix(in srgb, var(--g, var(--primary-text-color)) 55%, var(--primary-text-color)); }
   .grp:first-child { border-top:0; padding-top:6px; }
   .grp.span { column-span:none; }
   @container (min-width: 1100px) { .grp.cols .rws { columns:2; column-gap:64px; } .grp.cols .row { break-inside:avoid; } }
@@ -1921,6 +1939,21 @@
   .whyrow:first-of-type { border-top:0; }
   .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .whyrow .wl b { font-size:.9rem; font-weight:600; }
+  /* Raumkacheln (Alle Räume auf einen Blick) */
+  .roomgrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; }
+  .rtile { display:flex; flex-direction:column; gap:2px; text-align:left; cursor:pointer;
+           padding:14px 16px 12px; border-radius:16px; font:inherit; color:inherit;
+           border:1px solid color-mix(in srgb, var(--primary-text-color) 9%, transparent);
+           box-shadow: inset 3px 0 0 var(--c, var(--rk-off)); }
+  .rtile:hover { border-color: color-mix(in srgb, var(--c, var(--primary-text-color)) 45%, transparent); }
+  .rtile .rtop { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .rtile .rname { font-weight:600; font-size:.95rem; }
+  .rtile .rtyp { font-size:.75rem; color:var(--secondary-text-color); white-space:nowrap; }
+  .rtile .rbig { font-size:1.9rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .rtile .rbig i { font-size:1.1rem; font-style:normal; color:var(--secondary-text-color); }
+  .rtile .rsub { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .rtile .rflags { display:flex; gap:8px; margin-top:4px; color:var(--secondary-text-color); }
+  .rtile .rflags ha-icon { --mdc-icon-size:17px; }
   .whyrow .wl small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.35; }
   .msgs { display:grid; gap:10px; }
   .msg { display:grid; grid-template-columns: 40px 1fr auto; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
@@ -3499,13 +3532,13 @@
         this._hubOpt("calendar_entity") ? this._row("… jemand bleibt zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; dann wird nicht abgesenkt") : ""
       ].join("");
       const mode = this._hubOpt("season_mode");
-      const mdToInput = (v) => esc(v || "");
+      const mdToInput = (v) => v && /^\d{2}-\d{2}$/.test(v) ? `2000-${v}` : "";
       const seasRows = [
         `<div class="status"><span class="chip" style="--tone:${toneVar(seas.tone)}"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}</span>
         <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Ø 24 h {p} · Vorhersage {f}", { p: st.mean_past == null ? t("sammelt noch") : fmt(st.mean_past) + "°", f: st.mean_forecast == null ? "–" : fmt(st.mean_forecast) + "°" })}</span></div>`,
         this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
         this._row("Heizgrenze", this._optStepper(H, "heating_limit", this._hubOpt("heating_limit"), " °C", 0.5, 5, 25, 1), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
-        this._row("Heizsaison", `<span class="v"><input class="inp short" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Format MM-TT, außerhalb nur bei Kälteeinbruch"),
+        this._row("Heizsaison", `<span class="v"><input class="inp short" type="date" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" type="date" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Kalender antippen – Tag und Monat zählen, das Jahr ist egal"),
         this._row("Kälteeinbruch unter", this._optStepper(H, "cold_snap_temp", this._hubOpt("cold_snap_temp"), " °C", 0.5, 0, 20, 1), "3 Tage darunter → heizt auch außerhalb der Saison"),
         this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
         this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
@@ -3601,7 +3634,7 @@
         <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
         <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
       const hm = (v) => String(v || "").slice(0, 5);
-      const tf = (key, val) => `<input type="text" class="inp hm" inputmode="numeric" maxlength="5" placeholder="HH:MM" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
+      const tf = (key, val) => `<input type="time" class="inp hm" step="900" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
       const notiRows = [
         this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
         this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
@@ -3631,17 +3664,17 @@
         const s = r.attrs.settings || {};
         const notif = (this._st(r.sib.notifications) || {}).state === "on";
         const wl = (this._st(r.sib.window_logic) || {}).state === "on";
-        const chips = [
-          `<span class="chip2" title="${t("Wunschtemperatur")}">${fmt(r.attrs.comfort_temperature)} °C</span>`,
-          `<span class="chip2" title="${t("Absenkung kurz / länger")}">${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>`,
-          `<span class="chip2" title="${t("Mindesttemperatur beim Lüften")}">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>`,
-          r.attrs.humidity_limit != null ? `<span class="chip2" title="${t("Feuchte")}">${fmt(r.attrs.humidity_limit, 0)} %</span>` : "",
-          `<span class="chip2" style="--c:${wl ? "var(--rk-ok)" : "var(--rk-off)"}" title="${t("Fensterlogik")}"><i></i>${t("Fenster")}</span>`,
-          `<span class="chip2" style="--c:${notif ? "var(--rk-ok)" : "var(--rk-off)"}" title="${t("Hinweise")}"><i></i>${t("Hinweise")}</span>`
+        const flags = [
+          wl ? `<ha-icon icon="mdi:window-open-variant" title="${t("Fensterlogik an")}"></ha-icon>` : "",
+          notif ? `<ha-icon icon="mdi:bell-outline" title="${t("Hinweise an")}"></ha-icon>` : "",
+          r.attrs.humidity_limit != null ? `<ha-icon icon="mdi:water-percent" title="${fmt(r.attrs.humidity_limit, 0)} %"></ha-icon>` : ""
         ].join("");
-        return `<div class="row roomrow" data-tab="${r.id}">
-        <div class="l"><span class="rn" style="--c:${r.color}"><i></i>${r.name}</span><small>${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</small></div>
-        <div class="chips">${chips}</div></div>`;
+        return `<button class="rtile" data-tab="${r.id}" style="--c:${r.color}">
+        <span class="rtop"><span class="rname">${r.name}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
+        <span class="rbig">${fmt(r.attrs.comfort_temperature)}<i>°</i></span>
+        <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>
+        <span class="rsub">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>
+        <span class="rflags">${flags}</span></button>`;
       }).join("");
       const issues = st.issues || [];
       const bad = issues.filter((i) => i.severity !== "info").length;
@@ -3656,7 +3689,8 @@
       ${this._grp("Schlafenszeiten", "mdi:sleep", "eco", sleepRows, "span")}
       ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
       ${this._grp("Wohnung", "mdi:home-switch-outline", "air", homeRows)}
-      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `${rowsT}<div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="roomgrid">${rowsT}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._learnHub(st)}
       ${this._layoutGroup()}
     </div>`;
     }
@@ -3991,6 +4025,20 @@
         lights.length && this._admin ? this._row("Ausprobieren", `<button class="btn" data-lighttest="${id}" style="--c:var(--rk-air)"><ha-icon icon="mdi:play"></ha-icon>${t("Test")}</button>`) : "",
         `<div class="hint">${t("Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.")}</div>`
       ].join(""));
+    }
+    // Gelernte Schlafzeiten (Wohnungsebene) – gehört zum Lernen, nicht zu den Einstellrädern.
+    _learnHub(st) {
+      const sl = st && st.sleep || {};
+      const line = (k, label) => {
+        const v = sl[k] || {};
+        const e = v.effective || {};
+        const parts = [v.bed ? t("ins Bett ~{v}", { v: v.bed }) : "", v.wake ? t("auf ~{v}", { v: v.wake }) : ""].filter(Boolean);
+        const nBed = v.nights_bed || 0;
+        const nWake = v.nights_wake || 0;
+        const sub = parts.length ? `${t("{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)", { b: nBed, w: nWake })}${e.quiet_start ? ` · ${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}` : ""}` : t("noch zu wenige Nächte – 4 sind nötig");
+        return this._row(t(label), this._v(parts.length ? parts.join(" · ") : t("sammelt noch"), !parts.length), sub);
+      };
+      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", [line("weekday", "Werktags"), line("weekend", "Wochenende")].join(""));
     }
     // ---------------------------------------------------------------- Lernen & Warum
     _learnGroup(r) {
@@ -4333,6 +4381,11 @@
         apply(el.dataset.sel, { [el.dataset.key]: el.value || null });
       }));
       $("[data-md]").forEach((el) => el.addEventListener("change", () => {
+        const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
+        if (iso) {
+          this._setHub({ [el.dataset.md]: `${iso[2]}-${iso[3]}` }, 200);
+          return;
+        }
         const m = /^(\d{1,2})[-.](\d{1,2})\.?$/.exec(el.value.trim());
         if (!m) {
           this._flash("Bitte als MM-TT eingeben, z. B. 10-01");

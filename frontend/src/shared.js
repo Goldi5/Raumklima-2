@@ -604,7 +604,9 @@ export const SETTINGS_STYLES = `
   .nosearch { padding:24px 8px; text-align:center; color:var(--secondary-text-color); font-size:.95rem; }
   /* Ein Dokument: alle Gruppen untereinander als Abschnitte, keine Einzelkarten. */
   .groups { display:block; margin-top:10px; }
-  .grp { min-width:0; padding:16px 2px 6px; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent); }
+  /* Farbe als Abgrenzung: Trennlinie und Titel tragen den Ton der Gruppe. */
+  .grp { min-width:0; padding:16px 2px 6px; border-top:1px solid color-mix(in srgb, var(--g, var(--primary-text-color)) 30%, transparent); }
+  .grp > .gh b { color: color-mix(in srgb, var(--g, var(--primary-text-color)) 55%, var(--primary-text-color)); }
   .grp:first-child { border-top:0; padding-top:6px; }
   .grp.span { column-span:none; }
   @container (min-width: 1100px) { .grp.cols .rws { columns:2; column-gap:64px; } .grp.cols .row { break-inside:avoid; } }
@@ -715,6 +717,21 @@ export const SETTINGS_STYLES = `
   .whyrow:first-of-type { border-top:0; }
   .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .whyrow .wl b { font-size:.9rem; font-weight:600; }
+  /* Raumkacheln (Alle Räume auf einen Blick) */
+  .roomgrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; }
+  .rtile { display:flex; flex-direction:column; gap:2px; text-align:left; cursor:pointer;
+           padding:14px 16px 12px; border-radius:16px; font:inherit; color:inherit;
+           border:1px solid color-mix(in srgb, var(--primary-text-color) 9%, transparent);
+           box-shadow: inset 3px 0 0 var(--c, var(--rk-off)); }
+  .rtile:hover { border-color: color-mix(in srgb, var(--c, var(--primary-text-color)) 45%, transparent); }
+  .rtile .rtop { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .rtile .rname { font-weight:600; font-size:.95rem; }
+  .rtile .rtyp { font-size:.75rem; color:var(--secondary-text-color); white-space:nowrap; }
+  .rtile .rbig { font-size:1.9rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .rtile .rbig i { font-size:1.1rem; font-style:normal; color:var(--secondary-text-color); }
+  .rtile .rsub { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .rtile .rflags { display:flex; gap:8px; margin-top:4px; color:var(--secondary-text-color); }
+  .rtile .rflags ha-icon { --mdc-icon-size:17px; }
   .whyrow .wl small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.35; }
   .msgs { display:grid; gap:10px; }
   .msg { display:grid; grid-template-columns: 40px 1fr auto; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }

@@ -337,13 +337,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
     // --- Heizsaison
     const mode = this._hubOpt("season_mode");
-    const mdToInput = (v) => esc(v || "");
+    const mdToInput = (v) => (v && /^\d{2}-\d{2}$/.test(v) ? `2000-${v}` : "");
     const seasRows = [
       `<div class="status"><span class="chip" style="--tone:${toneVar(seas.tone)}"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}</span>
         <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Ø 24 h {p} · Vorhersage {f}", { p: st.mean_past == null ? t("sammelt noch") : fmt(st.mean_past) + "°", f: st.mean_forecast == null ? "–" : fmt(st.mean_forecast) + "°" })}</span></div>`,
       this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
       this._row("Heizgrenze", this._optStepper(H, "heating_limit", this._hubOpt("heating_limit"), " °C", 0.5, 5, 25, 1), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
-      this._row("Heizsaison", `<span class="v"><input class="inp short" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Format MM-TT, außerhalb nur bei Kälteeinbruch"),
+      this._row("Heizsaison", `<span class="v"><input class="inp short" type="date" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" type="date" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Kalender antippen – Tag und Monat zählen, das Jahr ist egal"),
       this._row("Kälteeinbruch unter", this._optStepper(H, "cold_snap_temp", this._hubOpt("cold_snap_temp"), " °C", 0.5, 0, 20, 1), "3 Tage darunter → heizt auch außerhalb der Saison"),
       this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
       this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
@@ -452,7 +452,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // --- Allgemein Benachrichtigung
     const hm = (v) => String(v || "").slice(0, 5);
     // Eigene HH:MM-Felder – der Browser würde sonst je nach Betriebssystem AM/PM zeichnen (Issue #7)
-    const tf = (key, val) => `<input type="text" class="inp hm" inputmode="numeric" maxlength="5" placeholder="HH:MM" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
+    const tf = (key, val) => `<input type="time" class="inp hm" step="900" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
     const notiRows = [
       this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
       this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
@@ -475,17 +475,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const s = r.attrs.settings || {};
       const notif = (this._st(r.sib.notifications) || {}).state === "on";
       const wl = (this._st(r.sib.window_logic) || {}).state === "on";
-      const chips = [
-        `<span class="chip2" title="${t("Wunschtemperatur")}">${fmt(r.attrs.comfort_temperature)} °C</span>`,
-        `<span class="chip2" title="${t("Absenkung kurz / länger")}">${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>`,
-        `<span class="chip2" title="${t("Mindesttemperatur beim Lüften")}">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>`,
-        r.attrs.humidity_limit != null ? `<span class="chip2" title="${t("Feuchte")}">${fmt(r.attrs.humidity_limit, 0)} %</span>` : "",
-        `<span class="chip2" style="--c:${wl ? "var(--rk-ok)" : "var(--rk-off)"}" title="${t("Fensterlogik")}"><i></i>${t("Fenster")}</span>`,
-        `<span class="chip2" style="--c:${notif ? "var(--rk-ok)" : "var(--rk-off)"}" title="${t("Hinweise")}"><i></i>${t("Hinweise")}</span>`,
+      const flags = [
+        wl ? `<ha-icon icon="mdi:window-open-variant" title="${t("Fensterlogik an")}"></ha-icon>` : "",
+        notif ? `<ha-icon icon="mdi:bell-outline" title="${t("Hinweise an")}"></ha-icon>` : "",
+        r.attrs.humidity_limit != null ? `<ha-icon icon="mdi:water-percent" title="${fmt(r.attrs.humidity_limit, 0)} %"></ha-icon>` : "",
       ].join("");
-      return `<div class="row roomrow" data-tab="${r.id}">
-        <div class="l"><span class="rn" style="--c:${r.color}"><i></i>${r.name}</span><small>${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</small></div>
-        <div class="chips">${chips}</div></div>`;
+      return `<button class="rtile" data-tab="${r.id}" style="--c:${r.color}">
+        <span class="rtop"><span class="rname">${r.name}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
+        <span class="rbig">${fmt(r.attrs.comfort_temperature)}<i>°</i></span>
+        <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>
+        <span class="rsub">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>
+        <span class="rflags">${flags}</span></button>`;
     }).join("");
 
     const issues = st.issues || [];
@@ -501,7 +501,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
       ${this._grp("Schlafenszeiten", "mdi:sleep", "eco", sleepRows, "span")}
       ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
       ${this._grp("Wohnung", "mdi:home-switch-outline", "air", homeRows)}
-      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `${rowsT}<div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="roomgrid">${rowsT}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._learnHub(st)}
       ${this._layoutGroup()}
     </div>`;
   }
@@ -832,6 +833,23 @@ export class RaumklimaSettingsCard extends HTMLElement {
     ].join(""));
   }
 
+  // Gelernte Schlafzeiten (Wohnungsebene) – gehört zum Lernen, nicht zu den Einstellrädern.
+  _learnHub(st) {
+    const sl = (st && st.sleep) || {};
+    const line = (k, label) => {
+      const v = sl[k] || {};
+      const e = v.effective || {};
+      const parts = [v.bed ? t("ins Bett ~{v}", { v: v.bed }) : "", v.wake ? t("auf ~{v}", { v: v.wake }) : ""].filter(Boolean);
+      const nBed = v.nights_bed || 0;
+      const nWake = v.nights_wake || 0;
+      const sub = parts.length
+        ? `${t("{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)", { b: nBed, w: nWake })}${e.quiet_start ? ` · ${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}` : ""}`
+        : t("noch zu wenige Nächte – 4 sind nötig");
+      return this._row(t(label), this._v(parts.length ? parts.join(" · ") : t("sammelt noch"), !parts.length), sub);
+    };
+    return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", [line("weekday", "Werktags"), line("weekend", "Wochenende")].join(""));
+  }
+
   // ---------------------------------------------------------------- Lernen & Warum
   _learnGroup(r) {
     const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
@@ -1147,6 +1165,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // nach der Auswahl Fokus lösen, sonst wartet die Karte mit dem Aktualisieren (Schutz beim Tippen)
     $("[data-sel]").forEach((el) => el.addEventListener("change", () => { el.blur(); apply(el.dataset.sel, { [el.dataset.key]: el.value || null }); }));
     $("[data-md]").forEach((el) => el.addEventListener("change", () => {
+      const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
+      if (iso) { this._setHub({ [el.dataset.md]: `${iso[2]}-${iso[3]}` }, 200); return; }
       const m = /^(\d{1,2})[-.](\d{1,2})\.?$/.exec(el.value.trim());
       if (!m) { this._flash("Bitte als MM-TT eingeben, z. B. 10-01"); return; }
       // 01.10. (TT.MM.) oder 10-01 (MM-TT)

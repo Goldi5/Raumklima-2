@@ -619,4 +619,12 @@ export const FR = {
   "was zuletzt entschieden wurde und weshalb": "ce qui a été décidé récemment et pourquoi",
   "{v} °C/h": "{v} °C/h",
   "Lüften ab {v} °C": "Aérer dès {v} °C",
+  "Absenkung": "Abaissement",
+  "Fensterlogik an": "Logique fenêtre active",
+  "Hinweise an": "Notifications actives",
+  "Kalender antippen – Tag und Monat zählen, das Jahr ist egal": "Touchez le calendrier – le jour et le mois comptent, l'année non",
+  "auf ~{v}": "lever ~{v}",
+  "ins Bett ~{v}": "au lit ~{v}",
+  "noch zu wenige Nächte – 4 sind nötig": "pas encore assez de nuits – 4 sont nécessaires",
+  "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} nuits sur 4 (coucher) · {w} sur 4 (lever)",
 };
