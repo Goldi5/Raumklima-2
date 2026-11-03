@@ -282,6 +282,9 @@ export const STYLES = `
   .since ha-icon { --mdc-icon-size:16px; }
   .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
   .since.occ.in { color:var(--rk-ok); }
+  /* Raumfarbe: schmaler Rand oben und Hauch im Hintergrund, Status bleibt am Ring */
+  .rcard { border-top: 4px solid var(--accent, transparent); }
+  .rcard { background-image: linear-gradient(color-mix(in srgb, var(--accent, transparent) 7%, transparent), transparent 120px); }
   .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; container-type: inline-size; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }

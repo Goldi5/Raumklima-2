@@ -124,7 +124,7 @@ export class RaumklimaCard extends HTMLElement {
     if (!this._hass || !this._config) return;
     const st = this._hass.states[this._config.entity];
     if (!st) {
-      this._html = `<style>${STYLES}</style><ha-card><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
+      this._html = `<style>${STYLES}</style><ha-card class="rcard"><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
       return;
     }
     const a = st.attributes;
@@ -135,6 +135,7 @@ export class RaumklimaCard extends HTMLElement {
     const target = this._pending ?? a.temperature;
     const isOff = st.state === "off";
     const name = this._config.name || a.friendly_name || t("Raum");
+    const accent = this._config.accent || null;
     const winOpen = a.window_open;
     this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
     this._boostUntil = a.boost_until ? Date.parse(a.boost_until) : null;
@@ -188,7 +189,7 @@ export class RaumklimaCard extends HTMLElement {
     const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
 
     this._html = `<style>${STYLES}</style>
-      <ha-card style="--tone:${toneVar(status.tone)}">
+      <ha-card class="rcard" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}

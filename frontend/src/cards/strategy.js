@@ -59,7 +59,7 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
         { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
         // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
         // sie erscheinen nur als Kachel in der Übersicht.
-        ...shown.filter((r) => r.attrs.monitor !== true && rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] })),
+        ...shown.filter((r) => r.attrs.monitor !== true && rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, grid_options: { columns: "full" } }] })),
       ],
     };
 

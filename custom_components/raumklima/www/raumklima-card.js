@@ -1476,6 +1476,9 @@
   .since ha-icon { --mdc-icon-size:16px; }
   .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
   .since.occ.in { color:var(--rk-ok); }
+  /* Raumfarbe: schmaler Rand oben und Hauch im Hintergrund, Status bleibt am Ring */
+  .rcard { border-top: 4px solid var(--accent, transparent); }
+  .rcard { background-image: linear-gradient(color-mix(in srgb, var(--accent, transparent) 7%, transparent), transparent 120px); }
   .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; container-type: inline-size; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }
@@ -2050,7 +2053,7 @@
       if (!this._hass || !this._config) return;
       const st = this._hass.states[this._config.entity];
       if (!st) {
-        this._html = `<style>${STYLES}</style><ha-card><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
+        this._html = `<style>${STYLES}</style><ha-card class="rcard"><div class="err">${t("Entität {e} nicht gefunden", { e: this._config.entity })}</div></ha-card>`;
         return;
       }
       const a = st.attributes;
@@ -2061,6 +2064,7 @@
       const target = this._pending ?? a.temperature;
       const isOff = st.state === "off";
       const name = this._config.name || a.friendly_name || t("Raum");
+      const accent = this._config.accent || null;
       const winOpen = a.window_open;
       this._openSince = a.window_open_since ? Date.parse(a.window_open_since) : null;
       this._boostUntil = a.boost_until ? Date.parse(a.boost_until) : null;
@@ -2103,7 +2107,7 @@
       const notif = sib.notifications ? this._hass.states[sib.notifications] : null;
       const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
       this._html = `<style>${STYLES}</style>
-      <ha-card style="--tone:${toneVar(status.tone)}">
+      <ha-card class="rcard" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
@@ -4915,7 +4919,7 @@
           { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
           // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
           // sie erscheinen nur als Kachel in der Übersicht.
-          ...shown.filter((r) => r.attrs.monitor !== true && rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] }))
+          ...shown.filter((r) => r.attrs.monitor !== true && rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, grid_options: { columns: "full" } }] }))
         ]
       };
       const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });
