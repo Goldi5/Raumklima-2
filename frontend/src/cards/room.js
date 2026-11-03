@@ -204,7 +204,7 @@ export class RaumklimaCard extends HTMLElement {
             <div class="target">${mon
               ? [a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : "", a.co2_sensor ? `${fmt(a.current_co2, 0)} ppm` : ""]
                   .filter(Boolean).join(" · ") || t("nur Messen")
-              : this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff)}</div>
+              : this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff, true)}</div>
           </div>
         </div>
         ${mon ? "" : `<div class="ctrl">

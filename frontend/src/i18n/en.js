@@ -573,4 +573,15 @@ export const EN = {
   "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Temperature, humidity, CO₂ and ventilation hints – without heating control. A thermostat can be added later in the integration.",
   "Abgleich": "Correction",
   "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "the device has no offset entity – Raumklima shifts the setpoint by the difference between sensor and thermostat instead",
+
+  "Abgesenkt · Wunsch {w}°": "Setback · wish {w}°",
+  "Zeitplan · {v}°": "Schedule · {v}°",
+  "Boost · {v}°": "Boost · {v}°",
+  "Ruhezeit · {v}°": "Quiet time · {v}°",
+  "Sonne · {v}°": "Sun · {v}°",
+  "Vorheizen · {v}°": "Preheat · {v}°",
+  "Leer · {v}°": "Empty · {v}°",
+  "Von Hand · {v}°": "Manual · {v}°",
+  "Frostschutz {v}°": "Frost {v}°",
+  "Ziel {v}°": "Target {v}°",
 };

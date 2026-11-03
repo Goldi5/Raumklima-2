@@ -134,14 +134,30 @@ export function rkHub(hass, home) {
 }
 
 // Zieltext je nach Plan (Abwesenheit, Heizpause, …)
-export function planText(a, off) {
+// `compact` = kurze Fassung für den Ring in der Raumkarte (iPad/Handy): ohne Einheit und
+// ohne den doppelten Ist-Wert, damit der Text im Kreis bleibt.
+export function planText(a, off, compact = false) {
   if (off) return t("Heizung aus");
   const r = a.plan_reason;
   if (r === "season") return t("Heizpause");
-  if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "valve_care") return t("Ventilpflege läuft");
+  const tgt = a.effective_target != null ? a.effective_target : a.temperature;
+  const wish = a.wish != null ? a.wish : a.temperature;
+  if (compact) {
+    if (r === "frost") return t("Frostschutz {v}°", { v: fmt(tgt) });
+    if (r === "away_short" || r === "away_long") return t("Abgesenkt · Wunsch {w}°", { w: fmt(wish) });
+    if (r === "manual") return t("Von Hand · {v}°", { v: fmt(a.temperature) });
+    if (r === "room_empty") return t("Leer · {v}°", { v: fmt(tgt) });
+    if (r === "schedule") return t("Zeitplan · {v}°", { v: fmt(tgt) });
+    if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
+    if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
+    if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
+    if (r === "solar") return t("Sonne · {v}°", { v: fmt(tgt) });
+    return t("Ziel {v}°", { v: fmt(a.temperature) });
+  }
+  if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if ((r === "away_short" || r === "away_long") && a.effective_target != null)
-    return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.wish != null ? a.wish : a.temperature) });
+    return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(wish) });
   if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
   if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });

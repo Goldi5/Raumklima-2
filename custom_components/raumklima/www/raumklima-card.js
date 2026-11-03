@@ -573,7 +573,17 @@
     "nur Messen und Hinweise": "measuring and hints only",
     "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Temperature, humidity, CO₂ and ventilation hints – without heating control. A thermostat can be added later in the integration.",
     "Abgleich": "Correction",
-    "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "the device has no offset entity – Raumklima shifts the setpoint by the difference between sensor and thermostat instead"
+    "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "the device has no offset entity – Raumklima shifts the setpoint by the difference between sensor and thermostat instead",
+    "Abgesenkt · Wunsch {w}°": "Setback · wish {w}°",
+    "Zeitplan · {v}°": "Schedule · {v}°",
+    "Boost · {v}°": "Boost · {v}°",
+    "Ruhezeit · {v}°": "Quiet time · {v}°",
+    "Sonne · {v}°": "Sun · {v}°",
+    "Vorheizen · {v}°": "Preheat · {v}°",
+    "Leer · {v}°": "Empty · {v}°",
+    "Von Hand · {v}°": "Manual · {v}°",
+    "Frostschutz {v}°": "Frost {v}°",
+    "Ziel {v}°": "Target {v}°"
   };
 
   // src/i18n/fr.js
@@ -1149,7 +1159,17 @@
     "nur Messen und Hinweise": "mesures et conseils uniquement",
     "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Température, humidité, CO₂ et conseils d’aération – sans régulation du chauffage. Un thermostat peut être ajouté plus tard dans l’intégration.",
     "Abgleich": "Correction",
-    "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "l’appareil n’a pas d’entité d’offset – Raumklima décale la consigne de l’écart entre la sonde et le thermostat"
+    "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "l’appareil n’a pas d’entité d’offset – Raumklima décale la consigne de l’écart entre la sonde et le thermostat",
+    "Abgesenkt · Wunsch {w}°": "Réduit · souhait {w}°",
+    "Zeitplan · {v}°": "Programme · {v}°",
+    "Boost · {v}°": "Boost · {v}°",
+    "Ruhezeit · {v}°": "Heures calmes · {v}°",
+    "Sonne · {v}°": "Soleil · {v}°",
+    "Vorheizen · {v}°": "Préchauffage · {v}°",
+    "Leer · {v}°": "Vide · {v}°",
+    "Von Hand · {v}°": "Manuel · {v}°",
+    "Frostschutz {v}°": "Hors gel {v}°",
+    "Ziel {v}°": "Consigne {v}°"
   };
 
   // src/i18n.js
@@ -1296,14 +1316,28 @@
     for (const e of reg) if (e.device_id === pres.device_id && e.translation_key) out[e.translation_key] = e.entity_id;
     return out;
   }
-  function planText(a, off) {
+  function planText(a, off, compact = false) {
     if (off) return t("Heizung aus");
     const r = a.plan_reason;
     if (r === "season") return t("Heizpause");
-    if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "valve_care") return t("Ventilpflege läuft");
+    const tgt = a.effective_target != null ? a.effective_target : a.temperature;
+    const wish = a.wish != null ? a.wish : a.temperature;
+    if (compact) {
+      if (r === "frost") return t("Frostschutz {v}°", { v: fmt(tgt) });
+      if (r === "away_short" || r === "away_long") return t("Abgesenkt · Wunsch {w}°", { w: fmt(wish) });
+      if (r === "manual") return t("Von Hand · {v}°", { v: fmt(a.temperature) });
+      if (r === "room_empty") return t("Leer · {v}°", { v: fmt(tgt) });
+      if (r === "schedule") return t("Zeitplan · {v}°", { v: fmt(tgt) });
+      if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
+      if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
+      if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
+      if (r === "solar") return t("Sonne · {v}°", { v: fmt(tgt) });
+      return t("Ziel {v}°", { v: fmt(a.temperature) });
+    }
+    if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if ((r === "away_short" || r === "away_long") && a.effective_target != null)
-      return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(a.wish != null ? a.wish : a.temperature) });
+      return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(wish) });
     if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
     if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
@@ -2001,7 +2035,7 @@
           ${mon ? "" : this._arc(a.current_temperature, target, isOff)}
           <div class="center">
             <div class="now">${fmt(a.current_temperature)}<small>°C</small></div>
-            <div class="target">${mon ? [a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : "", a.co2_sensor ? `${fmt(a.current_co2, 0)} ppm` : ""].filter(Boolean).join(" · ") || t("nur Messen") : this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff)}</div>
+            <div class="target">${mon ? [a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : "", a.co2_sensor ? `${fmt(a.current_co2, 0)} ppm` : ""].filter(Boolean).join(" · ") || t("nur Messen") : this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff, true)}</div>
           </div>
         </div>
         ${mon ? "" : `<div class="ctrl">
