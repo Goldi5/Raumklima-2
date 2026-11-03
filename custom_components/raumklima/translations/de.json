@@ -135,14 +135,16 @@
           "humidity_sensor": "Luftfeuchte-Sensor (optional)",
           "window_sensors": "Fenster-/Türkontakte (optional)",
           "co2_sensor": "CO₂-Sensor (optional)",
-          "extra_trvs": "Weitere Thermostate im Raum (optional)"
+          "extra_trvs": "Weitere Thermostate im Raum (optional)",
+          "thermostat": "Heizkörperthermostat (TRV)"
         },
         "data_description": {
           "trv": "Das echte Thermostat am Heizkörper.",
           "temperature_sensor": "Danach wird geregelt – nicht nach dem Sensor am Heizkörper.",
           "window_sensors": "Ist einer offen, wird die Heizung pausiert.",
           "co2_sensor": "Ab 1000 ppm bittet der Lüftungsassistent ums Lüften.",
-          "extra_trvs": "Für Räume mit mehreren Heizkörpern: Diese Thermostate bekommen dieselben Befehle wie das Haupt-Thermostat – jedes mit eigener Prüfung und eigenem Korrekturwert."
+          "extra_trvs": "Für Räume mit mehreren Heizkörpern: Diese Thermostate bekommen dieselben Befehle wie das Haupt-Thermostat – jedes mit eigener Prüfung und eigenem Korrekturwert.",
+          "thermostat": "Heizkörperthermostat (TRV) – leer lassen, um weiter nur zu überwachen"
         }
       },
       "room": {

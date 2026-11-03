@@ -135,14 +135,16 @@
           "humidity_sensor": "Humidity sensor (optional)",
           "window_sensors": "Window/door contacts (optional)",
           "co2_sensor": "CO₂ sensor (optional)",
-          "extra_trvs": "Further thermostats in this room (optional)"
+          "extra_trvs": "Further thermostats in this room (optional)",
+          "thermostat": "Radiator thermostat (TRV)"
         },
         "data_description": {
           "trv": "The real thermostat on the radiator.",
           "temperature_sensor": "Used for control instead of the sensor at the radiator.",
           "window_sensors": "If any is open, heating is paused.",
           "co2_sensor": "Above 1000 ppm the airing assistant asks you to air the room.",
-          "extra_trvs": "For rooms with several radiators: these thermostats get the same commands as the main thermostat, each with its own check and correction."
+          "extra_trvs": "For rooms with several radiators: these thermostats get the same commands as the main thermostat, each with its own check and correction.",
+          "thermostat": "Radiator thermostat (TRV) – leave empty to keep monitoring only"
         }
       },
       "room": {

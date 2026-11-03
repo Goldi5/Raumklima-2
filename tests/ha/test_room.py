@@ -11,7 +11,7 @@ from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from custom_components.raumklima.const import DOMAIN
 
-from .conftest import SENSOR, WINDOW, FakeTrv, hub_entry, room_entry
+from .conftest import SENSOR, TRV, WINDOW, FakeTrv, hub_entry, room_entry
 
 
 async def advance(hass: HomeAssistant, seconds: float) -> None:
@@ -540,3 +540,66 @@ async def test_ueberwachungsraum_hat_kein_ziel(hass: HomeAssistant, sensors) -> 
     assert st.attributes.get("current_temperature") is not None
 
     assert not [e for e in hass.states.async_entity_ids("button") if "boost" in e.lower()]
+
+
+async def test_thermostat_im_optionsdialog_optional(hass: HomeAssistant, sensors) -> None:
+    """Im Optionsdialog eines Überwachungsraums ist das Thermostat optional (leer = weiter messen)."""
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(trv="")
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(room.entry_id)
+    await hass.async_block_till_done()
+
+    result = await hass.config_entries.options.async_init(room.entry_id)
+    assert result["step_id"] == "init"
+    # ohne Thermostat absenden: muss durchgehen (vorher war das Feld Pflicht)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"temperature_sensor": SENSOR, "window_sensors": [], "extra_trvs": []},
+    )
+    assert result["step_id"] == "room"
+
+
+async def test_thermostat_nachtraeglich_ergaenzen(hass: HomeAssistant, sensors, trv: FakeTrv) -> None:
+    """Wird ein Thermostat nachgetragen, wird aus dem Überwachungsraum ein Heizraum."""
+    from custom_components.raumklima.const import CONF_TRV
+
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(trv="")
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(room.entry_id)
+    await hass.async_block_till_done()
+    assert room.runtime_data.monitor is True
+
+    hass.config_entries.async_update_entry(room, options={**room.options, CONF_TRV: TRV})
+    await hass.async_block_till_done()
+    assert await hass.config_entries.async_reload(room.entry_id)
+    await hass.async_block_till_done()
+
+    assert room.runtime_data.monitor is False
+    st = hass.states.get("climate.bad")
+    assert st is not None
+    assert st.attributes["monitor"] is False
+    assert st.attributes["hvac_modes"] == ["heat", "off"]
+    assert st.attributes.get("temperature") is not None
+
+
+async def test_ventilsensor_wird_am_geraet_erkannt(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Danfoss Ally liefert die Ventilstellung als eigenen Sensor (…_valve_opening, Issue #15)."""
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    devs = dr.async_get(hass)
+    regs = er.async_get(hass)
+    device = devs.async_get_or_create(config_entry_id=room.entry_id, identifiers={("demo", "ally1")})
+    regs.async_get_or_create("climate", "demo", "c1", suggested_object_id="ally_thermostat", device_id=device.id)
+    regs.async_get_or_create("sensor", "demo", "v1", suggested_object_id="ally_valve_opening", device_id=device.id)
+    hass.states.async_set("sensor.ally_valve_opening", "42", {"unit_of_measurement": "%"})
+    ctrl.trv = "climate.ally_thermostat"
+
+    assert ctrl._find_valve_sensor() == "sensor.ally_valve_opening"

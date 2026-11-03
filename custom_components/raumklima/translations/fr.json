@@ -135,14 +135,16 @@
           "humidity_sensor": "Capteur d’humidité (facultatif)",
           "window_sensors": "Contacts de fenêtre/porte (facultatif)",
           "co2_sensor": "Capteur de CO₂ (facultatif)",
-          "extra_trvs": "Thermostats supplémentaires dans cette pièce (facultatif)"
+          "extra_trvs": "Thermostats supplémentaires dans cette pièce (facultatif)",
+          "thermostat": "Thermostat de radiateur (TRV)"
         },
         "data_description": {
           "trv": "Le vrai thermostat sur le radiateur.",
           "temperature_sensor": "Utilisée pour la régulation à la place de la sonde du radiateur.",
           "window_sensors": "Si l’un est ouvert, le chauffage se met en pause.",
           "co2_sensor": "À partir de 1000 ppm, l’assistant d’aération demande d’aérer.",
-          "extra_trvs": "Pour les pièces avec plusieurs radiateurs : ces thermostats reçoivent les mêmes commandes que le thermostat principal, chacun avec sa propre vérification et correction."
+          "extra_trvs": "Pour les pièces avec plusieurs radiateurs : ces thermostats reçoivent les mêmes commandes que le thermostat principal, chacun avec sa propre vérification et correction.",
+          "thermostat": "Thermostat de radiateur (TRV) – laisser vide pour continuer à seulement surveiller"
         }
       },
       "room": {

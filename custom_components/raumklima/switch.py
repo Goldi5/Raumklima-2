@@ -23,7 +23,7 @@ async def async_setup_entry(
         async_add_entities(hub_entities("switch", entry.runtime_data))
         return
     entities: list[SwitchEntity] = [NotificationSwitch(entry.runtime_data)]
-    if entry.runtime_data.windows:
+    if entry.runtime_data.windows and not entry.runtime_data.monitor:
         entities.append(WindowLogicSwitch(entry.runtime_data))
     async_add_entities(entities)
 

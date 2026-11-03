@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.30.0 – 2026-11-03
+
+### Neu
+- **Thermostat nachträglich ergänzen:** In *Geräte & Dienste → Raumklima → Raum → Konfigurieren* ist das
+  Thermostat bei einem Überwachungsraum jetzt **optional** — leer lassen heißt „weiter nur messen", ein
+  Gerät auswählen macht daraus einen Heizraum (Ziel, Boost, Kalibrierung, Sync kommen mit dem Neuladen).
+
+### Behoben
+- **Ventilstellung blieb „unbekannt"** (Issue #15): Gesucht wurde nur nach „position" im Entitätsnamen.
+  Danfoss Ally liefert `…_valve_opening`, Homematic `…_valve_position`, Bosch `…_valve_tappet`. Die Erkennung
+  prüft jetzt Prozentwert **und** Bezeichnung (position/opening/öffnung/valve/ventil/tappet) am TRV-Gerät.
+
 ## 0.29.0 – 2026-11-03
 
 ### Neu

@@ -230,10 +230,17 @@ def _monitor_schema() -> vol.Schema:
     )
 
 
-def _devices_schema(defaults: dict[str, Any], *, with_name: bool) -> vol.Schema:
+def _devices_schema(
+    defaults: dict[str, Any], *, with_name: bool, trv_optional: bool = False
+) -> vol.Schema:
     fields: dict[Any, Any] = {}
     if with_name:
         fields[vol.Required(CONF_NAME, default=defaults.get(CONF_NAME, ""))] = TextSelector()
+    elif trv_optional:
+        # Überwachungsraum: Thermostat kann später ergänzt werden – leer heißt „weiter nur messen"
+        fields[
+            vol.Optional(CONF_TRV, description=_suggest(defaults.get(CONF_TRV)))
+        ] = EntitySelector(EntitySelectorConfig(domain="climate"))
     else:
         fields[vol.Required(CONF_TRV, default=defaults.get(CONF_TRV, vol.UNDEFINED))] = EntitySelector(
             EntitySelectorConfig(domain="climate")
@@ -655,13 +662,21 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
             user_input.setdefault(CONF_HUMIDITY_SENSOR, None)
             user_input.setdefault(CONF_WINDOWS, [])
             user_input.setdefault(CONF_EXTRA_TRVS, [])
+            if not user_input.get(CONF_TRV):
+                user_input.pop(CONF_TRV, None)  # leer = weiter nur überwachen
             if user_input.get(CONF_TRV) in user_input[CONF_EXTRA_TRVS]:
                 errors[CONF_EXTRA_TRVS] = "extra_is_main"
             else:
                 self._options.update(user_input)
                 return await self.async_step_room()
         return self.async_show_form(
-            step_id="init", data_schema=_devices_schema(user_input or self._current(), with_name=False), errors=errors
+            step_id="init",
+            data_schema=_devices_schema(
+                user_input or self._current(),
+                with_name=False,
+                trv_optional=not (self.config_entry.data.get(CONF_TRV) or ""),
+            ),
+            errors=errors,
         )
 
     async def async_step_home(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:

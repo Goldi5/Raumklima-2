@@ -45,15 +45,26 @@ class HealthMixin:
     """Gesundheits- und Diagnose-Teil des Raum-Controllers."""
 
     def _find_valve_sensor(self) -> str | None:
-        """Ventilstellung (sensor …position) am selben Gerät wie das TRV."""
+        """Ventilstellung am selben Gerät wie das TRV.
+
+        Nicht jedes Gerät nennt sie „position": Danfoss Ally liefert ``…_valve_opening``,
+        Homematic ``…_valve_position``, Bosch ``…_valve_tappet`` (Issue #15). Deshalb über
+        den Prozentwert und die Bezeichnung suchen, nicht über einen festen Namen.
+        """
         registry = er.async_get(self.hass)
         trv_entry = registry.async_get(self.trv)
         if trv_entry is None or trv_entry.device_id is None:
             return None
+        keys = ("position", "opening", "öffnung", "oeffnung", "valve", "ventil", "tappet")
         for entry in er.async_entries_for_device(registry, trv_entry.device_id):
-            if entry.domain == "sensor" and (
-                "position" in entry.entity_id or entry.translation_key == "position"
-            ):
+            if entry.domain != "sensor" or entry.disabled_by:
+                continue
+            state = self.hass.states.get(entry.entity_id)
+            unit = str((state.attributes.get("unit_of_measurement") if state else "") or "")
+            if "%" not in unit:
+                continue  # Batterie, RSSI, Ventilhub-Historie usw. aussortieren
+            hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
+            if any(k in hay for k in keys):
                 return entry.entity_id
         return None
 
