@@ -148,6 +148,19 @@ Les messages ont des boutons : **Terminé**, **Me rappeler dans 15 min** et **Pa
 Aérer n’aide que lorsque l’air extérieur est plus sec. Raumklima calcule cela et ne vous demande pas d’aérer par temps humide.
 :::
 
+### Particules fines (PM2,5)
+
+Si une pièce a un capteur de particules, il apparaît comme une tuile à part. Dès **35 µg/m³** Raumklima
+vous demande d’aérer, sous **15 µg/m³** l’air est considéré comme renouvelé. Contrairement à l’humidité,
+il n’y a pas de délai : les particules augmentent immédiatement en cuisinant, avec des bougies ou de la fumée.
+
+### Pièce sans chauffage (surveillance)
+
+Certaines pièces n’ont pas de thermostat – couloir, débarras, atelier. Créez-les en **« Surveillance »**
+au lieu de « Pièce » : Raumklima mesure la température, l’humidité, le CO₂ et les particules, rappelle
+d’aérer et rapporte – mais ne touche **jamais** à une consigne. Dans le tableau de bord, ces pièces
+reçoivent leur propre grande carte avec les mêmes mesures, sans plus/moins, ni boost, ni consigne.
+
 ## Compte à rebours d’aération sur l’écran verrouillé
 
 Avec l’application Home Assistant, vous voyez aussi le compte à rebours sur l’**écran verrouillé** – sur iPhone sous forme de Live Activity (également dans la Dynamic Island), sur Android dans le volet de notifications. Pas besoin de déverrouiller votre téléphone.

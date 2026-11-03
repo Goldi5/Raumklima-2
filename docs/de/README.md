@@ -26,6 +26,9 @@
 - **Regeln nach dem Raumfühler** statt nach dem Sensor direkt am Heizkörper – automatischer Offset oder Sollwert-Ausgleich.
 - **Fensterlogik:** nach 10 s offen Pause, nach 10 s zu weiter – die Einstellung bleibt erhalten.
 - **Absicherung gegen Funk- und VPN-Aussetzer:** jeder Befehl wird geprüft und wiederholt.
+- **Feinstaub (PM2,5):** optionaler Fühler je Raum – ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.
+- **Überwachungsraum:** Raum ohne Thermostat – messen, anmahnen, berichten, mit eigener großer Karte; Sollwerte werden nie angefasst.
+- **Lernen & Warum:** gelernte Aufheizrate mit Zuverlässigkeit, Schlafzeiten, Anwesenheitsprofil und ein Reiter Entscheidungen mit Begründung.
 - **Lüftungsassistent:** Feuchtegrenze je Raum, optional CO₂-Sensor, Lüftdauer nach Außentemperatur, Prüfung ob Lüften überhaupt trocknet, Warnung beim Auskühlen.
 - **Abwesenheit:** Bewohner + Wohnung, Absenkung „kurz weg“ / „länger weg“, Schimmelschutz nach DIN 4108-2, Vorheizen bei Annäherung, Kalendertermine („Urlaub“, „Homeoffice“), in Frostnächten weniger absenken.
 - **Heizsaison:** Heizgrenze nach Tagesmittel und Wettervorhersage, Kälteeinbruch-Regel, „Heute heizen“, Sommerpflege der Ventile; Sonnenseite-Räume heizen bei Sonne 1 °C weniger.

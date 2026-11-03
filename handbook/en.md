@@ -148,6 +148,19 @@ The messages have buttons: **Done**, **Remind me in 15 min** and **Not today**.
 Airing only helps when the air outside is drier. Raumklima calculates this and doesn't ask you to air the room in humid weather.
 :::
 
+### Particulate matter (PM2.5)
+
+If a room has a particulate sensor it appears as its own tile. From **35 µg/m³** Raumklima asks you to
+air, below **15 µg/m³** the air counts as exchanged. Unlike humidity there is no waiting time:
+particulate matter rises immediately when cooking, with candles or smoke.
+
+### Room without heating (monitoring)
+
+Some rooms have no thermostat – hallway, storeroom, workshop. Create them as **“Monitoring”** instead
+of “Room”: Raumklima measures temperature, humidity, CO₂ and particulate matter, reminds you to air and
+reports – but never touches a **setpoint**. In the dashboard these rooms get their own large card with
+the same readings, without plus/minus, boost or setpoint.
+
 ## Airing countdown on the lock screen
 
 With the Home Assistant app you also see the countdown on the **lock screen** – on the iPhone as a Live Activity (also in the Dynamic Island), on Android in the notification shade. No need to unlock your phone.

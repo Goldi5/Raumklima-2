@@ -24,6 +24,9 @@
 - **Control by the room sensor** instead of the sensor at the radiator – automatic offset or setpoint compensation, emergency mode if the sensor fails.
 - **Window logic:** paused after 10 s open, resumed after 10 s closed – the setting is kept. Open windows are also detected **without a contact** from a sudden temperature drop.
 - **Reliable over flaky radio and VPN links:** every command is verified and repeated.
+- **Particulate matter (PM2.5):** optional sensor per room – from 35 µg/m³ Raumklima suggests airing, below 15 µg/m³ the air counts as exchanged.
+- **Monitoring room:** a room without a thermostat – measure, remind, report, with its own large card; setpoints are never touched.
+- **Learning & why:** learned heat-up rate with reliability, sleep times, a presence profile and a decisions tab with reasons.
 - **Airing assistant:** humidity limit per room, optional CO₂ sensor, airing time by outdoor temperature, checks whether airing actually dries, warns when the room cools down; **night airing** for people who sleep with the window open.
 - **Absence:** residents + home zone, setback “briefly away” / “away longer”, mould protection per DIN 4108-2, preheating on approach and by **arrival time** (learned heat-up time per room), calendar events (“vacation”, “home office”), smaller setback on frost nights.
 - **Heating season:** heating limit from the daily mean (measured + forecast), cold-snap rule, “heat today”, summer valve exercise; rooms on the sunny side heat 1 °C less when sun is forecast.

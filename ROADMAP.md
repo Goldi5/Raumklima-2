@@ -80,7 +80,7 @@ Stand: Version 0.44.1 (Early Release – Tester gesucht)
 
 Push-Nachrichten, Protokoll und Hinweise auf Deutsch, Englisch und Französisch · Französisch für Dashboard, Dialoge und PDF-Berichte · Mehrere Heizkörper pro Raum · Lichtsignal pro Raum · Lüft-Countdown auf dem Sperrbildschirm · „Fenster offen seit …“ · Präsenzmelder
 (mmWave/PIR) · PDF-Heizbericht (Woche, Monat, Saison) mit Note, Euro-Schätzung, Wärmebild und Spartipps ·
-E-Mail-Versand direkt in Raumklima · „?“-Erklärungen in den Einstellungen · Handbuch als PDF (DE/EN).
+E-Mail-Versand direkt in Raumklima · „?“-Erklärungen in den Einstellungen · Handbuch als PDF (DE/EN/FR) · Einstellungen neu aufgebaut (Gruppenleiste mit Farbe, Suche, Raum-Chips, Darstellung mit Reihenfolge/Größe/Farbe, Kalender- und Zeitwähler, Versionsanzeige) · Lernen mit Unterreitern (Aufheizrate, Schlafzeiten, Anwesenheitsprofil, Entscheidungen mit Begründung) · Überwachungsraum mit eigener großer Karte · Feinstaub PM2,5 · Tuya-TRV602Z: Sollwert über `comfort_temperature`, Warnung bei dauerhaft offenem Ventil.
 Details im [CHANGELOG](CHANGELOG.md).
 
 ---

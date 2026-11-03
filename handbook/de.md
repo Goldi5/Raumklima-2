@@ -146,6 +146,19 @@ Die Nachrichten haben Knöpfe: **Erledigt**, **In 15 min erinnern** und **Heute 
 Lüften lohnt sich nur, wenn die Luft draußen trockener ist. Raumklima rechnet das aus und bittet dich bei feuchtem Wetter gar nicht erst ums Lüften.
 :::
 
+### Feinstaub (PM2,5)
+
+Hat ein Raum einen Feinstaubfühler, kommt er als eigene Kachel dazu. Ab **35 µg/m³** bittet Raumklima
+zu lüften, unter **15 µg/m³** gilt die Luft als ausgetauscht. Anders als bei der Feuchte gibt es keine
+Wartezeit: Feinstaub steigt beim Kochen, bei Kerzen oder Rauch sofort.
+
+### Raum ohne Heizung (Überwachung)
+
+Manche Räume haben kein Thermostat – Flur, Abstellraum, Werkstatt. Für sie legst du beim Anlegen
+**„Überwachung“** statt „Raum“ an: Raumklima misst dort Temperatur, Feuchte, CO₂ und Feinstaub, mahnt
+Lüften an und berichtet – fasst aber **keinen Sollwert** an. Im Dashboard bekommen diese Räume eine
+eigene große Karte mit denselben Messwerten, aber ohne Plus/Minus, ohne Boost und ohne Sollwert.
+
 ## Lüft-Countdown auf dem Sperrbildschirm
 
 Mit der Home-Assistant-App siehst du den Countdown auch auf dem **Sperrbildschirm** – auf dem iPhone als Live-Aktivität (auch in der Dynamic Island), auf Android in der Benachrichtigungsleiste. Du musst das Handy nicht entsperren.

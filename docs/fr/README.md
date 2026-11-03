@@ -23,6 +23,9 @@
 
 - **Régulation selon la sonde de la pièce** au lieu de la sonde du radiateur – décalage (offset) automatique ou compensation de consigne.
 - **Fenêtre ouverte = pause**, puis reprise avec le réglage précédent ; fenêtre ouverte détectée aussi **sans contact** grâce à la chute de température. Plusieurs radiateurs et autant de contacts de fenêtre que nécessaire par pièce.
+- **Particules fines (PM2,5) :** capteur optionnel par pièce – dès 35 µg/m³ Raumklima conseille d’aérer, sous 15 µg/m³ l’air est considéré comme renouvelé.
+- **Pièce de surveillance :** une pièce sans thermostat – mesurer, rappeler, rapporter, avec sa propre grande carte ; les consignes ne sont jamais touchées.
+- **Apprentissage & pourquoi :** vitesse de montée apprise avec fiabilité, heures de sommeil, profil de présence et un onglet décisions avec justification.
 - **Assistant d’aération** : humidité et CO₂, durée d’aération selon la température extérieure, « l’aération assèche-t-elle vraiment ? », alerte « la pièce se refroidit », **aération nocturne** ; compte à rebours sur l’écran verrouillé et **signal lumineux**.
 - **Absence** : habitants + zone, abaissement « absence courte » / « absence prolongée », préchauffage selon la distance et l’heure d’arrivée, calendrier (vacances, télétravail), **détecteurs de présence** (mmWave et PIR).
 - **Saison de chauffage** selon la moyenne journalière et la prévision météo, côté ensoleillé, nuits de gel.
