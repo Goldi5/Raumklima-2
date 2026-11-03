@@ -257,7 +257,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
   _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`; }
   _grp(title, icon, tone, rows, cls = "", extra = "") {
     const g = RK_GROUP_OF[title] || "advanced";
-    return `<div class="grp ${cls}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
+    // Kurze Zeilen (nur Schalter/Segmente, gerade Anzahl) dürfen sich auf breiten Karten paaren.
+    const rowCount = (rows.match(/class="row"/g) || []).length;
+    const ctlCount = (rows.match(/class="tgl/g) || []).length + (rows.match(/class="segs"/g) || []).length;
+    const pairable = rowCount >= 4 && rowCount % 2 === 0 && ctlCount >= rowCount
+      && !/tblwrap|class="people"|stepper|numedit/.test(rows);
+    return `<div class="grp ${cls}${pairable ? " pair" : ""}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
   }
   _stepper(attrs, value, unit, dec) {
     const ro = !this._admin;
@@ -964,6 +969,50 @@ export class RaumklimaSettingsCard extends HTMLElement {
       apply(el.dataset.opt, { [el.dataset.key]: v });
     }));
     $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
+    // Wert antippen und direkt tippen (statt nur +/- zu drücken)
+    $(".stepper span").forEach((span) => span.addEventListener("click", () => {
+      const box = span.closest(".stepper");
+      const btn = box && box.querySelector("button");
+      if (!box || !btn || !this._admin || box.classList.contains("ro") || span.querySelector("input")) return;
+      const d = btn.dataset;
+      if (d.schedtemp || d.schedmove) return;
+      let cur = parseFloat(d.val), step = parseFloat(d.step) || 0.5, min = parseFloat(d.min), max = parseFloat(d.max);
+      if (d.num) {
+        const st = this._st(d.num);
+        if (!st) return;
+        const a = st.attributes || {};
+        cur = parseFloat(st.state); step = parseFloat(a.step) || 0.5;
+        min = parseFloat(a.min); max = parseFloat(a.max);
+      }
+      const html = span.innerHTML;
+      const inp = document.createElement("input");
+      inp.type = "number"; inp.inputMode = "decimal"; inp.className = "numedit";
+      inp.step = String(step);
+      if (!isNaN(min)) inp.min = String(min);
+      if (!isNaN(max)) inp.max = String(max);
+      inp.value = isNaN(cur) ? "" : String(cur);
+      span.innerHTML = ``; span.appendChild(inp);
+      inp.focus(); inp.select();
+      let done = false;
+      const finish = (ok) => {
+        if (done) return;
+        done = true;
+        let v = parseFloat(String(inp.value).replace(",", "."));
+        span.innerHTML = html;
+        if (!ok || isNaN(v)) return;
+        v = Math.round(v / step) * step;
+        if (!isNaN(min)) v = Math.max(min, v);
+        if (!isNaN(max)) v = Math.min(max, v);
+        v = Math.round(v * 100) / 100;
+        if (d.num) this._hass.callService("number", "set_value", { entity_id: d.num, value: v });
+        else if (d.opt) apply(d.opt, { [d.key]: v });
+      };
+      inp.addEventListener("blur", () => finish(true));
+      inp.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") { ev.preventDefault(); finish(true); }
+        else if (ev.key === "Escape") { ev.preventDefault(); finish(false); }
+      });
+    }));
     // Zeitplan bearbeiten: jede Änderung geht gesammelt (700 ms Pause) an den Raum
     const sp = (v) => String(v).split("|");
     $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {

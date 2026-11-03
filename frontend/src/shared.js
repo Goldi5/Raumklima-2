@@ -625,6 +625,17 @@ export const SETTINGS_STYLES = `
   .row .l { font-size:.98rem; color:var(--primary-text-color); min-width:0; }
   .row .l small { display:block; margin-top:2px; font-size:.8rem; line-height:1.3; color:var(--secondary-text-color); }
   .row .lbl { display:inline-flex; align-items:center; gap:6px; }
+  .row .stepper:not(.ro) span { cursor:pointer; border-radius:8px; padding:2px 6px; margin:0 2px; }
+  .row .stepper:not(.ro) span:hover { background: color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .stepper input.numedit { width:70px; text-align:center; font:inherit; padding:3px 4px; border-radius:8px;
+    border:1px solid color-mix(in srgb, var(--rk-heat) 55%, transparent); background:var(--card-background-color); color:var(--primary-text-color); }
+  /* Dezente Zebra-Streifen, damit das Auge in langen Gruppen die Zeile hält. */
+  .rws > .row:nth-of-type(even) { background: color-mix(in srgb, var(--primary-text-color) 2.5%, transparent); }
+  @container (min-width: 1100px) {
+    .grp.pair .rws { display:grid; grid-template-columns:1fr 1fr; column-gap:56px; }
+    .grp.pair .rws > .row { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+    .grp.pair .rws > .row:nth-of-type(-n+2) { border-top:0; }
+  }
   .qm { all:unset; cursor:pointer; flex:none; width:18px; height:18px; border-radius:50%; display:inline-grid; place-items:center; font-size:.72rem; font-weight:700;
     color: var(--secondary-text-color); border:1.5px solid color-mix(in srgb, var(--secondary-text-color) 55%, transparent); }
   .qm:hover, .qm.on { color:#fff; background: var(--g, var(--rk-air)); border-color: var(--g, var(--rk-air)); }

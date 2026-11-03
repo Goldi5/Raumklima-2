@@ -1,4 +1,4 @@
-/* Raumklima 0.39.8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.39.9 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1243,7 +1243,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.39.8";
+  var RK_VERSION = "0.39.9";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1791,6 +1791,17 @@
   .row .l { font-size:.98rem; color:var(--primary-text-color); min-width:0; }
   .row .l small { display:block; margin-top:2px; font-size:.8rem; line-height:1.3; color:var(--secondary-text-color); }
   .row .lbl { display:inline-flex; align-items:center; gap:6px; }
+  .row .stepper:not(.ro) span { cursor:pointer; border-radius:8px; padding:2px 6px; margin:0 2px; }
+  .row .stepper:not(.ro) span:hover { background: color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .stepper input.numedit { width:70px; text-align:center; font:inherit; padding:3px 4px; border-radius:8px;
+    border:1px solid color-mix(in srgb, var(--rk-heat) 55%, transparent); background:var(--card-background-color); color:var(--primary-text-color); }
+  /* Dezente Zebra-Streifen, damit das Auge in langen Gruppen die Zeile hält. */
+  .rws > .row:nth-of-type(even) { background: color-mix(in srgb, var(--primary-text-color) 2.5%, transparent); }
+  @container (min-width: 1100px) {
+    .grp.pair .rws { display:grid; grid-template-columns:1fr 1fr; column-gap:56px; }
+    .grp.pair .rws > .row { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+    .grp.pair .rws > .row:nth-of-type(-n+2) { border-top:0; }
+  }
   .qm { all:unset; cursor:pointer; flex:none; width:18px; height:18px; border-radius:50%; display:inline-grid; place-items:center; font-size:.72rem; font-weight:700;
     color: var(--secondary-text-color); border:1.5px solid color-mix(in srgb, var(--secondary-text-color) 55%, transparent); }
   .qm:hover, .qm.on { color:#fff; background: var(--g, var(--rk-air)); border-color: var(--g, var(--rk-air)); }
@@ -3357,7 +3368,10 @@
     }
     _grp(title, icon, tone, rows, cls = "", extra = "") {
       const g = RK_GROUP_OF[title] || "advanced";
-      return `<div class="grp ${cls}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
+      const rowCount = (rows.match(/class="row"/g) || []).length;
+      const ctlCount = (rows.match(/class="tgl/g) || []).length + (rows.match(/class="segs"/g) || []).length;
+      const pairable = rowCount >= 4 && rowCount % 2 === 0 && ctlCount >= rowCount && !/tblwrap|class="people"|stepper|numedit/.test(rows);
+      return `<div class="grp ${cls}${pairable ? " pair" : ""}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
     }
     _stepper(attrs, value, unit, dec) {
       const ro = !this._admin;
@@ -4072,6 +4086,60 @@
         apply(el.dataset.opt, { [el.dataset.key]: v });
       }));
       $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
+      $(".stepper span").forEach((span) => span.addEventListener("click", () => {
+        const box = span.closest(".stepper");
+        const btn = box && box.querySelector("button");
+        if (!box || !btn || !this._admin || box.classList.contains("ro") || span.querySelector("input")) return;
+        const d = btn.dataset;
+        if (d.schedtemp || d.schedmove) return;
+        let cur = parseFloat(d.val), step = parseFloat(d.step) || 0.5, min = parseFloat(d.min), max = parseFloat(d.max);
+        if (d.num) {
+          const st = this._st(d.num);
+          if (!st) return;
+          const a = st.attributes || {};
+          cur = parseFloat(st.state);
+          step = parseFloat(a.step) || 0.5;
+          min = parseFloat(a.min);
+          max = parseFloat(a.max);
+        }
+        const html = span.innerHTML;
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.inputMode = "decimal";
+        inp.className = "numedit";
+        inp.step = String(step);
+        if (!isNaN(min)) inp.min = String(min);
+        if (!isNaN(max)) inp.max = String(max);
+        inp.value = isNaN(cur) ? "" : String(cur);
+        span.innerHTML = ``;
+        span.appendChild(inp);
+        inp.focus();
+        inp.select();
+        let done = false;
+        const finish = (ok) => {
+          if (done) return;
+          done = true;
+          let v = parseFloat(String(inp.value).replace(",", "."));
+          span.innerHTML = html;
+          if (!ok || isNaN(v)) return;
+          v = Math.round(v / step) * step;
+          if (!isNaN(min)) v = Math.max(min, v);
+          if (!isNaN(max)) v = Math.min(max, v);
+          v = Math.round(v * 100) / 100;
+          if (d.num) this._hass.callService("number", "set_value", { entity_id: d.num, value: v });
+          else if (d.opt) apply(d.opt, { [d.key]: v });
+        };
+        inp.addEventListener("blur", () => finish(true));
+        inp.addEventListener("keydown", (ev) => {
+          if (ev.key === "Enter") {
+            ev.preventDefault();
+            finish(true);
+          } else if (ev.key === "Escape") {
+            ev.preventDefault();
+            finish(false);
+          }
+        });
+      }));
       const sp = (v) => String(v).split("|");
       $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
         const id = el.dataset.schedadd;

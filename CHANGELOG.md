@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.39.9 – 2026-11-03
+
+### Neu
+- **Wert antippen und direkt eintippen:** Ein Tipp auf die Zahl im Stepper öffnet ein Eingabefeld
+  (Enter übernimmt, Escape bricht ab) – statt nur −/+ zu drücken (B).
+- **Kurze Schalter paarweise:** Gruppen, die nur aus Schaltern/Segmenten bestehen, zeigen zwei Zeilen
+  nebeneinander, sobald die Karte breit genug ist (E).
+- **Dezente Zebra-Streifen** in langen Gruppen (D).
+
 ## 0.39.8 – 2026-11-03
 
 ### Geändert
