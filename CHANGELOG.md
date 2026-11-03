@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.30.1 – 2026-11-03
+
+### Geändert
+- **Überwachungsräume ohne große Raumkarte:** In der Dashboard-Strategie bekommen Räume ohne Heizung keine
+  eigene Raumseite mehr — die wäre ohne Regler leer. Sie erscheinen als Kachel in der Übersicht, mit
+  Temperatur, Feuchte, CO₂ und den Lüftungshinweisen; Verlauf, Bericht und Protokoll enthalten sie weiter.
+
 ## 0.30.0 – 2026-11-03
 
 ### Neu

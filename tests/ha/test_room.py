@@ -235,7 +235,9 @@ async def test_boost_button_starts_and_stops(hass: HomeAssistant, setup, trv: Fa
     assert hass.states.get("climate.bad").attributes["boost_until"] is None
 
 
-async def test_preheats_before_schedule_window(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+async def test_preheats_before_schedule_window(
+    hass: HomeAssistant, setup, trv: FakeTrv, freezer
+) -> None:
     """Mit gelernter Aufheizzeit wird vor dem Zeitfenster angefangen (Phase 4)."""
     from datetime import timedelta
 
@@ -243,6 +245,10 @@ async def test_preheats_before_schedule_window(hass: HomeAssistant, setup, trv: 
 
     from custom_components.raumklima.const import CONF_SCHEDULES
     from custom_components.raumklima.shared import domain_data
+
+    # Feste Uhrzeit: sonst liegt „in 60 Minuten" je nach Tageszeit hinter Mitternacht
+    # und das Fenster gilt als bereits laufend (HA-Tests laufen in US/Pacific).
+    freezer.move_to("2026-06-15 12:00:00+00:00")
 
     _hub, room = setup
     ctrl = domain_data(hass)["rooms"][room.entry_id]

@@ -54,7 +54,9 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
       title: t("Räume"), path: "raeume", icon: "mdi:home-thermometer", type: "sections", max_columns: 3,
       sections: [
         { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
-        ...rooms.map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] })),
+        // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
+        // sie erscheinen nur als Kachel in der Übersicht.
+        ...rooms.filter((r) => r.attrs.monitor !== true).map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, grid_options: { columns: "full" } }] })),
       ],
     };
 
