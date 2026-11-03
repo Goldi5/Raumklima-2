@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.27.0 – 2026-11-02
+
+### Neu
+- **Zeitfenster umsortieren** (Issue #10): Pfeile ▲/▼ an jedem Fenster und ein Knopf **„nach Uhrzeit
+  sortieren"**. Die Reihenfolge zählt nur bei überlappenden Fenstern – dann gewinnt das untere; das steht
+  jetzt als Hinweis direkt im Editor.
+
 ## 0.26.0 – 2026-11-02
 
 ### Geändert

@@ -476,6 +476,14 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }
     return this._sched[id];
   }
+  _schedLen(id) {
+    return (this._sched[id] || []).length;
+  }
+  /** Minuten seit Mitternacht – für „nach Uhrzeit sortieren" (Fenster über Mitternacht zählen als spät). */
+  _schedStart(w) {
+    const [h, m] = String((w && w.start) || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
+    return h * 60 + m;
+  }
   _pushSched(id) {
     const list = (this._sched[id] || []).map((w) => ({
       days: [...(w.days || [])].sort((a, b) => a - b),
@@ -497,6 +505,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
+      <div class="stepper mv"><button data-schedmove="${id}|${i}|-1" title="${t("nach oben")}" aria-label="${t("nach oben")}" ${i === 0 ? "disabled" : ""}>▲</button><button data-schedmove="${id}|${i}|1" title="${t("nach unten")}" aria-label="${t("nach unten")}" ${i === this._schedLen(id) - 1 ? "disabled" : ""}>▼</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
   }
@@ -525,6 +534,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
       rows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
     } else {
       list.forEach((w, i) => rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days)))));
+    }
+    if (!ro && list.length) {
+      rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><button class="add" data-schedsort="${id}"><ha-icon icon="mdi:sort-clock-ascending-outline"></ha-icon>${t("nach Uhrzeit sortieren")}</button><span class="hint">${t("Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere")}</span></div></div>`);
     }
     if (!ro && list.length < 6) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
@@ -788,6 +800,22 @@ export class RaumklimaSettingsCard extends HTMLElement {
       }
       el.value = v;
       w[which] = v;
+      this._pushSched(id);
+    }));
+    $("[data-schedmove]").forEach((el) => el.addEventListener("click", () => {
+      const [id, i, dir] = sp(el.dataset.schedmove);
+      const list = this._schedList(id, this._schedSeed(id) || []);
+      const a = parseInt(i, 10);
+      const b = a + parseInt(dir, 10);
+      if (a < 0 || b < 0 || a >= list.length || b >= list.length) return;
+      [list[a], list[b]] = [list[b], list[a]];
+      this._pushSched(id);
+    }));
+    $("[data-schedsort]").forEach((el) => el.addEventListener("click", async () => {
+      const id = el.dataset.schedsort;
+      const list = this._schedList(id, this._schedSeed(id) || []);
+      list.sort((x, y) => this._schedStart(x) - this._schedStart(y));
+      this._flash(t("Zeitfenster nach Uhrzeit sortiert"));
       this._pushSched(id);
     }));
     $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {

@@ -561,4 +561,9 @@ export const FR = {
   "Ziel {v}° · Wunsch {w}°": "Consigne {v}° · souhait {w}°",
   "Anwesenheit aus": "Présence désactivée",
   "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "aucune évaluation : rien n'est abaissé selon la présence, rien n'est préchauffé, aucun message d'absence – prévu quand la localisation est impossible",
+  "nach oben": "vers le haut",
+  "nach unten": "vers le bas",
+  "nach Uhrzeit sortieren": "trier par heure",
+  "Zeitfenster nach Uhrzeit sortiert": "fenêtres triées par heure de début",
+  "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "l'ordre ne compte que si les fenêtres se chevauchent – la plus basse l'emporte",
 };

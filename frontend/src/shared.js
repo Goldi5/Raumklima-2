@@ -495,6 +495,8 @@ export const SETTINGS_STYLES = `
   .row .l small { display:block; color:var(--secondary-text-color); font-size:.84rem; margin-top:1px; }
   .row .v { font-size:1rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
   .row .v.mute { color:var(--secondary-text-color); font-weight:500; }
+  .stepper.mv button { font-size:.7rem; padding:2px 5px; }
+  .stepper.mv button[disabled] { opacity:.3; cursor:default; }
   .stepper { display:inline-flex; align-items:center; gap:4px; background: var(--ha-card-background, var(--card-background-color)); border-radius:999px; padding:3px; box-shadow: 0 1px 3px rgba(0,0,0,.08); flex:none; }
   .stepper button { all:unset; cursor:pointer; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:1.2rem; font-weight:700; color:var(--g); background: color-mix(in srgb, var(--g) 12%, transparent); }
   .stepper button:active { transform: scale(.92); }

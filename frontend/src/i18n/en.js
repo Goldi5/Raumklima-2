@@ -561,4 +561,9 @@ export const EN = {
   "Ziel {v}° · Wunsch {w}°": "Target {v}° · wish {w}°",
   "Anwesenheit aus": "Presence off",
   "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "no evaluation at all: nothing is lowered for absence, nothing preheated, no away messages – for setups without any tracking",
+  "nach oben": "up",
+  "nach unten": "down",
+  "nach Uhrzeit sortieren": "sort by time",
+  "Zeitfenster nach Uhrzeit sortiert": "time windows sorted by start",
+  "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "the order only matters when windows overlap – the lower one wins",
 };

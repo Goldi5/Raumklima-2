@@ -1,4 +1,4 @@
-/* Raumklima 0.26.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.27.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -561,7 +561,12 @@
     "Bitte Uhrzeit als HH:MM eingeben": "Please enter the time as HH:MM",
     "Ziel {v}° · Wunsch {w}°": "Target {v}° · wish {w}°",
     "Anwesenheit aus": "Presence off",
-    "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "no evaluation at all: nothing is lowered for absence, nothing preheated, no away messages – for setups without any tracking"
+    "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "no evaluation at all: nothing is lowered for absence, nothing preheated, no away messages – for setups without any tracking",
+    "nach oben": "up",
+    "nach unten": "down",
+    "nach Uhrzeit sortieren": "sort by time",
+    "Zeitfenster nach Uhrzeit sortiert": "time windows sorted by start",
+    "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "the order only matters when windows overlap – the lower one wins"
   };
 
   // src/i18n/fr.js
@@ -1125,7 +1130,12 @@
     "Bitte Uhrzeit als HH:MM eingeben": "Merci d'indiquer l'heure au format HH:MM",
     "Ziel {v}° · Wunsch {w}°": "Consigne {v}° · souhait {w}°",
     "Anwesenheit aus": "Présence désactivée",
-    "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "aucune évaluation : rien n'est abaissé selon la présence, rien n'est préchauffé, aucun message d'absence – prévu quand la localisation est impossible"
+    "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist": "aucune évaluation : rien n'est abaissé selon la présence, rien n'est préchauffé, aucun message d'absence – prévu quand la localisation est impossible",
+    "nach oben": "vers le haut",
+    "nach unten": "vers le bas",
+    "nach Uhrzeit sortieren": "trier par heure",
+    "Zeitfenster nach Uhrzeit sortiert": "fenêtres triées par heure de début",
+    "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "l'ordre ne compte que si les fenêtres se chevauchent – la plus basse l'emporte"
   };
 
   // src/i18n.js
@@ -1169,7 +1179,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.26.0";
+  var RK_VERSION = "0.27.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1622,6 +1632,8 @@
   .row .l small { display:block; color:var(--secondary-text-color); font-size:.84rem; margin-top:1px; }
   .row .v { font-size:1rem; font-weight:600; color:var(--primary-text-color); text-align:right; font-variant-numeric:tabular-nums; }
   .row .v.mute { color:var(--secondary-text-color); font-weight:500; }
+  .stepper.mv button { font-size:.7rem; padding:2px 5px; }
+  .stepper.mv button[disabled] { opacity:.3; cursor:default; }
   .stepper { display:inline-flex; align-items:center; gap:4px; background: var(--ha-card-background, var(--card-background-color)); border-radius:999px; padding:3px; box-shadow: 0 1px 3px rgba(0,0,0,.08); flex:none; }
   .stepper button { all:unset; cursor:pointer; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:1.2rem; font-weight:700; color:var(--g); background: color-mix(in srgb, var(--g) 12%, transparent); }
   .stepper button:active { transform: scale(.92); }
@@ -3344,6 +3356,14 @@
       }
       return this._sched[id];
     }
+    _schedLen(id) {
+      return (this._sched[id] || []).length;
+    }
+    /** Minuten seit Mitternacht – für „nach Uhrzeit sortieren" (Fenster über Mitternacht zählen als spät). */
+    _schedStart(w) {
+      const [h, m] = String(w && w.start || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
+      return h * 60 + m;
+    }
     _pushSched(id) {
       const list = (this._sched[id] || []).map((w) => ({
         days: [...w.days || []].sort((a, b) => a - b),
@@ -3363,6 +3383,7 @@
       <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
+      <div class="stepper mv"><button data-schedmove="${id}|${i}|-1" title="${t("nach oben")}" aria-label="${t("nach oben")}" ${i === 0 ? "disabled" : ""}>▲</button><button data-schedmove="${id}|${i}|1" title="${t("nach unten")}" aria-label="${t("nach unten")}" ${i === this._schedLen(id) - 1 ? "disabled" : ""}>▼</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
     }
@@ -3391,6 +3412,9 @@
         rows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
       } else {
         list.forEach((w, i) => rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days)))));
+      }
+      if (!ro && list.length) {
+        rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><button class="add" data-schedsort="${id}"><ha-icon icon="mdi:sort-clock-ascending-outline"></ha-icon>${t("nach Uhrzeit sortieren")}</button><span class="hint">${t("Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere")}</span></div></div>`);
       }
       if (!ro && list.length < 6) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
@@ -3673,6 +3697,22 @@
         }
         el.value = v;
         w[which] = v;
+        this._pushSched(id);
+      }));
+      $("[data-schedmove]").forEach((el) => el.addEventListener("click", () => {
+        const [id, i, dir] = sp(el.dataset.schedmove);
+        const list = this._schedList(id, this._schedSeed(id) || []);
+        const a = parseInt(i, 10);
+        const b = a + parseInt(dir, 10);
+        if (a < 0 || b < 0 || a >= list.length || b >= list.length) return;
+        [list[a], list[b]] = [list[b], list[a]];
+        this._pushSched(id);
+      }));
+      $("[data-schedsort]").forEach((el) => el.addEventListener("click", async () => {
+        const id = el.dataset.schedsort;
+        const list = this._schedList(id, this._schedSeed(id) || []);
+        list.sort((x, y) => this._schedStart(x) - this._schedStart(y));
+        this._flash(t("Zeitfenster nach Uhrzeit sortiert"));
         this._pushSched(id);
       }));
       $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
