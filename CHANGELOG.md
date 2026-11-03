@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.46.1 – 2026-11-03
+
+### Behoben
+- **Die Übersicht folgt jetzt der Wetterquelle aus den Einstellungen.** Bisher zeigte sie die
+  Wetter-Entität, die beim Anlegen des Dashboards hineingeschrieben wurde – eine spätere Änderung
+  unter *Einstellungen → Wetterquelle* kam dort nie an. Jetzt gilt die Einstellung der Wohnung,
+  die Kopie im Dashboard dient nur noch als Rückfall.
+- **Keine falsche Warnung „Thermostat arbeitet nach eigenem Zeitplan“ mehr** bei Geräten, die
+  Raumklima selbst über `comfort_temperature` ansteuert (Tuya TRV602Z): Deren Systemmodus heißt
+  zwar „auto“, regelt aber auf unsere Zahl. Vorher stand dadurch in jedem Raum „Problem“.
+
+### Dokumentation
+- Diagnose-Datei beschrieben (FAQ und Handbuch, de/en/fr).
+
 ## 0.46.0 – 2026-11-03
 
 ### Neu

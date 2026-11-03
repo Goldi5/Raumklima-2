@@ -68,3 +68,8 @@ def test_preset_on_warnt_als_dauer_offen() -> None:
 def test_valve_heating_min_konstante() -> None:
     from custom_components.raumklima.const import VALVE_HEATING_MIN
     assert 0 < VALVE_HEATING_MIN <= 20
+
+
+def test_auto_ist_ok_wenn_wir_comfort_temperature_schreiben() -> None:
+    """Beim TRV602Z heißt unser Schreibweg „comfort“ – dann ist Systemmodus auto gewollt."""
+    assert check_trv_mode("auto", "comfort", device_preset=True) is None

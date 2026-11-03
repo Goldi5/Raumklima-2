@@ -26,6 +26,17 @@ export class RaumklimaOverviewCard extends HTMLElement {
         .then((r) => { this._known = new Set((r && r.dashboards) || []); this._render(); })
         .catch(() => {});
     }
+    // Wetterquelle: es gilt die Einstellung der Wohnung – nicht die Kopie, die beim
+    // Anlegen des Dashboards hineingeschrieben wurde.
+    if (!this._weatherAsked) {
+      this._weatherAsked = true;
+      hass.callWS({ type: "raumklima/config", home: rkHomeId(hass, this._config) })
+        .then((r) => {
+          const wx = r && r.hub && r.hub.options && r.hub.options.weather_entity;
+          if (wx && wx !== this._hubWeather) { this._hubWeather = wx; this._render(); }
+        })
+        .catch(() => {});
+    }
     // Darstellung je Wohnung (Reihenfolge, Ausblenden, Farbe)
     if (!this._layoutAsked) {
       this._layoutAsked = true;
@@ -87,7 +98,8 @@ export class RaumklimaOverviewCard extends HTMLElement {
     // Ausgeschaltete Räume werden bei Abwesenheit nicht abgesenkt – das war bisher nicht erkennbar
     const offRooms = rows.filter((r) => r.state === "off").length;
     const warn = rows.filter((r) => ["please_open", "please_close", "too_cold"].includes(r.attributes.ventilation) || r.attributes.sync === "failed" || ["sensor_unavailable", "trv_unavailable"].includes(r.attributes.status)).length;
-    const w = this._config.weather ? this._hass.states[this._config.weather] : null;
+    const wxId = this._hubWeather || this._config.weather;
+    const w = wxId ? this._hass.states[wxId] : null;
     const outT = w ? w.attributes.temperature : rows.map((r) => r.attributes.outdoor_temperature).find((v) => v !== undefined && v !== null);
     const outH = w ? w.attributes.humidity : rows.map((r) => r.attributes.outdoor_humidity).find((v) => v !== undefined && v !== null);
     const allSync = rows.every((r) => r.attributes.sync === "ok");

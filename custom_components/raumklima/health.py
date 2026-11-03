@@ -73,7 +73,9 @@ def check_trv_mode(mode: str | None, preset: str | None, *, device_preset: bool 
     """
     mode = str(mode or "").lower()
     preset = str(preset or "").lower()
-    if mode in TRV_SCHEDULE_MODES or preset in TRV_SCHEDULE_PRESETS:
+    # Steht das Gerät auf „Auto“, weil *wir* über comfort_temperature schreiben, ist das gewollt:
+    # der TRV602Z regelt dann auf unsere Zahl, obwohl sein Systemmodus „auto“ heißt.
+    if (mode in TRV_SCHEDULE_MODES or preset in TRV_SCHEDULE_PRESETS) and not device_preset:
         return Issue(
             "trv_mode",
             SEV_WARN,

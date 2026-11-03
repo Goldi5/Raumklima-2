@@ -435,17 +435,16 @@ sont enregistrés – l'année n'a pas d'importance.
 
 # Obtenir de l’aide
 
-- **Documentation détaillée :** github.com/Goldi5/Raumklima-2 → documentation
-- **Signaler un bug ou demander une fonctionnalité :** github.com/Goldi5/Raumklima-2/issues
-- **Fichier de diagnostic pour un rapport de bug :** *Paramètres → Appareils et services → Raumklima → pièce → ⋮ → Télécharger les diagnostics*
+- **Manuel détaillé :** github.com/Goldi5/Raumklima-2 → Documentation
+- **Signaler un bug ou proposer une idée :** github.com/Goldi5/Raumklima-2/issues
+- **Fichier de diagnostic pour un rapport :** le bouton **Diagnostic** dans les réglages ou
+  *Réglages → Appareils et services → Raumklima → Pièce → ⋮ → Télécharger le diagnostic*
 
 ## En cas de problème : le diagnostic
 
-Au-dessus du contenu des réglages se trouve le bouton **Diagnostic**. Il télécharge un seul
-fichier contenant tout ce qu'il faut pour trouver la panne : les versions, vos réglages, les
-valeurs de chaque pièce, les données brutes des appareils concernés avec leurs attributs, les
-dernières décisions avec leur motif et les dernières lignes de journal de l'intégration.
-
-Le chemin habituel de Home Assistant fonctionne aussi : *Réglages → Appareils → Raumklima →
-Télécharger le diagnostic*. Les identifiants, mots de passe et coordonnées sont masqués – vous
-pouvez joindre le fichier tel quel à un ticket.
+Le bouton **Diagnostic** au-dessus du contenu des réglages télécharge un seul fichier contenant tout ce
+qu'il faut pour trouver la panne : les versions, vos réglages, les valeurs de chaque pièce, les données
+brutes des appareils concernés avec leurs attributs, les dernières décisions avec leur motif et les
+dernières lignes de journal de l'intégration. Le même contenu se trouve sous *Réglages → Appareils →
+Raumklima → Télécharger le diagnostic*. Les identifiants, mots de passe et coordonnées sont masqués –
+le fichier peut être joint tel quel à un ticket.

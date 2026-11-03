@@ -438,15 +438,14 @@ Jahr ist egal.
 
 - **Ausführliche Anleitung:** github.com/Goldi5/Raumklima-2 → Dokumentation
 - **Fehler melden oder Wunsch äußern:** github.com/Goldi5/Raumklima-2/issues
-- **Diagnose-Datei für einen Fehlerbericht:** *Einstellungen → Geräte & Dienste → Raumklima → Raum → ⋮ → Diagnose herunterladen*
+- **Diagnose-Datei für einen Fehlerbericht:** Knopf **Diagnose** in den Einstellungen oder
+  *Einstellungen → Geräte & Dienste → Raumklima → Raum → ⋮ → Diagnose herunterladen*
 
 ## Wenn etwas nicht stimmt: Diagnose
 
-Über dem Inhalt der Einstellungen sitzt der Knopf **Diagnose**. Er lädt eine einzelne Datei
-herunter, in der alles steht, was zur Fehlersuche nötig ist: die Versionen, deine Einstellungen,
-die Werte jedes Raums, die Rohdaten der beteiligten Geräte samt Attributen, die letzten
-Entscheidungen mit Begründung und die letzten Log-Zeilen der Integration.
-
-Der Weg über Home Assistant geht auch: *Einstellungen → Geräte → Raumklima → Diagnose
-herunterladen*. Zugangsdaten, Passwörter und Koordinaten sind in der Datei unkenntlich gemacht –
-du kannst sie unverändert an ein Issue anhängen.
+Der Knopf **Diagnose** über dem Inhalt der Einstellungen lädt eine einzelne Datei herunter, in der
+alles steht, was zur Fehlersuche nötig ist: die Versionen, deine Einstellungen, die Werte jedes Raums,
+die Rohdaten der beteiligten Geräte samt Attributen, die letzten Entscheidungen mit Begründung und die
+letzten Log-Zeilen der Integration. Derselbe Inhalt steckt hinter *Einstellungen → Geräte → Raumklima
+→ Diagnose herunterladen*. Zugangsdaten, Passwörter und Koordinaten sind unkenntlich gemacht – die
+Datei kann unverändert an ein Issue angehängt werden.

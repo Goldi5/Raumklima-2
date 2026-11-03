@@ -1,4 +1,4 @@
-/* Raumklima 0.46.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.46.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1413,7 +1413,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.46.0";
+  var RK_VERSION = "0.46.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2479,6 +2479,17 @@
         }).catch(() => {
         });
       }
+      if (!this._weatherAsked) {
+        this._weatherAsked = true;
+        hass.callWS({ type: "raumklima/config", home: rkHomeId(hass, this._config) }).then((r) => {
+          const wx = r && r.hub && r.hub.options && r.hub.options.weather_entity;
+          if (wx && wx !== this._hubWeather) {
+            this._hubWeather = wx;
+            this._render();
+          }
+        }).catch(() => {
+        });
+      }
       if (!this._layoutAsked) {
         this._layoutAsked = true;
         rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
@@ -2538,7 +2549,8 @@
       const windows = rows.filter((r) => r.attributes.window_open).length;
       const offRooms = rows.filter((r) => r.state === "off").length;
       const warn = rows.filter((r) => ["please_open", "please_close", "too_cold"].includes(r.attributes.ventilation) || r.attributes.sync === "failed" || ["sensor_unavailable", "trv_unavailable"].includes(r.attributes.status)).length;
-      const w = this._config.weather ? this._hass.states[this._config.weather] : null;
+      const wxId = this._hubWeather || this._config.weather;
+      const w = wxId ? this._hass.states[wxId] : null;
       const outT = w ? w.attributes.temperature : rows.map((r) => r.attributes.outdoor_temperature).find((v) => v !== void 0 && v !== null);
       const outH = w ? w.attributes.humidity : rows.map((r) => r.attributes.outdoor_humidity).find((v) => v !== void 0 && v !== null);
       const allSync = rows.every((r) => r.attributes.sync === "ok");
