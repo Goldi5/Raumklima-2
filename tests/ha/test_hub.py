@@ -39,14 +39,14 @@ async def test_switch_to_always_via_options(hass: HomeAssistant, trv: FakeTrv, s
     assert trv.is_off
     hass.config_entries.async_update_entry(hub, options={**hub.options, "season_mode": "always"})
     await hass.async_block_till_done()
-    # Der Raum wendet die neue Saison verzögert an (Timer/Debounce). Die Zeit in
-    # Ein-Sekunden-Schritten vorstellen, bis das Thermostat schaltet – sonst hängt der
-    # Test von der Rechner-Geschwindigkeit ab (CI-Flake).
+    # Der Raum wendet die neue Saison verzögert an – und nach einem Preset-Kampf kann eine
+    # 30-Minuten-Pause aktiv sein. Die Zeit deshalb in Minuten-Schritten bis zu einer Stunde
+    # vorstellen, bis das Thermostat schaltet (sonst hängt der Test vom Rechner-Tempo ab).
     base = dt_util.utcnow()
-    for step in range(1, 121):
+    for step in range(1, 61):
         if not trv.is_off:
             break
-        async_fire_time_changed(hass, base + timedelta(seconds=step))
+        async_fire_time_changed(hass, base + timedelta(minutes=step))
         await hass.async_block_till_done()
     assert not trv.is_off
 
