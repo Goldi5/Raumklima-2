@@ -1,4 +1,4 @@
-/* Raumklima 0.31.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.33.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -571,7 +571,9 @@
     "nur Messen": "measuring only",
     "Kein Thermostat": "No thermostat",
     "nur Messen und Hinweise": "measuring and hints only",
-    "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Temperature, humidity, CO₂ and ventilation hints – without heating control. A thermostat can be added later in the integration."
+    "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Temperature, humidity, CO₂ and ventilation hints – without heating control. A thermostat can be added later in the integration.",
+    "Abgleich": "Correction",
+    "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "the device has no offset entity – Raumklima shifts the setpoint by the difference between sensor and thermostat instead"
   };
 
   // src/i18n/fr.js
@@ -1145,7 +1147,9 @@
     "nur Messen": "mesure seule",
     "Kein Thermostat": "Pas de thermostat",
     "nur Messen und Hinweise": "mesures et conseils uniquement",
-    "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Température, humidité, CO₂ et conseils d’aération – sans régulation du chauffage. Un thermostat peut être ajouté plus tard dans l’intégration."
+    "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Température, humidité, CO₂ et conseils d’aération – sans régulation du chauffage. Un thermostat peut être ajouté plus tard dans l’intégration.",
+    "Abgleich": "Correction",
+    "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "l’appareil n’a pas d’entité d’offset – Raumklima décale la consigne de l’écart entre la sonde et le thermostat"
   };
 
   // src/i18n.js
@@ -1189,7 +1193,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.31.0";
+  var RK_VERSION = "0.33.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1232,6 +1236,16 @@
       const a = hass.states[e.entity_id].attributes;
       return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id };
     }).filter((h) => h.id);
+  }
+  function rkSchedSortKey(w) {
+    const mins = (v) => {
+      const [h, m] = String(v || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
+      return h * 60 + m;
+    };
+    const start = mins(w && w.start);
+    const end = mins(w && w.end);
+    const days = w && w.days || [];
+    return [start >= end ? start - 1440 : start, -days.length, String(days.join(""))];
   }
   function rkTimeValue(text) {
     const s = String(text || "").trim();
@@ -1948,7 +1962,18 @@
         stat("mdi:valve", ((a.settings || {}).extra_trvs || []).length ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === void 0 ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null),
         a.outdoor_temperature !== void 0 && a.outdoor_temperature !== null ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
         stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
-        a.offset !== void 0 && a.offset !== null ? stat("mdi:tune-variant", t("Offset"), `${a.offset > 0 ? "+" : ""}${fmt(a.offset)}°`, null, sib.offset) : ""
+        // „Offset" gibt es nur, wenn das Gerät eine Offset-Entität hat. Sonst regelt
+        // Raumklima über den Sollwert – dann zeigen wir die Abweichung Fühler↔Thermostat.
+        (() => {
+          if (a.offset !== void 0 && a.offset !== null) {
+            return stat("mdi:tune-variant", t("Offset"), `${a.offset > 0 ? "+" : ""}${fmt(a.offset)}°`, null, sib.offset);
+          }
+          if (a.calibration_mode === "target" && a.current_temperature != null && a.trv_temperature != null) {
+            const d = a.current_temperature - a.trv_temperature;
+            return stat("mdi:tune-variant", t("Abgleich"), `${d > 0 ? "+" : ""}${fmt(d)}°`, Math.abs(d) >= 1 ? "warn" : null, null);
+          }
+          return "";
+        })()
       ].join("");
       const syncCls = a.sync === "ok" ? "" : a.sync;
       const syncLabel = { ok: t("synchron"), pending: t("sendet …"), failed: t("keine Antwort") }[a.sync] || a.sync;
@@ -3382,9 +3407,13 @@
     _schedLen(id) {
       return (this._sched[id] || []).length;
     }
-    /** Minuten seit Mitternacht – für „nach Uhrzeit sortieren" (Fenster über Mitternacht zählen als spät). */
+    /** Minuten seit Mitternacht. */
     _schedStart(w) {
       const [h, m] = String(w && w.start || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
+      return h * 60 + m;
+    }
+    _schedEnd(w) {
+      const [h, m] = String(w && w.end || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
       return h * 60 + m;
     }
     _pushSched(id) {
@@ -3535,7 +3564,11 @@
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
-        this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"), offTxt),
+        this._row(
+          "Kalibrierung",
+          this._v(RK_CAL[s.calibration_mode] || "–"),
+          s.calibration_mode === "target" ? t("das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat") : offTxt
+        ),
         this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
         this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
         this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? t("ja") : t("nein"))),
@@ -3737,7 +3770,11 @@
       $("[data-schedsort]").forEach((el) => el.addEventListener("click", async () => {
         const id = el.dataset.schedsort;
         const list = this._schedList(id, this._schedSeed(id) || []);
-        list.sort((x, y) => this._schedStart(x) - this._schedStart(y));
+        list.sort((x, y) => {
+          const a = rkSchedSortKey(x);
+          const b = rkSchedSortKey(y);
+          return a[0] - b[0] || a[1] - b[1] || a[2].localeCompare(b[2]);
+        });
         this._flash(t("Zeitfenster nach Uhrzeit sortiert"));
         this._pushSched(id);
       }));

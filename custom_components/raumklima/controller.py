@@ -296,6 +296,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             verify_delay=float(self.config[CONF_SYNC_VERIFY_DELAY]),
             max_retries=int(self.config[CONF_SYNC_MAX_RETRIES]),
             slow_interval=SLOW_RETRY_INTERVAL,
+            device_interval=lambda: self.trv_report_interval,
             on_change=self._notify,
             on_failed=self._on_sync_failed,
             on_recovered=self._on_sync_recovered,
@@ -303,6 +304,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         )
         self._last_plan: tuple[bool, float, str] | None = None
         self._peeking = False  # plan() nur lesen, keine Zustände verbrauchen
+        self._trv_reports: deque[datetime] = deque(maxlen=6)
 
     # ================================================================ Lifecycle
     async def async_start(self) -> None:
@@ -891,6 +893,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if self._ingest_sensor(new):
                 self.hass.async_create_task(self.async_calibrate())
         elif entity_id == self.trv:
+            self._trv_reports.append(dt_util.utcnow())
             self._on_trv(old, new)
         elif entity_id == self.cal_entity:
             self.sync.check_all()
@@ -1120,6 +1123,21 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             return self.plan()
         finally:
             self._peeking = False
+
+    @property
+    def trv_report_interval(self) -> float | None:
+        """Abstand, in dem das Thermostat von sich aus meldet (Sekunden, Median)."""
+        if len(self._trv_reports) < 3:
+            return None
+        deltas = [
+            (b - a).total_seconds()
+            for a, b in zip(self._trv_reports, list(self._trv_reports)[1:], strict=False)
+        ]
+        deltas = [d for d in deltas if 0 < d <= 7200]
+        if len(deltas) < 2:
+            return None
+        deltas.sort()
+        return deltas[len(deltas) // 2]
 
     @property
     def applied_target(self) -> float:

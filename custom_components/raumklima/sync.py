@@ -15,6 +15,8 @@ from typing import Any
 
 from .logic import retry_delay
 
+SLOW_RETRY_CAP = 1800.0  # s – Obergrenze für die Geduld mit langsamen Geräten
+
 _LOGGER = logging.getLogger(__name__)
 
 Scheduler = Callable[[float, Callable[[], Any]], Callable[[], None]]
@@ -43,6 +45,7 @@ class SyncManager:
         run_task: Callable[[Awaitable[Any]], Any],
         is_target_available: Callable[[], bool],
         verify_delay: float = 20,
+        device_interval: Callable[[], float | None] | None = None,
         max_retries: int = 5,
         slow_interval: float = 300,
         on_change: Callable[[], None] | None = None,
@@ -54,6 +57,9 @@ class SyncManager:
         self._run_task = run_task
         self._available = is_target_available
         self.verify_delay = verify_delay
+        # Wie oft das Gerät von sich aus meldet (FRITZ!DECT: alle 15 min).
+        # Danach richtet sich die Geduld, sonst gilt ein langsames Gerät als stumm (Issue #16).
+        self._device_interval = device_interval or (lambda: None)
         self.max_retries = max_retries
         self.slow_interval = slow_interval
         self._on_change = on_change or (lambda: None)
@@ -133,6 +139,13 @@ class SyncManager:
             if job.check():
                 self._done(job)
 
+    def _base_delay(self) -> float:
+        """Wartezeit je Versuch – mindestens so lang, wie das Gerät zum Melden braucht."""
+        interval = self._device_interval() or 0
+        if interval <= self.verify_delay * 2:
+            return self.verify_delay
+        return min(interval * 1.5, SLOW_RETRY_CAP)
+
     # ------------------------------------------------------------ intern
     async def _attempt(self, job: SyncJob) -> None:
         job.attempts += 1
@@ -150,7 +163,7 @@ class SyncManager:
         else:
             _LOGGER.debug("%s: Gerät nicht erreichbar, warte", job.description)
         delay = retry_delay(
-            job.attempts, self.verify_delay, self.max_retries, self.slow_interval
+            job.attempts, self._base_delay(), self.max_retries, self.slow_interval
         )
         job.cancel = self._schedule(delay, lambda: self._verify(job))
         self._changed()

@@ -649,3 +649,25 @@ async def test_dachluke_zaehlt_als_fenster(hass: HomeAssistant, sensors) -> None
     await hass.async_block_till_done()
     await advance(hass, 20)
     assert ctrl.window_open is True
+
+
+async def test_meldeabstand_des_thermostats_wird_gemessen(
+    hass: HomeAssistant, setup, trv: FakeTrv, freezer
+) -> None:
+    """FRITZ!DECT meldet nur alle 15 min – daraus ergibt sich die Geduld (Issue #16)."""
+    from datetime import timedelta
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.trv_report_interval is None
+
+    for i in range(4):
+        freezer.tick(timedelta(minutes=15))
+        trv.set(temperature=19.0 + (i % 2) * 0.5)
+        await hass.async_block_till_done()
+
+    interval = ctrl.trv_report_interval
+    assert interval is not None
+    assert 850 <= interval <= 950

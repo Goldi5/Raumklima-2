@@ -142,3 +142,22 @@ async def test_retry_all_now_after_reconnect() -> None:
     sync.check_all()
     assert sync.state == "ok"
 
+
+
+def test_geduld_richtet_sich_nach_dem_geraet() -> None:
+    """Langsame Geräte (FRITZ!DECT: alle 15 min) dürfen nicht als stumm gelten (Issue #16)."""
+    from custom_components.raumklima.sync import SLOW_RETRY_CAP, SyncManager
+
+    def make(interval):
+        return SyncManager(
+            schedule=lambda delay, action: (lambda: None),
+            run_task=lambda coro: None,
+            is_target_available=lambda: True,
+            verify_delay=20,
+            device_interval=lambda: interval,
+        )
+
+    assert make(None)._base_delay() == 20
+    assert make(30)._base_delay() == 20  # normales Gerät: wie eingestellt
+    assert make(900)._base_delay() == 1350  # 1,5 × Meldeabstand
+    assert make(5000)._base_delay() == SLOW_RETRY_CAP

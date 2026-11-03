@@ -571,4 +571,6 @@ export const FR = {
   "Kein Thermostat": "Pas de thermostat",
   "nur Messen und Hinweise": "mesures et conseils uniquement",
   "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Température, humidité, CO₂ et conseils d’aération – sans régulation du chauffage. Un thermostat peut être ajouté plus tard dans l’intégration.",
+  "Abgleich": "Correction",
+  "das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "l’appareil n’a pas d’entité d’offset – Raumklima décale la consigne de l’écart entre la sonde et le thermostat",
 };

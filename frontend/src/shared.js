@@ -54,6 +54,19 @@ export function rkHomes(hass) {
     .map((e) => { const a = hass.states[e.entity_id].attributes; return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id }; })
     .filter((h) => h.id);
 }
+// Sortierschlüssel für Zeitfenster: Fenster über Mitternacht (22:00–06:30) beginnen den Tag
+// und stehen deshalb vorn; bei gleicher Startzeit zuerst das breitere, dann nach Tagen.
+export function rkSchedSortKey(w) {
+  const mins = (v) => {
+    const [h, m] = String(v || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
+    return h * 60 + m;
+  };
+  const start = mins(w && w.start);
+  const end = mins(w && w.end);
+  const days = (w && w.days) || [];
+  return [start >= end ? start - 1440 : start, -days.length, String(days.join(""))];
+}
+
 // Eigene Zeitfelder: <input type="time"> zeichnet der Browser in der Sprache des
 // Betriebssystems (12 h mit AM/PM) – unabhängig von der Zeiteinstellung in Home Assistant.
 // Deshalb HH:MM als Textfeld, hier wird die Eingabe geprüft und vereinheitlicht.

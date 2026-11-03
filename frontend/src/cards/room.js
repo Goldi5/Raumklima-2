@@ -166,7 +166,18 @@ export class RaumklimaCard extends HTMLElement {
       a.outdoor_temperature !== undefined && a.outdoor_temperature !== null
         ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
       stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
-      a.offset !== undefined && a.offset !== null ? stat("mdi:tune-variant", t("Offset"), `${a.offset > 0 ? "+" : ""}${fmt(a.offset)}°`, null, sib.offset) : "",
+      // „Offset" gibt es nur, wenn das Gerät eine Offset-Entität hat. Sonst regelt
+      // Raumklima über den Sollwert – dann zeigen wir die Abweichung Fühler↔Thermostat.
+      (() => {
+        if (a.offset !== undefined && a.offset !== null) {
+          return stat("mdi:tune-variant", t("Offset"), `${a.offset > 0 ? "+" : ""}${fmt(a.offset)}°`, null, sib.offset);
+        }
+        if (a.calibration_mode === "target" && a.current_temperature != null && a.trv_temperature != null) {
+          const d = a.current_temperature - a.trv_temperature;
+          return stat("mdi:tune-variant", t("Abgleich"), `${d > 0 ? "+" : ""}${fmt(d)}°`, Math.abs(d) >= 1 ? "warn" : null, null);
+        }
+        return "";
+      })(),
     ].join("");
 
     const syncCls = a.sync === "ok" ? "" : a.sync;

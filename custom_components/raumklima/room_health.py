@@ -53,10 +53,19 @@ class HealthMixin:
         """
         registry = er.async_get(self.hass)
         trv_entry = registry.async_get(self.trv)
-        if trv_entry is None or trv_entry.device_id is None:
+        if trv_entry is None:
             return None
+        # Manche Integrationen legen den Sensor auf ein eigenes Gerät (Danfoss Ally).
+        # Deshalb zusätzlich im selben Bereich suchen.
+        candidates = (
+            list(er.async_entries_for_device(registry, trv_entry.device_id))
+            if trv_entry.device_id
+            else []
+        )
+        if not candidates and trv_entry.area_id:
+            candidates = [e for e in registry.entities.values() if e.area_id == trv_entry.area_id]
         keys = ("position", "opening", "öffnung", "oeffnung", "valve", "ventil", "tappet")
-        for entry in er.async_entries_for_device(registry, trv_entry.device_id):
+        for entry in candidates:
             if entry.domain != "sensor" or entry.disabled_by:
                 continue
             state = self.hass.states.get(entry.entity_id)

@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.33.0 – 2026-11-03
+
+### Behoben
+- **„nach Uhrzeit sortieren" stellte Nachtfenster ans Ende** (Issue #10): Ein Fenster 22:00–06:30 begann den
+  Tag, landete in der Liste aber hinter den Morgenfenstern. Jetzt stehen Fenster über Mitternacht **vorn**;
+  bei gleicher Startzeit zuerst das breitere (mehr Wochentage), danach alphabetisch nach Tagen.
+- **Ventilstellung bei eigenem Gerät** (Issue #15): Liegt der Sensor auf einem anderen Gerät als das Thermostat
+  (Danfoss Ally), wird jetzt zusätzlich im **selben Bereich** gesucht.
+
+## 0.32.0 – 2026-11-03
+
+### Behoben
+- **„Thermostat reagiert nicht" bei langsamen Geräten** (Issue #16): FRITZ!DECT 301/302 melden nur alle
+  15 Minuten. Raumklima hat nach 5 Minuten aufgegeben und den Fehler gemeldet, obwohl das Gerät längst
+  reagiert hatte. Jetzt wird der **Meldeabstand des Geräts gemessen** (Median der letzten Zustandsmeldungen)
+  und die Geduld danach gerichtet — bis zu 30 Minuten. Schnelle Geräte verhalten sich unverändert.
+- **„Offset" fehlte in der Raumkarte** (ohne Offset-Entität): Zeigte das Gerät keine Offset-Entität, war die
+  Kachel leer, obwohl Raumklima über den Sollwert abgleicht. Jetzt steht dort **„Abgleich ±x°"** (Abweichung
+  Fühler ↔ Thermostat), und die Einstellungen erklären den Unterschied.
+
 ## 0.31.0 – 2026-11-03
 
 ### Neu

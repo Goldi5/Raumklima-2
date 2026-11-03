@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, rkSchedSortKey, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -479,9 +479,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
   _schedLen(id) {
     return (this._sched[id] || []).length;
   }
-  /** Minuten seit Mitternacht – für „nach Uhrzeit sortieren" (Fenster über Mitternacht zählen als spät). */
+  /** Minuten seit Mitternacht. */
   _schedStart(w) {
     const [h, m] = String((w && w.start) || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
+    return h * 60 + m;
+  }
+  _schedEnd(w) {
+    const [h, m] = String((w && w.end) || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
     return h * 60 + m;
   }
   _pushSched(id) {
@@ -618,7 +622,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
-        this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"), offTxt),
+        this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"),
+        s.calibration_mode === "target"
+          ? t("das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat")
+          : offTxt),
         this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
         this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
         this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? t("ja") : t("nein"))),
@@ -817,7 +824,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
     $("[data-schedsort]").forEach((el) => el.addEventListener("click", async () => {
       const id = el.dataset.schedsort;
       const list = this._schedList(id, this._schedSeed(id) || []);
-      list.sort((x, y) => this._schedStart(x) - this._schedStart(y));
+      list.sort((x, y) => {
+        const a = rkSchedSortKey(x);
+        const b = rkSchedSortKey(y);
+        return a[0] - b[0] || a[1] - b[1] || a[2].localeCompare(b[2]);
+      });
       this._flash(t("Zeitfenster nach Uhrzeit sortiert"));
       this._pushSched(id);
     }));
