@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.1 – 2026-11-03
+
+### Geändert
+- **Schlafenszeiten ohne Tabelle:** gelernte Bettzeit, Aufstehzeit und Ruhezeit stehen jetzt als Zeilen
+  mit Chips (werktags, Wochenende) – damit ist die letzte Tabelle in den Einstellungen entfallen.
+
 ## 0.44.0 – 2026-11-03
 
 ### Neu

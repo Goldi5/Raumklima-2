@@ -1,4 +1,4 @@
-/* Raumklima 0.44.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.44.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1407,7 +1407,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.44.0";
+  var RK_VERSION = "0.44.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -3738,16 +3738,17 @@
       const sigNames = Object.fromEntries((ch.signals || []).map((x) => [x.id, x.name]));
       const sigChips = signals.map((id) => `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${esc(sigNames[id] || this._name(id))}${this._admin ? ` <button class="mini x" data-sigrm="${esc(id)}" title="${t("entfernen")}">✕</button>` : ""}</span>`).join("");
       const sigAvail = (ch.signals || []).filter((x) => !signals.includes(x.id));
-      const lrn = (k) => {
+      const lrn = (k, label) => {
         const v = sl[k] || {};
         const e = v.effective || {};
-        const s = e.source || {};
-        const mark = (key) => s[key] === "learned" ? ` <span class="lt">${t("gelernt")}</span>` : "";
-        return `<tr><td>${k === "weekday" ? t("Werktags") : t("Wochenende")}</td>
-        <td>${v.bed ? "~" + v.bed : `<span class="no">${t("{n}/4 Nächte", { n: v.nights_bed || 0 })}</span>`}</td>
-        <td>${v.wake ? "~" + v.wake : `<span class="no">${t("{n}/4 Nächte", { n: v.nights_wake || 0 })}</span>`}</td>
-        <td>${e.quiet_start || "–"}${mark("quiet_start")} – ${e.quiet_end || "–"}${mark("quiet_end")}</td>
-        <td>${e.night_start || "–"}${mark("night_start")} – ${e.night_end || "–"}${mark("night_end")}</td></tr>`;
+        const src = e.source || {};
+        const learned = (key) => src[key] === "learned" ? ` · ${t("gelernt")}` : "";
+        const chips = [
+          v.bed ? `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${t("ins Bett ~{v}", { v: v.bed })}${learned("night_start")}</span>` : `<span class="chip2" style="--c:var(--rk-off)"><i></i>${t("{n}/4 Nächte", { n: v.nights_bed || 0 })}</span>`,
+          v.wake ? `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${t("auf ~{v}", { v: v.wake })}${learned("wake")}</span>` : "",
+          e.quiet_start ? `<span class="chip2"><i></i>${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}</span>` : ""
+        ].filter(Boolean).join("");
+        return this._row(t(label), `<div class="chips">${chips}</div>`, "");
       };
       const sleepRows = [
         `<div class="status"><span class="chip" style="--tone:${sl.quiet_now ? "var(--rk-eco)" : "var(--rk-ok)"}"><ha-icon icon="${sl.quiet_now ? "mdi:sleep" : "mdi:white-balance-sunny"}"></ha-icon>${sl.quiet_now ? t("Ruhezeit gerade aktiv") : t("Keine Ruhezeit")}</span>${sl.asleep ? `<span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-off-outline"></ha-icon>${t("Licht aus – alle schlafen")}</span>` : ""}</div>`,
@@ -3757,7 +3758,8 @@
         this._row("Feiertage", this._select(H, "holiday_state", ch.states || [], this._hubOpt("holiday_state") || "", "– keine –"), sl.tonight && sl.tonight.holiday ? t("morgen: {h} – Ruhezeit wie am Wochenende", { h: esc(sl.tonight.holiday) }) : "Nacht vor einem Feiertag gilt wie Wochenende"),
         this._row("Schlaf-Signale", `<div class="chips">${sigChips || this._v("keine", true)}</div>`, "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden"),
         this._admin && sigAvail.length ? `<div class="addrow"><select class="sel" id="addSig">${sigAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-sigadd style="--c:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Signal hinzufügen")}</button></div>` : "",
-        `<div class="tblwrap"><table class="tbl sm"><thead><tr><th></th><th>${t("Ins Bett")}</th><th>${t("Aufstehen")}</th><th>${t("Ruhezeit wirksam")}</th><th>${t("Nachtlüften")}</th></tr></thead><tbody>${lrn("weekday")}${lrn("weekend")}</tbody></table></div>`,
+        lrn("weekday", "Werktags"),
+        lrn("weekend", "Wochenende"),
         `<div class="hint">${t("Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.")}</div>`
       ].join("");
       const homes = this._cfg.homes || [];
