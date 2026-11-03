@@ -1,4 +1,4 @@
-/* Raumklima 0.39.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.39.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1243,7 +1243,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.39.1";
+  var RK_VERSION = "0.39.2";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1573,11 +1573,12 @@
     const L = layout || RK_LAYOUT_EMPTY;
     const hidden = new Set(L.hidden || []);
     const order = L.order || [];
+    const keyOf = (r) => r && (r.id || r.entity_id) || "";
     const pos = (r) => {
-      const i = order.indexOf(r.id);
+      const i = order.indexOf(keyOf(r));
       return i < 0 ? order.length : i;
     };
-    return rooms.filter((r) => !hidden.has(r.id)).sort((a, b) => pos(a) - pos(b));
+    return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => pos(a) - pos(b));
   }
   function rkLayoutSize(layout, id) {
     return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;

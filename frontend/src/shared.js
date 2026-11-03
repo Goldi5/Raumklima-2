@@ -401,8 +401,11 @@ export function rkLayoutApply(rooms, layout) {
   const L = layout || RK_LAYOUT_EMPTY;
   const hidden = new Set(L.hidden || []);
   const order = L.order || [];
-  const pos = (r) => { const i = order.indexOf(r.id); return i < 0 ? order.length : i; };
-  return rooms.filter((r) => !hidden.has(r.id)).sort((a, b) => pos(a) - pos(b));
+  // Räume kommen je nach Karte als Objekt mit `id` (rkRooms) oder als HA-Zustand mit
+  // `entity_id` (Übersichtskarte) – beide Formen müssen die Reihenfolge verstehen.
+  const keyOf = (r) => (r && (r.id || r.entity_id)) || "";
+  const pos = (r) => { const i = order.indexOf(keyOf(r)); return i < 0 ? order.length : i; };
+  return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => pos(a) - pos(b));
 }
 
 export function rkLayoutSize(layout, id) {
