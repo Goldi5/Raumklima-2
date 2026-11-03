@@ -647,4 +647,9 @@ export const EN = {
   "Überwachung · kein Thermostat": "Monitoring · no thermostat",
   "Anwesenheitsprofil": "Presence profile",
   "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima uses this profile to suggest setback and preheating times.",
+  "Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft.": "Preheating starts 30 minutes earlier, setback ends on arrival – so it stays at the target without heating an empty home.",
+  "Vorschlag": "Suggestion",
+  "Wochenende ab {a}": "weekend from {a}",
+  "ab einer erfassten Woche": "after one recorded week",
+  "{a} bis {b}": "{a} to {b}",
 };

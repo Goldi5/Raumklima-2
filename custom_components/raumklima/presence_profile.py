@@ -105,6 +105,30 @@ class PresenceProfile:
             "complete": len(self.days) >= 7,
         }
 
+    def typical(self, min_days: int = 7, threshold: float = 0.6) -> dict[str, Any]:
+        """Typische Anwesenheitszeit je Tagesart – Grundlage für Vorschläge.
+
+        Liefert nur, wenn genug Tage vorliegen; sonst ``ready: False``.
+        """
+        out: dict[str, Any] = {"ready": False}
+        for key, days in (("weekday", [0, 1, 2, 3, 4]), ("weekend", [5, 6])):
+            n = sum(self._day_count(d) for d in days)
+            if n < min_days:
+                continue
+            ratios = [
+                (sum(self.hits[d][i] for d in days) / n) if n else 0.0 for i in range(SLOTS)
+            ]
+            on = [i for i, v in enumerate(ratios) if v >= threshold]
+            if not on:
+                continue
+            out[key] = {
+                "from": self.slot_label(on[0]),
+                "to": self.slot_label((on[-1] + 1) % SLOTS),
+                "days": n,
+            }
+            out["ready"] = True
+        return out
+
     @staticmethod
     def slot_label(index: int) -> str:
         minutes = index * SLOT_MINUTES

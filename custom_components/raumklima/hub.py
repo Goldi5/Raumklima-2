@@ -414,6 +414,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
             "preheat_by": self._preheat_by if self.stage == STAGE_PREHEAT else None,
             "presence_configured": self.presence_configured,
             "presence_profile": self.presence_profile.summary(),
+            "presence_tip": self.presence_profile.typical(),
             "calendar": {"mode": self.calendar_mode, "summary": self.calendar_summary} if self.opt(CONF_CALENDAR) else None,
             "decision": self.decision,
             "heating_allowed": self.heating_allowed,

@@ -1,4 +1,4 @@
-/* Raumklima 0.41.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.42.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -646,7 +646,12 @@
     "Zurück": "Back",
     "Überwachung · kein Thermostat": "Monitoring · no thermostat",
     "Anwesenheitsprofil": "Presence profile",
-    "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima uses this profile to suggest setback and preheating times."
+    "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima uses this profile to suggest setback and preheating times.",
+    "Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft.": "Preheating starts 30 minutes earlier, setback ends on arrival – so it stays at the target without heating an empty home.",
+    "Vorschlag": "Suggestion",
+    "Wochenende ab {a}": "weekend from {a}",
+    "ab einer erfassten Woche": "after one recorded week",
+    "{a} bis {b}": "{a} to {b}"
   };
 
   // src/i18n/fr.js
@@ -1295,7 +1300,12 @@
     "Zurück": "Retour",
     "Überwachung · kein Thermostat": "Surveillance · sans thermostat",
     "Anwesenheitsprofil": "Profil de présence",
-    "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima utilise ce profil pour proposer des heures d'abaissement et de préchauffage."
+    "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima utilise ce profil pour proposer des heures d'abaissement et de préchauffage.",
+    "Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft.": "Le préchauffage démarre 30 minutes plus tôt, l'abaissement s'arrête à l'arrivée – la consigne est tenue sans chauffer une maison vide.",
+    "Vorschlag": "Suggestion",
+    "Wochenende ab {a}": "week-end dès {a}",
+    "ab einer erfassten Woche": "après une semaine enregistrée",
+    "{a} bis {b}": "de {a} à {b}"
   };
 
   // src/i18n.js
@@ -1339,7 +1349,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.41.3";
+  var RK_VERSION = "0.42.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4182,12 +4192,18 @@
         this._presenceText(arr)
       );
       const profileHead = `<div class="row whyhead"><div class="l"><span class="lbl">${t("Anwesenheitsprofil")}</span><small>${t("Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.")}</small></div></div>`;
+      const tip = st && st.presence_tip || {};
+      const tipRow = tip.ready ? this._row(
+        t("Vorschlag"),
+        this._v([tip.weekday ? t("{a} bis {b}", { a: tip.weekday.from, b: tip.weekday.to }) : "", tip.weekend ? t("Wochenende ab {a}", { a: tip.weekend.from }) : ""].filter(Boolean).join(" · ")),
+        t("Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft.")
+      ) : this._row(t("Vorschlag"), this._v(t("sammelt noch"), true), t("ab einer erfassten Woche"));
       const profile = profileHead + (hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
       return this._grp(
         t("Lernen & Warum"),
         "mdi:chart-line",
         "eco",
-        [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile].join("")
+        [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile, tipRow].join("")
       );
     }
     // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.

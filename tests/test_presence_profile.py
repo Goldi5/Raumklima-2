@@ -64,3 +64,28 @@ def test_alte_tage_werden_verworfen() -> None:
     p.mark(datetime(2025, 1, 6, 8, 0), True)   # lange her
     p.mark(datetime(2026, 1, 6, 8, 0), True)
     assert all(k.startswith("2026") for k in p.days)
+
+
+def test_typische_zeit_erst_ab_genug_tagen() -> None:
+    p = PresenceProfile()
+    for day in range(3):
+        p.mark(_t(day, 17, 0), True)
+        p.mark(_t(day, 17, 15), True)
+    tip = p.typical(min_days=7)
+    assert tip["ready"] is False
+
+
+def test_typische_zeit_liefert_fenster() -> None:
+    p = PresenceProfile()
+    # fünf Werktage mit Anwesenheit ab 17:00
+    for day in range(5):
+        p.mark(_t(day, 17, 0), True)
+        p.mark(_t(day, 17, 15), True)
+        p.mark(_t(day, 8, 0), False)
+    for day in (5, 6):
+        p.mark(_t(day, 10, 0), True)
+    tip = p.typical(min_days=2, threshold=0.6)
+    assert tip["ready"] is True
+    assert tip["weekday"]["from"] == "17:00"
+    assert tip["weekday"]["to"] == "17:30"
+    assert tip["weekend"]["from"] == "10:00"

@@ -856,11 +856,16 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._presenceText(arr),
     );
     const profileHead = `<div class="row whyhead"><div class="l"><span class="lbl">${t("Anwesenheitsprofil")}</span><small>${t("Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.")}</small></div></div>`;
+    const tip = (st && st.presence_tip) || {};
+    const tipRow = tip.ready
+      ? this._row(t("Vorschlag"), this._v([tip.weekday ? t("{a} bis {b}", { a: tip.weekday.from, b: tip.weekday.to }) : "", tip.weekend ? t("Wochenende ab {a}", { a: tip.weekend.from }) : ""].filter(Boolean).join(" · ")),
+        t("Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft."))
+      : this._row(t("Vorschlag"), this._v(t("sammelt noch"), true), t("ab einer erfassten Woche"));
     const profile = profileHead + (hasProfile
       ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("")
       : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
     return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco",
-      [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile].join(""));
+      [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile, tipRow].join(""));
   }
 
   // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.

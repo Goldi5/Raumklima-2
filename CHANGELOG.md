@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.42.0 – 2026-11-03
+
+### Neu
+- **Vorschlag aus dem Anwesenheitsprofil:** Sobald eine Woche erfasst ist, zeigt der Lernbereich die
+  typische Anwesenheitszeit („17:00 bis 22:30 · Wochenende ab 10:00"). Daraus folgt: Vorheizen beginnt
+  30 Minuten vorher, Absenken endet mit der Ankunft – die Heizung läuft nicht ins Leere.
+
 ## 0.41.3 – 2026-11-03
 
 ### Behoben

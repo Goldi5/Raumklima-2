@@ -647,4 +647,9 @@ export const FR = {
   "Überwachung · kein Thermostat": "Surveillance · sans thermostat",
   "Anwesenheitsprofil": "Profil de présence",
   "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima utilise ce profil pour proposer des heures d'abaissement et de préchauffage.",
+  "Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft.": "Le préchauffage démarre 30 minutes plus tôt, l'abaissement s'arrête à l'arrivée – la consigne est tenue sans chauffer une maison vide.",
+  "Vorschlag": "Suggestion",
+  "Wochenende ab {a}": "week-end dès {a}",
+  "ab einer erfassten Woche": "après une semaine enregistrée",
+  "{a} bis {b}": "de {a} à {b}",
 };
