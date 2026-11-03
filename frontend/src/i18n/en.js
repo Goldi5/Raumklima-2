@@ -584,4 +584,6 @@ export const EN = {
   "Von Hand · {v}°": "Manual · {v}°",
   "Frostschutz {v}°": "Frost {v}°",
   "Ziel {v}°": "Target {v}°",
+  "Einstellung suchen …": "Search settings …",
+  "Kein Treffer – anderen Begriff versuchen": "No match – try another term",
 };

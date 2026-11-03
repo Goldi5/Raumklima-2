@@ -584,4 +584,6 @@ export const FR = {
   "Von Hand · {v}°": "Manuel · {v}°",
   "Frostschutz {v}°": "Hors gel {v}°",
   "Ziel {v}°": "Consigne {v}°",
+  "Einstellung suchen …": "Rechercher un réglage …",
+  "Kein Treffer – anderen Begriff versuchen": "Aucun résultat – essayez un autre terme",
 };

@@ -583,7 +583,9 @@
     "Leer · {v}°": "Empty · {v}°",
     "Von Hand · {v}°": "Manual · {v}°",
     "Frostschutz {v}°": "Frost {v}°",
-    "Ziel {v}°": "Target {v}°"
+    "Ziel {v}°": "Target {v}°",
+    "Einstellung suchen …": "Search settings …",
+    "Kein Treffer – anderen Begriff versuchen": "No match – try another term"
   };
 
   // src/i18n/fr.js
@@ -1169,7 +1171,9 @@
     "Leer · {v}°": "Vide · {v}°",
     "Von Hand · {v}°": "Manuel · {v}°",
     "Frostschutz {v}°": "Hors gel {v}°",
-    "Ziel {v}°": "Consigne {v}°"
+    "Ziel {v}°": "Consigne {v}°",
+    "Einstellung suchen …": "Rechercher un réglage …",
+    "Kein Treffer – anderen Begriff versuchen": "Aucun résultat – essayez un autre terme"
   };
 
   // src/i18n.js
@@ -1670,6 +1674,21 @@
   .tab ha-icon { --mdc-icon-size:16px; }
   .tab.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
   .tab .dot { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-ok)); }
+  /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
+  .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .crumb b { color:var(--primary-text-color); font-weight:600; }
+  .searchrow { display:flex; gap:8px; align-items:center; margin:10px 4px 0; }
+  .searchrow input { flex:1; min-width:0; padding:10px 14px; border-radius:12px; border:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent);
+    background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); color:var(--primary-text-color); font-size:.95rem; }
+  .searchrow input:focus { outline:2px solid color-mix(in srgb, var(--rk-heat) 40%, transparent); }
+  .rail { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:10px -4px 2px; padding:2px 4px 6px; }
+  .rail::-webkit-scrollbar { display:none; }
+  .railbtn { all:unset; cursor:pointer; white-space:nowrap; padding:8px 14px; border-radius:10px; font-size:.9rem; font-weight:600; color:var(--secondary-text-color);
+    background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); display:inline-flex; align-items:center; gap:6px; }
+  .railbtn ha-icon { --mdc-icon-size:16px; }
+  .railbtn.on { background: color-mix(in srgb, var(--rk-heat) 16%, transparent); color:var(--primary-text-color); }
+  .railbtn.empty { display:none; }
+  .nosearch { padding:24px 8px; text-align:center; color:var(--secondary-text-color); font-size:.95rem; }
   .groups { display:grid; grid-template-columns: 1fr; gap:18px; margin-top:14px; }
   @container (min-width: 720px) { .groups { grid-template-columns: 1fr 1fr; } }
   @container (min-width: 1000px) { .grp.cols .rws { columns: 2; column-gap: 56px; } .grp.cols .row { break-inside: avoid; } }
@@ -2949,6 +2968,39 @@
   };
 
   // src/cards/settings.js
+  var RK_GROUP_OF = {
+    "Wohnung": "home",
+    "Alle Räume auf einen Blick": "home",
+    "Heizsaison & Heizgrenze": "heating",
+    "Gesundheit der Heizung": "heating",
+    "Anwesenheit & Absenkung": "presence",
+    "Schlafenszeiten": "presence",
+    "Gebäude & Schimmelschutz": "presence",
+    "Wer bekommt was": "notify",
+    "Benachrichtigungen allgemein": "notify",
+    "Temperatur": "room",
+    "Überwachung": "room",
+    "Zeitplan": "heating",
+    "Thermostat & Fühler": "heating",
+    "Gesundheit": "heating",
+    "Lüften & Feuchte": "air",
+    "Fenster": "air",
+    "Lichtsignal": "air",
+    "Präsenzmelder": "presence",
+    "Benachrichtigungen": "notify"
+  };
+  var RK_GROUP_META = {
+    home: { label: "Wohnung", icon: "mdi:home-outline" },
+    room: { label: "Raum", icon: "mdi:door-open" },
+    heating: { label: "Heizung", icon: "mdi:radiator" },
+    air: { label: "Lüften", icon: "mdi:weather-windy" },
+    presence: { label: "Anwesenheit", icon: "mdi:account-multiple-outline" },
+    notify: { label: "Benachrichtigungen", icon: "mdi:bell-outline" },
+    learn: { label: "Lernen", icon: "mdi:chart-line" },
+    layout: { label: "Darstellung", icon: "mdi:view-dashboard-outline" },
+    advanced: { label: "Erweitert", icon: "mdi:cog-outline" }
+  };
+  var RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "notify", "learn", "layout", "advanced"];
   var RK_FACADES = () => [
     { id: "", name: t("egal – nur Vorhersage") },
     { id: "N", name: t("Nord") },
@@ -3189,7 +3241,8 @@
       return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`;
     }
     _grp(title, icon, tone, rows, cls = "", extra = "") {
-      return `<div class="grp ${cls}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
+      const g = RK_GROUP_OF[title] || "advanced";
+      return `<div class="grp ${cls}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
     }
     _stepper(attrs, value, unit, dec) {
       const ro = !this._admin;
@@ -3720,16 +3773,61 @@
       const room = rooms.find((r) => r.id === this._tab);
       const body = room ? this._room(room) : this._general();
       const homes = this._cfg && this._cfg.homes || [];
+      const me = homes.find((h) => h.entry_id === this._homeId());
+      this._ctxHome = me ? me.name : this._config && this._config.home || t("Wohnung");
       const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
       rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
+        <div class="crumb" id="rkc"></div>
+        <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
+        <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
+        <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         ${body}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
       </ha-card>`);
       this._bind();
+      this._filter();
+    }
+    // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
+    _filter() {
+      const root = this.shadowRoot;
+      if (!root) return;
+      const q = String(this._search || "").toLowerCase().trim();
+      const secs = [...root.querySelectorAll(".grp")];
+      const present = /* @__PURE__ */ new Set();
+      let active = null;
+      let shown = 0;
+      for (const g of RK_GROUP_ORDER) {
+        if (secs.some((el) => (el.dataset.g || "advanced") === g)) {
+          active = g;
+          break;
+        }
+      }
+      if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group)) active = this._group;
+      secs.forEach((el) => {
+        const g = el.dataset.g || "advanced";
+        present.add(g);
+        const hit = !q || el.textContent.toLowerCase().includes(q);
+        const vis = q ? hit : g === active;
+        el.style.display = vis ? "" : "none";
+        if (vis) shown += 1;
+      });
+      root.querySelectorAll(".railbtn").forEach((b) => {
+        const g = b.dataset.g;
+        b.classList.toggle("empty", !present.has(g));
+        b.classList.toggle("on", !q && g === active);
+      });
+      const nos = root.querySelector(".nosearch");
+      if (nos) nos.style.display = q && !shown ? "" : "none";
+      const crumb = root.querySelector("#rkc");
+      if (crumb) {
+        const room = (this._rooms || []).find((r) => r.id === this._tab);
+        const parts = [this._ctxHome || t("Wohnung"), room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label)];
+        crumb.innerHTML = parts.map((x, i) => i === parts.length - 1 ? `<b>${esc(x)}</b>` : `${esc(x)} <span>›</span>`).join(" ");
+      }
     }
     _bind() {
       const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
@@ -3739,6 +3837,15 @@
         this._sig = null;
         this._render();
       }));
+      $(".railbtn").forEach((el) => el.addEventListener("click", () => {
+        this._group = el.dataset.g;
+        this._filter();
+      }));
+      const search = this.shadowRoot.querySelector("#rks");
+      if (search) search.addEventListener("input", () => {
+        this._search = search.value;
+        this._filter();
+      });
       $("[data-tgl]").forEach((el) => el.addEventListener("click", () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl })));
       $("[data-press]").forEach((el) => el.addEventListener("click", () => this._hass.callService("button", "press", { entity_id: el.dataset.press })));
       $("[data-num]").forEach((el) => el.addEventListener("click", () => {

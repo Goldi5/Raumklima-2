@@ -1,4 +1,40 @@
 import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_HOMESENS, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkHub, rkIssueList, rkManualUrl, rkNeedsDashboard, rkPretty, rkBusy, rkLater, rkPaint, rkScrolling, rkHomeId, rkRooms, rkSchedSortKey, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+
+// Gruppen (Phase 1): bestehende Gruppen-Überschriften werden auf die neue Leiste abgebildet.
+// So bleibt der Inhalt unverändert, während die Navigation klar wird.
+const RK_GROUP_OF = {
+  "Wohnung": "home",
+  "Alle Räume auf einen Blick": "home",
+  "Heizsaison & Heizgrenze": "heating",
+  "Gesundheit der Heizung": "heating",
+  "Anwesenheit & Absenkung": "presence",
+  "Schlafenszeiten": "presence",
+  "Gebäude & Schimmelschutz": "presence",
+  "Wer bekommt was": "notify",
+  "Benachrichtigungen allgemein": "notify",
+  "Temperatur": "room",
+  "Überwachung": "room",
+  "Zeitplan": "heating",
+  "Thermostat & Fühler": "heating",
+  "Gesundheit": "heating",
+  "Lüften & Feuchte": "air",
+  "Fenster": "air",
+  "Lichtsignal": "air",
+  "Präsenzmelder": "presence",
+  "Benachrichtigungen": "notify",
+};
+const RK_GROUP_META = {
+  home: { label: "Wohnung", icon: "mdi:home-outline" },
+  room: { label: "Raum", icon: "mdi:door-open" },
+  heating: { label: "Heizung", icon: "mdi:radiator" },
+  air: { label: "Lüften", icon: "mdi:weather-windy" },
+  presence: { label: "Anwesenheit", icon: "mdi:account-multiple-outline" },
+  notify: { label: "Benachrichtigungen", icon: "mdi:bell-outline" },
+  learn: { label: "Lernen", icon: "mdi:chart-line" },
+  layout: { label: "Darstellung", icon: "mdi:view-dashboard-outline" },
+  advanced: { label: "Erweitert", icon: "mdi:cog-outline" },
+};
+const RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "notify", "learn", "layout", "advanced"];
 import { HELP } from "../help.js";
 import { getLang } from "../i18n.js";
 
@@ -215,7 +251,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
   }
   _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`; }
   _grp(title, icon, tone, rows, cls = "", extra = "") {
-    return `<div class="grp ${cls}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
+    const g = RK_GROUP_OF[title] || "advanced";
+    return `<div class="grp ${cls}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
   }
   _stepper(attrs, value, unit, dec) {
     const ro = !this._admin;
@@ -734,22 +771,68 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const room = rooms.find((r) => r.id === this._tab);
     const body = room ? this._room(room) : this._general();
     const homes = (this._cfg && this._cfg.homes) || [];
+    const me = homes.find((h) => h.entry_id === this._homeId());
+    this._ctxHome = me ? me.name : (this._config && this._config.home) || t("Wohnung");
     const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
     rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
+        <div class="crumb" id="rkc"></div>
+        <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
+        <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
+        <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         ${body}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
       </ha-card>`);
     this._bind();
+    this._filter();
+  }
+
+  // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
+  _filter() {
+    const root = this.shadowRoot;
+    if (!root) return;
+    const q = String(this._search || "").toLowerCase().trim();
+    const secs = [...root.querySelectorAll(".grp")];
+    const present = new Set();
+    let active = null;
+    let shown = 0;
+    for (const g of RK_GROUP_ORDER) {
+      if (secs.some((el) => (el.dataset.g || "advanced") === g)) { active = g; break; }
+    }
+    if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group)) active = this._group;
+    secs.forEach((el) => {
+      const g = el.dataset.g || "advanced";
+      present.add(g);
+      const hit = !q || el.textContent.toLowerCase().includes(q);
+      const vis = q ? hit : g === active;
+      el.style.display = vis ? "" : "none";
+      if (vis) shown += 1;
+    });
+    root.querySelectorAll(".railbtn").forEach((b) => {
+      const g = b.dataset.g;
+      b.classList.toggle("empty", !present.has(g));
+      b.classList.toggle("on", !q && g === active);
+    });
+    const nos = root.querySelector(".nosearch");
+    if (nos) nos.style.display = q && !shown ? "" : "none";
+    const crumb = root.querySelector("#rkc");
+    if (crumb) {
+      const room = (this._rooms || []).find((r) => r.id === this._tab);
+      const parts = [this._ctxHome || t("Wohnung"), room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label)];
+      crumb.innerHTML = parts.map((x, i) => (i === parts.length - 1 ? `<b>${esc(x)}</b>` : `${esc(x)} <span>›</span>`)).join(" ");
+    }
   }
 
   _bind() {
     const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
     const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
     $("[data-tab]").forEach((el) => el.addEventListener("click", () => { this._tab = el.dataset.tab; this._sig = null; this._render(); }));
+    $(".railbtn").forEach((el) => el.addEventListener("click", () => { this._group = el.dataset.g; this._filter(); }));
+    const search = this.shadowRoot.querySelector("#rks");
+    if (search) search.addEventListener("input", () => { this._search = search.value; this._filter(); });
     $("[data-tgl]").forEach((el) => el.addEventListener("click", () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl })));
     $("[data-press]").forEach((el) => el.addEventListener("click", () => this._hass.callService("button", "press", { entity_id: el.dataset.press })));
     $("[data-num]").forEach((el) => el.addEventListener("click", () => {
