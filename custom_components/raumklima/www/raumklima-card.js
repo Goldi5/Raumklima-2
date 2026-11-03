@@ -1,4 +1,4 @@
-/* Raumklima 0.39.7 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.39.8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1243,7 +1243,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.39.7";
+  var RK_VERSION = "0.39.8";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1740,35 +1740,6 @@
   .tab ha-icon { --mdc-icon-size:16px; }
   .tab.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
   .tab .dot { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-ok)); }
-  /* ---------------------------------------------------------------- Baukasten (Design-Pass)
-     Ein Raster für alle Einstellungen: gleiche Höhen, gleiche Abstände, gleiche Schrift.
-     Neue Zeilen und Bedienelemente immer aus diesen Klassen bauen. */
-  .grp { padding:18px 20px; border-radius:20px; }
-  .gh { gap:12px; margin-bottom:6px; }
-  .gh .ic { width:38px; height:38px; border-radius:12px; }
-  /* Tabellen-Optik: Label links, Wert/Bedienung rechts auf einer gemeinsamen Kante,
-     Ziffern gleich breit, feine Trennlinien zwischen den Zeilen. */
-  .row { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center;
-         column-gap:28px; row-gap:6px; min-height:52px; padding:12px 2px;
-         border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
-  .row:first-of-type { border-top:0; }
-  .row > :not(.l) { justify-self:end; }
-  .row .v { font-variant-numeric:tabular-nums; }
-  .row > .stepper { width:190px; }
-  .row > .stepper span { flex:1; }
-  .row > .chips { max-width:100%; }
-  .row .l { font-size:.98rem; line-height:1.3; max-width:58%; }
-  .row small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.3; }
-  .row .chips { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
-  .chip2, .sel, .btn { min-height:36px; font-size:.88rem; }
-  .chip2 { padding:7px 13px; }
-  .btn { padding:7px 14px; border-radius:12px; }
-  .sel { padding:7px 10px; border-radius:12px; }
-  .stepper { padding:3px; }
-  .stepper button { width:32px; height:32px; font-size:1.05rem; }
-  .stepper span { min-width:64px; font-size:1rem; }
-  .hint { margin-top:10px; font-size:.82rem; line-height:1.35; }
-  .addrow { margin-top:12px; gap:10px; }
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .crumb b { color:var(--primary-text-color); font-weight:600; }
@@ -1797,20 +1768,28 @@
   .railbtn.on { background: color-mix(in srgb, var(--rk-heat) 16%, transparent); color:var(--primary-text-color); }
   .railbtn.empty { display:none; }
   .nosearch { padding:24px 8px; text-align:center; color:var(--secondary-text-color); font-size:.95rem; }
-  /* Ein Satzspiegel: alle Gruppen in voller Breite untereinander. */
-  .groups { columns: 1; margin-top: 14px; }
-  .grp { margin: 0 0 18px; }
-  @container (min-width: 720px) { .groups { grid-template-columns: 1fr 1fr; } }
-  @container (min-width: 1000px) { .grp.cols .rws { columns: 2; column-gap: 56px; } .grp.cols .row { break-inside: avoid; } }
-  .grp { border-radius:24px; padding:20px 22px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); min-width:0; }
-  .grp.span { column-span: none; }
-  .gh { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
-  .gh .ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); flex:none; }
-  .gh .ic ha-icon { --mdc-icon-size:22px; }
-  .gh b { font-size:1.15rem; color:var(--primary-text-color); flex:1; }
-  .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 6%, transparent); min-height:30px; }
-  .rws > .row:first-child { border-top:0; }
-  .row .l { font-size:1rem; color:var(--primary-text-color); min-width:0; }
+  /* Ein Dokument: alle Gruppen untereinander als Abschnitte, keine Einzelkarten. */
+  .groups { display:block; margin-top:10px; }
+  .grp { min-width:0; padding:16px 2px 6px; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent); }
+  .grp:first-child { border-top:0; padding-top:6px; }
+  .grp.span { column-span:none; }
+  @container (min-width: 1100px) { .grp.cols .rws { columns:2; column-gap:64px; } .grp.cols .row { break-inside:avoid; } }
+  .gh { display:flex; align-items:center; gap:10px; margin:0 0 8px; flex-wrap:wrap; }
+  .gh .ic { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background: color-mix(in srgb, var(--g) 16%, transparent); color: var(--g); flex:none; }
+  .gh .ic ha-icon { --mdc-icon-size:19px; }
+  .gh b { font-size:1.02rem; font-weight:600; letter-spacing:.01em; color:var(--primary-text-color); flex:1; }
+
+  /* Tabellenzeile: Beschriftung links, Wert und Bedienung rechts auf einer Kante. */
+  .row { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px, max-content); align-items:center;
+         column-gap:28px; row-gap:4px; min-height:52px; padding:11px 6px; margin:0 -6px; border-radius:10px;
+         border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .rws > .row:first-child, .row:first-of-type { border-top:0; }
+  .row:hover { background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .row > :not(.l) { justify-self:end; }
+  .row .v { font-variant-numeric:tabular-nums; text-align:right; }
+  .row > .stepper { width:190px; }
+  .row .l { font-size:.98rem; color:var(--primary-text-color); min-width:0; }
+  .row .l small { display:block; margin-top:2px; font-size:.8rem; line-height:1.3; color:var(--secondary-text-color); }
   .row .lbl { display:inline-flex; align-items:center; gap:6px; }
   .qm { all:unset; cursor:pointer; flex:none; width:18px; height:18px; border-radius:50%; display:inline-grid; place-items:center; font-size:.72rem; font-weight:700;
     color: var(--secondary-text-color); border:1.5px solid color-mix(in srgb, var(--secondary-text-color) 55%, transparent); }

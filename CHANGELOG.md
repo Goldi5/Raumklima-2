@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.39.8 – 2026-11-03
+
+### Geändert
+- **Einstellungen als ein Dokument:** Gruppen sind Abschnitte mit Titel und Trennlinie statt einzelner
+  Karten (A + C des Design-Passes).
+- **Feste Wertespalte:** Werte und Bedienung sitzen auf einer gemeinsamen rechten Kante, Stepper sind
+  gleich breit, Ziffern gleich breit.
+- **Zeilen reagieren auf Berührung** (dezente Hervorhebung) – größere Trefferflächen.
+- Aufgeräumt: doppelte CSS-Regeln für Zeilen und Gruppen entfernt, dadurch greifen die neuen Regeln
+  überhaupt erst.
+
 ## 0.39.7 – 2026-11-03
 
 ### Geändert
