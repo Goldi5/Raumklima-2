@@ -671,3 +671,20 @@ async def test_meldeabstand_des_thermostats_wird_gemessen(
     interval = ctrl.trv_report_interval
     assert interval is not None
     assert 850 <= interval <= 950
+
+
+async def test_room_stays_available_when_trv_is_gone(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Fehlendes Thermostat ist ein Status, kein Ausfall: die Wohnung bleibt am Raum erkennbar."""
+    from .conftest import TRV
+
+    state = hass.states.get("climate.bad")
+    assert state is not None and state.state != "unavailable"
+
+    hass.states.async_set(TRV, "unavailable")
+    await hass.async_block_till_done()
+
+    state = hass.states.get("climate.bad")
+    assert state is not None and state.state != "unavailable"
+    assert state.attributes["status"] == "trv_unavailable"
+    # Ohne dieses Attribut landet der Raum auf dem Dashboard der falschen Wohnung
+    assert "home" in state.attributes

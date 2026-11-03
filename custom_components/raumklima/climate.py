@@ -49,7 +49,14 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
 
     @property
     def available(self) -> bool:
-        return True if self.controller.monitor else self.controller.trv_available()
+        """Immer verfügbar: ein fehlendes Thermostat ist ein Status, kein Ausfall des Raums.
+
+        Sonst zeigt Home Assistant die Entität als "unavailable" und verwirft dabei die
+        Zusatz-Attribute – inklusive `home`. Ein Raum ohne Funkverbindung tauchte dadurch
+        auf dem Dashboard der *anderen* Wohnung auf, weil die Karte das Attribut nicht
+        mehr finden konnte. Der Zustand steht jetzt in `status` (trv_unavailable).
+        """
+        return True
 
     @property
     def supported_features(self) -> ClimateEntityFeature:

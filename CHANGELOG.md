@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.34.0 – 2026-11-03
+
+### Behoben
+- **Räume ohne Funkverbindung tauchten auf fremden Dashboards auf.** Fehlte das Thermostat, zeigte Home
+  Assistant die Raum-Entität als „nicht verfügbar" – und verwirft dabei alle Zusatz-Attribute, auch
+  `home`. Die Karten konnten den Raum dann keiner Wohnung zuordnen und zeigten ihn überall. Ein Raum
+  bleibt jetzt verfügbar; der Zustand steht in `status` („Thermostat nicht erreichbar"). Sichtbar wird
+  das als graue Kachel mit Hinweis statt als verschwundener Raum.
+
 ## 0.33.1 – 2026-11-03
 
 ### Behoben
