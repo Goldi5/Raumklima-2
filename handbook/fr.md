@@ -292,6 +292,82 @@ Vous hésitez ? Gardez les valeurs par défaut. Elles suivent les recommandation
 | **Pièce → Signal lumineux** | lumières qui clignotent sur notification |
 
 
+## Structure des réglages
+
+En haut, vous choisissez le logement, en dessous la pièce – sous forme de puce avec un point coloré
+(le point indique si quelque chose demande votre attention dans cette pièce). La barre en dessous passe
+d'un groupe à l'autre, le champ de recherche filtre tous les groupes par mot-clé.
+
+Chaque groupe porte sa propre couleur sur le séparateur, l'icône et le titre. Ce n'est pas décoratif :
+on voit tout de suite où commence une section.
+
+| Groupe (logement) | Contenu |
+|---|---|
+| **Logement** | saison de chauffe, toutes les pièces, apparence |
+| **Chauffage** | santé du chauffage, seuil de chauffe |
+| **Présence** | personnes, zone, vacances, heures de sommeil |
+| **Notifications** | destinataires, heures calmes, e-mail, rapports |
+| **Apprentissage** | heures de sommeil apprises, profil de présence |
+
+| Groupe (pièce) | Contenu |
+|---|---|
+| **Pièce** | température, aération, fenêtres, présence, apprentissage |
+| **Chauffage** | programme, boost |
+| **Notifications** | notifications de cette pièce |
+
+## Ordre, taille et couleur
+
+Sous *Apparence* (logement) vous décidez de l'affichage des pièces dans la vue d'ensemble :
+
+- **Ordre** avec ▲▼ – la première carte est en haut
+- **Taille** : grande carte, tuile ou masquée
+- **Couleur** : huit teintes, visibles comme liseré sur l'en-tête de la carte
+
+Les changements s'appliquent immédiatement sur toutes les cartes du même logement.
+
+## Apprentissage et pourquoi
+
+Raumklima ne se contente pas de commander, il retient aussi ce qui se passe réellement chez vous.
+Vous le trouvez sous *Réglages → Pièce → Apprentissage* et pour le logement sous *Logement → Apprentissage*.
+
+| Valeur | Signification |
+|---|---|
+| **Vitesse de montée** | rapidité de chauffe d'une pièce (°C par heure), mesurée sur de vraies montées |
+| **Préchauffage pour 2 K** | combien de minutes avant une plage horaire il faut démarrer pour être à l'heure |
+| **Fiabilité** | *encore incertain* (moins de 3 mesures), *utilisable* (3–5), *fiable* (6 et plus) |
+| **S'applique actuellement** | la décision active en ce moment – et en dessous **les dernières décisions avec leur justification** |
+
+Les justifications viennent du journal des décisions, également visible dans l'onglet *Journal*.
+Exemple : « Abaissé car personne n'est à la maison depuis 40 minutes. »
+
+### Profil de présence
+
+Toutes les 15 minutes, la centrale note si **quelqu'un** est à la maison – jamais qui. Sur quatre
+semaines, cela donne un graphique en barres pour les jours de semaine et le week-end, avec une phrase du
+type « généralement quelqu'un à la maison de 17:15 à 08:00 ». C'est la base des propositions d'abaissement
+et de préchauffage.
+
+### Heures de sommeil
+
+À partir de l'aération nocturne et des signaux lumineux, Raumklima apprend l'heure de coucher et de lever
+habituelles (jours de semaine et week-end séparément, à partir de quatre nuits). Il en déduit les heures
+calmes : 30 minutes avant le coucher jusqu'à 30 minutes après le lever – jamais plus court que réglé.
+
+## Toutes les pièces en un coup d'œil
+
+La vue d'ensemble affiche chaque logement en tuiles : nom de la pièce, type, la consigne en grand, en
+dessous l'abaissement et la température à partir de laquelle aérer est conseillé. De petites icônes
+indiquent si la logique de fenêtre est active, si des notifications sont envoyées et si une limite
+d'humidité est définie. Touchez pour ouvrir la pièce.
+
+## Saisir des heures et des dates
+
+Les heures ouvrent un sélecteur à deux roues – heures et quarts d'heure – à faire défiler ; les minutes
+s'arrêtent par pas de 15 minutes. Dans le champ en dessous, vous pouvez aussi saisir l'heure directement.
+
+Les champs de date (par exemple la saison de chauffe) ouvrent un calendrier. Seuls le jour et le mois
+sont enregistrés – l'année n'a pas d'importance.
+
 # Questions fréquentes
 
 <!-- include: ../docs/fr/faq.md -->

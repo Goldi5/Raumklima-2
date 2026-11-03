@@ -290,6 +290,80 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Raum → Lichtsignal** | Lampen, die bei Hinweisen blinken |
 
 
+## Aufbau der Einstellungen
+
+Oben wählst du die Wohnung, darunter den Raum – als Chip mit farbigem Punkt (der Punkt zeigt, ob in
+diesem Raum etwas zu tun ist). Die Leiste darunter springt zwischen den Gruppen, das Suchfeld filtert
+alle Gruppen nach einem Begriff.
+
+Jede Gruppe trägt ihren eigenen Farbton an Trennlinie, Symbol und Überschrift. Das ist keine Deko:
+Beim Scrollen siehst du sofort, wo ein Abschnitt anfängt.
+
+| Gruppe (Allgemein) | Inhalt |
+|---|---|
+| **Wohnung** | Heizsaison, Alle Räume, Darstellung |
+| **Heizung** | Gesundheit der Heizung, Heizgrenze |
+| **Anwesenheit** | Personen, Zone, Urlaub, Schlafenszeiten |
+| **Benachrichtigungen** | Empfänger, Ruhezeit, E-Mail, Berichte |
+| **Lernen** | gelernte Schlafzeiten, Anwesenheitsprofil |
+
+| Gruppe (Raum) | Inhalt |
+|---|---|
+| **Raum** | Temperatur, Lüften, Fenster, Präsenz, Lernen |
+| **Heizung** | Zeitplan, Boost |
+| **Benachrichtigungen** | Hinweise für diesen Raum |
+
+## Reihenfolge, Größe und Farbe
+
+Unter *Darstellung* (Allgemein) legst du fest, wie die Räume auf der Übersicht erscheinen:
+
+- **Reihenfolge** mit ▲▼ – die erste Karte steht oben
+- **Größe**: große Karte, Kachel oder ausgeblendet
+- **Farbe**: acht Töne, sichtbar als Kante am Kartenkopf
+
+Änderungen wirken sofort auf allen Karten derselben Wohnung.
+
+## Lernen und Warum
+
+Raumklima schreibt nicht nur vor, es merkt sich auch, was in deiner Wohnung tatsächlich passiert.
+Du findest das unter *Einstellungen → Raum → Lernen* und für die Wohnung unter *Allgemein → Lernen*.
+
+| Wert | Bedeutung |
+|---|---|
+| **Aufheizrate** | wie schnell ein Raum wärmer wird (°C pro Stunde), gemessen aus echten Aufheizvorgängen |
+| **Vorheizen für 2 K** | wie viele Minuten vor einem Zeitfenster gestartet werden muss, damit es pünktlich warm ist |
+| **Zuverlässigkeit** | *noch unsicher* (unter 3 Messungen), *brauchbar* (3–5), *belastbar* (ab 6) |
+| **Gerade gilt** | welche Entscheidung im Moment wirkt – und darunter **die letzten Entscheidungen mit Begründung** |
+
+Die Begründungen kommen aus dem Entscheidungsprotokoll, das auch der Reiter *Protokoll* zeigt.
+Beispiel: „Abgesenkt, weil seit 40 Minuten niemand zu Hause ist.“
+
+### Anwesenheitsprofil
+
+Alle 15 Minuten notiert die Zentrale, ob **jemand** zu Hause ist – nicht wer. Über vier Wochen
+entsteht daraus ein Balkenbild für werktags und Wochenende, dazu ein Satz wie „meist 17:15–08:00
+jemand zu Hause“. Das ist die Grundlage für Vorschläge zu Absenkzeiten und Vorheizen.
+
+### Schlafzeiten
+
+Aus Nachtlüften und Lichtsignalen lernt Raumklima die typische Bettzeit und Aufstehzeit (werktags und
+Wochenende getrennt, ab vier Nächten). Daraus entsteht die Ruhezeit: 30 Minuten vor dem Zubettgehen
+bis 30 Minuten nach dem Aufstehen – nie kürzer als eingestellt.
+
+## Alle Räume auf einen Blick
+
+Die Übersicht zeigt jede Wohnung als Kacheln: Raumname, Raumtyp, die Wunschtemperatur groß, darunter
+Absenkung und die Temperatur, ab der gelüftet werden soll. Kleine Symbole zeigen, ob die Fensterlogik
+aktiv ist, ob Hinweise geschickt werden und ob eine Feuchtegrenze gesetzt ist. Ein Tipp öffnet den Raum.
+
+## Zeit und Datum eintragen
+
+Uhrzeiten öffnen einen Wähler mit zwei Rädern – Stunden und Viertelstunden – zum Durchscrollen; die
+Minuten rasten in 15-Minuten-Schritten ein. Im Feld darunter kannst du die Zeit auch direkt eintippen.
+
+Datumsfelder (etwa die Heizsaison) öffnen einen Kalender. Gespeichert werden nur Tag und Monat – das
+Jahr ist egal.
+
 # Häufige Fragen
 
 <!-- include: ../docs/de/faq.md -->

@@ -34,15 +34,18 @@ Bei diesen Geräten ist **das Preset der Betriebsmodus** – `system_mode` läss
 
 | Preset | Was das Gerät macht |
 |---|---|
-| `on` | **manuell** – heizt auf den gesendeten Sollwert (`system_mode: heat`) |
-| `auto` | eingebauter Wochenplan |
-| `eco` / `comfort` | eigene Gerätetemperatur (`eco_temperature` / `comfort_temperature`) |
+| `comfort` | **regelt auf `comfort_temperature`** – das ist der richtige Modus |
+| `eco` | regelt auf `eco_temperature` (eigene Spartemperatur des Geräts) |
+| `auto` | eingebauter Wochenplan des Geräts |
+| `on` | **Ventil dauerhaft offen** – heizt unabhängig vom Sollwert |
 | `off` / `antifrost` | aus bzw. Frostschutz |
 
-Raumklima erkennt das Preset selbst und lässt ein laufendes Heiz-Preset in Ruhe. Steht das Gerät
-aber auf `auto`, `eco` oder `comfort`, gilt dort eine andere Temperatur als die, die Raumklima
-schreibt – die Gesundheitsliste meldet das. Dann am Gerät (oder in der Tuya-/Z2M-Oberfläche)
-**`on`** wählen; in den Raum-Einstellungen lässt sich das unter *Einschalten mit* fest vorschreiben.
+**Wichtig:** `on` heißt bei diesen Geräten nicht „manuell“, sondern **Ventil auf** – der Raum heizt
+über den Sollwert hinaus. Raumklima schreibt deshalb ab Version 0.39.2 den Sollwert in
+`comfort_temperature` und wählt `comfort`. Am Raum steht dann `target_via: comfort_temperature`.
+
+Steht ein Gerät auf `on`, meldet die Gesundheitsliste „Thermostat öffnet das Ventil dauerhaft“.
+Dann am Gerät (oder in der Tuya-/Z2M-Oberfläche) **`comfort`** wählen.
 
 ### Der Raum heizt nicht, obwohl es kalt ist.
 Schau auf die Raumkarte, dort steht der Grund:

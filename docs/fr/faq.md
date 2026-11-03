@@ -128,12 +128,15 @@ Sur ces appareils, **le préréglage est le mode de fonctionnement** – `system
 
 | Préréglage | Ce que fait l'appareil |
 |---|---|
-| `on` | **manuel** – chauffe jusqu'à la consigne envoyée (`system_mode: heat`) |
+| `comfort` | **régule sur `comfort_temperature`** – c'est le bon mode |
+| `eco` | régule sur `eco_temperature` (température d'économie de l'appareil) |
 | `auto` | programme hebdomadaire interne |
-| `eco` / `comfort` | température propre de l'appareil (`eco_temperature` / `comfort_temperature`) |
+| `on` | **vanne ouverte en permanence** – chauffe indépendamment de la consigne |
 | `off` / `antifrost` | arrêt / hors gel |
 
-Raumklima reconnaît le préréglage et ne touche pas à un préréglage de chauffe actif. Si l'appareil est
-sur `auto`, `eco` ou `comfort`, une autre température s'applique que celle envoyée par Raumklima – la
-liste de santé le signale. Choisissez alors **`on`** sur l'appareil (ou dans Tuya/Z2M) ; vous pouvez
-aussi l'imposer par pièce sous *Allumage avec*.
+**Important :** sur ces appareils, `on` ne signifie pas « manuel » mais **vanne ouverte** – la pièce
+chauffe au-delà de la consigne. Depuis la version 0.39.2, Raumklima écrit donc la consigne dans
+`comfort_temperature` et sélectionne `comfort`. La pièce affiche alors `target_via: comfort_temperature`.
+
+Si un appareil est sur `on`, la liste de santé signale « Thermostat maintient la vanne ouverte ».
+Choisissez **`comfort`** sur l'appareil (ou dans Tuya/Z2M).

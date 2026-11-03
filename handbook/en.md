@@ -292,6 +292,80 @@ Not sure? Keep the defaults. They follow the recommendations of German consumer 
 | **Room → Light signal** | lights that blink on notices |
 
 
+## How the settings are laid out
+
+At the top you pick the home, below it the room – as a chip with a coloured dot (the dot shows whether
+something needs attention in that room). The bar underneath jumps between groups, and the search field
+filters all groups by a keyword.
+
+Each group carries its own colour on the divider, the icon and the heading. That is not decoration: it
+tells you where a section starts while scrolling.
+
+| Group (home) | Content |
+|---|---|
+| **Home** | heating season, all rooms, appearance |
+| **Heating** | heating health, heating limit |
+| **Presence** | people, zone, vacation, sleep times |
+| **Notifications** | recipients, quiet time, e-mail, reports |
+| **Learning** | learned sleep times, presence profile |
+
+| Group (room) | Content |
+|---|---|
+| **Room** | temperature, airing, windows, presence, learning |
+| **Heating** | schedule, boost |
+| **Notifications** | notifications for this room |
+
+## Order, size and colour
+
+Under *Appearance* (home) you decide how the rooms show up in the overview:
+
+- **Order** with ▲▼ – the first card is on top
+- **Size**: large card, tile or hidden
+- **Colour**: eight tones, shown as an edge on the card header
+
+Changes apply immediately on every card of the same home.
+
+## Learning and why
+
+Raumklima does not just send commands, it also remembers what actually happens in your home.
+You find it under *Settings → Room → Learning* and for the whole home under *Home → Learning*.
+
+| Value | Meaning |
+|---|---|
+| **Heat-up rate** | how fast a room warms up (°C per hour), measured from real heat-up runs |
+| **Preheat for 2 K** | how many minutes before a schedule window it has to start to be warm in time |
+| **Reliability** | *still uncertain* (below 3 measurements), *usable* (3–5), *reliable* (6 or more) |
+| **Currently applies** | which decision is active right now – and below it **the latest decisions with reasons** |
+
+The reasons come from the decision log that the *Log* tab also shows.
+Example: “Set back because nobody has been home for 40 minutes.”
+
+### Presence profile
+
+Every 15 minutes the hub notes whether **someone** is at home – never who. Over four weeks this becomes
+a bar chart for weekdays and weekends, plus a sentence like “usually someone at home 17:15–08:00”.
+It is the base for suggestions about setback times and preheating.
+
+### Sleep times
+
+From night airing and light signals Raumklima learns the typical bedtime and wake-up time (weekdays and
+weekend separately, from four nights on). The quiet time follows: 30 minutes before bedtime until 30
+minutes after getting up – never shorter than configured.
+
+## All rooms at a glance
+
+The overview shows each home as tiles: room name, room type, the target temperature large, below it the
+setback and the temperature from which airing is suggested. Small icons show whether window logic is
+active, whether notifications are sent and whether a humidity limit is set. Tap to open the room.
+
+## Entering times and dates
+
+Times open a picker with two wheels – hours and quarter hours – to scroll through; minutes snap in
+15-minute steps. In the field below you can also type the time directly.
+
+Date fields (for example the heating season) open a calendar. Only day and month are stored – the year
+does not matter.
+
 # Frequently asked questions
 
 <!-- include: ../docs/en/faq.md -->

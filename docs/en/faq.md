@@ -125,12 +125,15 @@ On these devices the **preset is the operating mode** – `system_mode` cannot b
 
 | Preset | What the device does |
 |---|---|
-| `on` | **manual** – heats to the setpoint that was sent (`system_mode: heat`) |
-| `auto` | built-in weekly schedule |
-| `eco` / `comfort` | the device's own temperature (`eco_temperature` / `comfort_temperature`) |
+| `comfort` | **regulates to `comfort_temperature`** – this is the correct mode |
+| `eco` | regulates to `eco_temperature` (the device's own saving temperature) |
+| `auto` | the device's built-in weekly schedule |
+| `on` | **valve permanently open** – heats regardless of the setpoint |
 | `off` / `antifrost` | off / frost protection |
 
-Raumklima recognises the preset and leaves an active heating preset alone. If the device sits on
-`auto`, `eco` or `comfort`, a different temperature applies than the one Raumklima sends – the health
-list reports it. In that case pick **`on`** on the device (or in Tuya/Z2M); you can also pin it per
-room under *Switching on with*.
+**Important:** on these devices `on` does not mean “manual”, it means **valve open** – the room heats
+past the setpoint. From version 0.39.2 Raumklima therefore writes the setpoint into
+`comfort_temperature` and selects `comfort`. The room then shows `target_via: comfort_temperature`.
+
+If a device sits on `on`, the health list reports “Thermostat keeps the valve permanently open”.
+Pick **`comfort`** on the device (or in Tuya/Z2M).
