@@ -7,6 +7,16 @@ drei Sprachen gleich sein – ``tests/test_msg.py`` prüft das und meldet fehlen
 from __future__ import annotations
 
 _ROWS: list[tuple[str, str, str]] = [
+    (
+        "Thermostat arbeitet nach eigenem Zeitplan",
+        "Thermostat follows its own schedule",
+        "Le thermostat suit son propre programme",
+    ),
+    (
+        "Das Gerät steht auf „Auto“ und folgt seinem eingebauten Wochenplan – damit kann es dem widersprechen, was Raumklima vorgibt. Am Thermostat auf „Heat“ stellen (nicht „Auto“), dann regelt Raumklima allein.",
+        "The device is set to “Auto” and follows its built-in weekly schedule – so it can contradict what Raumklima asks for. Set the thermostat to “Heat” (not “Auto”) and Raumklima is in charge.",
+        "L’appareil est en « Auto » et suit son programme hebdomadaire intégré – il peut donc contredire la consigne de Raumklima. Règle le thermostat sur « Heat » (pas « Auto ») et Raumklima pilote seul.",
+    ),
     # ------------------------------------------------------------ Raum: Ziel, Plan, Einstellungen
     ("Einstellungen geändert", "Settings changed", "Réglages modifiés"),
     ("Standard", "Default", "Par défaut"),

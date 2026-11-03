@@ -500,3 +500,18 @@ async def test_temperature_zeigt_angewendetes_ziel(hass: HomeAssistant, setup, t
     assert st is not None
     assert st.attributes["temperature"] == 19.0, "Ziel ist das, worauf der Raum regelt"
     assert st.attributes["wish"] == 17.0, "Wunsch bleibt der eingestellte Wert"
+
+
+async def test_health_meldet_automatik_modus(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Steht das Thermostat auf Auto, erscheint es in der Gesundheitsliste (Issue #13)."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    before = {i.code for i in ctrl.health_issues(dt_util.utcnow())}
+    assert "trv_mode" not in before
+
+    trv.state = "auto"
+    trv.push()
+    codes = {i.code for i in ctrl.health_issues(dt_util.utcnow())}
+    assert "trv_mode" in codes

@@ -28,9 +28,11 @@ from .health import (
     check_radio,
     check_sensor_frozen,
     check_sensor_missing,
+    check_trv_mode,
     check_window,
 )
 from .logic import (
+    is_valid,
     to_float,
 )
 from .msg import dec, tr
@@ -140,6 +142,11 @@ class HealthMixin:
             )
         )
 
+    def _ext_available(self) -> bool:
+        """Liefert der Raumfühler überhaupt einen gültigen Wert? (nicht: „sendet gerade nichts")"""
+        state = self.hass.states.get(self.temp_sensor)
+        return state is not None and is_valid(state.state)
+
     def health_issues(self, now: datetime) -> list[Issue]:
         issues: list[Issue] = []
         levels = {}
@@ -149,6 +156,7 @@ class HealthMixin:
             if value is not None:
                 levels[name] = value
         issues += check_battery(levels)
+        trv_state = self.hass.states.get(self.trv)
         for check in (
             check_not_warming(list(self.health_hist), now),
             check_hydraulic(list(self.health_hist), now) if self.valve_sensor else None,
@@ -161,11 +169,16 @@ class HealthMixin:
             Issue("throttled", "warn", tr("Thermostat und Integration verstellen sich"), tr("Zu viele Befehle in kurzer Zeit – die Integration pausiert kurz. Zeitplan/Automatik am Thermostat oder andere Automationen prüfen."))
             if self.throttled_until and now < self.throttled_until else None,
             check_sensor_missing(
-                None if self.sensor_ok else (now - (self._ext_time or self._started_at)).total_seconds() / 3600
+                None if self.sensor_ok else (now - (self._ext_time or self._started_at)).total_seconds() / 3600,
+                available=self._ext_available(),
             ),
             check_radio(
                 sum(1 for t in self._unavail_events if now - t <= timedelta(hours=24)),
                 self.sync.state == "failed",
+            ),
+            check_trv_mode(
+                trv_state.state if trv_state else None,
+                (trv_state.attributes or {}).get("preset_mode") if trv_state else None,
             ),
             check_window(
                 self.vent.open_minutes / 60 if self.window_open else None,

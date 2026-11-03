@@ -107,9 +107,11 @@ def test_sensor_radio_window():
 
 def test_sensor_missing_and_connection():
     from rk.health import check_connection, check_sensor_missing
-    assert check_sensor_missing(None) is None
-    assert check_sensor_missing(0.5) is None
-    assert check_sensor_missing(6.2).code == "sensor_missing"
+    assert check_sensor_missing(None, available=False) is None
+    assert check_sensor_missing(0.5, available=False) is None
+    assert check_sensor_missing(6.2, available=False).code == "sensor_missing"
+    # Wert gültig, nur unverändert: kein Ausfall (Issue #14)
+    assert check_sensor_missing(6.2, available=True) is None
     assert check_connection(5, 7) is None
     c = check_connection(34, 6.7)
     assert c.severity == "info" and "34×" in c.message and "~7 s" in c.message

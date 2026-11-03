@@ -19,6 +19,9 @@ NOT_WARM_RISE = 0.3  # K Anstieg in 2 h
 FROZEN_HOURS = 12.0
 FROZEN_TRV_DELTA = 1.5  # K: TRV hat sich bewegt, der Fühler nicht
 RADIO_EVENTS = 3  # Ausfälle in 24 h
+# Betriebsarten, in denen ein Thermostat seinen eigenen Zeitplan abarbeitet
+TRV_SCHEDULE_MODES = ("auto",)
+TRV_SCHEDULE_PRESETS = ("auto", "schedule", "program", "programme", "timed", "timer")
 WINDOW_OPEN_HOURS = 24.0
 WINDOW_UNAVAILABLE_HOURS = 2.0
 
@@ -54,6 +57,27 @@ def check_battery(levels: dict[str, float]) -> list[Issue]:
         elif level < BATTERY_WARN:
             issues.append(Issue(f"battery:{name}", SEV_WARN, tr("Batterie schwach"), tr("{name}: noch {level} %.", name=name, level=f"{level:.0f}")))
     return issues
+
+
+def check_trv_mode(mode: str | None, preset: str | None) -> Issue | None:
+    """Thermostat arbeitet seinen eigenen Zeitplan ab (Issue #13).
+
+    Viele Geräte (Tuya, Bosch, Homematic) führen im Modus „Auto“ einen eingebauten Wochenplan.
+    Der überschreibt den Sollwert, den Raumklima schreibt – der Raum heizt dann gegen den Plan.
+    """
+    schedule = str(mode or "").lower() in TRV_SCHEDULE_MODES or str(preset or "").lower() in TRV_SCHEDULE_PRESETS
+    if not schedule:
+        return None
+    return Issue(
+        "trv_mode",
+        SEV_WARN,
+        tr("Thermostat arbeitet nach eigenem Zeitplan"),
+        tr(
+            "Das Gerät steht auf „Auto“ und folgt seinem eingebauten Wochenplan – damit kann es dem "
+            "widersprechen, was Raumklima vorgibt. Am Thermostat auf „Heat“ stellen (nicht „Auto“), dann "
+            "regelt Raumklima allein."
+        ),
+    )
 
 
 def check_not_warming(history: list[HistoryPoint], now: datetime) -> Issue | None:
@@ -105,9 +129,14 @@ SENSOR_MISSING_HOURS = 1.0
 CONNECTION_BLIPS = 10  # kurze Gesamtausfälle in 24 h
 
 
-def check_sensor_missing(hours_without_value: float | None) -> Issue | None:
-    """Raumfühler liefert seit über einer Stunde keine Werte."""
-    if hours_without_value is None or hours_without_value < SENSOR_MISSING_HOURS:
+def check_sensor_missing(hours_without_value: float | None, *, available: bool) -> Issue | None:
+    """Raumfühler ist nicht erreichbar (unavailable/unknown).
+
+    Ein Fühler, der nur bei Änderung sendet, ist *nicht* ausgefallen – sein Wert bleibt gültig,
+    auch wenn er stundenlang derselbe ist. Abweichungen zum Thermostatfühler prüft
+    ``check_sensor_frozen`` (Issue #14).
+    """
+    if available or hours_without_value is None or hours_without_value < SENSOR_MISSING_HOURS:
         return None
     return Issue(
         "sensor_missing",
