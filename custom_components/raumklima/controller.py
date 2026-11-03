@@ -253,6 +253,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._listeners: list[Callable[[], None]] = []
         self._apply_lock = asyncio.Lock()
         self.valve_sensor: str | None = None
+        self._valve_hunt_left = 60  # Versuche über Zustandsänderungen
         self._frost_active = False
         self._solar_active = False
         self.frost_night_low: float | None = None
@@ -898,6 +899,12 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         old = event.data["old_state"]
         new = event.data["new_state"]
 
+        if self.valve_sensor is None and self._valve_hunt_left > 0:
+            # MQTT/Zigbee legen die Ventilstellung erst nach dem Start an (#15). Statt eines
+            # eigenen Timers nutzen wir die ohnehin laufenden Zustandsänderungen – begrenzt.
+            self._valve_hunt_left -= 1
+            self._try_valve_sensor()
+
         if entity_id in self.windows:
             self._on_window(entity_id, new)
         elif entity_id == self.temp_sensor:
@@ -1000,17 +1007,23 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
 
     @callback
+    def _try_valve_sensor(self) -> bool:
+        """Ventilsensor nachträglich suchen (MQTT/Zigbee legen ihn erst nach dem Start an, #15)."""
+        if self.valve_sensor is not None:
+            return True
+        found = self._find_valve_sensor()
+        if not found:
+            return False
+        self.valve_sensor = found
+        self._unsubs.append(async_track_state_change_event(self.hass, [found], self._on_state_change))
+        return True
+
+    @callback
     def _on_reconcile(self, _now: datetime) -> None:
         """Sicherheitsnetz: Fenster neu bewerten und Soll-Zustand abgleichen."""
         if self.valve_sensor is None:
-            # MQTT/Zigbee legen die Ventilstellung oft erst nach dem Start an – beim Setup war die
-            # Entität noch nicht da, und bisher wurde nie wieder gesucht (Issue #15).
-            found = self._find_valve_sensor()
-            if found:
-                self.valve_sensor = found
-                self._unsubs.append(
-                    async_track_state_change_event(self.hass, [found], self._on_state_change)
-                )
+            # Sicherheitsnetz, falls der schnelle Nachlauf schon beendet ist.
+            self._try_valve_sensor()
         for entity in self.windows:
             state = self.hass.states.get(entity)
             if state and is_valid(state.state):

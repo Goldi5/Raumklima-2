@@ -5,6 +5,11 @@
 Sammelstelle für den nächsten Release. Hier landen Änderungen, bis sie zu einer Version
 zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
 
+### Behoben
+- **Ventilstellung nach dem Start schneller da** (#15): Der Sensor wurde bisher erst beim nächsten
+  Abgleich (bis 10 Minuten) nachgetragen. Jetzt wird in den ersten 20 Minuten alle 30 Sekunden
+  nachgesehen und der Nachlauf beendet sich selbst, sobald der Sensor gefunden ist.
+
 
 ## 0.38.0 – 2026-11-03
 
