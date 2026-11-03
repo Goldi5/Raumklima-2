@@ -598,4 +598,5 @@ export const FR = {
   "große Karte": "Grande carte",
   "lädt …": "chargement …",
   "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "L’ordre s’applique au tableau de bord généré et à l’aperçu ; « Tuile » masque la grande page de la pièce, « aus » masque complètement la pièce. La couleur colore le bord et les accents de la carte.",
+  "Farbe": "Couleur",
 };

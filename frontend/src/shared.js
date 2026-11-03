@@ -381,6 +381,21 @@ export function rkLayoutRemember(layout, home) {
   if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
 }
 
+/** Alle Karten dieser Seite über eine Layout-Änderung informieren. */
+export function rkLayoutChanged(home) {
+  try {
+    window.dispatchEvent(new CustomEvent("raumklima-layout", { detail: { home: String(home || "") } }));
+  } catch (e) {
+    /* egal */
+  }
+}
+
+export function rkOnLayoutChanged(handler) {
+  const fn = (e) => handler((e && e.detail && e.detail.home) || "");
+  window.addEventListener("raumklima-layout", fn);
+  return () => window.removeEventListener("raumklima-layout", fn);
+}
+
 /** Ausblenden und Reihenfolge anwenden. Räume ohne Eintrag behalten ihre alte Reihenfolge. */
 export function rkLayoutApply(rooms, layout) {
   const L = layout || RK_LAYOUT_EMPTY;
@@ -559,6 +574,12 @@ export const SETTINGS_STYLES = `
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .crumb b { color:var(--primary-text-color); font-weight:600; }
+  .lrow { padding:12px 2px; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); display:flex; flex-direction:column; gap:8px; }
+  .lrow:first-child { border-top:0; padding-top:4px; }
+  .ltop { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .lbot { display:flex; align-items:center; gap:10px; }
+  .llab { font-size:.8rem; color:var(--secondary-text-color); min-width:46px; }
+  .dots { display:flex; gap:8px; flex-wrap:wrap; }
   .dotbtn { all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; background:var(--c); border:2px solid transparent; }
   .dotbtn.on { border-color: var(--primary-text-color); }
   .lname { display:inline-flex; align-items:center; gap:4px; }

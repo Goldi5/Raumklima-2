@@ -1,4 +1,4 @@
-/* Raumklima 0.38.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.39.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -597,7 +597,8 @@
     "Speichern": "Save",
     "große Karte": "Large card",
     "lädt …": "loading …",
-    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "The order applies to the generated dashboard and the overview; “Tile” hides the large room page, “off” hides the room entirely. The colour tints the card’s edge and accents."
+    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "The order applies to the generated dashboard and the overview; “Tile” hides the large room page, “off” hides the room entirely. The colour tints the card’s edge and accents.",
+    "Farbe": "Colour"
   };
 
   // src/i18n/fr.js
@@ -1197,7 +1198,8 @@
     "Speichern": "Enregistrer",
     "große Karte": "Grande carte",
     "lädt …": "chargement …",
-    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "L’ordre s’applique au tableau de bord généré et à l’aperçu ; « Tuile » masque la grande page de la pièce, « aus » masque complètement la pièce. La couleur colore le bord et les accents de la carte."
+    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "L’ordre s’applique au tableau de bord généré et à l’aperçu ; « Tuile » masque la grande page de la pièce, « aus » masque complètement la pièce. La couleur colore le bord et les accents de la carte.",
+    "Farbe": "Couleur"
   };
 
   // src/i18n.js
@@ -1241,7 +1243,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.38.0";
+  var RK_VERSION = "0.39.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1562,6 +1564,11 @@
   function rkLayoutRemember(layout, home) {
     if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
   }
+  function rkOnLayoutChanged(handler) {
+    const fn = (e) => handler(e && e.detail && e.detail.home || "");
+    window.addEventListener("raumklima-layout", fn);
+    return () => window.removeEventListener("raumklima-layout", fn);
+  }
   function rkLayoutApply(rooms, layout) {
     const L = layout || RK_LAYOUT_EMPTY;
     const hidden = new Set(L.hidden || []);
@@ -1735,6 +1742,12 @@
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .crumb b { color:var(--primary-text-color); font-weight:600; }
+  .lrow { padding:12px 2px; border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); display:flex; flex-direction:column; gap:8px; }
+  .lrow:first-child { border-top:0; padding-top:4px; }
+  .ltop { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .lbot { display:flex; align-items:center; gap:10px; }
+  .llab { font-size:.8rem; color:var(--secondary-text-color); min-width:46px; }
+  .dots { display:flex; gap:8px; flex-wrap:wrap; }
   .dotbtn { all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; background:var(--c); border:2px solid transparent; }
   .dotbtn.on { border-color: var(--primary-text-color); }
   .lname { display:inline-flex; align-items:center; gap:4px; }
@@ -2204,9 +2217,20 @@
     }
     connectedCallback() {
       this._timer = setInterval(() => rkScrolling() ? null : this._render(), 3e4);
+      this._layoutUnsub = rkOnLayoutChanged(() => this._reloadLayout());
     }
     disconnectedCallback() {
       clearInterval(this._timer);
+      if (this._layoutUnsub) this._layoutUnsub();
+    }
+    _reloadLayout() {
+      this._layoutAsked = true;
+      rkLayout(this._hass, rkHomeId(this._hass, this._config)).then((L) => {
+        this._layout = L;
+        this._sig = null;
+        this._render();
+      }).catch(() => {
+      });
     }
     _render() {
       if (!this._hass) return;
@@ -3572,7 +3596,10 @@
       const home = this._homeId();
       const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
       rkLayoutRemember(L, home);
-      this._hass.callWS({ type: "raumklima/layout/save", home, layout: L }).then(() => this._flash(t("Gespeichert"))).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+      this._hass.callWS({ type: "raumklima/layout/save", home, layout: L }).then(() => {
+        rkLayoutChanged(home);
+        this._flash(t("Gespeichert"));
+      }).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
     }
     _layoutList() {
       const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
@@ -3587,12 +3614,15 @@
       const rows = list.map((r, i) => {
         const size = (L.size || {})[r.id] || "big";
         const col = (L.color || {})[r.id] || "";
-        const arrow = (dir, glyph, on) => `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} title="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
+        const arrow = (dir, glyph, on) => `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} aria-label="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
         const sizes = [["big", t("große Karte")], ["tile", t("Kachel")], ["off", t("aus")]].map(([k, lab]) => `<button class="chip2 ${size === k ? "" : "off"}" data-lsize="${r.id}" data-v="${k}">${lab}</button>`).join("");
         const dots = RK_LAYOUT_COLORS.map(
-          (c) => `<button class="dotbtn ${col === c ? "on" : ""}" style="--c:${c}" data-lcolor="${r.id}" data-v="${c}" title="${c}" aria-label="${c}"></button>`
+          (c) => `<button class="dotbtn ${col === c ? "on" : ""}" style="--c:${c}" data-lcolor="${r.id}" data-v="${c}" aria-label="${c}" title="${c}"></button>`
         ).join("");
-        return this._row(`<span class="lname">${arrow(-1, "▲", i > 0)}${arrow(1, "▼", i < list.length - 1)} ${esc(r.name)}</span>`, `<div class="chips">${sizes}${dots}</div>`);
+        return `<div class="lrow">
+        <div class="ltop"><span class="lname">${arrow(-1, "▲", i > 0)}${arrow(1, "▼", i < list.length - 1)}<b>${esc(r.name)}</b></span><div class="chips">${sizes}</div></div>
+        <div class="lbot"><span class="llab">${t("Farbe")}</span><div class="dots">${dots}</div></div>
+      </div>`;
       }).join("");
       const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;

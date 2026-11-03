@@ -515,7 +515,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
     rkLayoutRemember(L, home);
     this._hass
       .callWS({ type: "raumklima/layout/save", home, layout: L })
-      .then(() => this._flash(t("Gespeichert")))
+      .then(() => {
+        rkLayoutChanged(home);
+        this._flash(t("Gespeichert"));
+      })
       .catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
   }
 
@@ -534,14 +537,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const size = (L.size || {})[r.id] || "big";
       const col = (L.color || {})[r.id] || "";
       const arrow = (dir, glyph, on) =>
-        `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} title="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
+        `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} aria-label="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
       const sizes = [["big", t("große Karte")], ["tile", t("Kachel")], ["off", t("aus")]]
         .map(([k, lab]) => `<button class="chip2 ${size === k ? "" : "off"}" data-lsize="${r.id}" data-v="${k}">${lab}</button>`)
         .join("");
       const dots = RK_LAYOUT_COLORS.map(
-        (c) => `<button class="dotbtn ${col === c ? "on" : ""}" style="--c:${c}" data-lcolor="${r.id}" data-v="${c}" title="${c}" aria-label="${c}"></button>`,
+        (c) => `<button class="dotbtn ${col === c ? "on" : ""}" style="--c:${c}" data-lcolor="${r.id}" data-v="${c}" aria-label="${c}" title="${c}"></button>`,
       ).join("");
-      return this._row(`<span class="lname">${arrow(-1, "▲", i > 0)}${arrow(1, "▼", i < list.length - 1)} ${esc(r.name)}</span>`, `<div class="chips">${sizes}${dots}</div>`);
+      return `<div class="lrow">
+        <div class="ltop"><span class="lname">${arrow(-1, "▲", i > 0)}${arrow(1, "▼", i < list.length - 1)}<b>${esc(r.name)}</b></span><div class="chips">${sizes}</div></div>
+        <div class="lbot"><span class="llab">${t("Farbe")}</span><div class="dots">${dots}</div></div>
+      </div>`;
     }).join("");
     const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;

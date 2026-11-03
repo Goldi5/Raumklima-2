@@ -1,4 +1,4 @@
-import { rkLayout, rkLayoutApply, rkLayoutColor, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -40,8 +40,20 @@ export class RaumklimaOverviewCard extends HTMLElement {
     if (rkScrolling()) { rkLater(this, () => this._render()); return; }
     this._render();
   }
-  connectedCallback() { this._timer = setInterval(() => (rkScrolling() ? null : this._render()), 30000); }
-  disconnectedCallback() { clearInterval(this._timer); }
+  connectedCallback() {
+    this._timer = setInterval(() => (rkScrolling() ? null : this._render()), 30000);
+    this._layoutUnsub = rkOnLayoutChanged(() => this._reloadLayout());
+  }
+  disconnectedCallback() {
+    clearInterval(this._timer);
+    if (this._layoutUnsub) this._layoutUnsub();
+  }
+  _reloadLayout() {
+    this._layoutAsked = true;
+    rkLayout(this._hass, rkHomeId(this._hass, this._config))
+      .then((L) => { this._layout = L; this._sig = null; this._render(); })
+      .catch(() => {});
+  }
 
   _render() {
     if (!this._hass) return;
