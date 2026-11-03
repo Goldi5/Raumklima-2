@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.2 – 2026-11-03
+
+### Geändert
+- **Einstellungen so breit wie die Übersicht:** Die Begrenzung auf 1500 px ist entfallen, die
+  Innenabstände entsprechen jetzt denen der anderen Karten. Damit stehen alle Karten bündig.
+
 ## 0.45.1 – 2026-11-03
 
 ### Behoben

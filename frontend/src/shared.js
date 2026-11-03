@@ -562,8 +562,9 @@ export const SETTINGS_STYLES = `
   .sched .del { all:unset; cursor:pointer; padding:3px 7px; border-radius:8px; color: var(--rk-cold); }
   .sched .add { all:unset; cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-top:8px; padding:7px 14px; border-radius:10px;
     font-weight:600; background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); color: var(--primary-text-color); }
-  ha-card.settings { container-type: inline-size; padding: 26px 28px; max-width: 1500px; margin: 12px auto; }
-  @media (max-width: 600px) { ha-card.settings { padding: 18px 16px; margin: 0; } }
+  /* Gleiche Breite und Innenabstände wie die Übersicht – Karten sollen bündig stehen. */
+  ha-card.settings { container-type: inline-size; padding: 20px 22px; }
+  @media (max-width: 600px) { ha-card.settings { padding: 16px 14px; } }
   ha-card.settings .htitle { font-size:1.45rem; }
   ha-card.settings .htitle ha-icon { --mdc-icon-size:28px; }
   .tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:14px -4px 4px; padding:2px 4px 6px; }
