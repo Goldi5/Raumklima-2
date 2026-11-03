@@ -436,7 +436,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         hub = self.hub
         entry = self.hass.config_entries.async_get_entry(self.entry.entry_id) or self.entry
         own = {**(entry.data or {}), **(entry.options or {})}
-        changed = sorted(k for k, v in DEFAULTS.items() if k in own and own.get(k) != v)
+        # Struktur (Raumtyp, erkannte Abgleichart) ist keine Einstellung – nicht mitzählen.
+        skip = {CONF_ROOM_TYPE, CONF_CALIBRATION_MODE}
+        changed = sorted(k for k, v in DEFAULTS.items() if k in own and own.get(k) != v and k not in skip)
         for key in (CONF_SCHEDULES, CONF_PRESENCE, CONF_LIGHTS, CONF_SOLAR_FACADE):
             if own.get(key):
                 changed.append(key)
