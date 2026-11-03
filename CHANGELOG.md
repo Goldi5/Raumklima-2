@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.39.3 – 2026-11-03
+
+### Behoben
+- **Warnung „Ventil dauerhaft offen"**, wenn ein Thermostat auf Preset `on` steht (Tuya TRV602Z: Ventil
+  100 %, heizt über das Ziel hinaus). Im Komfort-Modus (Sollwert über `comfort_temperature`) entfällt sie.
+- **Keine voreiligen „Sollwert nicht bestätigt"-Meldungen** mehr bei Geräten, die über die Zahl-Entität
+  gesteuert werden: Die Prüfung wartet jetzt 120 s je Versuch statt 20 s (Batteriegeräte melden selten).
+
 ## 0.39.2 – 2026-11-03
 
 ### Behoben

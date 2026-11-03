@@ -28,6 +28,16 @@ _ROWS: list[tuple[str, str, str]] = [
         "Les préréglages « eco », « comfort » ou « boost » utilisent la température propre de l’appareil – Raumklima envoie alors une consigne qui ne s’applique pas. Passez en mode manuel (« manual », « heat » ou « on » sur le TRV602Z de Tuya).",
     ),
     (
+        "Thermostat öffnet das Ventil dauerhaft",
+        "Thermostat keeps the valve permanently open",
+        "Le thermostat maintient la vanne ouverte en permanence",
+    ),
+    (
+        "Preset „on“ hält das Ventil offen, unabhängig vom Sollwert – der Raum heizt über das Ziel hinaus. Am Thermostat den Regelmodus wählen (bei Tuya TRV602Z „comfort“, sonst „manual“ oder „heat“).",
+        "The “on” preset holds the valve open regardless of the setpoint – the room heats past the target. Choose the regulating mode on the thermostat (“comfort” on the Tuya TRV602Z, otherwise “manual” or “heat”).",
+        "Le préréglage « on » maintient la vanne ouverte indépendamment de la consigne – la pièce chauffe au-delà de la cible. Choisissez le mode de régulation (« comfort » sur le TRV602Z Tuya, sinon « manual » ou « heat »).",
+    ),
+    (
         "Thermostat arbeitet nach eigenem Zeitplan",
         "Thermostat follows its own schedule",
         "Le thermostat suit son propre programme",

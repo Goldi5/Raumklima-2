@@ -26,6 +26,8 @@ TRV_SCHEDULE_PRESETS = ("auto", "schedule", "program", "programme", "timed", "ti
 TRV_FIXED_PRESETS = ("off", "antifrost")
 # Eigene Abschläge/Aufschläge im Gerät (Tuya: eco/comfort, Bosch: boost).
 TRV_OFFSET_PRESETS = ("eco", "comfort", "boost")
+# Tuya TRV602Z: "on" öffnet das Ventil dauerhaft (gemessen 100 %) – ein echter Fehlzustand.
+TRV_OPEN_PRESETS = ("on",)
 WINDOW_OPEN_HOURS = 24.0
 WINDOW_UNAVAILABLE_HOURS = 2.0
 
@@ -80,6 +82,17 @@ def check_trv_mode(mode: str | None, preset: str | None, *, device_preset: bool 
                 "Das Gerät steht auf „Auto“ und folgt seinem eingebauten Wochenplan – damit kann es dem "
                 "widersprechen, was Raumklima vorgibt. Am Thermostat auf „Heat“ stellen (nicht „Auto“), dann "
                 "regelt Raumklima allein."
+            ),
+        )
+    if preset in TRV_OPEN_PRESETS and not device_preset:
+        return Issue(
+            "trv_mode",
+            SEV_WARN,
+            tr("Thermostat öffnet das Ventil dauerhaft"),
+            tr(
+                "Preset „on“ hält das Ventil offen, unabhängig vom Sollwert – der Raum heizt über das Ziel "
+                "hinaus. Am Thermostat den Regelmodus wählen (bei Tuya TRV602Z „comfort“, sonst „manual“ "
+                "oder „heat“)."
             ),
         )
     if preset in TRV_FIXED_PRESETS:

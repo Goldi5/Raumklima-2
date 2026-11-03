@@ -31,9 +31,7 @@ def test_dauer_preset_wird_erkannt() -> None:
     assert check_trv_mode("heat", "antifrost") is not None
 
 
-def test_on_ist_manueller_modus() -> None:
-    """Beim Tuya TRV602Z ist preset "on" der manuelle Heizmodus (system_mode heat)."""
-    assert check_trv_mode("heat", "on") is None
+
 
 
 def test_geraeteabschlag_wird_erkannt() -> None:
@@ -58,3 +56,10 @@ def test_geraete_preset_comfort_ist_kein_abschlag() -> None:
     """Beim TRV602Z ist comfort der richtige Modus (Sollwert über comfort_temperature)."""
     assert check_trv_mode("heat", "comfort", device_preset=True) is None
     assert check_trv_mode("heat", "comfort", device_preset=False) is not None
+
+
+def test_preset_on_warnt_als_dauer_offen() -> None:
+    issue = check_trv_mode("heat", "on")
+    assert issue is not None
+    assert issue.title == "Thermostat öffnet das Ventil dauerhaft"
+    assert check_trv_mode("heat", "on", device_preset=True) is None

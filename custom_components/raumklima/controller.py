@@ -1137,6 +1137,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                     return
                 if not self._cal_interval_passed():
                     return
+            if self.target_via == "comfort_temperature" and getattr(self.sync, "verify_delay", 20) < 120:
+                # Batteriegeräte melden selten – nicht nach 5 Minuten „nicht bestätigt" rufen.
+                self.sync.verify_delay = 120
             if self.sync.is_pending("mode"):
                 await asyncio.sleep(2)  # Tuya braucht kurz nach Preset-Wechsel
             self._last_target_setpoint = setpoint
