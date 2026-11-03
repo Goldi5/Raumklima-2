@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.39.4 – 2026-11-03
+
+### Geändert
+- **Baukasten für die Einstellungen (Design-Pass, Stufe 1):** einheitliche Zeilenhöhe (48 px),
+  gleiche Abstände, gleiche Schriftgrößen und Höhen für Chips, Knöpfe, Auswahlfelder und Stepper,
+  ruhigere Gruppenköpfe. Nur Darstellung – keine Funktion geändert.
+
 ## 0.39.3 – 2026-11-03
 
 ### Behoben

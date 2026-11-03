@@ -574,6 +574,25 @@ export const SETTINGS_STYLES = `
   .tab ha-icon { --mdc-icon-size:16px; }
   .tab.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
   .tab .dot { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-ok)); }
+  /* ---------------------------------------------------------------- Baukasten (Design-Pass)
+     Ein Raster für alle Einstellungen: gleiche Höhen, gleiche Abstände, gleiche Schrift.
+     Neue Zeilen und Bedienelemente immer aus diesen Klassen bauen. */
+  .grp { padding:18px 20px; border-radius:20px; }
+  .gh { gap:12px; margin-bottom:6px; }
+  .gh .ic { width:38px; height:38px; border-radius:12px; }
+  .row { min-height:48px; padding:12px 0; gap:14px; }
+  .row .l { font-size:.98rem; line-height:1.3; max-width:58%; }
+  .row small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.3; }
+  .row .chips { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .chip2, .sel, .btn { min-height:36px; font-size:.88rem; }
+  .chip2 { padding:7px 13px; }
+  .btn { padding:7px 14px; border-radius:12px; }
+  .sel { padding:7px 10px; border-radius:12px; }
+  .stepper { padding:3px; }
+  .stepper button { width:32px; height:32px; font-size:1.05rem; }
+  .stepper span { min-width:64px; font-size:1rem; }
+  .hint { margin-top:10px; font-size:.82rem; line-height:1.35; }
+  .addrow { margin-top:12px; gap:10px; }
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .crumb b { color:var(--primary-text-color); font-weight:600; }
