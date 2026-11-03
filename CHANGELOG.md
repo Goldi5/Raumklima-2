@@ -2,20 +2,18 @@
 
 ## 0.28.1 – 2026-11-03
 
+### Neu
+- **Warnung, wenn das Thermostat nach eigenem Zeitplan läuft** (Issue #13): Steht ein Gerät auf „Auto"
+  (oder meldet einen Zeitplan-Preset wie `schedule`/`program`/`timer`), arbeitet es seinen eingebauten
+  Wochenplan ab und kann dem widersprechen, was Raumklima vorgibt. Das steht jetzt in der Gesundheitsliste,
+  mit dem Hinweis, am Gerät auf „Heat" zu stellen. Betrifft Tuya-, Bosch- und Homematic-Geräte gleichermaßen.
+
 ### Behoben
 - **Fühler wurde als ausgefallen gemeldet, obwohl er nur unverändert war** (Issue #14): Ein Sensor, der nur
   bei Änderung sendet (z. B. Aqara/Xiaomi), galt nach einer Stunde ohne neuen Wert als „meldet sich nicht".
   Gemeldet wird jetzt nur noch, wenn der Fühler wirklich **nicht erreichbar** ist (`unavailable`/`unknown`);
-  ein stabiler Wert bleibt still. Weicht der Fühler vom Thermostatfühler ab, greift weiterhin die
+  ein stabiler Wert bleibt still. Weicht der Fühler dauerhaft vom Thermostatfühler ab, greift weiterhin die
   Plausibilitätsprüfung.
-
-## 0.28.0 – 2026-11-02
-
-### Neu
-- **Warnung, wenn das Thermostat nach eigenem Zeitplan läuft** (Issue #13): Steht ein Gerät auf „Auto"
-  (oder meldet einen Zeitplan-Preset), arbeitet es seinen eingebauten Wochenplan ab und kann dem
-  widersprechen, was Raumklima vorgibt. Das steht jetzt in der Gesundheitsliste, mit dem Hinweis, am Gerät
-  auf „Heat" zu stellen. Betrifft Tuya-, Bosch- und Homematic-Geräte gleichermaßen.
 
 ## 0.27.0 – 2026-11-02
 
