@@ -1,4 +1,4 @@
-/* Raumklima 0.41.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.41.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -635,7 +635,18 @@
     "meist {a}–{b} jemand zu Hause": "usually someone at home {a}–{b}",
     "schließen": "close",
     "wird ab der ersten Woche sichtbar – nur ja/nein, nie wer": "appears after the first week – only yes/no, never who",
-    "Übernehmen": "Apply"
+    "Übernehmen": "Apply",
+    "CO₂ bei {c} ppm – ab 1000 ppm wird es stickig.": "CO₂ at {c} ppm – above 1000 ppm the air gets stale.",
+    "Die Luft ist gerade nicht in Ordnung.": "The air is not right at the moment.",
+    "Dieser Raum hat kein Thermostat: Raumklima misst hier nur und gibt Hinweise. Geheizt wird über die Heizung, die diesen Raum versorgt.": "This room has no thermostat: Raumklima only measures here and gives hints. Heating is handled by the heating that serves this room.",
+    "Empfohlen: etwa {m} Minuten lüften.": "Recommended: air for about {m} minutes.",
+    "Feuchte bei {h} % – lüften senkt die Schimmelgefahr.": "Humidity at {h} % – airing lowers the mould risk.",
+    "Kein Feuchtefühler – bewertet nur die Temperatur.": "No humidity sensor – only the temperature is assessed.",
+    "Luft und Klima sind in Ordnung.": "Air and climate are fine.",
+    "Zurück": "Back",
+    "Überwachung · kein Thermostat": "Monitoring · no thermostat",
+    "Anwesenheitsprofil": "Presence profile",
+    "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima uses this profile to suggest setback and preheating times."
   };
 
   // src/i18n/fr.js
@@ -1273,7 +1284,18 @@
     "meist {a}–{b} jemand zu Hause": "généralement quelqu'un à la maison de {a} à {b}",
     "schließen": "fermer",
     "wird ab der ersten Woche sichtbar – nur ja/nein, nie wer": "visible après la première semaine – seulement oui/non, jamais qui",
-    "Übernehmen": "Appliquer"
+    "Übernehmen": "Appliquer",
+    "CO₂ bei {c} ppm – ab 1000 ppm wird es stickig.": "CO₂ à {c} ppm – au-delà de 1000 ppm l'air devient confiné.",
+    "Die Luft ist gerade nicht in Ordnung.": "L'air n'est pas correct en ce moment.",
+    "Dieser Raum hat kein Thermostat: Raumklima misst hier nur und gibt Hinweise. Geheizt wird über die Heizung, die diesen Raum versorgt.": "Cette pièce n'a pas de thermostat : Raumklima mesure seulement et donne des conseils. Le chauffage est assuré par celui qui dessert la pièce.",
+    "Empfohlen: etwa {m} Minuten lüften.": "Conseil : aérer environ {m} minutes.",
+    "Feuchte bei {h} % – lüften senkt die Schimmelgefahr.": "Humidité à {h} % – aérer réduit le risque de moisissure.",
+    "Kein Feuchtefühler – bewertet nur die Temperatur.": "Pas de capteur d'humidité – seule la température est évaluée.",
+    "Luft und Klima sind in Ordnung.": "L'air et le climat sont corrects.",
+    "Zurück": "Retour",
+    "Überwachung · kein Thermostat": "Surveillance · sans thermostat",
+    "Anwesenheitsprofil": "Profil de présence",
+    "Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.": "Raumklima utilise ce profil pour proposer des heures d'abaissement et de préchauffage."
   };
 
   // src/i18n.js
@@ -1317,7 +1339,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.41.1";
+  var RK_VERSION = "0.41.2";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1957,6 +1979,30 @@
   .whyrow:first-of-type { border-top:0; }
   .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .whyrow .wl b { font-size:.9rem; font-weight:600; }
+  /* Große Ansicht für Überwachungsräume */
+  .mon { padding:18px 18px 14px; border-radius:20px;
+         background:color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
+         box-shadow: inset 3px 0 0 color-mix(in srgb, var(--tone) 60%, transparent); }
+  .monhead { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .monback { display:flex; align-items:center; gap:4px; border:0; background:none; color:var(--secondary-text-color);
+             font:inherit; font-size:.85rem; cursor:pointer; padding:6px 8px; border-radius:10px; }
+  .monback:hover { background:color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
+  .montitle { flex:1; display:flex; flex-direction:column; }
+  .montitle b { font-size:1.1rem; }
+  .montitle span { font-size:.8rem; color:var(--secondary-text-color); }
+  .monbig { display:flex; align-items:center; gap:22px; margin:14px 0 6px; flex-wrap:wrap; }
+  .monbig .t { font-size:3.1rem; font-weight:300; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+  .monbig .t i { font-size:1.4rem; font-style:normal; color:var(--secondary-text-color); }
+  .monbig .r { display:flex; flex-direction:column; gap:3px; max-width:62ch; }
+  .monbig .r b { font-size:.95rem; font-weight:600; }
+  .monbig .r span { font-size:.85rem; color:var(--secondary-text-color); }
+  .mstats { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-top:12px; }
+  .mstat { padding:10px 12px; border-radius:14px; background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .mstat .ml { display:flex; align-items:center; gap:6px; font-size:.78rem; color:var(--secondary-text-color); }
+  .mstat .ml ha-icon { --mdc-icon-size:16px; }
+  .mstat .mv { font-size:1.05rem; font-weight:600; font-variant-numeric:tabular-nums; }
+  .monfoot { margin-top:12px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.4; }
+
   /* Zeitwähler (iOS-artig): zwei Räder, die einrasten */
   .timebtn { min-height:36px; padding:7px 14px; border-radius:12px; font:inherit; font-size:.88rem;
              font-variant-numeric:tabular-nums; cursor:pointer; color:inherit;
@@ -2382,6 +2428,40 @@
       }).catch(() => {
       });
     }
+    // Überwachungsraum: große Ansicht mit allen vorhandenen Daten – ohne Thermostat.
+    _monitorPanel(st) {
+      const a = st.attributes || {};
+      const v = VENT[a.ventilation];
+      const prefix = this._config.strip_prefix ?? "";
+      const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
+      const tone = v && a.ventilation !== "ok" ? v.tone : "eco";
+      const stat = (icon, label, value) => `<div class="mstat"><div class="ml"><ha-icon icon="${icon}"></ha-icon>${t(label)}</div><div class="mv">${value}</div></div>`;
+      const why = a.ventilation === "please_open" ? a.ventilation_reason === "co2" ? t("CO₂ bei {c} ppm – ab 1000 ppm wird es stickig.", { c: fmt(a.co2, 0) }) : t("Feuchte bei {h} % – lüften senkt die Schimmelgefahr.", { h: fmt(a.current_humidity, 0) }) : v && a.ventilation !== "ok" ? t("Die Luft ist gerade nicht in Ordnung.") : t("Luft und Klima sind in Ordnung.");
+      return `<div class="mon" style="--tone:${toneVar(tone)}">
+      <div class="monhead">
+        <button class="monback" data-monback><ha-icon icon="mdi:arrow-left"></ha-icon>${t("Zurück")}</button>
+        <div class="montitle"><b>${name}</b><span>${t("Überwachung · kein Thermostat")}</span></div>
+        <span class="chip" style="--tone:${toneVar(tone)}"><ha-icon icon="${v ? v.icon : "mdi:eye-outline"}"></ha-icon>${v && a.ventilation !== "ok" ? v.label : t("Überwachung")}</span>
+      </div>
+      <div class="monbig">
+        <div class="t">${fmt(a.current_temperature)}<i>°</i></div>
+        <div class="r">
+          <b>${why}</b>
+          ${a.ventilation === "please_open" && a.recommended_minutes ? `<span>${t("Empfohlen: etwa {m} Minuten lüften.", { m: a.recommended_minutes })}</span>` : ""}
+          ${!a.humidity_sensor ? `<span>${t("Kein Feuchtefühler – bewertet nur die Temperatur.")}</span>` : ""}
+        </div>
+      </div>
+      <div class="mstats">
+        ${a.humidity_sensor ? stat("mdi:water-percent", "Feuchte", `${fmt(a.current_humidity, 0)} %`) : ""}
+        ${a.dew_point != null ? stat("mdi:water-thermometer", "Taupunkt", `${fmt(a.dew_point)}°`) : ""}
+        ${a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)} ppm`) : ""}
+        ${a.outdoor_temperature != null ? stat("mdi:weather-partly-cloudy", "Außen", `${fmt(a.outdoor_temperature)}° · ${fmt(a.outdoor_humidity, 0)} %`) : ""}
+        ${stat("mdi:window-open-variant", "Fenster", a.window_open ? t("offen") : t("zu"))}
+        ${a.occupied !== void 0 ? stat("mdi:account", "Anwesend", a.occupied ? t("jemand im Raum") : t("niemand")) : ""}
+      </div>
+      <div class="monfoot">${t("Dieser Raum hat kein Thermostat: Raumklima misst hier nur und gibt Hinweise. Geheizt wird über die Heizung, die diesen Raum versorgt.")}</div>
+    </div>`;
+    }
     _render() {
       if (!this._hass) return;
       const homeId = rkHomeId(this._hass, this._config);
@@ -2432,7 +2512,7 @@
         const wish = a.wish != null ? a.wish : a.temperature;
         const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
         const targetText = mon ? "" : off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
-        return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
+        return `<div class="room" ${mon ? `data-mon="${r.entity_id}"` : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => {
@@ -2495,8 +2575,17 @@
         ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
       </div>
-      <div class="rooms">${rows.map(row).join("")}</div>
+      ${this._mon && this._hass.states[this._mon] ? this._monitorPanel(this._hass.states[this._mon]) : `<div class="rooms">${rows.map(row).join("")}</div>`}
     </ha-card>`;
+      this.shadowRoot.querySelectorAll("[data-mon]").forEach((b) => b.addEventListener("click", () => {
+        this._mon = b.dataset.mon;
+        this._render();
+      }));
+      const backMon = this.shadowRoot.querySelector("[data-monback]");
+      if (backMon) backMon.addEventListener("click", () => {
+        this._mon = null;
+        this._render();
+      });
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
       this.shadowRoot.querySelectorAll("[data-nav]").forEach((el) => el.addEventListener("click", () => {
         history.pushState(null, "", el.dataset.nav);
@@ -4092,7 +4181,8 @@
         this._presenceBars(arr),
         this._presenceText(arr)
       );
-      const profile = hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer"));
+      const profileHead = `<div class="row whyhead"><div class="l"><span class="lbl">${t("Anwesenheitsprofil")}</span><small>${t("Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.")}</small></div></div>`;
+      const profile = profileHead + (hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
       return this._grp(
         t("Lernen & Warum"),
         "mdi:chart-line",

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.41.2 – 2026-11-03
+
+### Neu
+- **Überwachungsräume haben eine eigene große Ansicht:** Ein Tipp auf die Kachel öffnet keine
+  Thermostatkarte mehr, sondern eine Übersicht mit allen vorhandenen Daten – Temperatur, Feuchte,
+  Taupunkt, CO₂, Außenwerte, Fenster und Anwesenheit – samt Begründung („warum lüften?") und
+  empfohlener Lüftdauer, mit Zurück-Knopf.
+
+### Geändert
+- **Anwesenheitsprofil im Lernbereich** als eigener Abschnitt mit Zweck-Satz: es verbessert die
+  Vorschläge für Absenken und Vorheizen.
+
 ## 0.41.1 – 2026-11-03
 
 ### Neu

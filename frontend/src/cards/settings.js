@@ -855,9 +855,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._presenceBars(arr),
       this._presenceText(arr),
     );
-    const profile = hasProfile
+    const profileHead = `<div class="row whyhead"><div class="l"><span class="lbl">${t("Anwesenheitsprofil")}</span><small>${t("Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.")}</small></div></div>`;
+    const profile = profileHead + (hasProfile
       ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("")
-      : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer"));
+      : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
     return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco",
       [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile].join(""));
   }
