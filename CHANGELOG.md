@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.34.1 – 2026-11-03
+
+### Behoben
+- **Ventilstellung wurde bei Danfoss Ally nicht gefunden** (#15): Die Integration legt den Sensor auf
+  ein *zweites* Gerät, oft ohne Bereich. Gesucht wird jetzt in dieser Reihenfolge: gleiches Gerät,
+  gleicher Bereich, gleicher **Gerätename** – und zuletzt der einzige Ventilsensor im System. Ist die
+  Zuordnung mehrdeutig, bleibt die Anzeige leer, statt die Ventilstellung eines fremden Raums zu zeigen.
+
 ## 0.34.0 – 2026-11-03
 
 ### Behoben

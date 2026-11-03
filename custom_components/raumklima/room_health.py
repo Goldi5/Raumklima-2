@@ -45,37 +45,65 @@ class HealthMixin:
     """Gesundheits- und Diagnose-Teil des Raum-Controllers."""
 
     def _find_valve_sensor(self) -> str | None:
-        """Ventilstellung am selben Gerät wie das TRV.
+        """Ventilstellung passend zum Thermostat finden.
 
         Nicht jedes Gerät nennt sie „position": Danfoss Ally liefert ``…_valve_opening``,
         Homematic ``…_valve_position``, Bosch ``…_valve_tappet`` (Issue #15). Deshalb über
         den Prozentwert und die Bezeichnung suchen, nicht über einen festen Namen.
+
+        Gesucht wird in dieser Reihenfolge: gleiches Gerät, gleicher Bereich, gleicher
+        Gerätename (Danfoss Ally legt den Sensor auf ein *eigenes* Gerät), und zuletzt der
+        einzige Ventilsensor im System. Ist die Zuordnung mehrdeutig, wird bewusst nichts
+        gewählt – lieber keine Anzeige als die Ventilstellung eines fremden Raums.
         """
         registry = er.async_get(self.hass)
+        devices = dr.async_get(self.hass)
         trv_entry = registry.async_get(self.trv)
         if trv_entry is None:
             return None
-        # Manche Integrationen legen den Sensor auf ein eigenes Gerät (Danfoss Ally).
-        # Deshalb zusätzlich im selben Bereich suchen.
-        candidates = (
-            list(er.async_entries_for_device(registry, trv_entry.device_id))
-            if trv_entry.device_id
-            else []
-        )
-        if not candidates and trv_entry.area_id:
-            candidates = [e for e in registry.entities.values() if e.area_id == trv_entry.area_id]
         keys = ("position", "opening", "öffnung", "oeffnung", "valve", "ventil", "tappet")
-        for entry in candidates:
+
+        def usable(entry) -> bool:
             if entry.domain != "sensor" or entry.disabled_by:
-                continue
+                return False
             state = self.hass.states.get(entry.entity_id)
             unit = str((state.attributes.get("unit_of_measurement") if state else "") or "")
             if "%" not in unit:
-                continue  # Batterie, RSSI, Ventilhub-Historie usw. aussortieren
+                return False  # Batterie, RSSI, Ventilhub-Historie usw. aussortieren
             hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
-            if any(k in hay for k in keys):
-                return entry.entity_id
-        return None
+            return any(k in hay for k in keys)
+
+        def pick(entries) -> str | None:
+            for entry in entries:
+                if usable(entry):
+                    return entry.entity_id
+            return None
+
+        if trv_entry.device_id:
+            hit = pick(er.async_entries_for_device(registry, trv_entry.device_id))
+            if hit:
+                return hit
+        if trv_entry.area_id:
+            hit = pick([e for e in registry.entities.values() if e.area_id == trv_entry.area_id])
+            if hit:
+                return hit
+
+        device = devices.async_get(trv_entry.device_id) if trv_entry.device_id else None
+        trv_name = ((device.name_by_user or device.name) if device else "") or ""
+        if trv_name:
+            same = [
+                e
+                for e in registry.entities.values()
+                if e.device_id
+                and (d := devices.async_get(e.device_id))
+                and (d.name_by_user or d.name) == trv_name
+            ]
+            hit = pick(same)
+            if hit:
+                return hit
+
+        loose = [e.entity_id for e in registry.entities.values() if usable(e)]
+        return loose[0] if len(loose) == 1 else None
 
     def _find_batteries(self) -> dict[str, str]:
         """Batterie-Sensoren der beteiligten Geräte (TRV, Fühler, Kontakte): Gerätename → Entität."""

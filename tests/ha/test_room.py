@@ -611,6 +611,52 @@ async def test_ventilsensor_wird_am_geraet_erkannt(hass: HomeAssistant, setup, t
     assert ctrl._find_valve_sensor() == "sensor.ally_valve_opening"
 
 
+async def test_ventilsensor_auf_eigenem_geraet_gleichen_namens(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Danfoss Ally legt die Ventilstellung auf ein zweites Gerät mit gleichem Namen (Issue #15)."""
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    devs = dr.async_get(hass)
+    regs = er.async_get(hass)
+
+    trv_dev = devs.async_get_or_create(
+        config_entry_id=room.entry_id, identifiers={("demo", "ally2")}, name="Danfoss Ally Büro Mike"
+    )
+    regs.async_get_or_create("climate", "demo", "c2", suggested_object_id="ally_buero", device_id=trv_dev.id)
+    valve_dev = devs.async_get_or_create(
+        config_entry_id=room.entry_id, identifiers={("demo", "ally2-valve")}, name="Danfoss Ally Büro Mike"
+    )
+    regs.async_get_or_create(
+        "sensor", "demo", "v2", suggested_object_id="danfoss_ally_buero_mike_valve_opening", device_id=valve_dev.id
+    )
+    hass.states.async_set("sensor.danfoss_ally_buero_mike_valve_opening", "42", {"unit_of_measurement": "%"})
+    ctrl.trv = "climate.ally_buero"
+
+    assert ctrl._find_valve_sensor() == "sensor.danfoss_ally_buero_mike_valve_opening"
+
+
+async def test_ventilsensor_mehrdeutig_wird_nicht_geraten(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Zwei fremde Ventilsensoren ohne Bezug: lieber nichts anzeigen als den falschen Raum."""
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    devs = dr.async_get(hass)
+    regs = er.async_get(hass)
+    for i, name in enumerate(("Fremd A", "Fremd B")):
+        dev = devs.async_get_or_create(config_entry_id=room.entry_id, identifiers={("demo", f"f{i}")}, name=name)
+        eid = f"sensor.fremd_{i}_valve_opening"
+        regs.async_get_or_create("sensor", "demo", f"fv{i}", suggested_object_id=f"fremd_{i}_valve_opening", device_id=dev.id)
+        hass.states.async_set(eid, "30", {"unit_of_measurement": "%"})
+
+    assert ctrl._find_valve_sensor() is None
+
+
 async def test_dachluke_zaehlt_als_fenster(hass: HomeAssistant, sensors) -> None:
     """Eine Dachluke (cover) wird wie ein Fensterkontakt behandelt."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
