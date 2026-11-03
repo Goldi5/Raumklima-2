@@ -1,4 +1,4 @@
-/* Raumklima 0.41.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.41.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1339,7 +1339,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.41.2";
+  var RK_VERSION = "0.41.3";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -5442,7 +5442,9 @@
           { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
           // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
           // sie erscheinen nur als Kachel in der Übersicht.
-          ...shown.filter((r) => r.attrs.monitor !== true && rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, grid_options: { columns: "full" } }] }))
+          // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
+          // blendet Bedienung und Sollwert selbst aus und zeigt nur Messwerte und Hinweise.
+          ...shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, grid_options: { columns: "full" } }] }))
         ]
       };
       const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });

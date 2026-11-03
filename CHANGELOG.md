@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.41.3 – 2026-11-03
+
+### Behoben
+- **Überwachungsräume bekommen ihre große Karte:** Das Dashboard hat sie bisher aus dem Kartenraster
+  ausgeschlossen, deshalb fehlte die Karte unterhalb der Übersicht. Die Karte zeigt Messwerte,
+  Lüfthinweis und Daten – ohne Sollwert, ohne Plus/Minus und ohne Boost.
+
 ## 0.41.2 – 2026-11-03
 
 ### Neu
