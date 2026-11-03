@@ -103,6 +103,7 @@ from .const import (
     STATUS_SETBACK,
     STATUS_TRV,
     STATUS_WINDOW,
+    VALVE_HEATING_MIN,
 )
 from .decision_log import (
     CAT_DEVICE,
@@ -792,6 +793,21 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         action = self._trv_attr("hvac_action")
         if action == HVACAction.HEATING or self._trv_attr("running_state") == "heat":
             return HVACAction.HEATING
+        # Manche Geräte (z. B. Homematic IP) lassen hvac_action auf "idle", obwohl das Ventil regelt.
+        # Dann entscheidet die Ventilstellung – zusammen mit Soll/Ist, damit "offen, aber Ziel erreicht"
+        # nicht als Heizen gilt.
+        valve = self._trv_attr("valve_position")
+        try:
+            valve_open = valve is not None and float(valve) >= VALVE_HEATING_MIN
+        except (TypeError, ValueError):
+            valve_open = False
+        if valve_open:
+            current, target = self._trv_attr("current_temperature"), self._trv_attr("temperature")
+            try:
+                if current is None or target is None or float(current) < float(target) + 0.3:
+                    return HVACAction.HEATING
+            except (TypeError, ValueError):
+                return HVACAction.HEATING
         return HVACAction.IDLE
 
     @property

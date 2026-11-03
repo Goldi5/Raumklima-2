@@ -264,6 +264,8 @@ STATUS_OFF_TRV: Final = "off_trv"  # aus, weil das Thermostat selbst abgeschalte
 STATUS_SENSOR: Final = "sensor_unavailable"
 STATUS_TRV: Final = "trv_unavailable"
 STATUS_MONITOR: Final = "monitor"
+# Ab dieser Ventilöffnung gilt der Raum als heizend, auch wenn das Gerät hvac_action: idle meldet (HmIP).
+VALVE_HEATING_MIN: Final = 5.0
 STATUS_SEASON: Final = "season_off"
 STATUS_SETBACK: Final = "setback"
 STATUS_NIGHT: Final = "night_airing"

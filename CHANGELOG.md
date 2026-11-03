@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.39.10 – 2026-11-03
+
+### Behoben
+- **Status „heizt" bei Geräten ohne verlässliches `hvac_action`** (Homematic IP): Ist das Ventil zu
+  mindestens 5 % offen und liegt der Raum unter dem Sollwert, gilt der Raum als heizend. Bisher zeigte
+  die Karte „bereit", obwohl das Ventil geregelt hat.
+
 ## 0.39.9 – 2026-11-03
 
 ### Neu

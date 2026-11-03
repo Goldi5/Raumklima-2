@@ -63,3 +63,8 @@ def test_preset_on_warnt_als_dauer_offen() -> None:
     assert issue is not None
     assert issue.title == "Thermostat öffnet das Ventil dauerhaft"
     assert check_trv_mode("heat", "on", device_preset=True) is None
+
+
+def test_valve_heating_min_konstante() -> None:
+    from custom_components.raumklima.const import VALVE_HEATING_MIN
+    assert 0 < VALVE_HEATING_MIN <= 20
