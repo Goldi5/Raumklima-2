@@ -680,4 +680,8 @@ export const FR = {
   "ehrlich": "honnête",
   "feste Reihenfolge": "ordre fixe",
   "wächst mit Messungen": "augmente avec les mesures",
+  "Diagnose": "Diagnostic",
+  "Diagnose wird erstellt …": "Création du diagnostic …",
+  "Diagnose heruntergeladen": "Diagnostic téléchargé",
+  "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "Toutes les valeurs, entités et les dernières lignes de journal dans un fichier",
 };

@@ -230,7 +230,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create):
+    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -655,6 +655,24 @@ def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg:
         categories=msg.get("categories")
     )
     connection.send_result(msg["id"], {"entries": entries, "categories": CATEGORIES})
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/diagnostics", vol.Optional("home"): vol.Any(None, str)}
+)
+@websocket_api.async_response
+async def ws_diagnostics(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Vollständige Diagnose als JSON – für den Knopf in den Einstellungen."""
+    hub = _hub_or_error(hass, connection, msg)
+    if hub is None:
+        return
+    from .diagnostics import async_get_config_entry_diagnostics
+
+    entry = hass.config_entries.async_get_entry(hub.entry.entry_id)
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Eintrag nicht gefunden")
+        return
+    connection.send_result(msg["id"], await async_get_config_entry_diagnostics(hass, entry))
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/log/subscribe", vol.Optional("home"): vol.Any(None, str)})

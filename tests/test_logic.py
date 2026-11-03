@@ -6,6 +6,7 @@ from rk.logic import (
     any_open,
     calc_offset,
     calc_target_setpoint,
+    heating_demand,
     plausible_reading,
     retry_delay,
     to_float,
@@ -137,3 +138,22 @@ def test_abgleich_wird_auf_den_sollwert_gerechnet() -> None:
     target, shift = 18.0, -1.2
     # 16,8 wird auf die Gerätestufe 0,5 gerundet → 17,0
     assert clamp(round_step(target + shift, 0.5), 6.0, 30.0) == 17.0
+
+
+def test_heating_demand_below_target() -> None:
+    assert heating_demand(18.4, 19.0) is True
+
+
+def test_heating_demand_reached() -> None:
+    assert heating_demand(19.0, 19.0) is False
+    assert heating_demand(19.2, 19.0) is False
+
+
+def test_heating_demand_within_threshold() -> None:
+    # 0,2 K darunter gilt noch als erreicht (kein Flackern)
+    assert heating_demand(18.8, 19.0) is False
+
+
+def test_heating_demand_missing_values() -> None:
+    assert heating_demand(None, 19.0) is False
+    assert heating_demand(18.0, None) is False

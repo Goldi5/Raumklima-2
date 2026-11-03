@@ -137,3 +137,8 @@ past the setpoint. From version 0.39.2 Raumklima therefore writes the setpoint i
 
 If a device sits on `on`, the health list reports “Thermostat keeps the valve permanently open”.
 Pick **`comfort`** on the device (or in Tuya/Z2M).
+
+## Reporting a problem
+
+### Something does not work – what should I attach?
+In the card under *Settings* there is a **Diagnostics** button (or: *Settings → Devices → Raumklima → Download diagnostics*). The file contains everything needed: versions, your settings, the live values of every room, the raw states of all involved entities including attributes, the latest decisions with reasons and the last log lines of the integration. Passwords, mail credentials and coordinates are redacted – you can attach it to an issue unchanged.

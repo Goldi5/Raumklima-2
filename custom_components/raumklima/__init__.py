@@ -55,6 +55,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     domain_data(hass)
     _follow_language(hass)
+    # Letzte Log-Zeilen der Integration mitschreiben (für die Diagnose-Datei).
+    from . import debug_log
+
+    debug_log.install()
     from . import layout as layout_store
 
     await layout_store.async_setup(hass)

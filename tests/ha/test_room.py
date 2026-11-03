@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
-from custom_components.raumklima.const import DOMAIN
+from custom_components.raumklima.const import CONF_CALIBRATION_MODE, DOMAIN
 
 from .conftest import SENSOR, TRV, WINDOW, FakeTrv, hub_entry, room_entry
 
@@ -52,6 +52,33 @@ async def test_window_pauses_and_resumes(hass: HomeAssistant, setup, trv: FakeTr
     await advance(hass, 11)
     assert not trv.is_off
     assert trv.setpoint == 22.0
+
+
+async def test_heating_inferred_without_device_signal(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Aqara E1 / HmIP-WTH melden keinen Heiz-Zustand – dann zählt die Nachfrage (Issue #18, #11)."""
+    trv.attrs.pop("hvac_action")
+    trv.push()
+    await hass.async_block_till_done()
+    await advance(hass, 1)
+    assert hass.states.get("climate.bad").attributes.get("hvac_action") == "heating"
+
+    # In zwei Schritten, damit der Sprung-Schutz echte Messwerte nicht verwirft (3 K).
+    hass.states.async_set(SENSOR, "21.0", {"unit_of_measurement": "°C", "device_class": "temperature"})
+    await hass.async_block_till_done()
+    await advance(hass, 2)
+    hass.states.async_set(SENSOR, "22.6", {"unit_of_measurement": "°C", "device_class": "temperature"})
+    await hass.async_block_till_done()
+    await advance(hass, 2)
+    assert hass.states.get("climate.bad").attributes.get("hvac_action") == "idle"
+
+
+async def test_sensor_valid_even_without_stored_reading(hass: HomeAssistant, setup) -> None:
+    """Fühler liefert einen gültigen Wert, obwohl beim Start noch keiner ankam (Issue #10)."""
+    hass.states.async_set(SENSOR, "20.5", {"unit_of_measurement": "°C", "device_class": "temperature"})
+    await hass.async_block_till_done()
+    await advance(hass, 1)
+    status = hass.states.get("climate.bad").attributes.get("status")
+    assert status != "sensor_unavailable"
 
 
 async def test_short_window_blip_is_ignored(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
@@ -151,9 +178,11 @@ async def test_diagnostics(hass: HomeAssistant, setup) -> None:
 
     hub, room = setup
     data = await async_get_config_entry_diagnostics(hass, room)
-    assert data["trv_available"] is True
+    assert data["rooms"][0]["values"]["trv_available"] is True
+    assert data["rooms"][0]["entities"]["climate.bad"]["state"] == "heat"
     hub_data = await async_get_config_entry_diagnostics(hass, hub)
-    assert "decision_log" in hub_data
+    assert isinstance(hub_data["log"], list) and hub_data["log"]
+    assert hub_data["debug"] is not None
     assert hass.data[DOMAIN]["rooms"][room.entry_id].name == "Bad"
 
 
@@ -817,3 +846,23 @@ async def test_room_stays_available_when_trv_is_gone(hass: HomeAssistant, setup,
     assert state.attributes["status"] == "trv_unavailable"
     # Ohne dieses Attribut landet der Raum auf dem Dashboard der falschen Wohnung
     assert "home" in state.attributes
+
+
+async def test_manual_change_at_trv_is_adopted_with_cal_target(
+    hass: HomeAssistant, trv: FakeTrv, sensors: None
+) -> None:
+    """Drehen am Wandthermostat wird übernommen, auch wenn der Sollwert-Ausgleich läuft (#11)."""
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(**{CONF_CALIBRATION_MODE: "target"})
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(hub.entry_id)
+    await hass.async_block_till_done()
+    await advance(hass, 1)
+
+    trv.set(temperature=21.5)
+    await hass.async_block_till_done()
+    await advance(hass, 2)
+
+    # Fühler und TRV zeigen hier denselben Wert -> Abgleich 0, der Wunsch kommt 1:1 an.
+    assert hass.states.get("climate.bad").attributes["temperature"] == 21.5

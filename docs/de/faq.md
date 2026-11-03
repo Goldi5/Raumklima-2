@@ -135,3 +135,8 @@ Auf GitHub ein [Issue](https://github.com/Goldi5/Raumklima-2/issues) eröffnen u
 
 ### Kann ich die Räume im Dashboard sortieren?
 Die Reihenfolge ist **Stockwerk → Bereich → Name** und damit über Stockwerke und Bereiche in Home Assistant steuerbar (*Einstellungen → Bereiche & Zonen*); Räume ohne Stockwerk stehen am Ende. Anders sortieren: in der Dashboard-Konfiguration `strategy: {type: custom:raumklima, sort: area}` (nur Bereich) oder `sort: name` (nur Name).
+
+## Fehler melden
+
+### Etwas funktioniert nicht – was schicke ich mit?
+In der Karte unter *Einstellungen* gibt es den Knopf **Diagnose** (alternativ: *Einstellungen → Geräte → Raumklima → Diagnose herunterladen*). Die Datei enthält alles Nötige: Versionen, deine Einstellungen, die Live-Werte jedes Raums, die Rohzustände aller beteiligten Entitäten inklusive Attribute, die letzten Entscheidungen mit Begründung und die letzten Log-Zeilen der Integration. Passwörter, Mail-Zugang und Koordinaten sind unkenntlich gemacht – du kannst die Datei unverändert an ein Issue anhängen.

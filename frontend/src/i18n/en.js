@@ -680,4 +680,8 @@ export const EN = {
   "ehrlich": "honest",
   "feste Reihenfolge": "fixed order",
   "wächst mit Messungen": "grows with measurements",
+  "Diagnose": "Diagnostics",
+  "Diagnose wird erstellt …": "Creating diagnostics …",
+  "Diagnose heruntergeladen": "Diagnostics downloaded",
+  "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "All values, entities and the latest log lines in one file",
 };

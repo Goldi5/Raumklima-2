@@ -163,12 +163,12 @@ class TrvMixin:
             )
             self.hass.async_create_task(self._apply())
             return
-        if self.cal_mode == CAL_TARGET:
-            return
         old_t = to_float(old.attributes.get(ATTR_TEMPERATURE))
         new_t = to_float(new.attributes.get(ATTR_TEMPERATURE))
         if new_t is None or old_t == new_t:
             return
+        # Beim Sollwert-Ausgleich steht am Gerät „Wunsch + Abgleich". Alles andere wurde am
+        # Gerät verstellt – auch dann übernehmen, wenn der Versatz mitgeschrieben wird (#11).
         if values_match(new_t, self._desired_setpoint(), SETPOINT_MATCH_TOLERANCE):
             return
         if self._preset_changed_at and dt_util.utcnow() - self._preset_changed_at < timedelta(
@@ -189,7 +189,11 @@ class TrvMixin:
             )
             if away:
                 self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
-            self.target_temp = new_t
+            if self.cal_mode == CAL_TARGET:
+                # Am Gerät steht der Wunsch plus Abgleich – zurückrechnen.
+                self.target_temp = clamp(round_step(new_t - self.shift, 0.5), self.trv_min, self.trv_max)
+            else:
+                self.target_temp = new_t
             self._save()
         else:
             self.hass.async_create_task(self._apply())

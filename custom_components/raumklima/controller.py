@@ -122,6 +122,7 @@ from .hub import RaumklimaHub
 from .logic import (
     any_open,
     clamp,
+    heating_demand,
     is_valid,
     plausible_reading,
     to_float,
@@ -630,7 +631,11 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         Ein echter Ausfall zeigt sich am Entitätszustand (unavailable/unknown/kein Wert).
         """
         state = self.hass.states.get(self.temp_sensor)
-        return state is not None and is_valid(state.state) and self._ext_value is not None
+        if state is None or not is_valid(state.state):
+            return False
+        # Ein gültiger Zustand genügt: der gemerkte Wert kann fehlen, wenn der Fühler beim Start
+        # der Zentrale noch nicht bereit war (Tuya ZTH01 meldet erst Minuten später) – Issue #10.
+        return self._ext_value is not None or to_float(state.state) is not None
 
     @property
     def sensor_age_minutes(self) -> float | None:
@@ -657,7 +662,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     def current_temperature(self) -> float | None:
         """Raumtemperatur: externer Fühler, im Notfall das TRV."""
         if self.sensor_ok:
-            return self._ext_value
+            if self._ext_value is not None:
+                return self._ext_value
+            state = self.hass.states.get(self.temp_sensor)
+            return to_float(state.state) if state is not None else None
         return self.trv_temperature
 
     @property
@@ -842,6 +850,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             valve_open = valve is not None and float(valve) >= VALVE_HEATING_MIN
         except (TypeError, ValueError):
             valve_open = False
+        if valve is None and action is None and self._trv_attr("running_state") is None:
+            # Geräte ohne jeden Heiz-Signalwert (Aqara E1, HmIP-WTH): aus der Nachfrage ableiten.
+            return HVACAction.HEATING if heating_demand(self.current_temperature, self.effective_target) else HVACAction.IDLE
         if valve_open:
             current, target = self._trv_attr("current_temperature"), self._trv_attr("temperature")
             try:

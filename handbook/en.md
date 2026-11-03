@@ -437,3 +437,13 @@ does not matter.
 - **Detailed documentation:** github.com/Goldi5/Raumklima-2 → documentation
 - **Report a bug or request a feature:** github.com/Goldi5/Raumklima-2/issues
 - **Diagnostics file for a bug report:** *Settings → Devices & services → Raumklima → room → ⋮ → Download diagnostics*
+
+## When something is wrong: diagnostics
+
+Above the settings content there is a **Diagnostics** button. It downloads a single file with
+everything needed to find a fault: the versions, your settings, the values of every room, the raw
+data of the devices involved including their attributes, the latest decisions with reasons and the
+last log lines of the integration.
+
+The usual Home Assistant route works too: *Settings → Devices → Raumklima → Download diagnostics*.
+Credentials, passwords and coordinates are redacted – you can attach the file to an issue as it is.

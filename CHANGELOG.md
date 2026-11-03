@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.46.0 – 2026-11-03
+
+### Neu
+- **Diagnose-Datei mit allem, was zur Fehlersuche nötig ist.** Erreichbar über
+  *Einstellungen → Geräte → Raumklima → Diagnose herunterladen* und über den neuen Knopf
+  **Diagnose** in der Karte. Inhalt: Umgebung (Versionen, Sprache, Zeitzone), Wohnungs-Zustand,
+  jeder Raum mit Konfiguration und Live-Werten, die **Rohzustände aller beteiligten Entitäten**
+  inklusive Attribute, die letzten 50 Entscheidungen und die letzten 500 Log-Zeilen der
+  Integration. Zugangsdaten und Koordinaten werden redigiert – auch im Fließtext.
+- **Log-Ringpuffer:** Die Integration hält ihre letzten Log-Zeilen selbst im Speicher (max. 500).
+  Damit braucht niemand mehr `logger: debug` in der `configuration.yaml`, um einen Fehler zu melden.
+
+### Behoben
+- **Status „erreicht", obwohl geheizt wird**, bei Geräten ohne `hvac_action`, `running_state` und
+  Ventilstellung (Aqara E1, Homematic-Wandthermostat): Der Zustand wird jetzt aus der Nachfrage
+  abgeleitet (Raumfühler gegen wirksamen Sollwert, 0,3 K). Regelung unverändert. (#18, #11)
+- **„Fühler ausgefallen" nach einem Neustart:** Ein gültiger Entitätszustand genügt jetzt; der
+  gemerkte Messwert ist nicht mehr Bedingung. (#10)
+- **Drehen am Wandthermostat wird übernommen**, auch wenn der Sollwert-Ausgleich läuft – beim
+  Zurückrechnen wird der gelernte Versatz herausgerechnet. (#11)
+
 ## 0.45.4 – 2026-11-03
 
 ### Behoben

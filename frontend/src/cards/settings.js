@@ -145,6 +145,27 @@ export class RaumklimaSettingsCard extends HTMLElement {
   }
 
   // ---------------------------------------------------------------- Speichern
+  async _downloadDiagnostics() {
+    try {
+      this._flash(t("Diagnose wird erstellt …"));
+      const data = await this._hass.callWS({ type: "raumklima/diagnostics", ...this._homeMsg() });
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+      const home = String(data.home_name || "wohnung").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `raumklima-diagnose-${home}-${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      this._flash(t("Diagnose heruntergeladen"));
+    } catch (e) {
+      this._flash(t("Fehler: {e}", { e: e.message || e }));
+    }
+  }
+
   _hubOpt(key) {
     if (this._local["hub:" + key] !== undefined) return this._local["hub:" + key];
     return this._cfg && this._cfg.hub ? this._cfg.hub.options[key] : undefined;
@@ -1079,7 +1100,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
     rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
         <div class="crumb" id="rkc"></div>
@@ -1573,6 +1594,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test, ...this._homeMsg() });
       if (r) this._flash(t("Testnachricht an {n} gesendet", { n: rkPretty(el.dataset.test) }));
     }));
+    $("[data-diag]").forEach((el) => el.addEventListener("click", () => this._downloadDiagnostics()));
     $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
       await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });
       this._load();

@@ -158,6 +158,18 @@ def choose_on_preset(
     return available[0]
 
 
+def heating_demand(room: float | None, target: float | None, threshold: float = 0.3) -> bool:
+    """Liegt der Raum deutlich unter dem Sollwert? (Für Geräte ohne eigenen Heiz-Zustand.)
+
+    Aqara E1 und Homematic-Wandthermostate melden weder ``hvac_action`` noch ``running_state``
+    noch eine Ventilstellung – dort bleibt sonst nur „erreicht" übrig (Issues #18, #11).
+    """
+    room_f, target_f = to_float(room), to_float(target)
+    if room_f is None or target_f is None:
+        return False
+    return target_f - room_f > threshold
+
+
 def plausible_reading(
     new: float,
     last: float | None,

@@ -104,6 +104,8 @@ Raumklima controls **every radiator thermostat that appears as a `climate` entit
 | Thermostat | Connection | Status |
 |---|---|---|
 | Tuya TRV602Z | Zigbee2MQTT | ✅ tested (offset, valve position, presets) |
+| Aqara Smart Radiator E1 | Zigbee2MQTT | ✅ tested (no heating state on the device – status derived from demand) |
+| Homematic IP WTH-2 + eTRV | Homematic IP (CCU) | ✅ tested (group stays intact, valve position read from the eTRV) |
 | Shelly TRV / BLU TRV | Shelly | ❔ not tested yet – reports welcome |
 | Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ not tested yet |
 

@@ -140,3 +140,8 @@ chauffe au-delà de la consigne. Depuis la version 0.39.2, Raumklima écrit donc
 
 Si un appareil est sur `on`, la liste de santé signale « Thermostat maintient la vanne ouverte ».
 Choisissez **`comfort`** sur l'appareil (ou dans Tuya/Z2M).
+
+## Signaler un problème
+
+### Quelque chose ne fonctionne pas – que joindre ?
+Dans la carte, sous *Réglages*, il y a un bouton **Diagnostic** (ou : *Réglages → Appareils → Raumklima → Télécharger le diagnostic*). Le fichier contient tout le nécessaire : versions, vos réglages, les valeurs en direct de chaque pièce, les états bruts de toutes les entités concernées avec leurs attributs, les dernières décisions avec leur motif et les dernières lignes de journal de l'intégration. Les mots de passe, l'accès mail et les coordonnées sont masqués – vous pouvez le joindre tel quel à un ticket.
