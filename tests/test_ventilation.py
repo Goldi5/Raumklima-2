@@ -125,3 +125,35 @@ def test_airing_done_needs_humidity_and_co2_good() -> None:
     assert evaluate(_v(window_open=True, open_minutes=3, humidity=None, co2=700)) == VENT_DONE
     # gar kein Fühler → nie „ausgetauscht“
     assert evaluate(_v(window_open=True, open_minutes=3, humidity=None, co2=None)) == VENT_AIRING
+
+
+def _basis(**over) -> "VentInput":
+    from custom_components.raumklima.ventilation import VentInput
+
+    base = dict(window_open=False, open_minutes=0, room_temp=21.0, temp_at_open=None,
+                humidity=50.0, humidity_high_minutes=0, humidity_limit=70.0,
+                humidity_hysteresis=5.0, min_temp=16.0, max_drop=4.0, duration=10, dries=True)
+    base.update(over)
+    return VentInput(**base)
+
+
+def test_feinstaub_loest_lueften_aus() -> None:
+    from custom_components.raumklima.ventilation import VENT_PLEASE_OPEN, evaluate, vent_reason
+
+    v = _basis(pm25=45.0)
+    assert evaluate(v) == VENT_PLEASE_OPEN
+    assert vent_reason(v) == "pm25"
+
+
+def test_feinstaub_unter_grenze_ist_ok() -> None:
+    from custom_components.raumklima.ventilation import VENT_OK, evaluate
+
+    assert evaluate(_basis(pm25=20.0)) == VENT_OK
+
+
+def test_feinstaub_haelt_lueften_bis_es_besser_ist() -> None:
+    from custom_components.raumklima.ventilation import VENT_AIRING, VENT_DONE, evaluate
+
+    offen = dict(window_open=True, open_minutes=5)
+    assert evaluate(_basis(pm25=28.0, **offen)) == VENT_AIRING
+    assert evaluate(_basis(pm25=12.0, **offen)) == VENT_DONE

@@ -735,6 +735,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
+        this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"),
         s.calibration_mode === "target"
           ? t("das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat")

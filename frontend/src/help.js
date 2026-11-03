@@ -1,6 +1,27 @@
 // Erklärungen hinter dem „?“ in der Einstellungskarte. Schlüssel = deutsche Beschriftung der Zeile.
 // [Deutsch, Englisch, Französisch] – kurz, verständlich, ohne Fachchinesisch.
 export const HELP = {
+  "Feinstaubfühler": [
+    "PM2,5-Fühler im Raum. Ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.",
+    "PM2.5 sensor in the room. From 35 µg/m³ Raumklima suggests airing; below 15 µg/m³ the air counts as exchanged.",
+    "Capteur PM2.5 dans la pièce. Dès 35 µg/m³ Raumklima conseille d'aérer ; sous 15 µg/m³ l'air est considéré comme renouvelé.",
+  ],
+  "Reihenfolge": [
+    "Legt fest, in welcher Reihenfolge die Räume auf der Übersicht erscheinen – die erste Karte steht oben.",
+    "Sets the order of the rooms in the overview – the first card is on top.",
+    "Définit l'ordre des pièces dans la vue d'ensemble – la première carte est en haut.",
+  ],
+  "Anwesenheit aus": [
+    "Schaltet nur die Anwesenheits-Auswertung ab. Zeitfenster, Boost, Ruhezeit, Lüftung und Bericht laufen weiter.",
+    "Turns off only the presence evaluation. Schedules, boost, quiet time, airing and reports keep running.",
+    "Désactive uniquement l'évaluation de présence. Plages horaires, boost, heures calmes, aération et rapports continuent.",
+  ],
+  "Kein Thermostat": [
+    "Überwachungsraum ohne Heizungsregelung: Raumklima misst, warnt und berichtet, fasst aber keinen Sollwert an.",
+    "Monitoring room without heating control: Raumklima measures, warns and reports but never touches a setpoint.",
+    "Pièce de surveillance sans régulation : Raumklima mesure, avertit et rapporte sans toucher à une consigne.",
+  ],
+
   "Wer wohnt hier?": [
     "Die Personen, deren Handys zählen. Ist keine davon in der Wohnungs-Zone, gilt die Wohnung nach der Wartezeit als leer und Raumklima senkt ab. Personen legst du in Home Assistant unter Einstellungen → Personen an und verknüpfst dort das Handy (Home-Assistant-App).",
     "The people whose phones count. If none of them is in the home zone, the home counts as empty after the waiting time and Raumklima lowers the temperature. People are created in Home Assistant under Settings → People, where you also link their phone (Home Assistant app).",

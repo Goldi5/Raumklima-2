@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.43.0 – 2026-11-03
+
+### Neu
+- **Feinstaub (PM2,5) als Messgröße:** Ein Raum kann einen PM2,5-Fühler bekommen. Ab **35 µg/m³**
+  schlägt Raumklima „Bitte lüften“ vor (Grund `pm25`), als ausgetauscht gilt die Luft unter
+  **15 µg/m³**. Der Wert erscheint als eigene Kachel in der Raumkarte und bei Überwachungsräumen.
+  Wird beim Anlegen eines Überwachungsraums mit abgefragt.
+
+## 0.42.4 – 2026-11-03
+
+### Geändert
+- **Thermostat-Abweichung wird erklärt:** Steht am Gerät ein anderer Sollwert als im Raumziel, zeigt
+  der Hinweis jetzt auch den Abgleich – z. B. „Thermostat 16,5° (Abgleich +1,6°)“. Damit ist klar,
+  dass 18,0 − 1,6 = 16,4 gewollt ist und nicht zwei Systeme gegeneinander arbeiten.
+
 ## 0.42.3 – 2026-11-03
 
 ### Behoben

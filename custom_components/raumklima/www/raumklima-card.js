@@ -1,4 +1,4 @@
-/* Raumklima 0.42.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.43.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -651,7 +651,10 @@
     "Vorschlag": "Suggestion",
     "Wochenende ab {a}": "weekend from {a}",
     "ab einer erfassten Woche": "after one recorded week",
-    "{a} bis {b}": "{a} to {b}"
+    "{a} bis {b}": "{a} to {b}",
+    "Thermostat {v}° (Abgleich {o}°)": "Thermostat {v}° (offset {o}°)",
+    "Feinstaub": "Particulate matter",
+    "Feinstaubfühler": "Particulate sensor"
   };
 
   // src/i18n/fr.js
@@ -1305,7 +1308,10 @@
     "Vorschlag": "Suggestion",
     "Wochenende ab {a}": "week-end dès {a}",
     "ab einer erfassten Woche": "après une semaine enregistrée",
-    "{a} bis {b}": "de {a} à {b}"
+    "{a} bis {b}": "de {a} à {b}",
+    "Thermostat {v}° (Abgleich {o}°)": "Thermostat {v}° (décalage {o}°)",
+    "Feinstaub": "Particules fines",
+    "Feinstaubfühler": "Capteur de particules"
   };
 
   // src/i18n.js
@@ -1349,7 +1355,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.42.3";
+  var RK_VERSION = "0.43.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2286,6 +2292,7 @@
       const stats = [
         a.humidity_sensor ? stat("mdi:water-percent", t("Feuchte"), `${fmt(a.current_humidity, 0)} %`, humTone(a.current_humidity), sib.ventilation) : "",
         a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)}<small>ppm</small>`, a.co2 >= 1400 ? "cold" : a.co2 >= 1e3 ? "warn" : "ok") : "",
+        a.pm25 != null ? stat("mdi:molecule", t("Feinstaub"), `${fmt(a.pm25, 0)}<small>µg/m³</small>`, a.pm25 >= 50 ? "cold" : a.pm25 >= 35 ? "warn" : "ok") : "",
         a.dew_point !== void 0 && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
         a.valve_sensor === void 0 || a.valve_sensor ? stat("mdi:valve", ((a.settings || {}).extra_trvs || []).length ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === void 0 ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null) : "",
         a.outdoor_temperature !== void 0 && a.outdoor_temperature !== null ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
@@ -2312,7 +2319,7 @@
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${!mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${!mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${a.offset != null && Math.abs(a.offset) >= 0.1 ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (a.offset > 0 ? "+" : "") + fmt(a.offset) }) : t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
           ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
@@ -2463,7 +2470,7 @@
         const off = r.state === "off";
         const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;
         const label = v && a.ventilation !== "ok" ? v.label : s.label;
-        const trvNote = a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : "";
+        const trvNote = a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${a.offset != null && Math.abs(a.offset) >= 0.1 ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (a.offset > 0 ? "+" : "") + fmt(a.offset) }) : t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : "";
         const prefix = this._config.strip_prefix ?? "";
         const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
         const applied = a.effective_target != null ? a.effective_target : a.temperature;
@@ -2860,6 +2867,26 @@
 
   // src/help.js
   var HELP = {
+    "Feinstaubfühler": [
+      "PM2,5-Fühler im Raum. Ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.",
+      "PM2.5 sensor in the room. From 35 µg/m³ Raumklima suggests airing; below 15 µg/m³ the air counts as exchanged.",
+      "Capteur PM2.5 dans la pièce. Dès 35 µg/m³ Raumklima conseille d'aérer ; sous 15 µg/m³ l'air est considéré comme renouvelé."
+    ],
+    "Reihenfolge": [
+      "Legt fest, in welcher Reihenfolge die Räume auf der Übersicht erscheinen – die erste Karte steht oben.",
+      "Sets the order of the rooms in the overview – the first card is on top.",
+      "Définit l'ordre des pièces dans la vue d'ensemble – la première carte est en haut."
+    ],
+    "Anwesenheit aus": [
+      "Schaltet nur die Anwesenheits-Auswertung ab. Zeitfenster, Boost, Ruhezeit, Lüftung und Bericht laufen weiter.",
+      "Turns off only the presence evaluation. Schedules, boost, quiet time, airing and reports keep running.",
+      "Désactive uniquement l'évaluation de présence. Plages horaires, boost, heures calmes, aération et rapports continuent."
+    ],
+    "Kein Thermostat": [
+      "Überwachungsraum ohne Heizungsregelung: Raumklima misst, warnt und berichtet, fasst aber keinen Sollwert an.",
+      "Monitoring room without heating control: Raumklima measures, warns and reports but never touches a setpoint.",
+      "Pièce de surveillance sans régulation : Raumklima mesure, avertit et rapporte sans toucher à une consigne."
+    ],
     "Wer wohnt hier?": [
       "Die Personen, deren Handys zählen. Ist keine davon in der Wohnungs-Zone, gilt die Wohnung nach der Wartezeit als leer und Raumklima senkt ab. Personen legst du in Home Assistant unter Einstellungen → Personen an und verknüpfst dort das Handy (Home-Assistant-App).",
       "The people whose phones count. If none of them is in the home zone, the home counts as empty after the waiting time and Raumklima lowers the temperature. People are created in Home Assistant under Settings → People, where you also link their phone (Home Assistant app).",
@@ -4012,6 +4039,7 @@
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
+        this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         this._row(
           "Kalibrierung",
           this._v(RK_CAL[s.calibration_mode] || "–"),

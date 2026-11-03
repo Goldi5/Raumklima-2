@@ -20,6 +20,10 @@ CONF_TRV: Final = "trv"
 CONF_TEMP_SENSOR: Final = "temperature_sensor"
 CONF_HUMIDITY_SENSOR: Final = "humidity_sensor"
 CONF_CO2_SENSOR: Final = "co2_sensor"
+CONF_PM25_SENSOR: Final = "pm25_sensor"
+# Feinstaub (PM2,5): WHO-Zwischenwert 35 µg/m³, „wieder gut“ ab 15 µg/m³
+PM25_LIMIT: Final = 35.0
+PM25_DONE: Final = 15.0
 CONF_WINDOWS: Final = "window_sensors"
 CONF_EXTRA_TRVS: Final = "extra_trvs"  # weitere Thermostate im selben Raum (laufen mit dem Haupt-Thermostat mit)
 CONF_CALIBRATION_MODE: Final = "calibration_mode"

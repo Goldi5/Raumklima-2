@@ -162,6 +162,7 @@ export class RaumklimaCard extends HTMLElement {
     const stats = [
       a.humidity_sensor ? stat("mdi:water-percent", t("Feuchte"), `${fmt(a.current_humidity, 0)} %`, humTone(a.current_humidity), sib.ventilation) : "",
       a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)}<small>ppm</small>`, a.co2 >= 1400 ? "cold" : a.co2 >= 1000 ? "warn" : "ok") : "",
+      a.pm25 != null ? stat("mdi:molecule", t("Feinstaub"), `${fmt(a.pm25, 0)}<small>µg/m³</small>`, a.pm25 >= 50 ? "cold" : a.pm25 >= 35 ? "warn" : "ok") : "",
       a.dew_point !== undefined && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
       a.valve_sensor === undefined || a.valve_sensor
         ? stat("mdi:valve", ((a.settings || {}).extra_trvs || []).length ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === undefined ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null)
@@ -193,7 +194,11 @@ export class RaumklimaCard extends HTMLElement {
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${!mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${!mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3
+            ? ` · ${a.offset != null && Math.abs(a.offset) >= 0.1
+              ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (a.offset > 0 ? "+" : "") + fmt(a.offset) })
+              : t("Thermostat {v}°", { v: fmt(a.trv_target) })}`
+            : ""}</span>
           ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}

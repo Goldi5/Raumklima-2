@@ -35,6 +35,7 @@ from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
     CO2_LIMIT,
     DEFAULT_ROOM_TYPE,
+    PM25_LIMIT,
     ROOM_TYPES,
     VENT_AIRING,
     VENT_DONE,
@@ -330,12 +331,17 @@ class VentilationManager:
                 duration=self.duration,
                 dries=self.dries,
                 co2=self.c.current_co2,
+                pm25=self.c.current_pm25,
             )
         )
         changed = new != self.state
         self.state = new
         if new == VENT_PLEASE_OPEN and changed:
-            self.reason = "co2" if (self.c.current_co2 or 0) >= CO2_LIMIT else "humidity"
+            self.reason = (
+                "pm25" if (self.c.current_pm25 or 0) >= PM25_LIMIT
+                else "co2" if (self.c.current_co2 or 0) >= CO2_LIMIT
+                else "humidity"
+            )
         self._check_window_away()
         if self.c.night_airing:
             self._night_update(now, changed)
@@ -628,6 +634,8 @@ class VentilationManager:
             "ventilation_reason": self.reason if shown == VENT_PLEASE_OPEN else None,
             "co2": self.c.current_co2,
             "co2_limit": CO2_LIMIT if self.c.co2_sensor else None,
+            "pm25": self.c.current_pm25,
+            "pm25_limit": PM25_LIMIT if self.c.pm25_sensor else None,
             "humidity_limit": self.humidity_limit,
             "min_temp": self.min_temp,
             "dew_point": self.dew_point,

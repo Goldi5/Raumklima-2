@@ -42,6 +42,9 @@ MIN_USEFUL_TARGET = 12.0  # darunter gilt ein Sollwert als "aus"-Rest (z. B. 5 �
 # CO₂ (UBA/Pettenkofer): unter 1000 ppm unbedenklich, 1000–2000 auffällig
 CO2_LIMIT = 1000.0  # ab hier „Bitte lüften“
 CO2_DONE = 800.0  # darunter ist die Luft beim Lüften ausgetauscht
+# Feinstaub PM2,5 in µg/m³: WHO-Zwischenziel 35, „wieder gut“ ab 15
+PM25_LIMIT = 35.0
+PM25_DONE = 15.0
 
 
 def comfort_temperature(configured: float | None, room_type: str | None) -> float:
@@ -113,6 +116,9 @@ class VentInput:
     co2: float | None = None
     co2_limit: float = CO2_LIMIT
     co2_done: float = CO2_DONE
+    pm25: float | None = None
+    pm25_limit: float = PM25_LIMIT
+    pm25_done: float = PM25_DONE
 
 
 def evaluate(v: VentInput) -> str:
@@ -128,6 +134,8 @@ def evaluate(v: VentInput) -> str:
         if v.open_minutes >= 2 and air_exchanged(v):
             return VENT_DONE
         return VENT_AIRING
+    if v.pm25 is not None and v.pm25 >= v.pm25_limit:
+        return VENT_PLEASE_OPEN  # Feinstaub drinnen: lüften senkt die Belastung
     if v.co2 is not None and v.co2 >= v.co2_limit:
         return VENT_PLEASE_OPEN  # verbrauchte Luft: lüften hilft immer, auch wenn es draußen feucht ist
     if (
@@ -142,15 +150,19 @@ def evaluate(v: VentInput) -> str:
 
 def air_exchanged(v: VentInput) -> bool:
     """Beim Lüften: sind alle vorhandenen Werte (Feuchte, CO₂) wieder gut?"""
-    if v.humidity is None and v.co2 is None:
+    if v.humidity is None and v.co2 is None and v.pm25 is None:
         return False
     if v.humidity is not None and v.humidity >= v.humidity_limit - v.humidity_hysteresis:
+        return False
+    if v.pm25 is not None and v.pm25 >= v.pm25_done:
         return False
     return v.co2 is None or v.co2 < v.co2_done
 
 
 def vent_reason(v: VentInput) -> str:
     """Warum „Bitte lüften“? „co2“ oder „humidity“."""
+    if v.pm25 is not None and v.pm25 >= v.pm25_limit:
+        return "pm25"
     return "co2" if v.co2 is not None and v.co2 >= v.co2_limit else "humidity"
 
 

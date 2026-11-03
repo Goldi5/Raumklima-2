@@ -652,4 +652,7 @@ export const EN = {
   "Wochenende ab {a}": "weekend from {a}",
   "ab einer erfassten Woche": "after one recorded week",
   "{a} bis {b}": "{a} to {b}",
+  "Thermostat {v}° (Abgleich {o}°)": "Thermostat {v}° (offset {o}°)",
+  "Feinstaub": "Particulate matter",
+  "Feinstaubfühler": "Particulate sensor",
 };

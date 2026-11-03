@@ -108,7 +108,9 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const label = v && a.ventilation !== "ok" ? v.label : s.label;
       // Steht das Thermostat anders als Raumklimas Ziel? Das erklärt „Heizt“ bei erreichtem Ziel.
       const trvNote = a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3
-        ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}`
+        ? ` · ${a.offset != null && Math.abs(a.offset) >= 0.1
+            ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (a.offset > 0 ? "+" : "") + fmt(a.offset) })
+            : t("Thermostat {v}°", { v: fmt(a.trv_target) })}`
         : "";
       const prefix = this._config.strip_prefix ?? "";
       const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");

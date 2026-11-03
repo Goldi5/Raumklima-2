@@ -56,6 +56,7 @@ from .const import (
     CONF_NOTIFY,
     CONF_OFF_METHOD,
     CONF_ON_PRESET,
+    CONF_PM25_SENSOR,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
     CONF_PRESENCE_OFF,
@@ -210,6 +211,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.temp_sensor: str = self.config[CONF_TEMP_SENSOR]
         self.humidity_sensor: str | None = self.config.get(CONF_HUMIDITY_SENSOR)
         self.co2_sensor: str | None = self.config.get(CONF_CO2_SENSOR) or None
+        self.pm25_sensor: str | None = self.config.get(CONF_PM25_SENSOR) or None
         self.windows: list[str] = list(self.config.get(CONF_WINDOWS) or [])
         self._extra_ids: list[str] = [
             e for e in (self.config.get(CONF_EXTRA_TRVS) or []) if e and e != self.trv
@@ -341,6 +343,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             tracked.append(self.humidity_sensor)
         if self.co2_sensor:
             tracked.append(self.co2_sensor)
+        if self.pm25_sensor:
+            tracked.append(self.pm25_sensor)
         if self.config.get(CONF_WEATHER):
             tracked.append(self.config[CONF_WEATHER])
         if self.valve_sensor:
@@ -480,6 +484,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             },
             "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
             "co2_sensor": self.co2_sensor,
+            "pm25_sensor": self.pm25_sensor,
             "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),
             "windows": self.windows,
             "comfort_configured": cfg.get(CONF_COMFORT_TEMP) not in (None, "", 0),
@@ -631,6 +636,13 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if not self.humidity_sensor:
             return None
         state = self.hass.states.get(self.humidity_sensor)
+        return to_float(state.state) if state else None
+
+    @property
+    def current_pm25(self) -> float | None:
+        if not self.pm25_sensor:
+            return None
+        state = self.hass.states.get(self.pm25_sensor)
         return to_float(state.state) if state else None
 
     @property

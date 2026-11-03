@@ -133,6 +133,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "offset": c.offset,
             "sync": c.sync_state,
             "valve_position": c.valve_position,
+            "pm25": c.current_pm25,
             "valve_sensor": c.valve_sensor,
             "target_via": c.target_via,
             "comfort_temperature": c.comfort_temp,

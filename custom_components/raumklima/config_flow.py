@@ -63,6 +63,7 @@ from .const import (
     CONF_OFFSET_MIN_INTERVAL,
     CONF_OFFSET_THRESHOLD,
     CONF_ON_PRESET,
+    CONF_PM25_SENSOR,
     CONF_PREHEAT_KM,
     CONF_RECIPIENTS,
     CONF_RESIDENTS,
@@ -223,6 +224,9 @@ def _monitor_schema() -> vol.Schema:
             vol.Optional(CONF_CO2_SENSOR): EntitySelector(
                 EntitySelectorConfig(domain="sensor", device_class="carbon_dioxide")
             ),
+            vol.Optional(CONF_PM25_SENSOR): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="pm25")
+            ),
             vol.Optional(CONF_WINDOWS): EntitySelector(
                 EntitySelectorConfig(domain=["binary_sensor", "cover"], multiple=True)
             ),
@@ -256,6 +260,9 @@ def _devices_schema(
             vol.Optional(
                 CONF_CO2_SENSOR, description=_suggest(defaults.get(CONF_CO2_SENSOR))
             ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="carbon_dioxide")),
+            vol.Optional(
+                CONF_PM25_SENSOR, description=_suggest(defaults.get(CONF_PM25_SENSOR))
+            ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="pm25")),
             vol.Optional(
                 CONF_WINDOWS, description=_suggest(defaults.get(CONF_WINDOWS))
             ): EntitySelector(EntitySelectorConfig(domain=["binary_sensor", "cover"], multiple=True)),
