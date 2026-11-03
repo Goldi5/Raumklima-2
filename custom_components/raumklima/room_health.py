@@ -41,6 +41,15 @@ from .stats import RoomSample
 _LOGGER = logging.getLogger(__name__)
 
 
+def _name_related(candidate: str, target: str) -> bool:
+    """Gehören zwei Gerätenamen zusammen? („Danfoss Ally Büro" vs. „Danfoss Ally Büro Valve")"""
+    a = (candidate or "").strip().lower()
+    b = (target or "").strip().lower()
+    if not a or not b:
+        return False
+    return a == b or a.startswith(b) or b.startswith(a)
+
+
 class HealthMixin:
     """Gesundheits- und Diagnose-Teil des Raum-Controllers."""
 
@@ -83,20 +92,31 @@ class HealthMixin:
             hit = pick(er.async_entries_for_device(registry, trv_entry.device_id))
             if hit:
                 return hit
-        if trv_entry.area_id:
-            hit = pick([e for e in registry.entities.values() if e.area_id == trv_entry.area_id])
+        device = devices.async_get(trv_entry.device_id) if trv_entry.device_id else None
+        trv_name = ((device.name_by_user or device.name) if device else "") or ""
+
+        def area_of(entry) -> str | None:
+            """Bereich steht meist am Gerät, nicht an der Entität."""
+            if entry.area_id:
+                return entry.area_id
+            dev = devices.async_get(entry.device_id) if entry.device_id else None
+            return dev.area_id if dev else None
+
+        trv_area = area_of(trv_entry)
+        if trv_area:
+            hit = pick([e for e in registry.entities.values() if area_of(e) == trv_area])
             if hit:
                 return hit
 
-        device = devices.async_get(trv_entry.device_id) if trv_entry.device_id else None
-        trv_name = ((device.name_by_user or device.name) if device else "") or ""
+        def name_of(entry) -> str:
+            dev = devices.async_get(entry.device_id) if entry.device_id else None
+            return ((dev.name_by_user or dev.name) if dev else "") or ""
+
         if trv_name:
             same = [
                 e
                 for e in registry.entities.values()
-                if e.device_id
-                and (d := devices.async_get(e.device_id))
-                and (d.name_by_user or d.name) == trv_name
+                if e.device_id and _name_related(name_of(e), trv_name)
             ]
             hit = pick(same)
             if hit:

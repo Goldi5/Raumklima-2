@@ -657,6 +657,52 @@ async def test_ventilsensor_mehrdeutig_wird_nicht_geraten(hass: HomeAssistant, s
     assert ctrl._find_valve_sensor() is None
 
 
+async def test_fuehler_gilt_nicht_als_ausgefallen_nur_weil_der_wert_alt_ist(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Fühler, die nur bei Änderung senden, sind nicht ausgefallen (Issue #11)."""
+    from datetime import timedelta
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.sensor_ok
+
+    freezer.tick(timedelta(hours=3))
+    await hass.async_block_till_done()
+
+    assert ctrl.sensor_ok, "Alter allein darf keinen Ausfall erzeugen"
+    assert ctrl.sensor_age_minutes is not None and ctrl.sensor_age_minutes > 60
+    state = hass.states.get("climate.bad")
+    assert state is not None and state.attributes.get("status") != "sensor_unavailable"
+
+
+async def test_ventilsensor_ueber_bereich_des_geraets(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Der Bereich steht am Gerät, nicht an der Entität – darüber muss die Suche greifen."""
+    from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    areas = ar.async_get(hass)
+    area = areas.async_create("Werkstatt")
+    devs = dr.async_get(hass)
+    regs = er.async_get(hass)
+
+    trv_dev = devs.async_get_or_create(
+        config_entry_id=room.entry_id, identifiers={("demo", "t9")}, name="Thermostat Werkstatt", suggested_area=area.name
+    )
+    regs.async_get_or_create("climate", "demo", "c9", suggested_object_id="werkstatt_thermostat", device_id=trv_dev.id)
+    valve_dev = devs.async_get_or_create(
+        config_entry_id=room.entry_id, identifiers={("demo", "t9v")}, name="Ventilplatine", suggested_area=area.name
+    )
+    regs.async_get_or_create("sensor", "demo", "v9", suggested_object_id="werkstatt_valve_opening", device_id=valve_dev.id)
+    hass.states.async_set("sensor.werkstatt_valve_opening", "55", {"unit_of_measurement": "%"})
+    ctrl.trv = "climate.werkstatt_thermostat"
+
+    assert ctrl._find_valve_sensor() == "sensor.werkstatt_valve_opening"
+
+
 async def test_dachluke_zaehlt_als_fenster(hass: HomeAssistant, sensors) -> None:
     """Eine Dachluke (cover) wird wie ein Fensterkontakt behandelt."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry

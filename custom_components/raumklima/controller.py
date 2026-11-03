@@ -579,13 +579,24 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     @property
     def sensor_ok(self) -> bool:
-        """Externer Fühler vorhanden und aktuell?"""
+        """Externer Fühler liefert einen brauchbaren Wert.
+
+        Das Alter allein zählt nicht: batteriebetriebene Fühler (Homematic, Danfoss) senden nur bei
+        Änderung. Ein drei Stunden alter Wert ist bei stabiler Temperatur weiterhin gültig – vorher
+        meldete der Raum „Fühler ausgefallen", obwohl das Gerät erreichbar war (Issue #11).
+        Ein echter Ausfall zeigt sich am Entitätszustand (unavailable/unknown/kein Wert).
+        """
         state = self.hass.states.get(self.temp_sensor)
-        if state is None or not is_valid(state.state) or self._ext_value is None:
-            return False
+        return state is not None and is_valid(state.state) and self._ext_value is not None
+
+    @property
+    def sensor_age_minutes(self) -> float | None:
+        """Minuten seit der letzten Meldung des Fühlers (nur für Diagnose/Protokoll)."""
+        state = self.hass.states.get(self.temp_sensor)
+        if state is None:
+            return None
         last = getattr(state, "last_reported", None) or state.last_updated
-        age = (dt_util.utcnow() - last).total_seconds() / 60
-        return age <= float(self.config[CONF_SENSOR_STALE_MINUTES])
+        return (dt_util.utcnow() - last).total_seconds() / 60
 
 
 

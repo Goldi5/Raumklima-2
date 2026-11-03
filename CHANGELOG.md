@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.37.0 – 2026-11-03
+
+### Behoben
+- **„Fühler ausgefallen", obwohl der Fühler erreichbar ist** (#11): Das Alter eines Werts zählte als
+  Ausfall. Batteriebetriebene Fühler (Homematic, Danfoss) senden aber nur bei Änderung – bei stabiler
+  Temperatur bleibt der Wert stundenlang stehen. Jetzt zählt nur noch der Entitätszustand
+  (`unavailable`/`unknown`/kein Wert) als Ausfall; das Alter steht als `sensor_age_minutes` für die
+  Diagnose bereit.
+- **Ventilstellung weiterhin nicht gefunden** (#15): Der Raum-Bereich hängt am *Gerät*, nicht an der
+  Entität – die Bereichssuche lief deshalb ins Leere. Sie nutzt jetzt den Gerätebereich, und der
+  Namensvergleich akzeptiert zusammengehörige Namen („Danfoss Ally Büro" / „Danfoss Ally Büro Valve").
+
 ## 0.36.0 – 2026-11-03
 
 ### Behoben
