@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.44.0 – 2026-11-03
+
+### Neu
+- **Der Lernbereich hat Unterreiter** – je nach Ebene mit passendem Inhalt:
+
+  **Raum:** *Übersicht* (Aufheizrate, Vorheizen, Zuverlässigkeit, aktuelle Entscheidung) ·
+  *Entscheidungen* · *So rechnet es*
+
+  **Wohnung:** *Schlafen & Anwesenheit* (gelernte Bett-/Aufstehzeiten, Anwesenheitsprofil, Vorschlag) ·
+  *Entscheidungen* · *So rechnet es*
+
+- **Reiter „Entscheidungen“:** Zeitraum (heute / 7 / 14 Tage), Bereich (Heizen, Lüften, Anwesenheit,
+  Gesundheit), Kennzahlen (Anzahl, Zieltemperatur geändert, Lüftungen) und ein Verlauf mit Zeit, was
+  passiert ist und warum. Eine Zeile antippen zeigt die vollständige Begründung und die mitgelieferten
+  Messwerte. Auf Wohnungsebene kommt eine Raumauswahl dazu.
+
+- **„So rechnet es“:** erklärt in Alltagssprache, woher Aufheizrate, Vorheizen, Schlafzeiten und
+  Anwesenheitsprofil kommen – und wo die Grenzen liegen.
+
 ## 0.43.0 – 2026-11-03
 
 ### Neu

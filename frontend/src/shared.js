@@ -709,6 +709,28 @@ export const SETTINGS_STYLES = `
   .mini { all:unset; cursor:pointer; padding:5px 10px; border-radius:10px; font-size:.8rem; font-weight:650; color: var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
   .mini.x { padding:5px 9px; }
   .addrow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:14px; }
+  /* Unterreiter im Lernbereich */
+  .ltabs { display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 12px; }
+  .ltab { border:0; cursor:pointer; font:inherit; font-size:.85rem; padding:8px 14px; border-radius:12px;
+          color:var(--secondary-text-color); background:color-mix(in srgb, var(--primary-text-color) 5%, transparent); }
+  .ltab.on { color:#fff; background:color-mix(in srgb, var(--g, var(--rk-eco)) 88%, #000); }
+  .dbar { display:flex; align-items:center; gap:12px; padding:8px 2px; flex-wrap:wrap;
+          border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .dbar .dlab { min-width:74px; font-size:.78rem; color:var(--secondary-text-color); }
+  .dkpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin:10px 0 6px; }
+  .dkpi { padding:10px 12px; border-radius:12px; background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .dkpi b { display:block; font-size:1.35rem; font-weight:600; font-variant-numeric:tabular-nums; }
+  .dkpi span { font-size:.78rem; color:var(--secondary-text-color); }
+  .decs { margin-top:4px; }
+  .dec { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .dec:first-of-type { border-top:0; }
+  .dec summary { display:grid; grid-template-columns:104px minmax(0,1fr); column-gap:18px; padding:10px 2px; cursor:pointer; list-style:none; }
+  .dec summary::-webkit-details-marker { display:none; }
+  .dec .dl b { font-size:.92rem; font-weight:600; display:block; }
+  .dec .dl small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); }
+  .dec .dfull { padding:2px 2px 12px 122px; }
+  .dec .dfull p { margin:0 0 4px; font-size:.82rem; }
+  .dec .dfull .ddata { color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   /* „Warum?" – Zeit links, Entscheidung und Begründung rechts. */
   .why { margin-top:4px; }
   .whyhead { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }

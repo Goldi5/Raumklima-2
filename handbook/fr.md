@@ -353,6 +353,21 @@ et de préchauffage.
 habituelles (jours de semaine et week-end séparément, à partir de quatre nuits). Il en déduit les heures
 calmes : 30 minutes avant le coucher jusqu'à 30 minutes après le lever – jamais plus court que réglé.
 
+### Les sous-onglets de l'apprentissage
+
+L'espace d'apprentissage est divisé en onglets – selon que vous êtes dans une pièce ou dans *Logement* :
+
+| Onglet | Où | Contenu |
+|---|---|---|
+| **Aperçu** | pièce | vitesse de montée, préchauffage pour 2 K, fiabilité, décision en cours |
+| **Sommeil & présence** | logement | heures de coucher et de lever apprises, profil de présence, suggestion |
+| **Décisions** | les deux | historique avec heure, décision et justification – filtrable par période et domaine |
+| **Comment ça calcule** | les deux | d'où viennent les valeurs et quelles sont leurs limites |
+
+Dans l'onglet **Décisions**, choisissez la période (aujourd'hui, 7 ou 14 jours) et le domaine
+(chauffage, aération, présence, santé). Trois indicateurs en haut, l'historique en dessous. Toucher une
+ligne déploie la justification complète avec les valeurs mesurées. Dans *Logement*, un sélecteur de pièce s'ajoute.
+
 ## Toutes les pièces en un coup d'œil
 
 La vue d'ensemble affiche chaque logement en tuiles : nom de la pièce, type, la consigne en grand, en

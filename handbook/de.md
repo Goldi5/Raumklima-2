@@ -350,6 +350,22 @@ Aus Nachtlüften und Lichtsignalen lernt Raumklima die typische Bettzeit und Auf
 Wochenende getrennt, ab vier Nächten). Daraus entsteht die Ruhezeit: 30 Minuten vor dem Zubettgehen
 bis 30 Minuten nach dem Aufstehen – nie kürzer als eingestellt.
 
+### Die Unterreiter im Lernbereich
+
+Der Lernbereich ist in Reiter geteilt – je nachdem, ob du in einem Raum oder in *Allgemein* bist:
+
+| Reiter | Wo | Was drin steht |
+|---|---|---|
+| **Übersicht** | Raum | Aufheizrate, Vorheizen für 2 K, Zuverlässigkeit, aktuell gültige Entscheidung |
+| **Schlafen & Anwesenheit** | Allgemein | gelernte Bett- und Aufstehzeiten, Anwesenheitsprofil, Vorschlag für Vorheiz- und Absenkzeiten |
+| **Entscheidungen** | beide | Verlauf mit Zeit, Entscheidung und Begründung – filterbar nach Zeitraum und Bereich |
+| **So rechnet es** | beide | woher die Werte kommen und wo ihre Grenzen liegen |
+
+Im Reiter **Entscheidungen** kannst du den Zeitraum (heute, 7 oder 14 Tage) und den Bereich wählen
+(Heizen, Lüften, Anwesenheit, Gesundheit). Oben stehen drei Kennzahlen, darunter der Verlauf.
+Ein Tipp auf eine Zeile klappt die vollständige Begründung auf, samt der Messwerte, die dazu geführt haben.
+In *Allgemein* kommt zusätzlich eine Raumauswahl dazu.
+
 ## Alle Räume auf einen Blick
 
 Die Übersicht zeigt jede Wohnung als Kacheln: Raumname, Raumtyp, die Wunschtemperatur groß, darunter

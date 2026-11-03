@@ -1,4 +1,4 @@
-/* Raumklima 0.43.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.44.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -654,7 +654,33 @@
     "{a} bis {b}": "{a} to {b}",
     "Thermostat {v}° (Abgleich {o}°)": "Thermostat {v}° (offset {o}°)",
     "Feinstaub": "Particulate matter",
-    "Feinstaubfühler": "Particulate sensor"
+    "Feinstaubfühler": "Particulate sensor",
+    "15-Minuten-Raster": "15-minute grid",
+    "Alle 15 Minuten ein Häkchen „jemand da oder nicht“, rollierend 4 Wochen. Es wird nie erfasst, wer zu Hause ist.": "Every 15 minutes a tick for “someone home or not”, rolling over 4 weeks. It never records who is at home.",
+    "Antippen einer Zeile zeigt die vollständige Begründung.": "Tap a row to see the full reason.",
+    "Aus der Aufheizrate und der Außentemperatur wird geschätzt, wie viele Minuten vor einem Zeitfenster gestartet werden muss.": "The heat-up rate and outdoor temperature are used to estimate how many minutes before a schedule window heating must start.",
+    "Bereich": "Area",
+    "Entscheidungen": "Decisions",
+    "Gemessen wird, wie schnell der Raum bei geöffnetem Ventil wärmer wird – nur ab 0,3 K Anstieg, damit Messrauschen nicht zählt.": "It measures how fast the room warms up with the valve open – only from a 0.3 K rise, so sensor noise does not count.",
+    "Genauigkeit": "Accuracy",
+    "Gezählt wird jede Nacht einmal, aus Nachtlüften und Lichtsignalen. Ruhezeit beginnt 30 Minuten vor der typischen Bettzeit.": "Each night counts once, from night airing and light signals. Quiet time starts 30 minutes before the typical bedtime.",
+    "Grenzen": "Limits",
+    "Heizpause → Abwesenheit → Boost → Zeitfenster → Ruhezeit → Vorheizen → leer/Sonne → Wunsch. Das oberste zutreffende gewinnt.": "Heating pause → away → boost → schedule → quiet time → preheat → empty/solar → wish. The topmost match wins.",
+    "Keine Entscheidungen in diesem Zeitraum.": "No decisions in this period.",
+    "Lüften": "Airing",
+    "Median aus echten Vorgängen": "median from real runs",
+    "Median der letzten 6 Wochen": "median of the last 6 weeks",
+    "Rate × fehlende Kelvin": "rate × missing kelvin",
+    "Schlafzeiten": "Sleep times",
+    "Unter 3 Vorgängen unsicher, ab 6 belastbar. Mehr Messungen = engere Vorhersage; alte Werte verfallen mit der Zeit.": "Below 3 runs uncertain, from 6 reliable. More measurements mean a tighter prediction; old values fade over time.",
+    "Urlaub, Schichtdienst und unregelmäßige Tage verfälschen das Profil. Deshalb schlägt Raumklima nur vor und stellt nichts von selbst um.": "Holidays, shift work and irregular days distort the profile. That is why Raumklima only suggests and never changes anything by itself.",
+    "Zeitfenster, in denen an mindestens 60 % der Tage jemand da war, gelten als typische Anwesenheit – daraus folgen Vorheiz- und Absenkzeiten.": "Times when someone was home on at least 60 % of days count as typical presence – preheating and setback times follow from it.",
+    "Zeitraum": "Period",
+    "Ziel geändert": "target changed",
+    "aus dem Profil": "from the profile",
+    "ehrlich": "honest",
+    "feste Reihenfolge": "fixed order",
+    "wächst mit Messungen": "grows with measurements"
   };
 
   // src/i18n/fr.js
@@ -1311,7 +1337,33 @@
     "{a} bis {b}": "de {a} à {b}",
     "Thermostat {v}° (Abgleich {o}°)": "Thermostat {v}° (décalage {o}°)",
     "Feinstaub": "Particules fines",
-    "Feinstaubfühler": "Capteur de particules"
+    "Feinstaubfühler": "Capteur de particules",
+    "15-Minuten-Raster": "grille de 15 minutes",
+    "Alle 15 Minuten ein Häkchen „jemand da oder nicht“, rollierend 4 Wochen. Es wird nie erfasst, wer zu Hause ist.": "Toutes les 15 minutes une coche « quelqu'un est là ou non », sur 4 semaines glissantes. Il n'est jamais noté qui est à la maison.",
+    "Antippen einer Zeile zeigt die vollständige Begründung.": "Touchez une ligne pour voir la justification complète.",
+    "Aus der Aufheizrate und der Außentemperatur wird geschätzt, wie viele Minuten vor einem Zeitfenster gestartet werden muss.": "La vitesse de montée et la température extérieure servent à estimer combien de minutes avant une plage horaire il faut démarrer.",
+    "Bereich": "Domaine",
+    "Entscheidungen": "Décisions",
+    "Gemessen wird, wie schnell der Raum bei geöffnetem Ventil wärmer wird – nur ab 0,3 K Anstieg, damit Messrauschen nicht zählt.": "On mesure la rapidité de réchauffement vanne ouverte – seulement à partir de 0,3 K de hausse, pour ignorer le bruit de mesure.",
+    "Genauigkeit": "Précision",
+    "Gezählt wird jede Nacht einmal, aus Nachtlüften und Lichtsignalen. Ruhezeit beginnt 30 Minuten vor der typischen Bettzeit.": "Chaque nuit compte une fois, à partir de l'aération nocturne et des signaux lumineux. Les heures calmes commencent 30 minutes avant l'heure du coucher.",
+    "Grenzen": "Limites",
+    "Heizpause → Abwesenheit → Boost → Zeitfenster → Ruhezeit → Vorheizen → leer/Sonne → Wunsch. Das oberste zutreffende gewinnt.": "Pause de chauffe → absence → boost → plage horaire → heures calmes → préchauffage → vide/soleil → consigne. Le premier qui s'applique gagne.",
+    "Keine Entscheidungen in diesem Zeitraum.": "Aucune décision sur cette période.",
+    "Lüften": "Aération",
+    "Median aus echten Vorgängen": "médiane sur de vraies montées",
+    "Median der letzten 6 Wochen": "médiane des 6 dernières semaines",
+    "Rate × fehlende Kelvin": "vitesse × kelvin manquants",
+    "Schlafzeiten": "Heures de sommeil",
+    "Unter 3 Vorgängen unsicher, ab 6 belastbar. Mehr Messungen = engere Vorhersage; alte Werte verfallen mit der Zeit.": "Moins de 3 montées : incertain ; dès 6 : fiable. Plus de mesures = prévision plus précise ; les anciennes valeurs s'estompent.",
+    "Urlaub, Schichtdienst und unregelmäßige Tage verfälschen das Profil. Deshalb schlägt Raumklima nur vor und stellt nichts von selbst um.": "Vacances, travail posté et journées irrégulières faussent le profil. C'est pourquoi Raumklima ne fait que proposer et ne change rien tout seul.",
+    "Zeitfenster, in denen an mindestens 60 % der Tage jemand da war, gelten als typische Anwesenheit – daraus folgen Vorheiz- und Absenkzeiten.": "Les plages où quelqu'un était là au moins 60 % des jours comptent comme présence typique – d'où les heures de préchauffage et d'abaissement.",
+    "Zeitraum": "Période",
+    "Ziel geändert": "consigne modifiée",
+    "aus dem Profil": "d'après le profil",
+    "ehrlich": "honnête",
+    "feste Reihenfolge": "ordre fixe",
+    "wächst mit Messungen": "augmente avec les mesures"
   };
 
   // src/i18n.js
@@ -1355,7 +1407,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.43.0";
+  var RK_VERSION = "0.44.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1993,6 +2045,28 @@
   .mini { all:unset; cursor:pointer; padding:5px 10px; border-radius:10px; font-size:.8rem; font-weight:650; color: var(--secondary-text-color); background: color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
   .mini.x { padding:5px 9px; }
   .addrow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:14px; }
+  /* Unterreiter im Lernbereich */
+  .ltabs { display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 12px; }
+  .ltab { border:0; cursor:pointer; font:inherit; font-size:.85rem; padding:8px 14px; border-radius:12px;
+          color:var(--secondary-text-color); background:color-mix(in srgb, var(--primary-text-color) 5%, transparent); }
+  .ltab.on { color:#fff; background:color-mix(in srgb, var(--g, var(--rk-eco)) 88%, #000); }
+  .dbar { display:flex; align-items:center; gap:12px; padding:8px 2px; flex-wrap:wrap;
+          border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .dbar .dlab { min-width:74px; font-size:.78rem; color:var(--secondary-text-color); }
+  .dkpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin:10px 0 6px; }
+  .dkpi { padding:10px 12px; border-radius:12px; background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .dkpi b { display:block; font-size:1.35rem; font-weight:600; font-variant-numeric:tabular-nums; }
+  .dkpi span { font-size:.78rem; color:var(--secondary-text-color); }
+  .decs { margin-top:4px; }
+  .dec { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .dec:first-of-type { border-top:0; }
+  .dec summary { display:grid; grid-template-columns:104px minmax(0,1fr); column-gap:18px; padding:10px 2px; cursor:pointer; list-style:none; }
+  .dec summary::-webkit-details-marker { display:none; }
+  .dec .dl b { font-size:.92rem; font-weight:600; display:block; }
+  .dec .dl small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); }
+  .dec .dfull { padding:2px 2px 12px 122px; }
+  .dec .dfull p { margin:0 0 4px; font-size:.82rem; }
+  .dec .dfull .ddata { color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   /* „Warum?" – Zeit links, Entscheidung und Begründung rechts. */
   .why { margin-top:4px; }
   .whyhead { border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
@@ -4027,7 +4101,7 @@
         )
       ].join(""))}
       ${this._presenceGroup(r, id, editable)}
-      ${this._learnGroup(r)}
+      ${this._learnRoom(r)}
       ${this._lightGroup(r, id, editable)}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
@@ -4142,39 +4216,146 @@
       ].join(""));
     }
     // Gelernte Schlafzeiten (Wohnungsebene) – gehört zum Lernen, nicht zu den Einstellrädern.
+    // ---------------------------------------------------------------- Lernen (Unterreiter)
+    _learnTabs(active, keys) {
+      const names = { overview: "Übersicht", sleep: "Schlafen & Anwesenheit", decisions: "Entscheidungen", how: "So rechnet es" };
+      return `<div class="ltabs">${keys.map((k) => `<button class="ltab ${k === active ? "on" : ""}" data-ltab="${k}">${t(names[k])}</button>`).join("")}</div>`;
+    }
+    // Wohnungsebene: Schlafzeiten, Anwesenheitsprofil, Entscheidungen, Erklärung
     _learnHub(st) {
+      const tab = this._ltabHub || "sleep";
+      const body = tab === "sleep" ? this._sleepRows(st) : tab === "decisions" ? this._decisions(null) : this._howRows("home");
+      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["sleep", "decisions", "how"]) + body);
+    }
+    _sleepRows(st) {
       const sl = st && st.sleep || {};
       const line = (k, label) => {
         const v = sl[k] || {};
         const e = v.effective || {};
         const parts = [v.bed ? t("ins Bett ~{v}", { v: v.bed }) : "", v.wake ? t("auf ~{v}", { v: v.wake }) : ""].filter(Boolean);
-        const nBed = v.nights_bed || 0;
-        const nWake = v.nights_wake || 0;
-        const sub = parts.length ? `${t("{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)", { b: nBed, w: nWake })}${e.quiet_start ? ` · ${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}` : ""}` : t("noch zu wenige Nächte – 4 sind nötig");
+        const sub = parts.length ? `${t("{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)", { b: v.nights_bed || 0, w: v.nights_wake || 0 })}${e.quiet_start ? ` · ${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}` : ""}` : t("noch zu wenige Nächte – 4 sind nötig");
         return this._row(t(label), this._v(parts.length ? parts.join(" · ") : t("sammelt noch"), !parts.length), sub);
       };
       const pp = st && st.presence_profile || {};
       const days = pp.days || {};
       const hasProfile = (days.weekday || 0) + (days.weekend || 0) > 0;
-      const bars = (arr, label) => this._row(
-        t(label),
-        this._presenceBars(arr),
-        this._presenceText(arr)
-      );
-      const profileHead = `<div class="row whyhead"><div class="l"><span class="lbl">${t("Anwesenheitsprofil")}</span><small>${t("Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.")}</small></div></div>`;
+      const bars = (arr, label) => this._row(t(label), this._presenceBars(arr), this._presenceText(arr));
+      const head = `<div class="row whyhead"><div class="l"><span class="lbl">${t("Anwesenheitsprofil")}</span><small>${t("Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.")}</small></div></div>`;
       const tip = st && st.presence_tip || {};
       const tipRow = tip.ready ? this._row(
         t("Vorschlag"),
         this._v([tip.weekday ? t("{a} bis {b}", { a: tip.weekday.from, b: tip.weekday.to }) : "", tip.weekend ? t("Wochenende ab {a}", { a: tip.weekend.from }) : ""].filter(Boolean).join(" · ")),
         t("Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft.")
       ) : this._row(t("Vorschlag"), this._v(t("sammelt noch"), true), t("ab einer erfassten Woche"));
-      const profile = profileHead + (hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
-      return this._grp(
-        t("Lernen & Warum"),
-        "mdi:chart-line",
-        "eco",
-        [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile, tipRow].join("")
-      );
+      const profile = head + (hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
+      return [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile, tipRow].join("");
+    }
+    // Raum-Ebene: Aufheizrate & Co., Entscheidungen, Erklärung
+    _learnRoom(r) {
+      const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
+      if (!id || a.monitor) return "";
+      const tab = this._ltabRoom || "overview";
+      const eps = Number(h.episodes || 0);
+      const sure = eps >= 6 ? [t("belastbar"), "ok"] : eps >= 3 ? [t("brauchbar"), "warn"] : [t("noch unsicher"), "off"];
+      const overview = [
+        this._row(
+          t("Aufheizrate"),
+          this._v(h.rate != null ? t("{v} °C/h", { v: fmt(h.rate, 1) }) : t("noch nicht gelernt"), h.rate == null),
+          t("aus {n} Aufheizvorgängen gemessen", { n: eps })
+        ),
+        this._row(
+          t("Vorheizen für 2 K"),
+          this._v(h.minutes_2k != null ? t("{n} min", { n: h.minutes_2k }) : "–", h.minutes_2k == null),
+          t("so früh beginnt das Vorheizen vor einem Zeitfenster")
+        ),
+        this._row(
+          t("Wie sicher?"),
+          `<span class="chip2" style="--c:var(--rk-${sure[1]})"><i></i>${sure[0]}</span>`,
+          t("mehr Aufheizvorgänge, verlässlichere Vorhersage")
+        ),
+        this._row(t("Gerade gilt"), `<span class="v">${planText(a, false)}</span>`, t("so entscheidet die Automatik im Moment"))
+      ].join("");
+      const body = tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
+      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["overview", "decisions", "how"]) + body);
+    }
+    _howRows(scope) {
+      const rows = scope === "room" ? [
+        this._row(t("Aufheizrate"), this._v(t("Median aus echten Vorgängen")), t("Gemessen wird, wie schnell der Raum bei geöffnetem Ventil wärmer wird – nur ab 0,3 K Anstieg, damit Messrauschen nicht zählt.")),
+        this._row(t("Vorheizen"), this._v(t("Rate × fehlende Kelvin")), t("Aus der Aufheizrate und der Außentemperatur wird geschätzt, wie viele Minuten vor einem Zeitfenster gestartet werden muss.")),
+        this._row(t("Entscheidungen"), this._v(t("feste Reihenfolge")), t("Heizpause → Abwesenheit → Boost → Zeitfenster → Ruhezeit → Vorheizen → leer/Sonne → Wunsch. Das oberste zutreffende gewinnt.")),
+        this._row(t("Genauigkeit"), this._v(t("wächst mit Messungen")), t("Unter 3 Vorgängen unsicher, ab 6 belastbar. Mehr Messungen = engere Vorhersage; alte Werte verfallen mit der Zeit."))
+      ] : [
+        this._row(t("Schlafzeiten"), this._v(t("Median der letzten 6 Wochen")), t("Gezählt wird jede Nacht einmal, aus Nachtlüften und Lichtsignalen. Ruhezeit beginnt 30 Minuten vor der typischen Bettzeit.")),
+        this._row(t("Anwesenheit"), this._v(t("15-Minuten-Raster")), t("Alle 15 Minuten ein Häkchen „jemand da oder nicht“, rollierend 4 Wochen. Es wird nie erfasst, wer zu Hause ist.")),
+        this._row(t("Vorschlag"), this._v(t("aus dem Profil")), t("Zeitfenster, in denen an mindestens 60 % der Tage jemand da war, gelten als typische Anwesenheit – daraus folgen Vorheiz- und Absenkzeiten.")),
+        this._row(t("Grenzen"), this._v(t("ehrlich")), t("Urlaub, Schichtdienst und unregelmäßige Tage verfälschen das Profil. Deshalb schlägt Raumklima nur vor und stellt nichts von selbst um."))
+      ];
+      return rows.join("");
+    }
+    // ---------------------------------------------------------------- Entscheidungen
+    _decisions(entryId) {
+      const range = this._decRange ?? 0;
+      const cat = this._decCat ?? "all";
+      const rangeChips = [[0, "Heute"], [7, "7 Tage"], [14, "14 Tage"]].map(([k, l]) => `<button class="chip2 ${k === range ? "" : "off"}" data-drange="${k}">${t(l)}</button>`).join("");
+      const catChips = [["all", "Alle"], ["target", "Heizen"], ["window", "Lüften"], ["presence", "Anwesenheit"], ["health", "Gesundheit"]].map(([k, l]) => `<button class="chip2 ${k === cat ? "" : "off"}" data-dcat="${k}">${t(l)}</button>`).join("");
+      const roomChips = entryId ? "" : `<div class="dbar"><span class="dlab">${t("Raum")}</span><div class="chips">${this._decRoomChips()}</div></div>`;
+      return `<div class="dbar"><span class="dlab">${t("Zeitraum")}</span><div class="chips">${rangeChips}</div></div>
+      ${roomChips}
+      <div class="dbar"><span class="dlab">${t("Bereich")}</span><div class="chips">${catChips}</div></div>
+      <div class="dkpis" data-dkpi></div>
+      <div class="decs" data-decs="${esc(entryId || "")}"><div class="hint">${t("Lade …")}</div></div>
+      <div class="hint">${t("Antippen einer Zeile zeigt die vollständige Begründung.")}</div>`;
+    }
+    _decRoomChips() {
+      const cur = this._decRoom || "all";
+      const list = [["all", t("Alle Räume")], ...this._rooms.map((r) => [r.id, r.name])];
+      return list.map(([id, name]) => `<button class="chip2 ${id === cur ? "" : "off"}" data-droom="${esc(id)}">${esc(name)}</button>`).join("");
+    }
+    _decRow(e) {
+      const d = new Date(e.t);
+      const sameDay = !isNaN(d.getTime()) && d.toDateString() === (/* @__PURE__ */ new Date()).toDateString();
+      const when = isNaN(d.getTime()) ? "" : sameDay ? d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) : d.toLocaleString(loc(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      const many = e.n > 1 ? ` ×${e.n}` : "";
+      const why = e.why ? `<small>${esc(e.why)}</small>` : "";
+      const extra = [e.room ? esc(e.room) : "", e.data ? esc(Object.entries(e.data).map(([k, v]) => `${k}: ${v}`).join(" · ")) : ""].filter(Boolean).join(" · ");
+      return `<details class="dec"><summary><span class="wtime">${esc(when)}</span><span class="dl"><b>${esc(e.msg)}${many}</b>${why}</span></summary>
+      <div class="dfull">${e.why ? `<p>${esc(e.why)}</p>` : ""}${extra ? `<p class="ddata">${extra}</p>` : ""}</div></details>`;
+    }
+    _paintDec(box, list) {
+      box.innerHTML = list.length ? list.map((e) => this._decRow(e)).join("") : `<div class="hint">${t("Keine Entscheidungen in diesem Zeitraum.")}</div>`;
+      const kpi = this.shadowRoot.querySelector("[data-dkpi]");
+      if (!kpi) return;
+      const sets = list.filter((e) => e.cat === "target").length;
+      const air = list.filter((e) => e.cat === "window").length;
+      kpi.innerHTML = [[String(list.length), t("Entscheidungen")], [`${sets}×`, t("Ziel geändert")], [`${air}×`, t("Lüften")]].map(([b, s]) => `<div class="dkpi"><b>${b}</b><span>${s}</span></div>`).join("");
+    }
+    async _decFetch() {
+      const root = this.shadowRoot;
+      const box = root && root.querySelector("[data-decs]");
+      if (!box) return;
+      const entryId = box.dataset.decs || null;
+      const range = this._decRange ?? 0;
+      const cat = this._decCat ?? "all";
+      const key = `${entryId || "all"}|${range}|${cat}|${this._decRoom || ""}`;
+      this._dec = this._dec || {};
+      if (this._dec[key]) return this._paintDec(box, this._dec[key]);
+      if (this._decBusy) return;
+      this._decBusy = true;
+      try {
+        const msg = { type: "raumklima/log", limit: 400 };
+        if (entryId) msg.entry_id = entryId;
+        if (cat !== "all") msg.categories = [cat];
+        const res = await this._hass.callWS(msg);
+        const since = range === 0 ? (/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0) : Date.now() - range * 864e5;
+        let list = (res.entries || []).filter((e) => Date.parse(e.t) >= since);
+        if (!entryId && this._decRoom && this._decRoom !== "all") list = list.filter((e) => e.eid === this._decRoom);
+        this._dec[key] = list;
+        this._paintDec(box, list);
+      } catch (e) {
+        box.innerHTML = `<div class="hint">${t("Protokoll konnte nicht geladen werden.")}</div>`;
+      } finally {
+        this._decBusy = false;
+      }
     }
     // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.
     _timePop() {
@@ -4232,68 +4413,6 @@
       return t("meist {a}–{b} jemand zu Hause", { a, b });
     }
     // ---------------------------------------------------------------- Lernen & Warum
-    _learnGroup(r) {
-      const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
-      if (!id || a.monitor) return "";
-      const eps = Number(h.episodes || 0);
-      const sure = eps >= 6 ? [t("belastbar"), "ok"] : eps >= 3 ? [t("brauchbar"), "warn"] : [t("noch unsicher"), "off"];
-      const rows = [
-        this._row(
-          t("Aufheizrate"),
-          this._v(h.rate != null ? t("{v} °C/h", { v: fmt(h.rate, 1) }) : t("noch nicht gelernt"), h.rate == null),
-          t("aus {n} Aufheizvorgängen gemessen", { n: eps })
-        ),
-        this._row(
-          t("Vorheizen für 2 K"),
-          this._v(h.minutes_2k != null ? t("{n} min", { n: h.minutes_2k }) : "–", h.minutes_2k == null),
-          t("so früh beginnt das Vorheizen vor einem Zeitfenster")
-        ),
-        this._row(
-          t("Wie sicher?"),
-          `<span class="chip2" style="--c:var(--rk-${sure[1]})"><i></i>${sure[0]}</span>`,
-          t("mehr Aufheizvorgänge, verlässlichere Vorhersage")
-        ),
-        this._row(t("Gerade gilt"), `<span class="v">${planText(a, false)}</span>`, t("so entscheidet die Automatik im Moment")),
-        `<div class="row whyhead"><div class="l"><span class="lbl">${t("Warum? Letzte Entscheidungen")}</span><small>${t("was zuletzt entschieden wurde und weshalb")}</small></div></div>`,
-        `<div class="why" data-why="${esc(id)}"><div class="hint">${t("Lade …")}</div></div>`
-      ];
-      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", rows.join(""));
-    }
-    _whyHtml(list) {
-      if (!list.length) return `<div class="hint">${t("Noch keine Entscheidungen protokolliert.")}</div>`;
-      return list.map((e) => {
-        const d = new Date(e.t);
-        const when = isNaN(d.getTime()) ? "" : d.toLocaleString(loc(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-        const many = e.n > 1 ? ` ×${e.n}` : "";
-        const why = e.why ? `<small>${esc(e.why)}</small>` : "";
-        return `<div class="whyrow"><span class="wtime">${esc(when)}</span><div class="wl"><b>${esc(e.msg)}${many}</b>${why}</div></div>`;
-      }).join("");
-    }
-    async _whyFetch() {
-      const root = this.shadowRoot;
-      const box = root && root.querySelector("[data-why]");
-      if (!box) return;
-      const id = box.dataset.why;
-      this._why = this._why || {};
-      if (this._why[id]) {
-        box.innerHTML = this._whyHtml(this._why[id]);
-        return;
-      }
-      if (this._whyBusy) return;
-      this._whyBusy = true;
-      try {
-        const res = await this._hass.callWS({ type: "raumklima/log", entry_id: id, limit: 25 });
-        this._why[id] = res.entries || [];
-        const html = this._whyHtml(this._why[id]);
-        root.querySelectorAll("[data-why]").forEach((el) => {
-          if (el.dataset.why === id) el.innerHTML = html;
-        });
-      } catch (e) {
-        box.innerHTML = `<div class="hint">${t("Protokoll konnte nicht geladen werden.")}</div>`;
-      } finally {
-        this._whyBusy = false;
-      }
-    }
     // ---------------------------------------------------------------- Rendern
     _render() {
       if (!this._hass || !this._rooms) return;
@@ -4329,7 +4448,7 @@
       </ha-card>`);
       this._bind();
       this._filter();
-      this._whyFetch();
+      this._decFetch();
     }
     // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
     _filter() {
@@ -4585,6 +4704,27 @@
         }
         const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
         this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
+      }));
+      $("[data-ltab]").forEach((el) => el.addEventListener("click", () => {
+        if (this._tab === "general") this._ltabHub = el.dataset.ltab;
+        else this._ltabRoom = el.dataset.ltab;
+        this._dec = {};
+        this._render();
+      }));
+      $("[data-drange]").forEach((el) => el.addEventListener("click", () => {
+        this._decRange = Number(el.dataset.drange);
+        this._dec = {};
+        this._render();
+      }));
+      $("[data-dcat]").forEach((el) => el.addEventListener("click", () => {
+        this._decCat = el.dataset.dcat;
+        this._dec = {};
+        this._render();
+      }));
+      $("[data-droom]").forEach((el) => el.addEventListener("click", () => {
+        this._decRoom = el.dataset.droom;
+        this._dec = {};
+        this._render();
       }));
       $("[data-timeopen]").forEach((el) => el.addEventListener("click", () => this._openTime(el.dataset.timeopen, el.dataset.val)));
       const tpop = this.shadowRoot.querySelector("[data-tpick]");

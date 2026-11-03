@@ -352,6 +352,21 @@ From night airing and light signals Raumklima learns the typical bedtime and wak
 weekend separately, from four nights on). The quiet time follows: 30 minutes before bedtime until 30
 minutes after getting up – never shorter than configured.
 
+### The sub-tabs of the learning area
+
+The learning area is split into tabs – depending on whether you are in a room or in *Home*:
+
+| Tab | Where | Content |
+|---|---|---|
+| **Overview** | room | heat-up rate, preheat for 2 K, reliability, current decision |
+| **Sleep & presence** | home | learned bedtime and wake-up time, presence profile, suggestion for preheating and setback |
+| **Decisions** | both | history with time, decision and reason – filterable by period and area |
+| **How it calculates** | both | where the values come from and where their limits are |
+
+In the **Decisions** tab you pick the period (today, 7 or 14 days) and the area (heating, airing,
+presence, health). Three key figures sit on top, the history follows. Tapping a row unfolds the full
+reason including the measured values behind it. In *Home* a room selector is added.
+
 ## All rooms at a glance
 
 The overview shows each home as tiles: room name, room type, the target temperature large, below it the
