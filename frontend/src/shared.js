@@ -717,30 +717,6 @@ export const SETTINGS_STYLES = `
   .whyrow:first-of-type { border-top:0; }
   .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .whyrow .wl b { font-size:.9rem; font-weight:600; }
-  /* Große Ansicht für Überwachungsräume */
-  .mon { padding:18px 18px 14px; border-radius:20px;
-         background:color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
-         box-shadow: inset 3px 0 0 color-mix(in srgb, var(--tone) 60%, transparent); }
-  .monhead { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  .monback { display:flex; align-items:center; gap:4px; border:0; background:none; color:var(--secondary-text-color);
-             font:inherit; font-size:.85rem; cursor:pointer; padding:6px 8px; border-radius:10px; }
-  .monback:hover { background:color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
-  .montitle { flex:1; display:flex; flex-direction:column; }
-  .montitle b { font-size:1.1rem; }
-  .montitle span { font-size:.8rem; color:var(--secondary-text-color); }
-  .monbig { display:flex; align-items:center; gap:22px; margin:14px 0 6px; flex-wrap:wrap; }
-  .monbig .t { font-size:3.1rem; font-weight:300; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
-  .monbig .t i { font-size:1.4rem; font-style:normal; color:var(--secondary-text-color); }
-  .monbig .r { display:flex; flex-direction:column; gap:3px; max-width:62ch; }
-  .monbig .r b { font-size:.95rem; font-weight:600; }
-  .monbig .r span { font-size:.85rem; color:var(--secondary-text-color); }
-  .mstats { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-top:12px; }
-  .mstat { padding:10px 12px; border-radius:14px; background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
-  .mstat .ml { display:flex; align-items:center; gap:6px; font-size:.78rem; color:var(--secondary-text-color); }
-  .mstat .ml ha-icon { --mdc-icon-size:16px; }
-  .mstat .mv { font-size:1.05rem; font-weight:600; font-variant-numeric:tabular-nums; }
-  .monfoot { margin-top:12px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.4; }
-
   /* Zeitwähler (iOS-artig): zwei Räder, die einrasten */
   .timebtn { min-height:36px; padding:7px 14px; border-radius:12px; font:inherit; font-size:.88rem;
              font-variant-numeric:tabular-nums; cursor:pointer; color:inherit;

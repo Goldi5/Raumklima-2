@@ -1,4 +1,4 @@
-import { rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -53,46 +53,6 @@ export class RaumklimaOverviewCard extends HTMLElement {
     rkLayout(this._hass, rkHomeId(this._hass, this._config))
       .then((L) => { this._layout = L; this._sig = null; this._render(); })
       .catch(() => {});
-  }
-
-  // Überwachungsraum: große Ansicht mit allen vorhandenen Daten – ohne Thermostat.
-  _monitorPanel(st) {
-    const a = st.attributes || {};
-    const v = VENT[a.ventilation];
-    const prefix = this._config.strip_prefix ?? "";
-    const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
-    const tone = v && a.ventilation !== "ok" ? v.tone : "eco";
-    const stat = (icon, label, value) =>
-      `<div class="mstat"><div class="ml"><ha-icon icon="${icon}"></ha-icon>${t(label)}</div><div class="mv">${value}</div></div>`;
-    const why = a.ventilation === "please_open"
-      ? (a.ventilation_reason === "co2"
-        ? t("CO₂ bei {c} ppm – ab 1000 ppm wird es stickig.", { c: fmt(a.co2, 0) })
-        : t("Feuchte bei {h} % – lüften senkt die Schimmelgefahr.", { h: fmt(a.current_humidity, 0) }))
-      : v && a.ventilation !== "ok" ? t("Die Luft ist gerade nicht in Ordnung.") : t("Luft und Klima sind in Ordnung.");
-    return `<div class="mon" style="--tone:${toneVar(tone)}">
-      <div class="monhead">
-        <button class="monback" data-monback><ha-icon icon="mdi:arrow-left"></ha-icon>${t("Zurück")}</button>
-        <div class="montitle"><b>${name}</b><span>${t("Überwachung · kein Thermostat")}</span></div>
-        <span class="chip" style="--tone:${toneVar(tone)}"><ha-icon icon="${v ? v.icon : "mdi:eye-outline"}"></ha-icon>${v && a.ventilation !== "ok" ? v.label : t("Überwachung")}</span>
-      </div>
-      <div class="monbig">
-        <div class="t">${fmt(a.current_temperature)}<i>°</i></div>
-        <div class="r">
-          <b>${why}</b>
-          ${a.ventilation === "please_open" && a.recommended_minutes ? `<span>${t("Empfohlen: etwa {m} Minuten lüften.", { m: a.recommended_minutes })}</span>` : ""}
-          ${!a.humidity_sensor ? `<span>${t("Kein Feuchtefühler – bewertet nur die Temperatur.")}</span>` : ""}
-        </div>
-      </div>
-      <div class="mstats">
-        ${a.humidity_sensor ? stat("mdi:water-percent", "Feuchte", `${fmt(a.current_humidity, 0)} %`) : ""}
-        ${a.dew_point != null ? stat("mdi:water-thermometer", "Taupunkt", `${fmt(a.dew_point)}°`) : ""}
-        ${a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)} ppm`) : ""}
-        ${a.outdoor_temperature != null ? stat("mdi:weather-partly-cloudy", "Außen", `${fmt(a.outdoor_temperature)}° · ${fmt(a.outdoor_humidity, 0)} %`) : ""}
-        ${stat("mdi:window-open-variant", "Fenster", a.window_open ? t("offen") : t("zu"))}
-        ${a.occupied !== undefined ? stat("mdi:account", "Anwesend", a.occupied ? t("jemand im Raum") : t("niemand")) : ""}
-      </div>
-      <div class="monfoot">${t("Dieser Raum hat kein Thermostat: Raumklima misst hier nur und gibt Hinweise. Geheizt wird über die Heizung, die diesen Raum versorgt.")}</div>
-    </div>`;
   }
 
   _render() {
@@ -168,7 +128,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
               ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) })
               : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }))
             : t("Ziel {v}°", { v: fmt(applied) });
-      return `<div class="room" ${mon ? `data-mon="${r.entity_id}"` : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
+      return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => { const s = rkOpenSince(this._hass, a); return s ? `<span title="${t("offen seit {c}", { c: rkClock(s) })}">${rkDuration(Date.now() - s)}</span>` : ""; })()}</span>` : ""}</div>
@@ -185,11 +145,14 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }
+      .ver { display:block; margin-top:3px; font-size:.72rem; letter-spacing:.02em;
+             color:color-mix(in srgb, var(--secondary-text-color) 75%, transparent); }
       .out { text-align:right; color:var(--primary-text-color); }
       .out b { font-size:1.6rem; font-weight:300; letter-spacing:-.03em; }
       .out span { display:block; font-size:.78rem; color:var(--secondary-text-color); }
       .kpis { display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap; }
       .rooms { display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+      .room.static { cursor:default; }
       .room { display:flex; flex-direction:column; gap:2px; padding:14px; border-radius:20px; cursor:pointer; min-height:130px;
         background: color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
         border: 1px solid color-mix(in srgb, var(--tone) 18%, transparent); transition: transform .15s, background .2s; }
@@ -217,7 +180,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
-          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}</div></div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION}</span></div></div>
         ${outT !== undefined && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">
@@ -229,14 +192,8 @@ export class RaumklimaOverviewCard extends HTMLElement {
         ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
       </div>
-      ${this._mon && this._hass.states[this._mon] ? this._monitorPanel(this._hass.states[this._mon]) : `<div class="rooms">${rows.map(row).join("")}</div>`}
+      <div class="rooms">${rows.map(row).join("")}</div>
     </ha-card>`;
-    this.shadowRoot.querySelectorAll("[data-mon]").forEach((b) => b.addEventListener("click", () => {
-      this._mon = b.dataset.mon;
-      this._render();
-    }));
-    const backMon = this.shadowRoot.querySelector("[data-monback]");
-    if (backMon) backMon.addEventListener("click", () => { this._mon = null; this._render(); });
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) =>
       b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
     this.shadowRoot.querySelectorAll("[data-nav]").forEach((el) => el.addEventListener("click", () => {

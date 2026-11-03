@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.42.3 – 2026-11-03
+
+### Behoben
+- **Überwachungskarte zeigt keinen Heizkörper mehr:** Die Kachel „Heizkörper –" ist bei Räumen ohne
+  Thermostat entfallen.
+- **Klick auf eine Überwachungskachel öffnet nichts mehr:** Seit die große Karte im Raster steht, war
+  die zusätzliche Detailansicht doppelt (und ohne eigene Gestaltung). Die Kachel ist reine Anzeige.
+
+## 0.42.2 – 2026-11-03
+
+### Behoben
+- **„Fehler: rkLayoutChanged is not defined“ beim Speichern der Darstellung:** Die Funktion war
+  vorhanden, aber im Einstellungs-Modul nicht importiert. Speichern von Reihenfolge, Größe und Farbe
+  funktioniert wieder.
+
+## 0.42.1 – 2026-11-03
+
+### Neu
+- **Versionsstand in der Übersicht:** unter der Räume-Zeile steht klein „Raumklima 0.42.1“ – so ist
+  ohne Umweg erkennbar, welcher Stand läuft (hilft bei Cache-Fragen und Fehlermeldungen).
+
 ## 0.42.0 – 2026-11-03
 
 ### Neu

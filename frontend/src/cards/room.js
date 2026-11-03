@@ -168,7 +168,7 @@ export class RaumklimaCard extends HTMLElement {
         : "",
       a.outdoor_temperature !== undefined && a.outdoor_temperature !== null
         ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
-      stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
+      mon ? "" : stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
       // „Offset" gibt es nur, wenn das Gerät eine Offset-Entität hat. Sonst regelt
       // Raumklima über den Sollwert – dann zeigen wir die Abweichung Fühler↔Thermostat.
       (() => {

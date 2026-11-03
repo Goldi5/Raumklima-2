@@ -1,4 +1,4 @@
-/* Raumklima 0.42.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.42.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1349,7 +1349,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.42.0";
+  var RK_VERSION = "0.42.3";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1670,6 +1670,12 @@
   function rkLayoutRemember(layout, home) {
     if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
   }
+  function rkLayoutChanged(home) {
+    try {
+      window.dispatchEvent(new CustomEvent("raumklima-layout", { detail: { home: String(home || "") } }));
+    } catch (e) {
+    }
+  }
   function rkOnLayoutChanged(handler) {
     const fn = (e) => handler(e && e.detail && e.detail.home || "");
     window.addEventListener("raumklima-layout", fn);
@@ -1989,30 +1995,6 @@
   .whyrow:first-of-type { border-top:0; }
   .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .whyrow .wl b { font-size:.9rem; font-weight:600; }
-  /* Große Ansicht für Überwachungsräume */
-  .mon { padding:18px 18px 14px; border-radius:20px;
-         background:color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
-         box-shadow: inset 3px 0 0 color-mix(in srgb, var(--tone) 60%, transparent); }
-  .monhead { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  .monback { display:flex; align-items:center; gap:4px; border:0; background:none; color:var(--secondary-text-color);
-             font:inherit; font-size:.85rem; cursor:pointer; padding:6px 8px; border-radius:10px; }
-  .monback:hover { background:color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
-  .montitle { flex:1; display:flex; flex-direction:column; }
-  .montitle b { font-size:1.1rem; }
-  .montitle span { font-size:.8rem; color:var(--secondary-text-color); }
-  .monbig { display:flex; align-items:center; gap:22px; margin:14px 0 6px; flex-wrap:wrap; }
-  .monbig .t { font-size:3.1rem; font-weight:300; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
-  .monbig .t i { font-size:1.4rem; font-style:normal; color:var(--secondary-text-color); }
-  .monbig .r { display:flex; flex-direction:column; gap:3px; max-width:62ch; }
-  .monbig .r b { font-size:.95rem; font-weight:600; }
-  .monbig .r span { font-size:.85rem; color:var(--secondary-text-color); }
-  .mstats { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-top:12px; }
-  .mstat { padding:10px 12px; border-radius:14px; background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
-  .mstat .ml { display:flex; align-items:center; gap:6px; font-size:.78rem; color:var(--secondary-text-color); }
-  .mstat .ml ha-icon { --mdc-icon-size:16px; }
-  .mstat .mv { font-size:1.05rem; font-weight:600; font-variant-numeric:tabular-nums; }
-  .monfoot { margin-top:12px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.4; }
-
   /* Zeitwähler (iOS-artig): zwei Räder, die einrasten */
   .timebtn { min-height:36px; padding:7px 14px; border-radius:12px; font:inherit; font-size:.88rem;
              font-variant-numeric:tabular-nums; cursor:pointer; color:inherit;
@@ -2307,7 +2289,7 @@
         a.dew_point !== void 0 && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
         a.valve_sensor === void 0 || a.valve_sensor ? stat("mdi:valve", ((a.settings || {}).extra_trvs || []).length ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === void 0 ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null) : "",
         a.outdoor_temperature !== void 0 && a.outdoor_temperature !== null ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
-        stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
+        mon ? "" : stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
         // „Offset" gibt es nur, wenn das Gerät eine Offset-Entität hat. Sonst regelt
         // Raumklima über den Sollwert – dann zeigen wir die Abweichung Fühler↔Thermostat.
         (() => {
@@ -2438,40 +2420,6 @@
       }).catch(() => {
       });
     }
-    // Überwachungsraum: große Ansicht mit allen vorhandenen Daten – ohne Thermostat.
-    _monitorPanel(st) {
-      const a = st.attributes || {};
-      const v = VENT[a.ventilation];
-      const prefix = this._config.strip_prefix ?? "";
-      const name = (a.friendly_name || "").replace(new RegExp("^" + escRe(prefix) + "\\s*"), "");
-      const tone = v && a.ventilation !== "ok" ? v.tone : "eco";
-      const stat = (icon, label, value) => `<div class="mstat"><div class="ml"><ha-icon icon="${icon}"></ha-icon>${t(label)}</div><div class="mv">${value}</div></div>`;
-      const why = a.ventilation === "please_open" ? a.ventilation_reason === "co2" ? t("CO₂ bei {c} ppm – ab 1000 ppm wird es stickig.", { c: fmt(a.co2, 0) }) : t("Feuchte bei {h} % – lüften senkt die Schimmelgefahr.", { h: fmt(a.current_humidity, 0) }) : v && a.ventilation !== "ok" ? t("Die Luft ist gerade nicht in Ordnung.") : t("Luft und Klima sind in Ordnung.");
-      return `<div class="mon" style="--tone:${toneVar(tone)}">
-      <div class="monhead">
-        <button class="monback" data-monback><ha-icon icon="mdi:arrow-left"></ha-icon>${t("Zurück")}</button>
-        <div class="montitle"><b>${name}</b><span>${t("Überwachung · kein Thermostat")}</span></div>
-        <span class="chip" style="--tone:${toneVar(tone)}"><ha-icon icon="${v ? v.icon : "mdi:eye-outline"}"></ha-icon>${v && a.ventilation !== "ok" ? v.label : t("Überwachung")}</span>
-      </div>
-      <div class="monbig">
-        <div class="t">${fmt(a.current_temperature)}<i>°</i></div>
-        <div class="r">
-          <b>${why}</b>
-          ${a.ventilation === "please_open" && a.recommended_minutes ? `<span>${t("Empfohlen: etwa {m} Minuten lüften.", { m: a.recommended_minutes })}</span>` : ""}
-          ${!a.humidity_sensor ? `<span>${t("Kein Feuchtefühler – bewertet nur die Temperatur.")}</span>` : ""}
-        </div>
-      </div>
-      <div class="mstats">
-        ${a.humidity_sensor ? stat("mdi:water-percent", "Feuchte", `${fmt(a.current_humidity, 0)} %`) : ""}
-        ${a.dew_point != null ? stat("mdi:water-thermometer", "Taupunkt", `${fmt(a.dew_point)}°`) : ""}
-        ${a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)} ppm`) : ""}
-        ${a.outdoor_temperature != null ? stat("mdi:weather-partly-cloudy", "Außen", `${fmt(a.outdoor_temperature)}° · ${fmt(a.outdoor_humidity, 0)} %`) : ""}
-        ${stat("mdi:window-open-variant", "Fenster", a.window_open ? t("offen") : t("zu"))}
-        ${a.occupied !== void 0 ? stat("mdi:account", "Anwesend", a.occupied ? t("jemand im Raum") : t("niemand")) : ""}
-      </div>
-      <div class="monfoot">${t("Dieser Raum hat kein Thermostat: Raumklima misst hier nur und gibt Hinweise. Geheizt wird über die Heizung, die diesen Raum versorgt.")}</div>
-    </div>`;
-    }
     _render() {
       if (!this._hass) return;
       const homeId = rkHomeId(this._hass, this._config);
@@ -2522,7 +2470,7 @@
         const wish = a.wish != null ? a.wish : a.temperature;
         const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
         const targetText = mon ? "" : off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
-        return `<div class="room" ${mon ? `data-mon="${r.entity_id}"` : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
+        return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => {
@@ -2541,11 +2489,14 @@
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }
+      .ver { display:block; margin-top:3px; font-size:.72rem; letter-spacing:.02em;
+             color:color-mix(in srgb, var(--secondary-text-color) 75%, transparent); }
       .out { text-align:right; color:var(--primary-text-color); }
       .out b { font-size:1.6rem; font-weight:300; letter-spacing:-.03em; }
       .out span { display:block; font-size:.78rem; color:var(--secondary-text-color); }
       .kpis { display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap; }
       .rooms { display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+      .room.static { cursor:default; }
       .room { display:flex; flex-direction:column; gap:2px; padding:14px; border-radius:20px; cursor:pointer; min-height:130px;
         background: color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
         border: 1px solid color-mix(in srgb, var(--tone) 18%, transparent); transition: transform .15s, background .2s; }
@@ -2573,7 +2524,7 @@
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
-          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}</div></div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION}</span></div></div>
         ${outT !== void 0 && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">
@@ -2585,17 +2536,8 @@
         ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
       </div>
-      ${this._mon && this._hass.states[this._mon] ? this._monitorPanel(this._hass.states[this._mon]) : `<div class="rooms">${rows.map(row).join("")}</div>`}
+      <div class="rooms">${rows.map(row).join("")}</div>
     </ha-card>`;
-      this.shadowRoot.querySelectorAll("[data-mon]").forEach((b) => b.addEventListener("click", () => {
-        this._mon = b.dataset.mon;
-        this._render();
-      }));
-      const backMon = this.shadowRoot.querySelector("[data-monback]");
-      if (backMon) backMon.addEventListener("click", () => {
-        this._mon = null;
-        this._render();
-      });
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
       this.shadowRoot.querySelectorAll("[data-nav]").forEach((el) => el.addEventListener("click", () => {
         history.pushState(null, "", el.dataset.nav);
