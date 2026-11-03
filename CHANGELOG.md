@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.46.2 – 2026-11-03
+
+### Behoben
+- **Wetterbericht im Verlauf nahm irgendeinen Anbieter.** Die Übersicht folgte ab 0.46.1 der
+  Einstellung, der Wetterbericht im Reiter *Verlauf* aber noch der ersten gefundenen Wetter-Entität –
+  auf einem System mit mehreren Anbietern war das eine ganz andere Quelle. Jetzt gilt auch dort die
+  Wetterquelle der Wohnung.
+
 ## 0.46.1 – 2026-11-03
 
 ### Behoben

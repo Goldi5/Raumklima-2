@@ -51,12 +51,22 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
     const layout = await rkLayout(hass, homeId).catch(() => null);
     const shown = rkLayoutApply(rooms, layout);
     shown.forEach((r, i) => { r.color = rkLayoutColor(layout, r.id) || ROOM_COLORS[i % ROOM_COLORS.length]; });
-    const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? undefined);
+    // Wetterquelle: die Einstellung der Wohnung, nicht irgendeine Wetter-Entität.
+    // (Vorher wurde die erste gefundene genommen – auf einem System mit mehreren Anbietern
+    // landete so z. B. der Formel-1-Ort im Wetterbericht.)
+    let weather = config.weather;
+    if (!weather && homeId) {
+      try {
+        const cfg = await hass.callWS({ type: "raumklima/config", home: homeId });
+        weather = (cfg && cfg.hub && cfg.hub.options && cfg.hub.options.weather_entity) || undefined;
+      } catch (e) { /* dann wie bisher */ }
+    }
+    if (!weather) weather = Object.keys(hass.states).find((id) => id.startsWith("weather."));
 
     const roomsView = {
       title: t("Räume"), path: "raeume", icon: "mdi:home-thermometer", type: "sections", max_columns: 3,
       sections: [
-        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
+        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
         // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
         // sie erscheinen nur als Kachel in der Übersicht.
         // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte

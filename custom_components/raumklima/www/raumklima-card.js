@@ -1,4 +1,4 @@
-/* Raumklima 0.46.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.46.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1413,7 +1413,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.46.1";
+  var RK_VERSION = "0.46.2";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -5604,7 +5604,15 @@
       shown.forEach((r, i) => {
         r.color = rkLayoutColor(layout, r.id) || ROOM_COLORS[i % ROOM_COLORS.length];
       });
-      const weather = config.weather || (Object.keys(hass.states).find((id) => id.startsWith("weather.")) ?? void 0);
+      let weather = config.weather;
+      if (!weather && homeId) {
+        try {
+          const cfg = await hass.callWS({ type: "raumklima/config", home: homeId });
+          weather = cfg && cfg.hub && cfg.hub.options && cfg.hub.options.weather_entity || void 0;
+        } catch (e) {
+        }
+      }
+      if (!weather) weather = Object.keys(hass.states).find((id) => id.startsWith("weather."));
       const roomsView = {
         title: t("Räume"),
         path: "raeume",
@@ -5612,7 +5620,7 @@
         type: "sections",
         max_columns: 3,
         sections: [
-          { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather: config.weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
+          { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
           // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
           // sie erscheinen nur als Kachel in der Übersicht.
           // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
