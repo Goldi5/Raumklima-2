@@ -583,7 +583,6 @@ export const EN = {
   "Leer · {v}°": "Empty · {v}°",
   "Von Hand · {v}°": "Manual · {v}°",
   "Frostschutz {v}°": "Frost {v}°",
-  "Ziel {v}°": "Target {v}°",
   "Einstellung suchen …": "Search settings …",
   "Kein Treffer – anderen Begriff versuchen": "No match – try another term",
   "{n} Einstellungen vom Standard abweichend": "{n} settings differ from the default",

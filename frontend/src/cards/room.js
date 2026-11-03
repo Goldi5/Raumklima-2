@@ -176,6 +176,10 @@ export class RaumklimaCard extends HTMLElement {
         if (a.offset !== undefined && a.offset !== null) {
           return stat("mdi:tune-variant", t("Offset"), `${a.offset > 0 ? "+" : ""}${fmt(a.offset)}°`, null, sib.offset);
         }
+        // Gelernte Abweichung (wird dauerhaft auf den Sollwert gerechnet) hat Vorrang.
+        if (a.calibration_mode === "target" && a.offset_auto != null && Math.abs(a.offset_auto) >= 0.1) {
+          return stat("mdi:tune-variant", t("Abgleich"), `${a.offset_auto > 0 ? "+" : ""}${fmt(a.offset_auto)}°`, Math.abs(a.offset_auto) >= 1 ? "warn" : null, null);
+        }
         if (a.calibration_mode === "target" && a.current_temperature != null && a.trv_temperature != null) {
           const d = a.current_temperature - a.trv_temperature;
           return stat("mdi:tune-variant", t("Abgleich"), `${d > 0 ? "+" : ""}${fmt(d)}°`, Math.abs(d) >= 1 ? "warn" : null, null);
@@ -189,16 +193,19 @@ export class RaumklimaCard extends HTMLElement {
     const notif = sib.notifications ? this._hass.states[sib.notifications] : null;
     const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
 
+    // Status-Hinweis: Gerätesollwert weicht ab – mit dem angewendeten Abgleich.
+    const calOff = a.offset != null ? a.offset : a.offset_auto;
+    const trvNote = !mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3
+      ? (calOff != null && Math.abs(calOff) >= 0.1
+        ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) })
+        : t("Thermostat {v}°", { v: fmt(a.trv_target) }))
+      : "";
     this._html = `<style>${STYLES}</style>
       <ha-card class="rcard" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${!mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3
-            ? ` · ${a.offset != null && Math.abs(a.offset) >= 0.1
-              ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (a.offset > 0 ? "+" : "") + fmt(a.offset) })
-              : t("Thermostat {v}°", { v: fmt(a.trv_target) })}`
-            : ""}</span>
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${trvNote}</span>
           ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}

@@ -217,6 +217,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             e for e in (self.config.get(CONF_EXTRA_TRVS) or []) if e and e != self.trv
         ]
         self.cal_mode: str = self.config[CONF_CALIBRATION_MODE]
+        # Geglättete Abweichung „Thermostat misst − Raumfühler misst“.
+        # Wird gelernt und bleibt erhalten, auch wenn der Fühler lange nicht meldet (Livisi/HMIP).
+        self.shift: float = 0.0
         self.cal_entity: str | None = self.config.get(CONF_CALIBRATION_ENTITY)
         if self.cal_mode == CAL_OFFSET and not self.cal_entity:
             _LOGGER.warning(
@@ -321,6 +324,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.window_logic = bool(stored.get("window_logic", self.window_logic))
             self.trv_on_preset = stored.get("trv_on_preset")
             self.preset_learned = stored.get("preset_learned")
+            if stored.get("shift") is not None:
+                self.shift = float(stored.get("shift") or 0.0)
             self.heatup.load(stored.get("heatup"))
         elif self.trv_available():
             # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
@@ -415,6 +420,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "window_logic": self.window_logic,
             "trv_on_preset": self.trv_on_preset,
             "preset_learned": self.preset_learned,
+            "shift": self.shift,
             "vent": self.vent.export() if self.vent else None,
             "heatup": self.heatup.dump(),
         }
@@ -590,6 +596,29 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
 
 
+
+    def _update_shift(self) -> None:
+        """Abweichung zwischen Thermostat- und Raumfühler nachführen und dauerhaft merken.
+
+        Die Livisi/HMIP-Thermostate regeln auf ihren eigenen Fühler. Liegt der um 1,2 K unter dem
+        Raumfühler, muss der Sollwert um 1,2 K tiefer gesetzt werden – sonst heizt der Raum über.
+        Früher wurde das nur im Moment einer Messung gerechnet; meldet der Fühler danach lange nicht
+        (Batteriegeräte), blieb der unkompensierte Wert stehen.
+        """
+        ext = self._ext_value
+        trv = self.trv_temperature
+        if ext is None or trv is None:
+            return
+        diff = trv - ext
+        if abs(diff) > 6.0:  # unplausibel (Fühler defekt, Fenster offen) – nicht übernehmen
+            return
+        diff = max(-4.0, min(4.0, diff))
+        # Beim ersten Mal direkt übernehmen, danach sanft nachführen.
+        new = round(diff if self.shift == 0.0 else self.shift * 0.7 + diff * 0.3, 2)
+        if abs(new - self.shift) < 0.05:
+            return
+        self.shift = new
+        self._save()
 
     @property
     def sensor_ok(self) -> bool:
@@ -1038,6 +1067,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         # Vor check_all: bestätigt dieses Update einen eigenen Befehl, sind die
         # Jobs noch offen und es wird nicht als manuelle Änderung gewertet.
         self._detect_manual_change(old, new)
+        self._update_shift()
         self.sync.check_all()
         if self.cal_mode == CAL_OFFSET:
             if old.attributes.get("current_temperature") != new.attributes.get(

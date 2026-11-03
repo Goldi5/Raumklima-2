@@ -128,3 +128,12 @@ def test_fensterzustand_aus_cover() -> None:
     assert window_open_state("binary_sensor.fenster", SimpleNamespace(state="on", attributes={})) == "on"
     assert window_open_state("binary_sensor.fenster", SimpleNamespace(state="off", attributes={})) == "off"
     assert window_open_state("cover.luke", SimpleNamespace(state="unavailable", attributes={})) is None
+
+
+def test_abgleich_wird_auf_den_sollwert_gerechnet() -> None:
+    """Livisi/HMIP: Gerät misst kälter als der Raum – Sollwert muss tiefer gesetzt werden."""
+    from custom_components.raumklima.logic import clamp, round_step
+
+    target, shift = 18.0, -1.2
+    # 16,8 wird auf die Gerätestufe 0,5 gerundet → 17,0
+    assert clamp(round_step(target + shift, 0.5), 6.0, 30.0) == 17.0

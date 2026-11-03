@@ -583,7 +583,6 @@ export const FR = {
   "Leer · {v}°": "Vide · {v}°",
   "Von Hand · {v}°": "Manuel · {v}°",
   "Frostschutz {v}°": "Hors gel {v}°",
-  "Ziel {v}°": "Consigne {v}°",
   "Einstellung suchen …": "Rechercher un réglage …",
   "Kein Treffer – anderen Begriff versuchen": "Aucun résultat – essayez un autre terme",
   "{n} Einstellungen vom Standard abweichend": "{n} réglages diffèrent de la valeur par défaut",

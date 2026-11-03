@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.45.0 – 2026-11-03
+
+### Behoben
+- **Abgleich dauerhaft statt nur im Messmoment (Livisi/HMIP):** Der Versatz zwischen Thermostat- und
+  Raumfühler wird jetzt gelernt, geglättet und **gespeichert**; er wirkt bei jedem Schreibvorgang auf den
+  Sollwert. Bisher wurde er nur berechnet, wenn gerade ein Messwert eintraf – meldeten die batteriebetriebenen
+  Fühler danach lange nicht, blieb der unkompensierte Sollwert stehen und der Raum heizte über das Ziel.
+  Beim ersten Wert wird der Versatz direkt übernommen, danach mit 30 % nachgeführt; unplausible Werte
+  (über 6 K) werden ignoriert, der Versatz ist auf ±4 K begrenzt.
+- Der gelernte Versatz steht als Attribut `offset_auto` am Raum und in der Kachel „Abgleich“.
+
 ## 0.44.1 – 2026-11-03
 
 ### Geändert

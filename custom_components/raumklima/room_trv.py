@@ -47,10 +47,10 @@ from .decision_log import (
 )
 from .logic import (
     calc_offset,
-    calc_target_setpoint,
     choose_on_preset,
     clamp,
     is_valid,
+    round_step,
     to_float,
     values_match,
 )
@@ -261,15 +261,11 @@ class TrvMixin:
         )
 
     def _desired_setpoint(self) -> float:
+        self._update_shift()  # Abgleich vor dem Rechnen auffrischen
         target = self.effective_target
-        if self.cal_mode == CAL_TARGET and self.sensor_ok:
-            return calc_target_setpoint(
-                target,
-                self._ext_value,
-                self.trv_temperature,
-                low=self.trv_min,
-                high=self.trv_max,
-            )
+        if self.cal_mode == CAL_TARGET:
+            # Gelernten Abgleich immer anwenden – nicht nur, wenn gerade ein Messwert eintrifft.
+            return clamp(round_step(target + self.shift, 0.5), self.trv_min, self.trv_max)
         return clamp(target, self.trv_min, self.trv_max)
 
     async def _call_climate(self, service: str, **data: Any) -> None:
