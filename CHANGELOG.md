@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.39.7 – 2026-11-03
+
+### Geändert
+- **Einstellungen in voller Breite:** alle Gruppen untereinander, keine Spalten mehr.
+- **Zeilen in Tabellen-Optik:** Beschriftung links, Wert und Bedienung rechts auf einer gemeinsamen
+  Kante, gleich breite Ziffern, feine Trennlinien statt Karten pro Zeile. Stepper haben eine feste
+  Breite, damit alle −/+ Knöpfe untereinander stehen.
+
 ## 0.39.6 – 2026-11-03
 
 ### Geändert

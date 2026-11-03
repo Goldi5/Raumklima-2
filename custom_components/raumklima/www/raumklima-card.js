@@ -1,4 +1,4 @@
-/* Raumklima 0.39.6 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.39.7 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1243,7 +1243,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.39.6";
+  var RK_VERSION = "0.39.7";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1746,7 +1746,17 @@
   .grp { padding:18px 20px; border-radius:20px; }
   .gh { gap:12px; margin-bottom:6px; }
   .gh .ic { width:38px; height:38px; border-radius:12px; }
-  .row { min-height:48px; padding:12px 0; gap:14px; }
+  /* Tabellen-Optik: Label links, Wert/Bedienung rechts auf einer gemeinsamen Kante,
+     Ziffern gleich breit, feine Trennlinien zwischen den Zeilen. */
+  .row { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center;
+         column-gap:28px; row-gap:6px; min-height:52px; padding:12px 2px;
+         border-top:1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .row:first-of-type { border-top:0; }
+  .row > :not(.l) { justify-self:end; }
+  .row .v { font-variant-numeric:tabular-nums; }
+  .row > .stepper { width:190px; }
+  .row > .stepper span { flex:1; }
+  .row > .chips { max-width:100%; }
   .row .l { font-size:.98rem; line-height:1.3; max-width:58%; }
   .row small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.3; }
   .row .chips { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
@@ -1787,12 +1797,9 @@
   .railbtn.on { background: color-mix(in srgb, var(--rk-heat) 16%, transparent); color:var(--primary-text-color); }
   .railbtn.empty { display:none; }
   .nosearch { padding:24px 8px; text-align:center; color:var(--secondary-text-color); font-size:.95rem; }
-  /* Ein durchgehender Satzspiegel: zwei gleich breite Spalten, die sich in der Höhe
-     ausgleichen (Spaltenfluss). So entstehen keine halb leeren Reihen und keine
-     unterschiedlich breiten Karten. Unter 900 px Kartenbreite: eine Spalte. */
-  .groups { columns: 1; column-gap: 20px; margin-top: 14px; }
-  .grp { break-inside: avoid; margin: 0 0 20px; }
-  @container (min-width: 900px) { .groups { columns: 2; } .groups.solo { columns: 1; } }
+  /* Ein Satzspiegel: alle Gruppen in voller Breite untereinander. */
+  .groups { columns: 1; margin-top: 14px; }
+  .grp { margin: 0 0 18px; }
   @container (min-width: 720px) { .groups { grid-template-columns: 1fr 1fr; } }
   @container (min-width: 1000px) { .grp.cols .rws { columns: 2; column-gap: 56px; } .grp.cols .row { break-inside: avoid; } }
   .grp { border-radius:24px; padding:20px 22px; background: color-mix(in srgb, var(--g, var(--rk-off)) 7%, transparent); border:1px solid color-mix(in srgb, var(--g, var(--rk-off)) 14%, transparent); min-width:0; }
