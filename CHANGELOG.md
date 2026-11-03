@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.37.1 – 2026-11-03
+
+### Behoben
+- **Ventilsensor: gemeinsamer Namensstamm zählt jetzt zuerst** (#15). Thermostat
+  `climate.danfoss_ally_buro_mike` und Sensor `sensor.danfoss_ally_buro_mike_valve_opening` gehören
+  offensichtlich zusammen – dieser Vergleich fehlte. Er läuft jetzt vor Bereich und Gerätename; bei
+  mehreren Treffern gewinnt der längste gemeinsame Namensanfang.
+
 ## 0.37.0 – 2026-11-03
 
 ### Behoben

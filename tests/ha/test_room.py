@@ -676,6 +676,29 @@ async def test_fuehler_gilt_nicht_als_ausgefallen_nur_weil_der_wert_alt_ist(hass
     assert state is not None and state.attributes.get("status") != "sensor_unavailable"
 
 
+async def test_ventilsensor_ueber_gemeinsamen_namensstamm(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """climate.danfoss_ally_buro_mike ↔ sensor.danfoss_ally_buro_mike_valve_opening (Issue #15)."""
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    devs = dr.async_get(hass)
+    regs = er.async_get(hass)
+
+    trv_dev = devs.async_get_or_create(config_entry_id=room.entry_id, identifiers={("demo", "st1")}, name="Danfoss Ally Büro Mike")
+    regs.async_get_or_create("climate", "demo", "st1c", suggested_object_id="danfoss_ally_buro_mike", device_id=trv_dev.id)
+    valve_dev = devs.async_get_or_create(config_entry_id=room.entry_id, identifiers={("demo", "st1v")}, name="Danfoss Ventilplatine")
+    regs.async_get_or_create(
+        "sensor", "demo", "st1s", suggested_object_id="danfoss_ally_buro_mike_valve_opening", device_id=valve_dev.id
+    )
+    hass.states.async_set("sensor.danfoss_ally_buro_mike_valve_opening", "42", {"unit_of_measurement": "%"})
+    ctrl.trv = "climate.danfoss_ally_buro_mike"
+
+    assert ctrl._find_valve_sensor() == "sensor.danfoss_ally_buro_mike_valve_opening"
+
+
 async def test_ventilsensor_ueber_bereich_des_geraets(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Der Bereich steht am Gerät, nicht an der Entität – darüber muss die Suche greifen."""
     from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er

@@ -41,6 +41,24 @@ from .stats import RoomSample
 _LOGGER = logging.getLogger(__name__)
 
 
+def _entity_stem(entity_id: str) -> str:
+    """Namensstamm einer Entität: ``climate.danfoss_ally_buro_mike`` → ``danfoss_ally_buro_mike``."""
+    obj = str(entity_id or "").split(".", 1)[-1]
+    for suffix in ("_thermostat", "_trv", "_valve", "_climate", "_heizkorper", "_heizkoerper"):
+        if obj.endswith(suffix):
+            obj = obj[: -len(suffix)]
+    return obj
+
+
+def _common_prefix(a: str, b: str) -> int:
+    n = 0
+    for x, y in zip(a, b, strict=False):
+        if x != y:
+            break
+        n += 1
+    return n
+
+
 def _name_related(candidate: str, target: str) -> bool:
     """Gehören zwei Gerätenamen zusammen? („Danfoss Ally Büro" vs. „Danfoss Ally Büro Valve")"""
     a = (candidate or "").strip().lower()
@@ -92,6 +110,21 @@ class HealthMixin:
             hit = pick(er.async_entries_for_device(registry, trv_entry.device_id))
             if hit:
                 return hit
+        # Gleicher Namensstamm in der entity_id: der stärkste Hinweis überhaupt
+        # (climate.danfoss_ally_buro_mike ↔ sensor.danfoss_ally_buro_mike_valve_opening).
+        stem = _entity_stem(self.trv)
+        if len(stem) >= 4:
+            related = [
+                e
+                for e in registry.entities.values()
+                if (other := _entity_stem(e.entity_id)) and other != stem and (other.startswith(stem) or stem.startswith(other))
+            ]
+            # der längste gemeinsame Namensanfang gewinnt (bei mehreren Kandidaten)
+            related.sort(key=lambda e: -_common_prefix(_entity_stem(e.entity_id), stem))
+            hit = pick(related)
+            if hit:
+                return hit
+
         device = devices.async_get(trv_entry.device_id) if trv_entry.device_id else None
         trv_name = ((device.name_by_user or device.name) if device else "") or ""
 
