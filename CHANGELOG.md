@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.39.6 – 2026-11-03
+
+### Geändert
+- **Durchgehender Satzspiegel in den Einstellungen:** zwei gleich breite Spalten, die sich in der Höhe
+  ausgleichen (kein Raster mit halb leeren Reihen mehr). Ist nur eine Gruppe sichtbar, steht sie allein
+  und mittig in voller Breite.
+
 ## 0.39.5 – 2026-11-03
 
 ### Geändert

@@ -884,6 +884,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // Ist nur eine Gruppe sichtbar, soll sie die volle Breite nutzen (sonst klafft rechts eine Lücke).
     const visible = secs.filter((el) => el.style.display !== "none");
     secs.forEach((el) => el.classList.toggle("solo", visible.length === 1 && el.style.display !== "none"));
+    root.querySelector(".groups")?.classList.toggle("solo", visible.length === 1);
     root.querySelectorAll(".railbtn").forEach((b) => {
       const g = b.dataset.g;
       b.classList.toggle("empty", !present.has(g));
