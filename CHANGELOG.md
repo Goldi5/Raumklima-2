@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+Sammelstelle für den nächsten Release. Hier landen Änderungen, bis sie zu einer Version
+zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
+
+
+## 0.38.0 – 2026-11-03
+
+### Behoben
+- **Ventilstellung blieb leer, obwohl der Sensor existiert** (#15): Der Sensor wurde nur einmal beim
+  Einrichten gesucht. MQTT/Zigbee legen die Entität aber oft erst danach an – danach wurde nie wieder
+  gesucht. Jetzt wird bei jedem Abgleich (alle 10 Minuten) nachgesehen, solange keiner gefunden ist.
+  Die Raumkarte zeigt die Kachel „Ventil" außerdem nur noch, wenn es überhaupt einen Sensor gibt
+  (Livisi-Thermostate liefern keine Ventilstellung).
+- **Schrift im Temperaturkreis lief über den Bogen** (iPad/Handy): Text ist jetzt in der Breite
+  begrenzt, bricht um und skaliert mit dem Kreis mit.
+
+### Geändert
+- Releases werden ab jetzt **gesammelt**: Änderungen stehen unter „Unreleased" und werden in einem Zug
+  veröffentlicht, statt nach jeder Korrektur.
+
 ## 0.37.1 – 2026-11-03
 
 ### Behoben

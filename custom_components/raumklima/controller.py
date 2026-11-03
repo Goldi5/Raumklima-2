@@ -1002,6 +1002,15 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     @callback
     def _on_reconcile(self, _now: datetime) -> None:
         """Sicherheitsnetz: Fenster neu bewerten und Soll-Zustand abgleichen."""
+        if self.valve_sensor is None:
+            # MQTT/Zigbee legen die Ventilstellung oft erst nach dem Start an – beim Setup war die
+            # Entität noch nicht da, und bisher wurde nie wieder gesucht (Issue #15).
+            found = self._find_valve_sensor()
+            if found:
+                self.valve_sensor = found
+                self._unsubs.append(
+                    async_track_state_change_event(self.hass, [found], self._on_state_change)
+                )
         for entity in self.windows:
             state = self.hass.states.get(entity)
             if state and is_valid(state.state):

@@ -1,4 +1,4 @@
-/* Raumklima 0.37.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.38.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1193,7 +1193,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.37.1";
+  var RK_VERSION = "0.38.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1414,7 +1414,7 @@
   .since ha-icon { --mdc-icon-size:16px; }
   .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
   .since.occ.in { color:var(--rk-ok); }
-  .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; }
+  .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; container-type: inline-size; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }
   .fill { stroke: var(--tone); transition: stroke-dasharray .6s ease, stroke .6s; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--tone) 55%, transparent)); }
@@ -1422,10 +1422,11 @@
   .fill.muted { stroke: var(--rk-off); filter:none; opacity:.5; }
   .scale { font-size:10px; fill: var(--secondary-text-color); }
   .tlabel { font-size:11px; font-weight:600; fill: var(--tone); }
-  .center { text-align:center; z-index:1; margin-top:-6px; }
-  .now { font-size:3.2rem; font-weight:300; letter-spacing:-.04em; line-height:1; font-variant-numeric: tabular-nums; color:var(--primary-text-color); }
-  .now small { font-size:1.2rem; vertical-align: super; margin-left:2px; color:var(--secondary-text-color); }
-  .target { margin-top:6px; font-size:.9rem; color:var(--secondary-text-color); font-variant-numeric: tabular-nums; }
+  /* Text bleibt IM Ring: Breite begrenzen und umbrechen, sonst schneidet er den Bogen (iPad/Handy). */
+  .center { text-align:center; z-index:1; margin-top:-6px; max-width:58%; min-width:0; }
+  .now { font-size:2.9rem; font-size:clamp(2.1rem, 17cqw, 3.1rem); font-weight:300; letter-spacing:-.04em; line-height:1; font-variant-numeric: tabular-nums; color:var(--primary-text-color); }
+  .now small { font-size:.42em; vertical-align: super; margin-left:2px; color:var(--secondary-text-color); }
+  .target { margin-top:6px; font-size:.82rem; line-height:1.25; color:var(--secondary-text-color); font-variant-numeric: tabular-nums; text-wrap: balance; overflow-wrap:anywhere; }
   .target b { color:var(--primary-text-color); font-weight:600; }
   .ctrl { display:flex; justify-content:center; align-items:center; gap:18px; margin-top:4px; }
   button.round { all:unset; cursor:pointer; width:48px; height:48px; border-radius:50%; display:grid; place-items:center;
@@ -1966,7 +1967,7 @@
         a.humidity_sensor ? stat("mdi:water-percent", t("Feuchte"), `${fmt(a.current_humidity, 0)} %`, humTone(a.current_humidity), sib.ventilation) : "",
         a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)}<small>ppm</small>`, a.co2 >= 1400 ? "cold" : a.co2 >= 1e3 ? "warn" : "ok") : "",
         a.dew_point !== void 0 && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
-        stat("mdi:valve", ((a.settings || {}).extra_trvs || []).length ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === void 0 ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null),
+        a.valve_sensor === void 0 || a.valve_sensor ? stat("mdi:valve", ((a.settings || {}).extra_trvs || []).length ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === void 0 ? "–" : `${fmt(a.valve_position, 0)} %`, a.valve_position > 0 ? "heat" : null) : "",
         a.outdoor_temperature !== void 0 && a.outdoor_temperature !== null ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null) : "",
         stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null),
         // „Offset" gibt es nur, wenn das Gerät eine Offset-Entität hat. Sonst regelt

@@ -266,7 +266,7 @@ export const STYLES = `
   .since ha-icon { --mdc-icon-size:16px; }
   .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
   .since.occ.in { color:var(--rk-ok); }
-  .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; }
+  .dial { position:relative; display:grid; place-items:center; margin:8px auto 4px; width:min(240px,100%); aspect-ratio:1/0.82; container-type: inline-size; }
   .dial svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .track { stroke: color-mix(in srgb, var(--primary-text-color) 9%, transparent); }
   .fill { stroke: var(--tone); transition: stroke-dasharray .6s ease, stroke .6s; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--tone) 55%, transparent)); }
@@ -274,10 +274,11 @@ export const STYLES = `
   .fill.muted { stroke: var(--rk-off); filter:none; opacity:.5; }
   .scale { font-size:10px; fill: var(--secondary-text-color); }
   .tlabel { font-size:11px; font-weight:600; fill: var(--tone); }
-  .center { text-align:center; z-index:1; margin-top:-6px; }
-  .now { font-size:3.2rem; font-weight:300; letter-spacing:-.04em; line-height:1; font-variant-numeric: tabular-nums; color:var(--primary-text-color); }
-  .now small { font-size:1.2rem; vertical-align: super; margin-left:2px; color:var(--secondary-text-color); }
-  .target { margin-top:6px; font-size:.9rem; color:var(--secondary-text-color); font-variant-numeric: tabular-nums; }
+  /* Text bleibt IM Ring: Breite begrenzen und umbrechen, sonst schneidet er den Bogen (iPad/Handy). */
+  .center { text-align:center; z-index:1; margin-top:-6px; max-width:58%; min-width:0; }
+  .now { font-size:2.9rem; font-size:clamp(2.1rem, 17cqw, 3.1rem); font-weight:300; letter-spacing:-.04em; line-height:1; font-variant-numeric: tabular-nums; color:var(--primary-text-color); }
+  .now small { font-size:.42em; vertical-align: super; margin-left:2px; color:var(--secondary-text-color); }
+  .target { margin-top:6px; font-size:.82rem; line-height:1.25; color:var(--secondary-text-color); font-variant-numeric: tabular-nums; text-wrap: balance; overflow-wrap:anywhere; }
   .target b { color:var(--primary-text-color); font-weight:600; }
   .ctrl { display:flex; justify-content:center; align-items:center; gap:18px; margin-top:4px; }
   button.round { all:unset; cursor:pointer; width:48px; height:48px; border-radius:50%; display:grid; place-items:center;

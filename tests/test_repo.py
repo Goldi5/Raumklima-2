@@ -14,8 +14,14 @@ def test_readme_version():
 
 
 def test_changelog_top_entry():
-    first = re.search(r"^## (\S+)", (ROOT / "CHANGELOG.md").read_text(), re.M)
-    assert first and first.group(1) == VERSION, "CHANGELOG.md: neuer Eintrag fehlt"
+    """Erster Versions-Eintrag passt zur Manifest-Version.
+
+    Ein „## Unreleased"-Block darf davor stehen: Änderungen werden gesammelt und erst
+    beim Release zu einer Version zusammengefasst.
+    """
+    entries = [m.group(1) for m in re.finditer(r"^## (\S+)", (ROOT / "CHANGELOG.md").read_text(), re.M)]
+    versions = [e for e in entries if e != "Unreleased"]
+    assert versions and versions[0] == VERSION, "CHANGELOG.md: neuer Eintrag fehlt"
 
 
 def test_card_version():
