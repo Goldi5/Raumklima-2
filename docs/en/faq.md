@@ -118,3 +118,19 @@ Open an [issue](https://github.com/Goldi5/Raumklima-2/issues) on GitHub and atta
 
 ### Can I sort the rooms in the dashboard?
 The order is **floor → area → name**, so you control it with floors and areas in Home Assistant (*Settings → Areas & zones*); rooms without a floor come last. To change it, add `sort: area` (by area) or `sort: name` (by name) to the dashboard config (`strategy: {type: custom:raumklima, sort: area}`).
+
+### My Tuya thermostat (TRV602Z) ignores the setpoint
+
+On these devices the **preset is the operating mode** – `system_mode` cannot be written:
+
+| Preset | What the device does |
+|---|---|
+| `on` | **manual** – heats to the setpoint that was sent (`system_mode: heat`) |
+| `auto` | built-in weekly schedule |
+| `eco` / `comfort` | the device's own temperature (`eco_temperature` / `comfort_temperature`) |
+| `off` / `antifrost` | off / frost protection |
+
+Raumklima recognises the preset and leaves an active heating preset alone. If the device sits on
+`auto`, `eco` or `comfort`, a different temperature applies than the one Raumklima sends – the health
+list reports it. In that case pick **`on`** on the device (or in Tuya/Z2M); you can also pin it per
+room under *Switching on with*.

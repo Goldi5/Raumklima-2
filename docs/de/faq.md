@@ -28,6 +28,22 @@ Ja – über *Einstellungen → Raum → Zeitplan*. Dort legst du Zeitfenster mi
 
 ## Die Heizung macht nicht, was ich will
 
+### Mein Tuya-Thermostat (TRV602Z) nimmt den Sollwert nicht an
+
+Bei diesen Geräten ist **das Preset der Betriebsmodus** – `system_mode` lässt sich nicht schreiben:
+
+| Preset | Was das Gerät macht |
+|---|---|
+| `on` | **manuell** – heizt auf den gesendeten Sollwert (`system_mode: heat`) |
+| `auto` | eingebauter Wochenplan |
+| `eco` / `comfort` | eigene Gerätetemperatur (`eco_temperature` / `comfort_temperature`) |
+| `off` / `antifrost` | aus bzw. Frostschutz |
+
+Raumklima erkennt das Preset selbst und lässt ein laufendes Heiz-Preset in Ruhe. Steht das Gerät
+aber auf `auto`, `eco` oder `comfort`, gilt dort eine andere Temperatur als die, die Raumklima
+schreibt – die Gesundheitsliste meldet das. Dann am Gerät (oder in der Tuya-/Z2M-Oberfläche)
+**`on`** wählen; in den Raum-Einstellungen lässt sich das unter *Einschalten mit* fest vorschreiben.
+
 ### Der Raum heizt nicht, obwohl es kalt ist.
 Schau auf die Raumkarte, dort steht der Grund:
 - **Heizpause:** Draußen ist es im Tagesmittel mild. Drücke **Heute heizen** (24 Stunden) oder stelle die Betriebsart auf **Immer heizen**.

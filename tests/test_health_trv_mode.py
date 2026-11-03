@@ -25,10 +25,15 @@ def test_handbetrieb_ist_in_ordnung() -> None:
 
 
 def test_dauer_preset_wird_erkannt() -> None:
-    issue = check_trv_mode("heat", "on")
+    issue = check_trv_mode("heat", "off")
     assert issue is not None
     assert issue.title == "Thermostat steht auf Dauerbetrieb"
     assert check_trv_mode("heat", "antifrost") is not None
+
+
+def test_on_ist_manueller_modus() -> None:
+    """Beim Tuya TRV602Z ist preset "on" der manuelle Heizmodus (system_mode heat)."""
+    assert check_trv_mode("heat", "on") is None
 
 
 def test_geraeteabschlag_wird_erkannt() -> None:

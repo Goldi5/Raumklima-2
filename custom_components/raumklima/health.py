@@ -23,7 +23,7 @@ RADIO_EVENTS = 3  # Ausfälle in 24 h
 TRV_SCHEDULE_MODES = ("auto",)
 TRV_SCHEDULE_PRESETS = ("auto", "schedule", "program", "programme", "timed", "timer")
 # Dauerzustände: das Gerät heizt dauerhaft oder gar nicht, egal was wir schreiben.
-TRV_FIXED_PRESETS = ("on", "off", "antifrost")
+TRV_FIXED_PRESETS = ("off", "antifrost")
 # Eigene Abschläge/Aufschläge im Gerät (Tuya: eco/comfort, Bosch: boost).
 TRV_OFFSET_PRESETS = ("eco", "comfort", "boost")
 WINDOW_OPEN_HOURS = 24.0
@@ -88,9 +88,9 @@ def check_trv_mode(mode: str | None, preset: str | None) -> Issue | None:
             SEV_WARN,
             tr("Thermostat steht auf Dauerbetrieb"),
             tr(
-                "Ein Dauer-Preset (an / aus / Frostschutz) überstimmt den Sollwert: das Ventil bleibt auf oder "
-                "zu, egal was Raumklima schreibt. Am Thermostat auf „Heat“ und das Preset auf „none“ oder "
-                "„manual“ stellen."
+                "Ein Dauer-Preset (aus / Frostschutz) überstimmt den Sollwert: das Ventil bleibt zu, egal was "
+                "Raumklima schreibt. Am Thermostat den manuellen Modus wählen („manual“, „heat“ oder bei "
+                "Tuya „on“)."
             ),
         )
     if preset in TRV_OFFSET_PRESETS:
@@ -99,9 +99,9 @@ def check_trv_mode(mode: str | None, preset: str | None) -> Issue | None:
             SEV_WARN,
             tr("Thermostat rechnet mit eigenem Abschlag"),
             tr(
-                "Presets wie „eco“, „comfort“ oder „boost“ verändern den Sollwert direkt im Gerät – Raumklima "
-                "regelt dann gegen einen Versatz, der nirgends auftaucht. Preset auf „none“ stellen, damit der "
-                "Sollwert von Raumklima 1:1 gilt."
+                "Presets wie „eco“, „comfort“ oder „boost“ setzen eine eigene Temperatur im Gerät – Raumklima "
+                "schreibt dann einen Sollwert, der dort gar nicht gilt. Auf den manuellen Modus stellen "
+                "(„manual“, „heat“ oder bei Tuya TRV602Z „on“)."
             ),
         )
     return None

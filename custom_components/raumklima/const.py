@@ -242,10 +242,11 @@ CALIBRATION_INTERVAL: Final = 600  # s
 SLOW_RETRY_INTERVAL: Final = 300  # s – nach max. Versuchen weiter alle 5 min
 PRESET_GRACE_SECONDS: Final = 60  # s – Sollwert-Änderungen nach Preset-Wechsel ignorieren
 
-# Bevorzugte "an"-Presets (Reihenfolge). "on" fehlt bewusst: bei Tuya-TRVs
-# wie dem TRV602Z bedeutet es "Ventil dauerhaft offen", nicht "regeln".
-ON_PRESET_CANDIDATES: Final = ["manual", "heat", "eco", "comfort", "none"]
-ON_PRESET_AVOID: Final = ["on", "off", "antifrost", "auto", "boost", "holiday", "away"]
+# Bevorzugte "an"-Presets (Reihenfolge). "on" steht hinten: bei vielen Geräten ist es der
+# manuelle Modus (Tuya TRV602Z: system_mode "heat"), bei anderen "Ventil dauerhaft offen".
+# Wo "manual"/"heat" angeboten werden, gewinnen sie.
+ON_PRESET_CANDIDATES: Final = ["manual", "heat", "eco", "comfort", "none", "on"]
+ON_PRESET_AVOID: Final = ["off", "antifrost", "auto", "boost", "holiday", "away"]
 CONF_ON_PRESET: Final = "on_preset"
 ON_PRESET_AUTO: Final = "auto_detect"
 

@@ -13,9 +13,9 @@ _ROWS: list[tuple[str, str, str]] = [
         "Le thermostat est en fonctionnement permanent",
     ),
     (
-        "Ein Dauer-Preset (an / aus / Frostschutz) überstimmt den Sollwert: das Ventil bleibt auf oder zu, egal was Raumklima schreibt. Am Thermostat auf „Heat“ und das Preset auf „none“ oder „manual“ stellen.",
-        "A permanent preset (on / off / frost protection) overrides the setpoint: the valve stays open or closed no matter what Raumklima sends. Set the thermostat to “Heat” and the preset to “none” or “manual”.",
-        "Un préréglage permanent (marche / arrêt / hors gel) écrase la consigne : la vanne reste ouverte ou fermée, quoi que Raumklima envoie. Réglez le thermostat sur « Heat » et le préréglage sur « none » ou « manual ».",
+        "Ein Dauer-Preset (aus / Frostschutz) überstimmt den Sollwert: das Ventil bleibt zu, egal was Raumklima schreibt. Am Thermostat den manuellen Modus wählen („manual“, „heat“ oder bei Tuya „on“).",
+        "A permanent preset (off / frost protection) overrides the setpoint: the valve stays closed no matter what RaumKlima sends. Choose the manual mode on the thermostat (“manual”, “heat”, or “on” for Tuya).",
+        "Un préréglage permanent (arrêt / hors gel) écrase la consigne : la vanne reste fermée, quoi que RaumKlima envoie. Choisissez le mode manuel sur le thermostat (« manual », « heat » ou « on » chez Tuya).",
     ),
     (
         "Thermostat rechnet mit eigenem Abschlag",
@@ -23,9 +23,9 @@ _ROWS: list[tuple[str, str, str]] = [
         "Le thermostat applique son propre décalage",
     ),
     (
-        "Presets wie „eco“, „comfort“ oder „boost“ verändern den Sollwert direkt im Gerät – Raumklima regelt dann gegen einen Versatz, der nirgends auftaucht. Preset auf „none“ stellen, damit der Sollwert von Raumklima 1:1 gilt.",
-        "Presets such as “eco”, “comfort” or “boost” change the setpoint inside the device – Raumklima then regulates against an offset that is nowhere visible. Set the preset to “none” so the setpoint is applied 1:1.",
-        "Les préréglages « eco », « comfort » ou « boost » modifient la consigne directement dans l’appareil – Raumklima régule alors avec un décalage invisible. Réglez le préréglage sur « none » pour que la consigne s’applique telle quelle.",
+        "Presets wie „eco“, „comfort“ oder „boost“ setzen eine eigene Temperatur im Gerät – Raumklima schreibt dann einen Sollwert, der dort gar nicht gilt. Auf den manuellen Modus stellen („manual“, „heat“ oder bei Tuya TRV602Z „on“).",
+        "Presets such as “eco”, “comfort” or “boost” use the device’s own temperature – Raumklima then sends a setpoint that does not apply. Switch to the manual mode (“manual”, “heat”, or “on” on the Tuya TRV602Z).",
+        "Les préréglages « eco », « comfort » ou « boost » utilisent la température propre de l’appareil – Raumklima envoie alors une consigne qui ne s’applique pas. Passez en mode manuel (« manual », « heat » ou « on » sur le TRV602Z de Tuya).",
     ),
     (
         "Thermostat arbeitet nach eigenem Zeitplan",

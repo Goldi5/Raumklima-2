@@ -39,6 +39,7 @@ from .const import (
     CONF_NIGHT_ALARM,
     CONF_NIGHT_END,
     CONF_NIGHT_START,
+    CONF_ON_PRESET,
     CONF_PREHEAT_KM,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
@@ -219,6 +220,7 @@ ROOM_CHANGES = vol.Schema(
                 vol.Length(max=SCHEDULE_MAX),
             ),
         ),
+        vol.Optional(CONF_ON_PRESET): vol.Any(None, str),
         vol.Optional(CONF_BOOST_TEMP): vol.All(vol.Coerce(float), vol.Range(BOOST_TEMP_MIN, BOOST_TEMP_MAX)),
         vol.Optional(CONF_BOOST_MINUTES): vol.All(vol.Coerce(int), vol.Range(BOOST_MINUTES_MIN, BOOST_MINUTES_MAX)),
     }

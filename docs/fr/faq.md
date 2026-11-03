@@ -121,3 +121,19 @@ Ouvrez une [issue](https://github.com/Goldi5/Raumklima-2/issues) sur GitHub et j
 
 ### Puis-je trier les pièces dans le tableau de bord ?
 L’ordre est **étage → zone → nom**, vous le pilotez donc avec les étages et les zones de Home Assistant (*Paramètres → Zones et étages*) ; les pièces sans étage viennent en dernier. Pour changer : `sort: area` (par zone) ou `sort: name` (par nom) dans la configuration du tableau de bord (`strategy: {type: custom:raumklima, sort: area}`).
+
+### Mon thermostat Tuya (TRV602Z) ignore la consigne
+
+Sur ces appareils, **le préréglage est le mode de fonctionnement** – `system_mode` n'est pas inscriptible :
+
+| Préréglage | Ce que fait l'appareil |
+|---|---|
+| `on` | **manuel** – chauffe jusqu'à la consigne envoyée (`system_mode: heat`) |
+| `auto` | programme hebdomadaire interne |
+| `eco` / `comfort` | température propre de l'appareil (`eco_temperature` / `comfort_temperature`) |
+| `off` / `antifrost` | arrêt / hors gel |
+
+Raumklima reconnaît le préréglage et ne touche pas à un préréglage de chauffe actif. Si l'appareil est
+sur `auto`, `eco` ou `comfort`, une autre température s'applique que celle envoyée par Raumklima – la
+liste de santé le signale. Choisissez alors **`on`** sur l'appareil (ou dans Tuya/Z2M) ; vous pouvez
+aussi l'imposer par pièce sous *Allumage avec*.

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.36.0 – 2026-11-03
+
+### Behoben
+- **Tuya-TRVs (TRV602Z) wurden im falschen Modus betrieben.** Der Modus steckt dort im *Preset*:
+  `preset: on` schaltet auf `system_mode: heat` (manuell, Sollwert gilt), `auto` = Geräte-Wochenplan,
+  `eco`/`comfort` = Geräte-eigene Temperaturen. Raumklima hat `on` bisher als „Ventil dauerhaft offen“
+  eingeschätzt und deshalb jeden manuellen Modus sofort auf `comfort`/`eco` zurückgeschrieben – der
+  gesendete Sollwert galt am Gerät nie. `on` zählt jetzt als Heiz-Preset, `manual`/`heat` bleiben
+  bevorzugt. Das An-Preset lässt sich zusätzlich je Raum in der Karte setzen (*Einschalten mit*).
+- Die Warnung „Thermostat steht auf Dauerbetrieb“ gilt nur noch für `off`/`antifrost`; `on` ist bei
+  Tuya der manuelle Heizmodus. Texte, Doku (de/en/fr) und FAQ-Eintrag zum TRV602Z nachgezogen.
+
 ## 0.35.0 – 2026-11-03
 
 ### Neu
