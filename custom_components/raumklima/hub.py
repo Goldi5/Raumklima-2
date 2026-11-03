@@ -51,6 +51,7 @@ from .planning import (
     SeasonState,
     TrackerFilter,
 )
+from .presence_profile import PresenceProfile
 from .reports import PdfReports
 from .shared import domain_data, iso, parse_dt
 from .sleep import SignalTracker, SleepLearner
@@ -135,6 +136,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self._blip_logged: datetime | None = None
         # Schlafenszeiten
         self.sleep = SleepLearner()
+        self.presence_profile = PresenceProfile()
         self.signals = SignalTracker()
         self._woke_night: str | None = None  # Nacht, in der Signale „aufgestanden“ gemeldet haben
 
@@ -213,6 +215,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
             if parsed and temp is not None:
                 self.samples.append((parsed, float(temp)))
         self.sleep.load(stored.get("sleep"))
+        self.presence_profile.load(stored.get("presence_profile"))
         sig = stored.get("signals") or {}
         self.signals.asleep = bool(sig.get("asleep", False))
         self.signals.bed_at = parse_dt(sig.get("bed_at"))
@@ -323,6 +326,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
             },
             "samples": [[iso(w), t] for w, t in self.samples if w >= cutoff],
             "sleep": self.sleep.dump(),
+            "presence_profile": self.presence_profile.dump(),
             "signals": {"asleep": self.signals.asleep, "bed_at": iso(self.signals.bed_at), "woke_night": self._woke_night},
         }
 
@@ -409,6 +413,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
             "last_present": iso(self.last_present),
             "preheat_by": self._preheat_by if self.stage == STAGE_PREHEAT else None,
             "presence_configured": self.presence_configured,
+            "presence_profile": self.presence_profile.summary(),
             "calendar": {"mode": self.calendar_mode, "summary": self.calendar_summary} if self.opt(CONF_CALENDAR) else None,
             "decision": self.decision,
             "heating_allowed": self.heating_allowed,

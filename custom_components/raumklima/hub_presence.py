@@ -74,6 +74,8 @@ class PresenceMixin:
 
     @callback
     def _on_presence_tick(self, _now: datetime) -> None:
+        # Anwesenheitsprofil: bei jedem Takt ein Messpunkt (nur ja/nein, keine Namen).
+        self.presence_profile.mark(_now, self.stage not in AWAY_STAGES and not self.vacation)
         self._evaluate_presence()
         if self.sleep_signals:
             self._handle_signal(self.signals.tick(dt_util.now()))
@@ -206,6 +208,8 @@ class PresenceMixin:
                 )
             )
         self._was_present = anyone
+        # Anwesenheitsprofil: nur „jemand da“ oder nicht – keine Namen.
+        self.presence_profile.mark(dt_util.now(), anyone and not self.vacation)
         if new != self.stage:
             old, self.stage = self.stage, new
             _LOGGER.info("Anwesenheit: %s → %s", old, new)

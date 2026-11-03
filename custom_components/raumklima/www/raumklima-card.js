@@ -1,4 +1,4 @@
-/* Raumklima 0.41.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.41.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -626,7 +626,16 @@
     "auf ~{v}": "up ~{v}",
     "ins Bett ~{v}": "to bed ~{v}",
     "noch zu wenige Nächte – 4 sind nötig": "not enough nights yet – 4 are needed",
-    "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} of 4 nights (bed) · {w} of 4 (getting up)"
+    "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} of 4 nights (bed) · {w} of 4 (getting up)",
+    "Anteil der Tage mit jemand zu Hause": "Share of days with someone at home",
+    "Anwesenheit am Tag": "Presence during the day",
+    "Uhr": "h",
+    "Uhrzeit": "Time",
+    "keine klare Zeit – meist niemand zu Hause": "no clear time – usually nobody at home",
+    "meist {a}–{b} jemand zu Hause": "usually someone at home {a}–{b}",
+    "schließen": "close",
+    "wird ab der ersten Woche sichtbar – nur ja/nein, nie wer": "appears after the first week – only yes/no, never who",
+    "Übernehmen": "Apply"
   };
 
   // src/i18n/fr.js
@@ -1255,7 +1264,16 @@
     "auf ~{v}": "lever ~{v}",
     "ins Bett ~{v}": "au lit ~{v}",
     "noch zu wenige Nächte – 4 sind nötig": "pas encore assez de nuits – 4 sont nécessaires",
-    "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} nuits sur 4 (coucher) · {w} sur 4 (lever)"
+    "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} nuits sur 4 (coucher) · {w} sur 4 (lever)",
+    "Anteil der Tage mit jemand zu Hause": "Part des jours avec quelqu'un à la maison",
+    "Anwesenheit am Tag": "Présence dans la journée",
+    "Uhr": "h",
+    "Uhrzeit": "Heure",
+    "keine klare Zeit – meist niemand zu Hause": "pas d'heure claire – généralement personne à la maison",
+    "meist {a}–{b} jemand zu Hause": "généralement quelqu'un à la maison de {a} à {b}",
+    "schließen": "fermer",
+    "wird ab der ersten Woche sichtbar – nur ja/nein, nie wer": "visible après la première semaine – seulement oui/non, jamais qui",
+    "Übernehmen": "Appliquer"
   };
 
   // src/i18n.js
@@ -1299,7 +1317,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.41.0";
+  var RK_VERSION = "0.41.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1939,6 +1957,34 @@
   .whyrow:first-of-type { border-top:0; }
   .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .whyrow .wl b { font-size:.9rem; font-weight:600; }
+  /* Zeitwähler (iOS-artig): zwei Räder, die einrasten */
+  .timebtn { min-height:36px; padding:7px 14px; border-radius:12px; font:inherit; font-size:.88rem;
+             font-variant-numeric:tabular-nums; cursor:pointer; color:inherit;
+             background:color-mix(in srgb, var(--primary-text-color) 6%, transparent);
+             border:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent); }
+  .tpick { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:60;
+           width:min(300px, 92vw); padding:14px 16px 16px; border-radius:20px;
+           background:var(--card-background-color, #fff); color:var(--primary-text-color);
+           box-shadow:0 18px 50px rgba(0,0,0,.28); }
+  .tpickhead { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .tpickbody { display:flex; align-items:center; justify-content:center; gap:6px; }
+  .twheel { height:120px; overflow-y:auto; scroll-snap-type:y mandatory; padding:40px 0; width:74px;
+            text-align:center; scrollbar-width:none; }
+  .twheel::-webkit-scrollbar { display:none; }
+  .twheel button { display:block; width:100%; height:40px; scroll-snap-align:center; border:0; background:none;
+                   font:inherit; font-size:1.25rem; color:var(--secondary-text-color); cursor:pointer;
+                   font-variant-numeric:tabular-nums; }
+  .twheel button.on { color:var(--primary-text-color); font-weight:600; font-size:1.45rem; }
+  .twheel.small { width:64px; }
+  .tcolon { font-size:1.3rem; color:var(--secondary-text-color); }
+  .tpickunit { font-size:.8rem; color:var(--secondary-text-color); }
+  .tpickfoot { display:flex; gap:8px; margin-top:10px; }
+  .tpickfoot .inp { flex:1; }
+
+  /* Anwesenheitsprofil: 96 Viertelstunden als Balken */
+  .pbars { display:flex; align-items:flex-end; gap:1px; height:46px; width:min(420px, 44vw); }
+  .pbars i { flex:1; min-width:1px; border-radius:1px 1px 0 0; background:var(--g, var(--rk-eco)); display:block; }
+
   /* Raumkacheln (Alle Räume auf einen Blick) */
   .roomgrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; }
   .rtile { display:flex; flex-direction:column; gap:2px; text-align:left; cursor:pointer;
@@ -3634,7 +3680,7 @@
         <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
         <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
       const hm = (v) => String(v || "").slice(0, 5);
-      const tf = (key, val) => `<input type="time" class="inp hm" step="900" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
+      const tf = (key, val) => `<button class="timebtn" data-timeopen="${key}" data-val="${hm(val)}" ${this._admin ? "" : "disabled"}>${hm(val) || "–:–"}</button>`;
       const notiRows = [
         this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
         this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
@@ -4038,7 +4084,76 @@
         const sub = parts.length ? `${t("{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)", { b: nBed, w: nWake })}${e.quiet_start ? ` · ${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}` : ""}` : t("noch zu wenige Nächte – 4 sind nötig");
         return this._row(t(label), this._v(parts.length ? parts.join(" · ") : t("sammelt noch"), !parts.length), sub);
       };
-      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", [line("weekday", "Werktags"), line("weekend", "Wochenende")].join(""));
+      const pp = st && st.presence_profile || {};
+      const days = pp.days || {};
+      const hasProfile = (days.weekday || 0) + (days.weekend || 0) > 0;
+      const bars = (arr, label) => this._row(
+        t(label),
+        this._presenceBars(arr),
+        this._presenceText(arr)
+      );
+      const profile = hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer"));
+      return this._grp(
+        t("Lernen & Warum"),
+        "mdi:chart-line",
+        "eco",
+        [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile].join("")
+      );
+    }
+    // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.
+    _timePop() {
+      const hh = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+      const mm = ["00", "15", "30", "45"];
+      return `<div class="tpick" data-tpick hidden>
+      <div class="tpickhead"><b>${t("Uhrzeit")}</b><button class="mini x" data-tclose title="${t("schließen")}">✕</button></div>
+      <div class="tpickbody">
+        <div class="twheel" data-twh>${hh.map((h, i) => `<button data-th="${i}" class="${i === 0 ? "on" : ""}">${h}</button>`).join("")}</div>
+        <span class="tcolon">:</span>
+        <div class="twheel small" data-twmn>${mm.map((m, i) => `<button data-tm="${i}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
+        <span class="tpickunit">${t("Uhr")}</span>
+      </div>
+      <div class="tpickfoot">
+        <input class="inp" data-tin inputmode="numeric" maxlength="5" placeholder="HH:MM">
+        <button class="btn primary" data-tok>${t("Übernehmen")}</button>
+      </div>
+    </div>`;
+    }
+    _openTime(key, val) {
+      const pop = this.shadowRoot.querySelector("[data-tpick]");
+      if (!pop) return;
+      pop.hidden = false;
+      const [hRaw, mRaw] = String(val || "07:00").split(":");
+      const h = Math.max(0, Math.min(23, parseInt(hRaw, 10) || 0));
+      const m = Math.max(0, Math.min(3, Math.round((parseInt(mRaw, 10) || 0) / 15)));
+      this._tp = { key, h, m };
+      pop.querySelector("[data-twh]").scrollTop = h * 40;
+      pop.querySelector("[data-twmn]").scrollTop = m * 40;
+      pop.querySelector("[data-tin]").value = `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
+    }
+    _timeSync(pop) {
+      if (!this._tp) return;
+      const h = Math.round(pop.querySelector("[data-twh]").scrollTop / 40);
+      const m = Math.round(pop.querySelector("[data-twmn]").scrollTop / 40);
+      this._tp.h = Math.max(0, Math.min(23, h));
+      this._tp.m = Math.max(0, Math.min(3, m));
+      pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
+      pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
+      pop.querySelector("[data-tin]").value = `${String(this._tp.h).padStart(2, "0")}:${String(this._tp.m * 15).padStart(2, "0")}`;
+    }
+    // 24-h-Balken: 96 Viertelstunden, Höhe = Anteil der Tage mit Anwesenheit
+    _presenceBars(arr) {
+      if (!Array.isArray(arr) || !arr.length) return this._v("–", true);
+      const cells = arr.map((v) => `<i style="height:${Math.max(8, Math.round(v * 100))}%;opacity:${(0.18 + v * 0.82).toFixed(2)}"></i>`).join("");
+      return `<div class="pbars" title="${t("Anteil der Tage mit jemand zu Hause")}">${cells}</div>`;
+    }
+    _presenceText(arr) {
+      if (!Array.isArray(arr) || !arr.length) return "";
+      const on = arr.map((v, i) => v >= 0.5 ? i : -1).filter((i) => i >= 0);
+      if (!on.length) return t("keine klare Zeit – meist niemand zu Hause");
+      const lab = (i) => `${String(Math.floor(i / 4) % 24).padStart(2, "0")}:${String(i % 4 * 15).padStart(2, "0")}`;
+      const a = lab(on[0]);
+      const b = lab((on[on.length - 1] + 1) % 96);
+      return t("meist {a}–{b} jemand zu Hause", { a, b });
     }
     // ---------------------------------------------------------------- Lernen & Warum
     _learnGroup(r) {
@@ -4134,6 +4249,7 @@
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         ${body}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
+        ${this._timePop()}
       </ha-card>`);
       this._bind();
       this._filter();
@@ -4394,6 +4510,35 @@
         const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
         this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
       }));
+      $("[data-timeopen]").forEach((el) => el.addEventListener("click", () => this._openTime(el.dataset.timeopen, el.dataset.val)));
+      const tpop = this.shadowRoot.querySelector("[data-tpick]");
+      if (tpop) {
+        let tid = 0;
+        ["[data-twh]", "[data-twmn]"].forEach((sel) => tpop.querySelector(sel).addEventListener("scroll", () => {
+          clearTimeout(tid);
+          tid = setTimeout(() => this._timeSync(tpop), 90);
+        }));
+        tpop.querySelector("[data-tclose]").addEventListener("click", () => {
+          tpop.hidden = true;
+        });
+        tpop.querySelector("[data-tok]").addEventListener("click", () => {
+          const v = rkTimeValue(tpop.querySelector("[data-tin]").value);
+          if (!v) {
+            this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
+            return;
+          }
+          const key = this._tp && this._tp.key;
+          tpop.hidden = true;
+          if (key) this._setHub({ [key]: v + ":00" }, 200);
+        });
+        tpop.querySelector("[data-tin]").addEventListener("input", (ev) => {
+          const v = rkTimeValue(ev.target.value);
+          if (!v) return;
+          const [h, m] = v.split(":");
+          tpop.querySelector("[data-twh]").scrollTop = (parseInt(h, 10) || 0) * 40;
+          tpop.querySelector("[data-twmn]").scrollTop = Math.round((parseInt(m, 10) || 0) / 15) * 40;
+        });
+      }
       $("[data-time]").forEach((el) => el.addEventListener("change", () => {
         const key = el.dataset.time;
         const v = rkTimeValue(el.value);

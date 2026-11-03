@@ -627,4 +627,13 @@ export const FR = {
   "ins Bett ~{v}": "au lit ~{v}",
   "noch zu wenige Nächte – 4 sind nötig": "pas encore assez de nuits – 4 sont nécessaires",
   "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} nuits sur 4 (coucher) · {w} sur 4 (lever)",
+  "Anteil der Tage mit jemand zu Hause": "Part des jours avec quelqu'un à la maison",
+  "Anwesenheit am Tag": "Présence dans la journée",
+  "Uhr": "h",
+  "Uhrzeit": "Heure",
+  "keine klare Zeit – meist niemand zu Hause": "pas d'heure claire – généralement personne à la maison",
+  "meist {a}–{b} jemand zu Hause": "généralement quelqu'un à la maison de {a} à {b}",
+  "schließen": "fermer",
+  "wird ab der ersten Woche sichtbar – nur ja/nein, nie wer": "visible après la première semaine – seulement oui/non, jamais qui",
+  "Übernehmen": "Appliquer",
 };

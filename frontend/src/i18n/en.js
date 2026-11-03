@@ -627,4 +627,13 @@ export const EN = {
   "ins Bett ~{v}": "to bed ~{v}",
   "noch zu wenige Nächte – 4 sind nötig": "not enough nights yet – 4 are needed",
   "{b} von 4 Nächten (Bett) · {w} von 4 (Aufstehen)": "{b} of 4 nights (bed) · {w} of 4 (getting up)",
+  "Anteil der Tage mit jemand zu Hause": "Share of days with someone at home",
+  "Anwesenheit am Tag": "Presence during the day",
+  "Uhr": "h",
+  "Uhrzeit": "Time",
+  "keine klare Zeit – meist niemand zu Hause": "no clear time – usually nobody at home",
+  "meist {a}–{b} jemand zu Hause": "usually someone at home {a}–{b}",
+  "schließen": "close",
+  "wird ab der ersten Woche sichtbar – nur ja/nein, nie wer": "appears after the first week – only yes/no, never who",
+  "Übernehmen": "Apply",
 };

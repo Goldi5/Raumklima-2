@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.41.1 – 2026-11-03
+
+### Neu
+- **Anwesenheitsprofil:** Die Zentrale merkt sich im 15-Minuten-Raster (4 Wochen rollierend), wann
+  meist jemand zu Hause ist – nur „jemand da oder nicht“, ohne Personenbezug. Angezeigt als Balken
+  für werktags und Wochenende, dazu ein Satz wie „meist 17:15–08:00 jemand zu Hause“.
+- **Zeitwähler im iOS-Stil:** Zeitfelder öffnen zwei Räder (Stunden, Viertelstunden) zum Durchscrollen
+  mit Einrasten; im Feld darunter lässt sich die Zeit weiterhin eintippen.
+
+## 0.41.0 – 2026-11-03
+
+### Neu
+- **Gelernte Schlafzeiten im Bereich „Lernen“** (Wohnungsebene): typische Bettzeit und Aufstehzeit
+  für werktags und Wochenende, mit Nachtzähler und der daraus abgeleiteten Ruhezeit.
+
+### Geändert
+- **Farbe als Abgrenzung:** jede Gruppe trägt ihren Ton an Trennlinie, Symbol und Titel.
+- **Heizsaison mit Kalender:** die Datumsfelder öffnen einen Datumswähler (Tag und Monat zählen, das Jahr nicht).
+- **Uhrzeiten mit Zeitwähler:** alle Zeitfelder nutzen einen Zeitwähler in 15-Minuten-Schritten.
+- **„Alle Räume“ als Kacheln:** Raumname, Raumtyp, große Wunschtemperatur, darunter Absenkung und
+  Lüftungsschwelle sowie Symbole für Fensterlogik, Hinweise und Feuchtegrenze.
+
+## 0.40.1 – 2026-11-03
+
+### Geändert
+- **„Alle Räume auf einen Blick“ als Zeilen** statt 8-Spalten-Tabelle (in 0.41.0 zu Kacheln weiterentwickelt).
+- **Empfänger ohne Sonderkarten:** Personen erscheinen als normale Zeilen mit Kanal-Chips.
+- **Mail-Anbieter als Chips** statt Auswahlfeld.
+
+## 0.40.0 – 2026-11-03
+
+### Neu
+- **„Lernen & Warum“ in den Einstellungen** (pro Raum): Aufheizrate mit Anzahl der Messungen,
+  Vorheizzeit für 2 K, Einschätzung der Zuverlässigkeit (noch unsicher / brauchbar / belastbar),
+  die aktuell gültige Entscheidung und darunter die letzten Entscheidungen mit Begründung.
+
+## 0.39.11 – 2026-11-03
+
+### Behoben
+- Die Gruppenleiste zeigt nur noch Gruppen, die es wirklich gibt (kein toter „Lernen“-Eintrag).
+
 ## 0.39.10 – 2026-11-03
 
 ### Behoben

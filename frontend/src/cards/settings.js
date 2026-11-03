@@ -452,7 +452,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // --- Allgemein Benachrichtigung
     const hm = (v) => String(v || "").slice(0, 5);
     // Eigene HH:MM-Felder – der Browser würde sonst je nach Betriebssystem AM/PM zeichnen (Issue #7)
-    const tf = (key, val) => `<input type="time" class="inp hm" step="900" data-time="${key}" value="${hm(val)}" ${this._admin ? "" : "disabled"}>`;
+    const tf = (key, val) => `<button class="timebtn" data-timeopen="${key}" data-val="${hm(val)}" ${this._admin ? "" : "disabled"}>${hm(val) || "–:–"}</button>`;
     const notiRows = [
       this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
       this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
@@ -847,7 +847,79 @@ export class RaumklimaSettingsCard extends HTMLElement {
         : t("noch zu wenige Nächte – 4 sind nötig");
       return this._row(t(label), this._v(parts.length ? parts.join(" · ") : t("sammelt noch"), !parts.length), sub);
     };
-    return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", [line("weekday", "Werktags"), line("weekend", "Wochenende")].join(""));
+    const pp = (st && st.presence_profile) || {};
+    const days = pp.days || {};
+    const hasProfile = (days.weekday || 0) + (days.weekend || 0) > 0;
+    const bars = (arr, label) => this._row(
+      t(label),
+      this._presenceBars(arr),
+      this._presenceText(arr),
+    );
+    const profile = hasProfile
+      ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("")
+      : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer"));
+    return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco",
+      [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile].join(""));
+  }
+
+  // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.
+  _timePop() {
+    const hh = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+    const mm = ["00", "15", "30", "45"];
+    return `<div class="tpick" data-tpick hidden>
+      <div class="tpickhead"><b>${t("Uhrzeit")}</b><button class="mini x" data-tclose title="${t("schließen")}">✕</button></div>
+      <div class="tpickbody">
+        <div class="twheel" data-twh>${hh.map((h, i) => `<button data-th="${i}" class="${i === 0 ? "on" : ""}">${h}</button>`).join("")}</div>
+        <span class="tcolon">:</span>
+        <div class="twheel small" data-twmn>${mm.map((m, i) => `<button data-tm="${i}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
+        <span class="tpickunit">${t("Uhr")}</span>
+      </div>
+      <div class="tpickfoot">
+        <input class="inp" data-tin inputmode="numeric" maxlength="5" placeholder="HH:MM">
+        <button class="btn primary" data-tok>${t("Übernehmen")}</button>
+      </div>
+    </div>`;
+  }
+
+  _openTime(key, val) {
+    const pop = this.shadowRoot.querySelector("[data-tpick]");
+    if (!pop) return;
+    pop.hidden = false;
+    const [hRaw, mRaw] = String(val || "07:00").split(":");
+    const h = Math.max(0, Math.min(23, parseInt(hRaw, 10) || 0));
+    const m = Math.max(0, Math.min(3, Math.round((parseInt(mRaw, 10) || 0) / 15)));
+    this._tp = { key, h, m };
+    pop.querySelector("[data-twh]").scrollTop = h * 40;
+    pop.querySelector("[data-twmn]").scrollTop = m * 40;
+    pop.querySelector("[data-tin]").value = `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
+  }
+
+  _timeSync(pop) {
+    if (!this._tp) return;
+    const h = Math.round(pop.querySelector("[data-twh]").scrollTop / 40);
+    const m = Math.round(pop.querySelector("[data-twmn]").scrollTop / 40);
+    this._tp.h = Math.max(0, Math.min(23, h));
+    this._tp.m = Math.max(0, Math.min(3, m));
+    pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
+    pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
+    pop.querySelector("[data-tin]").value = `${String(this._tp.h).padStart(2, "0")}:${String(this._tp.m * 15).padStart(2, "0")}`;
+  }
+
+  // 24-h-Balken: 96 Viertelstunden, Höhe = Anteil der Tage mit Anwesenheit
+  _presenceBars(arr) {
+    if (!Array.isArray(arr) || !arr.length) return this._v("–", true);
+    const cells = arr.map((v) => `<i style="height:${Math.max(8, Math.round(v * 100))}%;opacity:${(0.18 + v * 0.82).toFixed(2)}"></i>`).join("");
+    return `<div class="pbars" title="${t("Anteil der Tage mit jemand zu Hause")}">${cells}</div>`;
+  }
+
+  _presenceText(arr) {
+    if (!Array.isArray(arr) || !arr.length) return "";
+    const on = arr.map((v, i) => (v >= 0.5 ? i : -1)).filter((i) => i >= 0);
+    if (!on.length) return t("keine klare Zeit – meist niemand zu Hause");
+    const lab = (i) => `${String(Math.floor(i / 4) % 24).padStart(2, "0")}:${String((i % 4) * 15).padStart(2, "0")}`;
+    const a = lab(on[0]);
+    const b = lab((on[on.length - 1] + 1) % 96);
+    return t("meist {a}–{b} jemand zu Hause", { a, b });
   }
 
   // ---------------------------------------------------------------- Lernen & Warum
@@ -936,6 +1008,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         ${body}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
+        ${this._timePop()}
       </ha-card>`);
     this._bind();
     this._filter();
@@ -1173,6 +1246,30 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
       this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
     }));
+    $("[data-timeopen]").forEach((el) => el.addEventListener("click", () => this._openTime(el.dataset.timeopen, el.dataset.val)));
+    const tpop = this.shadowRoot.querySelector("[data-tpick]");
+    if (tpop) {
+      let tid = 0;
+      ["[data-twh]", "[data-twmn]"].forEach((sel) => tpop.querySelector(sel).addEventListener("scroll", () => {
+        clearTimeout(tid);
+        tid = setTimeout(() => this._timeSync(tpop), 90);
+      }));
+      tpop.querySelector("[data-tclose]").addEventListener("click", () => { tpop.hidden = true; });
+      tpop.querySelector("[data-tok]").addEventListener("click", () => {
+        const v = rkTimeValue(tpop.querySelector("[data-tin]").value);
+        if (!v) { this._flash(t("Bitte Uhrzeit als HH:MM eingeben")); return; }
+        const key = this._tp && this._tp.key;
+        tpop.hidden = true;
+        if (key) this._setHub({ [key]: v + ":00" }, 200);
+      });
+      tpop.querySelector("[data-tin]").addEventListener("input", (ev) => {
+        const v = rkTimeValue(ev.target.value);
+        if (!v) return;
+        const [h, m] = v.split(":");
+        tpop.querySelector("[data-twh]").scrollTop = (parseInt(h, 10) || 0) * 40;
+        tpop.querySelector("[data-twmn]").scrollTop = Math.round((parseInt(m, 10) || 0) / 15) * 40;
+      });
+    }
     $("[data-time]").forEach((el) => el.addEventListener("change", () => {
       const key = el.dataset.time;
       const v = rkTimeValue(el.value);

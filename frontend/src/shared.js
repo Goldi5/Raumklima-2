@@ -717,6 +717,34 @@ export const SETTINGS_STYLES = `
   .whyrow:first-of-type { border-top:0; }
   .whyrow .wtime { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .whyrow .wl b { font-size:.9rem; font-weight:600; }
+  /* Zeitwähler (iOS-artig): zwei Räder, die einrasten */
+  .timebtn { min-height:36px; padding:7px 14px; border-radius:12px; font:inherit; font-size:.88rem;
+             font-variant-numeric:tabular-nums; cursor:pointer; color:inherit;
+             background:color-mix(in srgb, var(--primary-text-color) 6%, transparent);
+             border:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent); }
+  .tpick { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:60;
+           width:min(300px, 92vw); padding:14px 16px 16px; border-radius:20px;
+           background:var(--card-background-color, #fff); color:var(--primary-text-color);
+           box-shadow:0 18px 50px rgba(0,0,0,.28); }
+  .tpickhead { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .tpickbody { display:flex; align-items:center; justify-content:center; gap:6px; }
+  .twheel { height:120px; overflow-y:auto; scroll-snap-type:y mandatory; padding:40px 0; width:74px;
+            text-align:center; scrollbar-width:none; }
+  .twheel::-webkit-scrollbar { display:none; }
+  .twheel button { display:block; width:100%; height:40px; scroll-snap-align:center; border:0; background:none;
+                   font:inherit; font-size:1.25rem; color:var(--secondary-text-color); cursor:pointer;
+                   font-variant-numeric:tabular-nums; }
+  .twheel button.on { color:var(--primary-text-color); font-weight:600; font-size:1.45rem; }
+  .twheel.small { width:64px; }
+  .tcolon { font-size:1.3rem; color:var(--secondary-text-color); }
+  .tpickunit { font-size:.8rem; color:var(--secondary-text-color); }
+  .tpickfoot { display:flex; gap:8px; margin-top:10px; }
+  .tpickfoot .inp { flex:1; }
+
+  /* Anwesenheitsprofil: 96 Viertelstunden als Balken */
+  .pbars { display:flex; align-items:flex-end; gap:1px; height:46px; width:min(420px, 44vw); }
+  .pbars i { flex:1; min-width:1px; border-radius:1px 1px 0 0; background:var(--g, var(--rk-eco)); display:block; }
+
   /* Raumkacheln (Alle Räume auf einen Blick) */
   .roomgrid { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; }
   .rtile { display:flex; flex-direction:column; gap:2px; text-align:left; cursor:pointer;
