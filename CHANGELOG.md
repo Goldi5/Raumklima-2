@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.45.1 – 2026-11-03
+
+### Behoben
+- **Abgleich kommt jetzt auch ohne neue Messwerte an:** Bei Kalibrierart „target“ sendet Raumklima den
+  Sollwert alle 10 Minuten neu (bisher nur beim Eintreffen einer Messung). Melden die Livisi-/HMIP-Geräte
+  lange nichts, blieb der unkompensierte Sollwert sonst stehen.
+
 ## 0.45.0 – 2026-11-03
 
 ### Behoben

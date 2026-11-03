@@ -1105,6 +1105,14 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     @callback
     def _on_cal_interval(self, _now: datetime) -> None:
+        """Alle 10 Minuten: Abgleich nachführen.
+
+        Bei Kalibrierart „target“ wird der Sollwert neu gesendet – so kommt der gelernte Versatz auch
+        dann an, wenn das Thermostat zwischendurch keine Messwerte meldet (Livisi/HMIP, Batteriegeräte).
+        """
+        if self.cal_mode == CAL_TARGET:
+            self.hass.async_create_task(self._apply(from_measurement=True))
+            return
         self.hass.async_create_task(self.async_calibrate())
 
 
