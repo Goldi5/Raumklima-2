@@ -262,7 +262,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const rowCount = (rows.match(/class="row"/g) || []).length;
     const ctlCount = (rows.match(/class="tgl/g) || []).length + (rows.match(/class="segs"/g) || []).length;
     const pairable = rowCount >= 4 && rowCount % 2 === 0 && ctlCount >= rowCount
-      && !/tblwrap|class="people"|stepper|numedit/.test(rows);
+      && !/tblwrap|class="people"|roomrow|whyrow|mailprov|stepper|numedit/.test(rows);
     return `<div class="grp ${cls}${pairable ? " pair" : ""}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
   }
   _stepper(attrs, value, unit, dec) {
@@ -436,10 +436,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const card = (target, list, channel, i) => {
       const ks = kinds.filter((k) => k !== "live" || (channel === "push" && target.startsWith("notify.mobile_app_")));
       const chips = ks.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
-      return `<div class="person"><div class="av" style="--c:${palette[i % palette.length]}">${channel === "tts" ? `<ha-icon icon="mdi:speaker"></ha-icon>` : esc(rkPretty(target)[0] || "?")}</div>
-        <div class="pb"><div class="ph"><b>${esc(rkPretty(target))}</b>${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div>
-        <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small>
-        <div class="chips">${chips}</div></div></div>`;
+      return `<div class="row"><div class="l">
+        <span class="rn" style="--c:${palette[i % palette.length]}"><i></i>${esc(rkPretty(target))}</span>
+        <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small></div>
+        <div class="chips">${chips}${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div></div>`;
     };
     const cards = [...Object.entries(push).map(([tg, l], i) => card(tg, l || [], "push", i)), ...Object.entries(tts).map(([tg, l], i) => card(tg, l || [], "tts", i + 3))].join("")
       || `<div class="hint">${t("Noch kein Empfänger – unten hinzufügen.")}</div>`;
@@ -475,13 +475,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const s = r.attrs.settings || {};
       const notif = (this._st(r.sib.notifications) || {}).state === "on";
       const wl = (this._st(r.sib.window_logic) || {}).state === "on";
-      return `<tr data-tab="${r.id}"><td><span class="rn" style="--c:${r.color}"><i></i>${r.name}</span></td>
-        <td>${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</td>
-        <td>${fmt(r.attrs.comfort_temperature)} °C</td>
-        <td>${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</td>
-        <td>${fmt(r.attrs.min_temp)} °C</td>
-        <td>${r.attrs.humidity_limit != null ? fmt(r.attrs.humidity_limit, 0) + " %" : "–"}</td>
-        <td>${yes(wl)}</td><td>${yes(notif)}</td></tr>`;
+      const chips = [
+        `<span class="chip2" title="${t("Wunschtemperatur")}">${fmt(r.attrs.comfort_temperature)} °C</span>`,
+        `<span class="chip2" title="${t("Absenkung kurz / länger")}">${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>`,
+        `<span class="chip2" title="${t("Mindesttemperatur beim Lüften")}">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>`,
+        r.attrs.humidity_limit != null ? `<span class="chip2" title="${t("Feuchte")}">${fmt(r.attrs.humidity_limit, 0)} %</span>` : "",
+        `<span class="chip2" style="--c:${wl ? "var(--rk-ok)" : "var(--rk-off)"}" title="${t("Fensterlogik")}"><i></i>${t("Fenster")}</span>`,
+        `<span class="chip2" style="--c:${notif ? "var(--rk-ok)" : "var(--rk-off)"}" title="${t("Hinweise")}"><i></i>${t("Hinweise")}</span>`,
+      ].join("");
+      return `<div class="row roomrow" data-tab="${r.id}">
+        <div class="l"><span class="rn" style="--c:${r.color}"><i></i>${r.name}</span><small>${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</small></div>
+        <div class="chips">${chips}</div></div>`;
     }).join("");
 
     const issues = st.issues || [];
@@ -492,12 +496,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
       ${this._grp("Gesundheit der Heizung", "mdi:heart-pulse", healthTone, rkIssueList(issues, true, this._config.strip_prefix) + `<div class="hint">${t("Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.")}</div>`, "span", healthExtra)}
       ${this._grp("Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows)}
       ${this._grp("Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
-      ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `<div class="people">${cards}</div>${addRow}`, "span")}
+      ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span")}
       ${this._grp("Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows)}
       ${this._grp("Schlafenszeiten", "mdi:sleep", "eco", sleepRows, "span")}
       ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
       ${this._grp("Wohnung", "mdi:home-switch-outline", "air", homeRows)}
-      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="tblwrap"><table class="tbl"><thead><tr><th>${t("Raum")}</th><th>${t("Typ")}</th><th>${t("Wunsch")}</th><th>${t("Absenkung kurz / länger")}</th><th>${t("Minimum Lüften")}</th><th>${t("Feuchte")}</th><th>${t("Fensterlogik")}</th><th>${t("Hinweise")}</th></tr></thead><tbody>${rowsT}</tbody></table></div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `${rowsT}<div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
       ${this._layoutGroup()}
     </div>`;
   }
@@ -763,7 +767,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${viaService ? `<span class="ok">● ${t("über {s}", { s: esc(rkPretty(cur)) })}</span>` : ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
       <div class="mailform">
         <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
-          <select class="sel" data-mailprov ${dis}><option value="">${t("– wählen –")}</option>${provs}<option value="other">${t("Anderer Anbieter")}</option></select></label>
+          <div class="segs mailprov">${Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<button class="${p[0] === o("mail_server") ? "on" : ""}" data-mailprov="${k}" ${dis}>${esc(p[3])}</button>`).join("")}<button data-mailprov="other" ${dis}>${t("Anderer Anbieter")}</button></div></label>
         ${field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse")}
         ${field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort")}
         ${field("mail_to", "Empfänger", "text", "ich@example.de, partner@example.de", "mehrere mit Komma")}
@@ -1214,8 +1218,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const mailbox = this.shadowRoot.querySelector("[data-mailbox]");
     if (mailbox) mailbox.addEventListener("toggle", () => { this._mailOpen = mailbox.open; });
     $("[data-mail]").forEach((el) => el.addEventListener("input", () => { this._mailForm = { ...(this._mailForm || {}), [el.dataset.mail]: el.value }; }));
-    $("[data-mailprov]").forEach((el) => el.addEventListener("change", () => {
-      const p = RK_MAIL_PROVIDERS[el.value];
+    $("[data-mailprov]").forEach((el) => el.addEventListener("click", () => {
+      const p = RK_MAIL_PROVIDERS[el.dataset.mailprov];
+      this.shadowRoot.querySelectorAll("[data-mailprov]").forEach((b) => b.classList.toggle("on", b === el));
       if (!p) return;
       this._mailForm = { ...(this._mailForm || {}), mail_server: p[0], mail_port: String(p[1]), mail_security: p[2] };
       for (const [k, v] of Object.entries({ mail_server: p[0], mail_port: p[1] })) {

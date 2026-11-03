@@ -618,4 +618,5 @@ export const EN = {
   "so früh beginnt das Vorheizen vor einem Zeitfenster": "preheating starts this early before a schedule window",
   "was zuletzt entschieden wurde und weshalb": "what was decided recently and why",
   "{v} °C/h": "{v} °C/h",
+  "Lüften ab {v} °C": "Airing from {v} °C",
 };

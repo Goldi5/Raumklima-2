@@ -618,4 +618,5 @@ export const FR = {
   "so früh beginnt das Vorheizen vor einem Zeitfenster": "le préchauffage démarre aussi tôt avant une plage horaire",
   "was zuletzt entschieden wurde und weshalb": "ce qui a été décidé récemment et pourquoi",
   "{v} °C/h": "{v} °C/h",
+  "Lüften ab {v} °C": "Aérer dès {v} °C",
 };
