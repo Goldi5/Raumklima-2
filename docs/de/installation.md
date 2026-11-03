@@ -63,6 +63,9 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
   Wohnung. Einen bestehenden Raum umhängen: *Einstellungen → Raum → Wohnung* (die Zeile erscheint nur bei
   mehreren Wohnungen) oder *Einstellungen → Geräte & Dienste → Raumklima → Raum → Konfigurieren* – der Raum
   arbeitet danach sofort mit Bewohnern, Zone und Empfängern der anderen Wohnung.
+- **Raum ohne Heizung (nur überwachen):** *Integration hinzufügen* → **„Nur überwachen (ohne Heizung)"**.
+  Für Räume, die nur gemessen werden sollen – Fußbodenheizung ohne Aktor, Mietwohnung, Keller. Verlangt nur
+  einen Temperaturfühler (Feuchte, CO₂ und Fensterkontakte sind optional); es wird nichts geschaltet.
 - **Zweite Wohnung in der Integration:** *Einstellungen → Geräte & Dienste → Raumklima → Integration
   hinzufügen* bietet „Raum in einer bestehenden Wohnung" oder „Neue Wohnung" (Name, Bewohner, Zone,
   Empfänger). Jede Wohnung hat eigene Räume und ein eigenes Dashboard; Karten richten sich nach dem

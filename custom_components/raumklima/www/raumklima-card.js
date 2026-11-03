@@ -1,4 +1,4 @@
-/* Raumklima 0.28.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.29.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -566,7 +566,12 @@
     "nach unten": "down",
     "nach Uhrzeit sortieren": "sort by time",
     "Zeitfenster nach Uhrzeit sortiert": "time windows sorted by start",
-    "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "the order only matters when windows overlap – the lower one wins"
+    "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "the order only matters when windows overlap – the lower one wins",
+    "Überwachung": "Monitoring",
+    "nur Messen": "measuring only",
+    "Kein Thermostat": "No thermostat",
+    "nur Messen und Hinweise": "measuring and hints only",
+    "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Temperature, humidity, CO₂ and ventilation hints – without heating control. A thermostat can be added later in the integration."
   };
 
   // src/i18n/fr.js
@@ -1135,7 +1140,12 @@
     "nach unten": "vers le bas",
     "nach Uhrzeit sortieren": "trier par heure",
     "Zeitfenster nach Uhrzeit sortiert": "fenêtres triées par heure de début",
-    "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "l'ordre ne compte que si les fenêtres se chevauchent – la plus basse l'emporte"
+    "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "l'ordre ne compte que si les fenêtres se chevauchent – la plus basse l'emporte",
+    "Überwachung": "Surveillance",
+    "nur Messen": "mesure seule",
+    "Kein Thermostat": "Pas de thermostat",
+    "nur Messen und Hinweise": "mesures et conseils uniquement",
+    "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Température, humidité, CO₂ et conseils d’aération – sans régulation du chauffage. Un thermostat peut être ajouté plus tard dans l’intégration."
   };
 
   // src/i18n.js
@@ -1179,7 +1189,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.28.1";
+  var RK_VERSION = "0.29.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1824,6 +1834,7 @@
       const st = this._hass.states[this._config.entity];
       if (!st) return;
       const a = st.attributes;
+      const mon = a.monitor === true;
       const base = this._pending ?? a.wish ?? a.temperature ?? 20;
       const next = Math.min(a.max_temp ?? 30, Math.max(a.min_temp ?? 5, Math.round((base + delta) * 2) / 2));
       this._pending = next;
@@ -1897,7 +1908,8 @@
       }
       const a = st.attributes;
       const sib = this._siblings();
-      const status = STATUS[a.status] || STATUS.idle;
+      const mon = a.monitor === true;
+      const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : STATUS[a.status] || STATUS.idle;
       const vent = VENT[a.ventilation] || null;
       const target = this._pending ?? a.temperature;
       const isOff = st.state === "off";
@@ -1937,29 +1949,29 @@
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
-          ${sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${!mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
+          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
-          ${this._arc(a.current_temperature, target, isOff)}
+          ${mon ? "" : this._arc(a.current_temperature, target, isOff)}
           <div class="center">
             <div class="now">${fmt(a.current_temperature)}<small>°C</small></div>
-            <div class="target">${this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff)}</div>
+            <div class="target">${mon ? [a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : "", a.co2_sensor ? `${fmt(a.current_co2, 0)} ppm` : ""].filter(Boolean).join(" · ") || t("nur Messen") : this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff)}</div>
           </div>
         </div>
-        <div class="ctrl">
+        ${mon ? "" : `<div class="ctrl">
           <button class="round" data-step="-0.5" ${isOff ? "disabled" : ""} aria-label="${t("kälter")}"><ha-icon icon="mdi:minus"></ha-icon></button>
           <button class="round" data-power aria-label="${t("an/aus")}" style="${isOff ? "" : "color:var(--tone)"}"><ha-icon icon="mdi:power"></ha-icon></button>
           <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="${t("wärmer")}"><ha-icon icon="mdi:plus"></ha-icon></button>
-        </div>
+        </div>`}
         ${banner}
         <div class="stats">${stats}</div>
         <div class="actions">
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
-          <span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>
+          ${mon ? "" : `<span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>`}
         </div>
       </ha-card>`;
       this.shadowRoot.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => this._step(parseFloat(b.dataset.step))));
@@ -2062,7 +2074,8 @@
       const here = presSt ? Object.values(presSt.attributes.persons || {}).filter((p) => p.present).map((p) => p.name) : [];
       const row = (r) => {
         const a = r.attributes;
-        const s = STATUS[a.status] || STATUS.idle;
+        const mon = a.monitor === true;
+        const s = mon ? { label: t("Überwachung"), tone: "eco", icon: "mdi:eye-outline" } : STATUS[a.status] || STATUS.idle;
         const v = VENT[a.ventilation];
         const off = r.state === "off";
         const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;
@@ -2073,7 +2086,7 @@
         const applied = a.effective_target != null ? a.effective_target : a.temperature;
         const wish = a.wish != null ? a.wish : a.temperature;
         const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
-        const targetText = off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
+        const targetText = mon ? "" : off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
         return `<div class="room" data-more="${r.entity_id}" style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
@@ -3447,7 +3460,10 @@
       const rIssues = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).filter((i) => i.entry_id === id);
       return `<div class="groups">
       ${rIssues.length ? this._grp("Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : ""}
-      ${this._grp("Temperatur", "mdi:thermometer", "heat", [
+      ${a.monitor ? this._grp("Überwachung", "mdi:eye-outline", "eco", [
+        this._row("Kein Thermostat", this._v("nur Messen und Hinweise", true), "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.")
+      ].join(""), "span") : ""}
+      ${a.monitor ? "" : this._grp("Temperatur", "mdi:thermometer", "heat", [
         plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
         this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
         this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–")),

@@ -566,4 +566,9 @@ export const EN = {
   "nach Uhrzeit sortieren": "sort by time",
   "Zeitfenster nach Uhrzeit sortiert": "time windows sorted by start",
   "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "the order only matters when windows overlap – the lower one wins",
+  "Überwachung": "Monitoring",
+  "nur Messen": "measuring only",
+  "Kein Thermostat": "No thermostat",
+  "nur Messen und Hinweise": "measuring and hints only",
+  "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Temperature, humidity, CO₂ and ventilation hints – without heating control. A thermostat can be added later in the integration.",
 };

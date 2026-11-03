@@ -84,7 +84,9 @@ class TrvMixin:
         return state.attributes.get(attr, default) if state else default
 
     def trv_available(self) -> bool:
-        """TRV erreichbar?"""
+        """TRV erreichbar? (Überwachungsräume haben keins)"""
+        if not self.trv:
+            return False
         state = self._trv_state()
         return state is not None and is_valid(state.state)
 
@@ -310,6 +312,8 @@ class TrvMixin:
         return dt_util.utcnow() - self._last_cal_send >= timedelta(minutes=minutes)
 
     async def async_calibrate(self, force: bool = False) -> None:
+        if self.monitor:
+            return  # Überwachungsraum: keine Kalibrierung
         """Offset für das Haupt-Thermostat und alle weiteren Thermostate im Raum."""
         await self._calibrate_main(force)
         for extra in getattr(self, "extra_trvs", []):

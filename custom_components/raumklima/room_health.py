@@ -156,6 +156,28 @@ class HealthMixin:
             if value is not None:
                 levels[name] = value
         issues += check_battery(levels)
+        if self.monitor:
+            # Überwachungsraum: nur Fühler, Batterien und Fenster – nichts am Thermostat
+            issues += [
+                i
+                for i in (
+                    check_sensor_missing(
+                        None
+                        if self.sensor_ok
+                        else (now - (self._ext_time or self._started_at)).total_seconds() / 3600,
+                        available=self._ext_available(),
+                    ),
+                    check_window(
+                        self.vent.open_minutes / 60 if self.window_open else None,
+                        max(
+                            ((now - t).total_seconds() / 3600 for t in self._window_unavail_since.values()),
+                            default=None,
+                        ),
+                    ),
+                )
+                if i is not None
+            ]
+            return issues
         trv_state = self.hass.states.get(self.trv)
         for check in (
             check_not_warming(list(self.health_hist), now),

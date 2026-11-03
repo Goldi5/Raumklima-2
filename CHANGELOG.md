@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.29.0 – 2026-11-03
+
+### Neu
+- **Räume ohne Heizung – „Nur überwachen":** Ein Raum lässt sich jetzt ohne Thermostat anlegen, etwa im
+  Wohnzimmer mit Fußbodenheizung ohne Aktor. Raumklima misst dann nur: Temperatur, Feuchte, CO₂,
+  Fensterkontakte, Lüftungshinweise, Schimmelrisiko, Verlauf und Bericht – und schickt **keine** Befehle.
+  Kein Ziel, kein Boost, keine Kalibrierung, keine Heizungs-Gesundheitschecks; die Entität bleibt für Karten,
+  Verlauf und Bericht bestehen.
+  Anlegen: *Geräte & Dienste → Raumklima → Integration hinzufügen → „Nur überwachen (ohne Heizung)"*.
+
 ## 0.28.1 – 2026-11-03
 
 ### Neu

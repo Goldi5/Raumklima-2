@@ -49,14 +49,26 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
 
     @property
     def available(self) -> bool:
-        return self.controller.trv_available()
+        return True if self.controller.monitor else self.controller.trv_available()
 
     @property
-    def hvac_mode(self) -> HVACMode:
+    def supported_features(self) -> ClimateEntityFeature:
+        return ClimateEntityFeature(0) if self.controller.monitor else self._attr_supported_features
+
+    @property
+    def hvac_modes(self) -> list[HVACMode]:
+        return [] if self.controller.monitor else self._attr_hvac_modes
+
+    @property
+    def hvac_mode(self) -> HVACMode | None:
+        if self.controller.monitor:
+            return None
         return HVACMode.HEAT if self.controller.hvac_on else HVACMode.OFF
 
     @property
-    def hvac_action(self) -> HVACAction:
+    def hvac_action(self) -> HVACAction | None:
+        if self.controller.monitor:
+            return None
         return self.controller.hvac_action
 
     @property
@@ -72,12 +84,19 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
         return self.controller.current_humidity
 
     @property
-    def native_target_temperature(self) -> float:
+    def native_target_temperature(self) -> float | None:
+        if self.controller.monitor:
+            return None
         return self.controller.applied_target
 
     @property
-    def target_temperature(self) -> float:
-        """Das Ziel, das gerade gilt – nicht der Wunsch (der steht im Attribut ``wish``)."""
+    def target_temperature(self) -> float | None:
+        """Das Ziel, das gerade gilt – nicht der Wunsch (der steht im Attribut ``wish``).
+
+        Überwachungsräume haben kein Ziel: sie zeigen nur, was gemessen wird.
+        """
+        if self.controller.monitor:
+            return None
         return self.controller.applied_target
 
     @property
@@ -108,7 +127,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "sync": c.sync_state,
             "valve_position": c.valve_position,
             "comfort_temperature": c.comfort_temp,
-            "wish": c.target_temp,
+            "wish": None if c.monitor else c.target_temp,
+            "monitor": c.monitor,
             "temperature_sensor": c.temp_sensor,
             "humidity_entity": c.humidity_sensor,
             "window_entities": c.windows,
@@ -135,12 +155,16 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
         }
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
+        if self.controller.monitor:
+            return  # Überwachungsraum: nichts einzustellen
         if (temp := kwargs.get(ATTR_TEMPERATURE)) is not None:
             await self.controller.async_set_target(temp)
         if (mode := kwargs.get("hvac_mode")) is not None:
             await self.async_set_hvac_mode(mode)
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
+        if self.controller.monitor:
+            return
         await self.controller.async_set_hvac_on(hvac_mode != HVACMode.OFF)
 
     async def async_turn_on(self) -> None:

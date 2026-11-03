@@ -21,6 +21,8 @@ async def async_setup_entry(
     if is_hub_entry(entry):
         async_add_entities(hub_entities("button", entry.runtime_data))
         return
+    if entry.runtime_data.monitor:
+        return  # Überwachungsraum: kein Boost, keine Kalibrierung
     entities = [BoostButton(entry.runtime_data)]
     if entry.runtime_data.cal_mode != CAL_NONE:
         entities.append(CalibrateButton(entry.runtime_data))

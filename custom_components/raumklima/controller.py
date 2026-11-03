@@ -96,6 +96,7 @@ from .const import (
     SLOW_RETRY_INTERVAL,
     STATUS_HEATING,
     STATUS_IDLE,
+    STATUS_MONITOR,
     STATUS_NIGHT,
     STATUS_OFF,
     STATUS_OFF_TRV,
@@ -158,6 +159,7 @@ VALVE_CARE = timedelta(minutes=3)
 
 TRV_OUTAGE_SECONDS = 60  # kürzere Aussetzer gelten nicht als Ausfall
 REASON_NORMAL = "normal"
+REASON_MONITOR = "monitor"
 REASON_MANUAL = "manual"
 REASON_SEASON = "season"
 REASON_FROST = "frost"
@@ -203,12 +205,16 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.entry = entry
         self.config: dict[str, Any] = {**DEFAULTS, **entry.data, **entry.options}
         self.name: str = self.config[CONF_NAME]
-        self.trv: str = self.config[CONF_TRV]
+        # Leeres Thermostat = Überwachungsraum (nur Sensoren, keine Heizung)
+        self.trv: str = str(self.config.get(CONF_TRV) or "")
+        self.monitor: bool = not self.trv
         self.temp_sensor: str = self.config[CONF_TEMP_SENSOR]
         self.humidity_sensor: str | None = self.config.get(CONF_HUMIDITY_SENSOR)
         self.co2_sensor: str | None = self.config.get(CONF_CO2_SENSOR) or None
         self.windows: list[str] = list(self.config.get(CONF_WINDOWS) or [])
-        self._extra_ids: list[str] = [e for e in (self.config.get(CONF_EXTRA_TRVS) or []) if e and e != self.config[CONF_TRV]]
+        self._extra_ids: list[str] = [
+            e for e in (self.config.get(CONF_EXTRA_TRVS) or []) if e and e != self.trv
+        ]
         self.cal_mode: str = self.config[CONF_CALIBRATION_MODE]
         self.cal_entity: str | None = self.config.get(CONF_CALIBRATION_ENTITY)
         if self.cal_mode == CAL_OFFSET and not self.cal_entity:
@@ -635,6 +641,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     def plan(self) -> tuple[bool, float, str]:
         """(heizen?, Zieltemperatur, Grund) aus Heizsaison, Anwesenheit und Wunsch."""
+        if self.monitor:
+            return False, self.target_temp, REASON_MONITOR
         now = dt_util.utcnow()
         if self._valve_care_until and now < self._valve_care_until:
             return True, self.trv_max, REASON_VALVE_CARE
@@ -766,6 +774,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     @property
     def status(self) -> str:
+        if self.monitor:
+            return STATUS_MONITOR
         if not self.trv_available():
             return STATUS_TRV
         if not self.hvac_on:
@@ -999,6 +1009,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         async with self._apply_lock:
             if not self._started:
                 return  # Raum wird gerade entladen/neu geladen – nichts mehr senden
+            if self.monitor:
+                return  # Überwachungsraum: nichts zu regeln, nichts zu senden
             if self.throttled_until and dt_util.utcnow() < self.throttled_until:
                 return  # Bremse aktiv – zu viele Befehle in kurzer Zeit
             method = self._off_method()

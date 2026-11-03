@@ -58,6 +58,7 @@ export class RaumklimaCard extends HTMLElement {
     const st = this._hass.states[this._config.entity];
     if (!st) return;
     const a = st.attributes;
+    const mon = a.monitor === true;
     const base = this._pending ?? a.wish ?? a.temperature ?? 20;
     const next = Math.min(a.max_temp ?? 30, Math.max(a.min_temp ?? 5, Math.round((base + delta) * 2) / 2));
     this._pending = next;
@@ -128,7 +129,8 @@ export class RaumklimaCard extends HTMLElement {
     }
     const a = st.attributes;
     const sib = this._siblings();
-    const status = STATUS[a.status] || STATUS.idle;
+    const mon = a.monitor === true;
+    const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : (STATUS[a.status] || STATUS.idle);
     const vent = VENT[a.ventilation] || null;
     const target = this._pending ?? a.temperature;
     const isOff = st.state === "off";
@@ -177,29 +179,32 @@ export class RaumklimaCard extends HTMLElement {
         <div class="top">
           <div class="name" data-more="${this._config.entity}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
-          ${sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${!mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? ` · ${t("Thermostat {v}°", { v: fmt(a.trv_target) })}` : ""}</span>
+          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
         </div>
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
-          ${this._arc(a.current_temperature, target, isOff)}
+          ${mon ? "" : this._arc(a.current_temperature, target, isOff)}
           <div class="center">
             <div class="now">${fmt(a.current_temperature)}<small>°C</small></div>
-            <div class="target">${this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff)}</div>
+            <div class="target">${mon
+              ? [a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : "", a.co2_sensor ? `${fmt(a.current_co2, 0)} ppm` : ""]
+                  .filter(Boolean).join(" · ") || t("nur Messen")
+              : this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff)}</div>
           </div>
         </div>
-        <div class="ctrl">
+        ${mon ? "" : `<div class="ctrl">
           <button class="round" data-step="-0.5" ${isOff ? "disabled" : ""} aria-label="${t("kälter")}"><ha-icon icon="mdi:minus"></ha-icon></button>
           <button class="round" data-power aria-label="${t("an/aus")}" style="${isOff ? "" : "color:var(--tone)"}"><ha-icon icon="mdi:power"></ha-icon></button>
           <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="${t("wärmer")}"><ha-icon icon="mdi:plus"></ha-icon></button>
-        </div>
+        </div>`}
         ${banner}
         <div class="stats">${stats}</div>
         <div class="actions">
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
-          <span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>
+          ${mon ? "" : `<span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>`}
         </div>
       </ha-card>`;
 

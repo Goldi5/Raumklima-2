@@ -99,7 +99,19 @@
         "description": "Einen Raum in einer bestehenden Wohnung – oder eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Räumen, Bewohnern und Dashboard.",
         "menu_options": {
           "add_room": "Raum in einer bestehenden Wohnung",
-          "new_home": "Neue Wohnung"
+          "new_home": "Neue Wohnung",
+          "monitor": "Nur überwachen (ohne Heizung)"
+        }
+      },
+      "monitor": {
+        "title": "Nur überwachen",
+        "description": "Raum ohne smartes Thermostat – z. B. Fußbodenheizung ohne Aktor. Raumklima zeigt Temperatur, Feuchte, CO₂ und die Lüftungshinweise und schickt keine Befehle.",
+        "data": {
+          "name": "Name des Raums",
+          "temperature_sensor": "Temperaturfühler",
+          "humidity_sensor": "Feuchtefühler (optional)",
+          "co2_sensor": "CO₂-Fühler (optional)",
+          "window_sensors": "Fenster-/Türkontakte (optional)"
         }
       }
     },
@@ -345,7 +357,8 @@
           "trv_unavailable": "Thermostat nicht erreichbar",
           "season_off": "Heizpause",
           "setback": "Abgesenkt – niemand da",
-          "night_airing": "Nachtlüften – Fenster offen"
+          "night_airing": "Nachtlüften – Fenster offen",
+          "monitor": "Nur Überwachung"
         }
       },
       "presence": {

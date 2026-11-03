@@ -566,4 +566,9 @@ export const FR = {
   "nach Uhrzeit sortieren": "trier par heure",
   "Zeitfenster nach Uhrzeit sortiert": "fenêtres triées par heure de début",
   "Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere": "l'ordre ne compte que si les fenêtres se chevauchent – la plus basse l'emporte",
+  "Überwachung": "Surveillance",
+  "nur Messen": "mesure seule",
+  "Kein Thermostat": "Pas de thermostat",
+  "nur Messen und Hinweise": "mesures et conseils uniquement",
+  "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.": "Température, humidité, CO₂ et conseils d’aération – sans régulation du chauffage. Un thermostat peut être ajouté plus tard dans l’intégration.",
 };

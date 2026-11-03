@@ -129,14 +129,14 @@ def hub_entry(**options: Any) -> MockConfigEntry:
     )
 
 
-def room_entry(**options: Any) -> MockConfigEntry:
+def room_entry(trv: str = TRV, **options: Any) -> MockConfigEntry:
     return MockConfigEntry(
         domain=DOMAIN,
         title="Bad",
-        unique_id=TRV,
+        unique_id=trv or None,
         data={
             CONF_NAME: "Bad",
-            CONF_TRV: TRV,
+            CONF_TRV: trv,
             CONF_TEMP_SENSOR: SENSOR,
             CONF_WINDOWS: [WINDOW],
             CONF_CALIBRATION_MODE: "none",

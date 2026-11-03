@@ -80,7 +80,8 @@ export class RaumklimaOverviewCard extends HTMLElement {
 
     const row = (r) => {
       const a = r.attributes;
-      const s = STATUS[a.status] || STATUS.idle;
+      const mon = a.monitor === true;
+      const s = mon ? { label: t("Überwachung"), tone: "eco", icon: "mdi:eye-outline" } : (STATUS[a.status] || STATUS.idle);
       const v = VENT[a.ventilation];
       const off = r.state === "off";
       const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;
@@ -96,7 +97,9 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const applied = a.effective_target != null ? a.effective_target : a.temperature;
       const wish = a.wish != null ? a.wish : a.temperature;
       const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
-      const targetText = off
+      const targetText = mon
+        ? ""
+        : off
         ? t("aus")
         : a.plan_reason === "season"
           ? t("Pause")

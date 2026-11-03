@@ -63,6 +63,10 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
   déplacer une pièce existante : *Réglages → pièce → logement* (la ligne n'apparaît qu'avec plusieurs
   logements) ou *Réglages → Appareils et services → Raumklima → pièce → Configurer* – la pièce utilise
   ensuite les habitants, la zone et les destinataires de l'autre logement.
+- **Pièce sans chauffage (surveillance uniquement) :** *Ajouter une intégration* → **« Surveiller
+  uniquement (sans chauffage) »**. Pour les pièces seulement mesurées – chauffage au sol sans actionneur,
+  location, cave. Une sonde de température suffit (humidité, CO₂ et contacts de fenêtre facultatifs) ; rien
+  n'est commandé.
 - **Second logement via l'intégration :** *Réglages → Appareils et services → Raumklima → Ajouter une
   intégration* propose « pièce dans un logement existant » ou « nouveau logement » (nom, habitants, zone,
   destinataires). Chaque logement a ses pièces et son tableau de bord ; les cartes suivent le tableau de

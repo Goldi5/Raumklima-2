@@ -11,7 +11,7 @@ from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from custom_components.raumklima.const import DOMAIN
 
-from .conftest import SENSOR, WINDOW, FakeTrv
+from .conftest import SENSOR, WINDOW, FakeTrv, hub_entry, room_entry
 
 
 async def advance(hass: HomeAssistant, seconds: float) -> None:
@@ -515,3 +515,28 @@ async def test_health_meldet_automatik_modus(hass: HomeAssistant, setup, trv: Fa
     trv.push()
     codes = {i.code for i in ctrl.health_issues(dt_util.utcnow())}
     assert "trv_mode" in codes
+
+
+async def test_ueberwachungsraum_hat_kein_ziel(hass: HomeAssistant, sensors) -> None:
+    """Raum ohne Heizung: kein Ziel, keine Modi, kein Boost – aber Temperatur und Status Überwachung."""
+    from custom_components.raumklima.const import STATUS_MONITOR
+
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(trv="")
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(room.entry_id)
+    await hass.async_block_till_done()
+
+    c = room.runtime_data
+    assert c.monitor is True
+    assert c.status == STATUS_MONITOR
+
+    st = hass.states.get("climate.bad")
+    assert st is not None, "Überwachungsraum bleibt eine Entität (Karten, Verlauf, Bericht)"
+    assert st.attributes["monitor"] is True
+    assert st.attributes.get("temperature") is None
+    assert st.attributes["hvac_modes"] == []
+    assert st.attributes.get("current_temperature") is not None
+
+    assert not [e for e in hass.states.async_entity_ids("button") if "boost" in e.lower()]

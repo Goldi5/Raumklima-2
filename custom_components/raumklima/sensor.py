@@ -27,7 +27,9 @@ async def async_setup_entry(
         async_add_entities(hub_entities("sensor", entry.runtime_data))
         return
     c = entry.runtime_data
-    entities: list[SensorEntity] = [StatusSensor(c), SyncSensor(c)]
+    entities: list[SensorEntity] = [StatusSensor(c)]
+    if not c.monitor:
+        entities.append(SyncSensor(c))
     if c.cal_mode == CAL_OFFSET:
         entities.append(OffsetSensor(c))
     entities.append(RecommendedDurationSensor(c))

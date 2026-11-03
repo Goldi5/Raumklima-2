@@ -209,6 +209,27 @@ def _suggest(value: Any) -> dict[str, Any]:
 
 
 # ------------------------------------------------------------------ Schemas Raum
+def _monitor_schema() -> vol.Schema:
+    """Raum ohne Heizung: Fühler, sonst nichts."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_NAME): TextSelector(),
+            vol.Required(CONF_TEMP_SENSOR): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="temperature")
+            ),
+            vol.Optional(CONF_HUMIDITY_SENSOR): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="humidity")
+            ),
+            vol.Optional(CONF_CO2_SENSOR): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="carbon_dioxide")
+            ),
+            vol.Optional(CONF_WINDOWS): EntitySelector(
+                EntitySelectorConfig(domain="binary_sensor", multiple=True)
+            ),
+        }
+    )
+
+
 def _devices_schema(defaults: dict[str, Any], *, with_name: bool) -> vol.Schema:
     fields: dict[Any, Any] = {}
     if with_name:
@@ -427,6 +448,7 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         self._data: dict[str, Any] = {}
         self._options: dict[str, Any] = {}
         self._new_home = False
+        self._monitor = False
 
     async def async_step_import(self, data: dict[str, Any]) -> ConfigFlowResult:
         """Zentrale anlegen: „Allgemein“ automatisch beim ersten Raum, weitere Wohnungen auf Wunsch."""
@@ -458,11 +480,20 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_menu(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Auswahl: Raum ergänzen oder eine zweite Wohnung anlegen."""
-        return self.async_show_menu(step_id="menu", menu_options=["add_room", "new_home"])
+        return self.async_show_menu(step_id="menu", menu_options=["add_room", "monitor", "new_home"])
 
     async def async_step_add_room(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Raum zu einer bestehenden Wohnung hinzufügen."""
         return await self.async_step_trv()
+
+    async def async_step_monitor(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Raum ohne Heizung: nur Temperatur, Feuchte und CO₂ überwachen."""
+        self._monitor = True
+        if user_input is not None:
+            self._data.update(user_input)
+            self._data[CONF_TRV] = ""
+            return await self.async_step_room()
+        return self.async_show_form(step_id="monitor", data_schema=_monitor_schema())
 
     async def async_step_new_home(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Zweite Wohnung anlegen – der Raum wird direkt an sie gehängt."""
@@ -505,7 +536,7 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_room(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Schritt 3: Raum (Technik unter „Erweitert“)."""
         errors: dict[str, str] = {}
-        presets = trv_presets(self.hass, self._data[CONF_TRV])
+        presets = [] if self._monitor else trv_presets(self.hass, self._data.get(CONF_TRV, ""))
         if user_input is not None:
             flat = _flatten_room(user_input)
             errors = _validate_calibration(flat)
@@ -519,6 +550,14 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
                 )}, **flat}
                 if self._new_home:
                     return await self.async_step_hub()
+                if self._monitor:
+                    hubs = _hub_entries(self.hass)
+                    if len(hubs) > 1:
+                        return await self.async_step_home()
+                    if hubs:
+                        self._data[CONF_HOME] = hubs[0].entry_id
+                        return self._create_room()
+                    return await self.async_step_hub()
                 if _has_hub(self.hass):
                     hubs = _hub_entries(self.hass)
                     if len(hubs) > 1:
@@ -526,7 +565,7 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
                     self._data[CONF_HOME] = hubs[0].entry_id
                     return self._create_room()
                 return await self.async_step_hub()
-        found = find_calibration_entity(self.hass, self._data[CONF_TRV])
+        found = None if self._monitor else find_calibration_entity(self.hass, self._data.get(CONF_TRV, ""))
         defaults = {
             CONF_CALIBRATION_ENTITY: found,
             CONF_CALIBRATION_MODE: CAL_OFFSET if found else CAL_TARGET,

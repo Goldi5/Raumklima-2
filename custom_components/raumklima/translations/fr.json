@@ -99,7 +99,19 @@
         "description": "Une pièce dans un logement existant – ou un second logement (p. ex. résidence secondaire) avec ses pièces, habitants et tableau de bord.",
         "menu_options": {
           "add_room": "Pièce dans un logement existant",
-          "new_home": "Nouveau logement"
+          "new_home": "Nouveau logement",
+          "monitor": "Surveiller uniquement (sans chauffage)"
+        }
+      },
+      "monitor": {
+        "title": "Surveiller uniquement",
+        "description": "Pièce sans thermostat connecté – p. ex. chauffage au sol sans actionneur. Raumklima affiche la température, l’humidité, le CO₂ et les conseils d’aération, sans envoyer de commandes.",
+        "data": {
+          "name": "Nom de la pièce",
+          "temperature_sensor": "Sonde de température",
+          "humidity_sensor": "Sonde d’humidité (facultatif)",
+          "co2_sensor": "Sonde de CO₂ (facultatif)",
+          "window_sensors": "Contacts de fenêtre/porte (facultatif)"
         }
       }
     },
@@ -345,7 +357,8 @@
           "trv_unavailable": "Thermostat indisponible",
           "season_off": "Pause de chauffage",
           "setback": "Abaissé – personne à la maison",
-          "night_airing": "Aération nocturne – fenêtre ouverte"
+          "night_airing": "Aération nocturne – fenêtre ouverte",
+          "monitor": "Surveillance"
         }
       },
       "presence": {

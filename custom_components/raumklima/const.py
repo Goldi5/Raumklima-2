@@ -259,6 +259,7 @@ STATUS_OFF: Final = "off"
 STATUS_OFF_TRV: Final = "off_trv"  # aus, weil das Thermostat selbst abgeschaltet hat
 STATUS_SENSOR: Final = "sensor_unavailable"
 STATUS_TRV: Final = "trv_unavailable"
+STATUS_MONITOR: Final = "monitor"
 STATUS_SEASON: Final = "season_off"
 STATUS_SETBACK: Final = "setback"
 STATUS_NIGHT: Final = "night_airing"
@@ -273,6 +274,7 @@ STATUSES: Final = [
     STATUS_SEASON,
     STATUS_SETBACK,
     STATUS_NIGHT,
+    STATUS_MONITOR,
 ]
 
 # Warum ein Raum aus ist – für die Anzeige („Aus" ist nicht gleich „Aus")
