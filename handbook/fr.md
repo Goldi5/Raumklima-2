@@ -232,19 +232,6 @@ La carte de pièce affiche alors **« Quelqu’un dans la pièce »** ou **« Pi
 Un détecteur dans le salon empêche aussi Raumklima de penser à tort que « tout le monde est absent » – par ex. quand un téléphone est éteint ou qu’un visiteur est seul à la maison. Pendant les vacances, les détecteurs ne comptent pas, pour que le chat ne mette pas fin à vos vacances.
 :::
 
-## Quand tout le monde est absent
-
-Raumklima le remarque via vos téléphones dès que plus personne n’est à la maison :
-
-| Situation | Ce qui se passe |
-|---|---|
-| Tout le monde absent depuis 30 minutes | abaissement à environ 18 °C |
-| Absence de plus de 24 heures | abaissement à environ 16 °C |
-| Quelqu’un est en route vers la maison | préchauffage à temps (dès 10 km) |
-| Quelqu’un rentre | retour à la température souhaitée |
-
-Si vous rentrez plus tôt et qu’il fait trop frais : montez simplement la température – l’abaissement est alors suspendu pendant 3 heures.
-
 ## Pourquoi le thermostat affiche un autre chiffre
 
 L'appareil affiche parfois une autre consigne que la carte – par exemple **cible 18,0 °C**, sur le
@@ -259,6 +246,19 @@ rafraîchie toutes les 10 minutes pour atteindre aussi les appareils qui remonte
 
 Sous la ligne des pièces, la version s'affiche en petit, p. ex. **« Raumklima 0.45.2 »**. Utile quand
 une modification ne semble pas arriver : vérifiez d'abord que la carte a bien chargé la nouvelle version.
+
+## Quand tout le monde est absent
+
+Raumklima le remarque via vos téléphones dès que plus personne n’est à la maison :
+
+| Situation | Ce qui se passe |
+|---|---|
+| Tout le monde absent depuis 30 minutes | abaissement à environ 18 °C |
+| Absence de plus de 24 heures | abaissement à environ 16 °C |
+| Quelqu’un est en route vers la maison | préchauffage à temps (dès 10 km) |
+| Quelqu’un rentre | retour à la température souhaitée |
+
+Si vous rentrez plus tôt et qu’il fait trop frais : montez simplement la température – l’abaissement est alors suspendu pendant 3 heures.
 
 ## Vacances et visiteurs
 
