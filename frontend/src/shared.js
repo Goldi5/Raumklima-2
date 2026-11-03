@@ -92,17 +92,33 @@ export function rkTimeValue(text) {
 
 // Welche Wohnung gehört zu dieser Karte? Aus der Konfiguration (ID oder Name),
 // sonst aus dem Dashboard, auf dem die Karte liegt (Pfad → Dashboard der Wohnung).
+// Vergleichsform für Wohnungsnamen: Kleinschreibung, Umlaute aufgelöst, ohne Sonderzeichen.
+const RK_UMLAUT = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
+function rkSlug(v) {
+  return String(v || "")
+    .toLowerCase()
+    .replace(/[äöüß]/g, (c) => RK_UMLAUT[c])
+    .replace(/[^a-z0-9]/g, "");
+}
+
 export function rkHomeId(hass, config = {}) {
   const hs = rkHomes(hass);
   const want = String((config && config.home) || "").trim();
   if (want) {
-    const hit = hs.find((h) => h.id === want) || hs.find((h) => h.name === want);
+    const hit =
+      hs.find((h) => h.id === want) ||
+      hs.find((h) => h.name === want) ||
+      hs.find((h) => rkSlug(h.name) === rkSlug(want));
     return hit ? hit.id : want;
   }
   const path = String((hass && hass.panelUrl) || "").replace(/^\//, "");
   if (path) {
     const byPath = hs.find((h) => String(h.dashboard || "").replace(/^\//, "") === path);
     if (byPath) return byPath.id;
+    // Auch ohne hinterlegtes Dashboard: Pfad heizung-<name> passt zur Wohnung.
+    const seg = path.split("/")[0];
+    const hit = hs.find((h) => rkSlug(h.name) && seg.endsWith(rkSlug(h.name)));
+    if (hit) return hit.id;
   }
   return null;
 }

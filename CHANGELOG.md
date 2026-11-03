@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.33.1 – 2026-11-03
+
+### Behoben
+- **Räume einer anderen Wohnung auf eigenen Dashboards** (Rückmeldung aus dem Betrieb): Eine Karte ohne
+  `home:` zeigte **alle** Räume – auch die einer zweiten Wohnung. Die Wohnung lässt sich jetzt auch per
+  **Name** setzen (`home: Remscheid`), und der Dashboard-Pfad `heizung-<name>` wird ebenfalls erkannt.
+  Die Doku sagt jetzt ausdrücklich: ohne `home:` zeigt die Karte alles, und Räume ohne Wohnung erscheinen
+  auf jedem Dashboard.
+- **Sporadisch roter Test** `test_switch_to_always_via_options`: prüft jetzt die Entscheidung des Raums
+  statt eines Zeitrennens gegen die Funkbestätigung.
+
 ## 0.33.0 – 2026-11-03
 
 ### Behoben

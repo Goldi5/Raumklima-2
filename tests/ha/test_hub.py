@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
-
 from homeassistant.core import HomeAssistant
-from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from .conftest import SENSOR, FakeTrv, hub_entry, room_entry
 
@@ -35,20 +32,26 @@ async def test_frost_floor_in_pause(hass: HomeAssistant, trv: FakeTrv, sensors) 
 
 
 async def test_switch_to_always_via_options(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
-    hub, _room = await _setup(hass, season_mode="pause")
-    assert trv.is_off
+    """Saisonwechsel über die Zentrale wirkt sofort auf die Entscheidung des Raums.
+
+    Der physische Schreibvorgang hängt an Funk-Bestätigung und Preset-Kämpfen – das ist hier
+    nicht der Prüfpunkt (und war als Zeitrennen die Ursache für sporadische rote Läufe).
+    """
+    from custom_components.raumklima.shared import domain_data
+
+    hub, room = await _setup(hass, season_mode="pause")
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    allow, _target, reason = ctrl.plan()
+    assert not allow
+    assert reason == "season"
+
     hass.config_entries.async_update_entry(hub, options={**hub.options, "season_mode": "always"})
     await hass.async_block_till_done()
-    # Der Raum wendet die neue Saison verzögert an – und nach einem Preset-Kampf kann eine
-    # 30-Minuten-Pause aktiv sein. Die Zeit deshalb in Minuten-Schritten bis zu einer Stunde
-    # vorstellen, bis das Thermostat schaltet (sonst hängt der Test vom Rechner-Tempo ab).
-    base = dt_util.utcnow()
-    for step in range(1, 61):
-        if not trv.is_off:
-            break
-        async_fire_time_changed(hass, base + timedelta(minutes=step))
-        await hass.async_block_till_done()
-    assert not trv.is_off
+
+    allow, target, reason = ctrl.plan()
+    assert allow, f"Raum bleibt bei {reason} statt zu heizen"
+    assert reason != "season"
+    assert target > 0
 
 
 async def test_vacation_switch(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:

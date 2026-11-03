@@ -165,7 +165,7 @@ appris sa vitesse de chauffe – elle progresse à chaque chauffe, rien à régl
 
 Sous *Réglages → Général → Maison*, vous pouvez créer une autre maison (p. ex. un appartement de vacances). Elle obtient son propre hub avec ses propres habitants, zone, destinataires, saison de chauffage, heures de sommeil, rapport et journal. Affectez les pièces dans l’onglet de la pièce sous *Maison*.
 
-Un sélecteur apparaît alors en haut de l’aperçu et des réglages. Chaque maison a son propre tableau de bord ; définissez son chemin sous *Maison → Tableau de bord*. Pour vos propres tableaux de bord : ajoutez `home: <entry_id du hub>` à chaque carte ou à la stratégie (`strategy: {type: custom:raumklima, home: …}`).
+Un sélecteur apparaît alors en haut de l’aperçu et des réglages. Chaque maison a son propre tableau de bord ; définissez son chemin sous *Maison → Tableau de bord*. Pour vos propres tableaux de bord : ajoutez `home: <entry_id du hub>` à chaque carte ou à la stratégie (`strategy: {type: custom:raumklima, home: …}`). Le **nom de la maison** fonctionne aussi (`home: Remscheid`). Attention pour les tableaux de bord construits à la main : **sans** `home:`, une carte affiche toutes les pièces – y compris celles d’une autre maison. Les pièces sans maison apparaissent partout ; réglez-la sous *Pièce → Maison*.
 
 ## Cartes pour vos propres tableaux de bord
 

@@ -1,4 +1,4 @@
-/* Raumklima 0.33.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.33.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1193,7 +1193,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.33.0";
+  var RK_VERSION = "0.33.1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1266,17 +1266,24 @@
     if (!Number.isFinite(h) || !Number.isFinite(min) || h < 0 || h > 23 || min < 0 || min > 59) return "";
     return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
   }
+  var RK_UMLAUT = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
+  function rkSlug(v) {
+    return String(v || "").toLowerCase().replace(/[äöüß]/g, (c) => RK_UMLAUT[c]).replace(/[^a-z0-9]/g, "");
+  }
   function rkHomeId(hass, config = {}) {
     const hs = rkHomes(hass);
     const want = String(config && config.home || "").trim();
     if (want) {
-      const hit = hs.find((h) => h.id === want) || hs.find((h) => h.name === want);
+      const hit = hs.find((h) => h.id === want) || hs.find((h) => h.name === want) || hs.find((h) => rkSlug(h.name) === rkSlug(want));
       return hit ? hit.id : want;
     }
     const path = String(hass && hass.panelUrl || "").replace(/^\//, "");
     if (path) {
       const byPath = hs.find((h) => String(h.dashboard || "").replace(/^\//, "") === path);
       if (byPath) return byPath.id;
+      const seg = path.split("/")[0];
+      const hit = hs.find((h) => rkSlug(h.name) && seg.endsWith(rkSlug(h.name)));
+      if (hit) return hit.id;
     }
     return null;
   }

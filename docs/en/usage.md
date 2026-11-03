@@ -164,7 +164,7 @@ heat-up rate – it grows with every heat-up, nothing to configure.
 
 Under *Settings → General → Home* you can create another home (e.g. a holiday flat). It gets its own hub with its own residents, zone, recipients, heating season, sleep times, report and log. Assign rooms in the room tab under *Home*.
 
-A switcher then appears at the top of the overview and the settings. Each home has its own dashboard; set its path under *Home → Dashboard*. For your own dashboards: add `home: <entry_id of the hub>` to each card or to the strategy (`strategy: {type: custom:raumklima, home: …}`).
+A switcher then appears at the top of the overview and the settings. Each home has its own dashboard; set its path under *Home → Dashboard*. For your own dashboards: add `home: <entry_id of the hub>` to each card or to the strategy (`strategy: {type: custom:raumklima, home: …}`). The **home name** works as well (`home: Remscheid`). Note for hand-built dashboards: **without** `home:` a card shows every room – including those of another home. Rooms without a home appear everywhere; set it under *Room → Home*.
 
 ## Cards for your own dashboards
 

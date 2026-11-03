@@ -159,7 +159,7 @@ gelernt hat – sie wächst mit jeder Aufheizung von selbst.
 
 Unter *Einstellungen → Allgemein → Wohnung* legst du eine weitere Wohnung an (z. B. Remscheid). Sie bekommt eine eigene Zentrale mit eigenen Bewohnern, Zone, Empfängern, Heizsaison, Schlafenszeiten, Bericht und Protokoll. Neue Räume ordnest du im Raum-Reiter unter *Wohnung* zu.
 
-Oben in der Übersicht und in den Einstellungen erscheint dann ein Umschalter „Berlin | Remscheid“. Jede Wohnung hat ihr eigenes Dashboard; dessen Adresse stellst du unter *Wohnung → Dashboard* ein. Für eigene Dashboards: `home: <entry_id der Zentrale>` in jeder Karte oder in der Strategie (`strategy: {type: custom:raumklima, home: …}`).
+Oben in der Übersicht und in den Einstellungen erscheint dann ein Umschalter „Berlin | Remscheid“. Jede Wohnung hat ihr eigenes Dashboard; dessen Adresse stellst du unter *Wohnung → Dashboard* ein. Für eigene Dashboards: `home: <entry_id der Zentrale>` in jeder Karte oder in der Strategie (`strategy: {type: custom:raumklima, home: …}`). Statt der ID geht auch der **Name der Wohnung** (`home: Remscheid`). Wichtig bei selbst gebauten Dashboards: **ohne** `home:` zeigt eine Karte alle Räume – auch die einer anderen Wohnung. Räume ohne zugeordnete Wohnung erscheinen überall; das ist die Einstellung *Raum → Wohnung*.
 
 ## Karten für eigene Dashboards
 
