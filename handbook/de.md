@@ -33,10 +33,10 @@ Dieses Handbuch erklärt Schritt für Schritt, wie du Raumklima einrichtest und 
 
 ## Was du brauchst
 
-- **Home Assistant** (Version 2026.5 oder neuer) mit **HACS**
+- **Home Assistant** (Version 2025.10 oder neuer) mit **HACS**
 - pro Raum ein (oder mehrere) **Heizkörperthermostat**, das in Home Assistant erscheint – egal ob Zigbee, Shelly, Matter oder Cloud
 - pro Raum einen **Temperaturfühler** (am besten mit Luftfeuchte)
-- optional: **Fensterkontakte**, ein **CO₂-Sensor**
+- optional: **Fensterkontakte**, ein **CO₂-Sensor**, ein **Feinstaubfühler** (PM2,5)
 - für die Anwesenheit: die **Home-Assistant-App** auf euren Handys
 
 # Einrichten
@@ -56,6 +56,9 @@ Schalte vorher die eingebaute Fenstererkennung deines Thermostats aus (falls es 
 ## Schritt 2: Den ersten Raum anlegen
 
 Gehe zu **Einstellungen → Geräte & Dienste → Integration hinzufügen** und wähle **Raumklima**.
+
+Du siehst drei Wege: **Raum ergänzen**, **Überwachung** (Raum ohne Thermostat – nur messen, anmahnen,
+berichten) und **Neue Wohnung**. Für den Anfang: *Raum ergänzen*.
 
 1. **Thermostat wählen** – das Thermostat am Heizkörper.
 2. **Fühler & Fenster** – Raumklima schlägt Fühler und Fensterkontakte aus demselben Raum vor. Kurz prüfen, weiter. Hat der Raum **mehrere Heizkörper**, die übrigen Thermostate bei **Weitere Thermostate im Raum** auswählen. Fensterkontakte gehen beliebig viele.
@@ -131,6 +134,8 @@ Nimm dir nach der Einrichtung kurz Zeit für diese Punkte. Alles findest du im D
 | **Aus** | Du hast den Raum ausgeschaltet. |
 | **Fühler ausgefallen** | Der Fühler meldet sich nicht – das Thermostat regelt allein weiter. |
 | **Thermostat nicht erreichbar** | Funk- oder Batterieproblem. |
+| **Überwachung** | Raum ohne Thermostat – es wird nur gemessen und erinnert. |
+| **Thermostat 16,5° (Abgleich −1,3°)** | Das Gerät bekommt einen um den Fühler-Versatz tieferen Sollwert; im Raum gilt weiter dein Ziel. |
 
 ## Lüften
 
@@ -228,6 +233,22 @@ Die Raumkarte zeigt dann **„Jemand im Raum“** oder **„Raum leer seit 25 mi
 Ein Melder im Wohnzimmer verhindert auch, dass Raumklima fälschlich „alle weg“ denkt – etwa wenn ein Handy aus ist oder Besuch allein da ist. Im Urlaub zählen die Melder nicht, die Katze beendet also nicht den Urlaub.
 :::
 
+## Warum das Thermostat eine andere Zahl zeigt
+
+Am Gerät steht manchmal ein anderer Sollwert als in der Karte – zum Beispiel **Ziel 18,0 °C**, am
+Thermostat aber **16,5 °C**. Das ist gewollt: Das Thermostat misst direkt am Heizkörper, der Fühler im
+Raum misst woanders. Liegt das Gerät 1,3 K zu kalt, regelt es ohne Korrektur so lange weiter, bis der
+Raum 19,3 °C hat.
+
+Raumklima **lernt diesen Versatz** („Abgleich“) und zieht ihn vom Sollwert ab. In der Karte steht dann
+**„Thermostat 16,5° (Abgleich −1,3°)“** – dein Ziel bleibt 18,0 °C. Der Wert wird dauerhaft gespeichert
+und alle 10 Minuten nachgeführt, damit er auch bei Geräten ankommt, die selten melden (Livisi, Homematic IP).
+
+## Welcher Stand läuft?
+
+Unter der Räume-Zeile in der Übersicht steht klein die Version, z. B. **„Raumklima 0.45.2“**. Das hilft,
+wenn eine Änderung nicht anzukommen scheint: Erst prüfen, ob die Karte den neuen Stand geladen hat.
+
 ## Wenn alle weg sind
 
 Raumklima merkt über eure Handys, wenn niemand mehr zu Hause ist:
@@ -236,7 +257,7 @@ Raumklima merkt über eure Handys, wenn niemand mehr zu Hause ist:
 |---|---|
 | Alle seit 30 Minuten weg | Absenken auf etwa 18 °C |
 | Länger als 24 Stunden weg | Absenken auf etwa 16 °C |
-| Jemand ist auf dem Heimweg | Rechtzeitig vorheizen |
+| Jemand ist auf dem Heimweg | Rechtzeitig vorheizen (ab 10 km Entfernung) |
 | Jemand kommt nach Hause | Wieder Wunschtemperatur |
 
 Kommst du früher heim und es ist dir zu kühl: einfach hochdrehen – die Absenkung pausiert dann für 3 Stunden.
@@ -258,7 +279,7 @@ Im Reiter **Bericht** siehst du für diese Woche oder diesen Monat: wie lange ge
 
 ### Der Bericht als PDF
 
-Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** (4 Seiten). Darin stehen unter anderem:
+Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** (mehrseitig). Darin stehen unter anderem:
 
 - eine **Note von A bis F** für dein Raumklima – mit Verlauf,
 - der Vergleich zum Vorzeitraum und zum **Vorjahr**,
@@ -403,7 +424,8 @@ Jahr ist egal.
 |---|---|
 | **Thermostat (TRV)** | Der Regler direkt am Heizkörper. |
 | **Fühler** | Ein kleines Gerät, das Temperatur (und oft Luftfeuchte) im Raum misst. |
-| **Offset** | Ein Korrekturwert, damit das Thermostat dieselbe Temperatur „sieht“ wie der Fühler. |
+| **Abgleich** | Korrekturwert zwischen Raumfühler und Thermostat. Raumklima lernt ihn und rechnet ihn auf den Sollwert, damit im Raum wirklich die Wunschtemperatur steht. |
+| **Feinstaub (PM2,5)** | Kleine Schwebeteilchen in µg/m³. Ab 35 gilt Lüften als sinnvoll. |
 | **Zone** | Ein Bereich auf der Karte in Home Assistant, z. B. eure Wohnung. |
 | **Absenken** | Die Temperatur etwas herunterregeln, um Energie zu sparen. |
 | **Heizgrenze** | Ab dieser Außentemperatur (Tagesmittel) braucht das Haus keine Heizung. |

@@ -35,10 +35,10 @@ This manual explains step by step how to set up Raumklima and use it day to day.
 
 ## What you need
 
-- **Home Assistant** (version 2026.5 or newer) with **HACS**
+- **Home Assistant** (version 2025.10 or newer) with **HACS**
 - per room one (or more) **radiator thermostat** that shows up in Home Assistant – whether Zigbee, Shelly, Matter or cloud
 - per room a **temperature sensor** (ideally with humidity)
-- optional: **window contacts**, a **CO₂ sensor**
+- optional: **window contacts**, a **CO₂ sensor**, a **particulate sensor** (PM2.5)
 - for presence detection: the **Home Assistant app** on your phones
 
 # Setup
@@ -133,6 +133,8 @@ After setup, take a moment for these points. You'll find everything in the dashb
 | **Off** | You turned the room off. |
 | **Sensor failed** | The sensor isn't reporting – the thermostat keeps regulating on its own. |
 | **Thermostat unreachable** | Radio or battery problem. |
+| **Monitoring** | Room without a thermostat – it only measures and reminds. |
+| **Thermostat 16.5° (offset −1.3°)** | The device gets a setpoint lower by the sensor offset; your target still applies to the room. |
 
 ## Airing
 
@@ -230,6 +232,22 @@ The room card then shows **“Someone in the room”** or **“Room empty for 25
 A sensor in the living room also stops Raumklima from wrongly thinking “everyone is away” – e.g. when a phone is off or a visitor is home alone. During vacation the sensors don't count, so the cat won't end your vacation.
 :::
 
+## Why the thermostat shows a different number
+
+The device sometimes shows another setpoint than the card – for example **target 18.0 °C**, on the
+thermostat **16.5 °C**. That is intentional: the thermostat measures right at the radiator, the room
+sensor somewhere else. If the device reads 1.3 K too low, it would keep heating until the room reaches
+19.3 °C.
+
+Raumklima **learns this offset** and subtracts it from the setpoint. The card then shows
+**“Thermostat 16.5° (offset −1.3°)”** – your target stays 18.0 °C. The value is stored and refreshed
+every 10 minutes so it also reaches devices that report rarely (Livisi, Homematic IP).
+
+## Which version is running?
+
+Under the room count in the overview the version is shown in small print, e.g. **“Raumklima 0.45.2”**.
+Useful when a change does not seem to arrive: check first whether the card loaded the new build.
+
 ## When everyone is away
 
 Raumklima notices through your phones when nobody is home anymore:
@@ -238,7 +256,7 @@ Raumklima notices through your phones when nobody is home anymore:
 |---|---|
 | Everyone away for 30 minutes | set back to about 18 °C |
 | Away for more than 24 hours | set back to about 16 °C |
-| Someone is on the way home | preheat in time |
+| Someone is on the way home | preheat in time (from 10 km away) |
 | Someone comes home | back to the desired temperature |
 
 If you come home early and it's too cool: just turn it up – the setback then pauses for 3 hours.
@@ -260,7 +278,7 @@ The **Report** tab shows for this week or month how long the heating ran, how mu
 
 ### The report as PDF
 
-Every week, every month and at the end of the heating season a **PDF report** (4 pages) is created. Among other things it contains:
+Every week, every month and at the end of the heating season a **PDF report** (several pages) is created. Among other things it contains:
 
 - a **grade from A to F** for your indoor climate – with history,
 - the comparison with the previous period and the **year before**,
@@ -404,7 +422,8 @@ does not matter.
 |---|---|
 | **Thermostat (TRV)** | The controller directly on the radiator. |
 | **Sensor** | A small device that measures temperature (and often humidity) in the room. |
-| **Offset** | A correction value so that the thermostat “sees” the same temperature as the sensor. |
+| **Offset (Abgleich)** | Correction between room sensor and thermostat. Raumklima learns it and applies it to the setpoint so the room really reaches your target. |
+| **Particulate matter (PM2.5)** | Fine dust in µg/m³. From 35, airing makes sense. |
 | **Zone** | An area on the map in Home Assistant, e.g. your home. |
 | **Setback** | Lowering the temperature a little to save energy. |
 | **Heating limit** | Above this outdoor temperature (daily mean) the building needs no heating. |

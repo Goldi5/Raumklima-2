@@ -35,10 +35,10 @@ Ce manuel explique pas à pas comment installer Raumklima et l’utiliser au quo
 
 ## Ce qu’il vous faut
 
-- **Home Assistant** (version 2026.5 ou plus récente) avec **HACS**
+- **Home Assistant** (version 2025.10 ou plus récente) avec **HACS**
 - par pièce, un (ou plusieurs) **thermostat de radiateur** qui apparaît dans Home Assistant – qu’il soit Zigbee, Shelly, Matter ou cloud
 - par pièce, une **sonde de température** (idéalement avec humidité)
-- en option : des **contacts de fenêtre**, une **sonde CO₂**
+- en option : des **contacts de fenêtre**, une **sonde CO₂**, un **capteur de particules** (PM2,5)
 - pour la détection de présence : l’**application Home Assistant** sur vos téléphones
 
 # Installation
@@ -133,6 +133,8 @@ Après l’installation, prenez un moment pour ces points. Vous trouverez tout d
 | **Éteint** | Vous avez éteint la pièce. |
 | **Sonde en panne** | La sonde ne transmet plus – le thermostat continue de réguler tout seul. |
 | **Thermostat injoignable** | Problème de radio ou de pile. |
+| **Surveillance** | Pièce sans thermostat – elle mesure et rappelle seulement. |
+| **Thermostat 16,5° (décalage −1,3°)** | L'appareil reçoit une consigne abaissée du décalage ; votre cible s'applique toujours à la pièce. |
 
 ## Aération
 
@@ -238,10 +240,25 @@ Raumklima le remarque via vos téléphones dès que plus personne n’est à la 
 |---|---|
 | Tout le monde absent depuis 30 minutes | abaissement à environ 18 °C |
 | Absence de plus de 24 heures | abaissement à environ 16 °C |
-| Quelqu’un est en route vers la maison | préchauffage à temps |
+| Quelqu’un est en route vers la maison | préchauffage à temps (dès 10 km) |
 | Quelqu’un rentre | retour à la température souhaitée |
 
 Si vous rentrez plus tôt et qu’il fait trop frais : montez simplement la température – l’abaissement est alors suspendu pendant 3 heures.
+
+## Pourquoi le thermostat affiche un autre chiffre
+
+L'appareil affiche parfois une autre consigne que la carte – par exemple **cible 18,0 °C**, sur le
+thermostat **16,5 °C**. C'est voulu : le thermostat mesure au radiateur, la sonde de pièce ailleurs.
+S'il lit 1,3 K de trop, il chaufferait jusqu'à 19,3 °C dans la pièce.
+
+Raumklima **apprend ce décalage** et l'applique à la consigne. La carte affiche alors
+**« Thermostat 16,5° (décalage −1,3°) »** – votre cible reste 18,0 °C. La valeur est enregistrée et
+rafraîchie toutes les 10 minutes pour atteindre aussi les appareils qui remontent rarement.
+
+## Quelle version est installée ?
+
+Sous la ligne des pièces, la version s'affiche en petit, p. ex. **« Raumklima 0.45.2 »**. Utile quand
+une modification ne semble pas arriver : vérifiez d'abord que la carte a bien chargé la nouvelle version.
 
 ## Vacances et visiteurs
 
@@ -260,7 +277,7 @@ L’onglet **Rapport** montre, pour cette semaine ou ce mois, combien de temps l
 
 ### Le rapport en PDF
 
-Chaque semaine, chaque mois et à la fin de la saison de chauffage, un **rapport PDF** (4 pages) est créé. Il contient entre autres :
+Chaque semaine, chaque mois et à la fin de la saison de chauffage, un **rapport PDF** (plusieurs pages) est créé. Il contient entre autres :
 
 - une **note de A à F** pour votre climat intérieur – avec historique,
 - la comparaison avec la période précédente et l’**année précédente**,
@@ -406,7 +423,8 @@ sont enregistrés – l'année n'a pas d'importance.
 |---|---|
 | **Thermostat (TRV)** | Le régulateur directement sur le radiateur. |
 | **Sonde** | Un petit appareil qui mesure la température (et souvent l’humidité) dans la pièce. |
-| **Offset** | Une valeur de correction pour que le thermostat « voie » la même température que la sonde. |
+| **Décalage (Abgleich)** | Correction entre la sonde de pièce et le thermostat. Raumklima l'apprend et l'applique à la consigne pour que la pièce atteigne vraiment la cible. |
+| **Particules fines (PM2,5)** | Poussières fines en µg/m³. Dès 35, aérer est utile. |
 | **Zone** | Une zone sur la carte dans Home Assistant, par ex. votre maison. |
 | **Abaissement** | Abaisser légèrement la température pour économiser l’énergie. |
 | **Limite de chauffage** | Au-dessus de cette température extérieure (moyenne journalière), le bâtiment n’a pas besoin de chauffage. |
