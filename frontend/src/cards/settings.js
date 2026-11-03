@@ -890,6 +890,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const visible = secs.filter((el) => el.style.display !== "none");
     secs.forEach((el) => el.classList.toggle("solo", visible.length === 1 && el.style.display !== "none"));
     root.querySelector(".groups")?.classList.toggle("solo", visible.length === 1);
+    // Leiste nur für Gruppen zeigen, die es in diesem Bereich wirklich gibt
+    // (sonst führt „Lernen" ins Nichts, solange der Reiter noch fehlt).
+    root.querySelectorAll(".railbtn").forEach((b) => {
+      if (!root.querySelector(`.grp[data-g="${b.dataset.g}"]`)) b.remove();
+    });
     root.querySelectorAll(".railbtn").forEach((b) => {
       const g = b.dataset.g;
       b.classList.toggle("empty", !present.has(g));
