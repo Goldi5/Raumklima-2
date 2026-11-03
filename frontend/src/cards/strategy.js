@@ -76,11 +76,12 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
       ],
     };
 
-    // Gleicher View-Typ wie die Übersicht (Sections statt Panel) – sonst ist die Karte schmaler.
+    // Gleiches Raster wie die Räume-Ansicht: 3 Spalten, Karte über alle – sonst landet sie in
+    // einer einzigen schmalen Spalte (max_columns: 1 heißt in HA „eine Spalte“, nicht „volle Breite“).
     const settingsView = {
       title: t("Einstellungen"), path: "einstellungen", icon: "mdi:tune-variant",
-      type: "sections", max_columns: 1,
-      sections: [{ type: "grid", column_span: 1, cards: [{ type: "custom:raumklima-settings-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+      type: "sections", max_columns: 3,
+      sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-settings-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
     const reportView = {

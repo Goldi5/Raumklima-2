@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.45.4 – 2026-11-03
+
+### Behoben
+- **Einstellungen wieder in voller Breite:** 0.45.3 hatte den Reiter auf ein Raster mit einer Spalte
+  gestellt (`max_columns: 1`) – das ist in Home Assistant eine einzige schmale Spalte, nicht die volle
+  Breite. Jetzt dasselbe Raster wie die Räume-Ansicht (3 Spalten, Karte über alle).
+
 ## 0.45.3 – 2026-11-03
 
 ### Behoben

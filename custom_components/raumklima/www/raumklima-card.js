@@ -1,4 +1,4 @@
-/* Raumklima 0.45.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.45.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1405,7 +1405,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.45.3";
+  var RK_VERSION = "0.45.4";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -5598,8 +5598,8 @@
         path: "einstellungen",
         icon: "mdi:tune-variant",
         type: "sections",
-        max_columns: 1,
-        sections: [{ type: "grid", column_span: 1, cards: [{ type: "custom:raumklima-settings-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
+        max_columns: 3,
+        sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-settings-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
       };
       const reportView = {
         title: t("Bericht"),
