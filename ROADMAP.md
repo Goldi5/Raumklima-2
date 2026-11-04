@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.54.0 (Early Release – Tester gesucht)
+Stand: Version 0.55.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -36,12 +36,15 @@ Stand: Version 0.54.0 (Early Release – Tester gesucht)
 - [x] **Vorheizen auf ein Zeitfenster** (0.20.0) – der Raum rechnet aus seiner gelernten Aufheizzeit
       (°C/h), wann er loslegen muss, um zum Beginn des nächsten Zeitfensters warm zu sein (10 min Puffer);
       ohne gelernte Zeit passiert nichts, bei Abwesenheit gewinnt die Absenkung.
-- [ ] **Zeitpläne zwischen Räumen teilen** – ein Zeitfenster einmal anlegen und mehreren Räumen zuweisen
-      (z. B. Wohnzimmer + Esszimmer abends gleich), statt es je Raum zu wiederholen.
+- [x] **Zeitpläne zwischen Räumen teilen** (0.55.0) – ein Raum kann den Zeitplan eines anderen übernehmen
+      (Zeitplan von). Gepflegt wird er an einer Stelle, Änderungen gelten überall mit; nur eine Ebene,
+      damit keine Ketten entstehen.
 - [ ] **Sprachsteuerung (Assist)** – „Wie warm ist es im Bad?“, „Mach das Wohnzimmer wärmer“, „Muss ich lüften?“
 - [x] **Sturm- und Regenwarnung** (0.54.0) – Böen und Regen aus der Wettervorhersage; steht ein Fenster
       offen, kommt einmal pro Ereignis eine Warnung (auch in der Ruhezeit). Schwellen einstellbar.
-- [ ] **Nutzung lernen und vorheizen** – aus den Präsenzmeldern („Arbeitszimmer ab 8 Uhr belegt“).
+- [x] **Nutzung lernen** (0.55.0) – Räume mit Präsenzmelder zählen je Wochentag und Viertelstunde, wann
+      sie belegt sind; im Reiter Lernen steht der Vorschlag (Mo–Fr 08:00–11:30). Angewendet wird nichts
+      automatisch – ein Zeitfenster legst du selbst an.
 - [x] **Schlafzeiten aus dem Präsenzmelder im Schlafzimmer** (0.54.0) – ist ein Raum vom Typ Schlafzimmer
       20 Minuten belegt (mit eigenem Melder), gilt die Bettzeit als erkannt – zusätzlich zu Licht und
       Nachtlüften.

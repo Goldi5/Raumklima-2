@@ -137,6 +137,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "offset_auto": round(c.shift, 2),
             "valve_sensor": c.valve_sensor,
             "valve_sources": c.valve_sources,
+            "usage": c.usage_summary.get("text") or None,
+            "usage_windows": c.usage_summary.get("windows") or [],
             "battery": c.battery_low,
             "override_until": (
                 c.manual_until.isoformat()

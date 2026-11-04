@@ -73,6 +73,7 @@ from .const import (
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULE_FROM,
     CONF_SCHEDULES,
     CONF_SENSOR_STALE_MINUTES,
     CONF_SETBACK_LONG,
@@ -160,6 +161,7 @@ from .room_trv import HEAT_PRESETS, MANUAL_OVERRIDE, TrvMixin
 from .room_windows import WindowMixin
 from .shared import domain_data, get_hub, iso, parse_dt
 from .sync import SyncManager
+from .usage_profile import UsageProfile
 from .vent_manager import VentilationManager
 from .ventilation import MIN_USEFUL_TARGET, comfort_temperature
 
@@ -302,6 +304,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._trv_down_cancel: Callable[[], None] | None = None
         self.heatup = HeatupTracker()
         self.airing = AiringProfile()
+        self.usage = UsageProfile()
         self._virtual_low: float = 0.0
         self._virtual_cancel: Callable[[], None] | None = None
         self._batteries: dict[str, str] = {}
@@ -346,6 +349,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.shift = float(stored.get("shift") or 0.0)
             self.heatup.load(stored.get("heatup"))
             self.airing.load(stored.get("airing_profile"))
+            self.usage.load(stored.get("usage_profile"))
         elif self.trv_available():
             # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
             self.target_temp = self.comfort_temp
@@ -447,6 +451,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "vent": self.vent.export() if self.vent else None,
             "heatup": self.heatup.dump(),
             "airing_profile": self.airing.export(),
+            "usage_profile": self.usage.export(),
         }
 
     # ---------------------------------------------------------------- Gewohntes Lüften
@@ -454,6 +459,18 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         """Einen abgeschlossenen Lüftvorgang für das Lernen merken."""
         self.airing.record(dt_util.as_local(when), minutes)
         self._save()
+
+    @callback
+    def record_usage(self) -> None:
+        """Belegung für das Nutzungsprofil festhalten (nur mit Präsenzmelder)."""
+        if not self.presence_sensors:
+            return
+        if self.usage.mark(dt_util.now(), self.occupied is True):
+            self._save()
+
+    @property
+    def usage_summary(self) -> dict[str, Any]:
+        return self.usage.summary() if self.presence_sensors else {}
 
     def airing_learned(self, when: datetime) -> bool:
         return self.airing.learned(when)
@@ -506,7 +523,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "virtual_window": self.virtual_mode,
             "solar_gain": bool(self.config.get(CONF_SOLAR)),
             "solar_facade": self.config.get(CONF_SOLAR_FACADE) or "",
-            "schedules": list(self.config.get(CONF_SCHEDULES) or []),
+            "schedules": self.schedules,
+            "schedule_from": self.config.get(CONF_SCHEDULE_FROM) or "",
             "boost_temperature": cfg.get(CONF_BOOST_TEMP),
             "boost_minutes": cfg.get(CONF_BOOST_MINUTES),
             "presence_sensors": self.sensor_kinds(),
@@ -725,6 +743,20 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return to_float(state.state) if state else None
 
     @property
+    def schedules(self) -> list[dict[str, Any]]:
+        """Zeitplan dieses Raums – oder der eines anderen Raums (geteilt).
+
+        Geteilt wird nur eine Ebene: der Zielraum nutzt dessen eigenen Zeitplan, damit
+        keine Ketten oder Ringe entstehen können.
+        """
+        source = str(self.config.get(CONF_SCHEDULE_FROM) or "").strip()
+        if source and source != self.entry.entry_id and self.hub is not None:
+            other = (getattr(self.hub, "rooms", {}) or {}).get(source)
+            if other is not None and other is not self:
+                return list((other.config or {}).get(CONF_SCHEDULES) or [])
+        return list(self.config.get(CONF_SCHEDULES) or [])
+
+    @property
     def offset(self) -> float | None:
         if not self.cal_entity:
             return None
@@ -809,7 +841,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 return True, target, stage
             # Nichts zu senken (Wunsch liegt schon auf dem Absenkwert, z. B. Sportzimmer 18,0 °C):
             # trotzdem als „abgesenkt" melden – außer ein Zeitplanfenster gilt gerade.
-            if schedule_target(self.config.get(CONF_SCHEDULES), dt_util.now()) is None:
+            if schedule_target(self.schedules, dt_util.now()) is None:
                 return True, target, stage
         manual_until = self._manual_until
         if not self._peeking:
@@ -822,7 +854,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.frost_night_low = None
         # Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne
         local_now = dt_util.now()
-        sched = schedule_target(self.config.get(CONF_SCHEDULES), local_now)
+        sched = schedule_target(self.schedules, local_now)
         if sched is not None:
             if manual_until and now < manual_until and not values_match(self.target_temp, sched, 0.05):
                 # Von Hand gestellt: der Zeitplan pausiert bis override_minutes abgelaufen sind
@@ -958,7 +990,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if override:
             # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
             self._manual_until = now + MANUAL_OVERRIDE
-        elif self.override_minutes > 0 and schedule_target(self.config.get(CONF_SCHEDULES), dt_util.now()) is not None:
+        elif self.override_minutes > 0 and schedule_target(self.schedules, dt_util.now()) is not None:
             # In einem laufenden Zeitfenster: von Hand gestellt heißt „für X Minuten mein Wunsch".
             self._manual_until = now + timedelta(minutes=self.override_minutes)
         if new != self.target_temp:

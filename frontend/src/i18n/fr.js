@@ -725,4 +725,11 @@ export const FR = {
   "… Regen ab": "… pluie dès",
   "ab dieser Regenmenge gilt es als Starkregen": "à partir de cette quantité, on parle de fortes pluies",
   "Sturm & Starkregen": "Tempête et fortes pluies",
+  "Zeitplan von": "Programme de",
+  "eigener Zeitplan": "programme propre",
+  "Die Zeitfenster werden im gewählten Raum gepflegt – Änderungen gelten hier automatisch mit": "les plages sont gérées dans la pièce choisie – les modifications s’appliquent ici automatiquement",
+  "Zeitfenster einmal pflegen und für mehrere Räume nutzen": "gérer les plages une seule fois et les utiliser pour plusieurs pièces",
+  "Übliche Nutzung": "Utilisation habituelle",
+  "sammelt noch – nur mit Präsenzmelder": "collecte en cours – capteur de présence requis",
+  "Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an": "suggestion issue de l’occupation par jour de la semaine ; vous créez vous-même une plage",
 };

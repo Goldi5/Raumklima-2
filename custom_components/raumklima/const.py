@@ -120,6 +120,7 @@ CONF_NIGHT_START: Final = "night_start"
 CONF_NIGHT_END: Final = "night_end"
 CONF_NIGHT_ALARM: Final = "night_alarm_temp"
 # Zeitpläne und Boost (pro Raum)
+CONF_SCHEDULE_FROM: Final = "schedule_from"  # Zeitplan eines anderen Raums übernehmen
 CONF_SCHEDULES: Final = "schedules"  # Liste: {days: [0..6], start: "HH:MM", end: "HH:MM", temperature: °C}
 CONF_BOOST_TEMP: Final = "boost_temperature"  # Zusatz zur Wunschtemperatur in K
 CONF_BOOST_MINUTES: Final = "boost_minutes"  # Dauer eines Boosts in Minuten

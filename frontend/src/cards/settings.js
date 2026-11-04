@@ -710,7 +710,23 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const boostTemp = this._roomOpt(r, "boost_temperature") ?? s.boost_temperature ?? 2;
     const boostMin = this._roomOpt(r, "boost_minutes") ?? s.boost_minutes ?? 30;
     const list = this._schedList(id, this._roomOpt(r, "schedules") ?? s.schedules ?? []);
+    // Zeitplan eines anderen Raums übernehmen (einmal pflegen, mehrere Räume nutzen)
+    const fromId = this._roomOpt(r, "schedule_from") ?? s.schedule_from ?? "";
+    const others = (this._rooms || [])
+      .filter((x) => x.id !== r.id)
+      .map((x) => ({ id: ((x.attrs.settings || {}).entry_id) || x.id, name: x.name }));
+    const shared = !!fromId && others.some((o) => o.id === fromId);
+    const shareRow = this._row(
+      "Zeitplan von",
+      editable
+        ? this._select(scope, "schedule_from", [{ id: "", name: t("eigener Zeitplan") }, ...others], fromId)
+        : this._v(shared ? others.find((o) => o.id === fromId).name : t("eigener Zeitplan")),
+      shared
+        ? t("Die Zeitfenster werden im gewählten Raum gepflegt – Änderungen gelten hier automatisch mit")
+        : t("Zeitfenster einmal pflegen und für mehrere Räume nutzen")
+    );
     const rows = [
+      shareRow,
       this._row(
         "Wärmer für kurze Zeit (Boost)",
         editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),
@@ -732,10 +748,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
     } else {
       list.forEach((w, i) => rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days)))));
     }
-    if (!ro && list.length) {
+    if (!ro && list.length && !shared) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><button class="add" data-schedsort="${id}"><ha-icon icon="mdi:sort-clock-ascending-outline"></ha-icon>${t("nach Uhrzeit sortieren")}</button><span class="hint">${t("Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere")}</span></div></div>`);
     }
-    if (!ro && list.length < 6) {
+    if (!ro && list.length < 6 && !shared) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
     }
     return this._grp("Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
@@ -1051,6 +1067,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row(t("Wie sicher?"), `<span class="chip2" style="--c:var(--rk-${sure[1]})"><i></i>${sure[0]}</span>`,
         t("mehr Aufheizvorgänge, verlässlichere Vorhersage")),
       this._row(t("Gerade gilt"), `<span class="v">${planText(a, false)}</span>`, t("so entscheidet die Automatik im Moment")),
+      this._row(
+        t("Übliche Nutzung"),
+        this._v(a.usage || t("sammelt noch – nur mit Präsenzmelder"), !a.usage),
+        t("Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an")
+      ),
     ].join("");
     const body = tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
     return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["overview", "decisions", "how"]) + body);

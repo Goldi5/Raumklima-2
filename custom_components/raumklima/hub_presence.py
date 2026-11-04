@@ -80,6 +80,8 @@ class PresenceMixin:
         self._evaluate_presence()
         self.check_storm()  # Unwetter bei offenem Fenster
         self._check_presence_sleep()  # belegtes Schlafzimmer = Bettzeit
+        for room in list(self.rooms.values()):
+            room.record_usage()  # Nutzungsprofil (nur Räume mit Melder)
         if self.sleep_signals:
             self._handle_signal(self.signals.tick(dt_util.now()))
 

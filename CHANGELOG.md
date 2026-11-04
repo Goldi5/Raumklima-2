@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.55.0 – 2026-11-04
+
+### Neu
+- **Zeitplan von einem anderen Raum übernehmen:** Unter Einstellungen → Zeitplan gibt es je Raum die Zeile
+  Zeitplan von. Damit nutzt ein Raum die Zeitfenster eines anderen (z. B. Wohnzimmer und Esszimmer abends
+  gleich) – gepflegt wird an einer Stelle, Änderungen gelten überall mit. Geteilt wird nur eine Ebene,
+  damit keine Ketten oder Ringe entstehen; ohne Auswahl gilt wie bisher der eigene Zeitplan.
+- **Nutzung lernen (Vorschlag):** Räume mit Präsenzmelder zählen je Wochentag und Viertelstunde, wann sie
+  belegt sind (vier Wochen, nur ja/nein – kein Personenbezug). Im Reiter Lernen steht daraus ein Vorschlag
+  wie Mo–Fr 08:00–11:30. Angewendet wird nichts automatisch: ein Zeitfenster legst du selbst an.
+
 ## 0.54.0 – 2026-11-04
 
 ### Neu

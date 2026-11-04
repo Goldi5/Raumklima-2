@@ -725,4 +725,11 @@ export const EN = {
   "… Regen ab": "… rain from",
   "ab dieser Regenmenge gilt es als Starkregen": "from this amount of rain it counts as heavy rain",
   "Sturm & Starkregen": "Storm & heavy rain",
+  "Zeitplan von": "Schedule from",
+  "eigener Zeitplan": "own schedule",
+  "Die Zeitfenster werden im gewählten Raum gepflegt – Änderungen gelten hier automatisch mit": "the windows are maintained in the selected room – changes apply here automatically",
+  "Zeitfenster einmal pflegen und für mehrere Räume nutzen": "maintain the windows once and use them for several rooms",
+  "Übliche Nutzung": "Typical usage",
+  "sammelt noch – nur mit Präsenzmelder": "still collecting – presence sensor required",
+  "Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an": "suggestion from occupancy per weekday; you create a schedule window yourself",
 };

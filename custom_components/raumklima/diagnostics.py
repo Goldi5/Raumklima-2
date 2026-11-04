@@ -151,8 +151,10 @@ def _learned_room(room: Any) -> dict[str, Any]:
         "valve_sensor": getattr(room, "valve_sensor", None),
         "schedules": {
             "count": len(config.get("schedules") or []),
+            "shared_from": config.get("schedule_from") or None,
             "learn_times": bool(hub.config.get("learn_times")) if hub is not None else None,
         },
+        "usage": getattr(room, "usage_summary", {}) or None,
     }
 
 
