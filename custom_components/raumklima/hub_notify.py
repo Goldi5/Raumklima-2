@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_NOTIFY_PRESENT_ONLY,
     CONF_RECIPIENTS,
     CONF_TTS,
     URGENT_KINDS,
@@ -16,6 +17,7 @@ from .decision_log import (
     CAT_NOTIFY,
 )
 from .msg import tr
+from .notify_filter import keep_present
 from .planning import (
     in_time_window,
 )
@@ -82,6 +84,23 @@ class NotifyMixin:
             data.setdefault("push", {"interruption-level": "time-sensitive"})
         push = [only] if only else self.targets(kind)
         tts = [] if not speak or quiet or only else self.targets(kind, "tts")
+        # Hinweise (nicht kritische Meldungen) nur an Personen, die zu Hause sind
+        if kind not in URGENT_KINDS and not only:
+            pref = self.opt(CONF_NOTIFY_PRESENT_ONLY)
+            only_present = True if pref is None else bool(pref)
+            before = len(push) + len(tts)
+            push = keep_present(push, self.persons, only_present)
+            tts = keep_present(tts, self.persons, only_present)
+            if before and not push and not tts:
+                self.log.add(
+                    CAT_NOTIFY,
+                    f"{title}",
+                    tr("nicht gesendet – niemand der Empfänger ist zu Hause"),
+                    kind=kind,
+                    room=getattr(room, "name", None),
+                    entry_id=getattr(getattr(room, "entry", None), "entry_id", None),
+                )
+                return
         if push or tts:
             level = (data.get("push") or {}).get("interruption-level", "active")
             how = {"passive": tr("leise"), "time-sensitive": tr("dringend (auch in der Ruhezeit)")}.get(level, tr("normal"))

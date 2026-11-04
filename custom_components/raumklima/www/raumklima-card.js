@@ -1,4 +1,4 @@
-/* Raumklima 0.49.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.50.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -713,7 +713,9 @@
     "Karte konnte nicht gezeichnet werden": "The card could not be rendered",
     "Nur wenn jemand im Raum war": "Only if someone was in the room",
     "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "no “please air” hints in empty rooms (only possible with a presence sensor)",
-    "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "no “please air” in empty rooms – only possible with a presence sensor"
+    "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "no “please air” in empty rooms – only possible with a presence sensor",
+    "Nur an anwesende Personen": "Only to people who are home",
+    "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "airing hints only to phones of people who are home according to location – urgent messages (window open while away, frost, failure) still go to everyone"
   };
 
   // src/i18n/fr.js
@@ -1429,7 +1431,9 @@
     "Karte konnte nicht gezeichnet werden": "La carte n'a pas pu être dessinée",
     "Nur wenn jemand im Raum war": "Seulement si quelqu’un était dans la pièce",
     "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "aucun rappel « aérez » dans les pièces vides (possible uniquement avec un détecteur de présence)",
-    "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "aucun « aérez » dans les pièces vides – possible uniquement avec un détecteur de présence"
+    "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "aucun « aérez » dans les pièces vides – possible uniquement avec un détecteur de présence",
+    "Nur an anwesende Personen": "Seulement aux personnes présentes",
+    "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "rappels d’aération uniquement vers les téléphones des personnes présentes selon la géolocalisation – les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde"
   };
 
   // src/i18n.js
@@ -1473,7 +1477,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.49.4";
+  var RK_VERSION = "0.50.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -3964,6 +3968,7 @@
       const hm = (v) => String(v || "").slice(0, 5);
       const tf = (key, val) => `<button class="timebtn" data-timeopen="${key}" data-val="${hm(val)}" ${this._admin ? "" : "disabled"}>${hm(val) || "–:–"}</button>`;
       const notiRows = [
+        this._row("Nur an anwesende Personen", this._optToggle(H, "notify_present_only", this._hubOpt("notify_present_only") ?? true), t("Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle")),
         this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
         this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
         this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),

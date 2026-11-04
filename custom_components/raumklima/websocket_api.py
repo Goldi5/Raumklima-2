@@ -46,6 +46,7 @@ from .const import (
     CONF_NIGHT_ALARM,
     CONF_NIGHT_END,
     CONF_NIGHT_START,
+    CONF_NOTIFY_PRESENT_ONLY,
     CONF_ON_PRESET,
     CONF_OVERRIDE_MINUTES,
     CONF_PREHEAT_KM,
@@ -141,6 +142,7 @@ HUB_CHANGES = vol.Schema(
     {
         vol.Optional(CONF_RECIPIENTS): _TARGETS,
         vol.Optional(CONF_TTS): _TARGETS,
+        vol.Optional(CONF_NOTIFY_PRESENT_ONLY): bool,
         vol.Optional("quiet_start"): _time,
         vol.Optional("quiet_end"): _time,
         vol.Optional("quiet_end_weekend"): _time,

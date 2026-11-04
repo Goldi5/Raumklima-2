@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.50.0 – 2026-11-04
+
+### Neu
+- **Hinweise nur an anwesende Personen** (Allgemein → Benachrichtigung, Standard an): „Bitte lüften",
+  „Fenster schließen" und „fertig gelüftet" gehen nur noch an Empfänger, deren Person laut Ortung
+  zu Hause ist. Wer 80 km entfernt ist, wird nicht mehr gefragt, ob er lüften kann.
+  Dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Thermostat-Ausfall) gehen weiter an alle.
+  Nicht zuordenbare Empfänger (Gruppen, E-Mail, Fremddienste) bleiben unberührt.
+  Ist niemand der Empfänger zu Hause, wird der Hinweis übersprungen und im Protokoll vermerkt.
+
 ## 0.49.5 – 2026-11-04
 
 ### Geändert

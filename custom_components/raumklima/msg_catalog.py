@@ -482,6 +482,11 @@ _ROWS: list[tuple[str, str, str]] = [
         "The air is fresh again – you can close the window.",
         "L'air est de nouveau frais – vous pouvez fermer.",
     ),
+    (
+        "nicht gesendet – niemand der Empfänger ist zu Hause",
+        "not sent – none of the recipients is at home",
+        "non envoyé – aucun des destinataires n'est à la maison",
+    ),
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

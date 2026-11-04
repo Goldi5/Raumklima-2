@@ -69,6 +69,7 @@ EVENT_RAUMKLIMA: Final = "raumklima_event"
 ROOM_TYPE_OPTIONS: Final = ["living", "kitchen", "bedroom", "bathroom", "children", "rarely_used"]
 
 # --- Zentrale „Allgemein“ (v0.3) ---
+CONF_NOTIFY_PRESENT_ONLY: Final = "notify_present_only"  # Lüfthinweise nur an anwesende Personen
 CONF_RECIPIENTS: Final = "recipients"  # {"notify.x": [Nachrichtenarten]}
 CONF_TTS: Final = "tts"  # {"notify.alexa_x": [Nachrichtenarten]}
 CONF_RESIDENTS: Final = "residents"  # person.*
@@ -162,6 +163,7 @@ DEFAULT_TTS_KINDS: Final = [KIND_TOO_COLD]
 URGENT_KINDS: Final = (KIND_TOO_COLD, KIND_WINDOW_AWAY, KIND_TRV_FAILURE)
 
 HUB_DEFAULTS: Final = {
+    CONF_NOTIFY_PRESENT_ONLY: True,
     CONF_RECIPIENTS: {},
     CONF_TTS: {},
     "quiet_start": "22:00:00",
