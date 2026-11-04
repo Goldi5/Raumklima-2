@@ -15,6 +15,7 @@ from .const import (
     CONF_CALENDAR,
     CONF_CALENDAR_AWAY,
     CONF_CALENDAR_HOME,
+    CONF_GUESTS_ROOMS,
     CONF_HOME_SENSORS,
     CONF_LONG_AWAY_HOURS,
     CONF_PREHEAT_KM,
@@ -230,6 +231,27 @@ class PresenceMixin:
         else:
             self._save()
             self._changed(rooms=False)
+
+    def stage_for_room(self, entry_id: str) -> str:
+        """Stufe für einen Raum – „Gäste da" kann auf ausgewählte Räume begrenzt sein.
+
+        Ohne Auswahl gilt sie wie bisher für die ganze Wohnung.
+        """
+        if self.stage != STAGE_GUESTS:
+            return self.stage
+        chosen = list(self.opt(CONF_GUESTS_ROOMS) or [])
+        if chosen and entry_id not in chosen:
+            minutes = (
+                (dt_util.utcnow() - self.last_present).total_seconds() / 60 if self.last_present else None
+            )
+            if minutes is None or minutes < float(self.opt(CONF_AWAY_DELAY)):
+                return STAGE_HOME
+            return (
+                STAGE_AWAY_LONG
+                if minutes >= float(self.opt(CONF_LONG_AWAY_HOURS)) * 60
+                else STAGE_AWAY_SHORT
+            )
+        return self.stage
 
     def note_trv_blip(self, room: Any, seconds: float) -> None:
         """Ein Thermostat war kurz weg. Waren es alle gleichzeitig, ist es die Verbindung."""

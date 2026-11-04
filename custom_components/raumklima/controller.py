@@ -47,6 +47,7 @@ from .const import (
     CONF_CO2_SENSOR,
     CONF_COMFORT_TEMP,
     CONF_EXTRA_TRVS,
+    CONF_FAST_POLL,
     CONF_FOLLOW_TRV,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
@@ -372,6 +373,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             async_track_time_interval(
                 self.hass, self._on_cal_interval, timedelta(seconds=CALIBRATION_INTERVAL)
             )
+        )
+        # Träge Geräte (Homematic & Co.) melden Ventilstellungen erst spät – optional nachfragen.
+        self._unsubs.append(
+            async_track_time_interval(self.hass, self._on_fast_poll, timedelta(seconds=120))
         )
 
         # Startzustand: Fenster ohne Verzögerung übernehmen
@@ -757,7 +762,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.boost_until = None
             self.boost_temperature = None
             self._save()
-        if hub.stage in AWAY_STAGES:
+        stage = hub.stage_for_room(self.entry.entry_id) if hasattr(hub, "stage_for_room") else hub.stage
+        if stage in AWAY_STAGES:
             if self._manual_until and now < self._manual_until:
                 return True, self.target_temp, REASON_MANUAL
             mold = None
@@ -766,14 +772,14 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                     self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
                 )
             target = setback_target(
-                self.target_temp, hub.stage, self.setback_short, self.setback_long, mold
+                self.target_temp, stage, self.setback_short, self.setback_long, mold
             )
             frost = hub.frost_night
             self.frost_night_low = frost if target < self.target_temp else None
             if frost is not None and target < self.target_temp:
                 target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
             if target < self.target_temp:
-                return True, target, hub.stage
+                return True, target, stage
         manual_until = self._manual_until
         if not self._peeking:
             self._manual_until = None
@@ -1116,6 +1122,20 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.valve_sensor = found
         self._unsubs.append(async_track_state_change_event(self.hass, [found], self._on_state_change))
         return True
+
+    @callback
+    def _on_fast_poll(self, _now: datetime) -> None:
+        """Alle zwei Minuten beim Gerät nachfragen (nur wenn der Raum es verlangt)."""
+        if not self.config.get(CONF_FAST_POLL):
+            return
+        ids = [self.trv] + [t.entity_id for t in self.extra_trvs if getattr(t, "entity_id", None)]
+        if not ids:
+            return
+        self.hass.async_create_task(
+            self.hass.services.async_call(
+                "homeassistant", "update_entity", {"entity_id": ids}, blocking=False
+            )
+        )
 
     @callback
     def _on_reconcile(self, _now: datetime) -> None:

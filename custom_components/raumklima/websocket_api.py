@@ -25,8 +25,10 @@ from .const import (
     CONF_CALENDAR_HOME,
     CONF_COLD_SNAP_TEMP,
     CONF_COMFORT_TEMP,
+    CONF_FAST_POLL,
     CONF_FROST_FLOOR,
     CONF_FROST_NIGHT,
+    CONF_GUESTS_ROOMS,
     CONF_HEATING_LIMIT,
     CONF_HOME,
     CONF_HOME_SENSORS,
@@ -148,6 +150,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional("holiday_state"): vol.Any(None, vol.In(["", *STATES])),
         vol.Optional("sleep_signals"): [str],
         vol.Optional("repeat_minutes"): vol.All(vol.Coerce(float), vol.Range(1, 120)),
+        vol.Optional(CONF_GUESTS_ROOMS): vol.All([str], vol.Length(max=30)),
         vol.Optional("weather_entity"): vol.Any(None, str),
         vol.Optional("notify_on_failure"): bool,
         vol.Optional(CONF_RESIDENTS): [str],
@@ -232,6 +235,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_LONG_AIRING): vol.All(vol.Coerce(float), vol.Range(0, 180)),
         vol.Optional(CONF_LONG_AIRING_REMIND): vol.All(vol.Coerce(float), vol.Range(0, 240)),
         vol.Optional(CONF_LEARN_AIRING): vol.Boolean(),
+        vol.Optional(CONF_FAST_POLL): vol.Boolean(),
         vol.Optional(CONF_AIRING_WINDOWS): vol.Any(
             None,
             vol.All(

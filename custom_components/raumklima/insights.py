@@ -12,8 +12,8 @@ from homeassistant.helpers.event import async_track_time_change, async_track_tim
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, KIND_HEALTH, KIND_REPORT
-from .health import SEV_INFO, Issue, check_connection
+from .const import CONF_RECIPIENTS, CONF_TTS, DOMAIN, KIND_HEALTH, KIND_REPORT
+from .health import SEV_INFO, Issue, check_connection, check_notify_targets
 from .msg import tr
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
@@ -173,6 +173,15 @@ class Insights:
         day = [b for b in self.hub.connection_blips if now - b[0] <= timedelta(hours=24)]
         conn = check_connection(len(day), (sum(b[1] for b in day) / len(day)) if day else None)
         hub_issues = [conn] if conn else []
+        # Empfänger, die es nicht mehr gibt: sonst laufen Hinweise ins Leere
+        configured = set(self.hub.opt(CONF_RECIPIENTS) or {}) | set(self.hub.opt(CONF_TTS) or {})
+        missing = sorted(
+            t for t in configured
+            if "." in t and not self.hass.services.has_service(*t.split(".", 1))
+        )
+        targets = check_notify_targets(missing)
+        if targets:
+            hub_issues.append(targets)
         if {i.code for i in hub_issues} != {i.code for i in self.issues.get("hub", [])}:
             changed = True
         self.issues["hub"] = hub_issues

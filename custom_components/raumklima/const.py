@@ -59,6 +59,8 @@ CONF_LONG_AIRING: Final = "long_airing_minutes"  # ab so vielen Minuten Dauerlü
 CONF_LONG_AIRING_REMIND: Final = "long_airing_remind"  # eine stille Erinnerung danach (0 = aus)
 CONF_AIRING_WINDOWS: Final = "airing_windows"  # [{days:[0..6], start:"HH:MM", end:"HH:MM", quiet:bool}]
 CONF_LEARN_AIRING: Final = "learn_airing"  # gewohntes Lüften erkennen
+CONF_GUESTS_ROOMS: Final = "guests_rooms"  # Räume, für die „Gäste da" gilt (leer = alle)
+CONF_FAST_POLL: Final = "fast_poll"  # Thermostat alle 2 min aktiv abfragen (träge Geräte)
 CONF_COMFORT_TEMP: Final = "comfort_temperature"
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
 EVENT_RAUMKLIMA: Final = "raumklima_event"
@@ -243,6 +245,8 @@ DEFAULTS: Final = {
     CONF_LONG_AIRING_REMIND: 90,
     CONF_AIRING_WINDOWS: [],
     CONF_LEARN_AIRING: True,
+    CONF_GUESTS_ROOMS: [],
+    CONF_FAST_POLL: False,
 }
 
 # Feste Grenzen

@@ -702,4 +702,9 @@ export const EN = {
   "Dauerlüftung – ich erinnere nicht": "Long airing – no reminders",
   "Gewohntes Lüften – keine Erinnerung": "Habitual airing – no reminders",
   "Geplantes Lüften – keine Erinnerung": "Planned airing – no reminders",
+  "Gäste gelten für": "Guests apply to",
+  "nur diese Räume werden nicht abgesenkt": "only these rooms are not set back",
+  "keine Auswahl = alle Räume der Wohnung": "no selection = all rooms of the apartment",
+  "Schnellere Abfrage": "Faster polling",
+  "fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie": "actively asks the thermostat every 2 minutes – for sluggish devices (Homematic & co.), costs radio time and battery",
 };

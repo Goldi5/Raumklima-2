@@ -1,4 +1,4 @@
-/* Raumklima 0.47.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.48.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -701,7 +701,12 @@
     "Geplantes Lüften": "Planned airing",
     "Dauerlüftung – ich erinnere nicht": "Long airing – no reminders",
     "Gewohntes Lüften – keine Erinnerung": "Habitual airing – no reminders",
-    "Geplantes Lüften – keine Erinnerung": "Planned airing – no reminders"
+    "Geplantes Lüften – keine Erinnerung": "Planned airing – no reminders",
+    "Gäste gelten für": "Guests apply to",
+    "nur diese Räume werden nicht abgesenkt": "only these rooms are not set back",
+    "keine Auswahl = alle Räume der Wohnung": "no selection = all rooms of the apartment",
+    "Schnellere Abfrage": "Faster polling",
+    "fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie": "actively asks the thermostat every 2 minutes – for sluggish devices (Homematic & co.), costs radio time and battery"
   };
 
   // src/i18n/fr.js
@@ -1405,7 +1410,12 @@
     "Geplantes Lüften": "Aération planifiée",
     "Dauerlüftung – ich erinnere nicht": "Aération longue – sans rappel",
     "Gewohntes Lüften – keine Erinnerung": "Aération habituelle – sans rappel",
-    "Geplantes Lüften – keine Erinnerung": "Aération planifiée – sans rappel"
+    "Geplantes Lüften – keine Erinnerung": "Aération planifiée – sans rappel",
+    "Gäste gelten für": "Les invités concernent",
+    "nur diese Räume werden nicht abgesenkt": "seules ces pièces ne sont pas réduites",
+    "keine Auswahl = alle Räume der Wohnung": "aucune sélection = toutes les pièces du logement",
+    "Schnellere Abfrage": "Interrogation plus rapide",
+    "fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie": "interroge le thermostat toutes les 2 minutes – pour les appareils lents (Homematic & co.), coûte de la radio et de la batterie"
   };
 
   // src/i18n.js
@@ -1449,7 +1459,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.47.0";
+  var RK_VERSION = "0.48.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -3800,6 +3810,15 @@
         this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
         this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
         this._row(
+          "Gäste gelten für",
+          `<div class="chips">${(this._cfg && this._cfg.rooms ? this._cfg.rooms : []).map((r) => {
+            const rid = (r.attributes && r.attributes.settings ? r.attributes.settings.entry_id : r.entity_id) || r.entity_id;
+            const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
+            return `<button class="chip2 ${chosen ? "on" : ""}" data-guestroom="${rid}" style="--c:${chosen ? "var(--rk-eco)" : "var(--rk-off)"}"><i></i>${esc(r.attributes && r.attributes.friendly_name ? r.attributes.friendly_name.replace(/^.*?\s/, "") : rid)}</button>`;
+          }).join("")}</div>`,
+          (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
+        ),
+        this._row(
           "Kalender",
           this._select(H, "calendar_entity", ch.calendars || [], this._hubOpt("calendar_entity"), "– keiner –"),
           st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"
@@ -4264,6 +4283,11 @@
       ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
         this._row("Thermostat", this._v(esc(this._name(s.trv))), (s.extra_trvs || []).length ? "Haupt-Thermostat" : ""),
         (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
+        this._row(
+          "Schnellere Abfrage",
+          editable ? this._optToggle(scope, "fast_poll", !!(this._roomOpt(r, "fast_poll") ?? s.fast_poll)) : this._v(this._roomOpt(r, "fast_poll") ?? s.fast_poll ? t("an") : t("aus")),
+          t("fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie")
+        ),
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
@@ -4776,6 +4800,15 @@
         });
       }));
       const sp = (v) => String(v).split("|");
+      $("[data-guestroom]").forEach((el) => el.addEventListener("click", () => {
+        const rid = el.dataset.guestroom;
+        const cur = [...this._hubOpt("guests_rooms") || []];
+        const next = cur.includes(rid) ? cur.filter((x) => x !== rid) : [...cur, rid];
+        this._local = this._local || {};
+        this._local["hub:guests_rooms"] = next;
+        this._setHub({ guests_rooms: next }, 300);
+        this._flash(t("Gespeichert"));
+      }));
       $("[data-airadd]").forEach((el) => el.addEventListener("click", () => {
         const id = el.dataset.airadd;
         const list = this._airList(id, []);

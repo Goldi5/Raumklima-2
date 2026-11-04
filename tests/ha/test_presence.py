@@ -161,3 +161,20 @@ async def test_anwesenheit_aus_senkt_nicht_ab(hass: HomeAssistant, trv: FakeTrv,
     assert on is True
     assert target == wish
     assert reason == "normal"
+
+
+
+async def test_guests_only_for_selected_rooms(hass: HomeAssistant, setup) -> None:
+    """„Gäste da" kann auf einzelne Räume begrenzt werden (#17)."""
+    hub_entry_obj, room = setup
+    hub = hub_entry_obj.runtime_data
+    hub.set_guests(True)
+    hub.stage = "guests"  # Zustand, den die Anwesenheitsauswertung sonst bei Abwesenheit setzt
+    await hass.async_block_till_done()
+
+    # ohne Auswahl gilt sie überall
+    assert hub.stage_for_room(room.entry_id) == "guests"
+
+    # Auswahl ohne diesen Raum: für ihn zählt die Abwesenheit weiter
+    hub.config = {**hub.config, "guests_rooms": ["01ANDERERRAUM"]}
+    assert hub.stage_for_room(room.entry_id) != "guests"

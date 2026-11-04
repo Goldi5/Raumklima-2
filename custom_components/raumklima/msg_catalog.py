@@ -462,6 +462,16 @@ _ROWS: list[tuple[str, str, str]] = [
         "Reminders paused until the window is closed",
         "Rappels suspendus jusqu'à la fermeture de la fenêtre",
     ),
+    (
+        "Empfänger fehlt",
+        "Recipient missing",
+        "Destinataire manquant",
+    ),
+    (
+        "Diese Empfänger gibt es nicht mehr: {names}. Unter Einstellungen → Wer bekommt was neu wählen – sonst kommen keine Hinweise an.",
+        "These recipients no longer exist: {names}. Pick them again under Settings → Who gets what – otherwise no notifications arrive.",
+        "Ces destinataires n'existent plus : {names}. Choisissez-les à nouveau sous Réglages → Qui reçoit quoi – sinon aucun message n'arrive.",
+    ),
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

@@ -350,6 +350,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
         (st.sensed && st.sensed.length) ? t("gerade jemand in: {r}", { r: esc(st.sensed.join(", ")) }) : "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie"),
       this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
       this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
+      this._row(
+        "Gäste gelten für",
+        `<div class="chips">${(this._cfg && this._cfg.rooms ? this._cfg.rooms : [])
+          .map((r) => {
+            const rid = (r.attributes && r.attributes.settings ? r.attributes.settings.entry_id : r.entity_id) || r.entity_id;
+            const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
+            return `<button class="chip2 ${chosen ? "on" : ""}" data-guestroom="${rid}" style="--c:${chosen ? "var(--rk-eco)" : "var(--rk-off)"}"><i></i>${esc(r.attributes && r.attributes.friendly_name ? r.attributes.friendly_name.replace(/^.*?\s/, "") : rid)}</button>`;
+          })
+          .join("")}</div>`,
+        (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
+      ),
       this._row("Kalender", this._select(H, "calendar_entity", ch.calendars || [], this._hubOpt("calendar_entity"), "– keiner –"),
         st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"),
       this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
@@ -828,6 +839,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
       ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
         this._row("Thermostat", this._v(esc(this._name(s.trv))), (s.extra_trvs || []).length ? "Haupt-Thermostat" : ""),
         (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
+        this._row(
+          "Schnellere Abfrage",
+          editable ? this._optToggle(scope, "fast_poll", !!(this._roomOpt(r, "fast_poll") ?? s.fast_poll)) : this._v(this._roomOpt(r, "fast_poll") ?? s.fast_poll ? t("an") : t("aus")),
+          t("fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie")
+        ),
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
@@ -1345,6 +1361,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // Zeitplan bearbeiten: jede Änderung geht gesammelt (700 ms Pause) an den Raum
     const sp = (v) => String(v).split("|");
     // Lüftfenster: gleiche Bedienung wie Zeitfenster, nur ohne Temperatur
+    $("[data-guestroom]").forEach((el) => el.addEventListener("click", () => {
+      const rid = el.dataset.guestroom;
+      const cur = [...(this._hubOpt("guests_rooms") || [])];
+      const next = cur.includes(rid) ? cur.filter((x) => x !== rid) : [...cur, rid];
+      this._local = this._local || {};
+      this._local["hub:guests_rooms"] = next;
+      this._setHub({ guests_rooms: next }, 300);
+      this._flash(t("Gespeichert"));
+    }));
     $("[data-airadd]").forEach((el) => el.addEventListener("click", () => {
       const id = el.dataset.airadd;
       const list = this._airList(id, []);

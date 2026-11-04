@@ -257,3 +257,19 @@ def check_hydraulic(history: list[HistoryPoint], now: datetime, step_minutes: fl
             reached=f"{reached * 100:.0f}",
         ),
     )
+
+
+def check_notify_targets(missing: list[str]) -> Issue | None:
+    """Eingerichtete Empfänger, die es in Home Assistant nicht (mehr) gibt."""
+    if not missing:
+        return None
+    return Issue(
+        "notify_targets",
+        SEV_WARN,
+        tr("Empfänger fehlt"),
+        tr(
+            "Diese Empfänger gibt es nicht mehr: {names}. Unter Einstellungen → Wer bekommt was neu wählen – "
+            "sonst kommen keine Hinweise an.",
+            names=", ".join(missing),
+        ),
+    )

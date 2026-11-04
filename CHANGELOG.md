@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.48.0 – 2026-11-04
+
+### Neu
+- **„Gäste da" gilt nur für ausgewählte Räume** (#17): In den Einstellungen der Wohnung stehen unter
+  dem Schalter alle Räume als Chips – ausgewählt werden nur die, die bei Besuch nicht abgesenkt
+  werden. Ohne Auswahl gilt sie wie bisher für die ganze Wohnung. Die Liste kommt dynamisch aus den
+  angelegten Räumen.
+- **Schnellere Abfrage je Raum** (#11): Option für träge Geräte wie Homematic – Raumklima fragt das
+  Thermostat dann alle zwei Minuten aktiv ab, statt auf die nächste Meldung zu warten. Kostet Funk
+  und Batterie, deshalb standardmäßig aus.
+
+### Behoben
+- **Fehlender Empfänger wird erkannt:** Zeigt die Empfängerliste auf einen `notify`-Dienst, den es
+  nicht mehr gibt, erscheint ein Hinweis „Empfänger fehlt" – vorher liefen Meldungen still ins Leere.
+
 ## 0.47.0 – 2026-11-03
 
 ### Neu

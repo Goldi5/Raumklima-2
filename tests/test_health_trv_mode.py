@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from custom_components.raumklima.health import check_trv_mode
+from custom_components.raumklima.health import check_notify_targets, check_trv_mode
 
 
 def test_auto_modus_wird_gemeldet() -> None:
@@ -73,3 +73,12 @@ def test_valve_heating_min_konstante() -> None:
 def test_auto_ist_ok_wenn_wir_comfort_temperature_schreiben() -> None:
     """Beim TRV602Z heißt unser Schreibweg „comfort“ – dann ist Systemmodus auto gewollt."""
     assert check_trv_mode("auto", "comfort", device_preset=True) is None
+
+
+def test_missing_notify_target_is_reported() -> None:
+    """Eingerichteter Empfänger, den es nicht mehr gibt (Issue: Meldungen liefen ins Leere)."""
+    issue = check_notify_targets(["notify.christian"])
+    assert issue is not None
+    assert issue.code == "notify_targets"
+    assert "notify.christian" in issue.message
+    assert check_notify_targets([]) is None
