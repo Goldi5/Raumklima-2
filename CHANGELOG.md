@@ -1,8 +1,6 @@
 # Changelog
 
-## 0.51.0
-
-*Noch nicht veröffentlicht – wird gesammelt.*
+## 0.51.1 – 2026-11-04
 
 ### Neu
 - **notify-Entitäten als Empfänger** (Issue #19): Die offizielle Alexa-Devices-Integration stellt keine
@@ -10,6 +8,8 @@
   „…_sprechen"). Beide Formen stehen jetzt in der Empfänger-Auswahl; Entitäten werden über
   `notify.send_message` angesprochen, echte Dienste wie bisher. Damit sind Alexa Devices und Sonos
   ohne Zusatzintegration nutzbar.
+
+## 0.51.0 – 2026-11-04
 
 ### Behoben
 - **„Gäste gelten für" zeigte leere Chips:** Die Raumliste kam aus dem falschen Datenbestand
