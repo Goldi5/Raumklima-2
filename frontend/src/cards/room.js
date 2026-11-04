@@ -1,4 +1,4 @@
-import { STATUS, STYLES, VENT, fmt, humTone, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { STATUS, STYLES, VENT, esc, fmt, humTone, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -121,6 +121,16 @@ export class RaumklimaCard extends HTMLElement {
   }
 
   _render() {
+    try {
+      this._renderInner();
+    } catch (e) {
+      // Lieber eine sichtbare Fehlerkarte als eine Karte, die einfach verschwindet.
+      console.error("raumklima-card:", e);
+      this._html = `<style>${STYLES}</style><ha-card class="rcard"><div class="err">${esc(t("Karte konnte nicht gezeichnet werden"))}: ${esc(String(e && e.message || e))}</div></ha-card>`;
+    }
+  }
+
+  _renderInner() {
     if (!this._hass || !this._config) return;
     const st = this._hass.states[this._config.entity];
     if (!st) {

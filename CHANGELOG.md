@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.49.3 – 2026-11-04
+
+### Behoben
+- **Zwei Raumkarten verschwanden komplett** (Bad und Sportzimmer in Remscheid): Der Batterie-Hinweis
+  aus 0.49.0 nutzte `esc`, das in dieser Datei nicht importiert war. Nur Räume **mit** einem
+  Batteriesensor liefen in den Fehler – deshalb fehlten genau diese beiden Karten, auf allen Geräten.
+- **Eine Karte kann nicht mehr still verschwinden:** Schlägt das Zeichnen fehl, zeigt die Karte jetzt
+  eine sichtbare Fehlermeldung mit Ursache, statt leer zu bleiben.
+
+### Tests
+- Neuer Rauchtest für die Raumkarte (Batterie, Überwachungsraum, offenes Fenster) – hätte diesen
+  Fehler gefunden.
+
 ## 0.49.2 – 2026-11-04
 
 ### Behoben

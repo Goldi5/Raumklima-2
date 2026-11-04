@@ -710,4 +710,5 @@ export const EN = {
   "Batterie {p} %": "Battery {p} %",
   "Zeitplan überschreiben": "Override schedule",
   "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "how long your manual setting (HA or Alexa) applies, then the schedule returns – 0 disables it",
+  "Karte konnte nicht gezeichnet werden": "The card could not be rendered",
 };
