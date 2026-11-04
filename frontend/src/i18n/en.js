@@ -713,4 +713,5 @@ export const EN = {
   "Karte konnte nicht gezeichnet werden": "The card could not be rendered",
   "Nur wenn jemand im Raum war": "Only if someone was in the room",
   "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "no “please air” hints in empty rooms (only possible with a presence sensor)",
+  "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "no “please air” in empty rooms – only possible with a presence sensor",
 };

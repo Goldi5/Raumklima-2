@@ -712,7 +712,8 @@
     "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "how long your manual setting (HA or Alexa) applies, then the schedule returns – 0 disables it",
     "Karte konnte nicht gezeichnet werden": "The card could not be rendered",
     "Nur wenn jemand im Raum war": "Only if someone was in the room",
-    "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "no “please air” hints in empty rooms (only possible with a presence sensor)"
+    "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "no “please air” hints in empty rooms (only possible with a presence sensor)",
+    "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "no “please air” in empty rooms – only possible with a presence sensor"
   };
 
   // src/i18n/fr.js
@@ -1427,7 +1428,8 @@
     "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "durée pendant laquelle votre réglage manuel (HA ou Alexa) s'applique, ensuite le programme reprend – 0 le désactive",
     "Karte konnte nicht gezeichnet werden": "La carte n'a pas pu être dessinée",
     "Nur wenn jemand im Raum war": "Seulement si quelqu’un était dans la pièce",
-    "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "aucun rappel « aérez » dans les pièces vides (possible uniquement avec un détecteur de présence)"
+    "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "aucun rappel « aérez » dans les pièces vides (possible uniquement avec un détecteur de présence)",
+    "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "aucun « aérez » dans les pièces vides – possible uniquement avec un détecteur de présence"
   };
 
   // src/i18n.js
@@ -4200,6 +4202,7 @@
       const learn = this._roomOpt(r, "learn_airing") ?? s.learn_airing ?? true;
       const learned = Number(s.airing_learned || 0);
       const list = this._airList(id, this._roomOpt(r, "airing_windows") ?? s.airing_windows ?? []);
+      const presEff = this._roomOpt(r, "presence_sensors") ?? Object.keys(s.presence_sensors || {});
       const rows = [
         this._row(
           "Dauerlüftung ab",
@@ -4211,11 +4214,11 @@
           editable ? this._optStepper(scope, "long_airing_remind", lateMin, " min", 15, 0, 240) : this._v(`${lateMin} min`),
           t("eine einzige, stille Meldung bei sehr langem Lüften – 0 = aus")
         ),
-        this._row(
+        ...presEff.length ? [this._row(
           "Nur wenn jemand im Raum war",
           editable ? this._optToggle(scope, "airing_occupied_only", this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true) : this._v(this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true ? t("an") : t("aus")),
-          t("keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)")
-        ),
+          t("kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich")
+        )] : [],
         this._row(
           "Gewohntes Lüften erkennen",
           editable ? this._optToggle(scope, "learn_airing", !!learn) : this._v(learn ? t("an") : t("aus")),

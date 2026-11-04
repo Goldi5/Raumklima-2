@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.49.5 – 2026-11-04
+
+### Geändert
+- Die Option *Nur wenn jemand im Raum war* erscheint nur noch bei Räumen, denen ein Präsenzmelder
+  zugeordnet ist. Ohne Melder war sie wirkungslos und damit nur verwirrend.
+
 ## 0.49.4 – 2026-11-04
 
 ### Behoben

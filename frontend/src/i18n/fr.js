@@ -713,4 +713,5 @@ export const FR = {
   "Karte konnte nicht gezeichnet werden": "La carte n'a pas pu être dessinée",
   "Nur wenn jemand im Raum war": "Seulement si quelqu’un était dans la pièce",
   "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "aucun rappel « aérez » dans les pièces vides (possible uniquement avec un détecteur de présence)",
+  "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "aucun « aérez » dans les pièces vides – possible uniquement avec un détecteur de présence",
 };
