@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.49.2 – 2026-11-04
+
+### Behoben
+- **Lange Statuszeilen liefen aus der Karte heraus** (iPad und Handy). Der Zusatz „Thermostat 17,0°
+  (Abgleich -0,9°)" saß im Status-Chip und schob ihn über den Rand. Er steht jetzt in einer eigenen,
+  gekürzten Zeile darunter (mit Tooltip), die Kopfzeile darf umbrechen, und der Chip wird bei sehr
+  schmalen Karten beschnitten statt herauszuragen.
+
 ## 0.49.1 – 2026-11-04
 
 ### Behoben

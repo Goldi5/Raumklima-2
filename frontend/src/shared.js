@@ -270,10 +270,16 @@ export const STYLES = `
     background: var(--ha-card-background, var(--card-background-color)); transition: box-shadow .3s; }
   ha-card::before { content:""; position:absolute; inset:-40% -20% auto auto; width:320px; height:320px; z-index:-1;
     background: radial-gradient(circle, var(--tone) 0%, transparent 65%); opacity:.18; transition: background .6s; }
-  .top { display:flex; align-items:center; gap:12px; }
+  .top { display:flex; align-items:center; gap:12px; flex-wrap:wrap; min-width:0; }
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1; color:var(--primary-text-color); }
   .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.82rem; font-weight:600;
-    color:var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); white-space:nowrap; }
+    color:var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); white-space:nowrap;
+    max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+  /* Zusatzinfo (Gerätesollwert/Abgleich) bekommt eine eigene Zeile – sonst schiebt sie den Chip aus der Karte */
+  .trvnote { display:flex; align-items:center; gap:6px; margin-top:6px; min-width:0;
+    font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .trvnote ha-icon { --mdc-icon-size:15px; flex:none; }
+  .trvnote span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .chip ha-icon { --mdc-icon-size:16px; }
   .wins { display:flex; gap:4px; color:var(--secondary-text-color); }
   .wins ha-icon { --mdc-icon-size:20px; }
