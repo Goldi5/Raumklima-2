@@ -718,4 +718,11 @@ export const EN = {
   "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "airing hints only to phones of people who are home according to location – urgent messages (window open while away, frost, failure) still go to everyone",
   "Fehler melden": "Report a bug",
   "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "opens a new GitHub issue with version, Home Assistant version and thermostat model – without room names or entities",
+  "Sturm- und Regenwarnung": "Storm and rain warning",
+  "warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit": "warns when a storm or heavy rain is forecast and a window is open – also during quiet hours",
+  "… Böen ab": "… gusts from",
+  "ab dieser Böenstärke gilt es als Sturm": "from this gust speed it counts as a storm",
+  "… Regen ab": "… rain from",
+  "ab dieser Regenmenge gilt es als Starkregen": "from this amount of rain it counts as heavy rain",
+  "Sturm & Starkregen": "Storm & heavy rain",
 };

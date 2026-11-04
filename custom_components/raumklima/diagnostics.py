@@ -239,6 +239,8 @@ def _hub_block(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> dict[str, An
     data.pop("presence_profile", None)
     data["learned"] = _learned_hub(hub)
     data["rooms_known"] = sorted(getattr(hub, "rooms", {}) or {})
+    if hasattr(hub, "storm_summary"):
+        data["storm"] = hub.storm_summary()
     return data
 
 

@@ -41,6 +41,7 @@ from .hub_notify import NotifyMixin
 from .hub_presence import PresenceMixin
 from .hub_season import SeasonMixin
 from .hub_sleep import SleepMixin
+from .hub_storm import StormMixin
 from .insights import Insights
 from .msg import tr
 from .planning import (
@@ -91,7 +92,7 @@ def dashboard_slug(name: str) -> str:
     return f"heizung-{slug}" if slug and slug != "allgemein" else "heizung"
 
 
-class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
+class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMixin):
     """Einstellungen und Zustände, die für die ganze Wohnung gelten."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -200,6 +201,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         stored = await self._store.async_load() or {}
         self._loaded = True
         self.vacation = bool(stored.get("vacation", False))
+        self._storm_notified = stored.get("storm_notified") or None
         self.guests = bool(stored.get("guests", False))
         self.last_present = parse_dt(stored.get("last_present"))
         self.heat_today_until = parse_dt(stored.get("heat_today_until"))
@@ -220,6 +222,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self.presence_profile.load(stored.get("presence_profile"))
         sig = stored.get("signals") or {}
         self.signals.asleep = bool(sig.get("asleep", False))
+        self._storm_notified = None  # zuletzt gewarntes Unwetter-Ereignis
         self.signals.bed_at = parse_dt(sig.get("bed_at"))
         self._woke_night = sig.get("woke_night")
         self._migrate_kinds()
@@ -325,6 +328,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         return {
             "vacation": self.vacation,
             "guests": self.guests,
+            "storm_notified": getattr(self, "_storm_notified", None),
             "last_present": iso(self.last_present),
             "heat_today_until": iso(self.heat_today_until),
             "stage": self.stage,

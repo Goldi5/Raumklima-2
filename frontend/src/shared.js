@@ -504,6 +504,7 @@ export const RK_KINDS = tmap({
   trv_failure: ["⚠️", "Thermostat reagiert nicht"],
   health: ["🩺", "Gesundheit der Heizung"],
   report: ["📊", "Wochenbericht"],
+  storm: ["🌪", "Sturm & Starkregen"],
   live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"],
 });
 export const RK_LIGHT_SIGNALS = tmap({

@@ -40,6 +40,14 @@ Wer bei offenem Fenster schläft, soll nicht geweckt werden. Geht in einem Schla
 
 Pro Raum unter *Einstellungen → Raum → Fenster → Schlafen bei offenem Fenster*: **Automatisch** (Schlafzimmer und „selten genutzt“), **Ja** oder **Nein**. Zeitfenster und Warngrenze unter *Allgemein → Benachrichtigungen allgemein*.
 
+## Sturm- und Regenwarnung
+
+Raumklima liest Böen und Regen aus der Wettervorhersage, die in der Wohnung eingestellt ist. Ist für die
+nächsten sechs Stunden **Sturm** (Standard ab 70 km/h) oder **Starkregen** (ab 8 mm/h) angekündigt und
+steht ein Fenster offen, kommt eine Warnung mit Uhrzeit und den betroffenen Räumen – einmal pro Ereignis,
+auch in der Ruhezeit, weil sie dringend ist. Schwellen und der Schalter selbst stehen unter
+*Einstellungen → Allgemein → Benachrichtigung*.
+
 ## Push-Knöpfe (iPhone/Android)
 
 Lüftungs-Nachrichten haben drei Knöpfe:

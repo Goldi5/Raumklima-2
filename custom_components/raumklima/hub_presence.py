@@ -78,6 +78,8 @@ class PresenceMixin:
         # Anwesenheitsprofil: bei jedem Takt ein Messpunkt (nur ja/nein, keine Namen).
         self.presence_profile.mark(_now, self.stage not in AWAY_STAGES and not self.vacation)
         self._evaluate_presence()
+        self.check_storm()  # Unwetter bei offenem Fenster
+        self._check_presence_sleep()  # belegtes Schlafzimmer = Bettzeit
         if self.sleep_signals:
             self._handle_signal(self.signals.tick(dt_util.now()))
 

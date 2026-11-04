@@ -42,6 +42,13 @@ People who sleep with the window open shouldn't be woken up. If a bedroom window
 
 Per room under *Settings → room → Windows → Sleeping with the window open*: **Automatic** (bedroom and “rarely used”), **Yes** or **No**. Time window and warning limit under *General → Notifications – general*.
 
+## Storm and rain warning
+
+Raumklima reads gusts and rain from the weather forecast configured for the apartment. If a **storm**
+(default from 70 km/h) or **heavy rain** (from 8 mm/h) is forecast within the next six hours and a window
+is open, you get a warning with the time and the affected rooms – once per event, also during quiet hours
+because it is urgent. Thresholds and the switch itself are under *Settings → General → Notifications*.
+
 ## Push buttons (iPhone/Android)
 
 Airing messages have three buttons:

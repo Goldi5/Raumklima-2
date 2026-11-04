@@ -718,4 +718,11 @@ export const FR = {
   "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "rappels d’aération uniquement vers les téléphones des personnes présentes selon la géolocalisation – les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde",
   "Fehler melden": "Signaler un bug",
   "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "ouvre un ticket GitHub avec la version, la version de Home Assistant et le modèle du thermostat – sans noms de pièces ni entités",
+  "Sturm- und Regenwarnung": "Alerte tempête et pluie",
+  "warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit": "avertit lorsqu’une tempête ou de fortes pluies sont annoncées et qu’une fenêtre est ouverte – aussi pendant les heures calmes",
+  "… Böen ab": "… rafales dès",
+  "ab dieser Böenstärke gilt es als Sturm": "à partir de cette vitesse, on parle de tempête",
+  "… Regen ab": "… pluie dès",
+  "ab dieser Regenmenge gilt es als Starkregen": "à partir de cette quantité, on parle de fortes pluies",
+  "Sturm & Starkregen": "Tempête et fortes pluies",
 };

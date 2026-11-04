@@ -69,6 +69,9 @@ EVENT_RAUMKLIMA: Final = "raumklima_event"
 ROOM_TYPE_OPTIONS: Final = ["living", "kitchen", "bedroom", "bathroom", "children", "rarely_used"]
 
 # --- Zentrale „Allgemein“ (v0.3) ---
+CONF_STORM_WARNING: Final = "storm_warning"
+CONF_STORM_GUST: Final = "storm_gust_kmh"
+CONF_STORM_RAIN: Final = "storm_rain_mm"
 CONF_NOTIFY_PRESENT_ONLY: Final = "notify_present_only"  # Lüfthinweise nur an anwesende Personen
 CONF_RECIPIENTS: Final = "recipients"  # {"notify.x": [Nachrichtenarten]}
 CONF_TTS: Final = "tts"  # {"notify.alexa_x": [Nachrichtenarten]}
@@ -143,6 +146,7 @@ KIND_SEASON: Final = "season"
 KIND_TRV_FAILURE: Final = "trv_failure"
 KIND_HEALTH: Final = "health"
 KIND_REPORT: Final = "report"
+KIND_STORM: Final = "storm"  # Sturm/Starkregen bei offenem Fenster
 KIND_LIVE: Final = "live"  # Lüft-Countdown als Live-Aktivität (nur Handy-App)
 KINDS: Final = [
     KIND_VENT_OPEN,
@@ -155,6 +159,7 @@ KINDS: Final = [
     KIND_TRV_FAILURE,
     KIND_HEALTH,
     KIND_REPORT,
+    KIND_STORM,
     KIND_LIVE,
 ]
 DEFAULT_PUSH_KINDS: Final = [k for k in KINDS if k not in (KIND_PRESENCE, KIND_LIVE)]
@@ -162,9 +167,12 @@ DEFAULT_TTS_KINDS: Final = [KIND_TOO_COLD]
 # Diese kommen auch in der Ruhezeit (Push laut)
 # Hinweise, die nur anwesende Personen betreffen (nur an sie gesendet)
 PRESENT_ONLY_KINDS: Final = (KIND_VENT_OPEN, KIND_VENT_CLOSE, KIND_VENT_DONE)
-URGENT_KINDS: Final = (KIND_TOO_COLD, KIND_WINDOW_AWAY, KIND_TRV_FAILURE)
+URGENT_KINDS: Final = (KIND_TOO_COLD, KIND_WINDOW_AWAY, KIND_TRV_FAILURE, KIND_STORM)
 
 HUB_DEFAULTS: Final = {
+    CONF_STORM_WARNING: True,
+    CONF_STORM_GUST: 70.0,
+    CONF_STORM_RAIN: 8.0,
     CONF_NOTIFY_PRESENT_ONLY: True,
     CONF_RECIPIENTS: {},
     CONF_TTS: {},

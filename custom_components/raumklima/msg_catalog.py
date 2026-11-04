@@ -487,6 +487,31 @@ _ROWS: list[tuple[str, str, str]] = [
         "not sent – none of the recipients is at home",
         "non envoyé – aucun des destinataires n'est à la maison",
     ),
+    (
+        "🌪 Sturm angekündigt: {rooms}",
+        "🌪 Storm forecast: {rooms}",
+        "🌪 Tempête annoncée : {rooms}",
+    ),
+    (
+        "Böen bis {v} km/h ab {t} Uhr – Fenster offen in {rooms}. Bitte schließen.",
+        "Gusts up to {v} km/h from {t} – windows open in {rooms}. Please close them.",
+        "Rafales jusqu’à {v} km/h à partir de {t} – fenêtres ouvertes dans {rooms}. Veuillez les fermer.",
+    ),
+    (
+        "🌧 Starkregen angekündigt: {rooms}",
+        "🌧 Heavy rain forecast: {rooms}",
+        "🌧 Pluies fortes annoncées : {rooms}",
+    ),
+    (
+        "{v} mm Regen pro Stunde ab {t} Uhr – Fenster offen in {rooms}. Bitte schließen.",
+        "{v} mm of rain per hour from {t} – windows open in {rooms}. Please close them.",
+        "{v} mm de pluie par heure à partir de {t} – fenêtres ouvertes dans {rooms}. Veuillez les fermer.",
+    ),
+    (
+        "{room} seit {m} min belegt – Ruhezeit gilt ab jetzt",
+        "{room} occupied for {m} min – quiet hours start now",
+        "{room} occupée depuis {m} min – les heures calmes commencent",
+    ),
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

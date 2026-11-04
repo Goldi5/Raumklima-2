@@ -42,6 +42,14 @@ Les personnes qui dorment la fenêtre ouverte ne doivent pas être réveillées.
 
 Par pièce, sous *Réglages → pièce → Fenêtres → Dormir la fenêtre ouverte* : **Automatique** (chambre et « rarement utilisée »), **Oui** ou **Non**. Fenêtre horaire et limite d’avertissement sous *Général → Notifications – général*.
 
+## Alerte tempête et pluie
+
+Raumklima lit les rafales et la pluie de la prévision météo configurée pour le logement. Si une
+**tempête** (par défaut dès 70 km/h) ou de **fortes pluies** (dès 8 mm/h) sont annoncées dans les six
+prochaines heures et qu’une fenêtre est ouverte, vous recevez une alerte avec l’heure et les pièces
+concernées – une fois par événement, même pendant les heures calmes, car elle est urgente. Les seuils et
+l’interrupteur se trouvent sous *Réglages → Général → Notifications*.
+
 ## Boutons de notification (iPhone/Android)
 
 Les messages d’aération ont trois boutons :

@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.53.0 (Early Release – Tester gesucht)
+Stand: Version 0.54.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -39,9 +39,12 @@ Stand: Version 0.53.0 (Early Release – Tester gesucht)
 - [ ] **Zeitpläne zwischen Räumen teilen** – ein Zeitfenster einmal anlegen und mehreren Räumen zuweisen
       (z. B. Wohnzimmer + Esszimmer abends gleich), statt es je Raum zu wiederholen.
 - [ ] **Sprachsteuerung (Assist)** – „Wie warm ist es im Bad?“, „Mach das Wohnzimmer wärmer“, „Muss ich lüften?“
-- [ ] **Sturm- und Regenwarnung** – Unwetter vorhergesagt und Fenster offen → Nachricht.
+- [x] **Sturm- und Regenwarnung** (0.54.0) – Böen und Regen aus der Wettervorhersage; steht ein Fenster
+      offen, kommt einmal pro Ereignis eine Warnung (auch in der Ruhezeit). Schwellen einstellbar.
 - [ ] **Nutzung lernen und vorheizen** – aus den Präsenzmeldern („Arbeitszimmer ab 8 Uhr belegt“).
-- [ ] **Schlafzeiten aus dem Präsenzmelder im Schlafzimmer** – zusätzlich zu Licht und Nachtlüften.
+- [x] **Schlafzeiten aus dem Präsenzmelder im Schlafzimmer** (0.54.0) – ist ein Raum vom Typ Schlafzimmer
+      20 Minuten belegt (mit eigenem Melder), gilt die Bettzeit als erkannt – zusätzlich zu Licht und
+      Nachtlüften.
 - [ ] **Direkte Ventilsteuerung** – für Thermostate, deren Ventilöffnung als Zahl einstellbar ist
       (z. B. SONOFF TRVZB): gleichmäßige Öffnung statt Auf/Zu – leiser, weniger Ventilbewegungen.
 - [x] **Sprachsteuerung über die Raum-Entität** (0.53.0) – die Raum-Entität (und alle Sensoren/Schalter des

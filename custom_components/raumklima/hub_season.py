@@ -121,7 +121,16 @@ class SeasonMixin:
                     temp = to_float(item.get("temperature"))
                     if when and temp is not None and when <= now + timedelta(hours=24):
                         temps.append(temp)
-                        hourly.append(ForecastHour(when, temp, item.get("condition"), to_float(item.get("cloud_coverage"))))
+                        hourly.append(
+                            ForecastHour(
+                                when,
+                                temp,
+                                item.get("condition"),
+                                to_float(item.get("cloud_coverage")),
+                                to_float(item.get("wind_gust_speed")) or to_float(item.get("wind_speed")),
+                                to_float(item.get("precipitation")),
+                            )
+                        )
             elif forecast:
                 hi = to_float(forecast[0].get("temperature"))
                 lo = to_float(forecast[0].get("templow"))

@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.core import callback
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_LEARN_SHIFT
+from .const import CONF_LEARN_SHIFT, CONF_ROOM_TYPE
 from .decision_log import (
     CAT_PRESENCE,
     CAT_SETTINGS,
 )
 from .holidays_de import holiday_name
 from .msg import tr
-from .sleep import BED, WAKE, effective_times, is_weekend_night, night_of
+from .sleep import BED, WAKE, effective_times, in_window, is_weekend_night, night_of
 
 if TYPE_CHECKING:
     pass
@@ -74,6 +74,53 @@ class SleepMixin:
     def _entity_name(self, entity_id: str) -> str:
         st = self.hass.states.get(entity_id)
         return str(st.name) if st is not None and getattr(st, "name", None) else entity_id
+
+    PRESENCE_BED_MINUTES = 20  # so lange belegt, dann gilt es als „im Bett"
+
+    @callback
+    def _check_presence_sleep(self) -> None:
+        """Belegtes Schlafzimmer in der Bettzeit → Bettzeit erkannt (ohne Lichtsignal).
+
+        Nur Räume vom Typ „Schlafzimmer" mit eigenem Präsenzmelder – so entscheidet der
+        Nutzer durch das Eintragen des Melders, ob das genutzt wird.
+        """
+        if self.signals.asleep:
+            return
+        local = dt_util.now()
+        since = getattr(self, "_presence_bed_since", None)
+        if since is None:
+            since = self._presence_bed_since = {}
+        if not in_window(local, self.signals._bed_window()):
+            since.clear()
+            return
+        for room in list(self.rooms.values()):
+            if (room.config or {}).get(CONF_ROOM_TYPE) != "bedroom":
+                continue
+            if not getattr(room, "presence_sensors", []):
+                continue
+            if room.occupied is True:
+                since.setdefault(room.entry.entry_id, local)
+            else:
+                since.pop(room.entry.entry_id, None)
+                continue
+            started = since.get(room.entry.entry_id)
+            if started and local - started >= timedelta(minutes=self.PRESENCE_BED_MINUTES):
+                self.signals.asleep = True
+                self.signals.bed_at = started
+                self.log.add(
+                    CAT_PRESENCE,
+                    tr("Schlafenszeit erkannt"),
+                    tr(
+                        "{room} seit {m} min belegt – Ruhezeit gilt ab jetzt",
+                        room=room.name,
+                        m=self.PRESENCE_BED_MINUTES,
+                    ),
+                )
+                self.record_sleep(BED, started, "Präsenz")
+                self._save()
+                self._changed()
+                return
+
 
     def record_sleep(self, kind: str, local: datetime, source: str) -> None:
         """Bett-/Aufstehereignis lernen (auch von Räumen beim Nachtlüften)."""

@@ -645,6 +645,30 @@ class ForecastHour:
     temperature: float | None
     condition: str | None
     cloud_coverage: float | None = None
+    gust: float | None = None  # Windböen km/h
+    precipitation: float | None = None  # mm in der Stunde
+
+
+def first_storm(
+    hourly: list[ForecastHour],
+    now: datetime,
+    gust_kmh: float,
+    rain_mm: float,
+    horizon_hours: int = 6,
+) -> tuple[datetime, str, float] | None:
+    """Erste Stunde in den nächsten Stunden mit Sturm oder Starkregen.
+
+    Rückgabe: (Zeitpunkt, "gust" oder "rain", Wert) – oder None.
+    """
+    limit = now + timedelta(hours=horizon_hours)
+    for hour in hourly:
+        if hour.when < now or hour.when > limit:
+            continue
+        if hour.gust is not None and hour.gust >= gust_kmh:
+            return (hour.when, "gust", hour.gust)
+        if hour.precipitation is not None and hour.precipitation >= rain_mm:
+            return (hour.when, "rain", hour.precipitation)
+    return None
 
 
 def _is_sunny(h: ForecastHour) -> bool:

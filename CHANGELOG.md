@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.54.0 – 2026-11-04
+
+### Neu
+- **Sturm- und Regenwarnung:** Raumklima liest Böen und Regen aus der Wettervorhersage der Wohnung. Ist für
+  die nächsten sechs Stunden Sturm (Standard ab 70 km/h) oder Starkregen (ab 8 mm/h) angekündigt **und**
+  steht ein Fenster offen, kommt eine Warnung mit Uhrzeit und den betroffenen Räumen – einmal pro Ereignis
+  und auch in der Ruhezeit, weil sie dringend ist. Schwellen und Schalter: Einstellungen → Allgemein →
+  Benachrichtigung.
+- **Bettzeit aus dem Präsenzmelder:** Ist ein Raum vom Typ Schlafzimmer mit eigenem Präsenzmelder 20 Minuten
+  belegt, gilt die Bettzeit als erkannt (Ruhezeit, gelernte Schlafenszeit) – zusätzlich zu Lichtsignalen und
+  Nachtlüften. Der Melder entscheidet also, ob die Funktion genutzt wird.
+
 ## 0.53.0 – 2026-11-04
 
 ### Neu

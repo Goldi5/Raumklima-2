@@ -1,4 +1,4 @@
-/* Raumklima 0.53.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.54.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -717,7 +717,14 @@
     "Nur an anwesende Personen": "Only to people who are home",
     "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "airing hints only to phones of people who are home according to location – urgent messages (window open while away, frost, failure) still go to everyone",
     "Fehler melden": "Report a bug",
-    "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "opens a new GitHub issue with version, Home Assistant version and thermostat model – without room names or entities"
+    "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "opens a new GitHub issue with version, Home Assistant version and thermostat model – without room names or entities",
+    "Sturm- und Regenwarnung": "Storm and rain warning",
+    "warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit": "warns when a storm or heavy rain is forecast and a window is open – also during quiet hours",
+    "… Böen ab": "… gusts from",
+    "ab dieser Böenstärke gilt es als Sturm": "from this gust speed it counts as a storm",
+    "… Regen ab": "… rain from",
+    "ab dieser Regenmenge gilt es als Starkregen": "from this amount of rain it counts as heavy rain",
+    "Sturm & Starkregen": "Storm & heavy rain"
   };
 
   // src/i18n/fr.js
@@ -1437,7 +1444,14 @@
     "Nur an anwesende Personen": "Seulement aux personnes présentes",
     "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "rappels d’aération uniquement vers les téléphones des personnes présentes selon la géolocalisation – les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde",
     "Fehler melden": "Signaler un bug",
-    "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "ouvre un ticket GitHub avec la version, la version de Home Assistant et le modèle du thermostat – sans noms de pièces ni entités"
+    "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "ouvre un ticket GitHub avec la version, la version de Home Assistant et le modèle du thermostat – sans noms de pièces ni entités",
+    "Sturm- und Regenwarnung": "Alerte tempête et pluie",
+    "warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit": "avertit lorsqu’une tempête ou de fortes pluies sont annoncées et qu’une fenêtre est ouverte – aussi pendant les heures calmes",
+    "… Böen ab": "… rafales dès",
+    "ab dieser Böenstärke gilt es als Sturm": "à partir de cette vitesse, on parle de tempête",
+    "… Regen ab": "… pluie dès",
+    "ab dieser Regenmenge gilt es als Starkregen": "à partir de cette quantité, on parle de fortes pluies",
+    "Sturm & Starkregen": "Tempête et fortes pluies"
   };
 
   // src/i18n.js
@@ -1481,7 +1495,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.53.0";
+  var RK_VERSION2 = "0.54.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1911,6 +1925,7 @@
     trv_failure: ["⚠️", "Thermostat reagiert nicht"],
     health: ["🩺", "Gesundheit der Heizung"],
     report: ["📊", "Wochenbericht"],
+    storm: ["🌪", "Sturm & Starkregen"],
     live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"]
   });
   var RK_LIGHT_SIGNALS = tmap({
@@ -4019,6 +4034,21 @@
       const tf = (key, val) => `<button class="timebtn" data-timeopen="${key}" data-val="${hm(val)}" ${this._admin ? "" : "disabled"}>${hm(val) || "–:–"}</button>`;
       const notiRows = [
         this._row("Nur an anwesende Personen", this._optToggle(H, "notify_present_only", this._hubOpt("notify_present_only") ?? true), t("Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle")),
+        this._row(
+          "Sturm- und Regenwarnung",
+          this._optToggle(H, "storm_warning", this._hubOpt("storm_warning") ?? true),
+          t("warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit")
+        ),
+        this._row(
+          "… Böen ab",
+          this._optStepper(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70, " km/h", 10, 30, 200, 0),
+          t("ab dieser Böenstärke gilt es als Sturm")
+        ),
+        this._row(
+          "… Regen ab",
+          this._optStepper(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8, " mm/h", 1, 1, 50, 0),
+          t("ab dieser Regenmenge gilt es als Starkregen")
+        ),
         this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
         this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
         this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
