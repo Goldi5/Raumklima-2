@@ -11,6 +11,7 @@ from .const import (
     CONF_NOTIFY_PRESENT_ONLY,
     CONF_RECIPIENTS,
     CONF_TTS,
+    PRESENT_ONLY_KINDS,
     URGENT_KINDS,
 )
 from .decision_log import (
@@ -85,7 +86,7 @@ class NotifyMixin:
         push = [only] if only else self.targets(kind)
         tts = [] if not speak or quiet or only else self.targets(kind, "tts")
         # Hinweise (nicht kritische Meldungen) nur an Personen, die zu Hause sind
-        if kind not in URGENT_KINDS and not only:
+        if kind in PRESENT_ONLY_KINDS and not only:
             pref = self.opt(CONF_NOTIFY_PRESENT_ONLY)
             only_present = True if pref is None else bool(pref)
             before = len(push) + len(tts)

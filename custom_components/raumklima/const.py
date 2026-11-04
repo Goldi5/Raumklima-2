@@ -160,6 +160,8 @@ KINDS: Final = [
 DEFAULT_PUSH_KINDS: Final = [k for k in KINDS if k not in (KIND_PRESENCE, KIND_LIVE)]
 DEFAULT_TTS_KINDS: Final = [KIND_TOO_COLD]
 # Diese kommen auch in der Ruhezeit (Push laut)
+# Hinweise, die nur anwesende Personen betreffen (nur an sie gesendet)
+PRESENT_ONLY_KINDS: Final = (KIND_VENT_OPEN, KIND_VENT_CLOSE, KIND_VENT_DONE)
 URGENT_KINDS: Final = (KIND_TOO_COLD, KIND_WINDOW_AWAY, KIND_TRV_FAILURE)
 
 HUB_DEFAULTS: Final = {

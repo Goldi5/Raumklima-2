@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.50.1 – 2026-11-04
+
+### Geändert
+- Der Filter greift nur für **Lüft-Hinweise** (bitte lüften / schließen / fertig). Berichte,
+  Heizsaison- und Ausfallmeldungen kommen weiterhin auch bei Abwesenheit an.
+
 ## 0.50.0 – 2026-11-04
 
 ### Neu
