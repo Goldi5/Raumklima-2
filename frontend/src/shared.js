@@ -579,7 +579,9 @@ export const SETTINGS_STYLES = `
   .tab { all:unset; cursor:pointer; white-space:nowrap; padding:10px 18px; border-radius:999px; font-size:.98rem; font-weight:600; color:var(--secondary-text-color);
     background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); display:inline-flex; align-items:center; gap:6px; }
   .tab ha-icon { --mdc-icon-size:16px; }
-  .tab.on { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
+  /* Kein Farbtausch: Hintergrund- und Textfarbe kommen aus derselben Quelle, sonst wird bei
+     Themes mit transparentem Kartenhintergrund (Frosted Glass) die Schrift unsichtbar. */
+  .tab.on { background: color-mix(in srgb, var(--primary-text-color) 16%, transparent); color: var(--primary-text-color); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 30%, transparent); }
   .tab .dot { width:7px; height:7px; border-radius:50%; background: var(--c, var(--rk-ok)); }
   /* Brotkrumen, Suche und Gruppenleiste (Einstellungen) */
   .crumb { margin:10px 4px 0; font-size:.82rem; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
@@ -813,10 +815,10 @@ export const SETTINGS_STYLES = `
   .btn { all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:16px; font-weight:600; font-size:1rem;
     background: color-mix(in srgb, var(--c, var(--primary-text-color)) 9%, transparent); color: var(--primary-text-color); }
   .btn ha-icon { --mdc-icon-size:18px; color: var(--c, var(--primary-text-color)); }
-  .btn.primary { background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); }
+  .btn.primary { background: var(--rk-air); color: #fff; }
   .btn.primary ha-icon { color: inherit; }
   .hint { font-size:.9rem; color:var(--secondary-text-color); margin-top:12px; line-height:1.45; }
-  .toast { position:sticky; bottom:8px; margin-top:12px; padding:10px 14px; border-radius:14px; font-size:.9rem; font-weight:600; background: var(--primary-text-color); color: var(--ha-card-background, var(--card-background-color)); width:max-content; max-width:100%; }
+  .toast { position:sticky; bottom:8px; margin-top:12px; padding:10px 14px; border-radius:14px; font-size:.9rem; font-weight:600; background: var(--rk-eco); color: #fff; width:max-content; max-width:100%; }
 `;
 
 export const REPORT_STYLES = `
