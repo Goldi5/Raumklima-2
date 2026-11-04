@@ -158,6 +158,20 @@ class HealthMixin:
         loose = [e.entity_id for e in registry.entities.values() if usable(e)]
         return loose[0] if len(loose) == 1 else None
 
+    @property
+    def battery_low(self) -> dict[str, Any] | None:
+        """Schwächste Batterie im Raum – für Karte und Diagnose."""
+        levels: dict[str, float] = {}
+        for name, entity_id in getattr(self, "_batteries", {}).items():
+            state = self.hass.states.get(entity_id)
+            value = to_float(state.state) if state else None
+            if value is not None:
+                levels[name] = value
+        if not levels:
+            return None
+        name, level = min(levels.items(), key=lambda kv: kv[1])
+        return {"name": name, "level": round(level), "low": level < 20}
+
     def _find_batteries(self) -> dict[str, str]:
         """Batterie-Sensoren der beteiligten Geräte (TRV, Fühler, Kontakte): Gerätename → Entität."""
         ents = er.async_get(self.hass)

@@ -61,6 +61,7 @@ CONF_AIRING_WINDOWS: Final = "airing_windows"  # [{days:[0..6], start:"HH:MM", e
 CONF_LEARN_AIRING: Final = "learn_airing"  # gewohntes Lüften erkennen
 CONF_GUESTS_ROOMS: Final = "guests_rooms"  # Räume, für die „Gäste da" gilt (leer = alle)
 CONF_FAST_POLL: Final = "fast_poll"  # Thermostat alle 2 min aktiv abfragen (träge Geräte)
+CONF_OVERRIDE_MINUTES: Final = "override_minutes"  # Zeitplan so lange pausieren, wenn jemand von Hand stellt
 CONF_COMFORT_TEMP: Final = "comfort_temperature"
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
 EVENT_RAUMKLIMA: Final = "raumklima_event"
@@ -247,6 +248,7 @@ DEFAULTS: Final = {
     CONF_LEARN_AIRING: True,
     CONF_GUESTS_ROOMS: [],
     CONF_FAST_POLL: False,
+    CONF_OVERRIDE_MINUTES: 120,
 }
 
 # Feste Grenzen

@@ -681,6 +681,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
         t("so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn")
       ),
       this._row(
+        "Zeitplan überschreiben",
+        editable ? this._optStepper(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120, " min", 15, 0, 480) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
+        t("so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus")
+      ),
+      this._row(
         "Dauer des Boosts",
         editable ? this._optStepper(scope, "boost_minutes", boostMin, " min", 5, 5, 240) : this._v(`${boostMin} min`),
         t("danach gilt wieder Zeitplan bzw. Automatik")

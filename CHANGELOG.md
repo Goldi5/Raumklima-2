@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.49.0 – 2026-11-04
+
+### Neu
+- **Zeitplan überschreiben (Wunsch aus der Community):** Stellst du die Temperatur von Hand – in der
+  Karte, in Home Assistant oder über Alexa –, pausiert ein laufender Zeitplan für eine einstellbare
+  Zeit (Standard 120 Minuten), danach gilt wieder der Plan. Einstellung je Raum unter *Zeitplan →
+  Zeitplan überschreiben*, 0 schaltet es aus. Damit braucht es keine simulierte Anwesenheit mehr.
+- **Batteriestand auf der Raumkarte:** Ist eine Batterie im Raum unter 20 %, zeigt die Karte ein
+  Warnsymbol mit Prozentwert (schwächstes Gerät). Die Meldung nennt zusätzlich das Gerät.
+
 ## 0.48.2 – 2026-11-04
 
 ### Behoben

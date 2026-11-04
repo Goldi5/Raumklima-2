@@ -46,6 +46,7 @@ from .const import (
     CONF_NIGHT_END,
     CONF_NIGHT_START,
     CONF_ON_PRESET,
+    CONF_OVERRIDE_MINUTES,
     CONF_PREHEAT_KM,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
@@ -236,6 +237,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_LONG_AIRING_REMIND): vol.All(vol.Coerce(float), vol.Range(0, 240)),
         vol.Optional(CONF_LEARN_AIRING): vol.Boolean(),
         vol.Optional(CONF_FAST_POLL): vol.Boolean(),
+        vol.Optional(CONF_OVERRIDE_MINUTES): vol.All(vol.Coerce(float), vol.Range(0, 480)),
         vol.Optional(CONF_AIRING_WINDOWS): vol.Any(
             None,
             vol.All(

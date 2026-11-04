@@ -707,4 +707,7 @@ export const FR = {
   "keine Auswahl = alle Räume der Wohnung": "aucune sélection = toutes les pièces du logement",
   "Schnellere Abfrage": "Interrogation plus rapide",
   "fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie": "interroge le thermostat toutes les 2 minutes – pour les appareils lents (Homematic & co.), coûte de la radio et de la batterie",
+  "Batterie {p} %": "Batterie {p} %",
+  "Zeitplan überschreiben": "Remplacer le programme",
+  "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "durée pendant laquelle votre réglage manuel (HA ou Alexa) s'applique, ensuite le programme reprend – 0 le désactive",
 };

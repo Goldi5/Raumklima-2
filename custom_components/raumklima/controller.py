@@ -40,6 +40,7 @@ from .const import (
     CAL_OFFSET,
     CAL_TARGET,
     CALIBRATION_INTERVAL,
+    CONF_AIRING_WINDOWS,
     CONF_BOOST_MINUTES,
     CONF_BOOST_TEMP,
     CONF_CALIBRATION_ENTITY,
@@ -51,13 +52,17 @@ from .const import (
     CONF_FOLLOW_TRV,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
+    CONF_LEARN_AIRING,
     CONF_LIGHT_SIGNALS,
     CONF_LIGHTS,
+    CONF_LONG_AIRING,
+    CONF_LONG_AIRING_REMIND,
     CONF_NAME,
     CONF_NIGHT_AIRING,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
     CONF_ON_PRESET,
+    CONF_OVERRIDE_MINUTES,
     CONF_PM25_SENSOR,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
@@ -128,6 +133,7 @@ from .logic import (
     is_valid,
     plausible_reading,
     to_float,
+    values_match,
     window_open_state,
 )
 from .msg import tr
@@ -196,6 +202,12 @@ LIVE_OPTIONS = frozenset(
         CONF_SCHEDULES,
         CONF_BOOST_TEMP,
         CONF_BOOST_MINUTES,
+        CONF_OVERRIDE_MINUTES,
+        CONF_FAST_POLL,
+        CONF_LONG_AIRING,
+        CONF_LONG_AIRING_REMIND,
+        CONF_AIRING_WINDOWS,
+        CONF_LEARN_AIRING,
     }
 )
 
@@ -723,6 +735,19 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return get_hub(self.hass, self.config.get(CONF_HOME))
 
     @property
+    def manual_until(self) -> datetime | None:
+        """Bis wann eine Handverstellung gilt (Abwesenheit oder pausierter Zeitplan)."""
+        if self._manual_until is None:
+            return None
+        return self._manual_until if self._manual_until > dt_util.utcnow() else None
+
+    @property
+    def override_minutes(self) -> float:
+        """So lange pausiert ein Zeitplan, wenn jemand von Hand die Temperatur stellt (0 = aus)."""
+        value = to_float(self.config.get(CONF_OVERRIDE_MINUTES))
+        return value if value is not None else 120.0
+
+    @property
     def setback_short(self) -> float:
         value = to_float(self.config.get(CONF_SETBACK_SHORT))
         return value if value is not None else setback_defaults(self.config.get(CONF_ROOM_TYPE))[0]
@@ -786,12 +811,20 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 return True, target, stage
         manual_until = self._manual_until
         if not self._peeking:
-            self._manual_until = None
+            # Nur *abgelaufene* Handverstellungen verwerfen – eine laufende muss bleiben,
+            # sonst wäre sie nach dem ersten plan()-Aufruf schon weg (Zeitplan-Pause).
+            if manual_until is not None and manual_until <= now:
+                manual_until = None
+                self._manual_until = None
+                self._save()
             self.frost_night_low = None
         # Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne
         local_now = dt_util.now()
         sched = schedule_target(self.config.get(CONF_SCHEDULES), local_now)
         if sched is not None:
+            if manual_until and now < manual_until and not values_match(self.target_temp, sched, 0.05):
+                # Von Hand gestellt: der Zeitplan pausiert bis override_minutes abgelaufen sind
+                return True, min(self.target_temp, self.trv_max), REASON_MANUAL
             return True, min(sched, self.trv_max), REASON_SCHEDULE
         # Ruhezeit: Schlafräume werden abgesenkt, auch wenn jemand zu Hause ist – nach einer
         # Nachtschicht wird tagsüber geschlafen. Der Regler am Thermostat gilt weiter.
@@ -919,9 +952,13 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         new = clamp(float(temperature), self.trv_min, self.trv_max)
         on, current, reason = self.plan()
         override = reason in AWAY_STAGES and new > current
+        now = dt_util.utcnow()
         if override:
             # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
-            self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
+            self._manual_until = now + MANUAL_OVERRIDE
+        elif self.override_minutes > 0 and schedule_target(self.config.get(CONF_SCHEDULES), dt_util.now()) is not None:
+            # In einem laufenden Zeitfenster: von Hand gestellt heißt „für X Minuten mein Wunsch".
+            self._manual_until = now + timedelta(minutes=self.override_minutes)
         if new != self.target_temp:
             self.log(
                 CAT_MANUAL,

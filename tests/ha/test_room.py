@@ -889,3 +889,39 @@ async def test_room_at_setback_level_still_reports_setback(hass: HomeAssistant, 
 
     assert hass.states.get("climate.bad").attributes["status"] == "setback"
     assert hass.states.get("climate.bad").attributes["temperature"] == 18.0
+
+
+async def test_manual_change_overrides_schedule_for_a_while(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Von Hand gestellt pausiert den Zeitplan (René-Wunsch: „2 h wärmer über Alexa")."""
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.apply_live_options(
+        {
+            CONF_SCHEDULES: [{"days": [], "start": "00:00", "end": "23:59", "temperature": 19.0}],
+            "override_minutes": 120,
+        }
+    )
+    await hass.async_block_till_done()
+    assert ctrl.plan()[2] == "schedule"
+
+    await hass.services.async_call(
+        "climate", "set_temperature", {"entity_id": "climate.bad", "temperature": 21.5}, blocking=True
+    )
+    await hass.async_block_till_done()
+
+    on, target, reason = ctrl.plan()
+    assert reason == "manual"
+    assert target == 21.5
+    assert hass.states.get("climate.bad").attributes["temperature"] == 21.5
+
+    # Nach Ablauf der Pause gilt wieder der Zeitplan
+    from datetime import timedelta as _td
+
+    from homeassistant.util import dt as _dt
+
+    ctrl._manual_until = _dt.utcnow() - _td(minutes=1)
+    assert ctrl.plan()[2] == "schedule"
+    assert ctrl.plan()[1] == 19.0

@@ -136,6 +136,12 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "pm25": c.current_pm25,
             "offset_auto": round(c.shift, 2),
             "valve_sensor": c.valve_sensor,
+            "battery": c.battery_low,
+            "override_until": (
+                c.manual_until.isoformat()
+                if getattr(c, "manual_until", None) is not None
+                else None
+            ),
             "target_via": c.target_via,
             "comfort_temperature": c.comfort_temp,
             "calibration_mode": c.cal_mode,

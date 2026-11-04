@@ -707,4 +707,7 @@ export const EN = {
   "keine Auswahl = alle Räume der Wohnung": "no selection = all rooms of the apartment",
   "Schnellere Abfrage": "Faster polling",
   "fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie": "actively asks the thermostat every 2 minutes – for sluggish devices (Homematic & co.), costs radio time and battery",
+  "Batterie {p} %": "Battery {p} %",
+  "Zeitplan überschreiben": "Override schedule",
+  "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "how long your manual setting (HA or Alexa) applies, then the schedule returns – 0 disables it",
 };
