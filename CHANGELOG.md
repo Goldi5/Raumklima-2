@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.49.1 – 2026-11-04
+
+### Behoben
+- **Klick auf die Messwert-Kacheln öffnet den Verlauf.** Bisher führte „Feuchte" auf den
+  Benachrichtigungs-Schalter (deshalb die An/Aus-Karte), CO₂, Feinstaub, Ventil, Außen und
+  Heizkörper reagierten gar nicht. Jetzt öffnet jede Kachel die zugehörige Sensor-Entität mit
+  Verlauf – bei fehlendem Sensor bleibt die Kachel ohne Klick.
+
 ## 0.49.0 – 2026-11-04
 
 ### Neu

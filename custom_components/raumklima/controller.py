@@ -526,6 +526,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "co2_sensor": self.co2_sensor,
             "pm25_sensor": self.pm25_sensor,
             "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),
+            "trv": self.trv,
+            "weather_entity": self.vent.weather if self.vent else cfg.get(CONF_WEATHER),
             "windows": self.windows,
             "comfort_configured": cfg.get(CONF_COMFORT_TEMP) not in (None, "", 0),
             "window_open_delay": cfg.get(CONF_WINDOW_OPEN_DELAY),
