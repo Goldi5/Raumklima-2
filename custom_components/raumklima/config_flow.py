@@ -98,6 +98,7 @@ from .const import (
     ROOM_TYPE_OPTIONS,
     SEASON_MODES,
 )
+from .notify_targets import notify_choices
 from .planning import setback_defaults
 
 ADVANCED = "advanced"
@@ -178,11 +179,8 @@ def suggest_for_trv(hass: HomeAssistant, trv: str) -> dict[str, Any]:
 
 
 def notify_services(hass: HomeAssistant) -> list[str]:
-    """Alle notify-Dienste als 'notify.xyz' (für die Auswahl)."""
-    services = hass.services.async_services().get("notify", {})
-    return sorted(
-        f"notify.{name}" for name in services if name not in ("send_message", "persistent_notification")
-    )
+    """Alle Empfänger als 'notify.xyz' – Dienste und notify-Entitäten."""
+    return notify_choices(hass)
 
 
 def _number(minimum: float, maximum: float, step: float, unit: str) -> NumberSelector:

@@ -101,6 +101,7 @@ from .mailer import (
     verify as mail_verify,
 )
 from .msg import tr
+from .notify_targets import notify_choices
 from .occupancy import sensor_kind
 from .planning import NIGHT_MODES, VIRT_MODES
 from .report_data import REPORT_KINDS
@@ -297,10 +298,7 @@ def _known_dashboards(hass: HomeAssistant) -> list[str]:
 
 
 def _choices(hass: HomeAssistant) -> dict[str, Any]:
-    services = hass.services.async_services().get("notify", {})
-    notify = sorted(
-        f"notify.{name}" for name in services if name not in ("send_message", "persistent_notification")
-    )
+    notify = notify_choices(hass)
     def ents(domain: str) -> list[dict[str, str]]:
         return sorted(
             ({"id": s.entity_id, "name": s.name} for s in hass.states.async_all(domain)),

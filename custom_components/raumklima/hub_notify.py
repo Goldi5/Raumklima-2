@@ -19,6 +19,7 @@ from .decision_log import (
 )
 from .msg import tr
 from .notify_filter import keep_present
+from .notify_targets import is_entity_target
 from .planning import (
     in_time_window,
 )
@@ -115,36 +116,34 @@ class NotifyMixin:
                 entry_id=getattr(getattr(room, "entry", None), "entry_id", None),
             )
         for target in push:
-            domain, _, service = target.partition(".")
-            if domain != "notify" or not service:
-                continue
-            try:
-                await self.hass.services.async_call(
-                    "notify", service, {"title": title, "message": message, "data": data}
-                )
-            except Exception as err:  # noqa: BLE001
-                _LOGGER.warning("Benachrichtigung an %s fehlgeschlagen: %s", target, err)
+            await self._async_send(target, title, message, data)
         if not speak or quiet or only:
             return
         for target in self.targets(kind, "tts"):
-            domain, _, service = target.partition(".")
-            if domain != "notify" or not service:
-                continue
-            try:
-                await self.hass.services.async_call(
-                    "notify", service, {"message": f"{title}. {message}", "data": {"type": "announce"}}
-                )
-            except Exception as err:  # noqa: BLE001
-                _LOGGER.warning("Sprachansage an %s fehlgeschlagen: %s", target, err)
+            await self._async_send(target, "", f"{title}. {message}", {"type": "announce"})
+
+    async def _async_send(self, target: str, title: str, message: str, data: dict[str, Any] | None = None) -> None:
+        """An einen Dienst oder eine notify-Entität senden."""
+        if not target.startswith("notify."):
+            return
+        payload: dict[str, Any] = {"message": message}
+        if title:
+            payload["title"] = title
+        if data:
+            payload["data"] = data
+        try:
+            if is_entity_target(self.hass, target):
+                # notify-Entitäten (z. B. Alexa Devices) sprechen send_message an
+                await self.hass.services.async_call("notify", "send_message", {**payload, "entity_id": target})
+            else:
+                await self.hass.services.async_call("notify", target.split(".", 1)[1], payload)
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.warning("Benachrichtigung an %s fehlgeschlagen: %s", target, err)
 
     async def async_test(self, target: str) -> None:
         """Testnachricht an einen Empfänger."""
-        domain, _, service = target.partition(".")
-        if domain != "notify" or not service:
+        if not target.startswith("notify."):
             raise ValueError(f"Kein notify-Dienst: {target}")
-        await self.hass.services.async_call(
-            "notify",
-            service,
-            {"title": "✅ Raumklima", "message": tr("Testnachricht – so sehen Hinweise der Heizung aus.")},
-            blocking=True,
+        await self._async_send(
+            target, "✅ Raumklima", tr("Testnachricht – so sehen Hinweise der Heizung aus.")
         )

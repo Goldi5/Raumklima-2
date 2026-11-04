@@ -4,6 +4,13 @@
 
 *Noch nicht veröffentlicht – wird gesammelt.*
 
+### Neu
+- **notify-Entitäten als Empfänger** (Issue #19): Die offizielle Alexa-Devices-Integration stellt keine
+  `notify.<dienst>`-Dienste bereit, sondern `notify.<name>`-**Entitäten** (z. B. „…_durchsagen",
+  „…_sprechen"). Beide Formen stehen jetzt in der Empfänger-Auswahl; Entitäten werden über
+  `notify.send_message` angesprochen, echte Dienste wie bisher. Damit sind Alexa Devices und Sonos
+  ohne Zusatzintegration nutzbar.
+
 ### Behoben
 - **„Gäste gelten für" zeigte leere Chips:** Die Raumliste kam aus dem falschen Datenbestand
   (Konfigurationsliste statt Räume der Wohnung) und enthielt weder Name noch Kennung – dadurch
