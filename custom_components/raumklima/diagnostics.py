@@ -44,17 +44,35 @@ TO_REDACT = {
 
 # Sieht aus wie eine Entitäts-ID („domain.object_id")
 _ENTITY_RE = re.compile(r"^[a-z_]+\.[a-z0-9_]+$")
+# Das sind Dienste, keine Zustands-Entitäten – sie stehen nicht in hass.states
+_SERVICE_DOMAINS = ("notify", "tts")
 
 
 def _iso(value: Any) -> str | None:
     return value.isoformat() if value is not None else None
 
 
+def _service_ids_from(value: Any) -> list[str]:
+    """Dienste wie notify.christian aus einem Konfigurationswert ziehen."""
+    out: list[str] = []
+    if isinstance(value, str):
+        if _ENTITY_RE.match(value) and value.split(".", 1)[0] in _SERVICE_DOMAINS:
+            out.append(value)
+    elif isinstance(value, (list, tuple, set)):
+        for item in value:
+            out.extend(_service_ids_from(item))
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            out.extend(_service_ids_from(key))
+            out.extend(_service_ids_from(item))
+    return out
+
+
 def _entity_ids_from(value: Any) -> list[str]:
     """Alle Entitäts-IDs aus einem beliebigen Konfigurationswert ziehen."""
     out: list[str] = []
     if isinstance(value, str):
-        if _ENTITY_RE.match(value):
+        if _ENTITY_RE.match(value) and value.split(".", 1)[0] not in _SERVICE_DOMAINS:
             out.append(value)
     elif isinstance(value, (list, tuple, set)):
         for item in value:
@@ -181,12 +199,15 @@ def _room_block(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> dict[str, A
         referenced.append(valve)
     own = _own_entities(hass, entry.entry_id)
     entities = {eid: _dump_entity(hass, eid) for eid in sorted(set(referenced) | set(own))}
+    services = {
+        sid: {"exists": hass.services.has_service(*sid.split(".", 1))}
+        for sid in sorted(set(_service_ids_from(config)))
+    }
 
     unavailable = [
-        eid
-        for eid, dump in entities.items()
-        if dump.get("missing") or dump.get("state") in ("unavailable", "unknown", "none", "")
+        eid for eid, dump in entities.items() if dump.get("missing") or dump.get("state") == "unavailable"
     ]
+    unknown = [eid for eid, dump in entities.items() if dump.get("state") == "unknown"]
     return {
         "name": entry.title,
         "entry_id": entry.entry_id,
@@ -195,7 +216,9 @@ def _room_block(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> dict[str, A
         "learned": _learned_room(room),
         "values": values,
         "entities": entities,
+        "services": services,
         "unavailable": unavailable,
+        "unknown": unknown,
     }
 
 
@@ -309,6 +332,12 @@ async def async_get_config_entry_diagnostics(
         "hub": _hub_block(hass, entry),
         "hub_entities": _hub_entities(hass, getattr(getattr(hub, "entry", None), "entry_id", entry.entry_id)),
         "rooms": rooms,
+        "services": {
+            sid: {"exists": hass.services.has_service(*sid.split(".", 1))}
+            for sid in sorted(
+                set(_service_ids_from(dict(hub.config))) if hub is not None and hasattr(hub, "config") else set()
+            )
+        },
         "log": hub.log.query(limit=50) if hub is not None and hasattr(hub, "log") else [],
         "debug": debug_tail(),
     }

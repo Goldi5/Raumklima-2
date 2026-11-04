@@ -69,3 +69,18 @@ async def test_diagnostics_includes_debug_lines(hass: HomeAssistant, setup) -> N
     data = await async_get_config_entry_diagnostics(hass, hub)
     messages = [line["message"] for line in data["debug"]]
     assert "Testzeile für die Diagnose" in messages
+
+
+
+async def test_notify_targets_are_services_not_entities(hass: HomeAssistant, setup) -> None:
+    """`notify.*` ist ein Dienst – er darf nicht als fehlende Entität auftauchen."""
+    hub, _room = setup
+    hass.config_entries.async_update_entry(
+        hub, options={**hub.options, "recipients": {"notify.christian": ["health"]}}
+    )
+    await hass.async_block_till_done()
+
+    data = await async_get_config_entry_diagnostics(hass, hub)
+    assert "notify.christian" in data["services"]
+    assert data["services"]["notify.christian"]["exists"] is False  # im Test gibt es den Dienst nicht
+    assert "notify.christian" not in data["rooms"][0]["unavailable"]

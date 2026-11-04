@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.48.1 – 2026-11-04
+
+### Behoben
+- **Diagnose unterscheidet Dienste und Entitäten:** `notify.*`-Empfänger stehen nicht in `hass.states`
+  und wurden deshalb als „fehlt" gelistet, obwohl der Dienst einwandfrei funktioniert. Jetzt gibt es
+  einen eigenen Block `services` mit `exists`-Prüfung; „nicht verfügbar" meint nur noch echte
+  Entitäten. Zusätzlich getrennt: `unknown` (unbenutzte Knöpfe, Kalibrier-Entitäten).
+
 ## 0.48.0 – 2026-11-04
 
 ### Neu
