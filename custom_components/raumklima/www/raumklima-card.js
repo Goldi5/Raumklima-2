@@ -1,4 +1,4 @@
-/* Raumklima 0.50.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.51.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1477,7 +1477,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.50.1";
+  var RK_VERSION = "0.51.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -3846,10 +3846,10 @@
         this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
         this._row(
           "Gäste gelten für",
-          `<div class="chips">${(this._cfg && this._cfg.rooms ? this._cfg.rooms : []).map((r) => {
-            const rid = (r.attributes && r.attributes.settings ? r.attributes.settings.entry_id : r.entity_id) || r.entity_id;
+          `<div class="chips">${(this._rooms || []).map((r) => {
+            const rid = (r.attrs && r.attrs.settings || {}).entry_id || r.id;
             const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
-            return `<button class="chip2 ${chosen ? "on" : ""}" data-guestroom="${rid}" style="--c:${chosen ? "var(--rk-eco)" : "var(--rk-off)"}"><i></i>${esc(r.attributes && r.attributes.friendly_name ? r.attributes.friendly_name.replace(/^.*?\s/, "") : rid)}</button>`;
+            return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
           }).join("")}</div>`,
           (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
         ),

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.51.0
+
+*Noch nicht veröffentlicht – wird gesammelt.*
+
+### Behoben
+- **„Gäste gelten für" zeigte leere Chips:** Die Raumliste kam aus dem falschen Datenbestand
+  (Konfigurationsliste statt Räume der Wohnung) und enthielt weder Name noch Kennung – dadurch
+  blieben alle elf Chips leer und ließen sich keinem Raum zuordnen. Jetzt erscheinen die Räume
+  der aktuellen Wohnung mit Namen; gespeichert wird die Raum-Kennung, die die Zentrale erwartet.
+
 ## 0.50.1 – 2026-11-04
 
 ### Geändert

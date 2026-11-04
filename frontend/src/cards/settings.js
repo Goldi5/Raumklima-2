@@ -352,11 +352,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
       this._row(
         "Gäste gelten für",
-        `<div class="chips">${(this._cfg && this._cfg.rooms ? this._cfg.rooms : [])
+        `<div class="chips">${(this._rooms || [])
           .map((r) => {
-            const rid = (r.attributes && r.attributes.settings ? r.attributes.settings.entry_id : r.entity_id) || r.entity_id;
+            // Kennung ist die Raum-Entry-ID (danach fragt die Zentrale), Name der Anzeigename
+            const rid = ((r.attrs && r.attrs.settings) || {}).entry_id || r.id;
             const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
-            return `<button class="chip2 ${chosen ? "on" : ""}" data-guestroom="${rid}" style="--c:${chosen ? "var(--rk-eco)" : "var(--rk-off)"}"><i></i>${esc(r.attributes && r.attributes.friendly_name ? r.attributes.friendly_name.replace(/^.*?\s/, "") : rid)}</button>`;
+            return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
           })
           .join("")}</div>`,
         (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
