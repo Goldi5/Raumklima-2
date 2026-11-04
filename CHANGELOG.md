@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.47.0 – 2026-11-03
+
+### Neu
+- **Lüften ohne Erinnerung** – drei Wege, dem alle-fünf-Minuten-„bitte schließen" zu entkommen:
+  - **Dauerlüftung ab X Minuten** (Standard 20, 0 = aus): danach keine Pushs mehr, Status wechselt
+    auf „Dauerlüftung", die Heizung bleibt aus, bis das Fenster zu ist. Optional eine einzige stille
+    Erinnerung nach 90 Minuten.
+  - **Lüftfenster je Raum**: frei definierbare Zeiten (mit Wochentagen), in denen nicht erinnert wird –
+    z. B. Training morgens von 04:45 bis 06:30.
+  - **Gewohntes Lüften lernen**: Öffnungsvorgänge werden mit Wochentag und Viertelstunde gemerkt;
+    dreimal im gleichen Raster innerhalb von vier Wochen gilt als gewohnt, dort wird nicht mehr
+    erinnert. Sichtbar in den Einstellungen, nie automatisch scharf geschaltet.
+- In der Raumkarte steht bei diesen Fällen jetzt „Dauerlüftung", „Gewohntes Lüften" oder
+  „Geplantes Lüften" statt „bitte schließen".
+
+### Behoben
+- **Snooze und „Stumm" überleben einen Neustart** – vorher kamen die Erinnerungen nach einem
+  HA-Neustart sofort wieder.
+
 ## 0.46.2 – 2026-11-03
 
 ### Behoben

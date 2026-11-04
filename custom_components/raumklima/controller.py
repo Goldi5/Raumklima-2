@@ -31,6 +31,7 @@ from homeassistant.helpers.event import (
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
+from .airing_profile import AiringProfile
 from .const import (
     BOOST_MINUTES_MAX,
     BOOST_MINUTES_MIN,
@@ -285,6 +286,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.throttled_until: datetime | None = None
         self._trv_down_cancel: Callable[[], None] | None = None
         self.heatup = HeatupTracker()
+        self.airing = AiringProfile()
         self._virtual_low: float = 0.0
         self._virtual_cancel: Callable[[], None] | None = None
         self._batteries: dict[str, str] = {}
@@ -328,6 +330,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if stored.get("shift") is not None:
                 self.shift = float(stored.get("shift") or 0.0)
             self.heatup.load(stored.get("heatup"))
+            self.airing.load(stored.get("airing_profile"))
         elif self.trv_available():
             # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
             self.target_temp = self.comfort_temp
@@ -424,7 +427,20 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "shift": self.shift,
             "vent": self.vent.export() if self.vent else None,
             "heatup": self.heatup.dump(),
+            "airing_profile": self.airing.export(),
         }
+
+    # ---------------------------------------------------------------- Gewohntes Lüften
+    def record_airing(self, when: datetime, minutes: float) -> None:
+        """Einen abgeschlossenen Lüftvorgang für das Lernen merken."""
+        self.airing.record(dt_util.as_local(when), minutes)
+        self._save()
+
+    def airing_learned(self, when: datetime) -> bool:
+        return self.airing.learned(when)
+
+    def airing_count(self, when: datetime) -> int:
+        return self.airing.count(when)
 
     def _save(self) -> None:
         self._store.async_delay_save(self._stored_data, 5)

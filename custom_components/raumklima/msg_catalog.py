@@ -432,6 +432,36 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Keine Lampe gewählt", "No light selected", "Aucune lampe choisie"),
     ("Nur Administratoren können verschicken", "Only administrators can send", "Seuls les administrateurs peuvent envoyer"),
     ("Diese Wohnung gibt es schon", "This home already exists", "Ce logement existe déjà"),
+    (
+        "🪟 {room}: Fenster bleibt offen",
+        "🪟 {room}: window stays open",
+        "🪟 {room} : la fenêtre reste ouverte",
+    ),
+    (
+        "Seit {m} min offen – ich erinnere nicht mehr. Heizung bleibt aus, bis das Fenster zu ist.",
+        "Open for {m} min – I will not remind you again. Heating stays off until the window is closed.",
+        "Ouverte depuis {m} min – je ne rappellerai plus. Le chauffage reste coupé jusqu'à la fermeture.",
+    ),
+    (
+        "🪟 {room}: immer noch offen",
+        "🪟 {room}: still open",
+        "🪟 {room} : toujours ouverte",
+    ),
+    (
+        "Seit {m} min – nur ein leiser Hinweis, ich mahne nicht weiter.",
+        "For {m} min – just a quiet note, no further reminders.",
+        "Depuis {m} min – simple rappel discret, sans insister.",
+    ),
+    (
+        "Langes Lüften: {m} min offen",
+        "Long airing: open for {m} min",
+        "Aération longue : ouverte depuis {m} min",
+    ),
+    (
+        "Erinnerungen pausiert, bis das Fenster zu ist",
+        "Reminders paused until the window is closed",
+        "Rappels suspendus jusqu'à la fermeture de la fenêtre",
+    ),
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

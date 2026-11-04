@@ -12,7 +12,11 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_AIRING_WINDOWS,
     CONF_HUMIDITY_SENSOR,
+    CONF_LEARN_AIRING,
+    CONF_LONG_AIRING,
+    CONF_LONG_AIRING_REMIND,
     CONF_NIGHT_ALARM,
     CONF_NOTIFY_TARGETS,
     CONF_QUIET_END,
@@ -29,7 +33,7 @@ from .const import (
     NOTIFY_ACTION_EVENT,
 )
 from .live_activity import LiveCountdown
-from .logic import to_float
+from .logic import in_airing_window, to_float
 from .msg import N_, dec, tr, weekday
 from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
@@ -108,10 +112,13 @@ class VentilationManager:
         self.snooze_until: datetime | None = None
         self.muted_until: datetime | None = None
         self._last_sent: dict[str, datetime] = {}
+        self._long_notice_for: datetime | None = None  # Öffnung, für die „ich erinnere nicht mehr“ kam
+        self._late_notice_for: datetime | None = None  # Öffnung, für die die Spät-Erinnerung kam
         self._repeat_count: dict[str, int] = {}
         self._night_alarm_sent = False
         self.live = LiveCountdown(self)
         self._last_shown: str | None = None
+        self._last_phase: str | None = None
         self._night_morning_sent: datetime | None = None
         self._restored_since: datetime | None = None  # aus dem Speicher, einmalig zu übernehmen
         self._unsubs: list[Callable[[], None]] = []
@@ -128,6 +135,8 @@ class VentilationManager:
         self.enabled = bool(stored.get("enabled", self.enabled))
         # Seit wann das Fenster offen ist, überlebt einen Neustart (Issue #9)
         self._restored_since = dt_util.parse_datetime(stored.get("window_open_since") or "")
+        self.snooze_until = dt_util.parse_datetime(stored.get("snoozed_until") or "")
+        self.muted_until = dt_util.parse_datetime(stored.get("muted_until") or "")
 
     # ------------------------------------------------------------ Zentrale oder Raum
     def _hub_opt(self, key: str, room_key: str, fallback: Any) -> Any:
@@ -162,6 +171,47 @@ class VentilationManager:
     @property
     def repeat_minutes(self) -> float:
         return float(self._hub_opt("repeat_minutes", CONF_REPEAT_MINUTES, 5))
+
+    # ------------------------------------------------------------ Dauerlüftung
+    def _room_opt(self, key: str, fallback: Any) -> Any:
+        value = self._cfg.get(key)
+        return fallback if value in (None, "") else value
+
+    @property
+    def long_airing_minutes(self) -> float:
+        """Ab so vielen Minuten offenem Fenster wird nicht mehr erinnert (0 = aus)."""
+        return float(self._room_opt(CONF_LONG_AIRING, 20))
+
+    @property
+    def long_airing_remind(self) -> float:
+        """Eine stille Erinnerung nach so vielen Minuten (0 = aus)."""
+        return float(self._room_opt(CONF_LONG_AIRING_REMIND, 90))
+
+    @property
+    def learn_airing(self) -> bool:
+        return bool(self._room_opt(CONF_LEARN_AIRING, True))
+
+    @property
+    def airing_windows(self) -> list[dict[str, Any]]:
+        return list(self._room_opt(CONF_AIRING_WINDOWS, []) or [])
+
+    @property
+    def phase(self) -> str | None:
+        """Warum gerade nicht erinnert wird: planned / learned / long / short.
+
+        ``short`` heißt: normales Lüften, hier kommen die Erinnerungen wie gewohnt.
+        """
+        if not self.window_open_since:
+            return None
+        now = dt_util.now()
+        if in_airing_window(self.airing_windows, now):
+            return "planned"
+        if self.learn_airing and self.c.airing_learned(now):
+            return "learned"
+        limit = self.long_airing_minutes
+        if limit > 0 and self.open_minutes >= limit:
+            return "long"
+        return "short"
 
     @property
     def notify_targets(self) -> list[str]:
@@ -211,6 +261,8 @@ class VentilationManager:
             "max_drop": self.max_drop,
             "enabled": self.enabled,
             "window_open_since": self.window_open_since.isoformat() if self.window_open_since else None,
+            "snoozed_until": self.snooze_until.isoformat() if self.snooze_until else None,
+            "muted_until": self.muted_until.isoformat() if self.muted_until else None,
         }
 
     # ------------------------------------------------------------ Messwerte
@@ -291,6 +343,11 @@ class VentilationManager:
             # solange der Raum sonst nichts zu tun hat (Issue #9).
             self.c.save()
         elif not is_open and self.window_open_since:
+            minutes = self.open_minutes
+            if minutes >= 1:
+                self.c.record_airing(self.window_open_since, minutes)
+            self._long_notice_for = None
+            self._late_notice_for = None
             self.window_open_since = None
             self._restored_since = None
             self.temp_at_open = None
@@ -348,11 +405,24 @@ class VentilationManager:
         elif self.c.window_virtual and new in (VENT_PLEASE_CLOSE, VENT_DONE):
             pass  # nur geschätzt offen: nicht zum Schließen auffordern
         elif new in MESSAGES:
-            self._maybe_send(new, changed)
+            if new == VENT_PLEASE_CLOSE and self.phase in ("planned", "learned", "long"):
+                # Geplantes, gewohntes oder langes Lüften: nicht alle paar Minuten mahnen.
+                self._check_long_airing()
+                if changed:
+                    self._clear_phone_notification()
+            else:
+                self._maybe_send(new, changed)
         elif changed and new in (VENT_OK, VENT_AIRING):
             self._clear_phone_notification()
         if changed:
             self.live.update(new)
+        # Wechselt die Lüft-Phase (kurz → Dauerlüftung), muss die Karte neu zeichnen,
+        # auch wenn sich am Lüft-Zustand selbst nichts ändert.
+        phase = self.phase
+        if phase != self._last_phase:
+            self._last_phase = phase
+            self.c.notify_listeners()
+
         shown = self.shown_state
         if shown != self._last_shown:
             self._last_shown = shown
@@ -360,6 +430,46 @@ class VentilationManager:
             self.c.notify_listeners()
         elif changed:
             self.c.notify_listeners()
+
+    def _check_long_airing(self) -> None:
+        """Beim langen Lüften einmal informieren – und optional spät noch einmal leise."""
+        hub = self.c.hub
+        since = self.window_open_since
+        if hub is None or not self.enabled or since is None:
+            return
+        if self._long_notice_for != since:
+            self._long_notice_for = since
+            self.log_airing(
+                tr("Langes Lüften: {m} min offen", m=f"{self.open_minutes:.0f}"),
+                tr("Erinnerungen pausiert, bis das Fenster zu ist"),
+            )
+            hub.notify(
+                KIND_WINDOW_AWAY,
+                tr("🪟 {room}: Fenster bleibt offen", room=self.c.name),
+                tr(
+                    "Seit {m} min offen – ich erinnere nicht mehr. Heizung bleibt aus, bis das Fenster zu ist.",
+                    m=f"{self.open_minutes:.0f}",
+                ),
+                data={"tag": f"{self._tag()}_long", "group": "raumklima", "push": {"interruption-level": "passive"}},
+                speak=False,
+                room=self.c,
+            )
+            return
+        limit = self.long_airing_remind
+        if limit > 0 and self.open_minutes >= limit and self._late_notice_for != since:
+            self._late_notice_for = since
+            hub.notify(
+                KIND_WINDOW_AWAY,
+                tr("🪟 {room}: immer noch offen", room=self.c.name),
+                tr("Seit {m} min – nur ein leiser Hinweis, ich mahne nicht weiter.", m=f"{self.open_minutes:.0f}"),
+                data={"tag": f"{self._tag()}_long", "group": "raumklima", "push": {"interruption-level": "passive"}},
+                speak=False,
+                room=self.c,
+            )
+
+    def log_airing(self, msg: str, why: str) -> None:
+        """Ins Entscheidungsprotokoll schreiben (Kategorie Fenster)."""
+        self.c.log("window", msg, why)
 
     # ------------------------------------------------------------ Nachtlüften
     def _night_update(self, now: datetime, changed: bool) -> None:
@@ -649,6 +759,8 @@ class VentilationManager:
             "airing_remaining_s": self.remaining_seconds,
             "mold_risk": self.mold_risk,
             "notifications": self.enabled,
+            "airing_phase": self.phase,
+            "airing_learned": self.c.airing_count(dt_util.now()) if self.learn_airing else None,
             "snoozed_until": self.snooze_until.isoformat() if self.snooze_until else None,
             "muted_until": self.muted_until.isoformat() if self.muted_until else None,
         }

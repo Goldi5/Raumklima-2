@@ -131,7 +131,16 @@ export class RaumklimaCard extends HTMLElement {
     const sib = this._siblings();
     const mon = a.monitor === true;
     const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : (STATUS[a.status] || STATUS.idle);
-    const vent = VENT[a.ventilation] || null;
+    let vent = VENT[a.ventilation] || null;
+    // Bei Dauerlüftung / gewohntem Lüften nicht „bitte schließen" anzeigen – es wird nicht gemahnt.
+    if (vent && a.ventilation === "please_close" && a.airing_phase) {
+      const phases = {
+        long: { label: t("Dauerlüftung – ich erinnere nicht"), icon: "mdi:weather-windy", tone: "air" },
+        learned: { label: t("Gewohntes Lüften – keine Erinnerung"), icon: "mdi:history", tone: "air" },
+        planned: { label: t("Geplantes Lüften – keine Erinnerung"), icon: "mdi:calendar-clock", tone: "air" },
+      };
+      vent = phases[a.airing_phase] || vent;
+    }
     const target = this._pending ?? a.temperature;
     const isOff = st.state === "off";
     const name = this._config.name || a.friendly_name || t("Raum");

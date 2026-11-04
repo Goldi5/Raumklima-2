@@ -55,6 +55,10 @@ CONF_QUIET_END: Final = "quiet_end"
 CONF_LEARN_SHIFT: Final = "learn_shift"  # Schichtdienst: Tagschlaf mitlernen
 CONF_QUIET_SETBACK: Final = "quiet_setback"  # Ruhezeit senkt Schlafräume ab
 CONF_REPEAT_MINUTES: Final = "repeat_minutes"
+CONF_LONG_AIRING: Final = "long_airing_minutes"  # ab so vielen Minuten Dauerlüftung still
+CONF_LONG_AIRING_REMIND: Final = "long_airing_remind"  # eine stille Erinnerung danach (0 = aus)
+CONF_AIRING_WINDOWS: Final = "airing_windows"  # [{days:[0..6], start:"HH:MM", end:"HH:MM", quiet:bool}]
+CONF_LEARN_AIRING: Final = "learn_airing"  # gewohntes Lüften erkennen
 CONF_COMFORT_TEMP: Final = "comfort_temperature"
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
 EVENT_RAUMKLIMA: Final = "raumklima_event"
@@ -235,6 +239,10 @@ DEFAULTS: Final = {
     "quiet_start": "22:00",
     "quiet_end": "07:00",
     "repeat_minutes": 5,
+    CONF_LONG_AIRING: 20,
+    CONF_LONG_AIRING_REMIND: 90,
+    CONF_AIRING_WINDOWS: [],
+    CONF_LEARN_AIRING: True,
 }
 
 # Feste Grenzen

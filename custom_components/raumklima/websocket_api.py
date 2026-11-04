@@ -15,6 +15,7 @@ from .const import (
     BOOST_TEMP_MAX,
     BOOST_TEMP_MIN,
     BUILDING_TYPES,
+    CONF_AIRING_WINDOWS,
     CONF_AWAY_DELAY,
     CONF_BOOST_MINUTES,
     CONF_BOOST_TEMP,
@@ -30,9 +31,12 @@ from .const import (
     CONF_HOME,
     CONF_HOME_SENSORS,
     CONF_LATITUDE,
+    CONF_LEARN_AIRING,
     CONF_LEARN_SHIFT,
     CONF_LIGHT_SIGNALS,
     CONF_LIGHTS,
+    CONF_LONG_AIRING,
+    CONF_LONG_AIRING_REMIND,
     CONF_LONG_AWAY_HOURS,
     CONF_LONGITUDE,
     CONF_NIGHT_AIRING,
@@ -224,6 +228,23 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_ON_PRESET): vol.Any(None, str),
         vol.Optional(CONF_BOOST_TEMP): vol.All(vol.Coerce(float), vol.Range(BOOST_TEMP_MIN, BOOST_TEMP_MAX)),
         vol.Optional(CONF_BOOST_MINUTES): vol.All(vol.Coerce(int), vol.Range(BOOST_MINUTES_MIN, BOOST_MINUTES_MAX)),
+        # Lüften ohne Erinnerung: Dauerlüftung, Zeitfenster, gewohntes Lüften
+        vol.Optional(CONF_LONG_AIRING): vol.All(vol.Coerce(float), vol.Range(0, 180)),
+        vol.Optional(CONF_LONG_AIRING_REMIND): vol.All(vol.Coerce(float), vol.Range(0, 240)),
+        vol.Optional(CONF_LEARN_AIRING): vol.Boolean(),
+        vol.Optional(CONF_AIRING_WINDOWS): vol.Any(
+            None,
+            vol.All(
+                [
+                    {
+                        vol.Required("start"): vol.Match(r"^\d{1,2}:\d{2}$"),
+                        vol.Required("end"): vol.Match(r"^\d{1,2}:\d{2}$"),
+                        vol.Optional("days", default=[]): [vol.All(vol.Coerce(int), vol.Range(0, 6))],
+                    }
+                ],
+                vol.Length(max=6),
+            ),
+        ),
     }
 )
 

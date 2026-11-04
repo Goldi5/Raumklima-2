@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from datetime import datetime
 import math
 from typing import Any
 
@@ -184,3 +185,37 @@ def plausible_reading(
     if seconds_since_last > window:
         return True
     return abs(new - last) <= max_jump
+
+
+def in_airing_window(windows: list[dict[str, Any]] | None, now: datetime) -> bool:
+    """Liegt ``now`` in einem Lüftfenster (Zeit, in der nicht erinnert wird)?"""
+    if not windows:
+        return False
+    minutes = now.hour * 60 + now.minute
+    weekday = now.weekday()
+    for window in windows:
+        if not isinstance(window, dict):
+            continue
+        days = window.get("days") or []
+        if days and weekday not in days:
+            continue
+        start = _clock_minutes(window.get("start"))
+        end = _clock_minutes(window.get("end"))
+        if start is None or end is None:
+            continue
+        if start <= end:
+            if start <= minutes < end:
+                return True
+        elif minutes >= start or minutes < end:  # über Mitternacht
+            return True
+    return False
+
+
+def _clock_minutes(value: Any) -> int | None:
+    text = str(value or "").strip()
+    if ":" not in text:
+        return None
+    hour, _, minute = text.partition(":")
+    if not (hour.isdigit() and minute.isdigit()):
+        return None
+    return int(hour) * 60 + int(minute)

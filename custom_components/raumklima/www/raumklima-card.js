@@ -1,4 +1,4 @@
-/* Raumklima 0.46.2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.47.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -683,7 +683,25 @@
     "Diagnose": "Diagnostics",
     "Diagnose wird erstellt …": "Creating diagnostics …",
     "Diagnose heruntergeladen": "Diagnostics downloaded",
-    "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "All values, entities and the latest log lines in one file"
+    "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "All values, entities and the latest log lines in one file",
+    "Lüften ohne Erinnerung": "Airing without reminders",
+    "Dauerlüftung ab": "Long airing from",
+    "danach keine Erinnerungen mehr, bis das Fenster zu ist – 0 schaltet es aus": "after that no reminders until the window is closed – 0 disables it",
+    "Leise Erinnerung danach": "Quiet reminder after",
+    "eine einzige, stille Meldung bei sehr langem Lüften – 0 = aus": "a single silent message for very long airing – 0 = off",
+    "Gewohntes Lüften erkennen": "Recognise habitual airing",
+    "lernt, wann du regelmäßig länger lüftest – dort dann keine Erinnerungen": "learns when you regularly air for longer – no reminders there",
+    "erkannt: {n}× im gleichen Zeitraster (4 Wochen)": "recognised: {n}× in the same time slot (4 weeks)",
+    "Lüftfenster": "Airing window",
+    "Lüftfenster {n}": "Airing window {n}",
+    "keine – es wird normal erinnert": "none – reminders work as usual",
+    "z. B. Training morgens: in dieser Zeit keine Hinweise": "e.g. morning workout: no reminders during this time",
+    "Dauerlüftung": "Long airing",
+    "Gewohntes Lüften": "Habitual airing",
+    "Geplantes Lüften": "Planned airing",
+    "Dauerlüftung – ich erinnere nicht": "Long airing – no reminders",
+    "Gewohntes Lüften – keine Erinnerung": "Habitual airing – no reminders",
+    "Geplantes Lüften – keine Erinnerung": "Planned airing – no reminders"
   };
 
   // src/i18n/fr.js
@@ -1369,7 +1387,25 @@
     "Diagnose": "Diagnostic",
     "Diagnose wird erstellt …": "Création du diagnostic …",
     "Diagnose heruntergeladen": "Diagnostic téléchargé",
-    "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "Toutes les valeurs, entités et les dernières lignes de journal dans un fichier"
+    "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "Toutes les valeurs, entités et les dernières lignes de journal dans un fichier",
+    "Lüften ohne Erinnerung": "Aérer sans rappels",
+    "Dauerlüftung ab": "Aération longue à partir de",
+    "danach keine Erinnerungen mehr, bis das Fenster zu ist – 0 schaltet es aus": "ensuite plus de rappels jusqu'à la fermeture – 0 désactive",
+    "Leise Erinnerung danach": "Rappel discret après",
+    "eine einzige, stille Meldung bei sehr langem Lüften – 0 = aus": "un seul message discret pour une aération très longue – 0 = désactivé",
+    "Gewohntes Lüften erkennen": "Reconnaître les aérations habituelles",
+    "lernt, wann du regelmäßig länger lüftest – dort dann keine Erinnerungen": "apprend quand vous aérez régulièrement plus longtemps – aucun rappel à ces moments",
+    "erkannt: {n}× im gleichen Zeitraster (4 Wochen)": "reconnu : {n}× dans le même créneau (4 semaines)",
+    "Lüftfenster": "Créneau d'aération",
+    "Lüftfenster {n}": "Créneau d'aération {n}",
+    "keine – es wird normal erinnert": "aucun – les rappels fonctionnent normalement",
+    "z. B. Training morgens: in dieser Zeit keine Hinweise": "p. ex. sport le matin : aucun rappel pendant ce créneau",
+    "Dauerlüftung": "Aération longue",
+    "Gewohntes Lüften": "Aération habituelle",
+    "Geplantes Lüften": "Aération planifiée",
+    "Dauerlüftung – ich erinnere nicht": "Aération longue – sans rappel",
+    "Gewohntes Lüften – keine Erinnerung": "Aération habituelle – sans rappel",
+    "Geplantes Lüften – keine Erinnerung": "Aération planifiée – sans rappel"
   };
 
   // src/i18n.js
@@ -1413,7 +1449,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.46.2";
+  var RK_VERSION = "0.47.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2348,7 +2384,15 @@
       const sib = this._siblings();
       const mon = a.monitor === true;
       const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : STATUS[a.status] || STATUS.idle;
-      const vent = VENT[a.ventilation] || null;
+      let vent = VENT[a.ventilation] || null;
+      if (vent && a.ventilation === "please_close" && a.airing_phase) {
+        const phases = {
+          long: { label: t("Dauerlüftung – ich erinnere nicht"), icon: "mdi:weather-windy", tone: "air" },
+          learned: { label: t("Gewohntes Lüften – keine Erinnerung"), icon: "mdi:history", tone: "air" },
+          planned: { label: t("Geplantes Lüften – keine Erinnerung"), icon: "mdi:calendar-clock", tone: "air" }
+        };
+        vent = phases[a.airing_phase] || vent;
+      }
       const target = this._pending ?? a.temperature;
       const isOff = st.state === "off";
       const name = this._config.name || a.friendly_name || t("Raum");
@@ -4067,6 +4111,69 @@
       }
       return this._grp("Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
     }
+    // ---------------------------------------------------------------- Lüften ohne Erinnerung
+    _airList(id, stored) {
+      this._air = this._air || {};
+      if (!(id in this._air)) {
+        this._air[id] = (stored || []).map((w) => ({
+          days: [...w.days || []],
+          start: w.start || "04:45",
+          end: w.end || "06:30"
+        }));
+      }
+      return this._air[id];
+    }
+    _pushAir(id) {
+      const list = (this._air[id] || []).map((w) => ({ days: [...w.days || []].sort((a, b) => a - b), start: w.start, end: w.end }));
+      this._setRoom(id, { airing_windows: list }, 700);
+    }
+    _airWin(id, w, i, ro) {
+      const days = w.days || [];
+      const on = (d) => !days.length || days.includes(d);
+      const btn = [0, 1, 2, 3, 4, 5, 6].map((d) => `<button class="d ${on(d) ? "on" : ""}" data-airday="${id}|${i}|${d}" title="${esc(schedDayName(d))}">${esc(schedDayName(d))}</button>`).join("");
+      return `<div class="sched">
+      <div class="days">${btn}</div>
+      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.start}" data-airtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
+      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-airtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      ${ro ? "" : `<button class="del" data-airdel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
+    </div>`;
+    }
+    _airingGroup(r, id, editable) {
+      const s = r.attrs.settings || {};
+      const scope = `room:${id}`;
+      const ro = !editable;
+      const longMin = this._roomOpt(r, "long_airing_minutes") ?? s.long_airing_minutes ?? 20;
+      const lateMin = this._roomOpt(r, "long_airing_remind") ?? s.long_airing_remind ?? 90;
+      const learn = this._roomOpt(r, "learn_airing") ?? s.learn_airing ?? true;
+      const learned = Number(s.airing_learned || 0);
+      const list = this._airList(id, this._roomOpt(r, "airing_windows") ?? s.airing_windows ?? []);
+      const rows = [
+        this._row(
+          "Dauerlüftung ab",
+          editable ? this._optStepper(scope, "long_airing_minutes", longMin, " min", 5, 0, 180) : this._v(`${longMin} min`),
+          t("danach keine Erinnerungen mehr, bis das Fenster zu ist – 0 schaltet es aus")
+        ),
+        this._row(
+          "Leise Erinnerung danach",
+          editable ? this._optStepper(scope, "long_airing_remind", lateMin, " min", 15, 0, 240) : this._v(`${lateMin} min`),
+          t("eine einzige, stille Meldung bei sehr langem Lüften – 0 = aus")
+        ),
+        this._row(
+          "Gewohntes Lüften erkennen",
+          editable ? this._optToggle(scope, "learn_airing", !!learn) : this._v(learn ? t("an") : t("aus")),
+          learned ? t("erkannt: {n}× im gleichen Zeitraster (4 Wochen)", { n: learned }) : t("lernt, wann du regelmäßig länger lüftest – dort dann keine Erinnerungen")
+        )
+      ];
+      if (!list.length) {
+        rows.push(this._row("Lüftfenster", this._v("keine – es wird normal erinnert", true), t("z. B. Training morgens: in dieser Zeit keine Hinweise")));
+      } else {
+        list.forEach((w, i) => rows.push(this._row(t("Lüftfenster {n}", { n: i + 1 }), this._airWin(id, w, i, ro), esc(schedDaysLabel(w.days)))));
+      }
+      if (!ro && list.length < 6) {
+        rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-airadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
+      }
+      return this._grp("Lüften ohne Erinnerung", "mdi:weather-windy-variant", "air", rows.join(""), "span");
+    }
     _room(r) {
       const a = r.attrs, s = a.settings || {}, sib = r.sib;
       const cfgRoom = this._cfgRoom(r);
@@ -4146,6 +4253,7 @@
           (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig" : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")
         )
       ].join(""))}
+      ${this._airingGroup(r, id, editable)}
       ${this._presenceGroup(r, id, editable)}
       ${this._learnRoom(r)}
       ${this._lightGroup(r, id, editable)}
@@ -4668,6 +4776,40 @@
         });
       }));
       const sp = (v) => String(v).split("|");
+      $("[data-airadd]").forEach((el) => el.addEventListener("click", () => {
+        const id = el.dataset.airadd;
+        const list = this._airList(id, []);
+        if (list.length >= 6) return;
+        list.push({ days: [], start: "04:45", end: "06:30" });
+        this._pushAir(id);
+      }));
+      $("[data-airdel]").forEach((el) => el.addEventListener("click", () => {
+        const [id, i] = String(el.dataset.airdel).split("|");
+        this._airList(id, []).splice(parseInt(i, 10), 1);
+        this._pushAir(id);
+      }));
+      $("[data-airday]").forEach((el) => el.addEventListener("click", () => {
+        const [id, i, d] = String(el.dataset.airday).split("|");
+        const w = this._airList(id, [])[parseInt(i, 10)];
+        if (!w) return;
+        const day = parseInt(d, 10);
+        w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
+        this._pushAir(id);
+      }));
+      $("[data-airtime]").forEach((el) => el.addEventListener("change", () => {
+        const [id, i, which] = String(el.dataset.airtime).split("|");
+        const w = this._airList(id, [])[parseInt(i, 10)];
+        if (!w) return;
+        const v = rkTimeValue(el.value);
+        if (!v) {
+          this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
+          el.value = w[which] || "";
+          return;
+        }
+        el.value = v;
+        w[which] = v;
+        this._pushAir(id);
+      }));
       $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
         const id = el.dataset.schedadd;
         const list = this._schedList(id, this._schedSeed(id) || []);

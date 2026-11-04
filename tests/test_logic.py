@@ -1,5 +1,7 @@
 """Tests der Rechenlogik."""
 
+from datetime import datetime
+
 import pytest
 
 from rk.logic import (
@@ -7,6 +9,7 @@ from rk.logic import (
     calc_offset,
     calc_target_setpoint,
     heating_demand,
+    in_airing_window,
     plausible_reading,
     retry_delay,
     to_float,
@@ -157,3 +160,30 @@ def test_heating_demand_within_threshold() -> None:
 def test_heating_demand_missing_values() -> None:
     assert heating_demand(None, 19.0) is False
     assert heating_demand(18.0, None) is False
+
+
+def test_airing_window_hits() -> None:
+    window = {"days": [], "start": "04:45", "end": "06:30"}
+    assert in_airing_window([window], datetime(2026, 11, 2, 5, 0)) is True
+    assert in_airing_window([window], datetime(2026, 11, 2, 6, 29)) is True
+    assert in_airing_window([window], datetime(2026, 11, 2, 6, 30)) is False
+    assert in_airing_window([window], datetime(2026, 11, 2, 4, 44)) is False
+
+
+def test_airing_window_weekdays() -> None:
+    window = {"days": [0, 1, 2, 3, 4], "start": "04:45", "end": "06:30"}
+    assert in_airing_window([window], datetime(2026, 11, 2, 5, 0)) is True   # Montag
+    assert in_airing_window([window], datetime(2026, 11, 7, 5, 0)) is False  # Samstag
+
+
+def test_airing_window_over_midnight() -> None:
+    window = {"days": [], "start": "22:00", "end": "02:00"}
+    assert in_airing_window([window], datetime(2026, 11, 2, 23, 0)) is True
+    assert in_airing_window([window], datetime(2026, 11, 2, 1, 0)) is True
+    assert in_airing_window([window], datetime(2026, 11, 2, 3, 0)) is False
+
+
+def test_airing_window_empty_or_broken() -> None:
+    assert in_airing_window(None, datetime(2026, 11, 2, 5, 0)) is False
+    assert in_airing_window([], datetime(2026, 11, 2, 5, 0)) is False
+    assert in_airing_window([{"start": "kaputt", "end": "06:30"}], datetime(2026, 11, 2, 5, 0)) is False
