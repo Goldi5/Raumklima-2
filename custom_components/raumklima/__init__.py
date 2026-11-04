@@ -51,6 +51,7 @@ def is_hub_entry(entry: ConfigEntry) -> bool:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Karte (Frontend) einmalig bereitstellen und automatisch laden."""
+    from .backup import async_register as async_register_backup
     from .shared import domain_data
     from .websocket_api import async_register_websocket
 
@@ -65,6 +66,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     await layout_store.async_setup(hass)
     await _async_register_card(hass)
     async_register_websocket(hass)
+    async_register_backup(hass)
     if getattr(hass, "http", None) is not None:
         from .reports import ReportView
 

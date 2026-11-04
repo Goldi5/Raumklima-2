@@ -731,7 +731,41 @@
     "Zeitfenster einmal pflegen und für mehrere Räume nutzen": "maintain the windows once and use them for several rooms",
     "Übliche Nutzung": "Typical usage",
     "sammelt noch – nur mit Präsenzmelder": "still collecting – presence sensor required",
-    "Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an": "suggestion from occupancy per weekday; you create a schedule window yourself"
+    "Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an": "suggestion from occupancy per weekday; you create a schedule window yourself",
+    "Sichern": "Back up",
+    "Wiederherstellen": "Restore",
+    "Alle Einstellungen als Datei sichern – ohne Passwörter": "save all settings as a file – without passwords",
+    "Sicherung einspielen – Räume werden über ihren Namen zugeordnet": "apply a backup – rooms are matched by their name",
+    "Sicherung wird erstellt …": "creating backup …",
+    "Sicherung gespeichert": "backup saved",
+    "Sicherung fehlgeschlagen: {e}": "backup failed: {e}",
+    "Einstellungen aus dieser Datei einspielen? Die aktuellen Einstellungen werden überschrieben.": "apply the settings from this file? current settings will be overwritten.",
+    "Eingespielt: {n} Räume": "restored: {n} rooms",
+    "Eingespielt: {n} Räume · {m} nicht gefunden": "restored: {n} rooms · {m} not found",
+    "Erste Schritte": "First steps",
+    "Bewohner hinterlegt": "Residents set up",
+    "Empfänger für Meldungen": "Notification recipients",
+    "Wetterquelle gewählt": "Weather source selected",
+    "Raum mit Thermostat": "Room with thermostat",
+    "Fensterkontakt eingetragen": "Window contact added",
+    "Zeitplan angelegt": "Schedule created",
+    "Präsenzmelder eingetragen": "Presence sensor added",
+    "Sturmschwelle geprüft": "Storm threshold checked",
+    "{a} von {b} erledigt": "{a} of {b} done",
+    "bereit": "ready",
+    "noch offen": "still open",
+    "erledigt": "done",
+    "optional": "optional",
+    "die wichtigsten Schritte, damit Raumklima sinnvoll regeln kann": "the most important steps so Raumklima can control sensibly",
+    "Einstellungen → Anwesenheit & Absenkung": "Settings → Presence & setback",
+    "Einstellungen → Wer bekommt was": "Settings → Who gets what",
+    "Einstellungen → Benachrichtigungen allgemein": "Settings → Notifications",
+    "Raum → Geräte": "Room → Devices",
+    "Raum → Fenster & Lüften": "Room → Windows & airing",
+    "Raum → Zeitplan": "Room → Schedule",
+    "Raum → Anwesenheit im Raum": "Room → Presence in room",
+    "Einstellungen → Sturm- und Regenwarnung": "Settings → Storm and rain warning",
+    "bringt mehr Genauigkeit, ist aber nicht nötig": "adds accuracy but is not required"
   };
 
   // src/i18n/fr.js
@@ -1465,7 +1499,41 @@
     "Zeitfenster einmal pflegen und für mehrere Räume nutzen": "gérer les plages une seule fois et les utiliser pour plusieurs pièces",
     "Übliche Nutzung": "Utilisation habituelle",
     "sammelt noch – nur mit Präsenzmelder": "collecte en cours – capteur de présence requis",
-    "Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an": "suggestion issue de l’occupation par jour de la semaine ; vous créez vous-même une plage"
+    "Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an": "suggestion issue de l’occupation par jour de la semaine ; vous créez vous-même une plage",
+    "Sichern": "Sauvegarder",
+    "Wiederherstellen": "Restaurer",
+    "Alle Einstellungen als Datei sichern – ohne Passwörter": "enregistrer tous les réglages dans un fichier – sans mots de passe",
+    "Sicherung einspielen – Räume werden über ihren Namen zugeordnet": "appliquer une sauvegarde – les pièces sont associées par leur nom",
+    "Sicherung wird erstellt …": "création de la sauvegarde …",
+    "Sicherung gespeichert": "sauvegarde enregistrée",
+    "Sicherung fehlgeschlagen: {e}": "échec de la sauvegarde : {e}",
+    "Einstellungen aus dieser Datei einspielen? Die aktuellen Einstellungen werden überschrieben.": "appliquer les réglages de ce fichier ? les réglages actuels seront écrasés.",
+    "Eingespielt: {n} Räume": "restauré : {n} pièces",
+    "Eingespielt: {n} Räume · {m} nicht gefunden": "restauré : {n} pièces · {m} introuvables",
+    "Erste Schritte": "Premiers pas",
+    "Bewohner hinterlegt": "Occupants définis",
+    "Empfänger für Meldungen": "Destinataires des messages",
+    "Wetterquelle gewählt": "Source météo choisie",
+    "Raum mit Thermostat": "Pièce avec thermostat",
+    "Fensterkontakt eingetragen": "Contact de fenêtre ajouté",
+    "Zeitplan angelegt": "Programme créé",
+    "Präsenzmelder eingetragen": "Capteur de présence ajouté",
+    "Sturmschwelle geprüft": "Seuil de tempête vérifié",
+    "{a} von {b} erledigt": "{a} sur {b} terminés",
+    "bereit": "prêt",
+    "noch offen": "encore ouvert",
+    "erledigt": "fait",
+    "optional": "optionnel",
+    "die wichtigsten Schritte, damit Raumklima sinnvoll regeln kann": "les étapes essentielles pour que Raumklima régule utilement",
+    "Einstellungen → Anwesenheit & Absenkung": "Réglages → Présence et réduction",
+    "Einstellungen → Wer bekommt was": "Réglages → Qui reçoit quoi",
+    "Einstellungen → Benachrichtigungen allgemein": "Réglages → Notifications",
+    "Raum → Geräte": "Pièce → Appareils",
+    "Raum → Fenster & Lüften": "Pièce → Fenêtres et aération",
+    "Raum → Zeitplan": "Pièce → Programme",
+    "Raum → Anwesenheit im Raum": "Pièce → Présence dans la pièce",
+    "Einstellungen → Sturm- und Regenwarnung": "Réglages → Alerte tempête et pluie",
+    "bringt mehr Genauigkeit, ist aber nicht nötig": "apporte de la précision, mais n’est pas nécessaire"
   };
 
   // src/i18n.js
@@ -3700,6 +3768,39 @@
       });
       window.open(url, "_blank", "noopener");
     }
+    async _backupExport() {
+      try {
+        this._flash(t("Sicherung wird erstellt …"));
+        const res = await this._hass.callWS({ type: "raumklima/backup/export", ...this._homeMsg() });
+        const blob = new Blob([JSON.stringify(res.backup, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const stamp = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `raumklima-einstellungen-${stamp}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5e3);
+        this._flash(t("Sicherung gespeichert"));
+      } catch (err) {
+        this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
+      }
+    }
+    async _backupImport(file) {
+      try {
+        const text = await file.text();
+        const backup = JSON.parse(text);
+        if (!confirm(t("Einstellungen aus dieser Datei einspielen? Die aktuellen Einstellungen werden überschrieben."))) return;
+        const res = await this._hass.callWS({ type: "raumklima/backup/import", backup, ...this._homeMsg() });
+        const missing = (res.skipped || []).length;
+        this._flash(missing ? t("Eingespielt: {n} Räume · {m} nicht gefunden", { n: (res.rooms || []).length, m: missing }) : t("Eingespielt: {n} Räume", { n: (res.rooms || []).length }));
+        this._cfg = await this._hass.callWS({ type: "raumklima/config", ...this._homeMsg() });
+        this._render();
+      } catch (err) {
+        this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
+      }
+    }
     async _downloadDiagnostics() {
       try {
         this._flash(t("Diagnose wird erstellt …"));
@@ -4109,6 +4210,7 @@
       const healthExtra = `<span class="chip" style="--tone:${toneVar(healthTone)}">${bad ? t("{n} offen", { n: bad }) : "ok"}</span>`;
       return `<div class="groups">
       ${this._grp("Gesundheit der Heizung", "mdi:heart-pulse", healthTone, rkIssueList(issues, true, this._config.strip_prefix) + `<div class="hint">${t("Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.")}</div>`, "span", healthExtra)}
+      ${this._grp("Erste Schritte", "mdi:check-decagram-outline", "ok", this._checkRows(st, ch), "span")}
       ${this._grp("Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows)}
       ${this._grp("Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
       ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span")}
@@ -4578,6 +4680,38 @@
       const profile = head + (hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
       return [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile, tipRow].join("");
     }
+    // Einrichtungs-Checkliste: was fehlt noch, und wo stellt man es ein
+    _checkRows(st, ch) {
+      const rooms = this._rooms || [];
+      const opts = (r) => r.attrs.settings || {};
+      const any = (fn) => rooms.some(fn);
+      const people = (this._hubOpt("residents") || []).length;
+      const rec = Object.keys(this._hubOpt("recipients") || {}).length;
+      const items = [
+        [t("Bewohner hinterlegt"), people > 0, t("Einstellungen → Anwesenheit & Absenkung")],
+        [t("Empfänger für Meldungen"), rec > 0, t("Einstellungen → Wer bekommt was")],
+        [t("Wetterquelle gewählt"), !!this._hubOpt("weather_entity"), t("Einstellungen → Benachrichtigungen allgemein")],
+        [t("Raum mit Thermostat"), any((r) => opts(r).trv), t("Raum → Geräte")],
+        [t("Fensterkontakt eingetragen"), any((r) => (opts(r).windows || []).length), t("Raum → Fenster & Lüften")],
+        [t("Zeitplan angelegt"), any((r) => (opts(r).schedules || []).length), t("Raum → Zeitplan")]
+      ];
+      const optional = [
+        [t("Präsenzmelder eingetragen"), any((r) => (opts(r).presence_sensors || []).length), t("Raum → Anwesenheit im Raum")],
+        [t("Sturmschwelle geprüft"), this._hubOpt("storm_warning") != null, t("Einstellungen → Sturm- und Regenwarnung")]
+      ];
+      const done = items.filter((i) => i[1]).length;
+      const chip = (on, optionalItem) => `<span class="chip2 ${on ? "" : "off"}" style="--c:var(--rk-${on ? "ok" : optionalItem ? "air" : "warn"})"><i></i>${on ? t("erledigt") : optionalItem ? t("optional") : t("offen")}</span>`;
+      const rows = [
+        this._row(
+          t("{a} von {b} erledigt", { a: done, b: items.length }),
+          `<span class="chip2" style="--c:var(--rk-${done === items.length ? "ok" : "warn"})"><i></i>${done === items.length ? t("bereit") : t("noch offen")}</span>`,
+          t("die wichtigsten Schritte, damit Raumklima sinnvoll regeln kann")
+        ),
+        ...items.map(([label, on, where]) => this._row(label, chip(on, false), where)),
+        ...optional.map(([label, on, where]) => this._row(label, chip(on, true), `${where} · ${t("bringt mehr Genauigkeit, ist aber nicht nötig")}`))
+      ];
+      return rows.join("");
+    }
     // Raum-Ebene: Aufheizrate & Co., Entscheidungen, Erklärung
     _learnRoom(r) {
       const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
@@ -4764,7 +4898,9 @@
       const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
       rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button><button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
+          <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
+          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
         <div class="crumb" id="rkc"></div>
@@ -5378,6 +5514,14 @@
         if (r) this._flash(t("Testnachricht an {n} gesendet", { n: rkPretty(el.dataset.test) }));
       }));
       $("[data-diag]").forEach((el) => el.addEventListener("click", () => this._downloadDiagnostics()));
+      $("[data-backup]").forEach((el) => el.addEventListener("click", () => this._backupExport()));
+      $("[data-restore]").forEach((el) => el.addEventListener("click", () => $("#rkrestore")?.click()));
+      const restoreInput = $("#rkrestore");
+      if (restoreInput) restoreInput.addEventListener("change", async () => {
+        const file = restoreInput.files && restoreInput.files[0];
+        if (file) await this._backupImport(file);
+        restoreInput.value = "";
+      });
       $("[data-bug]").forEach((el) => el.addEventListener("click", () => this._openBugReport()));
       $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
         await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });

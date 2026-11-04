@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Neu
+- **Einrichtungs-Checkliste:** Einstellungen → Erste Schritte zeigt, welche Angaben noch fehlen
+  (Bewohner, Empfänger, Wetterquelle, Raum mit Thermostat, Fensterkontakt, Zeitplan) und wo man sie
+  einträgt; zwei optionale Punkte (Präsenzmelder, Sturmschwelle) sind als optional markiert.
+- **Einstellungen sichern und wiederherstellen:** Kopfzeile der Einstellungen → Sichern schreibt alle
+  Einstellungen als JSON-Datei (ohne Zugangsdaten), Wiederherstellen spielt sie zurück. Räume werden über
+  ihren Namen zugeordnet, unbekannte Räume und fremde Felder werden gemeldet bzw. ignoriert.
+
+### Geprüft
+- **Home Assistant 2026.11.0:** Integration startet, Entitäten werden angelegt, WebSocket-Befehle und
+  Karte funktionieren, keine Fehler im Log. Die neuen Abkündigungen (step_id in Flow-Ergebnissen,
+  DeviceInfo als Dataclass, Config-Entry-Funktionen ohne Rückgabewert) betreffen uns nicht.
+
 ## 0.55.0 – 2026-11-04
 
 ### Neu

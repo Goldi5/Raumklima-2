@@ -429,6 +429,12 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Format HH:MM erwartet", "Format HH:MM expected", "Format HH:MM attendu"),
     ("Ungültige Uhrzeit", "Invalid time", "Heure invalide"),
     ("Raum nicht gefunden", "Room not found", "Pièce introuvable"),
+    (
+        "Diese Datei ist keine Raumklima-Sicherung",
+        "This file is not a Raumklima backup",
+        "Ce fichier n’est pas une sauvegarde Raumklima",
+    ),
+    ("Sicherung eingespielt: {n} Räume", "Backup restored: {n} rooms", "Sauvegarde restaurée : {n} pièces"),
     ("Keine Lampe gewählt", "No light selected", "Aucune lampe choisie"),
     ("Nur Administratoren können verschicken", "Only administrators can send", "Seuls les administrateurs peuvent envoyer"),
     ("Diese Wohnung gibt es schon", "This home already exists", "Ce logement existe déjà"),
