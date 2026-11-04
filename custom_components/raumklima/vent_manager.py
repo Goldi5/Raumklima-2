@@ -141,6 +141,8 @@ class VentilationManager:
         self._restored_since = dt_util.parse_datetime(stored.get("window_open_since") or "")
         self.snooze_until = dt_util.parse_datetime(stored.get("snoozed_until") or "")
         self.muted_until = dt_util.parse_datetime(stored.get("muted_until") or "")
+        reason = stored.get("airing_reason")
+        self._airing_reason = reason if reason in ("co2", "pm25", "humidity") else None
 
     # ------------------------------------------------------------ Zentrale oder Raum
     def _hub_opt(self, key: str, room_key: str, fallback: Any) -> Any:
@@ -250,6 +252,14 @@ class VentilationManager:
             unsub()
         self._unsubs.clear()
 
+    def _current_reason(self) -> str:
+        """Warum lüften? Feinstaub vor CO₂ vor Feuchte."""
+        if (self.c.current_pm25 or 0) >= PM25_LIMIT:
+            return "pm25"
+        if (self.c.current_co2 or 0) >= CO2_LIMIT:
+            return "co2"
+        return "humidity"
+
     def _take_restored(self) -> datetime | None:
         """Den gespeicherten Öffnungszeitpunkt genau einmal übernehmen (nach einem Neustart)."""
         since, self._restored_since = self._restored_since, None
@@ -267,6 +277,7 @@ class VentilationManager:
             "window_open_since": self.window_open_since.isoformat() if self.window_open_since else None,
             "snoozed_until": self.snooze_until.isoformat() if self.snooze_until else None,
             "muted_until": self.muted_until.isoformat() if self.muted_until else None,
+            "airing_reason": self._airing_reason,
         }
 
     # ------------------------------------------------------------ Messwerte
@@ -338,6 +349,9 @@ class VentilationManager:
         """Vom Controller bei echtem Fensterwechsel (ohne Verzögerung)."""
         if is_open and not self.window_open_since:
             self.window_open_since = self._take_restored() or dt_util.utcnow()
+            if self._airing_reason is None:
+                # Grund aus den aktuellen Werten – auch wenn die Aufforderung vor einem Neustart kam
+                self._airing_reason = self._current_reason()
             self.temp_at_open = self.c.current_temperature
             self._repeat_count.pop(VENT_PLEASE_CLOSE, None)
             self._repeat_count.pop(VENT_TOO_COLD, None)
@@ -398,11 +412,7 @@ class VentilationManager:
         changed = new != self.state
         self.state = new
         if new == VENT_PLEASE_OPEN and changed:
-            self.reason = (
-                "pm25" if (self.c.current_pm25 or 0) >= PM25_LIMIT
-                else "co2" if (self.c.current_co2 or 0) >= CO2_LIMIT
-                else "humidity"
-            )
+            self.reason = self._current_reason()
         self._check_window_away()
         if self.c.night_airing:
             self._night_update(now, changed)
@@ -589,8 +599,12 @@ class VentilationManager:
             if self.reason == "co2":
                 title, body = MESSAGE_CO2
         elif kind == VENT_DONE:
-            # Text nach dem Grund richten, wegen dem gelüftet wurde
-            override = done_text(self._airing_reason, self.humidity is not None)
+            # Text nach dem Grund richten, wegen dem gelüftet wurde – aber nur, wenn der passende
+            # Messwert jetzt vorliegt (sonst bliebe im Text ein leerer Platzhalter)
+            reason = self._airing_reason
+            if reason == "co2" and self.c.current_co2 is None or reason == "pm25" and self.c.current_pm25 is None:
+                reason = None
+            override = done_text(reason, self.humidity is not None)
             if override:
                 body = override
         values = {

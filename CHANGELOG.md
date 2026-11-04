@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.51.2 – 2026-11-04
+
+### Behoben
+- **„Fertig gelüftet" nannte nach CO₂-Lüften wieder die Luftfeuchte:** Der Grund wurde nur im
+  Arbeitsspeicher gemerkt. Lag zwischen „bitte lüften" und dem Öffnen des Fensters ein Neustart, war
+  er weg. Jetzt wird der Grund beim Öffnen aus den Messwerten bestimmt (Feinstaub vor CO₂ vor Feuchte)
+  und im Raum gespeichert; der Text passt auch nach einem Neustart.
+- **Unlesbare Einstellungen bei Themes mit transparentem Kartenhintergrund** (z. B. Frosted Glass):
+  An drei Stellen wurden Vorder- und Hintergrundfarbe getauscht – bei `card-background-color:
+  transparent` wurde die Schrift dadurch unsichtbar (aktiver Reiter, Knopf „Geräte & Technik ändern",
+  Speicher-Meldung). Diese Elemente nutzen jetzt eigene, immer lesbare Farben.
+
 ## 0.51.1 – 2026-11-04
 
 ### Neu
