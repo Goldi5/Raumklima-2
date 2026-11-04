@@ -136,6 +136,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "pm25": c.current_pm25,
             "offset_auto": round(c.shift, 2),
             "valve_sensor": c.valve_sensor,
+            "valve_sources": c.valve_sources,
             "battery": c.battery_low,
             "override_until": (
                 c.manual_until.isoformat()

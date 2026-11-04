@@ -208,6 +208,17 @@ class HealthMixin:
         return found
 
     @property
+    def valve_sources(self) -> int:
+        """Wie viele Geräte liefern gerade wirklich eine Ventilstellung?"""
+        count = 0
+        if self.valve_sensor:
+            state = self.hass.states.get(self.valve_sensor)
+            if state is not None and to_float(state.state) is not None:
+                count += 1
+        count += sum(1 for trv in getattr(self, "extra_trvs", []) if trv.valve is not None)
+        return count
+
+    @property
     def valve_position(self) -> float | None:
         """Ventilstellung – bei mehreren Heizkörpern der Mittelwert."""
         values = []

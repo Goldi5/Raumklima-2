@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.51.4 – 2026-11-04
+
+### Geändert
+- **Kachel heißt „Ventil" statt „Ventil Ø"**, wenn nur ein Gerät eine Ventilstellung liefert. Das „Ø"
+  erscheint erst, wenn wirklich mehrere Ventile gemittelt werden – sonst wirkte der Wert wie ein
+  Durchschnitt, obwohl er der Einzelwert ist (Issue #11).
+
 ## 0.51.3 – 2026-11-04
 
 ### Behoben
