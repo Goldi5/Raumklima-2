@@ -111,7 +111,10 @@ Raumklima pilote **tout thermostat de radiateur qui apparaît comme entité `cli
 | Aqara Smart Radiator E1 | Zigbee2MQTT | ✅ testé (pas d'état de chauffe sur l'appareil – état déduit de la demande) |
 | Homematic IP WTH-2 + eTRV | Homematic IP (CCU) | ✅ testé (le groupe reste intact, position de vanne lue sur l'eTRV) |
 | Shelly TRV / BLU TRV | Shelly | ❔ pas encore testé – retours bienvenus |
+| Sonoff TRVZB | ZHA | ✅ retour d’expérience (offset via `number.…_lokaler_temperatur_offset` ; pas de position de vanne, pas de presets) |
 | Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ pas encore testé |
+
+Les particularités par appareil – thermostats en veille, offset absent, presets, position de vanne – sont décrites dans **[Appareils & thermostats](appareils.md)**.
 
 Votre thermostat fonctionne (ou non) ? Merci de le signaler comme [issue](https://github.com/Goldi5/Raumklima-2/issues) – avec le modèle, la connexion et ce qui fonctionne. C’est ainsi que cette liste s’agrandit.
 

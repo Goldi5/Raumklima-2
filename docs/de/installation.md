@@ -110,7 +110,10 @@ Raumklima steuert **jedes Heizkörperthermostat, das in Home Assistant als `clim
 | Aqara Smart Radiator E1 | Zigbee2MQTT | ✅ getestet (kein Heiz-Zustand am Gerät – Status aus der Nachfrage) |
 | Homematic IP WTH-2 + eTRV | Homematic IP (CCU) | ✅ getestet (Gruppe bleibt bestehen, Ventilstellung am eTRV) |
 | Shelly TRV / BLU TRV | Shelly | ❔ noch nicht getestet – Erfahrungsbericht willkommen |
+| Sonoff TRVZB | ZHA | ✅ Erfahrungsbericht (Offset über `number.…_lokaler_temperatur_offset`; keine Ventilstellung, keine Presets) |
 | Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ noch nicht getestet |
+
+Eigenheiten je Gerät – schlafende Thermostate, fehlender Offset, Presets, Ventilstellung – stehen unter **[Geräte & Thermostate](geraete.md)**.
 
 Dein Thermostat läuft (oder nicht)? Bitte als [Issue](https://github.com/Goldi5/Raumklima-2/issues) melden – mit Modell, Anbindung und was funktioniert. So wächst diese Liste.
 

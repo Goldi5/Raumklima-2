@@ -107,7 +107,10 @@ Raumklima controls **every radiator thermostat that appears as a `climate` entit
 | Aqara Smart Radiator E1 | Zigbee2MQTT | ✅ tested (no heating state on the device – status derived from demand) |
 | Homematic IP WTH-2 + eTRV | Homematic IP (CCU) | ✅ tested (group stays intact, valve position read from the eTRV) |
 | Shelly TRV / BLU TRV | Shelly | ❔ not tested yet – reports welcome |
+| Sonoff TRVZB | ZHA | ✅ user report (offset via `number.…_lokaler_temperatur_offset`; no valve position, no presets) |
 | Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ not tested yet |
+
+Per-device quirks – sleepy thermostats, missing offset, presets, valve position – are covered in **[Devices & thermostats](devices.md)**.
 
 Your thermostat works (or doesn't)? Please report it as an [issue](https://github.com/Goldi5/Raumklima-2/issues) – with model, connection and what works. That's how this list grows.
 

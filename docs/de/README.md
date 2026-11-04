@@ -17,6 +17,7 @@
 | [So funktioniert's](funktionsweise.md) | Regelung, Offset, Fenster, Absicherung, Lüften, Abwesenheit, Schimmelschutz, Heizsaison |
 | [Benachrichtigungen](benachrichtigungen.md) | Wer bekommt was, Ruhezeit, Aktionen, Sprachansagen |
 | [Referenz](referenz.md) | Alle Einstellungen, Entitäten, Ereignisse für eigene Automationen |
+| [Geräte & Thermostate](geraete.md) | Was welches Gerät kann, Eigenheiten und Grenzen |
 | [Häufige Fragen](faq.md) | FAQ für Einsteiger |
 | [Fehlerbehebung](fehlerbehebung.md) | Probleme und Lösungen |
 | [Entwickeln](entwickeln.md) | Tests, Karte bauen, Aufbau des Codes |

@@ -15,6 +15,7 @@
 | [How it works](how-it-works.md) | Control, offset, windows, reliability, airing, absence, mould protection, heating season |
 | [Notifications](notifications.md) | Who gets what, quiet hours, sleep times, actions, voice |
 | [Reference](reference.md) | All settings, entities, device triggers, events |
+| [Devices & thermostats](devices.md) | What each device can do, quirks and limits |
 | [FAQ](faq.md) | Frequently asked questions for beginners |
 | [Troubleshooting](troubleshooting.md) | Problems and solutions |
 | [Development](development.md) | Tests, building the card, code structure |
