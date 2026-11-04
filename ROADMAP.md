@@ -3,18 +3,19 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.51.4 (Early Release – Tester gesucht)
+Stand: Version 0.52.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
-- [ ] **Knopf „Fehler melden“ in der Karte** – öffnet ein vorausgefülltes GitHub-Issue mit Raumklima-Version,
-      Home-Assistant-Version und Thermostat-Modell (ohne persönliche Daten).
-- [ ] **Issue-Vorlagen auf GitHub** – „Fehler“, „Idee“, „Mein Thermostat funktioniert / funktioniert nicht“;
-      daraus eine Liste geprüfter Thermostate in der Doku.
+- [x] **Knopf „Fehler melden“** (0.52.0) – öffnet ein vorausgefülltes GitHub-Issue mit Raumklima-Version,
+      Home-Assistant-Version und Thermostat-Modell (ohne Raumnamen, Entitäten oder Zugangsdaten).
+- [x] **Issue-Vorlagen auf GitHub** (0.52.0) – „Fehler“, „Idee“, „Mein Thermostat läuft / läuft nicht“;
+      dazu die Liste geprüfter Geräte in der Doku (Geräte & Thermostate).
 - [ ] **Einrichtungs-Checkliste als Karte** – Bewohner, Zone, Empfänger, Wetterquelle … werden automatisch
       abgehakt, sobald erledigt.
-- [ ] **Meldungen in den HA-Reparaturen** – „Batterie schwach“, „Fühler hängt“ usw. zusätzlich unter
-      *Einstellungen → Reparaturen*.
+- [x] **Meldungen in den HA-Reparaturen** (0.52.0) – schwache Batterie, nicht erreichbarer Fühler,
+      nicht erreichbares Thermostat erscheinen unter *Einstellungen → Reparaturen* und verschwinden mit
+      der Ursache.
 
 ## 🔥 Neue Funktionen
 
@@ -41,8 +42,6 @@ Stand: Version 0.51.4 (Early Release – Tester gesucht)
 - [ ] **Sturm- und Regenwarnung** – Unwetter vorhergesagt und Fenster offen → Nachricht.
 - [ ] **Nutzung lernen und vorheizen** – aus den Präsenzmeldern („Arbeitszimmer ab 8 Uhr belegt“).
 - [ ] **Schlafzeiten aus dem Präsenzmelder im Schlafzimmer** – zusätzlich zu Licht und Nachtlüften.
-- [ ] **Raum nur überwachen** – z. B. Keller, Balkon oder ein Raum ohne Thermostat: Temperatur, Feuchte,
-      Lüft-Hinweise und Schimmelschutz, aber keine Regelung.
 - [ ] **Direkte Ventilsteuerung** – für Thermostate, deren Ventilöffnung als Zahl einstellbar ist
       (z. B. SONOFF TRVZB): gleichmäßige Öffnung statt Auf/Zu – leiser, weniger Ventilbewegungen.
 - [ ] **Sprachsteuerung über die Raum-Entität verbessern** – Raum-Entität dem Bereich zuordnen, damit Assist
@@ -81,18 +80,21 @@ Stand: Version 0.51.4 (Early Release – Tester gesucht)
 Push-Nachrichten, Protokoll und Hinweise auf Deutsch, Englisch und Französisch · Französisch für Dashboard, Dialoge und PDF-Berichte · Mehrere Heizkörper pro Raum · Lichtsignal pro Raum · Lüft-Countdown auf dem Sperrbildschirm · „Fenster offen seit …“ · Präsenzmelder
 (mmWave/PIR) · PDF-Heizbericht (Woche, Monat, Saison) mit Note, Euro-Schätzung, Wärmebild und Spartipps ·
 E-Mail-Versand direkt in Raumklima · „?“-Erklärungen in den Einstellungen · Handbuch als PDF (DE/EN/FR) · Einstellungen neu aufgebaut (Gruppenleiste mit Farbe, Suche, Raum-Chips, Darstellung mit Reihenfolge/Größe/Farbe, Kalender- und Zeitwähler, Versionsanzeige) · Lernen mit Unterreitern (Aufheizrate, Schlafzeiten, Anwesenheitsprofil, Entscheidungen mit Begründung) · Überwachungsraum mit eigener großer Karte · Feinstaub PM2,5 · Tuya-TRV602Z: Sollwert über `comfort_temperature`, Warnung bei dauerhaft offenem Ventil.
+Überwachungsraum ohne Thermostat (messen, anmahnen, berichten) · Fehler-melden-Knopf mit
+vorausgefülltem Issue · Issue-Vorlagen · Probleme in den HA-Reparaturen.
 Details im [CHANGELOG](CHANGELOG.md).
 
 ---
 
 ### 🇬🇧 Summary
 
-**Next (tester phase):** “report a bug” button with prefilled GitHub issue · issue templates and a list of
-tested thermostats · setup checklist card · health problems in HA Repairs.
-**Features:** boost / override with duration · optional schedules per room via HA `schedule.*` helpers (several,
-switchable) · voice control (Assist) · storm/rain warning · learn room usage from presence sensors and preheat ·
-sleep times from bedroom presence sensor · monitor-only rooms · direct valve control (e.g. SONOFF TRVZB) ·
-room entity assigned to its area for Assist.
+**Done in the tester phase:** “report a bug” button with a prefilled GitHub issue (version, HA version,
+thermostat model – no room names or entities) · issue templates and a list of tested devices · problems
+shown in HA Repairs (battery, sensor, thermostat).
+**Next:** setup checklist card.
+**Features:** share schedules between rooms · voice control (Assist) and room entity assigned to its area ·
+storm/rain warning · learn room usage from presence sensors and preheat · sleep times from bedroom presence
+sensor · direct/proportional valve control (needs devices that expose it) · monitor-only rooms (done).
 **Bigger projects:** self-learning thermal model per room with predictive control · proportional valve control ·
 heat pumps and ACs (cooling, separate targets, short-cycle protection, choose the cheaper heat source) ·
 blinds/shading · analytics with model prediction.

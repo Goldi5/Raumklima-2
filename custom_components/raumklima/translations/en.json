@@ -492,5 +492,19 @@
       "heating_resumed": "Heating resumed",
       "health_problem": "Health check found a problem"
     }
+  },
+  "issues": {
+    "battery_low": {
+      "title": "Raumklima: battery low ({room})",
+      "description": "A battery level of {level} % was reported in **{room}**. Please replace the battery of the sensor or window contact, otherwise Raumklima will soon lose the readings. This message disappears once the battery level is sufficient again."
+    },
+    "sensor_unavailable": {
+      "title": "Raumklima: sensor unreachable ({room})",
+      "description": "The temperature sensor in **{room}** no longer returns valid values. Raumklima keeps the last reading for one hour and then controls by the thermostat. Please check radio link and battery – this message disappears when the sensor reports again."
+    },
+    "trv_unavailable": {
+      "title": "Raumklima: thermostat unreachable ({room})",
+      "description": "The thermostat in **{room}** is not responding. Raumklima cannot set the target temperature. Please check the connection (radio, gateway, cloud) and restart the device – this message disappears when it responds again."
+    }
   }
 }

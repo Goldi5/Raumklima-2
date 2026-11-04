@@ -716,4 +716,6 @@ export const FR = {
   "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "aucun « aérez » dans les pièces vides – possible uniquement avec un détecteur de présence",
   "Nur an anwesende Personen": "Seulement aux personnes présentes",
   "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "rappels d’aération uniquement vers les téléphones des personnes présentes selon la géolocalisation – les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde",
+  "Fehler melden": "Signaler un bug",
+  "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "ouvre un ticket GitHub avec la version, la version de Home Assistant et le modèle du thermostat – sans noms de pièces ni entités",
 };

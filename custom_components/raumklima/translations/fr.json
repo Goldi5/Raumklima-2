@@ -492,5 +492,19 @@
       "heating_resumed": "Chauffage repris",
       "health_problem": "Le contrôle de santé a trouvé un problème"
     }
+  },
+  "issues": {
+    "battery_low": {
+      "title": "Raumklima : pile faible ({room})",
+      "description": "Un niveau de pile de {level} % a été signalé dans **{room}**. Veuillez remplacer la pile du capteur ou du contact de fenêtre, sinon Raumklima perdra bientôt les mesures. Ce message disparaît dès que le niveau est suffisant."
+    },
+    "sensor_unavailable": {
+      "title": "Raumklima : sonde injoignable ({room})",
+      "description": "La sonde de température de **{room}** ne fournit plus de valeurs valides. Raumklima conserve la dernière mesure pendant une heure, puis régule avec le thermostat. Vérifiez la liaison radio et la pile – ce message disparaît dès que la sonde répond."
+    },
+    "trv_unavailable": {
+      "title": "Raumklima : thermostat injoignable ({room})",
+      "description": "Le thermostat de **{room}** ne répond pas. Raumklima ne peut pas régler la consigne. Vérifiez la connexion (radio, passerelle, cloud) et redémarrez l’appareil – ce message disparaît dès qu’il répond."
+    }
   }
 }

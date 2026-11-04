@@ -1,4 +1,4 @@
-/* Raumklima 0.51.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.52.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -715,7 +715,9 @@
     "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "no “please air” hints in empty rooms (only possible with a presence sensor)",
     "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "no “please air” in empty rooms – only possible with a presence sensor",
     "Nur an anwesende Personen": "Only to people who are home",
-    "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "airing hints only to phones of people who are home according to location – urgent messages (window open while away, frost, failure) still go to everyone"
+    "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "airing hints only to phones of people who are home according to location – urgent messages (window open while away, frost, failure) still go to everyone",
+    "Fehler melden": "Report a bug",
+    "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "opens a new GitHub issue with version, Home Assistant version and thermostat model – without room names or entities"
   };
 
   // src/i18n/fr.js
@@ -1433,7 +1435,9 @@
     "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "aucun rappel « aérez » dans les pièces vides (possible uniquement avec un détecteur de présence)",
     "kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich": "aucun « aérez » dans les pièces vides – possible uniquement avec un détecteur de présence",
     "Nur an anwesende Personen": "Seulement aux personnes présentes",
-    "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "rappels d’aération uniquement vers les téléphones des personnes présentes selon la géolocalisation – les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde"
+    "Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle": "rappels d’aération uniquement vers les téléphones des personnes présentes selon la géolocalisation – les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde",
+    "Fehler melden": "Signaler un bug",
+    "Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten": "ouvre un ticket GitHub avec la version, la version de Home Assistant et le modèle du thermostat – sans noms de pièces ni entités"
   };
 
   // src/i18n.js
@@ -1477,10 +1481,37 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.51.4";
+  var RK_VERSION2 = "0.52.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
+  function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats }) {
+    const models = [...new Set(thermostats.filter(Boolean))].sort();
+    const body = [
+      "### Was passiert",
+      "<!-- kurz beschreiben, was du beobachtest -->",
+      "",
+      "### Was du erwartet hast",
+      "",
+      "### Umgebung (automatisch ausgefüllt)",
+      `- Raumklima: ${version || "?"}`,
+      `- Home Assistant: ${haVersion || "?"}`,
+      `- Sprache: ${language || "?"}`,
+      `- Räume: ${rooms} in ${homeCount} Wohnung(en)`,
+      `- Thermostate: ${models.length ? models.join(", ") : "unbekannt"}`,
+      "",
+      "### Diagnose-Datei",
+      "Bitte *Einstellungen → Allgemein → Diagnose* anklicken und die JSON-Datei hier anhängen.",
+      "Darin stehen Werte, Entitäten und die letzten Protokollzeilen – ohne Zugangsdaten.",
+      ""
+    ].join("\n");
+    const query = [
+      `title=${encodeURIComponent("[Fehler] ")}`,
+      `body=${encodeURIComponent(body)}`,
+      "labels=bug"
+    ].join("&");
+    return `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
+  }
   var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   var STATUS = tmap({
     heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -2720,7 +2751,7 @@
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
-          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION}</span></div></div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION2}</span></div></div>
         ${outT !== void 0 && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">
@@ -3623,6 +3654,23 @@
       }
     }
     // ---------------------------------------------------------------- Speichern
+    _openBugReport() {
+      const rooms = this._rooms || [];
+      const thermostats = rooms.map((r) => {
+        const ent = (this._hass.entities || {})[r.id] || {};
+        const dev = (this._hass.devices || {})[ent.device_id] || {};
+        return [dev.manufacturer, dev.model].filter(Boolean).join(" ") || ent.platform || "";
+      });
+      const url = rkBugReportUrl({
+        version: RK_VERSION,
+        haVersion: this._hass.config && this._hass.config.version,
+        language: this._hass.language,
+        rooms: rooms.length,
+        homeCount: (this._cfg && this._cfg.homes || []).length,
+        thermostats
+      });
+      window.open(url, "_blank", "noopener");
+    }
     async _downloadDiagnostics() {
       try {
         this._flash(t("Diagnose wird erstellt …"));
@@ -4658,7 +4706,7 @@
       const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
       rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button><button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
         <div class="crumb" id="rkc"></div>
@@ -5272,6 +5320,7 @@
         if (r) this._flash(t("Testnachricht an {n} gesendet", { n: rkPretty(el.dataset.test) }));
       }));
       $("[data-diag]").forEach((el) => el.addEventListener("click", () => this._downloadDiagnostics()));
+      $("[data-bug]").forEach((el) => el.addEventListener("click", () => this._openBugReport()));
       $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
         await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });
         this._load();
@@ -5930,5 +5979,5 @@
       documentationURL: "https://github.com/Goldi5/Raumklima-2"
     });
   }
-  console.info(`%c RAUMKLIMA-CARD %c ${RK_VERSION} `, "background:#ff7a45;color:#fff;border-radius:4px 0 0 4px;padding:2px 6px", "background:#2ec4a6;color:#fff;border-radius:0 4px 4px 0;padding:2px 6px");
+  console.info(`%c RAUMKLIMA-CARD %c ${RK_VERSION2} `, "background:#ff7a45;color:#fff;border-radius:4px 0 0 4px;padding:2px 6px", "background:#2ec4a6;color:#fff;border-radius:0 4px 4px 0;padding:2px 6px");
 })();

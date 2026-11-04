@@ -9,6 +9,39 @@ export { RK_VERSION, loc, rkTime, setLang, t, time12, timeOpts, tmap };
 export const rkManualUrl = () =>
   `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
 
+/**
+ * Issue-URL für „Fehler melden" – mit Version, HA-Version und Gerätemodellen.
+ * Bewusst ohne Raumnamen, Entitäts-IDs oder Zugangsdaten (Datenschutz).
+ */
+export function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats }) {
+  const models = [...new Set(thermostats.filter(Boolean))].sort();
+  const body = [
+    "### Was passiert",
+    "<!-- kurz beschreiben, was du beobachtest -->",
+    "",
+    "### Was du erwartet hast",
+    "",
+    "### Umgebung (automatisch ausgefüllt)",
+    `- Raumklima: ${version || "?"}`,
+    `- Home Assistant: ${haVersion || "?"}`,
+    `- Sprache: ${language || "?"}`,
+    `- Räume: ${rooms} in ${homeCount} Wohnung(en)`,
+    `- Thermostate: ${models.length ? models.join(", ") : "unbekannt"}`,
+    "",
+    "### Diagnose-Datei",
+    "Bitte *Einstellungen → Allgemein → Diagnose* anklicken und die JSON-Datei hier anhängen.",
+    "Darin stehen Werte, Entitäten und die letzten Protokollzeilen – ohne Zugangsdaten.",
+    "",
+  ].join("\n");
+  const query = [
+    `title=${encodeURIComponent("[Fehler] ")}`,
+    `body=${encodeURIComponent(body)}`,
+    "labels=bug",
+  ].join("&");
+  return `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
+}
+
+
 export const escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const STATUS = tmap({

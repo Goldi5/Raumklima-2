@@ -52,6 +52,7 @@ from .planning import (
     TrackerFilter,
 )
 from .presence_profile import PresenceProfile
+from .repairs import clear_repairs, sync_repairs
 from .reports import PdfReports
 from .shared import domain_data, iso, parse_dt
 from .sleep import SignalTracker, SleepLearner
@@ -64,6 +65,7 @@ STORAGE_VERSION = 1
 PRESENCE_INTERVAL = timedelta(seconds=60)
 SAMPLE_INTERVAL = timedelta(minutes=10)
 FORECAST_INTERVAL = timedelta(minutes=30)
+REPAIRS_INTERVAL = timedelta(minutes=5)  # Reparatur-Meldungen abgleichen
 
 
 def _short(value: Any) -> str:
@@ -256,6 +258,9 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self._unsubs.append(
             async_track_time_interval(self.hass, self._on_forecast_tick, FORECAST_INTERVAL)
         )
+        self._unsubs.append(
+            async_track_time_interval(self.hass, self._on_repairs_tick, REPAIRS_INTERVAL)
+        )
         # Sommerpflege: mittwochs 11:00 Ventile kurz bewegen
         self._unsubs.append(
             async_track_time_change(self.hass, self._on_valve_care, hour=11, minute=0, second=0)
@@ -279,11 +284,17 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, NotifyMixin):
         self.load_config()
 
     @callback
+    def _on_repairs_tick(self, now=None) -> None:
+        """Batterie-, Fühler- und Thermostatprobleme in die Reparaturen spiegeln."""
+        sync_repairs(self.hass, self)
+
+    @callback
     def notify_entities(self) -> None:
         """Nur die Entitäten der Zentrale aktualisieren."""
         self._changed(rooms=False)
 
     async def async_stop(self) -> None:
+        clear_repairs(self.hass, self)
         await self.insights.async_stop()
         await self.log.async_save()
         self._unsubscribe()

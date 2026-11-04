@@ -492,5 +492,19 @@
       "heating_resumed": "Heizung läuft wieder",
       "health_problem": "Gesundheitscheck meldet ein Problem"
     }
+  },
+  "issues": {
+    "battery_low": {
+      "title": "Raumklima: Batterie fast leer ({room})",
+      "description": "Im Raum **{room}** ist ein Batteriestand von {level} % gemeldet. Bitte die Batterie des Fühler- oder Fensterkontakts tauschen, sonst fehlen Raumklima bald die Messwerte. Die Meldung verschwindet, sobald wieder genug Batterie gemeldet wird."
+    },
+    "sensor_unavailable": {
+      "title": "Raumklima: Fühler nicht erreichbar ({room})",
+      "description": "Der Temperaturfühler in **{room}** liefert keine gültigen Werte mehr. Raumklima hält den letzten Messwert eine Stunde und regelt danach nach dem Thermostat. Bitte Funkverbindung und Batterie prüfen – die Meldung verschwindet, wenn der Fühler wieder meldet."
+    },
+    "trv_unavailable": {
+      "title": "Raumklima: Thermostat nicht erreichbar ({room})",
+      "description": "Das Thermostat in **{room}** antwortet nicht. Raumklima kann den Sollwert nicht setzen. Bitte Verbindung (Funk, Gateway, Cloud) prüfen und das Gerät neu starten – die Meldung verschwindet, wenn es wieder antwortet."
+    }
   }
 }

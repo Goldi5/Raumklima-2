@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.52.0 – 2026-11-04
+
+### Neu
+- **Knopf „Fehler melden"** in den Einstellungen: öffnet ein neues GitHub-Issue mit Raumklima-Version,
+  Home-Assistant-Version, Anzahl der Räume und den Thermostat-Modellen. Bewusst **ohne** Raumnamen,
+  Entitäts-IDs oder Zugangsdaten; im Text steht, wie die Diagnose-Datei angehängt wird.
+- **Issue-Vorlagen** im Repository: „Fehler melden", „Idee oder Wunsch" und „Mein Thermostat läuft /
+  läuft nicht" (Erfahrungsbericht für die Geräteliste).
+- **Probleme in den HA-Reparaturen:** schwache Batterie, nicht erreichbarer Fühler und nicht erreichbares
+  Thermostat erscheinen zusätzlich unter *Einstellungen → Reparaturen* – je Raum eine Meldung, die
+  verschwindet, sobald die Ursache behoben ist.
+
 ## 0.51.4 – 2026-11-04
 
 ### Geändert
