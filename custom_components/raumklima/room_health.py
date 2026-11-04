@@ -88,7 +88,13 @@ class HealthMixin:
         trv_entry = registry.async_get(self.trv)
         if trv_entry is None:
             return None
-        keys = ("position", "opening", "öffnung", "oeffnung", "valve", "ventil", "tappet")
+        # „position" allein ist zu unscharf: Rollladenaktoren heißen genauso
+        # (Issue #11 – ein Rollladen-Positionssensor wurde als Ventil angezeigt).
+        strong = ("valve", "ventil", "öffnung", "oeffnung", "opening", "tappet")
+        weak = ("position",)
+        heating_devices = {
+            e.device_id for e in registry.entities.values() if e.domain == "climate" and e.device_id
+        }
 
         def usable(entry) -> bool:
             if entry.domain != "sensor" or entry.disabled_by:
@@ -98,7 +104,10 @@ class HealthMixin:
             if "%" not in unit:
                 return False  # Batterie, RSSI, Ventilhub-Historie usw. aussortieren
             hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
-            return any(k in hay for k in keys)
+            if any(k in hay for k in strong):
+                return True
+            # „position" nur bei einem Gerät, das auch ein Thermostat ist
+            return any(k in hay for k in weak) and entry.device_id in heating_devices
 
         def pick(entries) -> str | None:
             for entry in entries:
@@ -134,6 +143,14 @@ class HealthMixin:
                 return entry.area_id
             dev = devices.async_get(entry.device_id) if entry.device_id else None
             return dev.area_id if dev else None
+
+        # Heizkörper-Thermostate im Raum zuerst: dort sitzt das Ventil
+        for extra in getattr(self, "extra_trvs", []):
+            extra_entry = registry.async_get(getattr(extra, "entity_id", ""))
+            if extra_entry is not None and extra_entry.device_id:
+                hit = pick(er.async_entries_for_device(registry, extra_entry.device_id))
+                if hit:
+                    return hit
 
         trv_area = area_of(trv_entry)
         if trv_area:

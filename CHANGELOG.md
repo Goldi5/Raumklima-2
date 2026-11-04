@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.51.3 – 2026-11-04
+
+### Behoben
+- **Falsches „Ventil": Rollladen-Position wurde als Ventilstellung angezeigt** (Issue #11). Die
+  automatische Suche akzeptierte jedes Prozent-Signal mit „position" im Namen und erwischte deshalb
+  den Positionsgeber eines Rollladenaktors im selben Raum. Jetzt zählt „position" nur noch bei einem
+  Gerät, das auch ein Thermostat ist; zuerst werden die Heizkörper-Thermostate des Raums durchsucht.
+  Lieber keine Ventilanzeige als eine fremde.
+
 ## 0.51.2 – 2026-11-04
 
 ### Behoben
