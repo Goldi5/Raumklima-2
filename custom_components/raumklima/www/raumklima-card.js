@@ -1,4 +1,4 @@
-/* Raumklima 0.49.3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.49.4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -710,7 +710,9 @@
     "Batterie {p} %": "Battery {p} %",
     "Zeitplan überschreiben": "Override schedule",
     "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "how long your manual setting (HA or Alexa) applies, then the schedule returns – 0 disables it",
-    "Karte konnte nicht gezeichnet werden": "The card could not be rendered"
+    "Karte konnte nicht gezeichnet werden": "The card could not be rendered",
+    "Nur wenn jemand im Raum war": "Only if someone was in the room",
+    "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "no “please air” hints in empty rooms (only possible with a presence sensor)"
   };
 
   // src/i18n/fr.js
@@ -1423,7 +1425,9 @@
     "Batterie {p} %": "Batterie {p} %",
     "Zeitplan überschreiben": "Remplacer le programme",
     "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "durée pendant laquelle votre réglage manuel (HA ou Alexa) s'applique, ensuite le programme reprend – 0 le désactive",
-    "Karte konnte nicht gezeichnet werden": "La carte n'a pas pu être dessinée"
+    "Karte konnte nicht gezeichnet werden": "La carte n'a pas pu être dessinée",
+    "Nur wenn jemand im Raum war": "Seulement si quelqu’un était dans la pièce",
+    "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "aucun rappel « aérez » dans les pièces vides (possible uniquement avec un détecteur de présence)"
   };
 
   // src/i18n.js
@@ -1467,7 +1471,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.49.3";
+  var RK_VERSION = "0.49.4";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4206,6 +4210,11 @@
           "Leise Erinnerung danach",
           editable ? this._optStepper(scope, "long_airing_remind", lateMin, " min", 15, 0, 240) : this._v(`${lateMin} min`),
           t("eine einzige, stille Meldung bei sehr langem Lüften – 0 = aus")
+        ),
+        this._row(
+          "Nur wenn jemand im Raum war",
+          editable ? this._optToggle(scope, "airing_occupied_only", this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true) : this._v(this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true ? t("an") : t("aus")),
+          t("keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)")
         ),
         this._row(
           "Gewohntes Lüften erkennen",

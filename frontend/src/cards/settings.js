@@ -755,6 +755,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
         t("eine einzige, stille Meldung bei sehr langem Lüften – 0 = aus")
       ),
       this._row(
+        "Nur wenn jemand im Raum war",
+        editable ? this._optToggle(scope, "airing_occupied_only", this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true) : this._v((this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true) ? t("an") : t("aus")),
+        t("keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)")
+      ),
+      this._row(
         "Gewohntes Lüften erkennen",
         editable ? this._optToggle(scope, "learn_airing", !!learn) : this._v(learn ? t("an") : t("aus")),
         learned ? t("erkannt: {n}× im gleichen Zeitraster (4 Wochen)", { n: learned }) : t("lernt, wann du regelmäßig länger lüftest – dort dann keine Erinnerungen")

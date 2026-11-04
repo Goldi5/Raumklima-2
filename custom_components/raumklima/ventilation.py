@@ -11,6 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 
+from .msg import N_
+
 # Lüftdauer (Minuten) nach Außentemperatur: (obere Grenze °C, Minuten)
 DURATION_BY_OUTDOOR = [(0.0, 4), (5.0, 5), (10.0, 10), (15.0, 15), (20.0, 20)]
 DURATION_HOT = 30
@@ -186,3 +188,28 @@ def in_quiet_hours(hour: int, minute: int, start: str, end: str) -> bool:
     if s == e:
         return False
     return s <= now < e if s < e else now >= s or now < e
+
+
+def done_text(reason: str | None, humidity_known: bool) -> str | None:
+    """Passender Text für „fertig gelüftet" – nach dem Grund der Aufforderung.
+
+    Vorher stand immer die Luftfeuchte da, auch wenn wegen CO₂ gelüftet wurde.
+    """
+    if reason == "co2":
+        return N_("CO₂ wieder {co2} ppm – du kannst schließen.")
+    if reason == "pm25":
+        return N_("Feinstaub wieder unter {pm25} µg/m³ – du kannst schließen.")
+    if humidity_known:
+        return None  # Standardtext nennt die Luftfeuchte
+    return N_("Die Luft ist wieder frisch – du kannst schließen.")
+
+
+def open_allowed(occupied: bool | None, has_presence: bool, only_when_occupied: bool) -> bool:
+    """Darf „bitte lüften" rausgehen, wenn niemand im Raum ist?
+
+    Mit Präsenzmelder im Raum und eingeschalteter Option: nein, solange der Raum
+    nachweislich leer ist. Ohne Melder bleibt es bei der Wohnungs-Anwesenheit.
+    """
+    if not only_when_occupied or not has_presence:
+        return True
+    return occupied is not False

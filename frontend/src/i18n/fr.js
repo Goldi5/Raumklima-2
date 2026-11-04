@@ -711,4 +711,6 @@ export const FR = {
   "Zeitplan überschreiben": "Remplacer le programme",
   "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "durée pendant laquelle votre réglage manuel (HA ou Alexa) s'applique, ensuite le programme reprend – 0 le désactive",
   "Karte konnte nicht gezeichnet werden": "La carte n'a pas pu être dessinée",
+  "Nur wenn jemand im Raum war": "Seulement si quelqu’un était dans la pièce",
+  "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "aucun rappel « aérez » dans les pièces vides (possible uniquement avec un détecteur de présence)",
 };

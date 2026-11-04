@@ -472,6 +472,16 @@ _ROWS: list[tuple[str, str, str]] = [
         "These recipients no longer exist: {names}. Pick them again under Settings → Who gets what – otherwise no notifications arrive.",
         "Ces destinataires n'existent plus : {names}. Choisissez-les à nouveau sous Réglages → Qui reçoit quoi – sinon aucun message n'arrive.",
     ),
+    (
+        "Feinstaub wieder unter {pm25} µg/m³ – du kannst schließen.",
+        "Particulate matter back below {pm25} µg/m³ – you can close the window.",
+        "Particules fines de nouveau sous {pm25} µg/m³ – vous pouvez fermer.",
+    ),
+    (
+        "Die Luft ist wieder frisch – du kannst schließen.",
+        "The air is fresh again – you can close the window.",
+        "L'air est de nouveau frais – vous pouvez fermer.",
+    ),
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

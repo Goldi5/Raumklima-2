@@ -12,6 +12,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_AIRING_OCCUPIED_ONLY,
     CONF_AIRING_WINDOWS,
     CONF_HUMIDITY_SENSOR,
     CONF_LEARN_AIRING,
@@ -51,9 +52,11 @@ from .ventilation import (
     absolute_humidity,
     airing_dries,
     dew_point,
+    done_text,
     evaluate,
     in_quiet_hours,
     mold_risk,
+    open_allowed,
     recommended_duration,
 )
 
@@ -112,6 +115,7 @@ class VentilationManager:
         self.snooze_until: datetime | None = None
         self.muted_until: datetime | None = None
         self._last_sent: dict[str, datetime] = {}
+        self._airing_reason: str | None = None  # co2 / pm25 / humidity – für den „fertig"-Text
         self._long_notice_for: datetime | None = None  # Öffnung, für die „ich erinnere nicht mehr“ kam
         self._late_notice_for: datetime | None = None  # Öffnung, für die die Spät-Erinnerung kam
         self._repeat_count: dict[str, int] = {}
@@ -548,6 +552,12 @@ class VentilationManager:
                 return  # niemand da, der lüften oder schließen könnte
         elif not self.notify_targets and not self.tts_targets:
             return
+        if kind == VENT_PLEASE_OPEN and not open_allowed(
+            self.c.occupied,
+            bool(self.c.presence_sensors),
+            bool(self._room_opt(CONF_AIRING_OCCUPIED_ONLY, True)),
+        ):
+            return  # Raum ist nachweislich leer – Hinweis bringt niemandem etwas
         now = dt_util.utcnow()
         if self.muted_until and now < self.muted_until:
             return
@@ -574,10 +584,15 @@ class VentilationManager:
         calm = kind == VENT_TOO_COLD and count >= TOO_COLD_LOUD
         self._repeat_count[kind] = count + 1
         title, body = MESSAGES[kind]
-        if kind == VENT_PLEASE_OPEN and self.reason == "co2":
-            title, body = MESSAGE_CO2
-        elif kind == VENT_DONE and self.humidity is None:
-            body = N_("CO₂ wieder {co2} ppm – du kannst schließen.")
+        if kind == VENT_PLEASE_OPEN:
+            self._airing_reason = self.reason
+            if self.reason == "co2":
+                title, body = MESSAGE_CO2
+        elif kind == VENT_DONE:
+            # Text nach dem Grund richten, wegen dem gelüftet wurde
+            override = done_text(self._airing_reason, self.humidity is not None)
+            if override:
+                body = override
         values = {
             "room": self.c.name,
             "hum": f"{self.humidity or 0:.0f}",

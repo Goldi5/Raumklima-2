@@ -15,6 +15,7 @@ from .const import (
     BOOST_TEMP_MAX,
     BOOST_TEMP_MIN,
     BUILDING_TYPES,
+    CONF_AIRING_OCCUPIED_ONLY,
     CONF_AIRING_WINDOWS,
     CONF_AWAY_DELAY,
     CONF_BOOST_MINUTES,
@@ -237,6 +238,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_LONG_AIRING_REMIND): vol.All(vol.Coerce(float), vol.Range(0, 240)),
         vol.Optional(CONF_LEARN_AIRING): vol.Boolean(),
         vol.Optional(CONF_FAST_POLL): vol.Boolean(),
+        vol.Optional(CONF_AIRING_OCCUPIED_ONLY): vol.Boolean(),
         vol.Optional(CONF_OVERRIDE_MINUTES): vol.All(vol.Coerce(float), vol.Range(0, 480)),
         vol.Optional(CONF_AIRING_WINDOWS): vol.Any(
             None,

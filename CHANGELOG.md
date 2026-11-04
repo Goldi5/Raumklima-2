@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.49.4 – 2026-11-04
+
+### Behoben
+- **„Fertig gelüftet" nannte den falschen Grund:** Wurde wegen CO₂ gelüftet, kam hinterher
+  „Luftfeuchte wieder …". Jetzt richtet sich der Text nach dem Grund (CO₂, Feinstaub, Feuchte).
+- **Keine „bitte lüften"-Hinweise in leeren Räumen:** Neue Option *Lüften ohne Erinnerung → Nur wenn
+  jemand im Raum war* (Standard an). Hat der Raum einen Präsenzmelder und ist nachweislich leer,
+  entfällt der Hinweis — unabhängig davon, was die Wohnungs-Anwesenheit sagt.
+
 ## 0.49.3 – 2026-11-04
 
 ### Behoben

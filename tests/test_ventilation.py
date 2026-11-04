@@ -13,9 +13,11 @@ from rk.ventilation import (
     absolute_humidity,
     airing_dries,
     dew_point,
+    done_text,
     evaluate,
     in_quiet_hours,
     mold_risk,
+    open_allowed,
     recommended_duration,
 )
 
@@ -157,3 +159,19 @@ def test_feinstaub_haelt_lueften_bis_es_besser_ist() -> None:
     offen = dict(window_open=True, open_minutes=5)
     assert evaluate(_basis(pm25=28.0, **offen)) == VENT_AIRING
     assert evaluate(_basis(pm25=12.0, **offen)) == VENT_DONE
+
+
+def test_done_text_folgt_dem_grund() -> None:
+    """Nach CO₂-Lüften keine Feuchte-Meldung mehr (Rückmeldung aus der Praxis)."""
+    assert "CO₂" in done_text("co2", True)
+    assert "Feinstaub" in done_text("pm25", True)
+    assert done_text("humidity", True) is None
+    assert "frisch" in done_text(None, False)
+
+
+def test_open_hint_only_for_occupied_rooms() -> None:
+    assert open_allowed(True, True, True) is True
+    assert open_allowed(None, True, True) is True   # unklar → lieber melden
+    assert open_allowed(False, True, True) is False  # Raum nachweislich leer
+    assert open_allowed(False, False, True) is True  # kein Melder → Wohnungs-Anwesenheit gilt
+    assert open_allowed(False, True, False) is True  # Option aus

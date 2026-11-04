@@ -711,4 +711,6 @@ export const EN = {
   "Zeitplan überschreiben": "Override schedule",
   "so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus": "how long your manual setting (HA or Alexa) applies, then the schedule returns – 0 disables it",
   "Karte konnte nicht gezeichnet werden": "The card could not be rendered",
+  "Nur wenn jemand im Raum war": "Only if someone was in the room",
+  "keine „bitte lüften“-Hinweise in leeren Räumen (nur mit Präsenzmelder möglich)": "no “please air” hints in empty rooms (only possible with a presence sensor)",
 };
