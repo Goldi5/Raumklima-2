@@ -866,3 +866,26 @@ async def test_manual_change_at_trv_is_adopted_with_cal_target(
 
     # Fühler und TRV zeigen hier denselben Wert -> Abgleich 0, der Wunsch kommt 1:1 an.
     assert hass.states.get("climate.bad").attributes["temperature"] == 21.5
+
+
+async def test_room_at_setback_level_still_reports_setback(hass: HomeAssistant, trv: FakeTrv, sensors: None) -> None:
+    """Wunsch = Absenkwert: nichts zu senken, aber der Raum ist trotzdem „abgesenkt"."""
+    from custom_components.raumklima.const import CONF_SETBACK_SHORT
+    from custom_components.raumklima.shared import domain_data
+
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(**{CONF_SETBACK_SHORT: 18.0})
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(hub.entry_id)
+    await hass.async_block_till_done()
+
+    hub_obj = hub.runtime_data
+    hub_obj.stage = "away_short"
+    controller = domain_data(hass)["rooms"][room.entry_id]
+    controller.target_temp = 18.0
+    controller.notify_listeners()
+    await hass.async_block_till_done()
+
+    assert hass.states.get("climate.bad").attributes["status"] == "setback"
+    assert hass.states.get("climate.bad").attributes["temperature"] == 18.0

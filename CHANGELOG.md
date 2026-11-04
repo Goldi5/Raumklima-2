@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.48.2 – 2026-11-04
+
+### Behoben
+- **Räume, deren Wunsch schon auf dem Absenkwert liegt, melden jetzt „abgesenkt".** Bisher stand dort
+  „erreicht", weil es rechnerisch nichts zu senken gab – bei Abwesenheit war das missverständlich
+  (z. B. Sportzimmer 18,0 °C Wunsch = 18,0 °C Absenkung). Zeitplanfenster haben weiter Vorrang.
+
 ## 0.48.1 – 2026-11-04
 
 ### Behoben

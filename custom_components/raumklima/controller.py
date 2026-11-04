@@ -780,6 +780,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
             if target < self.target_temp:
                 return True, target, stage
+            # Nichts zu senken (Wunsch liegt schon auf dem Absenkwert, z. B. Sportzimmer 18,0 °C):
+            # trotzdem als „abgesenkt" melden – außer ein Zeitplanfenster gilt gerade.
+            if schedule_target(self.config.get(CONF_SCHEDULES), dt_util.now()) is None:
+                return True, target, stage
         manual_until = self._manual_until
         if not self._peeking:
             self._manual_until = None
