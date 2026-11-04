@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.52.0 (Early Release – Tester gesucht)
+Stand: Version 0.53.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -44,8 +44,10 @@ Stand: Version 0.52.0 (Early Release – Tester gesucht)
 - [ ] **Schlafzeiten aus dem Präsenzmelder im Schlafzimmer** – zusätzlich zu Licht und Nachtlüften.
 - [ ] **Direkte Ventilsteuerung** – für Thermostate, deren Ventilöffnung als Zahl einstellbar ist
       (z. B. SONOFF TRVZB): gleichmäßige Öffnung statt Auf/Zu – leiser, weniger Ventilbewegungen.
-- [ ] **Sprachsteuerung über die Raum-Entität verbessern** – Raum-Entität dem Bereich zuordnen, damit Assist
-      „Wohnzimmer auf 22 Grad“ eindeutig findet (Hinweis: Thermostate selbst für Assist ausblenden).
+- [x] **Sprachsteuerung über die Raum-Entität** (0.53.0) – die Raum-Entität (und alle Sensoren/Schalter des
+      Raums) wird beim Start dem Home-Assistant-Bereich zugeordnet, damit Assist „Wohnzimmer auf 22 Grad“
+      eindeutig findet. Eine selbst gesetzte Zuordnung bleibt unangetastet; Thermostate kann man für Assist
+      zusätzlich ausblenden, wenn sie doppelt antworten.
 
 ## 🧠 Größere Vorhaben
 

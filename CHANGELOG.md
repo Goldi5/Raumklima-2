@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.53.0 – 2026-11-04
+
+### Neu
+- **Sprachsteuerung (Assist) findet die Räume:** Beim Start werden die Raum-Entität und alle Sensoren und
+  Schalter des Raums dem Home-Assistant-Bereich zugeordnet (Thermostat → Fensterkontakt → Fühler →
+  Bereich mit gleichem Namen). Damit funktionieren „Wohnzimmer auf 22 Grad" und „Wie warm ist es im Bad?"
+  ohne Zusatzarbeit. Eine selbst gesetzte Zuordnung wird **nie** überschrieben.
+
 ## 0.52.0 – 2026-11-04
 
 ### Neu

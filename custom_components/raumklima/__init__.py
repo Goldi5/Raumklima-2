@@ -15,6 +15,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
+from .areas import assign_room_area
 from .const import (
     CARD_URL,
     CONF_ENTRY_TYPE,
@@ -181,6 +182,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) ->
     entry.runtime_data = controller
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await controller.async_start()
+    # Damit Assist „Wohnzimmer auf 22 Grad" findet: Entitäten in den Bereich legen
+    assign_room_area(hass, controller)
     _ensure_hub(hass, entry)
     return True
 
