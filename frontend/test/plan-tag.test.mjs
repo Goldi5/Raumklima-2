@@ -17,7 +17,7 @@ globalThis.HTMLElement = class {
   dispatchEvent() {}
 };
 
-const { planTag } = await import("../src/shared.js");
+const { planTag, rkVersionMismatch } = await import("../src/shared.js");
 
 test("Schimmelschutz bekommt einen Namen", () => {
   assert.equal(planTag({ plan_reason: "mold" }), "Schimmel");
@@ -36,4 +36,11 @@ test("Übersicht nennt den Grund vor dem Wert", () => {
   const src = readFileSync(new URL("../src/cards/overview.js", import.meta.url), "utf8");
   assert.match(src, /planTag/);
   assert.match(src, /\{tag\} \{v\}° · Wunsch \{w\}°/);
+});
+
+test("veraltete Karte wird erkannt", () => {
+  assert.equal(rkVersionMismatch({ version: "0.59.11" }, "0.59.11"), "");
+  assert.equal(rkVersionMismatch({ version: "0.59.12" }, "0.59.11"), "0.59.12");
+  assert.equal(rkVersionMismatch(null, "0.59.11"), "");
+  assert.equal(rkVersionMismatch({}, "0.59.11"), "");
 });

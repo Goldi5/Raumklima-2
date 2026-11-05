@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from homeassistant.components import websocket_api
@@ -349,6 +351,15 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
     }
 
 
+def _installed_version() -> str:
+    """Version aus der manifest.json der laufenden Installation."""
+    try:
+        data = json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return "0"
+    return str(data.get("version") or "0")
+
+
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/config", vol.Optional("home"): vol.Any(None, str)})
 @callback
 def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
@@ -392,6 +403,9 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
             "kinds": KINDS,
             "choices": _choices(hass),
             "admin": connection.user.is_admin,
+            # Version der Installation – die Karte vergleicht damit ihre eigene und warnt,
+            # wenn der Browser noch eine alte Datei hält.
+            "version": _installed_version(),
         },
     )
 

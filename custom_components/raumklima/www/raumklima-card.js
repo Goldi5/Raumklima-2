@@ -806,7 +806,9 @@
     "Frost": "Frost",
     "Ventilpflege": "Valve care",
     "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · target {w}°",
-    "{tag} {v}°": "{tag} {v}°"
+    "{tag} {v}°": "{tag} {v}°",
+    "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "The card in the browser is older than the integration – reload with Ctrl+Shift+R.",
+    "neu: {v} – Seite neu laden": "new: {v} – reload page"
   };
 
   // src/i18n/fr.js
@@ -1615,7 +1617,9 @@
     "Frost": "Gel",
     "Ventilpflege": "Entretien vanne",
     "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · consigne {w}°",
-    "{tag} {v}°": "{tag} {v}°"
+    "{tag} {v}°": "{tag} {v}°",
+    "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "La carte du navigateur est plus ancienne que l'intégration – rechargez avec Ctrl+Shift+R.",
+    "neu: {v} – Seite neu laden": "nouveau : {v} – recharger la page"
   };
 
   // src/i18n.js
@@ -2525,6 +2529,11 @@
   .empty { padding:24px 0 8px; color:var(--secondary-text-color); line-height:1.5; }
 `;
   var ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
+  function rkVersionMismatch(cfg, own) {
+    const server = cfg && cfg.version;
+    if (!server || !own) return "";
+    return String(server) === String(own) ? "" : String(server);
+  }
 
   // src/cards/room.js
   var RaumklimaCard = class extends HTMLElement {
@@ -2971,7 +2980,10 @@
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
-          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION2}</span></div></div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION2}${(() => {
+        const neu = rkVersionMismatch(this._cfg, RK_VERSION2);
+        return neu ? ` <span title="${esc(t("Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden."))}" style="color:var(--rk-warn)">· ${esc(t("neu: {v} – Seite neu laden", { v: neu }))}</span>` : "";
+      })()}</span></div></div>
         ${outT !== void 0 && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">

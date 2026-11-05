@@ -1,4 +1,4 @@
-import { RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -201,7 +201,12 @@ export class RaumklimaOverviewCard extends HTMLElement {
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
-          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION}</span></div></div>
+          <div class="sub">${t("{r} Räume · {h} heizen · {w} Fenster offen", { r: rows.length, h: heating, w: windows })}<span class="ver">Raumklima ${RK_VERSION}${(() => {
+            const neu = rkVersionMismatch(this._cfg, RK_VERSION);
+            return neu
+              ? ` <span title="${esc(t("Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden."))}" style="color:var(--rk-warn)">· ${esc(t("neu: {v} – Seite neu laden", { v: neu }))}</span>`
+              : "";
+          })()}</span></div></div>
         ${outT !== undefined && outT !== null ? `<div class="out"><b>${fmt(outT)}°</b><span>${t("außen · {h} %", { h: fmt(outH, 0) })}</span></div>` : ""}
       </div>
       <div class="kpis">

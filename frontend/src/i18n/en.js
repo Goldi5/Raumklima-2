@@ -807,4 +807,6 @@ export const EN = {
   "Ventilpflege": "Valve care",
   "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · target {w}°",
   "{tag} {v}°": "{tag} {v}°",
+  "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "The card in the browser is older than the integration – reload with Ctrl+Shift+R.",
+  "neu: {v} – Seite neu laden": "new: {v} – reload page",
 };

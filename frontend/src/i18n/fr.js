@@ -807,4 +807,6 @@ export const FR = {
   "Ventilpflege": "Entretien vanne",
   "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · consigne {w}°",
   "{tag} {v}°": "{tag} {v}°",
+  "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "La carte du navigateur est plus ancienne que l'intégration – rechargez avec Ctrl+Shift+R.",
+  "neu: {v} – Seite neu laden": "nouveau : {v} – recharger la page",
 };

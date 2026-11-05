@@ -954,3 +954,12 @@ export const REPORT_STYLES = `
 `;
 
 export const ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
+
+
+// Karte gegen Integration prüfen: Hält der Browser noch eine alte JS-Datei, zeigt die
+// Übersicht sonst eine falsche Versionsnummer an, ohne dass es jemand merkt.
+export function rkVersionMismatch(cfg, own) {
+  const server = cfg && cfg.version;
+  if (!server || !own) return "";
+  return String(server) === String(own) ? "" : String(server);
+}
