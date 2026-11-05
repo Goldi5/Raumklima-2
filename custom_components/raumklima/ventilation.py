@@ -91,6 +91,21 @@ def recommended_duration(outdoor_temp: float | None, month: int) -> int:
     return DURATION_BY_MONTH[(month - 1) % 12]
 
 
+# Kürzeste sinnvolle Lüftungsdauer. „Luft ausgetauscht" heißt sonst schon nach zwei Minuten,
+# sobald der Fühler frische Luft sieht – ein Fühler nahe am Fenster sieht die aber früher als der Raum.
+AIRING_MIN_MINUTES = 4
+AIRING_MIN_FACTOR = 0.6
+
+
+def min_airing_minutes(duration: int) -> int:
+    """Kürzeste Lüftungsdauer (Minuten), abhängig von der empfohlenen Dauer.
+
+    Die empfohlene Dauer richtet sich nach der Außentemperatur (kalt = schnellerer Luftwechsel).
+    Mindestens 60 % davon – und nie unter vier Minuten.
+    """
+    return max(AIRING_MIN_MINUTES, round(max(int(duration or 0), 1) * AIRING_MIN_FACTOR))
+
+
 def airing_dries(indoor_abs: float | None, outdoor_abs: float | None, margin: float = 1.0) -> bool:
     """Trocknet Lüften den Raum? Ohne Außenwerte: ja (Winterfall)."""
     if indoor_abs is None or outdoor_abs is None:
@@ -133,7 +148,9 @@ def evaluate(v: VentInput) -> str:
                 return VENT_TOO_COLD
         if v.open_minutes >= v.duration:
             return VENT_PLEASE_CLOSE
-        if v.open_minutes >= 2 and air_exchanged(v):
+        # Fertig erst, wenn die Luft auch wirklich ausgetauscht ist: Mindestdauer nach
+        # Außentemperatur (Empfehlung) UND Feuchte/CO₂ im grünen Bereich.
+        if v.open_minutes >= min_airing_minutes(v.duration) and air_exchanged(v):
             return VENT_DONE
         return VENT_AIRING
     if v.pm25 is not None and v.pm25 >= v.pm25_limit:

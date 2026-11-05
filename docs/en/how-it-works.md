@@ -29,7 +29,7 @@ Short dropouts (under 1 minute) don't count as a failure. If all thermostats dro
 - **Please air the room:** humidity above the room's limit for 15 minutes (default 70 %, bathroom 75 %) – but only if **airing actually dries** (absolute humidity outside lower than inside).
 - **CO₂ (optional):** with a CO₂ sensor, “please air the room” also comes from **1000 ppm** – regardless of the weather, because stale air always gets better by airing (German Environment Agency: below 1000 ppm harmless).
 - **Airing time** by outdoor temperature (co2online/UBA): below 0 °C 4 min, 0–5 °C 5 min, 5–10 °C 10 min, 10–15 °C 15 min, 15–20 °C 20 min, above 30 min.
-- **Close the window** when the time is up; **air exchanged** when the humidity is below the limit again (and CO₂ below 800 ppm).
+- **Close the window** when the time is up; **air exchanged** when the humidity is below the limit again (and CO₂ below 800 ppm) – but no earlier than 60 % of the airing time, at least 4 minutes. A sensor near the window sees fresh air before the room does; two minutes only tilt the window.
 - **Room cooling down:** below the minimum temperature (living rooms 18 °C, bedroom/rarely used 16 °C) or more than 3 °C colder than when the window was opened.
 - **Mould risk:** permanently above 70 % or cold and humid.
 

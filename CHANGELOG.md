@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.59.5 – 2026-11-05
+
+### Behoben
+- **Lüften war zu schnell „fertig":** Bisher galt die Luft nach zwei Minuten als ausgetauscht, sobald
+  der Fühler unter der Feuchtegrenze lag – im Bad reichte ein kurzes Kippen. Jetzt gilt zusätzlich eine
+  **Mindestdauer von 60 % der empfohlenen Lüftdauer (mindestens 4 Minuten)**, die sich nach der
+  Außentemperatur richtet: bei 10 min Empfehlung sind es 6 min. Der Kälteschutz bricht weiterhin
+  früher ab, wenn der Raum auskühlt.
+
 ## 0.59.4 – 2026-11-05
 
 ### Intern (Auswertung)

@@ -63,7 +63,28 @@ def test_please_open_needs_delay_and_dries() -> None:
 def test_window_states() -> None:
     assert evaluate(base(window_open=True, open_minutes=1)) == VENT_AIRING
     assert evaluate(base(window_open=True, open_minutes=6)) == VENT_PLEASE_CLOSE
-    assert evaluate(base(window_open=True, open_minutes=3, humidity=60)) == VENT_DONE
+    assert evaluate(base(window_open=True, open_minutes=4, humidity=60)) == VENT_DONE
+
+
+def test_mindestdauer_verhindert_fruehes_fertig() -> None:
+    """Feuchte schon gut, aber die Luft ist noch nicht ausgetauscht (Fühler am Fenster)."""
+    # empfohlen 10 min (Winter) → mindestens 6 min
+    assert evaluate(base(window_open=True, open_minutes=3, humidity=60, duration=10)) == VENT_AIRING
+    assert evaluate(base(window_open=True, open_minutes=6, humidity=60, duration=10)) == VENT_DONE
+    # empfohlen 5 min → mindestens 4 min
+    assert evaluate(base(window_open=True, open_minutes=3, humidity=60, duration=5)) == VENT_AIRING
+    # Kälteschutz bricht weiterhin früher ab
+    assert evaluate(base(window_open=True, open_minutes=2, humidity=60, duration=10, room_temp=17.0)) == VENT_TOO_COLD
+
+
+def test_mindestdauer_haengt_an_der_aussentemperatur() -> None:
+    from custom_components.raumklima.ventilation import min_airing_minutes
+
+    assert min_airing_minutes(4) == 4
+    assert min_airing_minutes(5) == 4
+    assert min_airing_minutes(10) == 6
+    assert min_airing_minutes(15) == 9
+    assert min_airing_minutes(0) == 4
 
 
 def test_too_cold_has_priority() -> None:
@@ -122,9 +143,9 @@ def test_airing_done_needs_humidity_and_co2_good() -> None:
 
     # Feuchte gut, CO₂ noch hoch → weiter lüften
     assert evaluate(_v(window_open=True, open_minutes=3, humidity=50, co2=950)) == VENT_AIRING
-    assert evaluate(_v(window_open=True, open_minutes=3, humidity=50, co2=700)) == VENT_DONE
+    assert evaluate(_v(window_open=True, open_minutes=6, humidity=50, co2=700)) == VENT_DONE
     # nur CO₂-Fühler
-    assert evaluate(_v(window_open=True, open_minutes=3, humidity=None, co2=700)) == VENT_DONE
+    assert evaluate(_v(window_open=True, open_minutes=6, humidity=None, co2=700)) == VENT_DONE
     # gar kein Fühler → nie „ausgetauscht“
     assert evaluate(_v(window_open=True, open_minutes=3, humidity=None, co2=None)) == VENT_AIRING
 
@@ -156,7 +177,7 @@ def test_feinstaub_unter_grenze_ist_ok() -> None:
 def test_feinstaub_haelt_lueften_bis_es_besser_ist() -> None:
     from custom_components.raumklima.ventilation import VENT_AIRING, VENT_DONE, evaluate
 
-    offen = dict(window_open=True, open_minutes=5)
+    offen = dict(window_open=True, open_minutes=6)
     assert evaluate(_basis(pm25=28.0, **offen)) == VENT_AIRING
     assert evaluate(_basis(pm25=12.0, **offen)) == VENT_DONE
 
