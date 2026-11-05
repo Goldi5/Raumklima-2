@@ -20,12 +20,16 @@ DURATION_HOT = 30
 DURATION_BY_MONTH = [5, 5, 10, 15, 20, 30, 30, 30, 15, 20, 10, 5]
 
 ROOM_TYPES = {
-    # typ: (Mindesttemperatur °C, Feuchte-Grenze %)
+    # typ: (Mindesttemperatur beim Lüften °C, Feuchte-Grenze %)
     "living": (18.0, 70.0),
     "kitchen": (18.0, 70.0),
     "bedroom": (16.0, 70.0),
-    "bathroom": (18.0, 75.0),
+    "bathroom": (18.0, 75.0),  # nach dem Duschen darf es feuchter sein
     "children": (18.0, 70.0),
+    "office": (18.0, 70.0),  # man sitzt dabei – nicht zu weit auskühlen
+    "guest": (16.0, 70.0),
+    "hallway": (15.0, 70.0),
+    "gym": (16.0, 70.0),
     "rarely_used": (16.0, 70.0),
 }
 DEFAULT_ROOM_TYPE = "living"
@@ -36,6 +40,10 @@ COMFORT_BY_ROOM = {
     "children": 20.0,
     "kitchen": 19.0,
     "bathroom": 22.0,
+    "office": 20.0,  # UBA: Wohnbereich möglichst nicht über 20 °C
+    "guest": 18.0,
+    "hallway": 18.0,
+    "gym": 19.0,
     "bedroom": 17.0,
     "rarely_used": 17.0,
 }

@@ -1,4 +1,4 @@
-/* Raumklima 0.59.8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.9 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -794,7 +794,11 @@
     "wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur": "as before: without an active window the desired temperature applies",
     "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "between windows the room drops to “briefly away”",
     "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "between windows the room drops to “longer away” – for rooms used only a few hours a day",
-    "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "between windows only frost protection applies – the lowest allowed value"
+    "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "between windows only frost protection applies – the lowest allowed value",
+    "Arbeitszimmer": "Office",
+    "Gästezimmer": "Guest room",
+    "Flur": "Hallway",
+    "Sportzimmer": "Home gym"
   };
 
   // src/i18n/fr.js
@@ -1591,7 +1595,11 @@
     "wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur": "comme avant : sans plage active, la température souhaitée s'applique",
     "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "entre les plages, la pièce passe en « absence courte »",
     "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "entre les plages, la pièce passe en « absence longue » – pour les pièces utilisées quelques heures par jour",
-    "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "entre les plages, seule la protection hors gel s'applique – la valeur minimale autorisée"
+    "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "entre les plages, seule la protection hors gel s'applique – la valeur minimale autorisée",
+    "Arbeitszimmer": "Bureau",
+    "Gästezimmer": "Chambre d'amis",
+    "Flur": "Couloir",
+    "Sportzimmer": "Salle de sport"
   };
 
   // src/i18n.js
@@ -1635,7 +1643,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.59.8";
+  var RK_VERSION2 = "0.59.9";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2051,7 +2059,7 @@
     });
     return mine;
   }
-  var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", rarely_used: "Selten genutzt" });
+  var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
   var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Keine" });
   var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
   var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });

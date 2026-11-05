@@ -39,6 +39,20 @@
 | Weitere Thermostate | – | weitere `climate`-Thermostate im selben Raum (`extra_trvs`); laufen mit dem Haupt-Thermostat mit, eigener Offset/Sollwert-Ausgleich |
 | Fensterkontakte | – | beliebig viele; Pause, sobald einer offen ist |
 | Raumtyp | Wohnraum | setzt Standards für Wunsch, Mindesttemperatur, Feuchte, Absenkung |
+**Raumtypen und ihre Standardwerte** (Quellen: Umweltbundesamt für Wunschtemperaturen und Absenkung, co2online/DIN 4108-2 für Lüftung und Feuchte; alle Werte je Raum überschreibbar):
+| Raumtyp | Wunsch | Absenkung kurz/länger | Lüften bis | Feuchte-Grenze |
+|---|---|---|---|---|
+| Wohnraum | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Küche | 19 °C | 18 / 16 °C | 18 °C | 70 % |
+| Schlafzimmer | 17 °C | 16 / 16 °C | 16 °C | 70 % |
+| Kinderzimmer | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Bad | 22 °C | 18 / 16 °C | 18 °C | 75 % |
+| Arbeitszimmer | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Gästezimmer | 18 °C | 17 / 16 °C | 16 °C | 70 % |
+| Flur | 18 °C | 16 / 15 °C | 15 °C | 70 % |
+| Sportzimmer | 19 °C | 17 / 15 °C | 16 °C | 70 % |
+| Selten genutzt | 17 °C | 16 / 16 °C | 16 °C | 70 % |
+
 | Wunschtemperatur | nach Raumtyp | Wohnraum/Kinderzimmer 20 · Küche 19 · Bad 22 · Schlafzimmer/selten genutzt 17 °C |
 | Absenkung „kurz weg“ | 18 °C (Schlafzimmer, selten genutzt: 16) | |
 | Absenkung „länger weg“ | 16 °C | |

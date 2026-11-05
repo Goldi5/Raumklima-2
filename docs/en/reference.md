@@ -44,6 +44,20 @@
 | Further thermostats | – | further `climate` thermostats in the same room (`extra_trvs`); follow the main thermostat, own offset/setpoint compensation |
 | Window contacts | – | any number; pause as soon as one is open |
 | Room type | living room | sets defaults for desired temperature, minimum temperature, humidity, setback |
+**Room types and their defaults** (sources: German Environment Agency for target temperatures and setbacks, co2online/DIN 4108-2 for airing and humidity; every value can be overridden per room):
+| Room type | Desired | setback short/long | air until | humidity limit |
+|---|---|---|---|---|
+| Living room | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Kitchen | 19 °C | 18 / 16 °C | 18 °C | 70 % |
+| Bedroom | 17 °C | 16 / 16 °C | 16 °C | 70 % |
+| Children's room | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Bathroom | 22 °C | 18 / 16 °C | 18 °C | 75 % |
+| Office | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Guest room | 18 °C | 17 / 16 °C | 16 °C | 70 % |
+| Hallway | 18 °C | 16 / 15 °C | 15 °C | 70 % |
+| Home gym | 19 °C | 17 / 15 °C | 16 °C | 70 % |
+| Rarely used | 17 °C | 16 / 16 °C | 16 °C | 70 % |
+
 | Desired temperature | by room type | living/children's room 20 · kitchen 19 · bathroom 22 · bedroom/rarely used 17 °C |
 | Setback “briefly away” | 18 °C (bedroom, rarely used: 16) | |
 | Setback “away longer” | 16 °C | |

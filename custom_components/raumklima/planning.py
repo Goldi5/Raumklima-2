@@ -48,6 +48,10 @@ SETBACK_BY_ROOM = {
     "kitchen": (18.0, 16.0),
     "children": (18.0, 16.0),
     "bathroom": (18.0, 16.0),
+    "office": (18.0, 16.0),  # tagsüber genutzt: kurz weg nur 2 K
+    "guest": (17.0, 16.0),  # meist unbenutzt, bei Besuch wird hochgestellt
+    "hallway": (16.0, 15.0),  # Durchgangsraum, darf kühler
+    "gym": (17.0, 15.0),  # beim Sport kühl, sonst selten genutzt
     "bedroom": (16.0, 16.0),
     "rarely_used": (16.0, 16.0),
 }

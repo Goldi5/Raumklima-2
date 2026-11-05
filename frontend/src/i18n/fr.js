@@ -795,4 +795,8 @@ export const FR = {
   "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "entre les plages, la pièce passe en « absence courte »",
   "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "entre les plages, la pièce passe en « absence longue » – pour les pièces utilisées quelques heures par jour",
   "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "entre les plages, seule la protection hors gel s'applique – la valeur minimale autorisée",
+  "Arbeitszimmer": "Bureau",
+  "Gästezimmer": "Chambre d'amis",
+  "Flur": "Couloir",
+  "Sportzimmer": "Salle de sport",
 };

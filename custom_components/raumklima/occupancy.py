@@ -29,7 +29,7 @@ HOME_RECENT = {KIND_MMWAVE: timedelta(minutes=5), KIND_PIR: timedelta(minutes=15
 ROOM_ECO_AFTER = 30.0  # min leer, bevor abgesenkt wird
 ROOM_ECO_DROP = 1.5  # °C
 # Bei „Automatisch“ nur in diesen Raumtypen – und nur mit mmWave-Melder
-ROOM_ECO_AUTO_TYPES = ("living", "kitchen", "rarely_used")
+ROOM_ECO_AUTO_TYPES = ("living", "kitchen", "office", "guest", "hallway", "gym", "rarely_used")
 
 
 def sensor_kind(device_class: str | None, override: str | None = None) -> str:

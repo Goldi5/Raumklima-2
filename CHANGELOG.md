@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.59.9 – 2026-11-05
+
+### Neu
+- **Vier neue Raumtypen** (Auswahl beim Raum): **Arbeitszimmer**, **Gästezimmer**, **Flur**, **Sportzimmer**.
+  Jeder bringt eigene Standardwerte für Wunschtemperatur, Absenkung, Mindesttemperatur beim Lüften und
+  Feuchte-Grenze mit – Tabelle in der Referenz (de/en/fr), Quellen Umweltbundesamt und co2online/DIN 4108-2.
+  Arbeitszimmer, Gästezimmer, Flur und Sportzimmer senken außerdem automatisch ab, wenn sie leer sind
+  (mit mmWave-Melder), weil man dort nicht dauerhaft sitzt.
+
 ## 0.59.8 – 2026-11-05
 
 ### Neu

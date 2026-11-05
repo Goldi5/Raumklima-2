@@ -44,6 +44,20 @@
 | Autres thermostats | – | autres thermostats `climate` dans la même pièce (`extra_trvs`) ; suivent le thermostat principal, décalage/compensation de consigne propres |
 | Contacts de fenêtre | – | nombre quelconque ; pause dès qu’un seul est ouvert |
 | Type de pièce | salon | définit les valeurs par défaut de température souhaitée, température minimale, humidité, abaissement |
+**Types de pièces et valeurs par défaut** (sources : Agence fédérale de l'environnement allemande pour les consignes et l'abaissement, co2online/DIN 4108-2 pour l'aération et l'humidité ; chaque valeur est modifiable par pièce) :
+| Type de pièce | Consigne | abaissement court/long | aérer jusqu'à | limite d'humidité |
+|---|---|---|---|---|
+| Pièce à vivre | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Cuisine | 19 °C | 18 / 16 °C | 18 °C | 70 % |
+| Chambre | 17 °C | 16 / 16 °C | 16 °C | 70 % |
+| Chambre d'enfant | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Salle de bain | 22 °C | 18 / 16 °C | 18 °C | 75 % |
+| Bureau | 20 °C | 18 / 16 °C | 18 °C | 70 % |
+| Chambre d'amis | 18 °C | 17 / 16 °C | 16 °C | 70 % |
+| Couloir | 18 °C | 16 / 15 °C | 15 °C | 70 % |
+| Salle de sport | 19 °C | 17 / 15 °C | 16 °C | 70 % |
+| Rarement utilisée | 17 °C | 16 / 16 °C | 16 °C | 70 % |
+
 | Température souhaitée | selon le type de pièce | salon/chambre d’enfant 20 · cuisine 19 · salle de bain 22 · chambre/rarement utilisée 17 °C |
 | Abaissement « brève absence » | 18 °C (chambre, rarement utilisée : 16) | |
 | Abaissement « absent plus longtemps » | 16 °C | |

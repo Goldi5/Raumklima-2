@@ -72,7 +72,18 @@ CONF_AIRING_OCCUPIED_ONLY: Final = "airing_occupied_only"  # nur erinnern, wenn 
 CONF_COMFORT_TEMP: Final = "comfort_temperature"
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
 EVENT_RAUMKLIMA: Final = "raumklima_event"
-ROOM_TYPE_OPTIONS: Final = ["living", "kitchen", "bedroom", "bathroom", "children", "rarely_used"]
+ROOM_TYPE_OPTIONS: Final = [
+    "living",
+    "kitchen",
+    "bedroom",
+    "bathroom",
+    "children",
+    "office",
+    "guest",
+    "hallway",
+    "gym",
+    "rarely_used",
+]
 
 # --- Zentrale „Allgemein“ (v0.3) ---
 CONF_STORM_WARNING: Final = "storm_warning"

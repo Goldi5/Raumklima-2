@@ -795,4 +795,8 @@ export const EN = {
   "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "between windows the room drops to “briefly away”",
   "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "between windows the room drops to “longer away” – for rooms used only a few hours a day",
   "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "between windows only frost protection applies – the lowest allowed value",
+  "Arbeitszimmer": "Office",
+  "Gästezimmer": "Guest room",
+  "Flur": "Hallway",
+  "Sportzimmer": "Home gym",
 };
