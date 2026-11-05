@@ -773,4 +773,8 @@ export const EN = {
   "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Report a problem: issue template opened – link copied to clipboard",
   "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Report a problem: issue template opened in a new tab",
   "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Report a problem: issue link – please open it in a browser: {url}",
+  "Sicherung gespeichert: {name}": "Backup saved: {name}",
+  "Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage": "Backup saved: {name} · also copied to the clipboard",
+  "Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download": "Backup saved: {name} – if no file appeared, the browser is blocking the download",
+  "Sicherung wird geprüft …": "Checking backup …",
 };

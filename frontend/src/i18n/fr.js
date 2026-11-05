@@ -773,4 +773,8 @@ export const FR = {
   "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Signaler un problème : modèle de ticket ouvert – lien copié dans le presse-papiers",
   "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Signaler un problème : modèle de ticket ouvert dans un nouvel onglet",
   "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Signaler un problème : lien du ticket – à ouvrir dans un navigateur : {url}",
+  "Sicherung gespeichert: {name}": "Sauvegarde enregistrée : {name}",
+  "Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage": "Sauvegarde enregistrée : {name} · également copiée dans le presse-papiers",
+  "Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download": "Sauvegarde enregistrée : {name} – si aucun fichier n’apparaît, le navigateur bloque le téléchargement",
+  "Sicherung wird geprüft …": "Vérification de la sauvegarde …",
 };

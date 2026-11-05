@@ -186,17 +186,48 @@ export class RaumklimaSettingsCard extends HTMLElement {
     try {
       this._flash(t("Sicherung wird erstellt …"));
       const res = await this._hass.callWS({ type: "raumklima/backup/export", ...this._homeMsg() });
-      const blob = new Blob([JSON.stringify(res.backup, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+      const text = JSON.stringify(res.backup, null, 2);
       const stamp = new Date().toISOString().slice(0, 10);
+      const name = `raumklima-einstellungen-${stamp}.json`;
+      // 1. Echter Speichern-Dialog (Chrome/Edge am Rechner) – dort sieht man, wo die Datei landet
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: name,
+            types: [{ description: "Raumklima-Sicherung", accept: { "application/json": [".json"] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(new Blob([text], { type: "application/json" }));
+          await writable.close();
+          this._flash(t("Sicherung gespeichert: {name}", { name }));
+          return;
+        } catch (err) {
+          if (err && err.name === "AbortError") return; // selbst abgebrochen
+          // sonst weiter mit dem klassischen Download
+        }
+      }
+      // 2. Klassischer Download
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `raumklima-einstellungen-${stamp}.json`;
+      a.download = name;
+      a.style.display = "none";
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
-      this._flash(t("Sicherung gespeichert"));
+      // 3. Zusätzlich in die Zwischenablage – falls der Browser Downloads blockt (App/Webview)
+      let copied = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        }
+      } catch (e) { copied = false; }
+      this._flash(copied
+        ? t("Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage", { name })
+        : t("Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download", { name }));
     } catch (err) {
       this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
     }
@@ -204,6 +235,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   async _backupImport(file) {
     try {
+      this._flash(t("Sicherung wird geprüft …"));
       const text = await file.text();
       const backup = JSON.parse(text);
       if (!confirm(t("Einstellungen aus dieser Datei einspielen? Die aktuellen Einstellungen werden überschrieben."))) return;

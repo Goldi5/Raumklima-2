@@ -772,7 +772,11 @@
     "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "your own weather station instead of the weather service – the forecast still comes from the weather service",
     "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Report a problem: issue template opened – link copied to clipboard",
     "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Report a problem: issue template opened in a new tab",
-    "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Report a problem: issue link – please open it in a browser: {url}"
+    "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Report a problem: issue link – please open it in a browser: {url}",
+    "Sicherung gespeichert: {name}": "Backup saved: {name}",
+    "Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage": "Backup saved: {name} · also copied to the clipboard",
+    "Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download": "Backup saved: {name} – if no file appeared, the browser is blocking the download",
+    "Sicherung wird geprüft …": "Checking backup …"
   };
 
   // src/i18n/fr.js
@@ -1547,7 +1551,11 @@
     "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "votre propre station météo au lieu du service météo – les prévisions viennent toujours du service météo",
     "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Signaler un problème : modèle de ticket ouvert – lien copié dans le presse-papiers",
     "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Signaler un problème : modèle de ticket ouvert dans un nouvel onglet",
-    "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Signaler un problème : lien du ticket – à ouvrir dans un navigateur : {url}"
+    "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Signaler un problème : lien du ticket – à ouvrir dans un navigateur : {url}",
+    "Sicherung gespeichert: {name}": "Sauvegarde enregistrée : {name}",
+    "Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage": "Sauvegarde enregistrée : {name} · également copiée dans le presse-papiers",
+    "Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download": "Sauvegarde enregistrée : {name} – si aucun fichier n’apparaît, le navigateur bloque le téléchargement",
+    "Sicherung wird geprüft …": "Vérification de la sauvegarde …"
   };
 
   // src/i18n.js
@@ -3808,23 +3816,51 @@
       try {
         this._flash(t("Sicherung wird erstellt …"));
         const res = await this._hass.callWS({ type: "raumklima/backup/export", ...this._homeMsg() });
-        const blob = new Blob([JSON.stringify(res.backup, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
+        const text = JSON.stringify(res.backup, null, 2);
         const stamp = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+        const name = `raumklima-einstellungen-${stamp}.json`;
+        if (window.showSaveFilePicker) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: name,
+              types: [{ description: "Raumklima-Sicherung", accept: { "application/json": [".json"] } }]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(new Blob([text], { type: "application/json" }));
+            await writable.close();
+            this._flash(t("Sicherung gespeichert: {name}", { name }));
+            return;
+          } catch (err) {
+            if (err && err.name === "AbortError") return;
+          }
+        }
+        const blob = new Blob([text], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `raumklima-einstellungen-${stamp}.json`;
+        a.download = name;
+        a.style.display = "none";
         document.body.appendChild(a);
         a.click();
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 5e3);
-        this._flash(t("Sicherung gespeichert"));
+        let copied = false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            copied = true;
+          }
+        } catch (e) {
+          copied = false;
+        }
+        this._flash(copied ? t("Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage", { name }) : t("Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download", { name }));
       } catch (err) {
         this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
       }
     }
     async _backupImport(file) {
       try {
+        this._flash(t("Sicherung wird geprüft …"));
         const text = await file.text();
         const backup = JSON.parse(text);
         if (!confirm(t("Einstellungen aus dieser Datei einspielen? Die aktuellen Einstellungen werden überschrieben."))) return;

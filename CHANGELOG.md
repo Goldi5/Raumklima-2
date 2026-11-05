@@ -3,6 +3,10 @@
 ## Unreleased
 
 ### Behoben
+- **„Sichern" hat keine Datei erzeugt:** Der Download lief als Blob-Link, den manche Browser und die
+  Home-Assistant-App stillschweigend verwerfen. Jetzt öffnet sich zuerst ein echter Speichern-Dialog
+  (Chrome/Edge), sonst der klassische Download – und die Sicherung landet zusätzlich in der
+  Zwischenablage. Jeder Schritt meldet sich in der Karte.
 - **„Fehler melden" tat nichts:** Der Knopf rief `window.open` auf, was die Home-Assistant-App (Webview)
   verwirft – es passierte scheinbar nichts. Jetzt wird ein echter Link geöffnet und die Issue-Vorlage
   zusätzlich in die Zwischenablage gelegt, mit kurzer Rückmeldung in der Karte.
