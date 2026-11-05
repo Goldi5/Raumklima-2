@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.56.0 – 2026-11-05
 
 ### Neu
 - **Einrichtungs-Checkliste:** Einstellungen → Erste Schritte zeigt, welche Angaben noch fehlen

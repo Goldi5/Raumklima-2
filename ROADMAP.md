@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.55.0 (Early Release – Tester gesucht)
+Stand: Version 0.56.0 (Early Release – Tester gesucht)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -11,8 +11,9 @@ Stand: Version 0.55.0 (Early Release – Tester gesucht)
       Home-Assistant-Version und Thermostat-Modell (ohne Raumnamen, Entitäten oder Zugangsdaten).
 - [x] **Issue-Vorlagen auf GitHub** (0.52.0) – „Fehler“, „Idee“, „Mein Thermostat läuft / läuft nicht“;
       dazu die Liste geprüfter Geräte in der Doku (Geräte & Thermostate).
-- [ ] **Einrichtungs-Checkliste als Karte** – Bewohner, Zone, Empfänger, Wetterquelle … werden automatisch
-      abgehakt, sobald erledigt.
+- [x] **Einrichtungs-Checkliste** (0.56.0) – in den Einstellungen unter „Erste Schritte“: Bewohner, Empfänger,
+      Wetterquelle, Raum mit Thermostat, Fensterkontakt und Zeitplan werden abgehakt, sobald erledigt; je Punkt
+      steht dabei, wo man ihn einträgt.
 - [x] **Meldungen in den HA-Reparaturen** (0.52.0) – schwache Batterie, nicht erreichbarer Fühler,
       nicht erreichbares Thermostat erscheinen unter *Einstellungen → Reparaturen* und verschwinden mit
       der Ursache.
@@ -72,7 +73,7 @@ Stand: Version 0.55.0 (Early Release – Tester gesucht)
 
 ## 🛠️ Pflege
 
-- [ ] **Einstellungen sichern und wiederherstellen** – als Datei, z. B. bei Umzug oder Neuinstallation.
+- [x] **Einstellungen sichern und wiederherstellen** (0.56.0) – als JSON-Datei ohne Zugangsdaten, Räume werden über den Namen zugeordnet.
 - [ ] **Demo-Modus** – simulierte Räume zum Ausprobieren ohne Hardware, für Screenshots ohne persönliche Daten
       und englische Bilder.
 - [ ] **Automatische Updates der Abhängigkeiten** (Dependabot) und Testabdeckung in der CI.
