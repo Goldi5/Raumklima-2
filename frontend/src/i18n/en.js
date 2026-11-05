@@ -770,4 +770,7 @@ export const EN = {
   "Außentemperatur von": "Outdoor temperature from",
   "Wetterdienst": "Weather service",
   "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "your own weather station instead of the weather service – the forecast still comes from the weather service",
+  "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Report a problem: issue template opened – link copied to clipboard",
+  "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Report a problem: issue template opened in a new tab",
+  "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Report a problem: issue link – please open it in a browser: {url}",
 };

@@ -769,7 +769,10 @@
     "bringt mehr Genauigkeit, ist aber nicht nötig": "adds accuracy but is not required",
     "Außentemperatur von": "Outdoor temperature from",
     "Wetterdienst": "Weather service",
-    "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "your own weather station instead of the weather service – the forecast still comes from the weather service"
+    "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "your own weather station instead of the weather service – the forecast still comes from the weather service",
+    "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Report a problem: issue template opened – link copied to clipboard",
+    "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Report a problem: issue template opened in a new tab",
+    "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Report a problem: issue link – please open it in a browser: {url}"
   };
 
   // src/i18n/fr.js
@@ -1541,7 +1544,10 @@
     "bringt mehr Genauigkeit, ist aber nicht nötig": "apporte de la précision, mais n’est pas nécessaire",
     "Außentemperatur von": "Température extérieure de",
     "Wetterdienst": "Service météo",
-    "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "votre propre station météo au lieu du service météo – les prévisions viennent toujours du service météo"
+    "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "votre propre station météo au lieu du service météo – les prévisions viennent toujours du service météo",
+    "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Signaler un problème : modèle de ticket ouvert – lien copié dans le presse-papiers",
+    "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Signaler un problème : modèle de ticket ouvert dans un nouvel onglet",
+    "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Signaler un problème : lien du ticket – à ouvrir dans un navigateur : {url}"
   };
 
   // src/i18n.js
@@ -3780,7 +3786,23 @@
         homeCount: (this._cfg && this._cfg.homes || []).length,
         thermostats
       });
-      window.open(url, "_blank", "noopener");
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url);
+          this._flash(t("Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage"));
+          return;
+        }
+      } catch (e) {
+      }
+      this._flash(t("Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}", { url }));
     }
     async _backupExport() {
       try {

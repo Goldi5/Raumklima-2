@@ -770,4 +770,7 @@ export const FR = {
   "Außentemperatur von": "Température extérieure de",
   "Wetterdienst": "Service météo",
   "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "votre propre station météo au lieu du service météo – les prévisions viennent toujours du service météo",
+  "Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage": "Signaler un problème : modèle de ticket ouvert – lien copié dans le presse-papiers",
+  "Fehler melden: Issue-Vorlage im neuen Tab geöffnet": "Signaler un problème : modèle de ticket ouvert dans un nouvel onglet",
+  "Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}": "Signaler un problème : lien du ticket – à ouvrir dans un navigateur : {url}",
 };

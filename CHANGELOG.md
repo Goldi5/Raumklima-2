@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Behoben
+- **„Fehler melden" tat nichts:** Der Knopf rief `window.open` auf, was die Home-Assistant-App (Webview)
+  verwirft – es passierte scheinbar nichts. Jetzt wird ein echter Link geöffnet und die Issue-Vorlage
+  zusätzlich in die Zwischenablage gelegt, mit kurzer Rückmeldung in der Karte.
 - **Reihenfolge im Dashboard ging verloren:** Ältere Layouts haben Raumnamen statt Entitäts-IDs gespeichert –
   die gepflegte Reihenfolge wurde dadurch ignoriert und es blieb alphabetisch. Beide Formen werden jetzt
   erkannt, damit „Schlafzimmer nach oben" auch ankommt.

@@ -161,7 +161,25 @@ export class RaumklimaSettingsCard extends HTMLElement {
       homeCount: ((this._cfg && this._cfg.homes) || []).length,
       thermostats,
     });
-    window.open(url, "_blank", "noopener");
+    // `window.open` wird in der Home-Assistant-App (Webview) oft verworfen – dann passiert
+    // scheinbar nichts. Ein Klick auf einen echten Anker funktioniert dort zuverlässiger.
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    // Rückmeldung geben: entweder „kopiert" oder der Link als Notnagel
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url);
+        this._flash(t("Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage"));
+        return;
+      }
+    } catch (e) { /* Zwischenablage nicht erlaubt */ }
+    this._flash(t("Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}", { url }));
   }
 
   async _backupExport() {
