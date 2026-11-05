@@ -89,6 +89,7 @@ Dampfdruck der Raumluft bleibt beim Absenken gleich
 - **Drei Stufen** je Raum (*Einstellungen → Raum → Temperatur → Schimmelschutz*):
   **Streng nach DIN** (Standard) hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % bleibt – auch über den Wunsch hinaus; **Nur bis Wunsch** hebt höchstens bis zur eingestellten Wunschtemperatur an; **Aus** schaltet den Boden ab, dann fährt der Raum genau den eingestellten Wert.
 - Der Boden gilt **überall**, auch für Zeitplan und Ruhezeit: Läge ein Fenster oder die Nacht-Absenkung darunter, hebt Raumklima auf die Mindesttemperatur an – im Protokoll steht dann „Schimmelschutz“ als Grund. Ausgenommen sind nur bewusste Aktionen (Boost, Ventilpflege) und die Heizpause.
+- Gerechnet wird mit dem **Mittel der letzten 24 Stunden** (Wasserdampf der Raumluft), nicht mit dem Augenblickswert: Kochen, Duschen oder eine Nacht im Schlafzimmer heben den Boden nicht sofort um mehrere Grad. Der Boden liegt in **0,5-°C-Schritten**, steigt sofort und sinkt erst, wenn die Rechnung deutlich (0,7 °C) darunter liegt – das Thermostat wird nicht alle paar Minuten umgestellt. Frisch eingerichtet (weniger als 1 h Daten) zählt der aktuelle Wert mit.
 - Bei **kurzer Abwesenheit** greift der Schimmelschutz bewusst nicht: Einige Stunden niedrigerer Temperatur verursachen kein Feuchteproblem. Kritisch wird es erst, wenn die Wand über Tage feucht bleibt.
 
 ## 7. Heizsaison & Heizgrenze

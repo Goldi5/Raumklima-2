@@ -100,6 +100,89 @@ def mold_safe_min_temp(
     return round(outdoor_temp + (surface_min - outdoor_temp) / frsi, 1)
 
 
+MOLD_WINDOW = timedelta(hours=24)  # Schimmel braucht anhaltende Feuchte, keine Koch-/Duschspitze
+MOLD_SAMPLE_EVERY = timedelta(minutes=5)
+MOLD_MIN_SPAN = timedelta(hours=1)  # darunter (z. B. frisch eingerichtet) zählt der aktuelle Wert mit
+MOLD_LOWER_HYSTERESIS = 0.7  # K: Boden sinkt erst, wenn die Rechnung so weit darunter liegt
+
+
+def floor_from_vapour(vapour: float, outdoor_temp: float, frsi: float, limit: float = SURFACE_RH_LIMIT) -> float | None:
+    """Raumtemperatur, bei der die Wand bei diesem Dampfdruck (hPa) gerade `limit` erreicht."""
+    if vapour <= 0 or not 0 < frsi < 1:
+        return None
+    surface_min = temp_for_pressure(vapour / limit)
+    if surface_min <= outdoor_temp:
+        return None
+    return outdoor_temp + (surface_min - outdoor_temp) / frsi
+
+
+class MoldGuard:
+    """Feuchte-Boden aus dem 24-Stunden-Mittel des Wasserdampfs – ruhig und in 0,5er-Schritten.
+
+    DIN 4108-2 rechnet mit Monatsmitteln, Schimmel wächst erst bei anhaltend > 80 % an der Wand.
+    Die momentane Feuchte (Kochen, Duschen, ein schlafender Mensch) würde den Boden alle paar Minuten
+    um Zehntelgrade verschieben und das Thermostat ständig umstellen.
+    """
+
+    def __init__(self) -> None:
+        self.samples: list[tuple[datetime, float]] = []
+        self._floor: float | None = None
+
+    def load(self, data: list[Any] | None) -> None:
+        out: list[tuple[datetime, float]] = []
+        for item in data or []:
+            try:
+                out.append((datetime.fromisoformat(item[0]), float(item[1])))
+            except (TypeError, ValueError, IndexError):
+                continue
+        self.samples = out[-400:]
+
+    def dump(self) -> list[list[Any]]:
+        return [[t.isoformat(), round(v, 2)] for t, v in self.samples]
+
+    def add(self, now: datetime, temp: float | None, rel_humidity: float | None) -> bool:
+        """Messwert merken (höchstens alle 5 min). True, wenn gespeichert werden sollte."""
+        if temp is None or rel_humidity is None or not 0 < rel_humidity <= 100:
+            return False
+        if self.samples and now - self.samples[-1][0] < MOLD_SAMPLE_EVERY:
+            return False
+        self.samples.append((now, rel_humidity / 100.0 * saturation_pressure(temp)))
+        cutoff = now - MOLD_WINDOW
+        while self.samples and self.samples[0][0] < cutoff:
+            self.samples.pop(0)
+        return True
+
+    def vapour(self, now: datetime, temp: float | None, rel_humidity: float | None) -> float | None:
+        """Mittlerer Dampfdruck der letzten 24 h (hPa)."""
+        cutoff = now - MOLD_WINDOW
+        values = [v for t, v in self.samples if t >= cutoff]
+        span = (now - min(t for t, _ in self.samples if t >= cutoff)) if values else timedelta(0)
+        if (not values or span < MOLD_MIN_SPAN) and temp is not None and rel_humidity and 0 < rel_humidity <= 100:
+            values.append(rel_humidity / 100.0 * saturation_pressure(temp))
+        return sum(values) / len(values) if values else None
+
+    def floor(
+        self,
+        now: datetime,
+        temp: float | None,
+        rel_humidity: float | None,
+        outdoor_temp: float | None,
+        frsi: float = 0.70,
+    ) -> float | None:
+        """Feuchte-Mindesttemperatur (auf 0,5 aufgerundet, steigt sofort, sinkt mit Hysterese)."""
+        vapour = self.vapour(now, temp, rel_humidity)
+        raw = None if vapour is None or outdoor_temp is None else floor_from_vapour(vapour, outdoor_temp, frsi)
+        if raw is None:
+            self._floor = None
+            return None
+        new = round_up_half(raw)
+        old = self._floor
+        if old is not None and new < old and raw > old - MOLD_LOWER_HYSTERESIS:
+            new = old  # nicht bei jeder kleinen Entspannung wieder absenken
+        self._floor = new
+        return new
+
+
 def round_up_half(value: float) -> float:
     """Auf 0,5 aufrunden (TRV-Schrittweite)."""
     return math.ceil(value * 2) / 2

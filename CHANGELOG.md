@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.59.11 – 2026-11-05
+
+### Behoben
+- **Schimmelschutz heizte zu stark und zappelte.** Seit 0.59.5 gilt der Feuchte-Boden überall – gerechnet
+  wurde aber mit der *momentanen* Feuchte. Eine Nacht im Schlafzimmer oder Kochen in der Küche hob das Ziel
+  um mehrere Grad (im Test: Schlafzimmer mit Wunsch 14,5 °C auf 21,7 °C, Küche auf 22,9 °C), und alle 10
+  Minuten ging ein neuer Zehntelgrad-Sollwert ans Thermostat (Funk, Batterie). Jetzt zählt das **Mittel des
+  Wasserdampfs der letzten 24 Stunden** – DIN 4108-2 und Schimmelwachstum hängen an anhaltender Feuchte, nicht
+  an Spitzen. Der Boden liegt in 0,5-°C-Schritten, steigt sofort und sinkt erst mit 0,7 °C Abstand. Der
+  Verlauf übersteht Neustarts. Mit echten Daten der Testwohnung: Schlafzimmer 21,5 → 17,0 °C, Küche 22,3 →
+  21,5 °C; dauerhaft feuchte Räume bleiben geschützt.
+
 ## 0.59.10 – 2026-11-05
 
 ### Behoben

@@ -150,7 +150,7 @@ from .planning import (
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
     frost_night_setback,
-    mold_safe_min_temp,
+    MoldGuard,
     next_schedule_window,
     schedule_target,
     setback_defaults,
@@ -312,6 +312,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._window_unavail_since: dict[str, datetime] = {}
         # Fenster ohne Kontakt (Temperatursturz)
         self._temp_hist: deque[tuple[datetime, float]] = deque(maxlen=40)
+        self.mold_guard = MoldGuard()
         self.virtual_open_at: datetime | None = None
         self._raw_virtual = False
         self._trv_down_since: datetime | None = None
@@ -369,6 +370,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if stored.get("shift") is not None:
                 self.shift = float(stored.get("shift") or 0.0)
             self.heatup.load(stored.get("heatup"))
+            self.mold_guard.load(stored.get("mold_vapour"))
             self.airing.load(stored.get("airing_profile"))
             self.usage.load(stored.get("usage_profile"))
         elif self.trv_available():
@@ -471,6 +473,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "shift": self.shift,
             "vent": self.vent.export() if self.vent else None,
             "heatup": self.heatup.dump(),
+            "mold_vapour": self.mold_guard.dump(),
             "airing_profile": self.airing.export(),
             "usage_profile": self.usage.export(),
         }
@@ -846,9 +849,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         hub = self.hub
         if hub is None:
             return on, target, reason
-        mold = mold_safe_min_temp(
-            self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
-        )
+        mold = self.mold_min(hub)
         if mold is None:
             return on, target, reason
         if mode == MOLD_WISH:
@@ -856,6 +857,17 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if target >= mold - 0.05:
             return on, target, reason
         return True, min(mold, self.trv_max), REASON_MOLD
+
+    def mold_min(self, hub: RaumklimaHub) -> float | None:
+        """Feuchte-Mindesttemperatur aus dem 24-h-Mittel (siehe ``MoldGuard``)."""
+        return self.mold_guard.floor(
+            dt_util.utcnow(), self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
+        )
+
+    def record_mold_sample(self, now: datetime) -> None:
+        """Jede Minute aus der Statistik: Feuchte für das 24-h-Mittel merken."""
+        if self.humidity_sensor and self.mold_guard.add(now, self.current_temperature, self.current_humidity):
+            self._save()
 
     def _plan_rules(self) -> tuple[bool, float, str]:
         """Regelkette ohne Nachbedingung (siehe ``plan()``)."""
@@ -894,9 +906,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 return True, self.target_temp, REASON_MANUAL
             mold = None
             if self.humidity_sensor and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
-                mold = mold_safe_min_temp(
-                    self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
-                )
+                mold = self.mold_min(hub)
             target = setback_target(
                 self.target_temp, stage, self.setback_short, self.setback_long, mold
             )
@@ -960,7 +970,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if self.room_eco_applies() and not hub.opt(CONF_PRESENCE_OFF):
             floor = self.setback_short
             if self.humidity_sensor:
-                mold = mold_safe_min_temp(self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi)
+                mold = self.mold_min(hub)
                 if mold is not None:
                     floor = max(floor, mold)
             target = room_eco_target(self.target_temp, self.room_eco_drop, floor)

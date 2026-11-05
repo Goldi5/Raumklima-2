@@ -86,6 +86,7 @@ Vapour pressure of the room air stays the same while setting back
 - If the air is **humid** (e.g. bathroom after a shower), the room stays warmer until the humidity has dropped. Warm air holds more water, so the humidity at the wall drops.
 - **Three levels** per room (*Settings → Room → Temperature → Mould protection*): **Strict per DIN** (default) raises the target so the coldest wall spot stays below 80 % – even above the wish; **Only up to wish** raises at most to the desired temperature; **Off** disables the floor, the room then runs exactly at the set value.
 - The floor applies **everywhere**, including schedules and quiet time: if a schedule window or the night setback would go below it, Raumklima raises the target and logs “mould protection” as the reason. Only deliberate actions (boost, valve care) and the heating pause are exempt.
+- It uses the **average of the last 24 hours** (water vapour in the room air), not the momentary value: cooking, a shower or a night in the bedroom don't raise the floor by several degrees at once. The floor moves in **0.5 °C steps**, rises immediately and only drops once the calculation is clearly (0.7 °C) lower – the thermostat isn't adjusted every few minutes. With less than 1 h of data (newly set up) the current value counts too.
 - For **short absences** mould protection deliberately doesn't apply: a few hours at a lower temperature cause no moisture problem. It only becomes critical when the wall stays humid for days.
 
 ## 7. Heating season & heating limit

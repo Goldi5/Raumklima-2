@@ -295,6 +295,7 @@ class HealthMixin:
         return self.heatup.minutes_needed(self.target_temp - cur, hub.outdoor_temp())
 
     def record_history(self, now: datetime) -> None:
+        self.record_mold_sample(now)
         on, target, _reason = self.plan()
         hub = self.hub
         regulating = on and self.hvac_on and not self.paused and self.trv_available() and self.sensor_ok
