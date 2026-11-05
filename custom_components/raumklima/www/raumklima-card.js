@@ -799,7 +799,14 @@
     "Gästezimmer": "Guest room",
     "Flur": "Hallway",
     "Sportzimmer": "Home gym",
-    "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "changeable at any time – the new type's defaults are applied, your own values are kept"
+    "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "changeable at any time – the new type's defaults are applied, your own values are kept",
+    "Schimmel": "Mould",
+    "Leer": "Empty",
+    "Sonne": "Sun",
+    "Frost": "Frost",
+    "Ventilpflege": "Valve care",
+    "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · target {w}°",
+    "{tag} {v}°": "{tag} {v}°"
   };
 
   // src/i18n/fr.js
@@ -1601,7 +1608,14 @@
     "Gästezimmer": "Chambre d'amis",
     "Flur": "Couloir",
     "Sportzimmer": "Salle de sport",
-    "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "modifiable à tout moment – les valeurs par défaut du nouveau type sont reprises, vos valeurs restent"
+    "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "modifiable à tout moment – les valeurs par défaut du nouveau type sont reprises, vos valeurs restent",
+    "Schimmel": "Moisissure",
+    "Leer": "Vide",
+    "Sonne": "Soleil",
+    "Frost": "Gel",
+    "Ventilpflege": "Entretien vanne",
+    "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · consigne {w}°",
+    "{tag} {v}°": "{tag} {v}°"
   };
 
   // src/i18n.js
@@ -1774,6 +1788,25 @@
     if (!pres) return out;
     for (const e of reg) if (e.device_id === pres.device_id && e.translation_key) out[e.translation_key] = e.entity_id;
     return out;
+  }
+  function planTag(a) {
+    const r = a && a.plan_reason;
+    if (!r || r === "normal" || r === "manual" || r === "monitor") return "";
+    const map = {
+      mold: "Schimmel",
+      schedule: "Zeitplan",
+      schedule_preheat: "Vorheizen",
+      boost: "Boost",
+      sleep: "Ruhezeit",
+      away_short: "Abgesenkt",
+      away_long: "Abgesenkt",
+      room_empty: "Leer",
+      solar: "Sonne",
+      frost: "Frost",
+      valve_care: "Ventilpflege",
+      season: "Heizpause"
+    };
+    return map[r] ? t(map[r]) : "";
   }
   function planText(a, off, compact = false) {
     if (off) return t("Heizung aus");
@@ -2882,7 +2915,8 @@
         const applied = a.effective_target != null ? a.effective_target : a.temperature;
         const wish = a.wish != null ? a.wish : a.temperature;
         const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
-        const targetText = mon ? "" : off ? t("aus") : a.plan_reason === "season" ? t("Pause") : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
+        const tag = planTag(a);
+        const targetText = mon ? "" : off ? t("aus") : a.plan_reason === "season" ? t("Pause") : tag ? wishDiffers ? t("{tag} {v}° · Wunsch {w}°", { tag, v: fmt(applied), w: fmt(wish) }) : t("{tag} {v}°", { tag, v: fmt(applied) }) : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
         return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}

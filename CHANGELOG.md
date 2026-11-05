@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Hinzugefügt
+- Übersicht nennt den Grund, wenn eine Regel das Ziel setzt: „Schimmel 22,5° · Wunsch 19,0°"
+  statt „Ziel 22,5° · Wunsch 19,0°" (auch Zeitplan, Boost, Ruhezeit, Abwesenheit, Vorheizen,
+  Sonne, Frost, Ventilpflege, Heizpause) – mit EN/FR-Texten.
+
 ## 0.59.11 – 2026-11-05
 
 ### Behoben

@@ -1,4 +1,4 @@
-import { RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -131,17 +131,24 @@ export class RaumklimaOverviewCard extends HTMLElement {
       const applied = a.effective_target != null ? a.effective_target : a.temperature;
       const wish = a.wish != null ? a.wish : a.temperature;
       const wishDiffers = applied != null && wish != null && Math.abs(applied - wish) >= 0.05;
+      // Grund nennen, wenn eine Regel das Ziel setzt (Schimmel, Zeitplan, Boost …):
+      // „Ziel 22,2° · Wunsch 19,0°" ließ offen, warum es wärmer ist als gewünscht.
+      const tag = planTag(a);
       const targetText = mon
         ? ""
         : off
         ? t("aus")
         : a.plan_reason === "season"
           ? t("Pause")
-          : wishDiffers
-            ? (applied < wish
-              ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) })
-              : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }))
-            : t("Ziel {v}°", { v: fmt(applied) });
+          : tag
+            ? (wishDiffers
+              ? t("{tag} {v}° · Wunsch {w}°", { tag: tag, v: fmt(applied), w: fmt(wish) })
+              : t("{tag} {v}°", { tag: tag, v: fmt(applied) }))
+            : wishDiffers
+              ? (applied < wish
+                ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) })
+                : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }))
+              : t("Ziel {v}°", { v: fmt(applied) });
       return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}

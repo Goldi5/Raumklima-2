@@ -800,4 +800,11 @@ export const EN = {
   "Flur": "Hallway",
   "Sportzimmer": "Home gym",
   "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "changeable at any time – the new type's defaults are applied, your own values are kept",
+  "Schimmel": "Mould",
+  "Leer": "Empty",
+  "Sonne": "Sun",
+  "Frost": "Frost",
+  "Ventilpflege": "Valve care",
+  "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · target {w}°",
+  "{tag} {v}°": "{tag} {v}°",
 };

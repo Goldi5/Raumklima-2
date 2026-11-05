@@ -166,6 +166,27 @@ export function rkHub(hass, home) {
   return out;
 }
 
+// Kurzname der Regel, die das Ziel gerade setzt (leer = Wunschtemperatur gilt)
+export function planTag(a) {
+  const r = a && a.plan_reason;
+  if (!r || r === "normal" || r === "manual" || r === "monitor") return "";
+  const map = {
+    mold: "Schimmel",
+    schedule: "Zeitplan",
+    schedule_preheat: "Vorheizen",
+    boost: "Boost",
+    sleep: "Ruhezeit",
+    away_short: "Abgesenkt",
+    away_long: "Abgesenkt",
+    room_empty: "Leer",
+    solar: "Sonne",
+    frost: "Frost",
+    valve_care: "Ventilpflege",
+    season: "Heizpause",
+  };
+  return map[r] ? t(map[r]) : "";
+}
+
 // Zieltext je nach Plan (Abwesenheit, Heizpause, …)
 // `compact` = kurze Fassung für den Ring in der Raumkarte (iPad/Handy): ohne Einheit und
 // ohne den doppelten Ist-Wert, damit der Text im Kreis bleibt.
