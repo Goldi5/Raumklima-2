@@ -32,10 +32,14 @@ jobs:
         id: v
         run: echo "version=$(jq -r .version custom_components/raumklima/manifest.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Schon veröffentlicht?
+      # Entscheidend ist das *Release*, nicht der Tag: wird der Tag von Hand gepusht, bevor dieser
+      # Lauf startet, gibt es den Tag schon, aber noch kein Release – dann muss es erstellt werden.
+      - name: Release schon vorhanden?
         id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if git rev-parse "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+          if gh release view "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -64,10 +68,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Ohne --target: existiert der Tag bereits, hängt gh das Release daran; sonst legt es ihn an.
           gh release create "v${{ steps.v.outputs.version }}" \
             --title "Raumklima v${{ steps.v.outputs.version }}" \
             --notes-file notes.md \
-            --target "${{ github.sha }}" \
             handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf handbook/dist/Raumklima-Manuel.pdf
 
       - name: Handbuch am bestehenden Release ersetzen
