@@ -443,7 +443,18 @@ export function rkLayoutApply(rooms, layout) {
   // Räume kommen je nach Karte als Objekt mit `id` (rkRooms) oder als HA-Zustand mit
   // `entity_id` (Übersichtskarte) – beide Formen müssen die Reihenfolge verstehen.
   const keyOf = (r) => (r && (r.id || r.entity_id)) || "";
-  const pos = (r) => { const i = order.indexOf(keyOf(r)); return i < 0 ? order.length : i; };
+  // Ältere Layouts haben Raumnamen statt Entitäts-IDs gespeichert – beides akzeptieren,
+  // damit eine gepflegte Reihenfolge nicht stillschweigend verloren geht.
+  const nameOf = (r) => (r && (r.name || (r.attributes && r.attributes.friendly_name))) || "";
+  const pos = (r) => {
+    const key = keyOf(r);
+    let i = order.indexOf(key);
+    if (i < 0) {
+      const name = nameOf(r);
+      if (name) i = order.indexOf(name);
+    }
+    return i < 0 ? order.length : i;
+  };
   return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => pos(a) - pos(b));
 }
 

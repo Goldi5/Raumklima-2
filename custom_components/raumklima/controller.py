@@ -127,7 +127,7 @@ from .health import (
     HistoryPoint,
 )
 from .heatup import HeatupTracker
-from .hub import RaumklimaHub
+from .hub import RaumklimaHub, _change_text
 from .logic import (
     any_open,
     clamp,
@@ -577,7 +577,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.log(
             CAT_SETTINGS,
             tr("Einstellungen geändert"),
-            ", ".join(f"{k}: {self._fmt_opt(v)}" for k, v in changed.items()),
+            ", ".join(_change_text(k, self.config.get(k), v) for k, v in changed.items()),
         )
         if changed.keys() & {CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP}:
             self.track_presence()

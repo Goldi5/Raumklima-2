@@ -3,6 +3,11 @@
 ## Unreleased
 
 ### Behoben
+- **Reihenfolge im Dashboard ging verloren:** Ältere Layouts haben Raumnamen statt Entitäts-IDs gespeichert –
+  die gepflegte Reihenfolge wurde dadurch ignoriert und es blieb alphabetisch. Beide Formen werden jetzt
+  erkannt, damit „Schlafzimmer nach oben" auch ankommt.
+- **Protokoll nennt Einstellungen beim Namen:** Statt `comfort_temperature: 22,0 → 20,5` steht dort jetzt
+  „Wunschtemperatur: 22,0 → 20,5" (gleiches für Absenkung, Zeitplan, Präsenzmelder und weitere).
 - **Wohnung hielt sich nach einem Neustart 30 Minuten für bewohnt:** Präsenzmelder, die beim Start noch
   „an" standen (wiederhergestellter Zustand), zählten als „gerade jemand gesehen" – der Nachlauf lief an,
   obwohl niemand da war. Jetzt zählt der Nachlauf nur, wenn ein Melder seit dem Start tatsächlich „an"

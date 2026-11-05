@@ -74,13 +74,39 @@ def _short(value: Any) -> str:
     return text if len(text) <= 40 else text[:37] + "…"
 
 
+# Optionsnamen, die im Protokoll lesbar stehen sollen (Schlüssel bleiben unverändert)
+OPTION_LABELS: dict[str, str] = {
+    "comfort_temperature": "Wunschtemperatur",
+    "setback_short": "Absenkung kurz",
+    "setback_long": "Absenkung lang",
+    "room_eco": "Leeren Raum absenken",
+    "room_eco_after": "Absenken nach Minuten",
+    "room_eco_drop": "Absenkung um",
+    "presence_sensors": "Präsenzmelder",
+    "presence_kind": "Melder-Art",
+    "window_open_delay": "Fenster offen ab Sekunden",
+    "boost_minutes": "Boost-Dauer",
+    "override_minutes": "Handbetrieb gilt Minuten",
+    "target_via": "Sollwert schreiben über",
+    "valve_sensor": "Ventilsensor",
+    "temperature_sensor": "Temperaturfühler",
+    "humidity_sensor": "Feuchtefühler",
+    "co2_sensor": "CO₂-Fühler",
+    "trv": "Thermostat",
+    "extra_trvs": "Zusatz-Thermostate",
+    "windows": "Fensterkontakte",
+    "schedules": "Zeitplan",
+    "room_type": "Raumtyp",
+}
+
+
 def _change_text(key: str, old: Any, new: Any) -> str:
     """Eine Zeile für das Protokoll – Geheimnisse (Passwort) nie im Klartext."""
     if key in SECRET_KEYS:
         if not new:
-            return f"{key}: {tr('entfernt')}"
-        return f"{key}: {tr('gesetzt') if not old else tr('geändert')}"
-    return f"{key}: {_short(old)} → {_short(new)}"
+            return f"{tr(OPTION_LABELS.get(key, key))}: {tr('entfernt')}"
+        return f"{tr(OPTION_LABELS.get(key, key))}: {tr('gesetzt') if not old else tr('geändert')}"
+    return f"{tr(OPTION_LABELS.get(key, key))}: {_short(old)} → {_short(new)}"
 
 
 def dashboard_slug(name: str) -> str:
