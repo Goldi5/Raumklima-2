@@ -1,4 +1,4 @@
-/* Raumklima 0.56.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.57.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -766,7 +766,10 @@
     "Raum → Zeitplan": "Room → Schedule",
     "Raum → Anwesenheit im Raum": "Room → Presence in room",
     "Einstellungen → Sturm- und Regenwarnung": "Settings → Storm and rain warning",
-    "bringt mehr Genauigkeit, ist aber nicht nötig": "adds accuracy but is not required"
+    "bringt mehr Genauigkeit, ist aber nicht nötig": "adds accuracy but is not required",
+    "Außentemperatur von": "Outdoor temperature from",
+    "Wetterdienst": "Weather service",
+    "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "your own weather station instead of the weather service – the forecast still comes from the weather service"
   };
 
   // src/i18n/fr.js
@@ -1535,7 +1538,10 @@
     "Raum → Zeitplan": "Pièce → Programme",
     "Raum → Anwesenheit im Raum": "Pièce → Présence dans la pièce",
     "Einstellungen → Sturm- und Regenwarnung": "Réglages → Alerte tempête et pluie",
-    "bringt mehr Genauigkeit, ist aber nicht nötig": "apporte de la précision, mais n’est pas nécessaire"
+    "bringt mehr Genauigkeit, ist aber nicht nötig": "apporte de la précision, mais n’est pas nécessaire",
+    "Außentemperatur von": "Température extérieure de",
+    "Wetterdienst": "Service météo",
+    "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "votre propre station météo au lieu du service météo – les prévisions viennent toujours du service météo"
   };
 
   // src/i18n.js
@@ -1579,7 +1585,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.56.0";
+  var RK_VERSION2 = "0.57.0";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.57.0 – 2026-11-05
 
 ### Neu
 - **Eigene Wetterstation als Außentemperatur-Quelle (#21):** In *Einstellungen → Heizsaison & Heizgrenze*
