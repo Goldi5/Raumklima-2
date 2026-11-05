@@ -29,7 +29,7 @@ Short dropouts (under 1 minute) don't count as a failure. If all thermostats dro
 - **Please air the room:** humidity above the room's limit for 15 minutes (default 70 %, bathroom 75 %) – but only if **airing actually dries** (absolute humidity outside lower than inside).
 - **CO₂ (optional):** with a CO₂ sensor, “please air the room” also comes from **1000 ppm** – regardless of the weather, because stale air always gets better by airing (German Environment Agency: below 1000 ppm harmless).
 - **Airing time** by outdoor temperature (co2online/UBA): below 0 °C 4 min, 0–5 °C 5 min, 5–10 °C 10 min, 10–15 °C 15 min, 15–20 °C 20 min, above 30 min.
-- **Close the window** when the time is up; **air exchanged** when the humidity is below the limit again (and CO₂ below 800 ppm) – but no earlier than 60 % of the airing time, at least 4 minutes. A sensor near the window sees fresh air before the room does; two minutes only tilt the window.
+- **Close the window** when the time is up; **air exchanged** when the humidity is below the limit again (and CO₂ below 800 ppm) – but no earlier than 60 % of the airing time, at least 4 minutes. A sensor near the window sees fresh air before the room does; two minutes only tilt the window. The minimum time can be set per room (*Settings → Room → Airing → minimum time*) – automatic by default.
 - **Room cooling down:** below the minimum temperature (living rooms 18 °C, bedroom/rarely used 16 °C) or more than 3 °C colder than when the window was opened.
 - **Mould risk:** permanently above 70 % or cold and humid.
 
@@ -83,6 +83,7 @@ Vapour pressure of the room air stays the same while setting back
 - **fRsi** (temperature factor) by building type: old unrenovated 0.60 · old renovated 0.70 · new/insulated 0.80.
 - If the air is **dry**, the setback can be large. Example: 18 °C / 45 % at 0 °C outside – harmless down to about 13 °C.
 - If the air is **humid** (e.g. bathroom after a shower), the room stays warmer until the humidity has dropped. Warm air holds more water, so the humidity at the wall drops.
+- **Three levels** per room (*Settings → Room → Temperature → Mould protection*): **Strict per DIN** (default) raises the target so the coldest wall spot stays below 80 % – even above the wish; **Only up to wish** raises at most to the desired temperature; **Off** disables the floor, the room then runs exactly at the set value.
 - The floor applies **everywhere**, including schedules and quiet time: if a schedule window or the night setback would go below it, Raumklima raises the target and logs “mould protection” as the reason. Only deliberate actions (boost, valve care) and the heating pause are exempt.
 - For **short absences** mould protection deliberately doesn't apply: a few hours at a lower temperature cause no moisture problem. It only becomes critical when the wall stays humid for days.
 

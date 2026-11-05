@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 
 // Gruppen (Phase 1): bestehende Gruppen-Überschriften werden auf die neue Leiste abgebildet.
 // So bleibt der Inhalt unverändert, während die Navigation klar wird.
@@ -879,6 +879,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const s = r.attrs.settings || {};
     const scope = `room:${id}`;
     const ro = !editable;
+    const airMin = this._roomOpt(r, "airing_min_minutes") ?? s.airing_min_minutes ?? 0;
+    const recMin = r.attrs.recommended_minutes ?? 10;
     const longMin = this._roomOpt(r, "long_airing_minutes") ?? s.long_airing_minutes ?? 20;
     const lateMin = this._roomOpt(r, "long_airing_remind") ?? s.long_airing_remind ?? 90;
     const learn = this._roomOpt(r, "learn_airing") ?? s.learn_airing ?? true;
@@ -886,6 +888,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const list = this._airList(id, this._roomOpt(r, "airing_windows") ?? s.airing_windows ?? []);
     const presEff = this._roomOpt(r, "presence_sensors") ?? Object.keys(s.presence_sensors || {});
     const rows = [
+      this._row(
+        "Mindestdauer Lüften",
+        editable
+          ? this._optStepper(scope, "airing_min_minutes", airMin, " min", 1, 0, 30)
+          : this._v(airMin ? `${airMin} min` : t("automatisch")),
+        airMin
+          ? t("so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt")
+          : t("automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)", { v: recMin })
+      ),
       this._row(
         "Dauerlüftung ab",
         editable ? this._optStepper(scope, "long_airing_minutes", longMin, " min", 5, 0, 180) : this._v(`${longMin} min`),
@@ -933,7 +944,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
     const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
     const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
-    const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
+    const moldMode = this._roomOpt(r, "mold_mode") ?? s.mold_mode ?? "strict";
+        const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
     const editable = this._admin && cfgRoom;
     const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
     const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : null;
@@ -974,6 +986,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
         this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
         this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
+        this._row(
+          "Schimmelschutz",
+          editable ? this._segs(scope, "mold_mode", RK_MOLD, moldMode) : this._v(RK_MOLD[moldMode] || "–"),
+          moldMode === "strict"
+            ? t("hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – auch über den Wunsch hinaus")
+            : moldMode === "wish"
+              ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt")
+              : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden")
+        ),
         this._row("Schlafen bei offenem Fenster", editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),
           nightMode === "auto" ? (["bedroom", "rarely_used"].includes(roomType) ? "Automatisch: ja, weil Schlafraum" : "Automatisch: nein, kein Schlafraum") : "abends geöffnet = Nachtlüften: keine Lüft-Hinweise, Heizung wartet"),
         this._row("Kontakte", `<div class="chips">${contacts}</div>`),

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.59.6 – 2026-11-05
+
+### Neu
+- **Mindestdauer Lüften einstellbar:** Standard bleibt die Automatik (60 % der empfohlenen Dauer,
+  mindestens 4 Minuten), jetzt aber je Raum fest wählbar (0–30 min) – *Einstellungen → Raum → Lüften*.
+- **Schimmelschutz in drei Stufen:** *Streng nach DIN* (Standard, darf über den Wunsch anheben),
+  *Nur bis Wunsch* (hebt höchstens bis zur Wunschtemperatur) und *Aus* (kein Feuchte-Boden).
+  Jede Stufe erklärt sich in der Einstellung selbst; die Doku (de/en/fr) beschreibt sie.
+
 ## 0.59.5 – 2026-11-05
 
 ### Behoben

@@ -29,7 +29,7 @@ Les coupures courtes (moins d'une minute) ne comptent pas comme un échec. Si to
 - **Veuillez aérer la pièce :** humidité au-dessus de la limite de la pièce pendant 15 minutes (70 % par défaut, salle de bain 75 %) – mais seulement si **l'aération assèche vraiment** (humidité absolue extérieure inférieure à celle de l'intérieur).
 - **CO₂ (en option) :** avec une sonde CO₂, « veuillez aérer la pièce » se déclenche aussi à partir de **1000 ppm** – indépendamment de la météo, car l'air vicié s'améliore toujours en aérant (Agence fédérale de l'environnement allemande : en dessous de 1000 ppm, sans danger).
 - **Durée d'aération** selon la température extérieure (co2online/UBA) : en dessous de 0 °C 4 min, 0–5 °C 5 min, 5–10 °C 10 min, 10–15 °C 15 min, 15–20 °C 20 min, au-dessus 30 min.
-- **Fermez la fenêtre** une fois le temps écoulé ; **air renouvelé** quand l'humidité repasse sous la limite (et le CO₂ sous 800 ppm) – mais au plus tôt après 60 % de la durée d'aération, et jamais moins de 4 minutes. Une sonde près de la fenêtre sent l'air frais avant la pièce ; deux minutes ne font qu'entrouvrir.
+- **Fermez la fenêtre** une fois le temps écoulé ; **air renouvelé** quand l'humidité repasse sous la limite (et le CO₂ sous 800 ppm) – mais au plus tôt après 60 % de la durée d'aération, et jamais moins de 4 minutes. Une sonde près de la fenêtre sent l'air frais avant la pièce ; deux minutes ne font qu'entrouvrir. La durée minimale se règle par pièce (*Réglages → Pièce → Aération → durée minimale*) – automatique par défaut.
 - **La pièce se refroidit :** en dessous de la température minimale (pièces à vivre 18 °C, chambre/rarement utilisée 16 °C) ou plus de 3 °C de moins qu'à l'ouverture de la fenêtre.
 - **Risque de moisissures :** durablement au-dessus de 70 % ou froid et humide.
 
@@ -83,6 +83,7 @@ La pression de vapeur de l'air ambiant reste la même pendant l'abaissement
 - **fRsi** (facteur de température) selon le type de bâtiment : ancien non rénové 0,60 · ancien rénové 0,70 · neuf/isolé 0,80.
 - Si l'air est **sec**, l'abaissement peut être important. Exemple : 18 °C / 45 % avec 0 °C dehors – sans danger jusqu'à environ 13 °C.
 - Si l'air est **humide** (par ex. la salle de bain après une douche), la pièce reste plus chaude jusqu'à ce que l'humidité ait baissé. L'air chaud retient plus d'eau, donc l'humidité au niveau du mur baisse.
+- **Trois niveaux** par pièce (*Réglages → Pièce → Température → Protection anti-moisissure*) : **Strict selon DIN** (par défaut) remonte la consigne pour que le point de mur le plus froid reste sous 80 % – même au-dessus de la consigne ; **Jusqu'à la consigne** remonte au maximum jusqu'à la température souhaitée ; **Désactivé** supprime le plancher, la pièce suit alors exactement la valeur réglée.
 - Ce plancher s'applique **partout**, y compris aux plannings et aux heures calmes : si une plage horaire ou l'abaissement nocturne passait en dessous, RaumKlima remonte la consigne et note « protection contre les moisissures » comme motif. Seules les actions volontaires (boost, entretien de vanne) et la pause de chauffage sont exclues.
 - Pour les **absences courtes**, la protection contre les moisissures ne s'applique volontairement pas : quelques heures à une température plus basse ne posent aucun problème d'humidité. Cela ne devient critique que lorsque le mur reste humide pendant des jours.
 

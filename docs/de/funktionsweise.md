@@ -27,7 +27,7 @@ Jeder Befehl ans TRV wird nach 20 s **geprüft**. Kam er nicht an, wird er wiede
 - **Bitte lüften:** Luftfeuchte 15 Minuten über der Grenze des Raums (Standard 70 %, Bad 75 %) – aber nur, wenn **Lüften auch trocknet** (absolute Feuchte draußen niedriger als drinnen).
 - **CO₂ (optional):** Mit CO₂-Sensor kommt „Bitte lüften“ auch ab **1000 ppm** – dann unabhängig vom Wetter, denn verbrauchte Luft wird durch Lüften immer besser (Umweltbundesamt: unter 1000 ppm unbedenklich).
 - **Lüftdauer** nach Außentemperatur (co2online/UBA): unter 0 °C 4 min, 0–5 °C 5 min, 5–10 °C 10 min, 10–15 °C 15 min, 15–20 °C 20 min, darüber 30 min.
-- **Fenster schließen**, wenn die Zeit um ist; **Luft ausgetauscht**, wenn die Feuchte wieder unter der Grenze ist (und CO₂ unter 800 ppm) – aber frühestens nach 60 % der Lüftdauer, mindestens 4 Minuten. Ein Fühler nahe am Fenster sieht frische Luft früher als der Raum; zwei Minuten kippen ein Fenster nur.
+- **Fenster schließen**, wenn die Zeit um ist; **Luft ausgetauscht**, wenn die Feuchte wieder unter der Grenze ist (und CO₂ unter 800 ppm) – aber frühestens nach 60 % der Lüftdauer, mindestens 4 Minuten. Ein Fühler nahe am Fenster sieht frische Luft früher als der Raum; zwei Minuten kippen ein Fenster nur. Die Mindestdauer lässt sich je Raum fest einstellen (*Einstellungen → Raum → Lüften → Mindestdauer*) – Standard ist die Automatik.
 - **Raum kühlt aus:** unter Mindesttemperatur (Wohnräume 18 °C, Schlafzimmer/selten genutzt 16 °C) oder mehr als 3 °C kälter als beim Öffnen.
 - **Schimmelrisiko:** dauerhaft über 70 % oder kalt und feucht.
 
@@ -81,6 +81,8 @@ Dampfdruck der Raumluft bleibt beim Absenken gleich
 - **fRsi** (Temperaturfaktor) nach Bauart: Altbau unsaniert 0,60 · Altbau saniert 0,70 · Neubau 0,80.
 - Ist die Luft **trocken**, darf deutlich abgesenkt werden. Beispiel: 18 °C / 45 % bei 0 °C draußen – unbedenklich bis etwa 13 °C.
 - Ist die Luft **feucht** (z. B. Bad nach dem Duschen), bleibt der Raum wärmer, bis die Feuchte gesunken ist. Warme Luft nimmt mehr Wasser auf, dadurch sinkt die Feuchte an der Wand.
+- **Drei Stufen** je Raum (*Einstellungen → Raum → Temperatur → Schimmelschutz*):
+  **Streng nach DIN** (Standard) hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % bleibt – auch über den Wunsch hinaus; **Nur bis Wunsch** hebt höchstens bis zur eingestellten Wunschtemperatur an; **Aus** schaltet den Boden ab, dann fährt der Raum genau den eingestellten Wert.
 - Der Boden gilt **überall**, auch für Zeitplan und Ruhezeit: Läge ein Fenster oder die Nacht-Absenkung darunter, hebt Raumklima auf die Mindesttemperatur an – im Protokoll steht dann „Schimmelschutz“ als Grund. Ausgenommen sind nur bewusste Aktionen (Boost, Ventilpflege) und die Heizpause.
 - Bei **kurzer Abwesenheit** greift der Schimmelschutz bewusst nicht: Einige Stunden niedrigerer Temperatur verursachen kein Feuchteproblem. Kritisch wird es erst, wenn die Wand über Tage feucht bleibt.
 

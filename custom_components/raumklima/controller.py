@@ -40,6 +40,7 @@ from .const import (
     CAL_OFFSET,
     CAL_TARGET,
     CALIBRATION_INTERVAL,
+    CONF_AIRING_MIN_MINUTES,
     CONF_AIRING_OCCUPIED_ONLY,
     CONF_AIRING_WINDOWS,
     CONF_BOOST_MINUTES,
@@ -58,6 +59,7 @@ from .const import (
     CONF_LIGHTS,
     CONF_LONG_AIRING,
     CONF_LONG_AIRING_REMIND,
+    CONF_MOLD_MODE,
     CONF_NAME,
     CONF_NIGHT_AIRING,
     CONF_NOTIFY,
@@ -183,6 +185,10 @@ REASON_BOOST = "boost"
 REASON_SCHEDULE_PREHEAT = "schedule_preheat"
 REASON_SLEEP = "sleep"
 REASON_MOLD = "mold"
+# Schimmelschutz-Stufen (Raum-Einstellung)
+MOLD_STRICT = "strict"
+MOLD_WISH = "wish"
+MOLD_OFF = "off"
 # Bei diesen Gründen greift der Schimmelschutz nicht ein (bewusste Aktion oder Heizung ohnehin aus)
 MOLD_EXEMPT = frozenset(
     {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD}
@@ -217,6 +223,8 @@ LIVE_OPTIONS = frozenset(
         CONF_LONG_AIRING_REMIND,
         CONF_AIRING_WINDOWS,
         CONF_LEARN_AIRING,
+        CONF_AIRING_MIN_MINUTES,
+        CONF_MOLD_MODE,
     }
 )
 
@@ -510,6 +518,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 changed.append(key)
         return {
             "entry_id": self.entry.entry_id,
+            "mold_mode": self.config.get(CONF_MOLD_MODE),
+            "airing_min_minutes": self.config.get(CONF_AIRING_MIN_MINUTES),
             "changed": changed,
             "trv": self.trv,
             "room_type": vent.room_type if vent else cfg.get(CONF_ROOM_TYPE),
@@ -820,7 +830,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return self._mold_floor(on, target, reason)
 
     def _mold_floor(self, on: bool, target: float, reason: str) -> tuple[bool, float, str]:
-        if not on or reason in MOLD_EXEMPT or not self.humidity_sensor:
+        """Schimmelschutz als Boden – Stufe je Raum (streng / nur bis Wunsch / aus)."""
+        mode = self.config.get(CONF_MOLD_MODE) or MOLD_STRICT
+        if mode == MOLD_OFF or not on or reason in MOLD_EXEMPT or not self.humidity_sensor:
             return on, target, reason
         hub = self.hub
         if hub is None:
@@ -828,7 +840,11 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         mold = mold_safe_min_temp(
             self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
         )
-        if mold is None or target >= mold - 0.05:
+        if mold is None:
+            return on, target, reason
+        if mode == MOLD_WISH:
+            mold = min(mold, self.target_temp)  # nur bis zum Wunsch anheben
+        if target >= mold - 0.05:
             return on, target, reason
         return True, min(mold, self.trv_max), REASON_MOLD
 
@@ -868,7 +884,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if self._manual_until and now < self._manual_until:
                 return True, self.target_temp, REASON_MANUAL
             mold = None
-            if self.humidity_sensor:
+            if self.humidity_sensor and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
                 mold = mold_safe_min_temp(
                     self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
                 )

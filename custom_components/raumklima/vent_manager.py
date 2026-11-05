@@ -379,6 +379,16 @@ class VentilationManager:
         self.update()
 
     @callback
+    def _min_minutes(self) -> int | None:
+        """Mindestdauer aus der Einstellung des Raums; 0 = automatisch aus der Empfehlung."""
+        from .const import CONF_AIRING_MIN_MINUTES
+
+        try:
+            value = int(self.c.config.get(CONF_AIRING_MIN_MINUTES) or 0)
+        except (TypeError, ValueError):
+            return None
+        return value if value > 0 else None
+
     def update(self) -> None:
         """Neu bewerten und ggf. benachrichtigen."""
         hum = self.humidity
@@ -407,6 +417,7 @@ class VentilationManager:
                 dries=self.dries,
                 co2=self.c.current_co2,
                 pm25=self.c.current_pm25,
+                min_minutes=self._min_minutes(),
             )
         )
         changed = new != self.state

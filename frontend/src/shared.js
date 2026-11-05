@@ -500,6 +500,8 @@ export const RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hv
 export const RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
 export const RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
 export const RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+// Schimmelschutz-Stufen je Raum
+export const RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
 // Anbieter für den Mail-Versand: Server, Port, Verschlüsselung, Name
 export const RK_MAIL_PROVIDERS = {
   gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],

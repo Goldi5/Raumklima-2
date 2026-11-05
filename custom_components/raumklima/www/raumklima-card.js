@@ -1,4 +1,4 @@
-/* Raumklima 0.59.5 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.6 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -778,7 +778,17 @@
     "Sicherung gespeichert: {name}": "Backup saved: {name}",
     "Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage": "Backup saved: {name} · also copied to the clipboard",
     "Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download": "Backup saved: {name} – if no file appeared, the browser is blocking the download",
-    "Sicherung wird geprüft …": "Checking backup …"
+    "Sicherung wird geprüft …": "Checking backup …",
+    "Streng nach DIN": "Strict per DIN",
+    "Nur bis Wunsch": "Only up to wish",
+    "Schimmelschutz": "Mould protection",
+    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – auch über den Wunsch hinaus": "raises the target so that the coldest wall spot stays below 80 % humidity (DIN 4108-2) – even above the wish",
+    "hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt": "raises only up to the desired temperature – never set back below it, but never heated above it either",
+    "kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden": "no humidity floor: the room runs exactly at the set value – with high humidity, cold walls risk mould",
+    "Mindestdauer Lüften": "Minimum airing time",
+    "automatisch": "automatic",
+    "so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt": "“airing in progress” stays at least this long, even if humidity is already fine",
+    "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatic: 60 % of the recommended time, at least 4 minutes (currently {v} min)"
   };
 
   // src/i18n/fr.js
@@ -1559,7 +1569,17 @@
     "Sicherung gespeichert: {name}": "Sauvegarde enregistrée : {name}",
     "Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage": "Sauvegarde enregistrée : {name} · également copiée dans le presse-papiers",
     "Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download": "Sauvegarde enregistrée : {name} – si aucun fichier n’apparaît, le navigateur bloque le téléchargement",
-    "Sicherung wird geprüft …": "Vérification de la sauvegarde …"
+    "Sicherung wird geprüft …": "Vérification de la sauvegarde …",
+    "Streng nach DIN": "Strict selon DIN",
+    "Nur bis Wunsch": "Jusqu'à la consigne",
+    "Schimmelschutz": "Protection anti-moisissure",
+    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – auch über den Wunsch hinaus": "remonte la consigne pour que le point de mur le plus froid reste sous 80 % d'humidité (DIN 4108-2) – même au-dessus de la consigne",
+    "hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt": "remonte seulement jusqu'à la température souhaitée – jamais abaissé plus bas, mais jamais chauffé au-dessus non plus",
+    "kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden": "aucun plancher d'humidité : la pièce suit exactement la valeur réglée – avec une humidité élevée, risque de moisissure sur les murs froids",
+    "Mindestdauer Lüften": "Durée minimale d'aération",
+    "automatisch": "automatique",
+    "so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt": "« aération en cours » reste affiché au moins aussi longtemps, même si l'humidité est déjà bonne",
+    "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatique : 60 % de la durée recommandée, au moins 4 minutes (actuellement {v} min)"
   };
 
   // src/i18n.js
@@ -1603,7 +1623,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.59.5";
+  var RK_VERSION2 = "0.59.6";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2025,6 +2045,7 @@
   var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
   var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
   var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+  var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
   var RK_MAIL_PROVIDERS = {
     gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
     gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
@@ -4497,6 +4518,8 @@
       const s = r.attrs.settings || {};
       const scope = `room:${id}`;
       const ro = !editable;
+      const airMin = this._roomOpt(r, "airing_min_minutes") ?? s.airing_min_minutes ?? 0;
+      const recMin = r.attrs.recommended_minutes ?? 10;
       const longMin = this._roomOpt(r, "long_airing_minutes") ?? s.long_airing_minutes ?? 20;
       const lateMin = this._roomOpt(r, "long_airing_remind") ?? s.long_airing_remind ?? 90;
       const learn = this._roomOpt(r, "learn_airing") ?? s.learn_airing ?? true;
@@ -4504,6 +4527,11 @@
       const list = this._airList(id, this._roomOpt(r, "airing_windows") ?? s.airing_windows ?? []);
       const presEff = this._roomOpt(r, "presence_sensors") ?? Object.keys(s.presence_sensors || {});
       const rows = [
+        this._row(
+          "Mindestdauer Lüften",
+          editable ? this._optStepper(scope, "airing_min_minutes", airMin, " min", 1, 0, 30) : this._v(airMin ? `${airMin} min` : t("automatisch")),
+          airMin ? t("so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt") : t("automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)", { v: recMin })
+        ),
         this._row(
           "Dauerlüftung ab",
           editable ? this._optStepper(scope, "long_airing_minutes", longMin, " min", 5, 0, 180) : this._v(`${longMin} min`),
@@ -4554,6 +4582,7 @@
       const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
       const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
       const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
+      const moldMode = this._roomOpt(r, "mold_mode") ?? s.mold_mode ?? "strict";
       const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
       const editable = this._admin && cfgRoom;
       const push = Object.keys(this._cfg && this._cfg.hub && this._cfg.hub.options.recipients || {});
@@ -4602,6 +4631,11 @@
         this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
         this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
         this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
+        this._row(
+          "Schimmelschutz",
+          editable ? this._segs(scope, "mold_mode", RK_MOLD, moldMode) : this._v(RK_MOLD[moldMode] || "–"),
+          moldMode === "strict" ? t("hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – auch über den Wunsch hinaus") : moldMode === "wish" ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt") : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden")
+        ),
         this._row(
           "Schlafen bei offenem Fenster",
           editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),

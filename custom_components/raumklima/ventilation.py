@@ -130,6 +130,7 @@ class VentInput:
     duration: int
     dries: bool
     high_delay_minutes: float = 15.0
+    min_minutes: int | None = None  # feste Mindestdauer; None = aus der Empfehlung ableiten
     co2: float | None = None
     co2_limit: float = CO2_LIMIT
     co2_done: float = CO2_DONE
@@ -150,7 +151,8 @@ def evaluate(v: VentInput) -> str:
             return VENT_PLEASE_CLOSE
         # Fertig erst, wenn die Luft auch wirklich ausgetauscht ist: Mindestdauer nach
         # Außentemperatur (Empfehlung) UND Feuchte/CO₂ im grünen Bereich.
-        if v.open_minutes >= min_airing_minutes(v.duration) and air_exchanged(v):
+        minimum = v.min_minutes if v.min_minutes is not None else min_airing_minutes(v.duration)
+        if v.open_minutes >= minimum and air_exchanged(v):
             return VENT_DONE
         return VENT_AIRING
     if v.pm25 is not None and v.pm25 >= v.pm25_limit:
