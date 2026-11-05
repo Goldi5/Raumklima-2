@@ -182,6 +182,11 @@ REASON_SCHEDULE = "schedule"
 REASON_BOOST = "boost"
 REASON_SCHEDULE_PREHEAT = "schedule_preheat"
 REASON_SLEEP = "sleep"
+REASON_MOLD = "mold"
+# Bei diesen Gründen greift der Schimmelschutz nicht ein (bewusste Aktion oder Heizung ohnehin aus)
+MOLD_EXEMPT = frozenset(
+    {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD}
+)
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
     {
@@ -804,7 +809,31 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return value if value is not None else setback_defaults(self.config.get(CONF_ROOM_TYPE))[1]
 
     def plan(self) -> tuple[bool, float, str]:
-        """(heizen?, Zieltemperatur, Grund) aus Heizsaison, Anwesenheit und Wunsch."""
+        """(heizen?, Zieltemperatur, Grund) – Regelkette mit Schimmelschutz als Boden.
+
+        Die Doku sagt zu, dass der Schimmelschutz vorrangig bleibt („Der Zeitplan setzt nur den
+        Sollwert: Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig“). Deshalb
+        gilt er als Nachbedingung für *jeden* Zweig, der unter dem Feuchte-Boden liegen würde –
+        auch Zeitplan und Ruhezeit, die ihn vorher nicht geprüft haben.
+        """
+        on, target, reason = self._plan_rules()
+        return self._mold_floor(on, target, reason)
+
+    def _mold_floor(self, on: bool, target: float, reason: str) -> tuple[bool, float, str]:
+        if not on or reason in MOLD_EXEMPT or not self.humidity_sensor:
+            return on, target, reason
+        hub = self.hub
+        if hub is None:
+            return on, target, reason
+        mold = mold_safe_min_temp(
+            self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
+        )
+        if mold is None or target >= mold - 0.05:
+            return on, target, reason
+        return True, min(mold, self.trv_max), REASON_MOLD
+
+    def _plan_rules(self) -> tuple[bool, float, str]:
+        """Regelkette ohne Nachbedingung (siehe ``plan()``)."""
         if self.monitor:
             return False, self.target_temp, REASON_MONITOR
         now = dt_util.utcnow()
@@ -819,7 +848,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if self._frost_active and (cur is None or cur >= floor + 1):
                 if not self._peeking:
                     self._frost_active = False
-            elif not self._frost_active and cur is not None and cur < floor:
+            elif not self._frost_active and cur is not None and cur < floor and not self._peeking:
                 self._frost_active = True
             if self._frost_active:
                 return True, min(floor + 1, self.trv_max), REASON_FROST
@@ -830,9 +859,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if now < self.boost_until:
                 boost = self.boost_temperature if self.boost_temperature is not None else self.target_temp
                 return True, min(boost, self.trv_max), REASON_BOOST
-            self.boost_until = None
-            self.boost_temperature = None
-            self._save()
+            if not self._peeking:
+                self.boost_until = None
+                self.boost_temperature = None
+                self._save()
         stage = hub.stage_for_room(self.entry.entry_id) if hasattr(hub, "stage_for_room") else hub.stage
         if stage in AWAY_STAGES:
             if self._manual_until and now < self._manual_until:
@@ -846,7 +876,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.target_temp, stage, self.setback_short, self.setback_long, mold
             )
             frost = hub.frost_night
-            self.frost_night_low = frost if target < self.target_temp else None
+            if not self._peeking:
+                self.frost_night_low = frost if target < self.target_temp else None
             if frost is not None and target < self.target_temp:
                 target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
             if target < self.target_temp:
@@ -907,16 +938,21 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     def _solar_applies(self, hub: RaumklimaHub) -> bool:
         """Sonnen-Raum: bei erwarteter Sonne 1 °C weniger – einmal an, bis die Sonne weg ist (keine Schwingung)."""
         if not self.config.get(CONF_SOLAR) or not hub.sun_expected(self.config.get(CONF_SOLAR_FACADE)):
-            self._solar_active = False
+            if not self._peeking:
+                self._solar_active = False
             return False
         if not self._solar_active:
             cur = self.current_temperature
-            self._solar_active = cur is not None and cur >= self.target_temp - 0.5
-        return self._solar_active
+            active = cur is not None and cur >= self.target_temp - 0.5
+            if not self._peeking:
+                self._solar_active = active
+            return active
+        return True
 
     @property
     def effective_target(self) -> float:
-        return self.plan()[1]
+        """Geltendes Ziel zum Anzeigen – ohne Zustand zu verbrauchen (Boost-Ablauf, Hysterese)."""
+        return self.peek_plan()[1]
 
     @callback
     def on_hub_change(self) -> None:
@@ -1423,6 +1459,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             ),
             REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
             REASON_SLEEP: tr("Ruhezeit – Schlafraum abgesenkt auf {t}", t=fmt_temp(self.setback_long)),
+            REASON_MOLD: tr(
+                "Schimmelschutz – mindestens {t} nötig (Feuchte {h} %)",
+                t=fmt_temp(target), h=f"{self.current_humidity or 0:.0f}",
+            ),
             STAGE_AWAY_SHORT: tr("alle weg – Absenkung „kurz weg“ {t}", t=fmt_temp(self.setback_short)),
             STAGE_AWAY_LONG: tr("länger weg – Absenkung {t}", t=fmt_temp(self.setback_long)),
         }.get(reason, reason)

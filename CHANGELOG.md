@@ -19,6 +19,12 @@
 - Entwicklungsreste entfernt: `apply_fe.py` und `scripts/preview_deploy.sh` (enthielt interne Adressen).
 
 ### Behoben
+- **Schimmelschutz gilt jetzt überall:** Zeitplan und Ruhezeit konnten einen feuchten Raum unter die
+  Feuchte-Mindesttemperatur drücken, obwohl die Doku zusagt, dass der Schimmelschutz vorrangig bleibt.
+  Jetzt greift er als Boden für jeden Zweig (außer Boost, Ventilpflege und Heizpause) und erscheint im
+  Protokoll als Grund „Schimmelschutz – mindestens … nötig“. Auch in der Karte sichtbar.
+- **Anzeigen verändern die Regelung nicht mehr:** `effective_target` und andere Anzeigen lesen den Plan
+  nur noch (kein Boost-Ablauf mit Speichern, keine Frost-/Sonnen-Hysterese beim Anzeigen).
 - **Wunschtemperatur aus der Karte wirkte nicht (#22):** Der neue Wert landete nur in den Einstellungen,
   der laufende Regler behielt seinen alten Sollwert – der Raum heizte weiter auf die alte Temperatur, bis
   er neu geladen wurde. Jetzt übernimmt der Raum den Wert sofort (auch wenn der Raumtyp den Standardwert

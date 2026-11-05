@@ -83,6 +83,7 @@ La pression de vapeur de l'air ambiant reste la même pendant l'abaissement
 - **fRsi** (facteur de température) selon le type de bâtiment : ancien non rénové 0,60 · ancien rénové 0,70 · neuf/isolé 0,80.
 - Si l'air est **sec**, l'abaissement peut être important. Exemple : 18 °C / 45 % avec 0 °C dehors – sans danger jusqu'à environ 13 °C.
 - Si l'air est **humide** (par ex. la salle de bain après une douche), la pièce reste plus chaude jusqu'à ce que l'humidité ait baissé. L'air chaud retient plus d'eau, donc l'humidité au niveau du mur baisse.
+- Ce plancher s'applique **partout**, y compris aux plannings et aux heures calmes : si une plage horaire ou l'abaissement nocturne passait en dessous, RaumKlima remonte la consigne et note « protection contre les moisissures » comme motif. Seules les actions volontaires (boost, entretien de vanne) et la pause de chauffage sont exclues.
 - Pour les **absences courtes**, la protection contre les moisissures ne s'applique volontairement pas : quelques heures à une température plus basse ne posent aucun problème d'humidité. Cela ne devient critique que lorsque le mur reste humide pendant des jours.
 
 ## 7. Saison de chauffage et limite de chauffage

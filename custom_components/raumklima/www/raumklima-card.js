@@ -27,6 +27,7 @@
     "Richtung, in die die Fenster dieses Raums zeigen – vereinfacht, freie Sicht vorausgesetzt. Haus, Baum, Balkon oder ein tiefes Gewände davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage). Bei zwei Fensterseiten: die mit der größeren Glasfläche.": "Direction the windows of this room face – simplified, assumes a clear view. A building, tree, balcony or deep reveal in front is not taken into account; in that case better leave it empty (forecast only). With two window sides: the one with the larger glass area.",
     "Ruhezeit senkt ab": "Quiet time sets back",
     "Ruhezeit · Ziel <b>{v} °C</b>": "Quiet time · target <b>{v} °C</b>",
+    "Schimmelschutz · Ziel <b>{v} °C</b>": "Mould protection · target <b>{v} °C</b>",
     "Schichtdienst": "Shift work",
     "Sonne kommt aus": "Sun comes from",
     "Standort der Wohnung": "Location of the home",
@@ -579,6 +580,7 @@
     "Zeitplan · {v}°": "Schedule · {v}°",
     "Boost · {v}°": "Boost · {v}°",
     "Ruhezeit · {v}°": "Quiet time · {v}°",
+    "Schimmel · {v}°": "Mould · {v}°",
     "Sonne · {v}°": "Sun · {v}°",
     "Vorheizen · {v}°": "Preheat · {v}°",
     "Leer · {v}°": "Empty · {v}°",
@@ -806,6 +808,7 @@
     "Richtung, in die die Fenster dieses Raums zeigen – vereinfacht, freie Sicht vorausgesetzt. Haus, Baum, Balkon oder ein tiefes Gewände davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage). Bei zwei Fensterseiten: die mit der größeren Glasfläche.": "Direction vers laquelle donnent les fenêtres de cette pièce – simplifié, vue dégagée supposée. Un bâtiment, un arbre, un balcon ou un ébrasement profond devant n’est pas pris en compte ; dans ce cas, mieux vaut laisser vide (prévision seule). Avec deux côtés vitrés : celui qui a la plus grande surface vitrée.",
     "Ruhezeit senkt ab": "L’heure de repos abaisse",
     "Ruhezeit · Ziel <b>{v} °C</b>": "Heure de repos · cible <b>{v} °C</b>",
+    "Schimmelschutz · Ziel <b>{v} °C</b>": "Protection moisissure · cible <b>{v} °C</b>",
     "Schichtdienst": "Travail posté",
     "Sonne kommt aus": "Le soleil vient de",
     "Standort der Wohnung": "Emplacement du logement",
@@ -1358,6 +1361,7 @@
     "Zeitplan · {v}°": "Programme · {v}°",
     "Boost · {v}°": "Boost · {v}°",
     "Ruhezeit · {v}°": "Heures calmes · {v}°",
+    "Schimmel · {v}°": "Moisissure · {v}°",
     "Sonne · {v}°": "Soleil · {v}°",
     "Vorheizen · {v}°": "Préchauffage · {v}°",
     "Leer · {v}°": "Vide · {v}°",
@@ -1745,6 +1749,7 @@
       if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
       if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
       if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
+      if (r === "mold") return t("Schimmel · {v}°", { v: fmt(tgt) });
       if (r === "solar") return t("Sonne · {v}°", { v: fmt(tgt) });
       return t("Ziel {v}°", { v: fmt(a.temperature) });
     }
@@ -1757,6 +1762,7 @@
     if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "schedule_preheat" && a.effective_target != null) return t("Vorheizen für Zeitplan · <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "sleep" && a.effective_target != null) return t("Ruhezeit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "mold" && a.effective_target != null) return t("Schimmelschutz · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
   }

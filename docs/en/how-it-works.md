@@ -83,6 +83,7 @@ Vapour pressure of the room air stays the same while setting back
 - **fRsi** (temperature factor) by building type: old unrenovated 0.60 · old renovated 0.70 · new/insulated 0.80.
 - If the air is **dry**, the setback can be large. Example: 18 °C / 45 % at 0 °C outside – harmless down to about 13 °C.
 - If the air is **humid** (e.g. bathroom after a shower), the room stays warmer until the humidity has dropped. Warm air holds more water, so the humidity at the wall drops.
+- The floor applies **everywhere**, including schedules and quiet time: if a schedule window or the night setback would go below it, Raumklima raises the target and logs “mould protection” as the reason. Only deliberate actions (boost, valve care) and the heating pause are exempt.
 - For **short absences** mould protection deliberately doesn't apply: a few hours at a lower temperature cause no moisture problem. It only becomes critical when the wall stays humid for days.
 
 ## 7. Heating season & heating limit

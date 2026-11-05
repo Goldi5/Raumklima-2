@@ -81,6 +81,7 @@ Dampfdruck der Raumluft bleibt beim Absenken gleich
 - **fRsi** (Temperaturfaktor) nach Bauart: Altbau unsaniert 0,60 · Altbau saniert 0,70 · Neubau 0,80.
 - Ist die Luft **trocken**, darf deutlich abgesenkt werden. Beispiel: 18 °C / 45 % bei 0 °C draußen – unbedenklich bis etwa 13 °C.
 - Ist die Luft **feucht** (z. B. Bad nach dem Duschen), bleibt der Raum wärmer, bis die Feuchte gesunken ist. Warme Luft nimmt mehr Wasser auf, dadurch sinkt die Feuchte an der Wand.
+- Der Boden gilt **überall**, auch für Zeitplan und Ruhezeit: Läge ein Fenster oder die Nacht-Absenkung darunter, hebt Raumklima auf die Mindesttemperatur an – im Protokoll steht dann „Schimmelschutz“ als Grund. Ausgenommen sind nur bewusste Aktionen (Boost, Ventilpflege) und die Heizpause.
 - Bei **kurzer Abwesenheit** greift der Schimmelschutz bewusst nicht: Einige Stunden niedrigerer Temperatur verursachen kein Feuchteproblem. Kritisch wird es erst, wenn die Wand über Tage feucht bleibt.
 
 ## 7. Heizsaison & Heizgrenze

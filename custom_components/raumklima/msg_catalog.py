@@ -419,6 +419,11 @@ _ROWS: list[tuple[str, str, str]] = [
     ),
     ("Anmeldung als {user} erfolgreich", "Logged in as {user}", "Connecté en tant que {user}"),
     ("Verbindung verschlüsselt (SSL/TLS)", "Connection encrypted (SSL/TLS)", "Connexion chiffrée (SSL/TLS)"),
+    (
+        "Schimmelschutz – mindestens {t} nötig (Feuchte {h} %)",
+        "Mould protection – at least {t} needed (humidity {h} %)",
+        "Protection contre la moisissure – au moins {t} nécessaire (humidité {h} %)",
+    ),
     ("ohne Verschlüsselung und ohne Anmeldung – nur im eigenen Netz empfehlenswert", "without encryption and without login – only recommended on your own network", "sans chiffrement et sans authentification – recommandé uniquement sur votre propre réseau"),
     (
         "Anmeldung ohne Verschlüsselung ist gesperrt – das Passwort ginge im Klartext über die Leitung. Bitte „STARTTLS“ (Port 587) oder „SSL/TLS“ (Port 465) wählen.",
