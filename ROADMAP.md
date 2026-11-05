@@ -68,6 +68,12 @@ Stand: Version 0.58.0 (Early Release – Tester gesucht)
       häufiges Takten; in Räumen mit Heizkörper *und* Klimagerät die günstigere Wärmequelle wählen.
 - [ ] **Rollläden und Verschattung** – bei viel vorhergesagter Sonne beschatten, nachts schließen
       (hält Wärme drin), manuelles Verstellen erkennen.
+- [ ] **Wärmeanforderung an den Erzeuger** – Summe über alle Räume, daraus eine gewünschte
+      Vorlauftemperatur bzw. ein Signal „es wird Wärme gebraucht“ (passt zum Hinweis „Heizkörper kommt
+      kaum hinterher“). Zusammen mit Wärmepumpe/Klima planen, nicht vorher.
+- [ ] **Energie und Kosten aus Zählern** – Gas-/Wärmemengenzähler und Stromzähler aus Home Assistant statt
+      manuell eingetragener Jahreskosten; das PDF rechnet dann mit echten Verbräuchen.
+- [ ] **Dynamische Tarife und PV-Überschuss** – Vorheizen, wenn Strom günstig ist oder die Sonne liefert.
 - [ ] **Auswertung mit Vorhersage** – im Verlauf zusätzlich, was das Wärmemodell erwartet hatte
       (hilft, Probleme wie offene Fenster oder zu schwache Heizkörper zu erkennen).
 
@@ -76,7 +82,12 @@ Stand: Version 0.58.0 (Early Release – Tester gesucht)
 - [x] **Einstellungen sichern und wiederherstellen** (0.56.0) – als JSON-Datei ohne Zugangsdaten, Räume werden über den Namen zugeordnet.
 - [ ] **Demo-Modus** – simulierte Räume zum Ausprobieren ohne Hardware, für Screenshots ohne persönliche Daten
       und englische Bilder.
-- [ ] **Automatische Updates der Abhängigkeiten** (Dependabot) und Testabdeckung in der CI.
+- [x] **Automatische Updates der Abhängigkeiten** (Dependabot) und wöchentlicher Test gegen die
+      neueste Home-Assistant-Version.
+- [ ] **Testabdeckung messen** und in der CI anzeigen.
+- [ ] **E-Mail über Home-Assistants SMTP-Integration** statt eigenem Client – dann lägen die
+      Mail-Zugangsdaten gar nicht mehr bei Raumklima. Erst sinnvoll, wenn eine Mindestversion
+      festgelegt ist, ab der `smtp.send_message` Anhänge kann (2026.11).
 
 ## 🕓 Später
 
