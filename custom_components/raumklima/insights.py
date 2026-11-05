@@ -37,6 +37,17 @@ def shorten_names(names: list[str]) -> dict[str, str]:
     return {n: " ".join(w[common:]) for n, w in zip(names, words, strict=True)}
 
 
+def target_exists(hass: HomeAssistant, target: str) -> bool:
+    """Gibt es das Ziel noch? Dienst *oder* notify-Entität (Alexa Devices liefert Entitäten)."""
+    if "." not in target:
+        return True
+    domain, name = target.split(".", 1)
+    if hass.services.has_service(domain, name):
+        return True
+    state = hass.states.get(target)
+    return state is not None and state.state != "unavailable"
+
+
 class Insights:
     """Sammelt Tageswerte je Raum, prüft die Gesundheit und erstellt Berichte."""
 
@@ -175,10 +186,7 @@ class Insights:
         hub_issues = [conn] if conn else []
         # Empfänger, die es nicht mehr gibt: sonst laufen Hinweise ins Leere
         configured = set(self.hub.opt(CONF_RECIPIENTS) or {}) | set(self.hub.opt(CONF_TTS) or {})
-        missing = sorted(
-            t for t in configured
-            if "." in t and not self.hass.services.has_service(*t.split(".", 1))
-        )
+        missing = sorted(t for t in configured if not target_exists(self.hass, t))
         targets = check_notify_targets(missing)
         if targets:
             hub_issues.append(targets)

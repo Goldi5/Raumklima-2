@@ -260,6 +260,7 @@ export const EN = {
   "Preset „{p}“": "Preset “{p}”",
   "Protokoll": "Log",
   "Protokoll nicht verfügbar: {e}": "Log not available: {e}",
+  "Warnung": "Warning",
   "Prüfen": "Check",
   "Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.": "Checks every 10 minutes: batteries, room not warming despite an open valve, stuck sensor, radio dropouts, silent window contact. Notices go to everyone with “🩺 Health”.",
   "Push aufs Handy": "Push to phone",

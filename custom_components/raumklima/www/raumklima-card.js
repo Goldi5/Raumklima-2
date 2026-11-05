@@ -261,6 +261,7 @@
     "Preset „{p}“": "Preset “{p}”",
     "Protokoll": "Log",
     "Protokoll nicht verfügbar: {e}": "Log not available: {e}",
+    "Warnung": "Warning",
     "Prüfen": "Check",
     "Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.": "Checks every 10 minutes: batteries, room not warming despite an open valve, stuck sensor, radio dropouts, silent window contact. Notices go to everyone with “🩺 Health”.",
     "Push aufs Handy": "Push to phone",
@@ -1029,6 +1030,7 @@
     "Preset „{p}“": "Préréglage « {p} »",
     "Protokoll": "Journal",
     "Protokoll nicht verfügbar: {e}": "Journal indisponible : {e}",
+    "Warnung": "Avertissement",
     "Prüfen": "À vérifier",
     "Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.": "Vérifie toutes les 10 minutes : piles, pièce qui ne chauffe pas malgré la vanne ouverte, sonde bloquée, coupures radio, contact de fenêtre muet. Les alertes vont à tous ceux qui ont « 🩺 Santé ».",
     "Push aufs Handy": "Push sur le téléphone",
@@ -2017,7 +2019,7 @@
     problem: ["#ff0000", "Problem mit der Heizung"]
   });
   var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report"];
-  var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Prüfen"], info: ["air", "mdi:information-outline", "Hinweis"] });
+  var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
   function rkIssueList(issues, withRoom, prefix) {
     if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
     const order = { alert: 0, warn: 1, info: 2 };

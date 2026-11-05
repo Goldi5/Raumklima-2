@@ -10,6 +10,13 @@
   Einstellungen als JSON-Datei (ohne Zugangsdaten), Wiederherstellen spielt sie zurück. Räume werden über
   ihren Namen zugeordnet, unbekannte Räume und fremde Felder werden gemeldet bzw. ignoriert.
 
+### Behoben
+- **Falsche Meldung „Empfänger fehlt“ (#19):** Die Gesundheitsprüfung hat Empfänger nur als Dienst
+  gesucht – notify-Entitäten (Alexa Devices) galten dadurch als verschwunden, obwohl sie vorhanden
+  waren. Jetzt zählen Dienste **und** Entitäten; gemeldet wird nur, was wirklich fehlt oder nicht
+  verfügbar ist. Die Warnstufe heißt außerdem „Warnung“ statt „Prüfen“ – das Label sah aus wie ein
+  Knopf, auf den man tippen kann.
+
 ### Geprüft
 - **Home Assistant 2026.11.0:** Integration startet, Entitäten werden angelegt, WebSocket-Befehle und
   Karte funktionieren, keine Fehler im Log. Die neuen Abkündigungen (step_id in Flow-Ergebnissen,

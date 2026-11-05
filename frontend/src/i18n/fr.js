@@ -260,6 +260,7 @@ export const FR = {
   "Preset „{p}“": "Préréglage « {p} »",
   "Protokoll": "Journal",
   "Protokoll nicht verfügbar: {e}": "Journal indisponible : {e}",
+  "Warnung": "Avertissement",
   "Prüfen": "À vérifier",
   "Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.": "Vérifie toutes les 10 minutes : piles, pièce qui ne chauffe pas malgré la vanne ouverte, sonde bloquée, coupures radio, contact de fenêtre muet. Les alertes vont à tous ceux qui ont « 🩺 Santé ».",
   "Push aufs Handy": "Push sur le téléphone",
