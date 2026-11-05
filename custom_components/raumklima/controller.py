@@ -1303,6 +1303,13 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             method = self._off_method()
             plan_on, _target, reason = self.plan()
             self._log_plan(plan_on, _target, reason)
+            if _LOGGER.isEnabledFor(logging.DEBUG):
+                shadow = self.valve_shadow()
+                _LOGGER.debug(
+                    "%s: Ventil-Schatten berechnet %s %%, Gerät %s %% (Ziel %s, Ist %s)",
+                    self.name, shadow["calc_pct"], shadow["device_pct"],
+                    shadow["target_c"], shadow["current_c"],
+                )
             want_on = self.hvac_on and not self.paused and plan_on
             if reason == REASON_VALVE_CARE and self.hvac_on:
                 want_on = True

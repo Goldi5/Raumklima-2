@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.59.4 – 2026-11-05
+
+### Intern (Auswertung)
+- **Schattenmodus Ventilöffnung:** Raumklima berechnet jetzt zusätzlich einen Soll-Öffnungsgrad
+  (P-Regelung auf die Regelabweichung, Totzone 0,15 K, Mindesthub 8 %). Der Wert wird **nie
+  geschrieben** – er steht nur in der Diagnose (`valve_shadow`) und als Tagesmittel in den
+  Raumstatistiken (`valve_calc_pct_s`), damit sich berechnete und gemeldete Stellung vergleichen
+  lassen. Keine Einstellung, keine Anzeige in der Karte. Grundlage für die Entscheidung, ob eine
+  eigene Ventilregelung trägt (Roadmap: direkte/stufenlose Ventilsteuerung).
+
 ## 0.59.3 – 2026-11-05
 
 ### Dokumentation

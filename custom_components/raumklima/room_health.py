@@ -33,6 +33,7 @@ from .health import (
 )
 from .logic import (
     is_valid,
+    shadow_opening,
     to_float,
 )
 from .msg import dec, tr
@@ -240,11 +241,33 @@ class HealthMixin:
         return round(sum(values) / len(values), 1) if values else None
 
     # ================================================================ Bericht & Gesundheit
+    def valve_shadow(self) -> dict[str, Any]:
+        """Schattenmodus: berechneter Öffnungsgrad neben dem, den das Gerät meldet.
+
+        Wird **nie** geschrieben – nur zum Auswerten, ob eine eigene Ventilregelung tragen würde.
+        """
+        on, target, reason = self.peek_plan()
+        heating = bool(on and self.hvac_on and not self.paused)
+        calc = shadow_opening(target, self.current_temperature, heating=heating)
+        device = self.valve_position
+        return {
+            "calc_pct": calc,
+            "device_pct": device,
+            "diff_pct": None if calc is None or device is None else round(calc - device, 1),
+            "target_c": round(target, 1),
+            "current_c": None if self.current_temperature is None else round(self.current_temperature, 1),
+            "hvac_on": self.hvac_on,
+            "paused": self.paused,
+            "reason": reason,
+            "valve_sources": self.valve_sources,
+        }
+
     def stats_sample(self) -> RoomSample:
         on, target, reason = self.plan()
         return RoomSample(
             heating=self.status == STATUS_HEATING,
             valve=self.valve_position,
+            valve_calc=(self.valve_shadow().get("calc_pct")),
             reason=reason,
             target=self.target_temp,
             effective=target,
@@ -417,5 +440,6 @@ class HealthMixin:
             "manual_until": self._manual_until.isoformat() if self._manual_until else None,
             "valve_sensor": self.valve_sensor,
             "valve_position": self.valve_position,
+            "valve_shadow": self.valve_shadow(),
             "ventilation": self.vent.diagnostics() if self.vent else None,
         }

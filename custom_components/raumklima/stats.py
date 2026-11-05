@@ -21,6 +21,7 @@ ROOM_FIELDS = (
     "seconds",  # erfasste Zeit
     "heating_s",  # Status „heizt“
     "valve_pct_s",  # ∫ Ventilöffnung % · s
+    "valve_calc_pct_s",  # ∫ berechneter Öffnungsgrad % · s (Schattenmodus)
     "setback_s",  # abgesenkt (Abwesenheit)
     "setback_ks",  # ∫ (Wunsch − Ziel) K · s
     "window_pause_s",  # Heizung wegen Fenster pausiert (ohne Nachtlüften)
@@ -79,6 +80,7 @@ class RoomSample:
     sync_failed: bool = False
     trv_down: bool = False
     hour: int | None = None  # Ortszeit, für das Wärmebild
+    valve_calc: float | None = None  # Schattenmodus: berechneter Öffnungsgrad %
 
 
 def _empty(fields: tuple[str, ...]) -> dict[str, float]:
@@ -94,6 +96,8 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
         day["heating_s"] += dt
     if s.valve is not None:
         day["valve_pct_s"] += max(0.0, min(100.0, s.valve)) * dt
+    if s.valve_calc is not None:
+        day["valve_calc_pct_s"] += max(0.0, min(100.0, s.valve_calc)) * dt
     if s.reason in ("away_short", "away_long"):
         day["setback_s"] += dt
         day["setback_ks"] += max(0.0, s.target - s.effective) * dt

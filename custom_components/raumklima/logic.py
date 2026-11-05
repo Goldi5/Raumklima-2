@@ -92,6 +92,34 @@ def values_match(actual: object, expected: float, tolerance: float) -> bool:
 COVER_OPEN_STATES = ("open", "opening")
 
 
+def shadow_opening(
+    target: float | None,
+    current: float | None,
+    *,
+    heating: bool = True,
+    dead_zone: float = 0.15,
+    span: float = 2.0,
+    min_pct: float = 8.0,
+    max_pct: float = 100.0,
+) -> float | None:
+    """Berechneter Ventil-Öffnungsgrad (%), nur zum Vergleichen – wird nie geschrieben.
+
+    Einfache P-Regelung auf die Regelabweichung: knapp unter dem Ziel bleibt das Ventil zu
+    (Totzone gegen Takten), ab der Totzone linear bis zum vollen Öffnen über ``span`` Kelvin.
+    Der Mindesthub (``min_pct``) ist der Punkt, ab dem ein Heizkörper spürbar fördert – ohne ihn
+    würde die Rechnung „1 %" verlangen, was real nur ein Zucken des Stifts ist.
+
+    Rückgabe ``None``, wenn keine Regelung möglich ist (keine Werte, Überwachungsraum, Heizung aus).
+    """
+    if not heating or target is None or current is None:
+        return None
+    dev = float(target) - float(current)
+    if dev <= dead_zone:
+        return 0.0
+    pct = min_pct + (dev - dead_zone) / max(span, 0.1) * (max_pct - min_pct)
+    return round(max(0.0, min(max_pct, pct)), 1)
+
+
 def window_open_state(entity_id: str, state: Any) -> str | None:
     """Fensterkontakt **oder** Dachluke/Dachfenster (``cover``) auf „on"/„off" bringen.
 
