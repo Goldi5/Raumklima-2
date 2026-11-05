@@ -1,8 +1,10 @@
-"""E-Mail direkt aus Raumklima (ohne YAML): PDF-Bericht als Anhang per SMTP.
+"""E-Mail direkt aus Raumklima: PDF-Bericht als Anhang per SMTP.
 
-Home Assistants eigener SMTP-Dienst lässt sich nur per configuration.yaml einrichten – für
-Einsteiger zu umständlich. Darum kann Raumklima selbst senden; die Zugangsdaten stehen in den
-Optionen der Zentrale (wie bei anderen Integrationen) und werden nie an die Karte geschickt.
+Home Assistants SMTP-Integration kann inzwischen per Oberfläche eingerichtet werden und seit
+2026.11 auch Anhänge verschicken – sie muss aber zusätzlich eingerichtet werden und ist nicht
+in jeder Installation vorhanden. Raumklima sendet daher selbst, damit ein Bericht ohne zweite
+Integration ankommt. Die Zugangsdaten stehen in den Optionen der Zentrale, werden nie an die
+Karte geschickt und nie ohne TLS verwendet (siehe ``insecure_login``).
 """
 
 from __future__ import annotations
@@ -18,6 +20,17 @@ from .msg import tr
 
 MAIL_KEYS = ("mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to")
 SECURITY = ["starttls", "ssl", "none"]
+
+
+def insecure_login(opts: dict[str, Any]) -> bool:
+    """Anmeldung ohne TLS? Dann niemals Benutzer/Passwort senden.
+
+    Ein Klartext-Login schickt Passwort und den kompletten Bericht (Anwesenheit,
+    Heizverhalten) unverschlüsselt über die Leitung. Nur zustandslose Relays im
+    eigenen Netz (ohne Anmeldung) bleiben erlaubt.
+    """
+    security = opts.get("mail_security") or "starttls"
+    return bool(opts.get("mail_user")) and security == "none"
 BUILTIN = "raumklima"  # Wert für report_email: eingebauter Versand
 
 # Häufige Anbieter: Server, Port, Verschlüsselung
@@ -68,6 +81,13 @@ def send(opts: dict[str, Any], subject: str, body: str, attachments: list[str] |
     """Blockierend senden (im Executor aufrufen). Wirft MailError mit verständlichem Text."""
     if not configured(opts):
         raise MailError(tr("E-Mail ist nicht vollständig eingerichtet (Server, Absender, Empfänger)."))
+    if insecure_login(opts):
+        raise MailError(
+            tr(
+                "Anmeldung ohne Verschlüsselung ist gesperrt – das Passwort ginge im Klartext über die Leitung. "
+                "Bitte „STARTTLS“ (Port 587) oder „SSL/TLS“ (Port 465) wählen."
+            )
+        )
     server = str(opts["mail_server"]).strip()
     security = opts.get("mail_security") or "starttls"
     port = int(opts.get("mail_port") or (465 if security == "ssl" else 587))
@@ -136,8 +156,18 @@ def verify(opts: dict[str, Any], timeout: float = 15.0) -> list[dict[str, Any]]:
                 add("tls", True, tr("Verbindung verschlüsselt (STARTTLS)"))
             elif security == "ssl":
                 add("tls", True, tr("Verbindung verschlüsselt (SSL/TLS)"))
+            elif insecure_login(opts):
+                add(
+                    "tls",
+                    False,
+                    tr(
+                        "ohne Verschlüsselung – Anmeldung gesperrt, weil das Passwort sonst im Klartext übertragen würde. "
+                        "Bitte „STARTTLS“ oder „SSL/TLS“ wählen."
+                    ),
+                )
+                return steps
             else:
-                add("tls", True, tr("ohne Verschlüsselung – nur im eigenen Netz empfehlenswert"))
+                add("tls", True, tr("ohne Verschlüsselung und ohne Anmeldung – nur im eigenen Netz empfehlenswert"))
         except (smtplib.SMTPException, ssl.SSLError, OSError) as err:
             add("tls", False, tr("Verschlüsselung fehlgeschlagen ({err}) – „SSL/TLS“ mit Port 465 oder „STARTTLS“ mit Port 587 versuchen.", err=err))
             return steps

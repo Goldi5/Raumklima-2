@@ -33,6 +33,9 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 URL = "/api/raumklima/report"
+
+# Link-Schlüssel laufen ab: sie stehen in Verläufen, Proxy-Logs und geteilten Nachrichten.
+TOKEN_DAYS = 30
 FILE_RE = re.compile(r"^[A-Za-z0-9_.-]+\.pdf$")
 KEEP = {WEEK: 26, MONTH: 24, SEASON: 20}  # so viele Dateien je Art aufheben
 CONF_REPORT_PDF = "report_pdf"  # welche Berichte automatisch: week / month / season
@@ -154,6 +157,7 @@ class PdfReports:
         await self.hass.async_add_executor_job(_write, path, content)
         entry = {
             "token": secrets.token_urlsafe(18),
+            "token_at": created.isoformat(),
             "file": name,
             "kind": kind,
             "start": start.isoformat(),
@@ -187,8 +191,9 @@ class PdfReports:
         entry = next((r for r in self.index if r["file"] == file), None)
         if entry is None:
             return None
-        if not entry.get("token"):
+        if not entry.get("token") or _token_age_days(entry) > TOKEN_DAYS:
             entry["token"] = secrets.token_urlsafe(18)
+            entry["token_at"] = dt_util.now().isoformat()
             self.hub.insights.save()
         return f"{URL}/{file}?token={entry['token']}"
 
@@ -314,11 +319,22 @@ class ReportView(HomeAssistantView):
         )
 
 
+def _token_age_days(entry: dict[str, Any]) -> float:
+    """Alter des Schlüssels in Tagen (Berichte ohne Zeitstempel gelten als alt)."""
+    raw = entry.get("token_at") or entry.get("created")
+    if not raw:
+        return TOKEN_DAYS + 1
+    try:
+        return (dt_util.now() - dt_util.parse_datetime(raw)).total_seconds() / 86400
+    except (TypeError, ValueError):
+        return TOKEN_DAYS + 1
+
+
 def _token_ok(hass: HomeAssistant, file: str, token: str | None) -> bool:
     if not token:
         return False
     for hub in all_hubs(hass):
         for entry in hub.pdf.index:
             if entry.get("file") == file and entry.get("token") and secrets.compare_digest(entry["token"], token):
-                return True
+                return _token_age_days(entry) <= TOKEN_DAYS
     return False

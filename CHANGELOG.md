@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Sicherheit
+- **Kein E-Mail-Login ohne Verschlüsselung:** Bisher wurde auch bei „ohne Verschlüsselung“ angemeldet –
+  Benutzername, Passwort und der PDF-Bericht gingen dann im Klartext über die Leitung. Jetzt wird die
+  Anmeldung in diesem Fall verweigert (mit Hinweis auf STARTTLS/SSL); der Prüfdialog meldet es ebenso.
+  Zustandslose Relays im eigenen Netz (ohne Anmeldung) bleiben möglich.
+- **Link-Schlüssel für PDF-Berichte laufen ab:** Ein geteilter Link gilt 30 Tage. Danach liefert er
+  „nicht gefunden“; beim nächsten Teilen wird ein neuer Schlüssel erzeugt. Der Schlüssel verschwindet
+  weiterhin mit dem Bericht selbst.
+
+### Pflege
+- **Dependabot** für Actions, Testumgebung und Karten-Abhängigkeiten (`.github/dependabot.yml`).
+- **Wöchentlicher Test gegen die neueste Home-Assistant-Version** (`HA neueste Version`) – Brüche und
+  Abkündigungen fallen vor dem Release auf, nicht danach.
+- Alle Actions sind jetzt auf feste Commits gepinnt (vorher gemischt: Tags und Commits).
+- Entwicklungsreste entfernt: `apply_fe.py` und `scripts/preview_deploy.sh` (enthielt interne Adressen).
+
 ### Behoben
 - **Wunschtemperatur aus der Karte wirkte nicht (#22):** Der neue Wert landete nur in den Einstellungen,
   der laufende Regler behielt seinen alten Sollwert – der Raum heizte weiter auf die alte Temperatur, bis

@@ -419,7 +419,17 @@ _ROWS: list[tuple[str, str, str]] = [
     ),
     ("Anmeldung als {user} erfolgreich", "Logged in as {user}", "Connecté en tant que {user}"),
     ("Verbindung verschlüsselt (SSL/TLS)", "Connection encrypted (SSL/TLS)", "Connexion chiffrée (SSL/TLS)"),
-    ("ohne Verschlüsselung – nur im eigenen Netz empfehlenswert", "without encryption – only recommended on your own network", "sans chiffrement – recommandé uniquement sur votre propre réseau"),
+    ("ohne Verschlüsselung und ohne Anmeldung – nur im eigenen Netz empfehlenswert", "without encryption and without login – only recommended on your own network", "sans chiffrement et sans authentification – recommandé uniquement sur votre propre réseau"),
+    (
+        "Anmeldung ohne Verschlüsselung ist gesperrt – das Passwort ginge im Klartext über die Leitung. Bitte „STARTTLS“ (Port 587) oder „SSL/TLS“ (Port 465) wählen.",
+        "Login without encryption is blocked – the password would travel over the wire in plain text. Please choose “STARTTLS” (port 587) or “SSL/TLS” (port 465).",
+        "La connexion sans chiffrement est bloquée – le mot de passe circulerait en clair. Choisissez « STARTTLS » (port 587) ou « SSL/TLS » (port 465).",
+    ),
+    (
+        "ohne Verschlüsselung – Anmeldung gesperrt, weil das Passwort sonst im Klartext übertragen würde. Bitte „STARTTLS“ oder „SSL/TLS“ wählen.",
+        "without encryption – login blocked, otherwise the password would be sent in plain text. Please choose “STARTTLS” or “SSL/TLS”.",
+        "sans chiffrement – authentification bloquée, sinon le mot de passe serait transmis en clair. Choisissez « STARTTLS » ou « SSL/TLS ».",
+    ),
     ("Anmeldung nicht möglich ({err}).", "Login not possible ({err}).", "Connexion impossible ({err})."),
     ("Raumklima – Test-Mail", "Raumklima – test email", "Raumklima – e-mail de test"),
     ("Hallo! So kommen die Heizberichte von Raumklima an.", "Hello! This is how Raumklima heating reports arrive.", "Bonjour ! Voici comment arrivent les rapports de chauffage de Raumklima."),

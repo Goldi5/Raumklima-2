@@ -1,0 +1,28 @@
+version: 2
+
+# Abhängigkeiten aktuell halten: Actions (auf Commits gepinnt), Test-Umgebung, Karten-Build.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # requirements_test.txt pinnt Home-Assistant-Testumgebung und ruff.
+  # Ein Sprung bedeutet meist eine neue HA-Version – deshalb einzeln, nicht gesammelt.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: ["dependencies"]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: monthly
+    labels: ["dependencies"]

@@ -3,3 +3,7 @@ __pycache__/
 .pytest_cache/
 .venv/
 node_modules/
+
+# nur lokal (interne Infrastruktur, Hilfsskripte)
+apply_fe.py
+scripts/preview_deploy.sh
