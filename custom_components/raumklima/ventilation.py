@@ -131,6 +131,7 @@ class VentInput:
     dries: bool
     high_delay_minutes: float = 15.0
     min_minutes: int | None = None  # feste Mindestdauer; None = aus der Empfehlung ableiten
+    pm25_high_minutes: float = 0.0  # wie lange Feinstaub schon über der Grenze liegt
     co2: float | None = None
     co2_limit: float = CO2_LIMIT
     co2_done: float = CO2_DONE
@@ -155,8 +156,9 @@ def evaluate(v: VentInput) -> str:
         if v.open_minutes >= minimum and air_exchanged(v):
             return VENT_DONE
         return VENT_AIRING
-    if v.pm25 is not None and v.pm25 >= v.pm25_limit:
-        return VENT_PLEASE_OPEN  # Feinstaub drinnen: lüften senkt die Belastung
+    # Feinstaub: erst nach der Verzögerung melden – eine Kerze oder ein Toaster reicht sonst
+    if v.pm25 is not None and v.pm25 >= v.pm25_limit and v.pm25_high_minutes >= v.high_delay_minutes:
+        return VENT_PLEASE_OPEN
     if v.co2 is not None and v.co2 >= v.co2_limit:
         return VENT_PLEASE_OPEN  # verbrauchte Luft: lüften hilft immer, auch wenn es draußen feucht ist
     if (
@@ -182,7 +184,7 @@ def air_exchanged(v: VentInput) -> bool:
 
 def vent_reason(v: VentInput) -> str:
     """Warum „Bitte lüften“? „co2“ oder „humidity“."""
-    if v.pm25 is not None and v.pm25 >= v.pm25_limit:
+    if v.pm25 is not None and v.pm25 >= v.pm25_limit and v.pm25_high_minutes >= v.high_delay_minutes:
         return "pm25"
     return "co2" if v.co2 is not None and v.co2 >= v.co2_limit else "humidity"
 

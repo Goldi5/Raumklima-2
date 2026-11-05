@@ -161,9 +161,14 @@ def _basis(**over) -> "VentInput":
 
 
 def test_feinstaub_loest_lueften_aus() -> None:
-    from custom_components.raumklima.ventilation import VENT_PLEASE_OPEN, evaluate, vent_reason
+    """Feinstaub meldet erst nach der Verzögerung – sonst reicht eine Kerze."""
+    from custom_components.raumklima.ventilation import VENT_OK, VENT_PLEASE_OPEN, evaluate, vent_reason
 
-    v = _basis(pm25=45.0)
+    kurz = _basis(pm25=45.0, pm25_high_minutes=5)
+    assert evaluate(kurz) == VENT_OK  # Spitze, noch keine Meldung
+    assert vent_reason(kurz) != "pm25"
+
+    v = _basis(pm25=45.0, pm25_high_minutes=16)
     assert evaluate(v) == VENT_PLEASE_OPEN
     assert vent_reason(v) == "pm25"
 
@@ -196,3 +201,14 @@ def test_open_hint_only_for_occupied_rooms() -> None:
     assert open_allowed(False, True, True) is False  # Raum nachweislich leer
     assert open_allowed(False, False, True) is True  # kein Melder → Wohnungs-Anwesenheit gilt
     assert open_allowed(False, True, False) is True  # Option aus
+
+def test_feinstaub_meldung_nennt_feinstaub_nicht_feuchte() -> None:
+    """Die Meldung muss den Grund nennen – vorher stand dort die Luftfeuchte."""
+    from custom_components.raumklima.msg import tr
+    from custom_components.raumklima.vent_manager import MESSAGE_PM25
+
+    title, body = MESSAGE_PM25
+    text = tr(body, room="Wohnzimmer", pm="46", dur=10)
+    assert "Feinstaub" in text and "46" in text
+    assert "Luftfeuchte" not in text
+    assert "Wohnzimmer" in tr(title, room="Wohnzimmer", pm="46", dur=10)

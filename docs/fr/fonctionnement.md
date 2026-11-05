@@ -27,6 +27,7 @@ Les coupures courtes (moins d'une minute) ne comptent pas comme un échec. Si to
 ## 4. Assistant d'aération
 
 - **Veuillez aérer la pièce :** humidité au-dessus de la limite de la pièce pendant 15 minutes (70 % par défaut, salle de bain 75 %) – mais seulement si **l'aération assèche vraiment** (humidité absolue extérieure inférieure à celle de l'intérieur).
+- **Particules fines (en option) :** avec une sonde PM2,5, « veuillez aérer » démarre à **35 µg/m³** – mais seulement si la valeur reste au-dessus pendant **15 minutes**. Une bougie, un grille-pain ou l'aspirateur ne déclenchent rien.
 - **CO₂ (en option) :** avec une sonde CO₂, « veuillez aérer la pièce » se déclenche aussi à partir de **1000 ppm** – indépendamment de la météo, car l'air vicié s'améliore toujours en aérant (Agence fédérale de l'environnement allemande : en dessous de 1000 ppm, sans danger).
 - **Durée d'aération** selon la température extérieure (co2online/UBA) : en dessous de 0 °C 4 min, 0–5 °C 5 min, 5–10 °C 10 min, 10–15 °C 15 min, 15–20 °C 20 min, au-dessus 30 min.
 - **Fermez la fenêtre** une fois le temps écoulé ; **air renouvelé** quand l'humidité repasse sous la limite (et le CO₂ sous 800 ppm) – mais au plus tôt après 60 % de la durée d'aération, et jamais moins de 4 minutes. Une sonde près de la fenêtre sent l'air frais avant la pièce ; deux minutes ne font qu'entrouvrir. La durée minimale se règle par pièce (*Réglages → Pièce → Aération → durée minimale*) – automatique par défaut.

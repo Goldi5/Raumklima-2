@@ -40,6 +40,7 @@ from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
     CO2_LIMIT,
     DEFAULT_ROOM_TYPE,
+    PM25_DONE,
     PM25_LIMIT,
     ROOM_TYPES,
     VENT_AIRING,
@@ -87,7 +88,11 @@ MESSAGES = {
     VENT_DONE: (N_("✅ {room}: Luft ausgetauscht"), N_("Luftfeuchte wieder {hum} % – du kannst schließen.")),
 }
 MESSAGE_CO2 = (N_("🫁 {room}: Bitte lüften"), N_("CO₂ {co2} ppm – die Luft ist verbraucht, bitte ca. {dur} min stoßlüften."))
+MESSAGE_PM25 = (N_("🫧 {room}: Luft belastet"), N_("Feinstaub {pm} µg/m³ – bitte ca. {dur} min stoßlüften."))
 
+
+# So lange muss ein Wert über der Grenze bleiben, bevor gemeldet wird
+HIGH_DELAY_MINUTES = 15.0
 
 class VentilationManager:
     """Lüftungsassistent für einen Raum."""
@@ -112,6 +117,7 @@ class VentilationManager:
         self.window_open_since: datetime | None = None
         self.temp_at_open: float | None = None
         self.humidity_high_since: datetime | None = None
+        self.pm25_high_since: datetime | None = None
         self.snooze_until: datetime | None = None
         self.muted_until: datetime | None = None
         self._last_sent: dict[str, datetime] = {}
@@ -254,8 +260,10 @@ class VentilationManager:
 
     def _current_reason(self) -> str:
         """Warum lüften? Feinstaub vor CO₂ vor Feuchte."""
-        if (self.c.current_pm25 or 0) >= PM25_LIMIT:
-            return "pm25"
+        if (self.c.current_pm25 or 0) >= PM25_LIMIT and self.pm25_high_since is not None:
+            minutes = (dt_util.utcnow() - self.pm25_high_since).total_seconds() / 60
+            if minutes >= HIGH_DELAY_MINUTES:
+                return "pm25"
         if (self.c.current_co2 or 0) >= CO2_LIMIT:
             return "co2"
         return "humidity"
@@ -398,8 +406,17 @@ class VentilationManager:
                 self.humidity_high_since = now
         elif hum is not None and hum < self.humidity_limit - HUMIDITY_HYSTERESIS:
             self.humidity_high_since = None
+        pm = self.c.current_pm25
+        if pm is not None and pm >= PM25_LIMIT:
+            if self.pm25_high_since is None:
+                self.pm25_high_since = now
+        elif pm is not None and pm < PM25_DONE:
+            self.pm25_high_since = None
         high_minutes = (
             (now - self.humidity_high_since).total_seconds() / 60 if self.humidity_high_since else 0.0
+        )
+        pm_high_minutes = (
+            (now - self.pm25_high_since).total_seconds() / 60 if self.pm25_high_since else 0.0
         )
         new = evaluate(
             VentInput(
@@ -418,6 +435,8 @@ class VentilationManager:
                 co2=self.c.current_co2,
                 pm25=self.c.current_pm25,
                 min_minutes=self._min_minutes(),
+                pm25_high_minutes=pm_high_minutes,
+                high_delay_minutes=HIGH_DELAY_MINUTES,
             )
         )
         changed = new != self.state
@@ -609,6 +628,8 @@ class VentilationManager:
             self._airing_reason = self.reason
             if self.reason == "co2":
                 title, body = MESSAGE_CO2
+            elif self.reason == "pm25":
+                title, body = MESSAGE_PM25
         elif kind == VENT_DONE:
             # Text nach dem Grund richten, wegen dem gelüftet wurde – aber nur, wenn der passende
             # Messwert jetzt vorliegt (sonst bliebe im Text ein leerer Platzhalter)
@@ -624,6 +645,7 @@ class VentilationManager:
             "dur": self.duration,
             "temp": dec(self.c.current_temperature or 0),
             "co2": f"{self.c.current_co2 or 0:.0f}",
+            "pm": f"{self.c.current_pm25 or 0:.0f}",
         }
         self.hass.async_create_task(
             self._send(

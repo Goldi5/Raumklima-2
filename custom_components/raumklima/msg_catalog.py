@@ -269,6 +269,16 @@ _ROWS: list[tuple[str, str, str]] = [
     ("orange – bitte schließen", "orange – please close", "orange – merci de fermer"),
     ("grün – Luft ausgetauscht", "green – air exchanged", "vert – air renouvelé"),
     ("rot – Problem", "red – problem", "rouge – problème"),
+    (
+        "🫧 {room}: Luft belastet",
+        "🫧 {room}: Air polluted",
+        "🫧 {room}: Air polluée",
+    ),
+    (
+        "Feinstaub {pm} µg/m³ – bitte ca. {dur} min stoßlüften.",
+        "Particulate matter {pm} µg/m³ – please air for about {dur} min.",
+        "Particules fines {pm} µg/m³ – veuillez aérer environ {dur} min.",
+    ),
     ("🫁 {room}: Bitte lüften", "🫁 {room}: Please air", "🫁 {room} : merci d’aérer"),
     ("CO₂ {co2} ppm – die Luft ist verbraucht, bitte ca. {dur} min stoßlüften.", "CO₂ {co2} ppm – the air is stale, please open the windows wide for about {dur} min.", "CO₂ {co2} ppm – l’air est vicié, merci d’aérer en grand environ {dur} min."),
     ("💧 {room}: Bitte lüften", "💧 {room}: Please air", "💧 {room} : merci d’aérer"),

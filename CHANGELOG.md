@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.59.7 – 2026-11-05
+
+### Behoben
+- **„Bitte lüften – Luftfeuchte 39 %“ bei trockener Luft:** Auslöser war Feinstaub (PM2,5), im Text stand aber
+  die Feuchte-Vorlage – es gab schlicht keine Feinstaub-Meldung. Jetzt heißt es „🫧 Wohnzimmer: Luft belastet –
+  Feinstaub 46 µg/m³ …“.
+- **Feinstaub löst nicht mehr sofort aus:** Wie bei der Feuchte gilt eine **Verzögerung von 15 Minuten** über
+  35 µg/m³. Eine Kerze, ein Toaster oder Staubsaugen reicht damit nicht mehr für einen Push; echter Rauch schon.
+
 ## 0.59.6 – 2026-11-05
 
 ### Neu
