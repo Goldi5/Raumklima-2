@@ -325,7 +325,12 @@ def _token_age_days(entry: dict[str, Any]) -> float:
     if not raw:
         return TOKEN_DAYS + 1
     try:
-        return (dt_util.now() - dt_util.parse_datetime(raw)).total_seconds() / 86400
+        when = dt_util.parse_datetime(str(raw))
+        if when is None:
+            return TOKEN_DAYS + 1
+        if when.tzinfo is None:  # Altbestand ohne Zeitzone: als UTC lesen
+            when = when.replace(tzinfo=dt_util.UTC)
+        return (dt_util.now() - when).total_seconds() / 86400
     except (TypeError, ValueError):
         return TOKEN_DAYS + 1
 

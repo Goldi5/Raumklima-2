@@ -76,3 +76,27 @@ async def test_berichts_links_laufen_ab(
     assert (await client.get(neu)).status == 200
     # … der alte bleibt tot
     assert (await client.get(url)).status == 404
+
+
+def test_relay_ohne_anmeldung_bleibt_erlaubt(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Lokales Relay ohne Login: weiterhin möglich, kein STARTTLS, kein Login."""
+    fake = MagicMock()
+    monkeypatch.setattr(mailer.smtplib, "SMTP", fake)
+    opts = {**MAIL_NONE, "mail_user": "", "mail_from": "raumklima@example.de"}
+    mailer.send(opts, "Betreff", "Text")
+    smtp = fake.return_value
+    smtp.starttls.assert_not_called()
+    smtp.login.assert_not_called()
+    smtp.send_message.assert_called_once()
+
+
+async def test_altbestand_ohne_zeitstempel(hass: HomeAssistant) -> None:
+    """Berichte aus älteren Versionen: 30 Tage ab Erstellung, danach abgelaufen."""
+    from custom_components.raumklima.reports import TOKEN_DAYS, _token_age_days
+
+    frisch = {"token": "x", "created": dt_util.now().isoformat()}
+    alt = {"token": "x", "created": (dt_util.now() - timedelta(days=TOKEN_DAYS + 1)).isoformat()}
+    ohne_zone = {"token": "x", "created": dt_util.now().replace(tzinfo=None).isoformat()}
+    assert _token_age_days(frisch) < 1
+    assert _token_age_days(alt) > TOKEN_DAYS
+    assert _token_age_days(ohne_zone) < 1  # zeitzonenlos = UTC, nicht sofort abgelaufen

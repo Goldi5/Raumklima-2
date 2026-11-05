@@ -863,7 +863,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.boost_until = None
                 self.boost_temperature = None
                 self._save()
-        stage = hub.stage_for_room(self.entry.entry_id) if hasattr(hub, "stage_for_room") else hub.stage
+        stage = hub.stage_for_room(self.entry.entry_id)
         if stage in AWAY_STAGES:
             if self._manual_until and now < self._manual_until:
                 return True, self.target_temp, REASON_MANUAL
