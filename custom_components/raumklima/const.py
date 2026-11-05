@@ -48,6 +48,7 @@ CONF_NOTIFY: Final = "notify_on_failure"
 # --- Lüften & Benachrichtigung (v0.2) ---
 CONF_ROOM_TYPE: Final = "room_type"
 CONF_WEATHER: Final = "weather_entity"
+CONF_OUTDOOR_TEMP: Final = "outdoor_temp_entity"
 CONF_NOTIFY_TARGETS: Final = "notify_targets"
 CONF_TTS_TARGETS: Final = "tts_targets"
 CONF_QUIET_START: Final = "quiet_start"
@@ -190,6 +191,7 @@ HUB_DEFAULTS: Final = {
     "sleep_signals": [],
     "repeat_minutes": 5,
     "weather_entity": None,
+    "outdoor_temp_entity": None,
     "notify_on_failure": True,
     CONF_RESIDENTS: [],
     CONF_ZONE: None,

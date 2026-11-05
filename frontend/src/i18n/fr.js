@@ -767,4 +767,7 @@ export const FR = {
   "Raum → Anwesenheit im Raum": "Pièce → Présence dans la pièce",
   "Einstellungen → Sturm- und Regenwarnung": "Réglages → Alerte tempête et pluie",
   "bringt mehr Genauigkeit, ist aber nicht nötig": "apporte de la précision, mais n’est pas nécessaire",
+  "Außentemperatur von": "Température extérieure de",
+  "Wetterdienst": "Service météo",
+  "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "votre propre station météo au lieu du service météo – les prévisions viennent toujours du service météo",
 };

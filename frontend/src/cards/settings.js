@@ -433,6 +433,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
       this._row("Heizgrenze", this._optStepper(H, "heating_limit", this._hubOpt("heating_limit"), " °C", 0.5, 5, 25, 1), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
       this._row("Heizsaison", `<span class="v"><input class="inp short" type="date" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" type="date" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Kalender antippen – Tag und Monat zählen, das Jahr ist egal"),
+      this._row("Außentemperatur von", this._select(H, "outdoor_temp_entity", ch.outdoor || [], this._hubOpt("outdoor_temp_entity"), "Wetterdienst"), "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst"),
       this._row("Kälteeinbruch unter", this._optStepper(H, "cold_snap_temp", this._hubOpt("cold_snap_temp"), " °C", 0.5, 0, 20, 1), "3 Tage darunter → heizt auch außerhalb der Saison"),
       this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
       this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
@@ -1865,8 +1866,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }));
     $("[data-diag]").forEach((el) => el.addEventListener("click", () => this._downloadDiagnostics()));
     $("[data-backup]").forEach((el) => el.addEventListener("click", () => this._backupExport()));
-    $("[data-restore]").forEach((el) => el.addEventListener("click", () => $("#rkrestore")?.click()));
-    const restoreInput = $("#rkrestore");
+    const restoreInput = this.shadowRoot.getElementById("rkrestore");
+    $("[data-restore]").forEach((el) => el.addEventListener("click", () => restoreInput?.click()));
     if (restoreInput) restoreInput.addEventListener("change", async () => {
       const file = restoreInput.files && restoreInput.files[0];
       if (file) await this._backupImport(file);

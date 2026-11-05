@@ -767,4 +767,7 @@ export const EN = {
   "Raum → Anwesenheit im Raum": "Room → Presence in room",
   "Einstellungen → Sturm- und Regenwarnung": "Settings → Storm and rain warning",
   "bringt mehr Genauigkeit, ist aber nicht nötig": "adds accuracy but is not required",
+  "Außentemperatur von": "Outdoor temperature from",
+  "Wetterdienst": "Weather service",
+  "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst": "your own weather station instead of the weather service – the forecast still comes from the weather service",
 };

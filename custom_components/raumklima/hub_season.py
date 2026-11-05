@@ -15,6 +15,7 @@ from .const import (
     CONF_HEATING_LIMIT,
     CONF_LATITUDE,
     CONF_LONGITUDE,
+    CONF_OUTDOOR_TEMP,
     CONF_SEASON_END,
     CONF_SEASON_MODE,
     CONF_SEASON_START,
@@ -65,6 +66,18 @@ class SeasonMixin:
     """Heizsaison-Teil der Zentrale."""
 
     def outdoor_temp(self) -> float | None:
+        """Außentemperatur: eigene Wetterstation, sonst Wert des Wetterdienstes.
+
+        Eine eingetragene Fühler-Entität hat Vorrang. Liefert sie keinen gültigen Wert
+        (ausgefallen, „unavailable"), gilt weiter der Wetterdienst – so bleibt die
+        Regelung bei einem Sensorausfall handlungsfähig.
+        """
+        own = str(self.opt(CONF_OUTDOOR_TEMP) or "").strip()
+        if own:
+            own_state = self.hass.states.get(own)
+            own_value = to_float(own_state.state) if own_state is not None else None
+            if own_value is not None:
+                return own_value
         weather = self.weather
         state = self.hass.states.get(weather) if weather else None
         if state is None:

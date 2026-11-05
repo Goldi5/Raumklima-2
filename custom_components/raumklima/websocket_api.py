@@ -163,6 +163,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional("repeat_minutes"): vol.All(vol.Coerce(float), vol.Range(1, 120)),
         vol.Optional(CONF_GUESTS_ROOMS): vol.All([str], vol.Length(max=30)),
         vol.Optional("weather_entity"): vol.Any(None, str),
+        vol.Optional("outdoor_temp_entity"): vol.Any(None, str),
         vol.Optional("notify_on_failure"): bool,
         vol.Optional(CONF_RESIDENTS): [str],
         vol.Optional(CONF_ZONE): vol.Any(None, str),
@@ -324,6 +325,14 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
                 {"id": s.entity_id, "name": s.name, "kind": sensor_kind(s.attributes.get("device_class"))}
                 for s in hass.states.async_all("binary_sensor")
                 if s.attributes.get("device_class") in ("motion", "occupancy", "presence")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "outdoor": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("sensor")
+                if s.attributes.get("device_class") == "temperature"
             ),
             key=lambda x: x["name"].lower(),
         ),

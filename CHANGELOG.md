@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Neu
+- **Eigene Wetterstation als Außentemperatur-Quelle (#21):** In *Einstellungen → Heizsaison & Heizgrenze*
+  lässt sich unter „Außentemperatur von" ein eigener Fühler wählen; die Vorhersage kommt weiterhin vom
+  Wetterdienst. Fällt der Fühler aus oder ist er nicht verfügbar, gilt automatisch wieder der Wetterdienst.
+
+### Behoben
+- **Karte zeigte „Konfigurationsfehler" (#19):** Der neue Knopf „Wiederherstellen" hat das Datei-Feld über
+  eine Elementliste statt über das Element selbst gesucht – dadurch brach das Zeichnen der
+  Einstellungen-Karte ab, sobald 0.56.0 installiert war. Behoben, dazu ein Rauchtest, der die
+  Einstellungen-Karte ohne Browser zeichnet (`frontend/test/settings-smoke.test.mjs`).
+
 ## 0.56.0 – 2026-11-05
 
 ### Neu
