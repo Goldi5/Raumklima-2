@@ -419,6 +419,12 @@ _ROWS: list[tuple[str, str, str]] = [
     ),
     ("Anmeldung als {user} erfolgreich", "Logged in as {user}", "Connecté en tant que {user}"),
     ("Verbindung verschlüsselt (SSL/TLS)", "Connection encrypted (SSL/TLS)", "Connexion chiffrée (SSL/TLS)"),
+    ("Keine Ortung verfügbar", "No location available", "Aucune localisation disponible"),
+    (
+        "Kein Handy der Bewohner meldet einen Standort – Standortfreigabe („Immer“), VPN oder Zonenradius prüfen.",
+        "None of the residents' phones reports a location – check location permission (“Always”), VPN or zone radius.",
+        "Aucun téléphone des habitants ne transmet de position – vérifiez l'autorisation de localisation (« Toujours »), le VPN ou le rayon de la zone.",
+    ),
     ("keine", "none", "aucune"),
     (
         "Noch kein Raum eingerichtet.",

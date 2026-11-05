@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.59.3 – 2026-11-05
+
+### Behoben
+- **Anwesenheit (#29):** Meldet keines der eingetragenen Handys einen Standort, steht das jetzt im
+  Protokoll („Keine Ortung verfügbar – Standortfreigabe, VPN oder Zonenradius prüfen"), statt still
+  abzusenken. Außerdem zählt ein direkt eingetragener Gerätetracker als Bewohner.
+
 ## 0.59.2 – 2026-11-05
 
 ### Dokumentation

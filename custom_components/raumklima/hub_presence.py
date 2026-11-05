@@ -102,7 +102,11 @@ class PresenceMixin:
         name = state.name if state else person
         present = False
         distance: float | None = None
-        trackers = list((state.attributes.get("device_trackers") if state else None) or [])
+        if state is not None and not person.startswith("person."):
+            # Kein person.*, sondern ein Gerätetracker direkt: als einzige Quelle nehmen
+            trackers = [person]
+        else:
+            trackers = list((state.attributes.get("device_trackers") if state else None) or [])
         for tracker in trackers:
             tstate = self.hass.states.get(tracker)
             if tstate is None:
@@ -199,6 +203,18 @@ class PresenceMixin:
                 self._preheat_by = (coming or timely)[0]["name"]
             if self._preheat_until and (now > self._preheat_until or not (near or timely)):
                 self._preheat_until = None
+            if not anyone and not self.sensed and self.persons:
+                blind = [p for p in self.persons.values() if p["distance_km"] is None]
+                stale = self._blind_logged is None or now - self._blind_logged > timedelta(hours=6)
+                if len(blind) == len(self.persons) and stale:
+                    self._blind_logged = now
+                    self.log.add(
+                        CAT_PRESENCE,
+                        tr("Keine Ortung verfügbar"),
+                        tr(
+                            "Kein Handy der Bewohner meldet einen Standort – Standortfreigabe („Immer“), VPN oder Zonenradius prüfen."
+                        ),
+                    )
             minutes = (now - self.last_present).total_seconds() / 60 if self.last_present else None
             new = presence_stage(
                 PresenceInput(
