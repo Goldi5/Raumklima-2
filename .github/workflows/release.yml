@@ -30,7 +30,17 @@ jobs:
 
       - name: Version lesen
         id: v
-        run: echo "version=$(jq -r .version custom_components/raumklima/manifest.json)" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(jq -r .version custom_components/raumklima/manifest.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # Beta = Version mit bN am Ende (0.60.0b1). Solche Releases werden als
+          # Vorabversion veröffentlicht: HACS zeigt sie nur, wenn man dort
+          # „Beta-Versionen anzeigen“ aktiviert; „latest“ bleibt die letzte stabile.
+          if printf '%s' "$VERSION" | grep -Eq '[0-9]+b[0-9]+$'; then
+            echo "beta=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "beta=false" >> "$GITHUB_OUTPUT"
+          fi
 
       # Entscheidend ist das *Release*, nicht der Tag: wird der Tag von Hand gepusht, bevor dieser
       # Lauf startet, gibt es den Tag schon, aber noch kein Release – dann muss es erstellt werden.
@@ -50,6 +60,9 @@ jobs:
           node-version: "22"
 
       - name: Handbuch bauen (PDF)
+        # Betas kommen ohne PDFs: spart den Playwright-Lauf, und die Links in der Karte
+        # zeigen ohnehin auf das letzte stabile Release (releases/latest).
+        if: steps.v.outputs.beta != 'true'
         working-directory: handbook
         run: |
           npm ci
@@ -69,10 +82,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Ohne --target: existiert der Tag bereits, hängt gh das Release daran; sonst legt es ihn an.
-          gh release create "v${{ steps.v.outputs.version }}" \
-            --title "Raumklima v${{ steps.v.outputs.version }}" \
-            --notes-file notes.md \
-            handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf handbook/dist/Raumklima-Manuel.pdf
+          # Beta: als Vorabversion ohne PDFs (schneller Lauf, „latest“ bleibt stabil).
+          if [ "${{ steps.v.outputs.beta }}" = "true" ]; then
+            gh release create "v${{ steps.v.outputs.version }}" \
+              --title "Raumklima v${{ steps.v.outputs.version }} (Beta)" \
+              --notes-file notes.md \
+              --prerelease --latest=false --target "${{ github.sha }}"
+          else
+            gh release create "v${{ steps.v.outputs.version }}" \
+              --title "Raumklima v${{ steps.v.outputs.version }}" \
+              --notes-file notes.md \
+              handbook/dist/Raumklima-Handbuch.pdf handbook/dist/Raumklima-Manual.pdf handbook/dist/Raumklima-Manuel.pdf
+          fi
 
       - name: Handbuch am bestehenden Release ersetzen
         if: steps.check.outputs.exists == 'true'

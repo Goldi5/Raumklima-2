@@ -116,6 +116,19 @@ Your thermostat works (or doesn't)? Please report it as an [issue](https://githu
 
 ## Updating
 
+### Trying beta versions
+
+Between stable releases there are pre-releases (marked `b1`, `b2` … – for example `0.60.0b1`).
+They contain new features earlier but are tested less.
+
+1. HACS → **Raumklima** → ⋮ → **Redownload**
+2. Enable **Show beta versions**, pick the pre-release
+3. Restart Home Assistant
+
+Pre-releases are flagged as "pre-release" on GitHub, so they stay hidden unless that box is ticked, and
+`releases/latest` (the manual link in the card) keeps pointing at the last stable version. Switching back
+works any time via **Redownload** without the box.
+
 HACS shows new versions. After downloading, restart Home Assistant. Changes to the cards alone are visible after reloading the page.
 
 ## Migrating from 0.2.x

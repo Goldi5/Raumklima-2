@@ -2,6 +2,8 @@
 
 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇬🇧 [English documentation](../en/README.md)
 
+**Version actuelle : 0.59.11** – modifications dans le [CHANGELOG](../../CHANGELOG.md) · prévu : [ROADMAP](../../ROADMAP.md)
+
 **Raumklima** transforme chaque thermostat de radiateur (TRV) de Home Assistant en thermostat d’ambiance intelligent : il régule selon une vraie sonde dans la pièce, se met en pause quand une fenêtre est ouverte, vous guide pour aérer, abaisse la température quand personne n’est là – avec protection contre les moisissures – et ne chauffe que quand il fait vraiment froid dehors.
 
 > Raumklima est en **version de test (early release)**. La traduction française est nouvelle – les corrections sont les bienvenues via une [issue](https://github.com/Goldi5/Raumklima-2/issues).

@@ -119,6 +119,20 @@ Dein Thermostat läuft (oder nicht)? Bitte als [Issue](https://github.com/Goldi5
 
 ## Aktualisieren
 
+### Beta-Versionen ausprobieren
+
+Zwischen den stabilen Releases gibt es Vorabversionen (Kennung `b1`, `b2` … – zum Beispiel
+`0.60.0b1`). Sie enthalten neue Funktionen früher, sind aber weniger geprüft.
+
+1. HACS → **Raumklima** → ⋮ → **Neu herunterladen**
+2. **Beta-Versionen anzeigen** („Show beta versions") einschalten, dann die gewünschte Vorabversion wählen
+3. Home Assistant neu starten
+
+Vorabversionen sind auf GitHub als „Pre-release" markiert. Deshalb bleiben sie aus, solange der Haken
+nicht gesetzt ist, und `releases/latest` (Handbuch-Link in der Karte) zeigt weiter auf die letzte stabile
+Version. Zurück geht es jederzeit über **Neu herunterladen** ohne den Haken – dann wird wieder die letzte
+stabile Version installiert.
+
 HACS zeigt neue Versionen an. Nach dem Herunterladen Home Assistant neu starten. Reine Karten-Änderungen sind nach einem Neuladen der Seite sichtbar.
 
 ## Umstieg von 0.2.x

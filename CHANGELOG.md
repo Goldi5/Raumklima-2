@@ -3,6 +3,13 @@
 ## Unreleased
 
 ### Hinzugefügt
+- **Beta-Kanal:** Versionen mit `b` am Ende (`0.60.0b1`) erscheinen als Vorabversion ohne PDFs;
+  stabile Releases bleiben unverändert und weiterhin „latest". In HACS über **Neu herunterladen →
+  Beta-Versionen anzeigen** wählbar (Doku in allen drei Sprachen).
+- Version auf Seite 1 der deutschen und französischen Doku-Startseite (fehlte dort ganz; ein Test
+  verhindert jetzt, dass die vier Startseiten auseinanderlaufen).
+
+### Hinzugefügt
 - Übersicht nennt den Grund, wenn eine Regel das Ziel setzt: „Schimmel 22,5° · Wunsch 19,0°"
   statt „Ziel 22,5° · Wunsch 19,0°" (auch Zeitplan, Boost, Ruhezeit, Abwesenheit, Vorheizen,
   Sonne, Frost, Ventilpflege, Heizpause) – mit EN/FR-Texten.

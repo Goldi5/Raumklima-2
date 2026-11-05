@@ -11,6 +11,14 @@ VERSION = json.loads((ROOT / "custom_components/raumklima/manifest.json").read_t
 def test_readme_version():
     assert f"Aktuelle Version: {VERSION}" in (ROOT / "README.md").read_text(), "README.md: Version anpassen"
     assert f"Current version: {VERSION}" in (ROOT / "docs/en/README.md").read_text(), "docs/en/README.md: Version anpassen"
+    # Die deutschen und französischen Doku-Startseiten hatten die Zeile gar nicht – die
+    # Version auf „Seite 1" lief dort jahrelang still auseinander.
+    assert f"Aktuelle Version: {VERSION}" in (ROOT / "docs/de/README.md").read_text(), (
+        "docs/de/README.md: Version anpassen"
+    )
+    assert f"Version actuelle : {VERSION}" in (ROOT / "docs/fr/README.md").read_text(), (
+        "docs/fr/README.md: Version anpassen"
+    )
 
 
 def test_changelog_top_entry():

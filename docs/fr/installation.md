@@ -120,6 +120,19 @@ Votre thermostat fonctionne (ou non) ? Merci de le signaler comme [issue](https:
 
 ## Mise à jour
 
+### Essayer les versions bêta
+
+Entre les versions stables, il existe des préversions (suffixe `b1`, `b2` … – par exemple `0.60.0b1`).
+Elles contiennent les nouveautés plus tôt, mais sont moins testées.
+
+1. HACS → **Raumklima** → ⋮ → **Télécharger à nouveau**
+2. Activer **Afficher les versions bêta**, choisir la préversion
+3. Redémarrer Home Assistant
+
+Les préversions sont marquées « pre-release » sur GitHub : elles restent masquées sans cette case, et
+`releases/latest` (le lien du manuel dans la carte) continue de pointer vers la dernière version stable.
+Le retour se fait à tout moment via **Télécharger à nouveau** sans la case.
+
 HACS affiche les nouvelles versions. Après le téléchargement, redémarrez Home Assistant. Les modifications des cartes seules sont visibles après un rechargement de la page.
 
 ## Migration depuis 0.2.x
