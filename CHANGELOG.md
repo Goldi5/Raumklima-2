@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.58.0 – 2026-11-05
 
 ### Behoben
 - **„Sichern" hat keine Datei erzeugt:** Der Download lief als Blob-Link, den manche Browser und die
