@@ -413,6 +413,10 @@ s'arrêtent par pas de 15 minutes. Dans le champ en dessous, vous pouvez aussi s
 Les champs de date (par exemple la saison de chauffe) ouvrent un calendrier. Seuls le jour et le mois
 sont enregistrés – l'année n'a pas d'importance.
 
+# Commande vocale
+
+<!-- include: ../docs/fr/commande-vocale.md -->
+
 # Questions fréquentes
 
 <!-- include: ../docs/fr/faq.md -->

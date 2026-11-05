@@ -189,12 +189,4 @@ type: custom:raumklima-settings-card   # settings (best as a panel view)
 
 ## Voice control (Assist)
 
-With an **AI agent** in your voice assistant (ChatGPT, Google, Anthropic, Ollama), Raumklima exposes three tools: list rooms, read one room's values, and set the desired temperature. That answers questions like:
-
-- “How warm is it in the bathroom?” – current temperature, target, humidity, CO₂
-- “Do I need to air the living room?” – recommendation with duration, from humidity and CO₂
-- “Set the bedroom to 18 degrees” – sets the desired temperature
-
-The tools appear automatically in every pipeline with an AI agent – no setting needed. The **default agent** (without AI) uses fixed sentences: “How warm is it in the bathroom?” works there as soon as the room has an area, which Raumklima creates for you.
-
-**Two flats in one installation:** rooms with the same name (e.g. “Bad” in both) are ambiguous for the assistant. Rename the areas (e.g. “Bad Berlin”, “Bad Remscheid”) or use the room name Raumklima shows.
+Questions such as “How warm is it in the bathroom?” or “Do I need to air?” are answered by an AI agent in the assistant (ChatGPT, Google, Anthropic, Ollama) using Raumklima's values. How to create the pipeline and enable Raumklima there: **[Voice control](voice-control.md)**.

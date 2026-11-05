@@ -16,6 +16,7 @@
 | [Bedienung](bedienung.md) | Dashboard, Karten, Einstellungsseite |
 | [So funktioniert's](funktionsweise.md) | Regelung, Offset, Fenster, Absicherung, Lüften, Abwesenheit, Schimmelschutz, Heizsaison |
 | [Benachrichtigungen](benachrichtigungen.md) | Wer bekommt was, Ruhezeit, Aktionen, Sprachansagen |
+| [Sprachsteuerung](sprachsteuerung.md) | Fragen an Assist, KI-Agent anbinden, Grenzen von Alexa & Co. |
 | [Referenz](referenz.md) | Alle Einstellungen, Entitäten, Ereignisse für eigene Automationen |
 | [Geräte & Thermostate](geraete.md) | Was welches Gerät kann, Eigenheiten und Grenzen |
 | [Häufige Fragen](faq.md) | FAQ für Einsteiger |

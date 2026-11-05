@@ -414,6 +414,10 @@ Minuten rasten in 15-Minuten-Schritten ein. Im Feld darunter kannst du die Zeit 
 Datumsfelder (etwa die Heizsaison) öffnen einen Kalender. Gespeichert werden nur Tag und Monat – das
 Jahr ist egal.
 
+# Sprachsteuerung
+
+<!-- include: ../docs/de/sprachsteuerung.md -->
+
 # Häufige Fragen
 
 <!-- include: ../docs/de/faq.md -->

@@ -184,12 +184,4 @@ type: custom:raumklima-settings-card   # Einstellungen (am besten als Panel-Ansi
 
 ## Sprachsteuerung (Assist)
 
-Mit einem **KI-Agenten** im Sprachassistenten (ChatGPT, Google, Anthropic, Ollama) kennt Raumklima drei Werkzeuge: Räume auflisten, Werte eines Raums abfragen und die Wunschtemperatur setzen. Damit beantwortet der Assistent Fragen wie:
-
-- „Wie warm ist es im Bad?" – Ist-Temperatur, Ziel, Feuchte, CO₂
-- „Muss ich im Wohnzimmer lüften?" – Empfehlung mit Dauer, aus Feuchte und CO₂
-- „Stell das Schlafzimmer auf 18 Grad" – setzt die Wunschtemperatur
-
-Die Werkzeuge erscheinen automatisch in jeder Pipeline mit KI-Agent, ohne Einstellung. Der **Standard-Agent** (ohne KI) nutzt feste Sätze: „Wie warm ist es im Bad?" funktioniert dort, sobald der Raum einen Bereich hat – das legt Raumklima selbst an.
-
-**Zwei Wohnungen in einer Installation:** Gleichnamige Räume (etwa „Bad" in beiden Wohnungen) sind für den Assistenten mehrdeutig. Dann die Bereiche umbenennen (z. B. „Bad Berlin", „Bad Remscheid") oder den Raum mit dem Namen nennen, den Raumklima verwendet.
+Fragen wie „Wie warm ist es im Bad?" oder „Muss ich lüften?" beantwortet ein KI-Agent im Assistenten (ChatGPT, Google, Anthropic, Ollama) mit den Werten aus Raumklima. Wie man die Pipeline anlegt und Raumklima dort freischaltet: **[Sprachsteuerung](sprachsteuerung.md)**.

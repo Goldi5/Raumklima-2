@@ -412,6 +412,10 @@ Times open a picker with two wheels – hours and quarter hours – to scroll th
 Date fields (for example the heating season) open a calendar. Only day and month are stored – the year
 does not matter.
 
+# Voice control
+
+<!-- include: ../docs/en/voice-control.md -->
+
 # Frequently asked questions
 
 <!-- include: ../docs/en/faq.md -->

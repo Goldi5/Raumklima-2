@@ -148,12 +148,4 @@ Dans la carte, sous *Réglages*, il y a un bouton **Diagnostic** (ou : *Réglage
 
 ## Commande vocale (Assist)
 
-Avec un **agent IA** dans l'assistant vocal (ChatGPT, Google, Anthropic, Ollama), RaumKlima expose trois outils : lister les pièces, lire les valeurs d'une pièce, et régler la température souhaitée. Cela permet des questions comme :
-
-- « Quelle température dans la salle de bain ? » – température actuelle, consigne, humidité, CO₂
-- « Dois-je aérer le salon ? » – recommandation avec durée, d'après l'humidité et le CO₂
-- « Mets la chambre à 18 degrés » – règle la température souhaitée
-
-Les outils apparaissent automatiquement dans tout pipeline avec agent IA, sans réglage. L'**agent standard** (sans IA) utilise des phrases fixes : « Quelle température dans la salle de bain ? » fonctionne dès que la pièce a une zone – RaumKlima la crée pour vous.
-
-**Deux logements dans une installation :** les pièces du même nom (par ex. « Bad » dans les deux) sont ambiguës pour l'assistant. Renommez les zones (par ex. « Bad Berlin », « Bad Remscheid ») ou utilisez le nom affiché par RaumKlima.
+Les questions comme « Quelle température dans la salle de bain ? » ou « Dois-je aérer ? » sont traitées par un agent IA de l'assistant (ChatGPT, Google, Anthropic, Ollama) avec les valeurs de RaumKlima. Pour créer le pipeline et y activer RaumKlima : **[Commande vocale](commande-vocale.md)**.

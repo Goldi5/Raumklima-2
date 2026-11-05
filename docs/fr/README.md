@@ -14,6 +14,7 @@
 | [Utilisation](utilisation.md) | Tableau de bord, cartes, rapport, journal, page de réglages |
 | [Fonctionnement](fonctionnement.md) | Régulation, décalage, fenêtres, fiabilité, aération, absence, protection anti-moisissure, saison de chauffage |
 | [Notifications](notifications.md) | Qui reçoit quoi, heures calmes, heures de sommeil, actions, voix |
+| [Commande vocale](commande-vocale.md) | Interroger Assist, connecter un agent IA, limites d'Alexa et cie |
 | [Référence](reference.md) | Tous les réglages, entités, déclencheurs d’appareil, événements |
 | [Appareils & thermostats](appareils.md) | Ce que chaque appareil sait faire, particularités et limites |
 | [FAQ](faq.md) | Questions fréquentes pour débuter |

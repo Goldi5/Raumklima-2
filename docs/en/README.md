@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.59.1** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
+**Current version: 0.59.2** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
@@ -14,6 +14,7 @@
 | [Usage](usage.md) | Dashboard, cards, report, log, settings page |
 | [How it works](how-it-works.md) | Control, offset, windows, reliability, airing, absence, mould protection, heating season |
 | [Notifications](notifications.md) | Who gets what, quiet hours, sleep times, actions, voice |
+| [Voice control](voice-control.md) | Asking Assist, connecting an AI agent, limits of Alexa & co. |
 | [Reference](reference.md) | All settings, entities, device triggers, events |
 | [Devices & thermostats](devices.md) | What each device can do, quirks and limits |
 | [FAQ](faq.md) | Frequently asked questions for beginners |
