@@ -799,4 +799,5 @@ export const FR = {
   "Gästezimmer": "Chambre d'amis",
   "Flur": "Couloir",
   "Sportzimmer": "Salle de sport",
+  "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "modifiable à tout moment – les valeurs par défaut du nouveau type sont reprises, vos valeurs restent",
 };

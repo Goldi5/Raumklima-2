@@ -114,6 +114,7 @@ from .occupancy import sensor_kind
 from .planning import NIGHT_MODES, VIRT_MODES
 from .report_data import REPORT_KINDS
 from .reports import CONF_REPORT_EMAIL, CONF_REPORT_PDF, URL as REPORT_URL
+from .retype import retyped_values
 from .shared import all_hubs, domain_data, get_hub
 
 _KINDS = [vol.In(KINDS)]
@@ -474,12 +475,23 @@ async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveCo
     except vol.Invalid as err:
         connection.send_error(msg["id"], "invalid", str(err))
         return
+    # Raumtyp geändert: Standardwerte des neuen Typs übernehmen, eigene Werte behalten
+    adjusted: dict[str, float] = {}
+    if CONF_ROOM_TYPE in changes:
+        old_type = (entry.options or {}).get(CONF_ROOM_TYPE) or (entry.data or {}).get(CONF_ROOM_TYPE)
+        if changes[CONF_ROOM_TYPE] != old_type:
+            merged = {**(entry.data or {}), **(entry.options or {})}
+            adjusted = retyped_values(merged, old_type, changes[CONF_ROOM_TYPE])
+            changes = {**adjusted, **changes}
     hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
     room = domain_data(hass)["rooms"].get(entry.entry_id)
     live = room is not None and room.apply_live_options(changes)
     if not live:
         await hass.config_entries.async_reload(entry.entry_id)
-    connection.send_result(msg["id"], {"ok": True, "reloaded": not live})
+    result: dict[str, Any] = {"ok": True, "reloaded": not live}
+    if adjusted:
+        result["adjusted"] = adjusted  # nur wenn der Raumtyp Werte nachgezogen hat
+    connection.send_result(msg["id"], result)
 
 
 @websocket_api.websocket_command(

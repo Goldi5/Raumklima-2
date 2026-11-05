@@ -39,6 +39,8 @@
 | Weitere Thermostate | – | weitere `climate`-Thermostate im selben Raum (`extra_trvs`); laufen mit dem Haupt-Thermostat mit, eigener Offset/Sollwert-Ausgleich |
 | Fensterkontakte | – | beliebig viele; Pause, sobald einer offen ist |
 | Raumtyp | Wohnraum | setzt Standards für Wunsch, Mindesttemperatur, Feuchte, Absenkung |
+> **Raumtyp ändern:** Der Typ lässt sich jederzeit umstellen (Karte *Einstellungen → Raumtyp* oder Integration → Konfigurieren). Werte, die noch auf dem Standard des alten Typs standen, übernimmt der neue Typ automatisch; selbst eingetragene Werte bleiben. Der Raum wird danach neu geladen, weil sich auch Lüft-Grenzen und Nachtregeln mit dem Typ ändern.
+
 **Raumtypen und ihre Standardwerte** (Quellen: Umweltbundesamt für Wunschtemperaturen und Absenkung, co2online/DIN 4108-2 für Lüftung und Feuchte; alle Werte je Raum überschreibbar):
 | Raumtyp | Wunsch | Absenkung kurz/länger | Lüften bis | Feuchte-Grenze |
 |---|---|---|---|---|

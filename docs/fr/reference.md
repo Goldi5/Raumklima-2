@@ -44,6 +44,8 @@
 | Autres thermostats | – | autres thermostats `climate` dans la même pièce (`extra_trvs`) ; suivent le thermostat principal, décalage/compensation de consigne propres |
 | Contacts de fenêtre | – | nombre quelconque ; pause dès qu’un seul est ouvert |
 | Type de pièce | salon | définit les valeurs par défaut de température souhaitée, température minimale, humidité, abaissement |
+> **Changer le type de pièce :** le type peut être modifié à tout moment (carte *Réglages → type de pièce* ou intégration → configurer). Les valeurs encore aux valeurs par défaut de l'ancien type sont reprises par le nouveau ; vos propres valeurs sont conservées. La pièce est ensuite rechargée, car les limites d'aération et les règles nocturnes en dépendent.
+
 **Types de pièces et valeurs par défaut** (sources : Agence fédérale de l'environnement allemande pour les consignes et l'abaissement, co2online/DIN 4108-2 pour l'aération et l'humidité ; chaque valeur est modifiable par pièce) :
 | Type de pièce | Consigne | abaissement court/long | aérer jusqu'à | limite d'humidité |
 |---|---|---|---|---|

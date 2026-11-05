@@ -1,4 +1,4 @@
-/* Raumklima 0.59.9 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.10 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -798,7 +798,8 @@
     "Arbeitszimmer": "Office",
     "Gästezimmer": "Guest room",
     "Flur": "Hallway",
-    "Sportzimmer": "Home gym"
+    "Sportzimmer": "Home gym",
+    "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "changeable at any time – the new type's defaults are applied, your own values are kept"
   };
 
   // src/i18n/fr.js
@@ -1599,7 +1600,8 @@
     "Arbeitszimmer": "Bureau",
     "Gästezimmer": "Chambre d'amis",
     "Flur": "Couloir",
-    "Sportzimmer": "Salle de sport"
+    "Sportzimmer": "Salle de sport",
+    "jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben": "modifiable à tout moment – les valeurs par défaut du nouveau type sont reprises, vos valeurs restent"
   };
 
   // src/i18n.js
@@ -1643,7 +1645,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.59.9";
+  var RK_VERSION2 = "0.59.10";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4623,7 +4625,11 @@
       ${a.monitor ? "" : this._grp("Temperatur", "mdi:thermometer", "heat", [
         plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
         this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
-        this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–")),
+        this._row(
+          "Raumtyp",
+          editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–"),
+          t("jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben")
+        ),
         (this._cfg && this._cfg.homes || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row(
           "Sonnenseite",

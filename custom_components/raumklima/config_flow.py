@@ -100,6 +100,7 @@ from .const import (
 )
 from .notify_targets import notify_choices
 from .planning import setback_defaults
+from .retype import retyped_values
 
 ADVANCED = "advanced"
 PUSH = "push_targets"
@@ -727,7 +728,18 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
     async def async_step_technical(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
             self._options.update(user_input)
-            return self.async_create_entry(data={**self.config_entry.options, **self._options})
+            options = {**self.config_entry.options, **self._options}
+            # Raumtyp gewechselt: Werte, die noch auf dem Standard des alten Typs stehen,
+            # auf den neuen umstellen (eigene Einstellungen bleiben).
+            old_type = (self.config_entry.options or {}).get(CONF_ROOM_TYPE) or (
+                self.config_entry.data or {}
+            ).get(CONF_ROOM_TYPE)
+            new_type = options.get(CONF_ROOM_TYPE)
+            if new_type and new_type != old_type:
+                options.update(
+                    retyped_values({**self.config_entry.data, **options}, old_type, new_type)
+                )
+            return self.async_create_entry(data=options)
         return self.async_show_form(step_id="technical", data_schema=_technical_schema(self._current()))
 
 

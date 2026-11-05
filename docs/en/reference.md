@@ -44,6 +44,8 @@
 | Further thermostats | – | further `climate` thermostats in the same room (`extra_trvs`); follow the main thermostat, own offset/setpoint compensation |
 | Window contacts | – | any number; pause as soon as one is open |
 | Room type | living room | sets defaults for desired temperature, minimum temperature, humidity, setback |
+> **Changing the room type:** the type can be switched at any time (card *Settings → room type* or integration → configure). Values still on the old type's defaults are taken over by the new type; values you entered yourself are kept. The room is reloaded afterwards because airing limits and night rules depend on the type.
+
 **Room types and their defaults** (sources: German Environment Agency for target temperatures and setbacks, co2online/DIN 4108-2 for airing and humidity; every value can be overridden per room):
 | Room type | Desired | setback short/long | air until | humidity limit |
 |---|---|---|---|---|

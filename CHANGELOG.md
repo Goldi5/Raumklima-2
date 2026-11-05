@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.59.10 – 2026-11-05
+
+### Behoben
+- **Raumtyp ließ sich nicht wirksam ändern.** Bisher blieben die alten Absenkwerte stehen, weil sie beim
+  Speichern der Einstellungen als feste Werte abgelegt worden waren – der neue Typ änderte nur die
+  Wunschtemperatur, wenn sie leer war. Jetzt gilt beim Typwechsel: Werte, die noch dem Standard des alten
+  Typs entsprechen, werden auf den neuen Standard umgestellt; selbst eingetragene Werte bleiben erhalten.
+  Gilt für die Karte und für den Optionen-Dialog der Integration.
+
 ## 0.59.9 – 2026-11-05
 
 ### Neu
