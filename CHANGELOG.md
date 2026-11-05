@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Behoben
+- **Wunschtemperatur aus der Karte wirkte nicht (#22):** Der neue Wert landete nur in den Einstellungen,
+  der laufende Regler behielt seinen alten Sollwert – der Raum heizte weiter auf die alte Temperatur, bis
+  er neu geladen wurde. Jetzt übernimmt der Raum den Wert sofort (auch wenn der Raumtyp den Standardwert
+  mitbringt). Nebenbei: das Protokoll zeigte bei Änderungen „22,0 → 22,0", weil es den alten Wert erst
+  nach dem Speichern las – jetzt steht dort der echte alte Wert.
+
 ## 0.58.0 – 2026-11-05
 
 ### Behoben

@@ -429,6 +429,8 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Format HH:MM erwartet", "Format HH:MM expected", "Format HH:MM attendu"),
     ("Ungültige Uhrzeit", "Invalid time", "Heure invalide"),
     ("Raum nicht gefunden", "Room not found", "Pièce introuvable"),
+    ("Wunschtemperatur übernommen", "Target temperature applied", "Température de consigne appliquée"),
+    ("neuer Sollwert {t} °C aus den Einstellungen", "new setpoint {t} °C from the settings", "nouvelle consigne {t} °C depuis les réglages"),
     (
         "Diese Datei ist keine Raumklima-Sicherung",
         "This file is not a Raumklima backup",

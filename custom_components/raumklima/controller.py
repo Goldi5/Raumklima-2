@@ -572,13 +572,25 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if not changed:
             return True
         old_hub = self.hub
+        old_values = {k: self.config.get(k) for k in changed}
         # self.config ist dasselbe Objekt, das auch der Lüftungsassistent nutzt
         self.config.update(changed)
         self.log(
             CAT_SETTINGS,
             tr("Einstellungen geändert"),
-            ", ".join(_change_text(k, self.config.get(k), v) for k, v in changed.items()),
+            ", ".join(_change_text(k, old_values[k], v) for k, v in changed.items()),
         )
+        # Wunschtemperatur aus den Einstellungen muss den laufenden Sollwert nachziehen –
+        # sonst heizt der Raum weiter auf den alten Wert, bis er neu geladen wird (Issue #22).
+        if changed.keys() & {CONF_COMFORT_TEMP, CONF_ROOM_TYPE}:
+            new_wish = self.comfort_temp
+            if new_wish != self.target_temp:
+                self.target_temp = new_wish
+                self.log(
+                    CAT_SETTINGS,
+                    tr("Wunschtemperatur übernommen"),
+                    tr("neuer Sollwert {t} °C aus den Einstellungen", t=fmt_temp(new_wish)),
+                )
         if changed.keys() & {CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP}:
             self.track_presence()
             self.update_presence()
