@@ -75,6 +75,7 @@ from .const import (
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULE_FROM,
     CONF_SCHEDULES,
     CONF_SENSOR_STALE_MINUTES,
@@ -185,10 +186,16 @@ REASON_BOOST = "boost"
 REASON_SCHEDULE_PREHEAT = "schedule_preheat"
 REASON_SLEEP = "sleep"
 REASON_MOLD = "mold"
+REASON_SCHEDULE_FALLBACK = "schedule_fallback"
 # Schimmelschutz-Stufen (Raum-Einstellung)
 MOLD_STRICT = "strict"
 MOLD_WISH = "wish"
 MOLD_OFF = "off"
+# Zeitplan: Wert außerhalb der Fenster
+SCHEDULE_FALLBACK_WISH = "wish"
+SCHEDULE_FALLBACK_SHORT = "short"
+SCHEDULE_FALLBACK_LONG = "long"
+SCHEDULE_FALLBACK_FROST = "frost"
 # Bei diesen Gründen greift der Schimmelschutz nicht ein (bewusste Aktion oder Heizung ohnehin aus)
 MOLD_EXEMPT = frozenset(
     {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD}
@@ -225,6 +232,7 @@ LIVE_OPTIONS = frozenset(
         CONF_LEARN_AIRING,
         CONF_AIRING_MIN_MINUTES,
         CONF_MOLD_MODE,
+        CONF_SCHEDULE_FALLBACK,
     }
 )
 
@@ -520,6 +528,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "entry_id": self.entry.entry_id,
             "mold_mode": self.config.get(CONF_MOLD_MODE),
             "airing_min_minutes": self.config.get(CONF_AIRING_MIN_MINUTES),
+            "schedule_fallback": self.config.get(CONF_SCHEDULE_FALLBACK),
             "changed": changed,
             "trv": self.trv,
             "room_type": vent.room_type if vent else cfg.get(CONF_ROOM_TYPE),
@@ -937,6 +946,16 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             need = self.heatup.minutes_needed(want - cur, hub.outdoor_temp())
             if need is not None and local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:
                 return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
+        # Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt
+        fb = self.config.get(CONF_SCHEDULE_FALLBACK) or SCHEDULE_FALLBACK_WISH
+        if self.schedules and fb != SCHEDULE_FALLBACK_WISH:
+            outside = {
+                SCHEDULE_FALLBACK_SHORT: self.setback_short,
+                SCHEDULE_FALLBACK_LONG: self.setback_long,
+                SCHEDULE_FALLBACK_FROST: hub.frost_floor,
+            }.get(fb)
+            if outside is not None and outside < self.target_temp - 0.05:
+                return True, min(outside, self.trv_max), REASON_SCHEDULE_FALLBACK
         # „Anwesenheit aus": auch der leere Raum senkt nicht ab (Issue #10)
         if self.room_eco_applies() and not hub.opt(CONF_PRESENCE_OFF):
             floor = self.setback_short
@@ -1482,6 +1501,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             ),
             REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
             REASON_SLEEP: tr("Ruhezeit – Schlafraum abgesenkt auf {t}", t=fmt_temp(self.setback_long)),
+            REASON_SCHEDULE_FALLBACK: tr(
+                "außerhalb der Zeitfenster – {t}", t=fmt_temp(target)
+            ),
             REASON_MOLD: tr(
                 "Schimmelschutz – mindestens {t} nötig (Feuchte {h} %)",
                 t=fmt_temp(target), h=f"{self.current_humidity or 0:.0f}",

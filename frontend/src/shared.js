@@ -502,6 +502,8 @@ export const RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "A
 export const RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
 // Schimmelschutz-Stufen je Raum
 export const RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
+// Zeitplan: was außerhalb der Fenster gilt
+export const RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
 // Anbieter für den Mail-Versand: Server, Port, Verschlüsselung, Name
 export const RK_MAIL_PROVIDERS = {
   gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],

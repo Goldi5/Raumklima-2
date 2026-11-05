@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_SCHED_FALLBACK, RK_OFF, RK_PKIND, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 
 // Gruppen (Phase 1): bestehende Gruppen-Überschriften werden auf die neue Leiste abgebildet.
 // So bleibt der Inhalt unverändert, während die Navigation klar wird.
@@ -814,8 +814,20 @@ export class RaumklimaSettingsCard extends HTMLElement {
         ? t("Die Zeitfenster werden im gewählten Raum gepflegt – Änderungen gelten hier automatisch mit")
         : t("Zeitfenster einmal pflegen und für mehrere Räume nutzen")
     );
+    const fallback = this._roomOpt(r, "schedule_fallback") ?? s.schedule_fallback ?? "wish";
     const rows = [
       shareRow,
+      this._row(
+        "Außerhalb der Zeitfenster",
+        editable ? this._segs(scope, "schedule_fallback", RK_SCHED_FALLBACK, fallback) : this._v(RK_SCHED_FALLBACK[fallback] || "–"),
+        fallback === "wish"
+          ? t("wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur")
+          : fallback === "short"
+            ? t("zwischen den Fenstern wird auf „kurz weg“ abgesenkt")
+            : fallback === "long"
+              ? t("zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden")
+              : t("zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert")
+      ),
       this._row(
         "Wärmer für kurze Zeit (Boost)",
         editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),

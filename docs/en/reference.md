@@ -99,6 +99,7 @@
 > across midnight). `boost_temperature` (offset in K) and `boost_minutes` define the boost. The schedule only
 > sets the target temperature – windows, frost, mould, heating break and absence stay in charge.
 > In a room with a learned heat-up rate it starts in time so the room is warm when the window begins.
+> `schedule_fallback` sets what applies **outside** the windows: `wish` (default, desired temperature), `short` (setback “briefly away”), `long` (setback “longer away”) or `frost` (frost protection value). Preheating is not affected.
 
 ## Entities of the hub “Allgemein”
 

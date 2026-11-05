@@ -1,4 +1,4 @@
-/* Raumklima 0.59.7 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -788,7 +788,13 @@
     "Mindestdauer Lüften": "Minimum airing time",
     "automatisch": "automatic",
     "so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt": "“airing in progress” stays at least this long, even if humidity is already fine",
-    "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatic: 60 % of the recommended time, at least 4 minutes (currently {v} min)"
+    "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatic: 60 % of the recommended time, at least 4 minutes (currently {v} min)",
+    "Kurz weg": "Briefly away",
+    "Außerhalb der Zeitfenster": "Outside the schedule windows",
+    "wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur": "as before: without an active window the desired temperature applies",
+    "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "between windows the room drops to “briefly away”",
+    "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "between windows the room drops to “longer away” – for rooms used only a few hours a day",
+    "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "between windows only frost protection applies – the lowest allowed value"
   };
 
   // src/i18n/fr.js
@@ -1579,7 +1585,13 @@
     "Mindestdauer Lüften": "Durée minimale d'aération",
     "automatisch": "automatique",
     "so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt": "« aération en cours » reste affiché au moins aussi longtemps, même si l'humidité est déjà bonne",
-    "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatique : 60 % de la durée recommandée, au moins 4 minutes (actuellement {v} min)"
+    "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatique : 60 % de la durée recommandée, au moins 4 minutes (actuellement {v} min)",
+    "Kurz weg": "Absence courte",
+    "Außerhalb der Zeitfenster": "En dehors des plages horaires",
+    "wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur": "comme avant : sans plage active, la température souhaitée s'applique",
+    "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "entre les plages, la pièce passe en « absence courte »",
+    "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "entre les plages, la pièce passe en « absence longue » – pour les pièces utilisées quelques heures par jour",
+    "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "entre les plages, seule la protection hors gel s'applique – la valeur minimale autorisée"
   };
 
   // src/i18n.js
@@ -1623,7 +1635,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.59.7";
+  var RK_VERSION2 = "0.59.8";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2046,6 +2058,7 @@
   var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
   var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
   var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
+  var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
   var RK_MAIL_PROVIDERS = {
     gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
     gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
@@ -4456,8 +4469,14 @@
         editable ? this._select(scope, "schedule_from", [{ id: "", name: t("eigener Zeitplan") }, ...others], fromId) : this._v(shared ? others.find((o) => o.id === fromId).name : t("eigener Zeitplan")),
         shared ? t("Die Zeitfenster werden im gewählten Raum gepflegt – Änderungen gelten hier automatisch mit") : t("Zeitfenster einmal pflegen und für mehrere Räume nutzen")
       );
+      const fallback = this._roomOpt(r, "schedule_fallback") ?? s.schedule_fallback ?? "wish";
       const rows = [
         shareRow,
+        this._row(
+          "Außerhalb der Zeitfenster",
+          editable ? this._segs(scope, "schedule_fallback", RK_SCHED_FALLBACK, fallback) : this._v(RK_SCHED_FALLBACK[fallback] || "–"),
+          fallback === "wish" ? t("wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur") : fallback === "short" ? t("zwischen den Fenstern wird auf „kurz weg“ abgesenkt") : fallback === "long" ? t("zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden") : t("zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert")
+        ),
         this._row(
           "Wärmer für kurze Zeit (Boost)",
           editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),

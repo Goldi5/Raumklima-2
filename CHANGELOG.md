@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.59.8 – 2026-11-05
+
+### Neu
+- **Außerhalb der Zeitfenster (Issue #10):** Wer nur Heizphasen einträgt, konnte bisher nicht sagen, was
+  dazwischen gilt – es war immer die Wunschtemperatur. Jetzt wählbar je Raum: *Wunschtemperatur*
+  (Standard, wie bisher), *kurz weg*, *länger weg* oder *Sicherung* (Frostschutz). Vorheizen vor einem
+  Fenster bleibt bestehen, der Schimmelschutz bleibt Boden darüber.
+
 ## 0.59.7 – 2026-11-05
 
 ### Behoben

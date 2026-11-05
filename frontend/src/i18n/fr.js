@@ -789,4 +789,10 @@ export const FR = {
   "automatisch": "automatique",
   "so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt": "« aération en cours » reste affiché au moins aussi longtemps, même si l'humidité est déjà bonne",
   "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatique : 60 % de la durée recommandée, au moins 4 minutes (actuellement {v} min)",
+  "Kurz weg": "Absence courte",
+  "Außerhalb der Zeitfenster": "En dehors des plages horaires",
+  "wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur": "comme avant : sans plage active, la température souhaitée s'applique",
+  "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "entre les plages, la pièce passe en « absence courte »",
+  "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "entre les plages, la pièce passe en « absence longue » – pour les pièces utilisées quelques heures par jour",
+  "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "entre les plages, seule la protection hors gel s'applique – la valeur minimale autorisée",
 };

@@ -92,6 +92,7 @@
 > auch über Mitternacht). `boost_temperature` (Zusatz in K) und `boost_minutes` legen den Boost fest.
 > Der Zeitplan setzt nur den Sollwert – Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig.
 > Bei gelerntem Raum wird rechtzeitig vorgeheizt, damit es zum Fensterbeginn warm ist.
+> `schedule_fallback` legt fest, was **außerhalb** der Fenster gilt: `wish` (Standard, Wunschtemperatur), `short` (Absenkung „kurz weg“), `long` (Absenkung „länger weg“) oder `frost` (Frostschutz-Wert). Vorheizen bleibt davon unberührt.
 
 ## Entitäten der Zentrale „Allgemein“
 

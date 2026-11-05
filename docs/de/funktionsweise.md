@@ -69,6 +69,10 @@ Die Werte stammen aus den Empfehlungen der Verbraucherzentrale bzw. des vzbv: be
 
 **Aufheizzeit und Vorheizen nach Ankunftszeit:** Jeder Raum lernt, wie schnell er warm wird – in °C pro Stunde, abhängig von der Außentemperatur (aus den letzten 30 Aufheizvorgängen, ab 3 gilt es). Nähert sich jemand, schätzt die Integration die Ankunftszeit aus der Geschwindigkeit der letzten Minuten. Ist die Person früher da, als die Wohnung zum Aufheizen braucht (plus 10 Minuten), wird vorgeheizt – auch jenseits der km-Grenze, bis 150 km. Solange noch nichts gelernt ist, gilt nur die km-Grenze.
 
+## 5b. Außerhalb der Zeitfenster
+
+Wer nur Heizphasen einträgt („morgens 6–8, abends 17–22"), will dazwischen nicht auf der Wunschtemperatur heizen. Die Raum-Einstellung **Außerhalb der Zeitfenster** legt das fest: Wunschtemperatur (Standard), kurz weg, länger weg oder Sicherung. Das Vorheizen vor einem Fenster bleibt bestehen, und der Schimmelschutz bleibt als Boden darüber.
+
 ## 6. Schimmelschutz
 
 Bei **längerer Abwesenheit** rechnet Raumklima aus, wie weit die Temperatur sinken darf, ohne dass die kälteste Wandstelle (Außenecke) zu feucht wird – nach dem Kriterium der **DIN 4108-2**: höchstens 80 % relative Feuchte an der Oberfläche.

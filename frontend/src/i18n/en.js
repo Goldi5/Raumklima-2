@@ -789,4 +789,10 @@ export const EN = {
   "automatisch": "automatic",
   "so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt": "“airing in progress” stays at least this long, even if humidity is already fine",
   "automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)": "automatic: 60 % of the recommended time, at least 4 minutes (currently {v} min)",
+  "Kurz weg": "Briefly away",
+  "Außerhalb der Zeitfenster": "Outside the schedule windows",
+  "wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur": "as before: without an active window the desired temperature applies",
+  "zwischen den Fenstern wird auf „kurz weg“ abgesenkt": "between windows the room drops to “briefly away”",
+  "zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden": "between windows the room drops to “longer away” – for rooms used only a few hours a day",
+  "zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert": "between windows only frost protection applies – the lowest allowed value",
 };

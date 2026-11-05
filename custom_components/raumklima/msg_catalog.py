@@ -435,6 +435,11 @@ _ROWS: list[tuple[str, str, str]] = [
         "None of the residents' phones reports a location – check location permission (“Always”), VPN or zone radius.",
         "Aucun téléphone des habitants ne transmet de position – vérifiez l'autorisation de localisation (« Toujours »), le VPN ou le rayon de la zone.",
     ),
+    (
+        "außerhalb der Zeitfenster – {t}",
+        "outside the schedule windows – {t}",
+        "en dehors des plages horaires – {t}",
+    ),
     ("keine", "none", "aucune"),
     (
         "Noch kein Raum eingerichtet.",

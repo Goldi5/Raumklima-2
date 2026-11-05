@@ -62,7 +62,9 @@ CONF_AIRING_WINDOWS: Final = "airing_windows"  # [{days:[0..6], start:"HH:MM", e
 CONF_LEARN_AIRING: Final = "learn_airing"  # gewohntes Lüften erkennen
 CONF_AIRING_MIN_MINUTES: Final = "airing_min_minutes"  # Mindestdauer Lüften (0 = automatisch)
 CONF_MOLD_MODE: Final = "mold_mode"  # Schimmelschutz: strict / wish / off
+CONF_SCHEDULE_FALLBACK: Final = "schedule_fallback"  # außerhalb der Zeitfenster: wish/short/long/frost
 MOLD_MODES: Final = ("strict", "wish", "off")
+SCHEDULE_FALLBACKS: Final = ("wish", "short", "long", "frost")
 CONF_GUESTS_ROOMS: Final = "guests_rooms"  # Räume, für die „Gäste da" gilt (leer = alle)
 CONF_FAST_POLL: Final = "fast_poll"  # Thermostat alle 2 min aktiv abfragen (träge Geräte)
 CONF_OVERRIDE_MINUTES: Final = "override_minutes"
@@ -267,6 +269,7 @@ DEFAULTS: Final = {
     CONF_LEARN_AIRING: True,
     CONF_AIRING_MIN_MINUTES: 0,
     CONF_MOLD_MODE: "strict",
+    CONF_SCHEDULE_FALLBACK: "wish",
     CONF_GUESTS_ROOMS: [],
     CONF_FAST_POLL: False,
     CONF_OVERRIDE_MINUTES: 120,
