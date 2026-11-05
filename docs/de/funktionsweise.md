@@ -135,3 +135,27 @@ Die Art wird aus der Geräteklasse erkannt (`occupancy`/`presence` = mmWave, `mo
 4. Raum laut Präsenzmelder leer → bis zu 1,5 °C weniger
 5. Sonnenseite und Sonne erwartet → 1 °C unter Wunsch
 6. Sonst → Wunschtemperatur
+
+## Feuchtequelle, Bauart und Funkbefehle
+
+**Bauart je Raum.** Wie kalt die kälteste Wandstelle wird, hängt am Raum, nicht nur am Gebäude:
+eine Außenecke (fRsi 0,62) kühlt deutlich stärker aus als eine Innenwand (0,82). Unter
+*Einstellungen → Temperatur → Bauart* lässt sich das je Raum einstellen; „wie die Wohnung" übernimmt
+den Wert aus dem Gebäudetyp. Ein innenliegendes Bad braucht dadurch praktisch keinen Feuchte-Boden,
+eine Außenecke im Schlafzimmer deutlich mehr.
+
+**Tagesmittel statt Momentwert.** Der Feuchte-Boden wird aus dem Mittel des Wasserdampfs der letzten
+24 Stunden gerechnet – Schimmel entsteht durch anhaltende Feuchte, nicht durch eine Duschspitze.
+
+**Warum es wärmer ist als gewünscht.** Hebt der Schutz an, steht das direkt am Raum:
+„Schimmelschutz **+2,0 °C** auf 22,5 °C · 63 % Feuchte im Tagesmittel".
+
+**Feuchtequelle statt Heizung.** Steigt die Feuchte über Stunden, obwohl geheizt wird, meldet Raumklima
+das – mit Unterscheidung: ist die Außenluft trockener, hilft Lüften („lüften statt heizen"); ist sie
+feuchter (November), liegt die Ursache im Raum (Wäsche, Duschen, viele Personen).
+
+**Funkbefehle im Bericht.** Jeder Sollwertbefehl an ein Thermostat wird gezählt, samt Wiederholungen.
+Im Wochenbericht stehen auffällige Räume in der Zuverlässigkeitstabelle – ein Gerät mit vielen
+Wiederholungen ist meist ein Batterie- oder Funkproblem.
+
+**Wer hat gestellt.** Änderungen von Hand nennen im Protokoll den Home-Assistant-Benutzer.

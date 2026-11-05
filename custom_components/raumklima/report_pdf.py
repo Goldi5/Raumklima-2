@@ -125,6 +125,7 @@ L = {
         "reliability": "Zuverlässigkeit",
         "x_failed": "keine Antwort h",
         "x_down": "nicht erreichbar h",
+        "rf_cmds": "Funkbefehle (Wiederholungen)",
         "x_blips": "Kurze Verbindungsunterbrechungen zu allen Thermostaten: {n}×",
         "x_bat": "Batterien",
         "x_ok": "Keine Ausfälle – alle Thermostate haben zuverlässig geantwortet.",
@@ -234,6 +235,7 @@ L = {
         "reliability": "Reliability",
         "x_failed": "no response h",
         "x_down": "unreachable h",
+        "rf_cmds": "radio commands (retries)",
         "x_blips": "Short connection drops to all thermostats: {n}×",
         "x_bat": "Batteries",
         "x_ok": "No failures – all thermostats responded reliably.",
@@ -343,6 +345,7 @@ L = {
         "reliability": "Fiabilité",
         "x_failed": "sans réponse h",
         "x_down": "injoignable h",
+        "rf_cmds": "commandes radio (répétitions)",
         "x_blips": "Courtes coupures de connexion avec tous les thermostats : {n}×",
         "x_bat": "Piles",
         "x_ok": "Aucune panne – tous les thermostats ont répondu de façon fiable.",
@@ -830,9 +833,26 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
 
     rel = data.get("reliability") or {}
     pdf.heading(tx["reliability"])
-    bad = {n: r for n, r in (rel.get("rooms") or {}).items() if r["sync_failed_h"] or r["trv_down_h"]}
+    # Auffällig: viele Funkbefehle (Batterie) oder Wiederholungen – zeigt schwache Geräte/Funkwege.
+    bad = {
+        n: r
+        for n, r in (rel.get("rooms") or {}).items()
+        if r.get("sync_failed_h") or r.get("trv_down_h") or (r.get("rf_sent") or 0) >= 200
+    }
     if bad:
-        pdf.table([tx["room"], tx["x_failed"], tx["x_down"]], [[n, num(r["sync_failed_h"], lang, 1), num(r["trv_down_h"], lang, 1)] for n, r in sorted(bad.items())], [full * 0.5, full * 0.25, full * 0.25])
+        pdf.table(
+            [tx["room"], tx["x_failed"], tx["x_down"], tx["rf_cmds"]],
+            [
+                [
+                    n,
+                    num(r["sync_failed_h"], lang, 1),
+                    num(r["trv_down_h"], lang, 1),
+                    f"{int(r.get('rf_sent') or 0)} ({int(r.get('rf_retries') or 0)})",
+                ]
+                for n, r in sorted(bad.items())
+            ],
+            [full * 0.4, full * 0.2, full * 0.2, full * 0.2],
+        )
     else:
         pdf.set_font("Helvetica", size=9)
         pdf.set_text_color(*NAVY)

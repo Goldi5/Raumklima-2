@@ -99,6 +99,7 @@ class Insights:
         self._last_tick = now
         dt = max(0.0, min(dt, 180.0))  # Lücken (Neustart) nicht hochrechnen
         today = self._today()
+        seen = getattr(self, "_rf_seen", {})
         for entry_id, room in list(self.hub.rooms.items()):
             try:
                 sample = room.stats_sample()
@@ -109,6 +110,7 @@ class Insights:
             day = self.data["rooms"].setdefault(entry_id, {}).setdefault(today, {})
             add_room_sample(day, sample, dt)
             self.data["names"][entry_id] = room.name
+        self._rf_seen = seen
         home = self.data["home"].setdefault(today, {})
         add_home_sample(home, self.hub.away, self.hub.outdoor_temp(), dt)
         if self._pruned != dt_util.now().date():

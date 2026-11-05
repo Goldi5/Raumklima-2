@@ -192,6 +192,9 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
     sensed = _sum(days, "sensed_s")
     return {
         "hours": round(seconds / 3600, 1),
+        # Funkbefehle je Thermostat: gesamt und davon Wiederholungen
+        "rf_sent": int(_sum(days, "rf_sent")),
+        "rf_retries": int(_sum(days, "rf_retries")),
         "heating_h": round(_sum(days, "heating_s") / 3600, 1),
         "valve_h": round(_sum(days, "valve_pct_s") / 100 / 3600, 1),
         "setback_h": round(_sum(days, "setback_s") / 3600, 1),

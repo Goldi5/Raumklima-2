@@ -192,3 +192,5 @@ Utilisée par les cartes ; pratique pour vos propres outils. Toutes les commande
 | `raumklima/notify/test` | envoyer un message de test (admin) |
 | `raumklima/room/light_test` | faire clignoter les signaux lumineux de la pièce (`entry_id`, `signal` facultatif ; admin) |
 | `raumklima/home/create` | créer un autre logement (admin) |
+| `mold_min` / `mold_rh` | plancher d'humidité (pas de 0,5) et l'humidité moyenne sur 24 h |
+| `rf_sent` / `rf_retries` | commandes radio au thermostat aujourd'hui – total et répétitions |

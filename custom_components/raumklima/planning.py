@@ -125,20 +125,22 @@ class MoldGuard:
     """
 
     def __init__(self) -> None:
-        self.samples: list[tuple[datetime, float]] = []
+        self.samples: list[tuple[datetime, float, float]] = []
         self._floor: float | None = None
 
     def load(self, data: list[Any] | None) -> None:
-        out: list[tuple[datetime, float]] = []
+        out: list[tuple[datetime, float, float]] = []
         for item in data or []:
             try:
-                out.append((datetime.fromisoformat(item[0]), float(item[1])))
+                # Altbestand hatte nur (Zeit, Dampfdruck) – relative Feuchte fehlt dort
+                rh = float(item[2]) if len(item) > 2 else 0.0
+                out.append((datetime.fromisoformat(item[0]), float(item[1]), rh))
             except (TypeError, ValueError, IndexError):
                 continue
         self.samples = out[-400:]
 
     def dump(self) -> list[list[Any]]:
-        return [[t.isoformat(), round(v, 2)] for t, v in self.samples]
+        return [[t.isoformat(), round(v, 2), round(rh, 1)] for t, v, rh in self.samples]
 
     def add(self, now: datetime, temp: float | None, rel_humidity: float | None) -> bool:
         """Messwert merken (höchstens alle 5 min). True, wenn gespeichert werden sollte."""
@@ -146,7 +148,7 @@ class MoldGuard:
             return False
         if self.samples and now - self.samples[-1][0] < MOLD_SAMPLE_EVERY:
             return False
-        self.samples.append((now, rel_humidity / 100.0 * saturation_pressure(temp)))
+        self.samples.append((now, rel_humidity / 100.0 * saturation_pressure(temp), float(rel_humidity)))
         cutoff = now - MOLD_WINDOW
         while self.samples and self.samples[0][0] < cutoff:
             self.samples.pop(0)
@@ -155,8 +157,8 @@ class MoldGuard:
     def vapour(self, now: datetime, temp: float | None, rel_humidity: float | None) -> float | None:
         """Mittlerer Dampfdruck der letzten 24 h (hPa)."""
         cutoff = now - MOLD_WINDOW
-        values = [v for t, v in self.samples if t >= cutoff]
-        span = (now - min(t for t, _ in self.samples if t >= cutoff)) if values else timedelta(0)
+        values = [v for t, v, _rh in self.samples if t >= cutoff]
+        span = (now - min(t for t, _v, _rh in self.samples if t >= cutoff)) if values else timedelta(0)
         if (not values or span < MOLD_MIN_SPAN) and temp is not None and rel_humidity and 0 < rel_humidity <= 100:
             values.append(rel_humidity / 100.0 * saturation_pressure(temp))
         return sum(values) / len(values) if values else None
@@ -181,6 +183,37 @@ class MoldGuard:
             new = old  # nicht bei jeder kleinen Entspannung wieder absenken
         self._floor = new
         return new
+
+
+    def mean_rh(self, now: datetime, window: timedelta = MOLD_WINDOW) -> float | None:
+        """Mittlere relative Feuchte der letzten 24 h (für „+2 °C wegen 63 %")."""
+        cutoff = now - window
+        values = [rh for t, _v, rh in self.samples if t >= cutoff and rh > 0]
+        return round(sum(values) / len(values), 0) if values else None
+
+    def rh_change(self, now: datetime, hours: float = 6.0) -> tuple[float, float, float] | None:
+        """Relative Feuchte am Anfang und Ende des Zeitraums – für den Meldungstext."""
+        recent_from = now - timedelta(hours=hours)
+        before_from = now - timedelta(hours=2 * hours)
+        recent = [rh for t, _v, rh in self.samples if t >= recent_from and rh > 0]
+        earlier = [rh for t, _v, rh in self.samples if before_from <= t < recent_from and rh > 0]
+        if len(recent) < 3 or not earlier:
+            return None
+        return (round(earlier[0], 0), round(recent[-1], 0), hours)
+
+    def trend(self, now: datetime, hours: float = 6.0) -> float | None:
+        """Zuwachs des Wasserdampfs (hPa) in den letzten `hours` gegenüber dem Abschnitt davor.
+
+        Steigende Feuchte bei geschlossenem Fenster und laufender Heizung heißt: die Feuchte
+        entsteht im Raum (Wäsche, Duschen, viele Personen) – nicht durch zu wenig Heizen.
+        """
+        recent_from = now - timedelta(hours=hours)
+        before_from = now - timedelta(hours=2 * hours)
+        recent = [v for t, v, _rh in self.samples if t >= recent_from]
+        earlier = [v for t, v, _rh in self.samples if before_from <= t < recent_from]
+        if len(recent) < 3 or len(earlier) < 3:
+            return None
+        return (sum(recent) / len(recent)) - (sum(earlier) / len(earlier))
 
 
 def round_up_half(value: float) -> float:

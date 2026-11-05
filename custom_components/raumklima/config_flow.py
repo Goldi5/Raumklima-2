@@ -80,6 +80,7 @@ from .const import (
     CONF_TRV,
     CONF_TTS,
     CONF_VALVE_CARE,
+    CONF_WALL,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
     CONF_WINDOWS,
@@ -97,6 +98,7 @@ from .const import (
     ON_PRESET_AUTO,
     ROOM_TYPE_OPTIONS,
     SEASON_MODES,
+    WALL_OPTIONS,
 )
 from .notify_targets import notify_choices
 from .planning import setback_defaults
@@ -307,6 +309,9 @@ def _room_schema(defaults: dict[str, Any], presets: list[str]) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_ROOM_TYPE, default=room_type): _select(ROOM_TYPE_OPTIONS, CONF_ROOM_TYPE),
+            vol.Optional(
+                CONF_WALL, description=_suggest(defaults.get(CONF_WALL) or "auto")
+            ): _select(WALL_OPTIONS, CONF_WALL),
             vol.Optional(
                 CONF_COMFORT_TEMP, description=_suggest(defaults.get(CONF_COMFORT_TEMP))
             ): _number(12, 26, 0.5, "°C"),

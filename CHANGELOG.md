@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.59.12b1 – 2026-11-05
+
+### Hinzugefügt
+- **Feuchtequelle erkennen:** steigt die Feuchte über Stunden trotz laufender Heizung, meldet Raumklima
+  das – und unterscheidet „lüften statt heizen" (Außenluft trockener) von „Feuchtequelle im Raum"
+  (Außenluft feuchter: Wäsche, Duschen, viele Personen). Neue Meldeart „Feuchtequelle" zum Abwählen.
+- **Bauart je Raum:** Außenecke / Außenwand / innenliegend / wie die Wohnung. Bestimmt den fRsi-Wert und
+  damit, wie viel Schimmelschutz ein Raum wirklich braucht.
+- **Anzeige des Zuschlags:** „Schimmelschutz +2,0 °C auf 22,5 °C · 63 % Feuchte im Tagesmittel" am Raum.
+- **Funkbefehle je Thermostat gezählt** (gesamt und Wiederholungen), im Wochenbericht in der
+  Zuverlässigkeitstabelle – macht Batterie- und Funkprobleme sichtbar.
+- **Benutzername im Protokoll:** Änderungen von Hand nennen den Home-Assistant-Benutzer.
+- Neue Attribute `mold_min`, `mold_rh`, `rf_sent`, `rf_retries`.
+
+### Hinweis
+- Vorabversion: erscheint in HACS nur mit „Beta-Versionen anzeigen".
 
 ### Hinzugefügt
 - **Beta-Kanal:** Versionen mit `b` am Ende (`0.60.0b1`) erscheinen als Vorabversion ohne PDFs;

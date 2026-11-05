@@ -809,4 +809,13 @@ export const EN = {
   "{tag} {v}°": "{tag} {v}°",
   "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "The card in the browser is older than the integration – reload with Ctrl+Shift+R.",
   "neu: {v} – Seite neu laden": "new: {v} – reload page",
+  "Schimmel +{d}°": "Mould +{d}°",
+  "Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel": "Mould protection <b>+{d} °C</b> to {v} °C · {rh} % humidity (24 h average)",
+  "Schimmelschutz <b>{v} °C</b>": "Mould protection <b>{v} °C</b>",
+  "bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand": "sets how cold the coldest wall spot gets: an outer corner needs more protection than an inside wall",
+  "wie die Wohnung": "as the home",
+  "Außenecke": "outer corner",
+  "Außenwand": "outer wall",
+  "innenliegend": "internal",
+  "Feuchtequelle im Raum": "Humidity source",
 };

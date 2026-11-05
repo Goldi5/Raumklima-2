@@ -577,6 +577,32 @@ _ROWS: list[tuple[str, str, str]] = [
         "{room} occupied for {m} min – quiet hours start now",
         "{room} occupée depuis {m} min – les heures calmes commencent",
     ),
+    (
+        "💧 {room}: Feuchte steigt – lüften statt heizen",
+        "💧 {room}: humidity rising – air instead of heating",
+        "💧 {room} : humidité en hausse – aérez au lieu de chauffer",
+    ),
+    (
+        "In {hours} h von {from} auf {to} %. Draußen ist die Luft trockener: einmal kräftig stoßlüften bringt mehr als höher heizen.",
+        "From {from} to {to} % in {hours} h. The air outside is drier: one good burst of airing does more than heating more.",
+        "De {from} à {to} % en {hours} h. L'air extérieur est plus sec : une bonne aération apporte plus que chauffer davantage.",
+    ),
+    (
+        "🧺 {room}: Feuchtequelle im Raum",
+        "🧺 {room}: source of humidity in the room",
+        "🧺 {room} : source d'humidité dans la pièce",
+    ),
+    (
+        "In {hours} h von {from} auf {to} %. Lüften hilft gerade nicht – die Außenluft ist feuchter. Wäsche, Duschen oder viele Personen im Raum?",
+        "From {from} to {to} % in {hours} h. Airing does not help right now – the outside air is more humid. Laundry, showering or many people in the room?",
+        "De {from} à {to} % en {hours} h. Aérer n'aide pas en ce moment – l'air extérieur est plus humide. Linge, douche ou plusieurs personnes dans la pièce ?",
+    ),
+    (
+        " von {who}",
+        " by {who}",
+        " par {who}",
+    ),
+
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

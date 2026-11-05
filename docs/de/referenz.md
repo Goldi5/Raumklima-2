@@ -169,3 +169,5 @@ triggers:
     entity_id: sensor.raumklima_allgemein_anwesenheit
     to: away_long
 ```
+| `mold_min` / `mold_rh` | Feuchte-Boden (0,5er-Stufe) und die mittlere Feuchte der letzten 24 h, auf der er beruht |
+| `rf_sent` / `rf_retries` | Funkbefehle an das Thermostat heute – gesamt und davon Wiederholungen |

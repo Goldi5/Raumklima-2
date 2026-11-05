@@ -206,11 +206,28 @@ export function planText(a, off, compact = false) {
     if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
     if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
     if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
-    if (r === "mold") return t("Schimmel · {v}°", { v: fmt(tgt) });
+    if (r === "mold") {
+      // Wie viel der Schutz drauflegt – die Zahl erklärt, warum es wärmer ist als gewünscht.
+      const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
+      if (plus != null && plus >= 0.2) return t("Schimmel +{d}°", { d: fmt(plus) });
+      return t("Schimmel · {v}°", { v: fmt(tgt) });
+    }
     if (r === "solar") return t("Sonne · {v}°", { v: fmt(tgt) });
     return t("Ziel {v}°", { v: fmt(a.temperature) });
   }
   if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
+  if (r === "mold") {
+    const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
+    const rh = a.mold_rh != null ? fmt(a.mold_rh, 0) : null;
+    if (plus != null && plus >= 0.2 && rh) {
+      return t("Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel", {
+        d: fmt(plus),
+        v: fmt(a.mold_min),
+        rh: rh,
+      });
+    }
+    return t("Schimmelschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
+  }
   if ((r === "away_short" || r === "away_long") && a.effective_target != null)
     return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(wish) });
   if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
@@ -522,6 +539,12 @@ export const RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertrage
 export const RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
 export const RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
 // Schimmelschutz-Stufen je Raum
+export const RK_WALL = tmap({
+  auto: "wie die Wohnung",
+  corner: "Außenecke",
+  wall: "Außenwand",
+  interior: "innenliegend",
+});
 export const RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
 // Zeitplan: was außerhalb der Fenster gilt
 export const RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
@@ -552,6 +575,7 @@ export const RK_KINDS = tmap({
   health: ["🩺", "Gesundheit der Heizung"],
   report: ["📊", "Wochenbericht"],
   storm: ["🌪", "Sturm & Starkregen"],
+  moisture: ["🧺", "Feuchtequelle im Raum"],
   live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"],
 });
 export const RK_LIGHT_SIGNALS = tmap({
@@ -560,7 +584,7 @@ export const RK_LIGHT_SIGNALS = tmap({
   done: ["#00c83c", "Luft ausgetauscht"],
   problem: ["#ff0000", "Problem mit der Heizung"],
 });
-export const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report"];
+export const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report", "moisture"];
 export const RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
 export function rkIssueList(issues, withRoom, prefix) {
   if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;

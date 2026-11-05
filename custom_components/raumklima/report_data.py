@@ -277,7 +277,16 @@ def add_extras(data: dict[str, Any], rooms: dict[str, Any], home: dict[str, Any]
         "heatup": extras.get("heatup", {}),
     }
     data["reliability"] = {
-        "rooms": {n: {"sync_failed_h": r["sync_failed_h"], "trv_down_h": r["trv_down_h"]} for n, r in cur["rooms"].items() if r["hours"]},
+        "rooms": {
+            n: {
+                "sync_failed_h": r["sync_failed_h"],
+                "trv_down_h": r["trv_down_h"],
+                "rf_sent": r.get("rf_sent", 0),
+                "rf_retries": r.get("rf_retries", 0),
+            }
+            for n, r in cur["rooms"].items()
+            if r["hours"]
+        },
         "blips": cur.get("blips", 0),
         "batteries": extras.get("batteries", {}),
     }

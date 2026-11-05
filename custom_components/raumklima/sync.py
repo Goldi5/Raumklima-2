@@ -9,6 +9,7 @@ damit testbar; Zeitsteuerung wird von außen hereingereicht.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+import contextlib
 from dataclasses import dataclass, field
 import logging
 from typing import Any
@@ -52,9 +53,11 @@ class SyncManager:
         on_failed: Callable[[SyncJob], None] | None = None,
         on_recovered: Callable[[], None] | None = None,
         on_event: Callable[[str, SyncJob], None] | None = None,
+        on_send: Callable[[int], None] | None = None,
     ) -> None:
         self._schedule = schedule
         self._run_task = run_task
+        self.on_send = on_send
         self._available = is_target_available
         self.verify_delay = verify_delay
         # Wie oft das Gerät von sich aus meldet (FRITZ!DECT: alle 15 min).
@@ -149,6 +152,9 @@ class SyncManager:
     # ------------------------------------------------------------ intern
     async def _attempt(self, job: SyncJob) -> None:
         job.attempts += 1
+        if self.on_send is not None:
+            with contextlib.suppress(Exception):  # Zählen darf das Senden nie stören
+                self.on_send(job.attempts)
         if self._available():
             try:
                 await job.send()

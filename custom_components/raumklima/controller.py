@@ -88,6 +88,7 @@ from .const import (
     CONF_TEMP_SENSOR,
     CONF_TRV,
     CONF_VIRTUAL_WINDOW,
+    CONF_WALL,
     CONF_WEATHER,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
@@ -95,6 +96,7 @@ from .const import (
     DEFAULTS,
     DOMAIN,
     EVENT_RAUMKLIMA,
+    KIND_MOISTURE,
     MAX_SENSOR_JUMP,
     OFF_HVAC,
     OFF_MIN_TEMP,
@@ -117,6 +119,7 @@ from .const import (
     STATUS_TRV,
     STATUS_WINDOW,
     VALVE_HEATING_MIN,
+    WALL_FRSI,
 )
 from .decision_log import (
     CAT_DEVICE,
@@ -141,7 +144,7 @@ from .logic import (
     values_match,
     window_open_state,
 )
-from .msg import tr
+from .msg import N_, tr
 from .occupancy import room_eco_target
 from .planning import (
     AWAY_STAGES,
@@ -176,6 +179,23 @@ TRV_OUTAGE_SECONDS = 60  # kürzere Aussetzer gelten nicht als Ausfall
 REASON_NORMAL = "normal"
 REASON_MONITOR = "monitor"
 REASON_MANUAL = "manual"
+# Feuchtequelle: ab diesem Zuwachs (hPa) in 6 h gilt die Feuchte als „entsteht im Raum"
+MESSAGE_MOISTURE_DRY = (
+    N_("💧 {room}: Feuchte steigt – lüften statt heizen"),
+    N_(
+        "In {hours} h von {from} auf {to} %. Draußen ist die Luft trockener: einmal kräftig "
+        "stoßlüften bringt mehr als höher heizen."
+    ),
+)
+MESSAGE_MOISTURE_DAMP = (
+    N_("🧺 {room}: Feuchtequelle im Raum"),
+    N_(
+        "In {hours} h von {from} auf {to} %. Lüften hilft gerade nicht – die Außenluft ist "
+        "feuchter. Wäsche, Duschen oder viele Personen im Raum?"
+    ),
+)
+MOISTURE_RISE = 1.2
+MOISTURE_COOLDOWN = timedelta(hours=12)
 REASON_SEASON = "season"
 REASON_FROST = "frost"
 REASON_VALVE_CARE = "valve_care"
@@ -232,6 +252,7 @@ LIVE_OPTIONS = frozenset(
         CONF_LEARN_AIRING,
         CONF_AIRING_MIN_MINUTES,
         CONF_MOLD_MODE,
+        CONF_WALL,
         CONF_SCHEDULE_FALLBACK,
     }
 )
@@ -337,6 +358,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.vent = VentilationManager(self, None)
         self.lights = LightSignal(self)
         self.extra_trvs = [ExtraTrv(self, e) for e in self._extra_ids]
+        self._rf: dict[str, Any] = {"day": "", "sent": 0, "retries": 0}
         self.sync = SyncManager(
             schedule=self._schedule,
             run_task=lambda coro: hass.async_create_task(coro),
@@ -347,6 +369,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             device_interval=lambda: self.trv_report_interval,
             on_change=self._notify,
             on_failed=self._on_sync_failed,
+            on_send=self._count_rf,
             on_recovered=self._on_sync_recovered,
             on_event=self._on_sync_event,
         )
@@ -371,6 +394,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.shift = float(stored.get("shift") or 0.0)
             self.heatup.load(stored.get("heatup"))
             self.mold_guard.load(stored.get("mold_vapour"))
+            if isinstance(stored.get("rf"), dict):
+                self._rf = stored["rf"]
             self.airing.load(stored.get("airing_profile"))
             self.usage.load(stored.get("usage_profile"))
         elif self.trv_available():
@@ -474,6 +499,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "vent": self.vent.export() if self.vent else None,
             "heatup": self.heatup.dump(),
             "mold_vapour": self.mold_guard.dump(),
+            "rf": self._rf,
             "airing_profile": self.airing.export(),
             "usage_profile": self.usage.export(),
         }
@@ -858,16 +884,90 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             return on, target, reason
         return True, min(mold, self.trv_max), REASON_MOLD
 
+    @property
+    def room_frsi(self) -> float:
+        """Temperaturfaktor der kältesten Wandstelle – Raum vor Wohnung.
+
+        Eine Außenecke (0,62) wird deutlich kälter als eine Innenwand (0,82) und braucht
+        deshalb mehr Schutz; ein innenliegendes Bad praktisch keinen.
+        """
+        wall = str(self.config.get(CONF_WALL) or "auto")
+        if wall in WALL_FRSI:
+            return WALL_FRSI[wall]
+        hub = self.hub
+        return hub.frsi if hub is not None else 0.70
+
     def mold_min(self, hub: RaumklimaHub) -> float | None:
         """Feuchte-Mindesttemperatur aus dem 24-h-Mittel (siehe ``MoldGuard``)."""
         return self.mold_guard.floor(
-            dt_util.utcnow(), self.current_temperature, self.current_humidity, hub.outdoor_temp(), hub.frsi
+            dt_util.utcnow(), self.current_temperature, self.current_humidity, hub.outdoor_temp(), self.room_frsi
+        )
+
+    def _count_rf(self, attempts: int) -> None:
+        """Funkbefehl zählen – je Tag, mit Wiederholungen (Batterie-Diagnose)."""
+        today = dt_util.now().date().isoformat()
+        if self._rf.get("day") != today:
+            self._rf = {"day": today, "sent": 0, "retries": 0}
+        self._rf["sent"] = int(self._rf.get("sent") or 0) + 1
+        if attempts > 1:
+            self._rf["retries"] = int(self._rf.get("retries") or 0) + 1
+        self._save()
+
+    @property
+    def rf_today(self) -> dict[str, int]:
+        """Funkbefehle heute: gesamt und davon Wiederholungen."""
+        today = dt_util.now().date().isoformat()
+        if self._rf.get("day") != today:
+            return {"sent": 0, "retries": 0}
+        return {"sent": int(self._rf.get("sent") or 0), "retries": int(self._rf.get("retries") or 0)}
+
+    @property
+    def mold_rh(self) -> float | None:
+        """Mittlere relative Feuchte der letzten 24 h (Grundlage des Feuchte-Bodens)."""
+        return self.mold_guard.mean_rh(dt_util.utcnow())
+
+    def check_moisture_source(self, now: datetime) -> None:
+        """Steigt die Feuchte im Raum, obwohl geheizt wird? Dann liegt die Ursache im Zimmer."""
+        if self.monitor or not self.humidity_sensor or self.paused or self.window_logic and self.window_paused:
+            return
+        sent = getattr(self, "_moisture_sent", None)
+        if sent is not None and now - sent < MOISTURE_COOLDOWN:
+            return
+        delta = self.mold_guard.trend(now)
+        change = self.mold_guard.rh_change(now)
+        if delta is None or change is None or delta < MOISTURE_RISE:
+            return
+        hub = self.hub
+        if hub is None:
+            return
+        start, end, hours = change
+        vent = self.vent
+        dries = vent.dries if vent is not None else True
+        title_key, body_key = MESSAGE_MOISTURE_DRY if dries else MESSAGE_MOISTURE_DAMP
+        fields = {
+            "room": self.name,
+            "hours": f"{hours:.0f}",
+            "from": f"{start:.0f}",
+            "to": f"{end:.0f}",
+        }
+        title = tr(title_key, **fields)
+        body = tr(body_key, **fields)
+        self._moisture_sent = now
+        self.log(CAT_SETTINGS, title, body)
+        hub.notify(
+            KIND_MOISTURE,
+            title,
+            body,
+            data={"tag": f"{self.entry.entry_id}_moisture", "group": "raumklima"},
+            speak=False,
+            room=self,
         )
 
     def record_mold_sample(self, now: datetime) -> None:
         """Jede Minute aus der Statistik: Feuchte für das 24-h-Mittel merken."""
         if self.humidity_sensor and self.mold_guard.add(now, self.current_temperature, self.current_humidity):
             self._save()
+        self.check_moisture_source(now)
 
     def _plan_rules(self) -> tuple[bool, float, str]:
         """Regelkette ohne Nachbedingung (siehe ``plan()``)."""
@@ -1075,7 +1175,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
 
     # ================================================================ Bedienung
-    async def async_set_target(self, temperature: float) -> None:
+    async def async_set_target(self, temperature: float, by: str | None = None) -> None:
         new = clamp(float(temperature), self.trv_min, self.trv_max)
         on, current, reason = self.plan()
         override = reason in AWAY_STAGES and new > current
@@ -1090,7 +1190,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.log(
                 CAT_MANUAL,
                 tr("Wunschtemperatur {old} → {new}", old=fmt_temp(self.target_temp), new=fmt_temp(new)),
-                tr("in Home Assistant geändert") + (tr("; Absenkung für 3 h ausgesetzt") if override else ""),
+                tr("in Home Assistant geändert")
+                + (tr(" von {who}", who=by) if by else "")
+                + (tr("; Absenkung für 3 h ausgesetzt") if override else ""),
             )
         self.target_temp = new
         self._save()

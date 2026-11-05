@@ -132,3 +132,26 @@ The kind is detected from the device class (`occupancy`/`presence` = mmWave, `mo
 4. Room empty according to presence sensors → up to 1.5 °C less
 5. Sunny side and sun expected → 1 °C below desired
 6. Otherwise → desired temperature
+
+## Humidity source, wall type and radio commands
+
+**Wall type per room.** How cold the coldest wall spot gets depends on the room, not only on the
+building: an outer corner (fRsi 0.62) cools far more than an internal wall (0.82). Set it per room under
+*Settings → Temperature → Wall type*; “as the home” uses the building type. An internal bathroom then
+needs practically no humidity floor, an outer corner in the bedroom needs considerably more.
+
+**24-hour average instead of the current value.** The humidity floor is calculated from the mean water
+vapour of the last 24 hours – mould grows from sustained humidity, not from a shower peak.
+
+**Why it is warmer than requested.** When protection raises the target, the room shows it:
+“mould protection **+2.0 °C** to 22.5 °C · 63 % humidity (24 h average)”.
+
+**Humidity source instead of heating.** If humidity rises over hours while heating runs, RaumKlima
+reports it – distinguishing both cases: if outside air is drier, airing helps (“air instead of heating”);
+if it is more humid (November), the source is inside (laundry, showering, many people).
+
+**Radio commands in the report.** Every setpoint command to a thermostat is counted, including retries.
+The weekly report lists conspicuous rooms in the reliability table – lots of retries usually means a
+battery or radio problem.
+
+**Who changed it.** Manual changes name the Home Assistant user in the log.

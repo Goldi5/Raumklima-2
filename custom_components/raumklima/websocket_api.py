@@ -78,6 +78,7 @@ from .const import (
     CONF_TTS,
     CONF_VALVE_CARE,
     CONF_VIRTUAL_WINDOW,
+    CONF_WALL,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
     CONF_ZONE,
@@ -97,6 +98,7 @@ from .const import (
     SCHEDULE_TEMP_MIN,
     SEASON_MODES,
     SOLAR_FACADE_OPTIONS,
+    WALL_OPTIONS,
 )
 from .decision_log import CATEGORIES
 from .holidays_de import STATES
@@ -213,6 +215,7 @@ ROOM_CHANGES = vol.Schema(
     {
         vol.Optional(CONF_COMFORT_TEMP): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(12, 26))),
         vol.Optional(CONF_ROOM_TYPE): vol.In(ROOM_TYPE_OPTIONS),
+        vol.Optional(CONF_WALL): vol.In(WALL_OPTIONS),
         vol.Optional(CONF_SETBACK_SHORT): vol.All(vol.Coerce(float), vol.Range(10, 24)),
         vol.Optional(CONF_SETBACK_LONG): vol.All(vol.Coerce(float), vol.Range(8, 22)),
         vol.Optional(CONF_WINDOW_OPEN_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 600)),

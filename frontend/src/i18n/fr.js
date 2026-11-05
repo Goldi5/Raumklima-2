@@ -809,4 +809,13 @@ export const FR = {
   "{tag} {v}°": "{tag} {v}°",
   "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "La carte du navigateur est plus ancienne que l'intégration – rechargez avec Ctrl+Shift+R.",
   "neu: {v} – Seite neu laden": "nouveau : {v} – recharger la page",
+  "Schimmel +{d}°": "Moisissure +{d}°",
+  "Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel": "Protection moisissure <b>+{d} °C</b> à {v} °C · {rh} % d'humidité (moyenne 24 h)",
+  "Schimmelschutz <b>{v} °C</b>": "Protection moisissure <b>{v} °C</b>",
+  "bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand": "détermine la température du point de paroi le plus froid : un angle extérieur demande plus de protection qu'une cloison",
+  "wie die Wohnung": "comme le logement",
+  "Außenecke": "angle extérieur",
+  "Außenwand": "mur extérieur",
+  "innenliegend": "intérieur",
+  "Feuchtequelle im Raum": "Source d'humidité",
 };

@@ -145,6 +145,10 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
                 if getattr(c, "manual_until", None) is not None
                 else None
             ),
+            "mold_min": c.mold_min(hub) if (hub := c.hub) is not None else None,
+            "mold_rh": c.mold_rh,
+            "rf_sent": c.rf_today["sent"],
+            "rf_retries": c.rf_today["retries"],
             "target_via": c.target_via,
             "comfort_temperature": c.comfort_temp,
             "calibration_mode": c.cal_mode,
@@ -175,11 +179,23 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "heating_mode": hub.decision if hub else None,
         }
 
+    async def _user_name(self) -> str | None:
+        """Wer hat es geändert? Name des HA-Benutzers aus dem Aufruf-Kontext."""
+        context = getattr(self, "_context", None)
+        user_id = getattr(context, "user_id", None) if context is not None else None
+        if not user_id:
+            return None
+        try:
+            user = await self.hass.auth.async_get_user(user_id)
+        except Exception:  # noqa: BLE001 – Name ist Beiwerk, nie ein Grund zum Abbruch
+            return None
+        return getattr(user, "name", None) if user is not None else None
+
     async def async_set_temperature(self, **kwargs: Any) -> None:
         if self.controller.monitor:
             return  # Überwachungsraum: nichts einzustellen
         if (temp := kwargs.get(ATTR_TEMPERATURE)) is not None:
-            await self.controller.async_set_target(temp)
+            await self.controller.async_set_target(temp, by=await self._user_name())
         if (mode := kwargs.get("hvac_mode")) is not None:
             await self.async_set_hvac_mode(mode)
 

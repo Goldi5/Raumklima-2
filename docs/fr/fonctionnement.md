@@ -132,3 +132,27 @@ Le type est détecté à partir de la classe d'appareil (`occupancy`/`presence` 
 4. Pièce vide selon les détecteurs de présence → jusqu'à 1,5 °C de moins
 5. Côté ensoleillé et soleil prévu → 1 °C en dessous de la consigne
 6. Sinon → température souhaitée
+
+## Source d'humidité, type de paroi et commandes radio
+
+**Type de paroi par pièce.** La température du point de paroi le plus froid dépend de la pièce, pas
+seulement du bâtiment : un angle extérieur (fRsi 0,62) refroidit bien plus qu'une cloison intérieure (0,82).
+Réglable par pièce sous *Réglages → Température → Type de paroi* ; « comme le logement » reprend le type
+de bâtiment. Une salle de bain intérieure n'a alors presque plus besoin de plancher d'humidité, un angle
+extérieur dans la chambre beaucoup plus.
+
+**Moyenne sur 24 h au lieu de la valeur instantanée.** Le plancher d'humidité est calculé sur la moyenne
+de vapeur d'eau des 24 dernières heures – la moisissure vient d'une humidité durable, pas d'un pic de douche.
+
+**Pourquoi il fait plus chaud que demandé.** Quand la protection relève la consigne, la pièce l'affiche :
+« protection moisissure **+2,0 °C** à 22,5 °C · 63 % d'humidité (moyenne 24 h) ».
+
+**Source d'humidité au lieu du chauffage.** Si l'humidité monte pendant des heures alors que le chauffage
+tourne, RaumKlima le signale – en distinguant : air extérieur plus sec, aérer aide (« aérer au lieu de
+chauffer ») ; air extérieur plus humide (novembre), la source est dans la pièce (linge, douche, plusieurs
+personnes).
+
+**Commandes radio dans le rapport.** Chaque consigne envoyée à un thermostat est comptée, répétitions
+comprises. Le rapport hebdomadaire liste les pièces suspectes dans le tableau de fiabilité.
+
+**Qui a modifié.** Les changements manuels nomment l'utilisateur Home Assistant dans le journal.

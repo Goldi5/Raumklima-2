@@ -47,6 +47,11 @@ CONF_NOTIFY: Final = "notify_on_failure"
 
 # --- Lüften & Benachrichtigung (v0.2) ---
 CONF_ROOM_TYPE: Final = "room_type"
+# Bauart des Raums: bestimmt, wie kalt die kälteste Wandstelle wird (fRsi).
+# "auto" = wie die Wohnung (Gebäudetyp).
+CONF_WALL: Final = "wall"
+WALL_OPTIONS: Final = ["auto", "corner", "wall", "interior"]
+WALL_FRSI: Final = {"corner": 0.62, "wall": 0.70, "interior": 0.82}
 CONF_WEATHER: Final = "weather_entity"
 CONF_OUTDOOR_TEMP: Final = "outdoor_temp_entity"
 CONF_NOTIFY_TARGETS: Final = "notify_targets"
@@ -165,6 +170,7 @@ KIND_TRV_FAILURE: Final = "trv_failure"
 KIND_HEALTH: Final = "health"
 KIND_REPORT: Final = "report"
 KIND_STORM: Final = "storm"  # Sturm/Starkregen bei offenem Fenster
+KIND_MOISTURE: Final = "moisture"  # Feuchtequelle im Raum (Wäsche, Duschen)
 KIND_LIVE: Final = "live"  # Lüft-Countdown als Live-Aktivität (nur Handy-App)
 KINDS: Final = [
     KIND_VENT_OPEN,
@@ -178,6 +184,7 @@ KINDS: Final = [
     KIND_HEALTH,
     KIND_REPORT,
     KIND_STORM,
+    KIND_MOISTURE,
     KIND_LIVE,
 ]
 DEFAULT_PUSH_KINDS: Final = [k for k in KINDS if k not in (KIND_PRESENCE, KIND_LIVE)]

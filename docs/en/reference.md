@@ -193,3 +193,5 @@ Used by the cards; handy for your own tools. All commands accept an optional `ho
 | `raumklima/notify/test` | send a test message (admin) |
 | `raumklima/room/light_test` | let the room's signal lights blink (`entry_id`, optional `signal`; admin) |
 | `raumklima/home/create` | create another home (admin) |
+| `mold_min` / `mold_rh` | humidity floor (0.5 steps) and the 24 h mean humidity behind it |
+| `rf_sent` / `rf_retries` | radio commands to the thermostat today – total and retries |

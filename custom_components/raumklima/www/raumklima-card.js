@@ -1,4 +1,4 @@
-/* Raumklima 0.59.11 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.12b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -808,7 +808,16 @@
     "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · target {w}°",
     "{tag} {v}°": "{tag} {v}°",
     "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "The card in the browser is older than the integration – reload with Ctrl+Shift+R.",
-    "neu: {v} – Seite neu laden": "new: {v} – reload page"
+    "neu: {v} – Seite neu laden": "new: {v} – reload page",
+    "Schimmel +{d}°": "Mould +{d}°",
+    "Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel": "Mould protection <b>+{d} °C</b> to {v} °C · {rh} % humidity (24 h average)",
+    "Schimmelschutz <b>{v} °C</b>": "Mould protection <b>{v} °C</b>",
+    "bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand": "sets how cold the coldest wall spot gets: an outer corner needs more protection than an inside wall",
+    "wie die Wohnung": "as the home",
+    "Außenecke": "outer corner",
+    "Außenwand": "outer wall",
+    "innenliegend": "internal",
+    "Feuchtequelle im Raum": "Humidity source"
   };
 
   // src/i18n/fr.js
@@ -1619,7 +1628,16 @@
     "{tag} {v}° · Wunsch {w}°": "{tag} {v}° · consigne {w}°",
     "{tag} {v}°": "{tag} {v}°",
     "Die Karte im Browser ist älter als die Integration – Seite mit Strg+Shift+R neu laden.": "La carte du navigateur est plus ancienne que l'intégration – rechargez avec Ctrl+Shift+R.",
-    "neu: {v} – Seite neu laden": "nouveau : {v} – recharger la page"
+    "neu: {v} – Seite neu laden": "nouveau : {v} – recharger la page",
+    "Schimmel +{d}°": "Moisissure +{d}°",
+    "Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel": "Protection moisissure <b>+{d} °C</b> à {v} °C · {rh} % d'humidité (moyenne 24 h)",
+    "Schimmelschutz <b>{v} °C</b>": "Protection moisissure <b>{v} °C</b>",
+    "bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand": "détermine la température du point de paroi le plus froid : un angle extérieur demande plus de protection qu'une cloison",
+    "wie die Wohnung": "comme le logement",
+    "Außenecke": "angle extérieur",
+    "Außenwand": "mur extérieur",
+    "innenliegend": "intérieur",
+    "Feuchtequelle im Raum": "Source d'humidité"
   };
 
   // src/i18n.js
@@ -1663,7 +1681,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.59.11";
+  var RK_VERSION2 = "0.59.12b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1828,11 +1846,27 @@
       if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
       if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
       if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
-      if (r === "mold") return t("Schimmel · {v}°", { v: fmt(tgt) });
+      if (r === "mold") {
+        const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
+        if (plus != null && plus >= 0.2) return t("Schimmel +{d}°", { d: fmt(plus) });
+        return t("Schimmel · {v}°", { v: fmt(tgt) });
+      }
       if (r === "solar") return t("Sonne · {v}°", { v: fmt(tgt) });
       return t("Ziel {v}°", { v: fmt(a.temperature) });
     }
     if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "mold") {
+      const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
+      const rh = a.mold_rh != null ? fmt(a.mold_rh, 0) : null;
+      if (plus != null && plus >= 0.2 && rh) {
+        return t("Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel", {
+          d: fmt(plus),
+          v: fmt(a.mold_min),
+          rh
+        });
+      }
+      return t("Schimmelschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    }
     if ((r === "away_short" || r === "away_long") && a.effective_target != null)
       return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(wish) });
     if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
@@ -2104,6 +2138,12 @@
   var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
   var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
   var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+  var RK_WALL = tmap({
+    auto: "wie die Wohnung",
+    corner: "Außenecke",
+    wall: "Außenwand",
+    interior: "innenliegend"
+  });
   var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
   var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
   var RK_MAIL_PROVIDERS = {
@@ -2132,6 +2172,7 @@
     health: ["🩺", "Gesundheit der Heizung"],
     report: ["📊", "Wochenbericht"],
     storm: ["🌪", "Sturm & Starkregen"],
+    moisture: ["🧺", "Feuchtequelle im Raum"],
     live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"]
   });
   var RK_LIGHT_SIGNALS = tmap({
@@ -2140,7 +2181,7 @@
     done: ["#00c83c", "Luft ausgetauscht"],
     problem: ["#ff0000", "Problem mit der Heizung"]
   });
-  var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report"];
+  var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report", "moisture"];
   var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
   function rkIssueList(issues, withRoom, prefix) {
     if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
@@ -4675,6 +4716,11 @@
           "Raumtyp",
           editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–"),
           t("jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben")
+        ),
+        this._row(
+          "Bauart",
+          editable ? this._select(scope, "wall", Object.entries(RK_WALL).map(([k, v]) => ({ id: k, name: v })), this._roomOpt(r, "wall") ?? "auto") : this._v(RK_WALL[this._roomOpt(r, "wall") ?? "auto"]),
+          t("bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand")
         ),
         (this._cfg && this._cfg.homes || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row(
