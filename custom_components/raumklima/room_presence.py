@@ -38,6 +38,8 @@ class PresenceMixin:
     _presence_unsub: Callable[[], None] | None = None
     _occupied: bool | None = None
     _empty_since: datetime | None = None
+    _started_at: datetime | None = None  # Startzeitpunkt dieses Prozesses (für Melder-Zustände)
+    _seen_on: set[str] = set()  # Melder-Arten, die seit dem Start schon „an" gemeldet haben
     _eco_active: bool = False
 
     # ------------------------------------------------------------ Einstellungen
@@ -78,7 +80,7 @@ class PresenceMixin:
             if st is None or st.state not in ("on", "off"):
                 readings.append(Reading(kind, None, dt_util.utcnow()))
             else:
-                readings.append(Reading(kind, st.state == "on", st.last_changed))
+                readings.append(Reading(kind, st.state == "on", st.last_changed, st.last_updated))
         return readings
 
     @property
@@ -86,8 +88,18 @@ class PresenceMixin:
         """True/False – None ohne Melder oder wenn keiner erreichbar ist."""
         return self._occupied
 
+    def _boot_time(self) -> datetime:
+        if self._started_at is None:
+            self._started_at = dt_util.utcnow()
+        return self._started_at
+
     def seen_recently(self, kinds: tuple[str, ...]) -> bool:
-        return recently_seen(self.presence_readings(), dt_util.utcnow(), kinds)
+        readings = self.presence_readings()
+        now, boot = dt_util.utcnow(), self._boot_time()
+        for r in readings:
+            if r.on and (r.updated is None or r.updated >= boot):
+                self._seen_on.add(r.kind)
+        return recently_seen(readings, now, kinds, since=boot, seen_on=self._seen_on)
 
     def room_eco_applies(self) -> bool:
         """Leer lange genug und Absenken eingeschaltet?"""

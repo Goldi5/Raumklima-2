@@ -48,6 +48,7 @@ class Reading:
     kind: str
     on: bool | None  # None = nicht erreichbar
     changed: datetime  # letzter Wechsel
+    updated: datetime | None = None  # letzte Meldung (None = unbekannt)
 
 
 def occupancy(readings: Iterable[Reading], now: datetime) -> tuple[bool | None, datetime | None]:
@@ -64,12 +65,29 @@ def occupancy(readings: Iterable[Reading], now: datetime) -> tuple[bool | None, 
     return False, empty_from
 
 
-def recently_seen(readings: Iterable[Reading], now: datetime, kinds: tuple[str, ...]) -> bool:
-    """Hat ein Melder der gewählten Arten gerade oder vor Kurzem jemanden gesehen?"""
+def recently_seen(
+    readings: Iterable[Reading],
+    now: datetime,
+    kinds: tuple[str, ...],
+    since: datetime | None = None,
+    seen_on: set[str] | None = None,
+) -> bool:
+    """Hat ein Melder der gewählten Arten gerade oder vor Kurzem jemanden gesehen?
+
+    ``since`` und ``seen_on`` verhindern, dass ein nach dem Neustart wiederhergestellter
+    Melder-Zustand die Wohnung als bewohnt markiert: der Nachlauf („vor 5 min gesehen") zählt
+    nur, wenn der Melder **in dieser Sitzung** schon einmal „an" gemeldet hat.
+    """
     for r in readings:
         if r.kind not in kinds or r.on is None:
             continue
-        if r.on or now - r.changed <= HOME_RECENT[r.kind]:
+        if r.on:
+            return True
+        if since is not None and r.updated is not None and r.updated < since:
+            continue  # Zustand von vor dem Start – erst frisch melden lassen
+        if seen_on is not None and r.kind not in seen_on:
+            continue  # „an" wurde seit dem Start nie gesehen → kein Nachlauf
+        if now - r.changed <= HOME_RECENT[r.kind]:
             return True
     return False
 

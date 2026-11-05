@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Behoben
+- **Wohnung hielt sich nach einem Neustart 30 Minuten für bewohnt:** Präsenzmelder, die beim Start noch
+  „an" standen (wiederhergestellter Zustand), zählten als „gerade jemand gesehen" – der Nachlauf lief an,
+  obwohl niemand da war. Jetzt zählt der Nachlauf nur, wenn ein Melder seit dem Start tatsächlich „an"
+  gemeldet hat. Handy-Ortung ist davon unberührt.
+
 ## 0.57.0 – 2026-11-05
 
 ### Neu
