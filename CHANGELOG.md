@@ -19,6 +19,11 @@
 - Entwicklungsreste entfernt: `apply_fe.py` und `scripts/preview_deploy.sh` (enthielt interne Adressen).
 
 ### Behoben
+- **Kopfzeile der Raumkarte bleibt an ihrem Platz:** Ein langer Raumname schob bisher das
+  Fenstersymbol, den Status und den Boost-Knopf aus der Zeile (Bild aus Remscheid: „Sportzimmer“ mit
+  zweizeiligem Status). Jetzt kürzt der Name mit „…“ (vollständiger Name als Tooltip), Fenstersymbol
+  und Boost bleiben rechts daneben, und der Status steht in einer eigenen Zeile darunter – lange Texte
+  brechen im Chip um, statt zu verrutschen.
 - **Ventilstellung aus einer anderen Wohnung:** Bei mehreren Wohnungen in einer Installation konnte ein
   Raum die Ventilstellung eines gleichnamigen Geräts der anderen Wohnung anzeigen („Finja“ zeigte den
   Sensor von „Finja Berlin – Wohnzimmer“). Jetzt muss der Sensor im selben Bereich liegen; passt keiner,

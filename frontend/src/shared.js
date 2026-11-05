@@ -305,11 +305,20 @@ export const STYLES = `
     background: var(--ha-card-background, var(--card-background-color)); transition: box-shadow .3s; }
   ha-card::before { content:""; position:absolute; inset:-40% -20% auto auto; width:320px; height:320px; z-index:-1;
     background: radial-gradient(circle, var(--tone) 0%, transparent 65%); opacity:.18; transition: background .6s; }
-  .top { display:flex; align-items:center; gap:12px; flex-wrap:wrap; min-width:0; }
-  .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1; color:var(--primary-text-color); }
+  /* Kopfzeile: Name (kürzt bei Bedarf), Fenstersymbol und Boost bleiben an ihrem Platz.
+     Der Status steht darunter in einer eigenen Zeile – so verschiebt sich nichts mehr. */
+  .top { display:flex; align-items:center; gap:10px; flex-wrap:nowrap; min-width:0; }
+  .chips { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:7px; min-width:0; }
+  .chips:empty { display:none; }
+  /* Lange Statustexte dürfen im Chip umbrechen – lieber zwei Zeilen im Chip als abgeschnitten */
+  .chips .chip { white-space:normal; align-items:center; line-height:1.25; }
+  .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
+    color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .top > .wins, .top > .boostbtn { flex:none; }
   .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.82rem; font-weight:600;
     color:var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); white-space:nowrap;
-    max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+    flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+  .chip ha-icon { flex:none; }
   /* Zusatzinfo (Gerätesollwert/Abgleich) bekommt eine eigene Zeile – sonst schiebt sie den Chip aus der Karte */
   .trvnote { display:flex; align-items:center; gap:6px; margin-top:6px; min-width:0;
     font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
