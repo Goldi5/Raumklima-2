@@ -4,17 +4,16 @@
 
 ## 0.59.3 – 2026-11-05
 
-### Behoben
-- **Anwesenheit (#29):** Meldet keines der eingetragenen Handys einen Standort, steht das jetzt im
-  Protokoll („Keine Ortung verfügbar – Standortfreigabe, VPN oder Zonenradius prüfen"), statt still
-  abzusenken. Außerdem zählt ein direkt eingetragener Gerätetracker als Bewohner.
-
-## 0.59.2 – 2026-11-05
-
 ### Dokumentation
 - **Eigene Anleitung „Sprachsteuerung"** (de/en/fr, auch im Handbuch-PDF): welche Pipeline nötig ist,
   wie man einen KI-Agenten anbindet, wie „Raumklima" in der KI-Integration freigeschaltet wird, was man
   fragen kann – und warum Alexa, Siri und Google-Home-Lautsprecher diesen Weg nicht nutzen können.
+  *(0.59.2 und 0.59.3 sind zusammen veröffentlicht – die Dokumentation steckt mit in 0.59.3.)*
+
+### Behoben
+- **Anwesenheit (#29):** Meldet keines der eingetragenen Handys einen Standort, steht das jetzt im
+  Protokoll („Keine Ortung verfügbar – Standortfreigabe, VPN oder Zonenradius prüfen"), statt still
+  abzusenken. Außerdem zählt ein direkt eingetragener Gerätetracker als Bewohner.
 
 ## 0.59.1 – 2026-11-05
 
