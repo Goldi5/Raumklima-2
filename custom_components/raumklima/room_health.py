@@ -115,6 +115,20 @@ class HealthMixin:
                     return entry.entity_id
             return None
 
+        def area_of(entry) -> str | None:
+            """Bereich steht meist am Gerät, nicht an der Entität."""
+            if entry.area_id:
+                return entry.area_id
+            dev = devices.async_get(entry.device_id) if entry.device_id else None
+            return dev.area_id if dev else None
+
+        trv_area = area_of(trv_entry)
+
+        def same_area(entry) -> bool:
+            """Gehört der Sensor zum selben Raum? Unbekannter Bereich zählt als „vielleicht“."""
+            area = area_of(entry)
+            return not trv_area or area in (None, trv_area)
+
         if trv_entry.device_id:
             hit = pick(er.async_entries_for_device(registry, trv_entry.device_id))
             if hit:
@@ -126,7 +140,10 @@ class HealthMixin:
             related = [
                 e
                 for e in registry.entities.values()
-                if (other := _entity_stem(e.entity_id)) and other != stem and (other.startswith(stem) or stem.startswith(other))
+                if (other := _entity_stem(e.entity_id))
+                and other != stem
+                and (other.startswith(stem) or stem.startswith(other))
+                and same_area(e)
             ]
             # der längste gemeinsame Namensanfang gewinnt (bei mehreren Kandidaten)
             related.sort(key=lambda e: -_common_prefix(_entity_stem(e.entity_id), stem))
@@ -136,13 +153,6 @@ class HealthMixin:
 
         device = devices.async_get(trv_entry.device_id) if trv_entry.device_id else None
         trv_name = ((device.name_by_user or device.name) if device else "") or ""
-
-        def area_of(entry) -> str | None:
-            """Bereich steht meist am Gerät, nicht an der Entität."""
-            if entry.area_id:
-                return entry.area_id
-            dev = devices.async_get(entry.device_id) if entry.device_id else None
-            return dev.area_id if dev else None
 
         # Heizkörper-Thermostate im Raum zuerst: dort sitzt das Ventil
         for extra in getattr(self, "extra_trvs", []):
@@ -166,13 +176,13 @@ class HealthMixin:
             same = [
                 e
                 for e in registry.entities.values()
-                if e.device_id and _name_related(name_of(e), trv_name)
+                if e.device_id and _name_related(name_of(e), trv_name) and same_area(e)
             ]
             hit = pick(same)
             if hit:
                 return hit
 
-        loose = [e.entity_id for e in registry.entities.values() if usable(e)]
+        loose = [e.entity_id for e in registry.entities.values() if usable(e) and same_area(e)]
         return loose[0] if len(loose) == 1 else None
 
     @property

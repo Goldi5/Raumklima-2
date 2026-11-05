@@ -925,3 +925,45 @@ async def test_manual_change_overrides_schedule_for_a_while(hass: HomeAssistant,
     ctrl._manual_until = _dt.utcnow() - _td(minutes=1)
     assert ctrl.plan()[2] == "schedule"
     assert ctrl.plan()[1] == 19.0
+
+
+async def test_ventilsensor_aus_anderer_wohnung_wird_nicht_genommen(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Zwei Wohnungen in einer Installation: „Finja“ darf nicht den Sensor aus „Finja Berlin“ erben.
+
+    Beide RWE-Thermostate (VRCC) melden keine Ventilstellung. Der Namensstamm „Finja“ passte aber
+    auf ein Gerät der anderen Wohnung („Finja Berlin - Wohnzimmer Thermostat“) – deshalb zeigte
+    genau ein Raum einen fremden Wert. Jetzt entscheidet der Bereich mit.
+    """
+    from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    areas = ar.async_get(hass)
+    devs = dr.async_get(hass)
+    regs = er.async_get(hass)
+
+    eigen = areas.async_create("Finja")
+    fremd = areas.async_create("Finja Berlin")
+
+    trv_dev = devs.async_get_or_create(
+        config_entry_id=room.entry_id, identifiers={("demo", "vrcc-finja")}, name="Finja", suggested_area="Finja"
+    )
+    devs.async_update_device(trv_dev.id, area_id=eigen.id)
+    regs.async_get_or_create("climate", "demo", "vrcc-c", suggested_object_id="finja", device_id=trv_dev.id)
+
+    fremd_dev = devs.async_get_or_create(
+        config_entry_id=room.entry_id,
+        identifiers={("demo", "berlin-wz")},
+        name="Finja Berlin - Wohnzimmer Thermostat",
+    )
+    devs.async_update_device(fremd_dev.id, area_id=fremd.id)
+    regs.async_get_or_create("climate", "demo", "berlin-c", suggested_object_id="finja_berlin_wz", device_id=fremd_dev.id)
+    regs.async_get_or_create(
+        "sensor", "demo", "berlin-p", suggested_object_id="finja_berlin_wohnzimmer_thermostat_position", device_id=fremd_dev.id
+    )
+    hass.states.async_set("sensor.finja_berlin_wohnzimmer_thermostat_position", "14", {"unit_of_measurement": "%"})
+    ctrl.trv = "climate.finja"
+
+    assert ctrl._find_valve_sensor() is None

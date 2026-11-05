@@ -19,6 +19,10 @@
 - Entwicklungsreste entfernt: `apply_fe.py` und `scripts/preview_deploy.sh` (enthielt interne Adressen).
 
 ### Behoben
+- **Ventilstellung aus einer anderen Wohnung:** Bei mehreren Wohnungen in einer Installation konnte ein
+  Raum die Ventilstellung eines gleichnamigen Geräts der anderen Wohnung anzeigen („Finja“ zeigte den
+  Sensor von „Finja Berlin – Wohnzimmer“). Jetzt muss der Sensor im selben Bereich liegen; passt keiner,
+  bleibt die Anzeige leer – so wie bei Thermostaten, die keine Stellung melden (z. B. RWE VRCC).
 - **Schimmelschutz gilt jetzt überall:** Zeitplan und Ruhezeit konnten einen feuchten Raum unter die
   Feuchte-Mindesttemperatur drücken, obwohl die Doku zusagt, dass der Schimmelschutz vorrangig bleibt.
   Jetzt greift er als Boden für jeden Zweig (außer Boost, Ventilpflege und Heizpause) und erscheint im
