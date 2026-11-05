@@ -18,7 +18,11 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
-import voluptuous as vol
+
+try:  # Home Assistant ab 2026.10 nutzt probatio, davor voluptuous – gleiche Aufrufe
+    from probatio import Coerce, Required, Schema
+except ImportError:  # pragma: no cover - ältere Installationen
+    from voluptuous import Coerce, Required, Schema
 
 from .const import STATUS_HEATING, STATUS_MONITOR
 from .msg import tr
@@ -109,7 +113,7 @@ if llm is not None:
         def __init__(self) -> None:
             self.name = "raumklima_rooms"
             self.description = "List the rooms Raumklima controls, with current and target temperature."
-            self.parameters = vol.Schema({})
+            self.parameters = Schema({})
 
         async def async_call(
             self, hass: HomeAssistant, tool_input: llm.ToolInput, llm_context: llm.LLMContext
@@ -141,7 +145,7 @@ if llm is not None:
                 "Values of one room: current and target temperature, humidity, CO2, window, "
                 "why the heating is as it is, and whether airing is recommended."
             )
-            self.parameters = vol.Schema({vol.Required("room"): str})
+            self.parameters = Schema({Required("room"): str})
 
         async def async_call(
             self, hass: HomeAssistant, tool_input: llm.ToolInput, llm_context: llm.LLMContext
@@ -157,8 +161,8 @@ if llm is not None:
         def __init__(self) -> None:
             self.name = "raumklima_set_room_temperature"
             self.description = "Set the desired temperature of one room in °C."
-            self.parameters = vol.Schema(
-                {vol.Required("room"): str, vol.Required("temperature"): vol.Coerce(float)}
+            self.parameters = Schema(
+                {Required("room"): str, Required("temperature"): Coerce(float)}
             )
 
         async def async_call(

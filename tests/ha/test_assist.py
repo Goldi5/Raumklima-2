@@ -30,6 +30,13 @@ async def test_werkzeuge_sind_angemeldet(hass: HomeAssistant, setup, trv: FakeTr
     namen = {tool.name for tool in inst.tools}
     assert namen == {"raumklima_rooms", "raumklima_room_status", "raumklima_set_room_temperature"}
 
+    # Die Parameter müssen ein echtes Schema der laufenden HA-Version sein
+    # (2026.10 nutzt probatio, davor voluptuous) – sonst kann der KI-Agent sie nicht aufrufen.
+    by_name = {tool.name: tool for tool in inst.tools}
+    assert by_name["raumklima_room_status"].parameters({"room": "Bad"})
+    assert by_name["raumklima_set_room_temperature"].parameters({"room": "Bad", "temperature": "22"})["temperature"] == 22.0
+    assert by_name["raumklima_rooms"].parameters({}) == {}
+
 
 async def test_raumstatus_liefert_werte(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """„Wie warm ist es im Bad?" – Ist, Soll und Feuchte kommen aus dem Regler."""

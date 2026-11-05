@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.59.1 – 2026-11-05
+
+### Behoben
+- **Sprachsteuerung blieb auf Home Assistant 2026.10 stumm:** Werkzeug-Parameter werden dort mit
+  ``probatio`` statt ``voluptuous`` beschrieben – die Werkzeuge wurden dadurch nicht nutzbar. Jetzt
+  laufen beide Varianten, geprüft gegen 2026.2 und 2026.10.
+
 ## 0.59.0 – 2026-11-05
 
 ### Neu
