@@ -173,6 +173,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) ->
             data["hub"] = hub
         await hass.config_entries.async_forward_entry_setups(entry, HUB_PLATFORMS)
         await hub.async_start()
+        # Sprachassistenten (Assist mit KI-Agent) bekommen Werkzeuge für Räume und Werte
+        from .assist import async_register as async_register_assist
+
+        async_register_assist(hass)
         entry.async_on_unload(entry.add_update_listener(_async_hub_updated))
         for room in list(domain_data(hass)["rooms"].values()):
             room.on_hub_change()

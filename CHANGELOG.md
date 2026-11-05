@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.59.0 – 2026-11-05
+
+### Neu
+- **Sprachsteuerung:** Mit einem KI-Agenten im Assistenten (ChatGPT, Google, Anthropic, Ollama) kennt
+  Raumklima jetzt Werkzeuge für Räume und Werte – „Wie warm ist es im Bad?", „Muss ich im Wohnzimmer
+  lüften?", „Stell das Schlafzimmer auf 18 Grad". Die Werkzeuge erscheinen automatisch in jeder
+  Pipeline mit KI-Agent, ohne Einstellung. Anleitung in der Bedienung (de/en/fr).
+
 ### Sicherheit
 - **Kein E-Mail-Login ohne Verschlüsselung:** Bisher wurde auch bei „ohne Verschlüsselung“ angemeldet –
   Benutzername, Passwort und der PDF-Bericht gingen dann im Klartext über die Leitung. Jetzt wird die

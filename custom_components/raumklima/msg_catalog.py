@@ -419,6 +419,27 @@ _ROWS: list[tuple[str, str, str]] = [
     ),
     ("Anmeldung als {user} erfolgreich", "Logged in as {user}", "Connecté en tant que {user}"),
     ("Verbindung verschlüsselt (SSL/TLS)", "Connection encrypted (SSL/TLS)", "Connexion chiffrée (SSL/TLS)"),
+    ("keine", "none", "aucune"),
+    (
+        "Noch kein Raum eingerichtet.",
+        "No room configured yet.",
+        "Aucune pièce configurée pour l'instant.",
+    ),
+    (
+        "Kein Raum „{room}“ gefunden. Bekannt sind: {names}",
+        "No room “{room}” found. Known rooms: {names}",
+        "Aucune pièce « {room} » trouvée. Pièces connues : {names}",
+    ),
+    (
+        "Mehrere Räume passen zu „{room}“: {names}",
+        "Several rooms match “{room}”: {names}",
+        "Plusieurs pièces correspondent à « {room} » : {names}",
+    ),
+    (
+        "{room} ist ein Überwachungsraum – dort lässt sich nichts stellen.",
+        "{room} is a monitoring-only room – nothing can be set there.",
+        "{room} est une pièce en surveillance – rien ne peut y être réglé.",
+    ),
     (
         "Schimmelschutz – mindestens {t} nötig (Feuchte {h} %)",
         "Mould protection – at least {t} needed (humidity {h} %)",
