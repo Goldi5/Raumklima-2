@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.59.20b1 – 2026-11-06
+
+### Behoben
+- **`RK_VERSION` war in `cards/settings.js` nicht importiert.** Folge: `ReferenceError` beim
+  Fehlerbericht, und alle Aufrufe der Debug-Spur starben still – deshalb war „Sichern" ohne
+  jede Rückmeldung. Import ergänzt.
+- **Wächter-Test `frontend/test/imports.test.mjs`:** prüft für jede Datei, dass benutzte
+  `RK_*`-Konstanten auch importiert sind. Genau dieser Fehler wäre damit sofort aufgefallen.
+
 ## 0.59.19b1 – 2026-11-06
 
 ### Hinzugefügt
