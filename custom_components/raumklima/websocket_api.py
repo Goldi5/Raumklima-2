@@ -78,6 +78,7 @@ from .const import (
     CONF_STORM_GUST,
     CONF_STORM_RAIN,
     CONF_STORM_WARNING,
+    CONF_TRV_INTERVAL,
     CONF_TTS,
     CONF_VALVE_CARE,
     CONF_VIRTUAL_WINDOW,
@@ -220,6 +221,7 @@ ROOM_CHANGES = vol.Schema(
     {
         vol.Optional(CONF_COMFORT_TEMP): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(12, 26))),
         vol.Optional(CONF_ROOM_TYPE): vol.In(ROOM_TYPE_OPTIONS),
+        vol.Optional(CONF_TRV_INTERVAL): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(0, 60))),
         vol.Optional(CONF_WALL): vol.In(WALL_OPTIONS),
         vol.Optional(CONF_SETBACK_SHORT): vol.All(vol.Coerce(float), vol.Range(10, 24)),
         vol.Optional(CONF_SETBACK_LONG): vol.All(vol.Coerce(float), vol.Range(8, 22)),

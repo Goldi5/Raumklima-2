@@ -1193,6 +1193,24 @@ export class RaumklimaSettingsCard extends HTMLElement {
           editable ? this._optToggle(scope, "fast_poll", !!(this._roomOpt(r, "fast_poll") ?? s.fast_poll)) : this._v(this._roomOpt(r, "fast_poll") ?? s.fast_poll ? t("an") : t("aus")),
           t("fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie")
         ),
+        this._row(
+          "Antwortzeit des Geräts",
+          editable
+            ? this._select(
+                scope,
+                "trv_interval",
+                [
+                  { id: "0", name: t("automatisch lernen") },
+                  { id: "1", name: t("1 Minute") },
+                  { id: "5", name: t("5 Minuten") },
+                  { id: "15", name: t("15 Minuten") },
+                  { id: "30", name: t("30 Minuten") },
+                ],
+                String(this._roomOpt(r, "trv_interval") ?? s.trv_interval ?? 0)
+              )
+            : this._v(this._roomOpt(r, "trv_interval") || t("automatisch")),
+          t("wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)")
+        ),
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),

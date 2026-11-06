@@ -78,6 +78,7 @@ from .const import (
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
     CONF_TRV,
+    CONF_TRV_INTERVAL,
     CONF_TTS,
     CONF_VALVE_CARE,
     CONF_WALL,
@@ -98,6 +99,7 @@ from .const import (
     ON_PRESET_AUTO,
     ROOM_TYPE_OPTIONS,
     SEASON_MODES,
+    TRV_INTERVAL_OPTIONS,
     WALL_OPTIONS,
 )
 from .notify_targets import notify_choices
@@ -312,6 +314,9 @@ def _room_schema(defaults: dict[str, Any], presets: list[str]) -> vol.Schema:
             vol.Optional(
                 CONF_WALL, description=_suggest(defaults.get(CONF_WALL) or "auto")
             ): _select(WALL_OPTIONS, CONF_WALL),
+            vol.Optional(
+                CONF_TRV_INTERVAL, default=defaults.get(CONF_TRV_INTERVAL) or 0
+            ): vol.In(TRV_INTERVAL_OPTIONS),
             vol.Optional(
                 CONF_COMFORT_TEMP, description=_suggest(defaults.get(CONF_COMFORT_TEMP))
             ): _number(12, 26, 0.5, "°C"),

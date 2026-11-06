@@ -88,6 +88,7 @@ from .const import (
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
     CONF_TRV,
+    CONF_TRV_INTERVAL,
     CONF_VIRTUAL_WINDOW,
     CONF_WALL,
     CONF_WEATHER,
@@ -260,6 +261,7 @@ LIVE_OPTIONS = frozenset(
         CONF_AIRING_WINDOWS,
         CONF_LEARN_AIRING,
         CONF_AIRING_MIN_MINUTES,
+        CONF_TRV_INTERVAL,
         CONF_MOLD_CAP,
         CONF_MOLD_MODE,
         CONF_WALL,
@@ -351,6 +353,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.virtual_open_at: datetime | None = None
         self._raw_virtual = False
         self._trv_down_since: datetime | None = None
+        # Beobachtete Funkpausen (Sekunden) – daraus lernt der Raum seine eigene Ausfallgrenze.
+        self._outage_durations: deque[float] = deque(maxlen=24)
         self._started_at: datetime = dt_util.utcnow()
         # Schutz gegen Endlosschleifen mit dem Thermostat
         self.preset_learned: str | None = None
@@ -410,6 +414,11 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.mold_guard.load(stored.get("mold_vapour"))
             if isinstance(stored.get("rf"), dict):
                 self._rf = stored["rf"]
+            for seconds in stored.get("outage_durations") or []:
+                try:
+                    self._outage_durations.append(float(seconds))
+                except (TypeError, ValueError):
+                    continue
             self.airing.load(stored.get("airing_profile"))
             self.usage.load(stored.get("usage_profile"))
         elif self.trv_available():
@@ -516,6 +525,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "rf": self._rf,
             "airing_profile": self.airing.export(),
             "usage_profile": self.usage.export(),
+            "outage_durations": list(self._outage_durations),
         }
 
     # ---------------------------------------------------------------- Gewohntes Lüften
@@ -1442,6 +1452,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if self._trv_down_since is not None:
                 seconds = (dt_util.utcnow() - self._trv_down_since).total_seconds()
                 self._trv_down_since = None
+                # Jede Funkpause ist eine Lernprobe für die eigene Ausfallgrenze (#33).
+                if 5.0 <= seconds <= 7200.0:
+                    self._outage_durations.append(seconds)
                 if seconds < self.outage_seconds:
                     if self.hub is not None:
                         self.hub.note_trv_blip(self, seconds)

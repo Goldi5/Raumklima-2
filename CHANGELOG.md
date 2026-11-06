@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.59.32b1 – 2026-11-06
+
+### Hinzugefügt
+- **Jedes Thermostat lernt seine eigene Antwortzeit (#33).** Die Ausfallgrenze kommt nicht mehr aus
+  einer festen Zahl, sondern aus den beobachteten Funkpausen (80 %-Perzentil, mindestens drei
+  Proben) – FRITZ!DECT braucht ~15 Minuten, Tuya meldet im Sekundentakt. Bis genug Proben da sind,
+  gilt der übliche Takt der Gerätefamilie (`fritzbox` 15, `tado` 5, `netatmo` 1, `homematic` 10,
+  Zigbee/MQTT 5 Minuten). Während der Lernphase wird nur informiert, nicht gewarnt.
+- **Neue Raumeinstellung „Antwortzeit des Geräts"** (*Raum → Thermostat & Fühler*): automatisch
+  lernen oder fest 1 / 5 / 15 / 30 Minuten – für Geräte hinter einem Repeater oder mit Sonderfunk.
+- **Gelernte Werte überleben den Neustart:** sie liegen im Raum-Speicher (`outage_durations`), nicht
+  nur im Arbeitsspeicher. In der Diagnose stehen `trv_interval_min`, `outage_min`,
+  `outage_learned` und `outage_samples`.
+
+### Geändert
+- **Meldetakt wird nicht mehr aus Wertänderungen geschätzt.** Ein Raum, in dem sich stundenlang
+  nichts ändert, sah dadurch „tot" aus. Maßgeblich ist jetzt, wie lange ein Gerät real braucht, bis
+  es zurückkommt.
 ## 0.59.31b1 – 2026-11-06
 
 ### Behoben

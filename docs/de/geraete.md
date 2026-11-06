@@ -18,7 +18,7 @@ Rückmeldungen von Nutzern und eigenen Messungen; die Liste wächst mit jedem Er
 | Livisi / RWE SmartHome | Livisi-Integration | Sollwert, Fenster | **kein Offset am Gerät** – Raumklima lernt einen geglätteten Sollwert-Ausgleich |
 | Sonoff TRVZB | ZHA | Sollwert, Offset über `number.<name>_lokaler_temperatur_offset` | schläft zwischendurch; keine Ventilstellung, keine Presets |
 | Netatmo | Netatmo-Integration | Sollwert, Raumfühler | träge; Ventilstellung fehlt häufig |
-| FRITZ!DECT (Comet, 440) | AVM FRITZ!SmartHome | Sollwert, Raumfühler | Ventilstellung häufig leer; Geräte-Zeitpläne müssen aus sein |
+| FRITZ!DECT (Comet, 301, 302, 440) | AVM FRITZ!SmartHome | Sollwert, Raumfühler | Ventilstellung häufig leer; Geräte-Zeitpläne müssen aus sein; funkt nur alle ~15 Minuten (Antwortzeit steht auf *automatisch*) |
 
 ## Was jedes Gerät braucht
 

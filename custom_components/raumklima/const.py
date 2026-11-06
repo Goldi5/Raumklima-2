@@ -319,6 +319,11 @@ CONF_ON_PRESET: Final = "on_preset"
 
 # Womit der Bericht „Wärmemenge" misst. Ohne Ventilstellung (z. B. Livisi VRCC, Homematic
 # ohne Positionssensor) ist die Ventilöffnung unbekannt – dann zählen Gradstunden.
+# Wie lange darf das Thermostat schweigen, ohne als ausgefallen zu gelten?
+# 0 = automatisch (aus den beobachteten Funkpausen gelernt), sonst Minuten.
+CONF_TRV_INTERVAL: Final = "trv_interval"
+TRV_INTERVAL_OPTIONS = [0, 1, 5, 15, 30]
+
 CONF_REPORT_METRIC: Final = "report_metric"
 REPORT_METRICS: Final = ["auto", "valve", "deficit", "hours"]  # auto = Ventil, sonst Gradstunden
 REPORT_METRIC_DEFAULT: Final = "auto"

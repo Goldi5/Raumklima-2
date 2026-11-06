@@ -11,6 +11,7 @@ from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_TRV_INTERVAL,
     STATUS_HEATING,
     STATUS_TRV,
 )
@@ -53,6 +54,7 @@ REPORT_SECONDS_BY_PLATFORM = {
     "mqtt": 300,
 }
 REPORT_SECONDS_DEFAULT = 300
+OUTAGE_SAMPLES_MIN = 3  # so viele beobachtete Funkpausen, bevor die eigene Zeit gilt
 
 
 
@@ -273,30 +275,53 @@ class HealthMixin:
 
     @property
     def trv_expected_interval(self) -> float:
-        """Wie oft meldet das Gerät von sich aus? (Sekunden)
+        """Wie lange darf das Gerät normalerweise schweigen? (Sekunden)
 
-        Gemessener Median, sonst der übliche Takt der Gerätefamilie. FRITZ!DECT etwa
-        meldet nur alle 15 Minuten – eine feste Minute Schwelle erzeugt dort Daueralarme.
+        Reihenfolge: Handeingabe im Raum → aus den Funkpausen gelernt → Startwert der
+        Gerätefamilie. FRITZ!DECT etwa funkt nur alle 15 Minuten; eine feste Minute
+        Schwelle erzeugt dort Daueralarme (Issue #33).
         """
-        # 80 %-Perzentil statt Median: Geräte melden oft in Schüben (mehrere Attribute in
-        # Sekunden), der Median wäre dann viel zu kurz und die Ausfallgrenze zu scharf.
-        measured = None
-        stamps = list(getattr(self, "_trv_reports", ()) or ())
-        if len(stamps) >= 3:
-            deltas = sorted(
-                (b - a).total_seconds() for a, b in zip(stamps, stamps[1:], strict=False)
-            )
-            deltas = [d for d in deltas if 0 < d <= 7200]
-            if deltas:
-                measured = deltas[min(len(deltas) - 1, int(len(deltas) * 0.8))]
-        if measured:
-            return float(measured)
+        override = self.config.get(CONF_TRV_INTERVAL)
+        try:
+            minutes = float(override or 0)
+        except (TypeError, ValueError):
+            minutes = 0.0
+        if minutes > 0:
+            return minutes * 60
+        learned = self._learned_silence()
+        if learned is not None:
+            return learned
         return float(REPORT_SECONDS_BY_PLATFORM.get(self.trv_report_platform(), REPORT_SECONDS_DEFAULT))
+
+    def _learned_silence(self) -> float | None:
+        """80 %-Perzentil der beobachteten Ausfalldauern – die übliche Funkpause.
+
+        Nicht die Häufigkeit von Wertänderungen messen: in einem Raum, in dem sich nichts
+        ändert, sähe das Gerät sonst „tot" aus. Gelernt wird aus dem, was ein Gerät real
+        braucht, bis es zurückkommt.
+        """
+        durations = sorted(
+            d for d in getattr(self, "_outage_durations", ()) if 5.0 <= d <= 7200.0
+        )
+        if len(durations) < OUTAGE_SAMPLES_MIN:
+            return None
+        return durations[min(len(durations) - 1, int(len(durations) * 0.8))]
+
+    @property
+    def outage_learning(self) -> bool:
+        """Noch keine eigene Erfahrung – dann bitte nicht warnen, sondern beobachten."""
+        override = self.config.get(CONF_TRV_INTERVAL)
+        try:
+            if float(override or 0) > 0:
+                return False
+        except (TypeError, ValueError):
+            pass
+        return self._learned_silence() is None
 
     @property
     def outage_seconds(self) -> float:
-        """Ab wann gilt das Gerät als ausgefallen? Zwei Meldeabstände plus eine Minute."""
-        return max(60.0, min(self.trv_expected_interval * 2 + 60, 3600.0))
+        """Ab wann gilt das Gerät als ausgefallen? Zwei Funkpausen plus zwei Minuten."""
+        return max(120.0, min(self.trv_expected_interval * 2 + 120, 3600.0))
 
     def _preset_is_derived(self) -> bool:
         """Leitet die Integration das Preset nur aus dem Sollwert ab (AVM/FRITZ!DECT)?
@@ -486,7 +511,7 @@ class HealthMixin:
                 m=f"{minutes:.0f}",
                 i=f"{self.trv_expected_interval / 60:.0f}",
             ),
-            level="warn",
+            level="info" if self.outage_learning else "warn",
         )
 
     # ================================================================ Diagnose
@@ -510,6 +535,8 @@ class HealthMixin:
             # Meldetakt und daraus folgende Ausfallgrenze (Issue #33) – macht Fehlalarme prüfbar
             "trv_interval_min": round(self.trv_expected_interval / 60, 1),
             "outage_min": round(self.outage_seconds / 60, 1),
+            "outage_learned": not self.outage_learning,
+            "outage_samples": len(getattr(self, "_outage_durations", ())),
             "off_method": self._off_method(),
             "calibration_mode": self.cal_mode,
             "offset": self.offset,

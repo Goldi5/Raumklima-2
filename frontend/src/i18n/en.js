@@ -849,4 +849,11 @@ export const EN = {
   "Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.": "Bars = heating hours: how long the rooms asked for heat.",
   "Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).": "Bars = how long the valves were fully open, converted (a measure of heat delivered).",
   "Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Dots = heating degree days: the colder it was outside, the higher. Tall bars on mild days point to open windows or too high target temperatures.",
+  "Antwortzeit des Geräts": "Device response time",
+  "automatisch lernen": "learn automatically",
+  "1 Minute": "1 minute",
+  "5 Minuten": "5 minutes",
+  "15 Minuten": "15 minutes",
+  "30 Minuten": "30 minutes",
+  "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "how long the device may stay silent before it counts as unreachable – automatic learns from the radio pauses (FRITZ!DECT needs ~15 minutes)",
 };

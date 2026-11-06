@@ -1,4 +1,4 @@
-/* Raumklima 0.59.31b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.32b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -848,7 +848,14 @@
     "Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.": "Bars = degree-hours below target (K·h): how far the rooms were below their target over time. Measured, not estimated – the devices do not report a valve position.",
     "Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.": "Bars = heating hours: how long the rooms asked for heat.",
     "Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).": "Bars = how long the valves were fully open, converted (a measure of heat delivered).",
-    "Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Dots = heating degree days: the colder it was outside, the higher. Tall bars on mild days point to open windows or too high target temperatures."
+    "Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Dots = heating degree days: the colder it was outside, the higher. Tall bars on mild days point to open windows or too high target temperatures.",
+    "Antwortzeit des Geräts": "Device response time",
+    "automatisch lernen": "learn automatically",
+    "1 Minute": "1 minute",
+    "5 Minuten": "5 minutes",
+    "15 Minuten": "15 minutes",
+    "30 Minuten": "30 minutes",
+    "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "how long the device may stay silent before it counts as unreachable – automatic learns from the radio pauses (FRITZ!DECT needs ~15 minutes)"
   };
 
   // src/i18n/fr.js
@@ -1699,7 +1706,14 @@
     "Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.": "Barres = degrés-heures sous la cible (K·h) : à quel point les pièces sont restées sous leur cible. Mesuré, pas estimé – les appareils ne transmettent pas la position de vanne.",
     "Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.": "Barres = heures de chauffe : combien de temps les pièces ont demandé de la chaleur.",
     "Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).": "Barres = durée pendant laquelle les vannes étaient entièrement ouvertes, convertie (mesure de la chaleur fournie).",
-    "Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Points = degrés-jours de chauffe : plus il faisait froid dehors, plus haut. Des barres hautes par temps doux indiquent des fenêtres ouvertes ou des consignes trop élevées."
+    "Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Points = degrés-jours de chauffe : plus il faisait froid dehors, plus haut. Des barres hautes par temps doux indiquent des fenêtres ouvertes ou des consignes trop élevées.",
+    "Antwortzeit des Geräts": "Délai de réponse de l’appareil",
+    "automatisch lernen": "apprentissage automatique",
+    "1 Minute": "1 minute",
+    "5 Minuten": "5 minutes",
+    "15 Minuten": "15 minutes",
+    "30 Minuten": "30 minutes",
+    "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "combien de temps l’appareil peut rester silencieux avant d’être considéré injoignable – automatique apprend des pauses radio (FRITZ!DECT a besoin d’environ 15 minutes)"
   };
 
   // src/i18n.js
@@ -1743,7 +1757,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.59.31b1";
+  var RK_VERSION = "0.59.32b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -5016,6 +5030,22 @@
           "Schnellere Abfrage",
           editable ? this._optToggle(scope, "fast_poll", !!(this._roomOpt(r, "fast_poll") ?? s.fast_poll)) : this._v(this._roomOpt(r, "fast_poll") ?? s.fast_poll ? t("an") : t("aus")),
           t("fragt das Thermostat alle 2 Minuten aktiv ab – für träge Geräte (Homematic & Co.), kostet Funk und Batterie")
+        ),
+        this._row(
+          "Antwortzeit des Geräts",
+          editable ? this._select(
+            scope,
+            "trv_interval",
+            [
+              { id: "0", name: t("automatisch lernen") },
+              { id: "1", name: t("1 Minute") },
+              { id: "5", name: t("5 Minuten") },
+              { id: "15", name: t("15 Minuten") },
+              { id: "30", name: t("30 Minuten") }
+            ],
+            String(this._roomOpt(r, "trv_interval") ?? s.trv_interval ?? 0)
+          ) : this._v(this._roomOpt(r, "trv_interval") || t("automatisch")),
+          t("wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)")
         ),
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
