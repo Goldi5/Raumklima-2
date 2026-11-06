@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.59.16b1 – 2026-11-06
+
+### Behoben
+- **Der neue Befehl `raumklima/export/link` war nicht registriert** – die Karte fragte ihn an,
+  Home Assistant antwortete `unknown_command`, deshalb blieb „Sichern" ohne Wirkung. Jetzt ist er
+  in `async_register_websocket` eingetragen (0.59.15b1 war unvollständig).
+
 ## 0.59.15b1 – 2026-11-06
 
 ### Behoben

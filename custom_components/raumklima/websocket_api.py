@@ -286,7 +286,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics):
+    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics, ws_export_link):
         websocket_api.async_register_command(hass, handler)
 
 
