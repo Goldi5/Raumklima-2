@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.59.17b1 – 2026-11-06
+
+### Behoben
+- **`raumklima/export/link` warf einen Fehler**, weil das Protokoll über `hub.log.add(...)`
+  geschrieben wird, nicht über `hub.log(...)`. Der Befehl antwortete mit `unknown_error`, die
+  Karte bekam keinen Link. Jetzt kommt die Antwort mit Link, Datei und Protokollzeile.
+
 ## 0.59.16b1 – 2026-11-06
 
 ### Behoben

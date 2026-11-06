@@ -805,7 +805,7 @@ async def ws_export_link(hass: HomeAssistant, connection: websocket_api.ActiveCo
     # Stand lädt – ohne diese Zeile kam der Tipp aus altem Code.
     hub = get_hub(hass, msg.get("home"))
     if hub is not None:
-        hub.log(
+        hub.log.add(
             "settings",
             tr("{kind} bereitgestellt", kind=tr("Sicherung") if kind == "backup" else tr("Diagnose")),
             tr("Download-Link für 15 Minuten: {n}", n=name),
