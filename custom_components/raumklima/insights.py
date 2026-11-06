@@ -226,8 +226,14 @@ class Insights:
         return {eid: short[n] for eid, n in full.items()}
 
     def rooms_by_name(self) -> dict[str, dict[str, dict[str, float]]]:
+        """Nur Räume, die es **jetzt** gibt.
+
+        Gelöschte Räume und Räume, die in eine andere Wohnung verschoben wurden, liegen noch
+        im Speicher – sie dürfen im Bericht nicht als Geisterzeilen auftauchen.
+        """
         short = self.short_names()
-        return {short[eid]: days for eid, days in self.data["rooms"].items()}
+        current = set(self.hub.rooms) if self.hub is not None else set(self.data["rooms"])
+        return {short[eid]: days for eid, days in self.data["rooms"].items() if eid in current}
 
     def report_extras(self) -> dict[str, Any]:
         """Live-Werte für den PDF-Bericht: Raumtypen, Aufheizzeiten, Batterien, Heizkosten."""

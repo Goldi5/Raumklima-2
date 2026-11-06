@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.59.24b1 – 2026-11-06
+
+### Behoben
+- **Berlin wäre fälschlich auf Gradstunden umgestiegen**, weil das neue Feld für „Gerät meldet
+  eine Ventilstellung" naturgemäß noch keine Historie hatte. Ein gemessener Öffnungswert in der
+  Vergangenheit zählt jetzt als Nachweis.
+- **Bericht zeigte gelöschte Räume** („Test Überwachung", alte Raumnamen) als Geisterzeilen mit.
+  Er enthält nur noch Räume, die aktuell zur Wohnung gehören.
+
 ## 0.59.23b1 – 2026-11-06
 
 ### Behoben

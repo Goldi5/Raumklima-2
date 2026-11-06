@@ -209,7 +209,12 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         # Gradstunden unter Ziel: gemessene Wärmelücke, funktioniert auch ohne Ventilstellung
         "deficit_kh": round(_sum(days, "deficit_ks") / 3600, 1),
         # Meldet das Gerät überhaupt eine Ventilstellung? (nicht: „hat gerade 0 %")
-        "has_valve": _sum(days, "valve_seen_s") >= 0.5 * seconds and seconds > 0,
+        # Neues Feld „valve_seen_s" füllt sich erst ab dem Update – ein gemessener
+        # Öffnungswert in der Vergangenheit beweist genauso, dass das Gerät sie meldet.
+        "has_valve": (
+            (_sum(days, "valve_seen_s") >= 0.5 * seconds and seconds > 0)
+            or _sum(days, "valve_pct_s") > 0
+        ),
         "setback_h": round(_sum(days, "setback_s") / 3600, 1),
         "setback_avg_k": round(setback_ks / max(_sum(days, "setback_s"), 1), 1),
         "window_pause_h": round(_sum(days, "window_pause_s") / 3600, 1),
