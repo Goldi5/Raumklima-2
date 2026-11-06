@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.59.28b1 – 2026-11-06
+
+### Behoben
+- **Kartenbreite: die pauschale 1120-px-Grenze aus 0.59.27b1 ist wieder raus.** Sie traf auch die
+  Übersichtskarte, die volle Breite haben soll. Richtig ist die Aufteilung der Ansicht: die
+  Kachelreihe oben spannt alle drei Spalten, jeder Raum eine Spalte – so wie die automatisch
+  erzeugte Ansicht es ohnehin macht. In bereits gespeicherten Dashboards werden die Abschnitte
+  entsprechend gesetzt (Übersicht 3, Räume 1).
+
 ## 0.59.27b1 – 2026-11-06
 
 ### Geändert

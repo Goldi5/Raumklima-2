@@ -1,4 +1,4 @@
-/* Raumklima 0.59.27b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.28b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1743,7 +1743,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.59.27b1";
+  var RK_VERSION = "0.59.28b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2027,9 +2027,7 @@
   }
   var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
   var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
-  var RK_CARD_MAXW = "1120px";
   var STYLES = `
-  ha-card { max-width: min(var(--rk-maxw, ${RK_CARD_MAXW}), 100%); margin-inline: auto; }
   .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 12px; border-radius:999px; font-weight:600; font-size:.84rem;
     background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); color: var(--secondary-text-color); }
   .boostbtn ha-icon { --mdc-icon-size:16px; }

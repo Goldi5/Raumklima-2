@@ -342,13 +342,7 @@ export const fmt = (v, d = 1) =>
 
 export const humTone = (h) => (h === null || h === undefined ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold");
 
-// Innenbreite aller Karten. In einer 3-Spalten-Ansicht wäre eine Karte sonst ~1500 px breit:
-// der Inhalt (Zahl, Kreis, Werte) steht dann verloren in der Mitte. Der Rahmen bleibt zentriert,
-// die Karte läuft nur nicht mehr über die ganze Seite.
-export const RK_CARD_MAXW = "1120px";
-
 export const STYLES = `
-  ha-card { max-width: min(var(--rk-maxw, ${RK_CARD_MAXW}), 100%); margin-inline: auto; }
   .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 12px; border-radius:999px; font-weight:600; font-size:.84rem;
     background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); color: var(--secondary-text-color); }
   .boostbtn ha-icon { --mdc-icon-size:16px; }
