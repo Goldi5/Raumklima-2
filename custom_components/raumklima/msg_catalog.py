@@ -603,6 +603,27 @@ _ROWS: list[tuple[str, str, str]] = [
         " par {who}",
     ),
 
+    (
+        "{kind} bereitgestellt",
+        "{kind} ready",
+        "{kind} prêt",
+    ),
+    (
+        "Sicherung",
+        "Backup",
+        "Sauvegarde",
+    ),
+    (
+        "Diagnose",
+        "Diagnostics",
+        "Diagnostic",
+    ),
+    (
+        "Download-Link für 15 Minuten: {n}",
+        "Download link valid for 15 minutes: {n}",
+        "Lien de téléchargement valable 15 minutes : {n}",
+    ),
+
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

@@ -801,6 +801,15 @@ async def ws_export_link(hass: HomeAssistant, connection: websocket_api.ActiveCo
     except OSError as err:
         connection.send_error(msg["id"], "write_failed", str(err))
         return
+    # Protokollspur: daran ist erkennbar, ob die Karte im Browser wirklich den neuen
+    # Stand lädt – ohne diese Zeile kam der Tipp aus altem Code.
+    hub = get_hub(hass, msg.get("home"))
+    if hub is not None:
+        hub.log(
+            "settings",
+            tr("{kind} bereitgestellt", kind=tr("Sicherung") if kind == "backup" else tr("Diagnose")),
+            tr("Download-Link für 15 Minuten: {n}", n=name),
+        )
     connection.send_result(msg["id"], {"url": url, "name": name})
 
 

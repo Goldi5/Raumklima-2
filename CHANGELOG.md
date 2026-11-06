@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.59.15b1 – 2026-11-06
+
+### Behoben
+- **Sichern und Diagnose auf iPad und in der HA-App: jetzt als Datei vom Server.** Statt eines
+  Downloads aus dem Browser (den iOS und WKWebView verwerfen) erzeugt die Integration die Datei
+  selbst und gibt einen echten Link aus: `/api/raumklima/export/<Zufallsschlüssel>`, 15 Minuten
+  gültig, mit `Content-Disposition: attachment`. Der Dialog hat damit „Datei laden" als ersten
+  Knopf; ein Tipp darauf speichert überall.
+- **Statuszeile im Dialog** statt Toast hinter dem abdunkelnden Hintergrund.
+- **Kein Neuzeichnen, solange der Dialog offen ist** – ein Tipp auf „Teilen"/„Kopieren" ging
+  vorher verloren, wenn parallel ein Sensorwert eintraf.
+- **Kopieren mit Rückfall:** wenn `navigator.clipboard` blockt, wird das Textfeld markiert und
+  `execCommand("copy")` versucht; erst danach die ehrliche Meldung.
+- **Protokollspur:** „Sicherung bereitgestellt" im Entscheidungsprotokoll – daran ist ablesbar,
+  ob die Karte im Browser den neuen Stand geladen hat.
+
 ## 0.59.14b1 – 2026-11-06
 
 ### Behoben
