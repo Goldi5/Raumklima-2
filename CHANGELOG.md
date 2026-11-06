@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.59.30b1 – 2026-11-06
+
+### Behoben
+- **Meldetakt und Ausfallgrenze stehen jetzt in der Diagnose** (`trv_interval_min`, `outage_min`).
+  Ohne die beiden Werte war von außen nicht prüfbar, warum eine Ausfallmeldung kam oder ausblieb.
 ## 0.59.29b1 – 2026-11-06
 
 ### Behoben

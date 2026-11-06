@@ -497,6 +497,9 @@ class HealthMixin:
             "trv_setpoint": self._trv_attr(ATTR_TEMPERATURE),
             "trv_preset": self._trv_attr("preset_mode"),
             "trv_on_preset": self.trv_on_preset,
+            # Meldetakt und daraus folgende Ausfallgrenze (Issue #33) – macht Fehlalarme prüfbar
+            "trv_interval_min": round(self.trv_expected_interval / 60, 1),
+            "outage_min": round(self.outage_seconds / 60, 1),
             "off_method": self._off_method(),
             "calibration_mode": self.cal_mode,
             "offset": self.offset,
