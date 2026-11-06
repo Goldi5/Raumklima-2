@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkHomeId, rkRooms, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkHomeId, rkLayout, rkRooms, rkRoomsOrdered, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaHistoryCard extends HTMLElement {
@@ -42,6 +42,14 @@ export class RaumklimaHistoryCard extends HTMLElement {
     this._hass = hass;
     setLang(hass);
     if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
+    // Gepflegte Reihenfolge aus „Darstellung": die Legende soll wie die Übersicht sortieren.
+    if (!this._layout) {
+      rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
+        this._layout = L;
+        this._rooms = rkRoomsOrdered(this._rooms || [], L);
+        this._draw();
+      });
+    }
     if (first) this._load(); else this._draw(true);
   }
 

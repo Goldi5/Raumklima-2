@@ -43,6 +43,19 @@ from .stats import RoomSample
 
 _LOGGER = logging.getLogger(__name__)
 
+# Üblicher Meldetakt je Gerätefamilie in Sekunden – nur Startwert, bis Messwerte da sind.
+REPORT_SECONDS_BY_PLATFORM = {
+    "fritzbox": 900,  # AVM pollt die Box im 15-Minuten-Takt
+    "homematicip_cloud": 600,
+    "homematic": 600,
+    "deconz": 300,
+    "zha": 300,
+    "mqtt": 300,
+}
+REPORT_SECONDS_DEFAULT = 300
+
+
+
 
 def _entity_stem(entity_id: str) -> str:
     """Namensstamm einer Entität: ``climate.danfoss_ally_buro_mike`` → ``danfoss_ally_buro_mike``."""
@@ -253,6 +266,28 @@ class HealthMixin:
         return round(sum(values) / len(values), 1) if values else None
 
     # ================================================================ Bericht & Gesundheit
+    def trv_report_platform(self) -> str:
+        """Plattform des Thermostats (für den Startwert, bevor Messwerte vorliegen)."""
+        entry = er.async_get(self.hass).async_get(self.trv)
+        return (entry.platform if entry is not None else "") or ""
+
+    @property
+    def trv_expected_interval(self) -> float:
+        """Wie oft meldet das Gerät von sich aus? (Sekunden)
+
+        Gemessener Median, sonst der übliche Takt der Gerätefamilie. FRITZ!DECT etwa
+        meldet nur alle 15 Minuten – eine feste Minute Schwelle erzeugt dort Daueralarme.
+        """
+        measured = self.trv_report_interval
+        if measured:
+            return float(measured)
+        return float(REPORT_SECONDS_BY_PLATFORM.get(self.trv_report_platform(), REPORT_SECONDS_DEFAULT))
+
+    @property
+    def outage_seconds(self) -> float:
+        """Ab wann gilt das Gerät als ausgefallen? Zwei Meldeabstände plus eine Minute."""
+        return max(60.0, min(self.trv_expected_interval * 2 + 60, 3600.0))
+
     def _preset_is_derived(self) -> bool:
         """Leitet die Integration das Preset nur aus dem Sollwert ab (AVM/FRITZ!DECT)?
 
@@ -431,10 +466,16 @@ class HealthMixin:
         if self._trv_down_since is None or self.trv_available():
             return
         self._unavail_events.append(self._trv_down_since)
+        minutes = (dt_util.utcnow() - self._trv_down_since).total_seconds() / 60
         self.log(
             CAT_DEVICE,
             tr("Thermostat nicht erreichbar"),
-            tr("seit über einer Minute keine Verbindung – letzter Stand bleibt, Befehle werden nachgeholt"),
+            tr(
+                "seit {m} min keine Verbindung – das Gerät meldet sich sonst etwa alle {i} min; "
+                "letzter Stand bleibt, Befehle werden nachgeholt",
+                m=f"{minutes:.0f}",
+                i=f"{self.trv_expected_interval / 60:.0f}",
+            ),
             level="warn",
         )
 

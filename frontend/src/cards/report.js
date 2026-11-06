@@ -24,8 +24,35 @@ export class RaumklimaReportCard extends HTMLElement {
     const first = !this._hass;
     this._hass = hass;
     setLang(hass);
-    if (first) { this._colors(); this._load(); this._render(); }
+    if (first) {
+      this._colors();
+      rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
+        this._layout = L;
+        this._order = this._roomOrder();
+        this._render();
+      });
+      this._load();
+      this._render();
+    }
   }
+  /** Position je Raumname aus der gepflegten Reihenfolge (Namen wie im Server gekürzt). */
+  _roomOrder() {
+    const rooms = rkRoomsOrdered(rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config)), this._layout);
+    const map = new Map();
+    rooms.forEach((r, i) => map.set(r.name, i));
+    return map;
+  }
+
+  _pos(name) {
+    const map = this._order;
+    if (!map || !map.size) return 1e6;
+    if (map.has(name)) return map.get(name);
+    for (const [room, i] of map) {
+      if (room.endsWith(" " + name) || name.endsWith(" " + room)) return i;
+    }
+    return 1e6;
+  }
+
   _colors() {
     const rooms = rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config));
     this._roomColor = (name) => {
@@ -174,7 +201,7 @@ export class RaumklimaReportCard extends HTMLElement {
         : metric === "hours"
           ? t("Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.")
           : t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).");
-    const names = Object.keys(cur.rooms).sort((a, b) => a.localeCompare(b));
+    const names = Object.keys(cur.rooms).sort((a, b) => this._pos(a) - this._pos(b) || a.localeCompare(b));
     const color = (nm, i) => this._roomColor(nm) || ROOM_COLORS[i % ROOM_COLORS.length];
     const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + valOf(r), 0)));
     const maxH = Math.max(1, ...days.map((x) => x.hdd || 0));

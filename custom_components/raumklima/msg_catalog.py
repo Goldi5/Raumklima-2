@@ -129,10 +129,10 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Batterie schwach", "Battery low", "Pile faible"),
     ("{name}: noch {level} %.", "{name}: {level} % left.", "{name} : encore {level} %."),
     ("Thermostat nicht erreichbar", "Thermostat unreachable", "Thermostat injoignable"),
-    (
-        "seit über einer Minute keine Verbindung – letzter Stand bleibt, Befehle werden nachgeholt",
-        "no connection for over a minute – last state is kept, commands will be resent",
-        "pas de connexion depuis plus d’une minute – le dernier état est conservé, les commandes seront renvoyées",
+        (
+        "seit {m} min keine Verbindung – das Gerät meldet sich sonst etwa alle {i} min; letzter Stand bleibt, Befehle werden nachgeholt",
+        "no connection for {m} min – the device normally reports every {i} min; last state is kept, commands are retried",
+        "aucune connexion depuis {m} min – l‘appareil signale normalement toutes les {i} min ; dernier état conservé, ordres réessayés",
     ),
     ("Aufgeheizt: +{rise} in {m} min", "Heated up: +{rise} in {m} min", "Montée en température : +{rise} en {m} min"),
     (" – gelernt aus {n} Aufheizvorgängen", " – learned from {n} heat-ups", " – appris sur {n} montées en température"),

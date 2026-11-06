@@ -1433,7 +1433,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self._trv_down_since = dt_util.utcnow()
             if self._trv_down_cancel:
                 self._trv_down_cancel()
-            self._trv_down_cancel = self._schedule(TRV_OUTAGE_SECONDS, self._trv_down_confirmed)
+            self._trv_down_cancel = self._schedule(self.outage_seconds, self._trv_down_confirmed)
         if is_ok and not was_ok:
             _LOGGER.info("%s: TRV wieder erreichbar – sende Ausstehendes", self.name)
             if self._trv_down_cancel:
@@ -1442,7 +1442,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if self._trv_down_since is not None:
                 seconds = (dt_util.utcnow() - self._trv_down_since).total_seconds()
                 self._trv_down_since = None
-                if seconds < TRV_OUTAGE_SECONDS:
+                if seconds < self.outage_seconds:
                     if self.hub is not None:
                         self.hub.note_trv_blip(self, seconds)
                 else:

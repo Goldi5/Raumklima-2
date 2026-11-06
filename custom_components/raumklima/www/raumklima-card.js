@@ -1,4 +1,4 @@
-/* Raumklima 0.59.28b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.29b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1743,7 +1743,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.59.28b1";
+  var RK_VERSION = "0.59.29b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2137,7 +2137,7 @@
   });
   var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
   var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
-  function rkLayout(hass, home) {
+  function rkLayout2(hass, home) {
     const key = String(home || "");
     if (!RK_LAYOUT_CACHE.has(key)) {
       RK_LAYOUT_CACHE.set(
@@ -2170,7 +2170,7 @@
     }
     return i < 0 ? order.length : i;
   }
-  function rkRoomsOrdered(rooms, layout) {
+  function rkRoomsOrdered2(rooms, layout) {
     const order = (layout || RK_LAYOUT_EMPTY).order || [];
     return [...rooms || []].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
   }
@@ -2970,7 +2970,7 @@
       }
       if (!this._layoutAsked) {
         this._layoutAsked = true;
-        rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
+        rkLayout2(hass, rkHomeId(hass, this._config)).then((L) => {
           this._layout = L;
           this._render();
         }).catch(() => {
@@ -2995,7 +2995,7 @@
     }
     _reloadLayout() {
       this._layoutAsked = true;
-      rkLayout(this._hass, rkHomeId(this._hass, this._config)).then((L) => {
+      rkLayout2(this._hass, rkHomeId(this._hass, this._config)).then((L) => {
         this._layout = L;
         this._sig = null;
         this._render();
@@ -3192,6 +3192,13 @@
       this._hass = hass;
       setLang(hass);
       if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
+      if (!this._layout) {
+        rkLayout2(hass, rkHomeId(hass, this._config)).then((L) => {
+          this._layout = L;
+          this._rooms = rkRoomsOrdered2(this._rooms || [], L);
+          this._draw();
+        });
+      }
       if (first) this._load();
       else this._draw(true);
     }
@@ -4650,7 +4657,7 @@
     // ---------------------------------------------------------------- Darstellung (A3)
     _loadLayout() {
       const home = this._homeId();
-      rkLayout(this._hass, home).then((L) => {
+      rkLayout2(this._hass, home).then((L) => {
         if (JSON.stringify(L) === JSON.stringify(this._layout || {})) return;
         this._layout = L;
         this._sig = null;
@@ -4669,7 +4676,7 @@
     }
     /** Räume in der gepflegten Reihenfolge – „aus" blendet hier bewusst nichts aus. */
     _orderedRooms() {
-      return rkRoomsOrdered(this._rooms || [], this._layout);
+      return rkRoomsOrdered2(this._rooms || [], this._layout);
     }
     _layoutList() {
       const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
@@ -6068,9 +6075,30 @@
       setLang(hass);
       if (first) {
         this._colors();
+        rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
+          this._layout = L;
+          this._order = this._roomOrder();
+          this._render();
+        });
         this._load();
         this._render();
       }
+    }
+    /** Position je Raumname aus der gepflegten Reihenfolge (Namen wie im Server gekürzt). */
+    _roomOrder() {
+      const rooms = rkRoomsOrdered(rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config)), this._layout);
+      const map = /* @__PURE__ */ new Map();
+      rooms.forEach((r, i) => map.set(r.name, i));
+      return map;
+    }
+    _pos(name) {
+      const map = this._order;
+      if (!map || !map.size) return 1e6;
+      if (map.has(name)) return map.get(name);
+      for (const [room, i] of map) {
+        if (room.endsWith(" " + name) || name.endsWith(" " + room)) return i;
+      }
+      return 1e6;
     }
     _colors() {
       const rooms = rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config));
@@ -6212,7 +6240,7 @@
       const valOf = (r) => r && Number(r[valKey]) || 0;
       const valText = (v) => metric === "deficit" ? t("{v} K·h unter Ziel", { v: fmt(v, 1) }) : metric === "hours" ? t("{v} h geheizt", { v: fmt(v, 0) }) : t("Ventil ≈ {v} h", { v: fmt(v, 1) });
       const barHint = metric === "deficit" ? t("Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.") : metric === "hours" ? t("Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.") : t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).");
-      const names = Object.keys(cur.rooms).sort((a, b) => a.localeCompare(b));
+      const names = Object.keys(cur.rooms).sort((a, b) => this._pos(a) - this._pos(b) || a.localeCompare(b));
       const color = (nm, i) => this._roomColor(nm) || ROOM_COLORS[i % ROOM_COLORS.length];
       const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + valOf(r), 0)));
       const maxH = Math.max(1, ...days.map((x) => x.hdd || 0));
@@ -6395,6 +6423,11 @@
       setLang(hass);
       if (first) {
         this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
+        rkLayout2(hass, rkHomeId(hass, this._config)).then((L) => {
+          this._layout = L;
+          this._rooms = rkRoomsOrdered2(this._rooms || [], L);
+          this._render();
+        });
         if (this._config.entity) {
           const r = this._rooms.find((x) => x.id === this._config.entity);
           if (r) this._room = (r.attrs.settings || {}).entry_id || "";
@@ -6578,7 +6611,7 @@
         return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib, area, floor };
       }).filter((r) => !homeId || !r.attrs.home || r.attrs.home === homeId).sort(roomSort(config));
       const H = homeId ? { home: homeId } : {};
-      const layout = await rkLayout(hass, homeId).catch(() => null);
+      const layout = await rkLayout2(hass, homeId).catch(() => null);
       const shown = rkLayoutApply(rooms, layout);
       shown.forEach((r, i) => {
         r.color = rkLayoutColor(layout, r.id) || ROOM_COLORS[i % ROOM_COLORS.length];

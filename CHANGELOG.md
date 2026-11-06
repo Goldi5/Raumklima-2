@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.59.29b1 – 2026-11-06
+
+### Behoben
+- **„Thermostat nicht erreichbar" bei Funk-Thermostaten (#33):** Die Ausfallgrenze war fest auf
+  60 Sekunden gesetzt. Geräte, die nur selten melden (FRITZ!DECT etwa alle 15 Minuten), galten
+  dadurch dauerhaft als weg. Jetzt gilt **gemessener Meldeabstand × 2 + 1 Minute** (60 s … 60 min),
+  vor dem ersten Messwert der übliche Takt der Gerätefamilie. Dieselbe Zahl steht im Protokoll
+  („seit 31 min keine Verbindung – das Gerät meldet sich sonst etwa alle 15 min") und in der
+  Diagnose (`trv_interval_min`, `outage_min`).
+- **Raum-Reihenfolge fehlte in Verlauf, Protokoll und Bericht (#32):** Diese drei Karten holten die
+  Räume alphabetisch und luden die gepflegte Reihenfolge gar nicht. Jetzt wie in der Übersicht
+  (`rkRoomsOrdered` + `rkLayout`).
+
+### Tests
+- `tests/ha/test_trv_outage.py` (3 Fälle): gemessener Takt, Startwert ohne Messung, Reserve bei
+  schnellen Geräten.
+- `frontend/test/order-cards.test.mjs`: die drei Karten müssen sortieren und das Layout laden.
+
 ## 0.59.28b1 – 2026-11-06
 
 ### Behoben
