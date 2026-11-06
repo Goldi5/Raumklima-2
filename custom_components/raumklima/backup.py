@@ -78,7 +78,15 @@ def build_backup(hass: HomeAssistant) -> dict[str, Any]:
     }
 
 
-@websocket_api.websocket_command({vol.Required("type"): "raumklima/backup/export"})
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "raumklima/backup/export",
+        # Die Karte schickt immer die Wohnungs-Kennung mit. Fehlte sie im Schema,
+        # lehnte Home Assistant die Nachricht mit "extra keys not allowed" ab –
+        # genau daran scheiterte "Sichern" auf allen Geräten.
+        vol.Optional("home"): str,
+    }
+)
 @websocket_api.async_response
 async def ws_export(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Alle Einstellungen als Sicherung ausgeben."""
@@ -126,6 +134,7 @@ def apply_backup(hass: HomeAssistant, backup: Any) -> dict[str, Any]:
     {
         vol.Required("type"): "raumklima/backup/import",
         vol.Required("backup"): dict,
+        vol.Optional("home"): str,
     }
 )
 @websocket_api.require_admin

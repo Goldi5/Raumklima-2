@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.59.21b1 – 2026-11-06
+
+### Behoben
+- **„Sichern" scheiterte an „extra keys not allowed".** Die Karte schickt bei jedem Aufruf die
+  Wohnungs-Kennung `home` mit; `raumklima/backup/export` und `raumklima/backup/import` hatten
+  dafür kein Feld im Schema. Home Assistant wies die Nachricht deshalb ab, bevor der Befehl
+  lief – auf iPad, iPhone und PC gleichermaßen. Beide Schemata nehmen `home` jetzt an.
+- **Regressionstest `tests/test_ws_schemas.py`:** vergleicht, welche Befehle die Karte mit
+  `home` aufruft, mit den Schemata im Backend. Ohne den Fix ist der Test rot (geprüft).
+
 ## 0.59.20b1 – 2026-11-06
 
 ### Behoben
