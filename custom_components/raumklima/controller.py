@@ -59,6 +59,7 @@ from .const import (
     CONF_LIGHTS,
     CONF_LONG_AIRING,
     CONF_LONG_AIRING_REMIND,
+    CONF_MOLD_CAP,
     CONF_MOLD_MODE,
     CONF_NAME,
     CONF_NIGHT_AIRING,
@@ -98,6 +99,7 @@ from .const import (
     EVENT_RAUMKLIMA,
     KIND_MOISTURE,
     MAX_SENSOR_JUMP,
+    MOLD_CAP_MAX,
     OFF_HVAC,
     OFF_MIN_TEMP,
     OFF_PRESET,
@@ -155,6 +157,8 @@ from .planning import (
     MoldGuard,
     frost_night_setback,
     next_schedule_window,
+    round_up_half,
+    saturation_pressure,
     schedule_target,
     setback_defaults,
     setback_target,
@@ -194,6 +198,11 @@ MESSAGE_MOISTURE_DAMP = (
         "feuchter. Wäsche, Duschen oder viele Personen im Raum?"
     ),
 )
+# Ab wie vielen Stunden kritischer Wandfeuchte (in 24 h) der Schutz anhebt
+MOLD_MIN_HOURS = 2.0
+# Deckel über dem Wunsch: tagsüber 2,5 K, nachts 1,5 K (dann lüftet niemand)
+MOLD_CAP_DEFAULT = 2.5
+MOLD_CAP_NIGHT = 1.5
 MOISTURE_RISE = 1.2
 MOISTURE_COOLDOWN = timedelta(hours=12)
 REASON_SEASON = "season"
@@ -251,6 +260,7 @@ LIVE_OPTIONS = frozenset(
         CONF_AIRING_WINDOWS,
         CONF_LEARN_AIRING,
         CONF_AIRING_MIN_MINUTES,
+        CONF_MOLD_CAP,
         CONF_MOLD_MODE,
         CONF_WALL,
         CONF_SCHEDULE_FALLBACK,
@@ -868,21 +878,84 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return self._mold_floor(on, target, reason)
 
     def _mold_floor(self, on: bool, target: float, reason: str) -> tuple[bool, float, str]:
-        """Schimmelschutz als Boden – Stufe je Raum (streng / nur bis Wunsch / aus)."""
+        """Schimmelschutz als Boden – Stufe je Raum (streng / nur bis Wunsch / aus).
+
+        Drei Bremsen verhindern, dass die Rechnung ins Absurde läuft:
+
+        * offenes Fenster: kein Boden (Heizen gegen ein offenes Fenster ist Verschwendung)
+        * Stundenbudget: nur wenn die Wandfläche über längere Zeit über 80 % lag
+        * Deckel: höchstens Wunsch + 2,5 K (nachts 1,5 K), weil Heizen kein Feuchteproblem löst
+        """
         mode = self.config.get(CONF_MOLD_MODE) or MOLD_STRICT
-        if mode == MOLD_OFF or not on or reason in MOLD_EXEMPT or not self.humidity_sensor:
+        window_open = bool(self.paused or self.window_paused)
+        if mode == MOLD_OFF or not on or reason in MOLD_EXEMPT or not self.humidity_sensor or window_open:
+            self._mold_raw = None  # Schutz greift nicht: Hysterese zurücksetzen
+            self._mold_capped = False
             return on, target, reason
         hub = self.hub
         if hub is None:
             return on, target, reason
         mold = self.mold_min(hub)
         if mold is None:
+            self._mold_raw = None
+            self._mold_capped = False
             return on, target, reason
+
+        # Stundenbudget: kurze Spitzen (Kochen, Duschen) heizen wir nicht weg.
+        budget = self.mold_guard.surface_rh_hours(dt_util.utcnow())
+        if budget < MOLD_MIN_HOURS:
+            self._mold_capped = False
+            return on, target, reason
+
         if mode == MOLD_WISH:
             mold = min(mold, self.target_temp)  # nur bis zum Wunsch anheben
+
+        cap = self.mold_cap
+        if self.hub is not None and self.hub.quiet_now():
+            cap = min(cap, MOLD_CAP_NIGHT)
+        limit = round_up_half(self.target_temp + cap)
+        capped = mold > limit + 0.05
+        mold = min(mold, limit)
+        self._mold_capped = capped
         if target >= mold - 0.05:
             return on, target, reason
         return True, min(mold, self.trv_max), REASON_MOLD
+
+    @property
+    def mold_cap(self) -> float:
+        """Wie weit der Feuchte-Boden den Wunsch höchstens anheben darf (K)."""
+        try:
+            value = float(self.config.get(CONF_MOLD_CAP, MOLD_CAP_DEFAULT))
+        except (TypeError, ValueError):
+            value = MOLD_CAP_DEFAULT
+        return max(0.0, min(MOLD_CAP_MAX, value))
+
+    @property
+    def mold_capped(self) -> bool:
+        """Hat der Deckel begrenzt? Dann ist Lüften die Antwort, nicht Heizen."""
+        return bool(getattr(self, "_mold_capped", False))
+
+    @property
+    def mold_risk_hours(self) -> float:
+        """Stunden der letzten 24 h mit kritischer Wandfeuchte."""
+        return self.mold_guard.surface_rh_hours(dt_util.utcnow())
+
+    def surface_humidity(self) -> float | None:
+        """Relative Feuchte an der kältesten Wandstelle in Prozent."""
+        hub = self.hub
+        temp = self.current_temperature
+        rh = self.current_humidity
+        if hub is None or temp is None or rh is None or rh <= 0:
+            return None
+        outdoor = hub.outdoor_temp()
+        if outdoor is None:
+            return None
+        vapour = rh / 100.0 * saturation_pressure(temp)
+        surface_temp = outdoor + self.room_frsi * (temp - outdoor)
+        saturation = saturation_pressure(surface_temp)
+        if saturation <= 0:
+            return None
+        return round(100.0 * vapour / saturation, 1)
 
     @property
     def room_frsi(self) -> float:
@@ -965,7 +1038,16 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     def record_mold_sample(self, now: datetime) -> None:
         """Jede Minute aus der Statistik: Feuchte für das 24-h-Mittel merken."""
-        if self.humidity_sensor and self.mold_guard.add(now, self.current_temperature, self.current_humidity):
+        # Bei offenem Fenster nicht mitschreiben: die Lüftzeit würde das 24-h-Mittel
+        # verwässern und den Boden nach dem Schließen unnötig hoch halten.
+        if (
+            self.humidity_sensor
+            and not self.paused
+            and not self.window_paused
+            and self.mold_guard.add(
+                now, self.current_temperature, self.current_humidity, self.surface_humidity()
+            )
+        ):
             self._save()
         self.check_moisture_source(now)
 

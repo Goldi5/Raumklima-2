@@ -316,6 +316,7 @@ class HealthMixin:
                 temp=self.current_temperature,
                 target=target,
                 regulating=on and self.hvac_on and not self.paused and self.trv_available(),
+                mold_capped=self.mold_capped,
             )
         )
 

@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.59.13b1 – 2026-11-06
+
+### Behoben
+- **Schimmelschutz heizte gegen jede Vernunft.** Mit 24-h-Mittel und kaltem Wetter forderte die
+  Rechnung nachts 24–25 °C (Küche und Bad standen live bei 24,5 °C, Ventile 94–100 %, ohne das Ziel
+  zu erreichen) und löste dadurch Fehlalarme „Raum wird nicht warm" aus. Jetzt gelten drei Bremsen:
+  - **Offenes Fenster hat Vorrang** – kein Feuchte-Boden, und die Lüftzeit zählt nicht ins Mittel.
+  - **Stundenbudget** – angehoben wird erst ab 2 h kritischer Wandfeuchte in 24 h; eine Stunde
+    nach dem Duschen ist kein Schimmelrisiko.
+  - **Deckel** – höchstens Wunsch + 2,5 K, nachts +1,5 K; je Raum einstellbar (0–6 K, 0 = aus).
+    Greift der Deckel, rät die Karte zum Lüften statt zu heizen.
+- „Raum wird nicht warm" wird bei gedeckeltem Feuchte-Boden nicht mehr gemeldet (kein Gerätefehler).
+
+### Hinzugefügt
+- Attribute `mold_capped` und `mold_risk_hours` (Stunden kritischer Wandfeuchte in 24 h).
+- Einstellung „Höchstens anheben um" beim Schimmelschutz.
+Sammelstelle für den nächsten Release. Hier landen Änderungen, bis sie zu einer Version
+zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
+
+### Behoben
+- **Ventilstellung nach dem Start schneller da** (#15): Der Sensor wurde bisher erst beim nächsten
+  Abgleich (bis 10 Minuten) nachgetragen. Jetzt wird in den ersten 20 Minuten alle 30 Sekunden
+  nachgesehen und der Nachlauf beendet sich selbst, sobald der Sensor gefunden ist.
+
 ## 0.59.12b1 – 2026-11-05
 
 ### Hinzugefügt
@@ -712,17 +736,6 @@
   `preset "comfort"` + `…_comfort_temperature` – der Wert, den das Gerät wirklich regelt. `"on"` gilt
   wieder als „nicht regeln" und wird gemieden; die Warnung „eigener Abschlag" entfällt in diesem Modus.
 - Layout-Reihenfolge/Ausblenden wirkt jetzt auch in der Übersichtskarte (Zustandsobjekte ohne `id`).
-
-## Unreleased
-
-Sammelstelle für den nächsten Release. Hier landen Änderungen, bis sie zu einer Version
-zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
-
-### Behoben
-- **Ventilstellung nach dem Start schneller da** (#15): Der Sensor wurde bisher erst beim nächsten
-  Abgleich (bis 10 Minuten) nachgetragen. Jetzt wird in den ersten 20 Minuten alle 30 Sekunden
-  nachgesehen und der Nachlauf beendet sich selbst, sobald der Sensor gefunden ist.
-
 
 ## 0.38.0 – 2026-11-03
 

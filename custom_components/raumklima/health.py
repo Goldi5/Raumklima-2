@@ -50,6 +50,7 @@ class HistoryPoint:
     temp: float | None
     target: float
     regulating: bool  # Heizung soll arbeiten (an, kein Fenster, keine Heizpause)
+    mold_capped: bool = False  # Ziel kommt vom gedeckelten Schimmelschutz
 
 
 def check_battery(levels: dict[str, float]) -> list[Issue]:
@@ -136,6 +137,10 @@ def check_not_warming(history: list[HistoryPoint], now: datetime) -> Issue | Non
     if last.target - last.temp < 0.5:
         return None  # Ziel praktisch erreicht
     if last.temp - first.temp >= NOT_WARM_RISE:
+        return None
+    if any(p.mold_capped for p in window):
+        # Das Ziel ist der gedeckelte Feuchte-Boden – der Raum kann es nicht halten,
+        # weil geheizt wird, was die Feuchte verlangt. Kein Gerätefehler.
         return None
     return Issue(
         "not_warming",

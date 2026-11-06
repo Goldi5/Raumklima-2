@@ -66,6 +66,10 @@ CONF_LONG_AIRING_REMIND: Final = "long_airing_remind"  # eine stille Erinnerung 
 CONF_AIRING_WINDOWS: Final = "airing_windows"  # [{days:[0..6], start:"HH:MM", end:"HH:MM", quiet:bool}]
 CONF_LEARN_AIRING: Final = "learn_airing"  # gewohntes Lüften erkennen
 CONF_AIRING_MIN_MINUTES: Final = "airing_min_minutes"  # Mindestdauer Lüften (0 = automatisch)
+# Wie weit der Schimmelschutz über den Wunsch anheben darf. Heizen löst kein
+# Feuchteproblem – ohne Deckel fordert die Rechnung in kalten Nächten 24–25 °C.
+CONF_MOLD_CAP: Final = "mold_cap"
+MOLD_CAP_MAX: Final = 6.0
 CONF_MOLD_MODE: Final = "mold_mode"  # Schimmelschutz: strict / wish / off
 CONF_SCHEDULE_FALLBACK: Final = "schedule_fallback"  # außerhalb der Zeitfenster: wish/short/long/frost
 MOLD_MODES: Final = ("strict", "wish", "off")

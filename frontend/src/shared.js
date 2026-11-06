@@ -219,6 +219,12 @@ export function planText(a, off, compact = false) {
   if (r === "mold") {
     const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
     const rh = a.mold_rh != null ? fmt(a.mold_rh, 0) : null;
+    if (a.mold_capped) {
+      return t("Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften", {
+        rh: rh || "–",
+        h: a.mold_risk_hours != null ? fmt(a.mold_risk_hours, 1) : "–",
+      });
+    }
     if (plus != null && plus >= 0.2 && rh) {
       return t("Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel", {
         d: fmt(plus),

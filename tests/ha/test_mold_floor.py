@@ -16,7 +16,7 @@ from custom_components.raumklima.const import (
 )
 from custom_components.raumklima.shared import domain_data, get_hub
 
-from .conftest import FakeTrv
+from .conftest import FakeTrv, seed_mold_budget
 
 HUMID = "sensor.bad_feuchte"
 OUTSIDE = "sensor.aussen"
@@ -30,6 +30,7 @@ def _humid_bad(hass: HomeAssistant, ctrl, hub) -> None:
     ctrl.config[CONF_HUMIDITY_SENSOR] = HUMID
     ctrl.humidity_sensor = HUMID
     hub.config[CONF_OUTDOOR_TEMP] = OUTSIDE
+    seed_mold_budget(ctrl)
 
 
 async def test_ruhezeit_haelt_schimmelboden(hass: HomeAssistant, setup, trv: FakeTrv) -> None:

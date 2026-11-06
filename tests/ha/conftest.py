@@ -157,3 +157,19 @@ async def setup(hass: HomeAssistant, trv: FakeTrv, sensors: None) -> tuple[MockC
     assert await hass.config_entries.async_setup(hub.entry_id)
     await hass.async_block_till_done()
     return hub, room
+
+
+def seed_mold_budget(ctrl: Any, hours: int = 6, surface: float = 92.0) -> None:
+    """Wandfeuchte über der 80-%-Grenze in den Speicher legen.
+
+    Der Schimmelschutz hebt seit 0.59.13 nur noch an, wenn die Wandfläche über mehrere
+    Stunden kritisch war (Stundenbudget). Tests, die den Boden prüfen wollen, müssen
+    dieses Budget mitbringen – sonst prüfen sie nur, dass nichts passiert.
+    """
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    now = dt_util.utcnow()
+    for h in range(int(hours), 0, -1):
+        ctrl.mold_guard.add(now - timedelta(hours=h), 19.0, 88.0, surface)

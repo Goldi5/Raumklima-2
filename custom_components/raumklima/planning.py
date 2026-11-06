@@ -125,30 +125,51 @@ class MoldGuard:
     """
 
     def __init__(self) -> None:
-        self.samples: list[tuple[datetime, float, float]] = []
+        self.samples: list[tuple[datetime, float, float, float]] = []
         self._floor: float | None = None
 
     def load(self, data: list[Any] | None) -> None:
         out: list[tuple[datetime, float, float]] = []
         for item in data or []:
             try:
-                # Altbestand hatte nur (Zeit, Dampfdruck) – relative Feuchte fehlt dort
+                # Altbestand: (Zeit, Dampfdruck) bzw. (Zeit, Dampfdruck, Feuchte)
                 rh = float(item[2]) if len(item) > 2 else 0.0
-                out.append((datetime.fromisoformat(item[0]), float(item[1]), rh))
+                surface = float(item[3]) if len(item) > 3 else 0.0
+                out.append((datetime.fromisoformat(item[0]), float(item[1]), rh, surface))
             except (TypeError, ValueError, IndexError):
                 continue
         self.samples = out[-400:]
 
     def dump(self) -> list[list[Any]]:
-        return [[t.isoformat(), round(v, 2), round(rh, 1)] for t, v, rh in self.samples]
+        return [
+            [t.isoformat(), round(v, 2), round(rh, 1), round(surf, 1)]
+            for t, v, rh, surf in self.samples
+        ]
 
-    def add(self, now: datetime, temp: float | None, rel_humidity: float | None) -> bool:
-        """Messwert merken (höchstens alle 5 min). True, wenn gespeichert werden sollte."""
+    def add(
+        self,
+        now: datetime,
+        temp: float | None,
+        rel_humidity: float | None,
+        surface_rh: float | None = None,
+    ) -> bool:
+        """Messwert merken (höchstens alle 5 min). True, wenn gespeichert werden sollte.
+
+        ``surface_rh`` ist die relative Feuchte an der kältesten Wandstelle – daraus wird
+        das Stundenbudget gerechnet (Schimmel braucht anhaltend > 80 %, nicht Minuten).
+        """
         if temp is None or rel_humidity is None or not 0 < rel_humidity <= 100:
             return False
         if self.samples and now - self.samples[-1][0] < MOLD_SAMPLE_EVERY:
             return False
-        self.samples.append((now, rel_humidity / 100.0 * saturation_pressure(temp), float(rel_humidity)))
+        self.samples.append(
+            (
+                now,
+                rel_humidity / 100.0 * saturation_pressure(temp),
+                float(rel_humidity),
+                float(surface_rh) if surface_rh is not None else 0.0,
+            )
+        )
         cutoff = now - MOLD_WINDOW
         while self.samples and self.samples[0][0] < cutoff:
             self.samples.pop(0)
@@ -157,8 +178,8 @@ class MoldGuard:
     def vapour(self, now: datetime, temp: float | None, rel_humidity: float | None) -> float | None:
         """Mittlerer Dampfdruck der letzten 24 h (hPa)."""
         cutoff = now - MOLD_WINDOW
-        values = [v for t, v, _rh in self.samples if t >= cutoff]
-        span = (now - min(t for t, _v, _rh in self.samples if t >= cutoff)) if values else timedelta(0)
+        values = [v for t, v, _rh, _s in self.samples if t >= cutoff]
+        span = (now - min(t for t, _v, _rh, _s in self.samples if t >= cutoff)) if values else timedelta(0)
         if (not values or span < MOLD_MIN_SPAN) and temp is not None and rel_humidity and 0 < rel_humidity <= 100:
             values.append(rel_humidity / 100.0 * saturation_pressure(temp))
         return sum(values) / len(values) if values else None
@@ -188,15 +209,34 @@ class MoldGuard:
     def mean_rh(self, now: datetime, window: timedelta = MOLD_WINDOW) -> float | None:
         """Mittlere relative Feuchte der letzten 24 h (für „+2 °C wegen 63 %")."""
         cutoff = now - window
-        values = [rh for t, _v, rh in self.samples if t >= cutoff and rh > 0]
+        values = [rh for t, _v, rh, _s in self.samples if t >= cutoff and rh > 0]
         return round(sum(values) / len(values), 0) if values else None
+
+    def surface_rh_hours(self, now: datetime, limit: float = SURFACE_RH_LIMIT * 100) -> float:
+        """Stunden der letzten 24 h, in denen die Wandfläche über der Grenze lag.
+
+        Schimmel entsteht durch anhaltende Feuchte (DIN 4108-2 rechnet mit Monatsmitteln);
+        kurze Spitzen – Kochen, Duschen – sind unkritisch. Deshalb wird nicht die Gradzahl,
+        sondern die Dauer über der Grenze bewertet. ``limit`` ist in Prozent (die
+        Planungsgrenze ``SURFACE_RH_LIMIT`` dagegen ein Bruchteil).
+        """
+        cutoff = now - MOLD_WINDOW
+        window = [(t, surf) for t, _v, _rh, surf in self.samples if t >= cutoff and surf > 0]
+        if len(window) < 3:
+            return 0.0
+        step = (window[-1][0] - window[0][0]).total_seconds()
+        if step <= 0:
+            return 0.0
+        step /= max(1, len(window) - 1)
+        hours = sum(step for _t, surf in window if surf > limit) / 3600
+        return round(hours, 1)
 
     def rh_change(self, now: datetime, hours: float = 6.0) -> tuple[float, float, float] | None:
         """Relative Feuchte am Anfang und Ende des Zeitraums – für den Meldungstext."""
         recent_from = now - timedelta(hours=hours)
         before_from = now - timedelta(hours=2 * hours)
-        recent = [rh for t, _v, rh in self.samples if t >= recent_from and rh > 0]
-        earlier = [rh for t, _v, rh in self.samples if before_from <= t < recent_from and rh > 0]
+        recent = [rh for t, _v, rh, _s in self.samples if t >= recent_from and rh > 0]
+        earlier = [rh for t, _v, rh, _s in self.samples if before_from <= t < recent_from and rh > 0]
         if len(recent) < 3 or not earlier:
             return None
         return (round(earlier[0], 0), round(recent[-1], 0), hours)
@@ -209,8 +249,8 @@ class MoldGuard:
         """
         recent_from = now - timedelta(hours=hours)
         before_from = now - timedelta(hours=2 * hours)
-        recent = [v for t, v, _rh in self.samples if t >= recent_from]
-        earlier = [v for t, v, _rh in self.samples if before_from <= t < recent_from]
+        recent = [v for t, v, _rh, _s in self.samples if t >= recent_from]
+        earlier = [v for t, v, _rh, _s in self.samples if before_from <= t < recent_from]
         if len(recent) < 3 or len(earlier) < 3:
             return None
         return (sum(recent) / len(recent)) - (sum(earlier) / len(earlier))

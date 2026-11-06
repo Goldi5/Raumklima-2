@@ -155,3 +155,21 @@ The weekly report lists conspicuous rooms in the reliability table – lots of r
 battery or radio problem.
 
 **Who changed it.** Manual changes name the Home Assistant user in the log.
+
+### Mould protection – three brakes
+
+The humidity calculation alone can demand 24–25 °C on cold nights. That is physically correct
+(cold walls, high humidity) but not a solution: **heating does not remove moisture.** Three
+brakes therefore apply:
+
+1. **An open window takes precedence.** While a window is open, no humidity floor applies – and
+   the airing time is not counted in the 24-hour average. Otherwise the room would heat against
+   humidity that is already outside.
+2. **Hourly budget.** The setpoint is only raised when the wall surface was above 80 % for at
+   least **2 hours** within the last 24. One hour after a shower is no mould risk.
+3. **Cap.** At most **wish + 2.5 K**, at night only **+1.5 K** (nobody can air then). When the cap
+   applies, the room says: "Humidity too high for this wall · 63 % (24 h average), 4.1 h
+   critical – please air". The uplift is configurable per room (0–6 K, 0 = off).
+
+In addition, "room is not warming up" is no longer reported while the cap applies – the room
+cannot reach a target that comes from humidity, not from a faulty radiator.

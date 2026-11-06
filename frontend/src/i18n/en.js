@@ -818,4 +818,8 @@ export const EN = {
   "Außenwand": "outer wall",
   "innenliegend": "internal",
   "Feuchtequelle im Raum": "Humidity source",
+  "Höchstens anheben um": "Raise by at most",
+  "Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)": "Heating does not fix humidity: beyond this uplift it stops heating and advises airing (1.5 K at night)",
+  "Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften": "Humidity too high for this wall · {rh} % (24 h average), {h} h critical – please air",
+  "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "raises the setpoint until the coldest wall spot stays below 80 % humidity (DIN 4108-2) – limited by the uplift below",
 };

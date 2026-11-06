@@ -146,6 +146,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
                 else None
             ),
             "mold_min": c.mold_min(hub) if (hub := c.hub) is not None else None,
+            "mold_capped": c.mold_capped,
+            "mold_risk_hours": c.mold_risk_hours,
             "mold_rh": c.mold_rh,
             "rf_sent": c.rf_today["sent"],
             "rf_retries": c.rf_today["retries"],

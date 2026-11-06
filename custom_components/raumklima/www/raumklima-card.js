@@ -1,4 +1,4 @@
-/* Raumklima 0.59.12b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.13b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -817,7 +817,11 @@
     "Außenecke": "outer corner",
     "Außenwand": "outer wall",
     "innenliegend": "internal",
-    "Feuchtequelle im Raum": "Humidity source"
+    "Feuchtequelle im Raum": "Humidity source",
+    "Höchstens anheben um": "Raise by at most",
+    "Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)": "Heating does not fix humidity: beyond this uplift it stops heating and advises airing (1.5 K at night)",
+    "Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften": "Humidity too high for this wall · {rh} % (24 h average), {h} h critical – please air",
+    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "raises the setpoint until the coldest wall spot stays below 80 % humidity (DIN 4108-2) – limited by the uplift below"
   };
 
   // src/i18n/fr.js
@@ -1637,7 +1641,11 @@
     "Außenecke": "angle extérieur",
     "Außenwand": "mur extérieur",
     "innenliegend": "intérieur",
-    "Feuchtequelle im Raum": "Source d'humidité"
+    "Feuchtequelle im Raum": "Source d'humidité",
+    "Höchstens anheben um": "Hausse maximale de",
+    "Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)": "Chauffer ne résout pas l'humidité : au-delà de cette hausse, le chauffage s'arrête et l'aération est conseillée (1,5 K la nuit)",
+    "Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften": "Humidité trop élevée pour ce mur · {rh} % (moyenne 24 h), {h} h critiques – aérez",
+    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "élève la consigne jusqu'à ce que le point de paroi le plus froid reste sous 80 % d'humidité (DIN 4108-2) – limité par la hausse ci-dessous"
   };
 
   // src/i18n.js
@@ -1681,7 +1689,7 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.59.12b1";
+  var RK_VERSION2 = "0.59.13b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -1858,6 +1866,12 @@
     if (r === "mold") {
       const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
       const rh = a.mold_rh != null ? fmt(a.mold_rh, 0) : null;
+      if (a.mold_capped) {
+        return t("Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften", {
+          rh: rh || "–",
+          h: a.mold_risk_hours != null ? fmt(a.mold_risk_hours, 1) : "–"
+        });
+      }
       if (plus != null && plus >= 0.2 && rh) {
         return t("Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel", {
           d: fmt(plus),
@@ -4759,8 +4773,22 @@
         this._row(
           "Schimmelschutz",
           editable ? this._segs(scope, "mold_mode", RK_MOLD, moldMode) : this._v(RK_MOLD[moldMode] || "–"),
-          moldMode === "strict" ? t("hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – auch über den Wunsch hinaus") : moldMode === "wish" ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt") : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden")
+          moldMode === "strict" ? t("hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter") : moldMode === "wish" ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt") : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden")
         ),
+        moldMode !== "off" ? this._row(
+          "Höchstens anheben um",
+          editable ? this._optStepper(
+            scope,
+            "mold_cap",
+            this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5,
+            " K",
+            0,
+            6,
+            0.5,
+            1
+          ) : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)} K`),
+          t("Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)")
+        ) : "",
         this._row(
           "Schlafen bei offenem Fenster",
           editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),

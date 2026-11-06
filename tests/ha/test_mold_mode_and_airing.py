@@ -16,7 +16,7 @@ from custom_components.raumklima.const import (
 )
 from custom_components.raumklima.shared import domain_data, get_hub
 
-from .conftest import FakeTrv
+from .conftest import FakeTrv, seed_mold_budget
 
 HUMID = "sensor.bad_feuchte"
 OUTSIDE = "sensor.aussen"
@@ -27,6 +27,7 @@ def _humid(hass: HomeAssistant, ctrl, hub) -> None:
     hass.states.async_set(OUTSIDE, "0.0", {"device_class": "temperature", "unit_of_measurement": "°C"})
     ctrl.config["humidity_sensor"] = HUMID
     ctrl.humidity_sensor = HUMID
+    seed_mold_budget(ctrl)
     hub.config[CONF_OUTDOOR_TEMP] = OUTSIDE
 
 
@@ -44,7 +45,10 @@ def _setup_room(hass: HomeAssistant, setup):
 
 
 async def test_schimmel_streng_hebt_ueber_den_wunsch(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
-    ctrl, _hub = _setup_room(hass, setup)
+    ctrl, hub = _setup_room(hass, setup)
+    # Tagsüber prüfen: nachts greift der kleinere Deckel (1,5 K) – siehe test_mold_guardrails
+    hub.config[CONF_QUIET_SETBACK] = False
+    ctrl.config[CONF_ROOM_TYPE] = "living"
     ctrl.config[CONF_MOLD_MODE] = "strict"
     ctrl.target_temp = 14.5
     _on, target, reason = ctrl.plan()
@@ -54,7 +58,9 @@ async def test_schimmel_streng_hebt_ueber_den_wunsch(hass: HomeAssistant, setup,
 
 async def test_schimmel_nur_bis_wunsch(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Stufe „nur bis Wunsch": der Boden hebt nicht über den Wunsch an."""
-    ctrl, _hub = _setup_room(hass, setup)
+    ctrl, hub = _setup_room(hass, setup)
+    hub.config[CONF_QUIET_SETBACK] = False  # tagsüber prüfen (nachts gilt der 1,5-K-Deckel)
+    ctrl.config[CONF_ROOM_TYPE] = "living"
     ctrl.target_temp = 14.5
 
     ctrl.config[CONF_MOLD_MODE] = "off"

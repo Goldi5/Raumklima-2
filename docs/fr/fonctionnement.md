@@ -156,3 +156,19 @@ personnes).
 comprises. Le rapport hebdomadaire liste les pièces suspectes dans le tableau de fiabilité.
 
 **Qui a modifié.** Les changements manuels nomment l'utilisateur Home Assistant dans le journal.
+
+### Protection moisissure – trois freins
+
+Le calcul d'humidité seul peut exiger 24–25 °C par nuit froide. C'est physiquement correct
+(parois froides, humidité élevée) mais ce n'est pas une solution : **chauffer n'élimine pas
+l'humidité.** Trois freins s'appliquent :
+
+1. **La fenêtre ouverte est prioritaire.** Tant qu'une fenêtre est ouverte, aucun plancher
+   d'humidité ne s'applique – et le temps d'aération n'entre pas dans la moyenne sur 24 h.
+2. **Budget horaire.** La consigne n'est relevée que si la paroi est restée au-dessus de 80 %
+   pendant au moins **2 heures** sur les 24 dernières.
+3. **Plafond.** Au maximum **consigne + 2,5 K**, la nuit seulement **+1,5 K**. Quand le plafond
+   s'applique, la pièce affiche : « Humidité trop élevée pour ce mur · 63 % (moyenne 24 h),
+   4,1 h critiques – aérez ». La hausse est réglable par pièce (0–6 K, 0 = désactivé).
+
+De plus, « la pièce ne chauffe pas » n'est plus signalé lorsque le plafond s'applique.

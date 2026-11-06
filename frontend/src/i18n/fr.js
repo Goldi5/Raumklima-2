@@ -818,4 +818,8 @@ export const FR = {
   "Außenwand": "mur extérieur",
   "innenliegend": "intérieur",
   "Feuchtequelle im Raum": "Source d'humidité",
+  "Höchstens anheben um": "Hausse maximale de",
+  "Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)": "Chauffer ne résout pas l'humidité : au-delà de cette hausse, le chauffage s'arrête et l'aération est conseillée (1,5 K la nuit)",
+  "Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften": "Humidité trop élevée pour ce mur · {rh} % (moyenne 24 h), {h} h critiques – aérez",
+  "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "élève la consigne jusqu'à ce que le point de paroi le plus froid reste sous 80 % d'humidité (DIN 4108-2) – limité par la hausse ci-dessous",
 };

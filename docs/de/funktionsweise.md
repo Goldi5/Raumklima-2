@@ -159,3 +159,22 @@ Im Wochenbericht stehen auffällige Räume in der Zuverlässigkeitstabelle – e
 Wiederholungen ist meist ein Batterie- oder Funkproblem.
 
 **Wer hat gestellt.** Änderungen von Hand nennen im Protokoll den Home-Assistant-Benutzer.
+
+### Schimmelschutz – drei Bremsen
+
+Die Feuchte-Rechnung allein kann in kalten Nächten 24–25 °C verlangen. Das ist physikalisch
+richtig (kalte Wände, hohe Feuchte), aber keine Lösung: **Heizen beseitigt keine Feuchtigkeit.**
+Deshalb greifen drei Bremsen:
+
+1. **Offenes Fenster hat Vorrang.** Solange ein Fenster offen ist, gilt kein Feuchte-Boden – und
+   die Lüftzeit zählt nicht ins 24-Stunden-Mittel. Sonst würde nach dem Schließen gegen eine
+   Feuchte geheizt, die längst draußen ist.
+2. **Stundenbudget.** Angehoben wird erst, wenn die Wandfläche in den letzten 24 Stunden
+   mindestens **2 Stunden** über 80 % lag. Eine Stunde nach dem Duschen ist kein Schimmelrisiko.
+3. **Deckel.** Höchstens **Wunsch + 2,5 K**, nachts nur **+1,5 K** (dann kann niemand lüften).
+   Greift der Deckel, steht am Raum: „Feuchte zu hoch für die Wand · 63 % im Tagesmittel,
+   4,1 h kritisch – bitte lüften". Der Zuschlag ist je Raum einstellbar (0–6 K, 0 = aus).
+
+Zusätzlich wird beim Überschreiten des Deckels **kein** „Raum wird nicht warm" mehr gemeldet –
+der Raum kann das Ziel nicht halten, weil es aus der Feuchte kommt, nicht aus einem defekten
+Heizkörper.
