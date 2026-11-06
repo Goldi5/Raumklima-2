@@ -94,6 +94,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
     ]);
     if (sig === this._sig) return;
     this._sig = sig;
+    // Punkt 3 von außen: Ein Neuzeichnen während des Tippens verschluckt den Tipp.
+    // Solange der Dialog offen ist, bleibt das DOM stehen; Statuszeile wird direkt gesetzt.
+    if (this._sheet) return;
     if (rkScrolling()) { rkLater(this, () => this._render()); return; }
     this._render();
   }
@@ -182,7 +185,20 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   _closeSheet() {
     this._sheet = null;
+    this._sig = null;
     this._render();
+  }
+
+  _sheetStatus(text) {
+    // Direkt im DOM setzen: ein vollständiges Neuzeichnen würde den Tipp verlieren,
+    // und ein Toast läge hinter dem abgedunkelten Hintergrund (Punkt 2 von außen).
+    if (!this._sheet) return;
+    this._sheet.status = text;
+    const el = this.shadowRoot && this.shadowRoot.querySelector("[data-sheet-status]");
+    if (el) {
+      el.textContent = text;
+      el.style.display = text ? "block" : "none";
+    }
   }
 
   _sheetHtml() {
@@ -211,7 +227,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
       <div class="sheet" role="dialog" aria-modal="true">
         <div class="stitle">${esc(s.title)}</div>
         <div class="sintro">${esc(s.intro || "")}</div>
+        ${s.download
+          ? `<a class="btn wide" href="${esc(s.download)}" download="${esc(s.filename || "")}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:download"></ha-icon>${t("Datei laden")}</a>`
+          : ""}
         <textarea class="stext" readonly rows="8" spellcheck="false">${esc(s.text || "")}</textarea>
+        <div class="sstatus" data-sheet-status style="display:${s.status ? "block" : "none"}">${esc(s.status || "")}</div>
         <div class="sbtns">${buttons.join("")}<button class="btn" data-sheet-close style="--c:var(--rk-off)">${t("Schließen")}</button></div>
       </div>
     </div>`;
@@ -221,11 +241,24 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const text = (this._sheet && this._sheet.text) || "";
     try {
       await navigator.clipboard.writeText(text);
-      this._flash(t("Kopiert – jetzt im Ziel einfügen"));
+      this._sheetStatus(t("Kopiert – jetzt im Ziel einfügen"));
       return true;
     } catch (e) {
-      // iOS/Webview verweigern die Zwischenablage oft: Text im Feld ist markierbar.
-      this._flash(t("Kopieren hat der Browser blockiert – Text bitte im Feld markieren"));
+      // iOS und Webviews verweigern die API oft. Rückfall: Textfeld markieren und
+      // den alten Befehl nutzen – das geht auch ohne Berechtigung.
+      try {
+        const field = this.shadowRoot.querySelector(".stext");
+        if (field) {
+          field.focus();
+          field.select();
+          const ok = document.execCommand("copy");
+          if (ok) {
+            this._sheetStatus(t("Kopiert – jetzt im Ziel einfügen"));
+            return true;
+          }
+        }
+      } catch (err) { /* auch das darf scheitern */ }
+      this._sheetStatus(t("Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren"));
       return false;
     }
   }
@@ -237,10 +270,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const file = new File([text], name, { type: name.endsWith(".json") ? "application/json" : "text/plain" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: (this._sheet && this._sheet.title) || "Raumklima" });
+        this._sheetStatus(t("Geteilt"));
         return;
       }
       if (navigator.share) {
         await navigator.share({ text });
+        this._sheetStatus(t("Geteilt"));
         return;
       }
       await this._sheetCopy();
@@ -264,7 +299,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
-    this._flash(t("Gespeichert: {name} – falls keine Datei kam, bitte Teilen benutzen", { name: s.filename || "" }));
+    this._sheetStatus(t("Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen", { name: s.filename || "" }));
+  }
+
+  async _exportLink(kind) {
+    try {
+      return await this._hass.callWS({ type: "raumklima/export/link", kind, ...this._homeMsg() });
+    } catch (e) {
+      return {};  // ohne Link bleiben Teilen/Kopieren als Weg
+    }
   }
 
   async _backupExport() {
@@ -274,13 +317,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const text = JSON.stringify(res.backup, null, 2);
       const stamp = new Date().toISOString().slice(0, 10);
       const name = `raumklima-einstellungen-${stamp}.json`;
+      // Echter Datei-Link: iPad-Safari und die HA-App speichern zuverlässig nur, wenn
+      // der Nutzer selbst auf einen Link tippt – nicht wenn ein Skript einen Blob öffnet.
+      const link = await this._exportLink("backup");
       // Kein Download direkt nach dem await: iOS wertet das nicht mehr als Benutzeraktion.
       // Der Dialog hat echte Knöpfe – deren Klick darf wieder speichern/teilen.
       this._openSheet({
         title: t("Sicherung erstellt"),
         intro: t("Enthält alle Räume, Zeitpläne und Einstellungen dieser Wohnung. Auf dem iPhone/iPad über „Teilen“ in Dateien sichern, am Rechner über „Speichern“."),
         text,
-        filename: name,
+        filename: link.name || name,
+        download: link.url || "",
         share: true,
       });
     } catch (err) {
@@ -311,13 +358,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._flash(t("Diagnose wird erstellt …"));
       const data = await this._hass.callWS({ type: "raumklima/diagnostics", ...this._homeMsg() });
       const text = JSON.stringify(data, null, 2);
-      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-      const home = String(data.home_name || "wohnung").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const link = await this._exportLink("diagnostics");
       this._openSheet({
         title: t("Diagnose"),
-        intro: t("Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten."),
+        intro: t("Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten."),
         text,
-        filename: `raumklima-diagnose-${home}-${stamp}.json`,
+        filename: link.name || "raumklima-diagnose.json",
+        download: link.url || "",
         share: true,
       });
     } catch (e) {

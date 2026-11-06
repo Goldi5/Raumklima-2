@@ -833,4 +833,9 @@ export const EN = {
   "Kopieren hat der Browser blockiert – Text bitte im Feld markieren": "The browser blocked copying – please select the text in the field",
   "Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: share or save – the file contains values, entities and the last log lines, but no credentials.",
   "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Check the text – it contains no room names or credentials – then open GitHub and paste it. On iPhone or iPad you can also share or copy.",
+  "Datei laden": "Load file",
+  "Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen": "Saved: {name} – if no file appeared, please use Load file",
+  "Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren": "The browser blocked copying – please select the text in the field and copy it",
+  "Geteilt": "Shared",
+  "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: load the file and attach it to the issue. It contains values, entities and the last log lines, but no credentials.",
 };

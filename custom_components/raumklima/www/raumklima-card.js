@@ -832,7 +832,12 @@
     "Kopiert – jetzt im Ziel einfügen": "Copied – now paste it",
     "Kopieren hat der Browser blockiert – Text bitte im Feld markieren": "The browser blocked copying – please select the text in the field",
     "Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: share or save – the file contains values, entities and the last log lines, but no credentials.",
-    "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Check the text – it contains no room names or credentials – then open GitHub and paste it. On iPhone or iPad you can also share or copy."
+    "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Check the text – it contains no room names or credentials – then open GitHub and paste it. On iPhone or iPad you can also share or copy.",
+    "Datei laden": "Load file",
+    "Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen": "Saved: {name} – if no file appeared, please use Load file",
+    "Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren": "The browser blocked copying – please select the text in the field and copy it",
+    "Geteilt": "Shared",
+    "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: load the file and attach it to the issue. It contains values, entities and the last log lines, but no credentials."
   };
 
   // src/i18n/fr.js
@@ -1667,7 +1672,12 @@
     "Kopiert – jetzt im Ziel einfügen": "Copié – collez-le maintenant",
     "Kopieren hat der Browser blockiert – Text bitte im Feld markieren": "Le navigateur a bloqué la copie – sélectionnez le texte dans le champ",
     "Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : partager ou enregistrer – le fichier contient des valeurs, des entités et les dernières lignes de journal, sans identifiants.",
-    "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Vérifiez le texte – il ne contient ni noms de pièces ni identifiants –, puis ouvrez GitHub et collez-le. Sur iPhone ou iPad, partager ou copier fonctionne aussi."
+    "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Vérifiez le texte – il ne contient ni noms de pièces ni identifiants –, puis ouvrez GitHub et collez-le. Sur iPhone ou iPad, partager ou copier fonctionne aussi.",
+    "Datei laden": "Charger le fichier",
+    "Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen": "Enregistré : {name} – si aucun fichier n'apparaît, utilisez Charger le fichier",
+    "Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren": "Le navigateur a bloqué la copie – sélectionnez le texte et copiez-le",
+    "Geteilt": "Partagé",
+    "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : chargez le fichier et joignez-le au ticket. Il contient des valeurs, des entités et les dernières lignes de journal, sans identifiants."
   };
 
   // src/i18n.js
@@ -3925,6 +3935,7 @@
       ]);
       if (sig === this._sig) return;
       this._sig = sig;
+      if (this._sheet) return;
       if (rkScrolling()) {
         rkLater(this, () => this._render());
         return;
@@ -4011,7 +4022,17 @@
     }
     _closeSheet() {
       this._sheet = null;
+      this._sig = null;
       this._render();
+    }
+    _sheetStatus(text) {
+      if (!this._sheet) return;
+      this._sheet.status = text;
+      const el = this.shadowRoot && this.shadowRoot.querySelector("[data-sheet-status]");
+      if (el) {
+        el.textContent = text;
+        el.style.display = text ? "block" : "none";
+      }
     }
     _sheetHtml() {
       const s = this._sheet;
@@ -4039,7 +4060,9 @@
       <div class="sheet" role="dialog" aria-modal="true">
         <div class="stitle">${esc(s.title)}</div>
         <div class="sintro">${esc(s.intro || "")}</div>
+        ${s.download ? `<a class="btn wide" href="${esc(s.download)}" download="${esc(s.filename || "")}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:download"></ha-icon>${t("Datei laden")}</a>` : ""}
         <textarea class="stext" readonly rows="8" spellcheck="false">${esc(s.text || "")}</textarea>
+        <div class="sstatus" data-sheet-status style="display:${s.status ? "block" : "none"}">${esc(s.status || "")}</div>
         <div class="sbtns">${buttons.join("")}<button class="btn" data-sheet-close style="--c:var(--rk-off)">${t("Schließen")}</button></div>
       </div>
     </div>`;
@@ -4048,10 +4071,23 @@
       const text = this._sheet && this._sheet.text || "";
       try {
         await navigator.clipboard.writeText(text);
-        this._flash(t("Kopiert – jetzt im Ziel einfügen"));
+        this._sheetStatus(t("Kopiert – jetzt im Ziel einfügen"));
         return true;
       } catch (e) {
-        this._flash(t("Kopieren hat der Browser blockiert – Text bitte im Feld markieren"));
+        try {
+          const field = this.shadowRoot.querySelector(".stext");
+          if (field) {
+            field.focus();
+            field.select();
+            const ok = document.execCommand("copy");
+            if (ok) {
+              this._sheetStatus(t("Kopiert – jetzt im Ziel einfügen"));
+              return true;
+            }
+          }
+        } catch (err) {
+        }
+        this._sheetStatus(t("Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren"));
         return false;
       }
     }
@@ -4062,10 +4098,12 @@
         const file = new File([text], name, { type: name.endsWith(".json") ? "application/json" : "text/plain" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: this._sheet && this._sheet.title || "Raumklima" });
+          this._sheetStatus(t("Geteilt"));
           return;
         }
         if (navigator.share) {
           await navigator.share({ text });
+          this._sheetStatus(t("Geteilt"));
           return;
         }
         await this._sheetCopy();
@@ -4087,7 +4125,14 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5e3);
-      this._flash(t("Gespeichert: {name} – falls keine Datei kam, bitte Teilen benutzen", { name: s.filename || "" }));
+      this._sheetStatus(t("Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen", { name: s.filename || "" }));
+    }
+    async _exportLink(kind) {
+      try {
+        return await this._hass.callWS({ type: "raumklima/export/link", kind, ...this._homeMsg() });
+      } catch (e) {
+        return {};
+      }
     }
     async _backupExport() {
       try {
@@ -4096,11 +4141,13 @@
         const text = JSON.stringify(res.backup, null, 2);
         const stamp = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
         const name = `raumklima-einstellungen-${stamp}.json`;
+        const link = await this._exportLink("backup");
         this._openSheet({
           title: t("Sicherung erstellt"),
           intro: t("Enthält alle Räume, Zeitpläne und Einstellungen dieser Wohnung. Auf dem iPhone/iPad über „Teilen“ in Dateien sichern, am Rechner über „Speichern“."),
           text,
-          filename: name,
+          filename: link.name || name,
+          download: link.url || "",
           share: true
         });
       } catch (err) {
@@ -4127,13 +4174,13 @@
         this._flash(t("Diagnose wird erstellt …"));
         const data = await this._hass.callWS({ type: "raumklima/diagnostics", ...this._homeMsg() });
         const text = JSON.stringify(data, null, 2);
-        const stamp = (/* @__PURE__ */ new Date()).toISOString().slice(0, 19).replace(/[:T]/g, "-");
-        const home = String(data.home_name || "wohnung").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const link = await this._exportLink("diagnostics");
         this._openSheet({
           title: t("Diagnose"),
-          intro: t("Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten."),
+          intro: t("Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten."),
           text,
-          filename: `raumklima-diagnose-${home}-${stamp}.json`,
+          filename: link.name || "raumklima-diagnose.json",
+          download: link.url || "",
           share: true
         });
       } catch (e) {

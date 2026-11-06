@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 from homeassistant.components import websocket_api
@@ -756,6 +757,51 @@ async def ws_diagnostics(hass: HomeAssistant, connection: websocket_api.ActiveCo
         connection.send_error(msg["id"], "not_found", "Eintrag nicht gefunden")
         return
     connection.send_result(msg["id"], await async_get_config_entry_diagnostics(hass, entry))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/export/link",
+        vol.Required("kind"): vol.In(["backup", "diagnostics"]),
+        vol.Optional("home"): vol.Any(None, str),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_export_link(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Download-Link für Sicherung oder Diagnose erzeugen.
+
+    Tablets und die HA-App können Dateien nicht aus einem Skript heraus speichern; ein
+    echter Link, den der Nutzer antippt, geht dort. Der Link verfällt nach 15 Minuten.
+    """
+    from .backup import build_backup
+    from .diagnostics import async_get_config_entry_diagnostics
+    from .exports import make_link
+
+    stamp = dt_util.now().strftime("%Y-%m-%d")
+    kind = msg["kind"]
+    if kind == "backup":
+        name = f"raumklima-einstellungen-{stamp}.json"
+        payload = build_backup(hass)
+    else:
+        hub = _hub_or_error(hass, connection, msg)
+        if hub is None:
+            return
+        entry = hass.config_entries.async_get_entry(hub.entry.entry_id)
+        if entry is None:
+            connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
+            return
+        payload = await async_get_config_entry_diagnostics(hass, entry)
+        home = str(payload.get("home_name") or "wohnung").lower()
+        home = re.sub(r"[^a-z0-9]+", "-", home).strip("-") or "wohnung"
+        name = f"raumklima-diagnose-{home}-{dt_util.now().strftime('%Y-%m-%d-%H-%M')}.json"
+
+    try:
+        url = await make_link(hass, name, payload)
+    except OSError as err:
+        connection.send_error(msg["id"], "write_failed", str(err))
+        return
+    connection.send_result(msg["id"], {"url": url, "name": name})
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/log/subscribe", vol.Optional("home"): vol.Any(None, str)})

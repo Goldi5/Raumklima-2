@@ -833,4 +833,9 @@ export const FR = {
   "Kopieren hat der Browser blockiert – Text bitte im Feld markieren": "Le navigateur a bloqué la copie – sélectionnez le texte dans le champ",
   "Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : partager ou enregistrer – le fichier contient des valeurs, des entités et les dernières lignes de journal, sans identifiants.",
   "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Vérifiez le texte – il ne contient ni noms de pièces ni identifiants –, puis ouvrez GitHub et collez-le. Sur iPhone ou iPad, partager ou copier fonctionne aussi.",
+  "Datei laden": "Charger le fichier",
+  "Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen": "Enregistré : {name} – si aucun fichier n'apparaît, utilisez Charger le fichier",
+  "Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren": "Le navigateur a bloqué la copie – sélectionnez le texte et copiez-le",
+  "Geteilt": "Partagé",
+  "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : chargez le fichier et joignez-le au ticket. Il contient des valeurs, des entités et les dernières lignes de journal, sans identifiants.",
 };

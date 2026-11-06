@@ -68,9 +68,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async_register_websocket(hass)
     async_register_backup(hass)
     if getattr(hass, "http", None) is not None:
+        from .exports import ExportView
         from .reports import ReportView
 
         hass.http.register_view(ReportView())
+        hass.http.register_view(ExportView())
     return True
 
 
