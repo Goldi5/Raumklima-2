@@ -1,4 +1,4 @@
-/* Raumklima 0.59.21b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.22b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1721,7 +1721,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.59.21b1";
+  var RK_VERSION = "0.59.22b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2139,22 +2139,25 @@
     window.addEventListener("raumklima-layout", fn);
     return () => window.removeEventListener("raumklima-layout", fn);
   }
+  function rkOrderPos(order, r) {
+    const key = r && (r.id || r.entity_id) || "";
+    let i = order.indexOf(key);
+    if (i < 0) {
+      const name = r && (r.name || r.attributes && r.attributes.friendly_name) || "";
+      if (name) i = order.indexOf(name);
+    }
+    return i < 0 ? order.length : i;
+  }
+  function rkRoomsOrdered(rooms, layout) {
+    const order = (layout || RK_LAYOUT_EMPTY).order || [];
+    return [...rooms || []].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
+  }
   function rkLayoutApply(rooms, layout) {
     const L = layout || RK_LAYOUT_EMPTY;
     const hidden = new Set(L.hidden || []);
     const order = L.order || [];
     const keyOf = (r) => r && (r.id || r.entity_id) || "";
-    const nameOf = (r) => r && (r.name || r.attributes && r.attributes.friendly_name) || "";
-    const pos = (r) => {
-      const key = keyOf(r);
-      let i = order.indexOf(key);
-      if (i < 0) {
-        const name = nameOf(r);
-        if (name) i = order.indexOf(name);
-      }
-      return i < 0 ? order.length : i;
-    };
-    return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => pos(a) - pos(b));
+    return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
   }
   function rkLayoutSize(layout, id) {
     return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
@@ -4414,7 +4417,7 @@
         this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
         this._row(
           "Gäste gelten für",
-          `<div class="chips">${(this._rooms || []).map((r) => {
+          `<div class="chips">${this._orderedRooms().map((r) => {
             const rid = (r.attrs && r.attrs.settings || {}).entry_id || r.id;
             const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
             return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
@@ -4577,7 +4580,7 @@
         this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : ""
       ].join("");
       const yes = (b) => b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`;
-      const rowsT = this._rooms.map((r) => {
+      const rowsT = this._orderedRooms().map((r) => {
         const s = r.attrs.settings || {};
         const notif = (this._st(r.sib.notifications) || {}).state === "on";
         const wl = (this._st(r.sib.window_logic) || {}).state === "on";
@@ -4631,6 +4634,10 @@
         rkLayoutChanged(home);
         this._flash(t("Gespeichert"));
       }).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+    }
+    /** Räume in der gepflegten Reihenfolge – „aus" blendet hier bewusst nichts aus. */
+    _orderedRooms() {
+      return rkRoomsOrdered(this._rooms || [], this._layout);
     }
     _layoutList() {
       const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
@@ -5315,7 +5322,7 @@
     _render() {
       if (!this._hass || !this._rooms) return;
       if (this._renderSoon()) return;
-      const rooms = this._rooms;
+      const rooms = this._orderedRooms();
       if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
       const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` + rooms.map((r) => {
         const sick = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).some((i) => i.entry_id === (r.attrs.settings || {}).entry_id && i.severity !== "info");
@@ -6568,12 +6575,12 @@
         path: "verlauf",
         icon: "mdi:chart-line",
         type: "sections",
-        max_columns: 2,
+        max_columns: 3,
         sections: [
-          ...weather ? [{ type: "grid", column_span: 2, cards: [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] }] : [],
-          { type: "grid", column_span: 2, cards: [hist("temperature")] },
-          { type: "grid", column_span: 2, cards: [hist("humidity")] },
-          { type: "grid", column_span: 2, cards: [hist("timeline")] }
+          ...weather ? [{ type: "grid", column_span: 3, cards: [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] }] : [],
+          { type: "grid", column_span: 3, cards: [hist("temperature")] },
+          { type: "grid", column_span: 3, cards: [hist("humidity")] },
+          { type: "grid", column_span: 3, cards: [hist("timeline")] }
         ]
       };
       const settingsView = {
@@ -6589,16 +6596,16 @@
         path: "bericht",
         icon: "mdi:chart-box-outline",
         type: "sections",
-        max_columns: 2,
-        sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-report-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
+        max_columns: 3,
+        sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-report-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
       };
       const logView = {
         title: t("Protokoll"),
         path: "protokoll",
         icon: "mdi:text-box-search-outline",
         type: "sections",
-        max_columns: 2,
-        sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
+        max_columns: 3,
+        sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
       };
       return { title: config.title || t("Heizung"), views: [roomsView, historyView, reportView, logView, settingsView] };
     }

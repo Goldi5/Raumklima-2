@@ -77,12 +77,12 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
 
     const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });
     const historyView = {
-      title: t("Verlauf"), path: "verlauf", icon: "mdi:chart-line", type: "sections", max_columns: 2,
+      title: t("Verlauf"), path: "verlauf", icon: "mdi:chart-line", type: "sections", max_columns: 3,
       sections: [
-        ...(weather ? [{ type: "grid", column_span: 2, cards: [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] }] : []),
-        { type: "grid", column_span: 2, cards: [hist("temperature")] },
-        { type: "grid", column_span: 2, cards: [hist("humidity")] },
-        { type: "grid", column_span: 2, cards: [hist("timeline")] },
+        ...(weather ? [{ type: "grid", column_span: 3, cards: [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] }] : []),
+        { type: "grid", column_span: 3, cards: [hist("temperature")] },
+        { type: "grid", column_span: 3, cards: [hist("humidity")] },
+        { type: "grid", column_span: 3, cards: [hist("timeline")] },
       ],
     };
 
@@ -95,13 +95,13 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
     };
 
     const reportView = {
-      title: t("Bericht"), path: "bericht", icon: "mdi:chart-box-outline", type: "sections", max_columns: 2,
-      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-report-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+      title: t("Bericht"), path: "bericht", icon: "mdi:chart-box-outline", type: "sections", max_columns: 3,
+      sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-report-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
     const logView = {
-      title: t("Protokoll"), path: "protokoll", icon: "mdi:text-box-search-outline", type: "sections", max_columns: 2,
-      sections: [{ type: "grid", column_span: 2, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
+      title: t("Protokoll"), path: "protokoll", icon: "mdi:text-box-search-outline", type: "sections", max_columns: 3,
+      sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
     return { title: config.title || t("Heizung"), views: [roomsView, historyView, reportView, logView, settingsView] };

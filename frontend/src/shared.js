@@ -494,6 +494,27 @@ export function rkOnLayoutChanged(handler) {
 }
 
 /** Ausblenden und Reihenfolge anwenden. Räume ohne Eintrag behalten ihre alte Reihenfolge. */
+/** Position eines Raums in der gepflegten Reihenfolge (unbekannt = ans Ende). */
+function rkOrderPos(order, r) {
+  const key = (r && (r.id || r.entity_id)) || "";
+  let i = order.indexOf(key);
+  if (i < 0) {
+    const name = (r && (r.name || (r.attributes && r.attributes.friendly_name))) || "";
+    if (name) i = order.indexOf(name);
+  }
+  return i < 0 ? order.length : i;
+}
+
+/**
+ * Nur die Reihenfolge anwenden – ohne Räume auszublenden.
+ * Für die Einstellungen: dort muss auch ein auf „aus" gestellter Raum anklickbar bleiben,
+ * sonst käme man nie wieder an seine Einstellungen (Issue #30).
+ */
+export function rkRoomsOrdered(rooms, layout) {
+  const order = ((layout || RK_LAYOUT_EMPTY).order || []);
+  return [...(rooms || [])].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
+}
+
 export function rkLayoutApply(rooms, layout) {
   const L = layout || RK_LAYOUT_EMPTY;
   const hidden = new Set(L.hidden || []);
@@ -501,19 +522,9 @@ export function rkLayoutApply(rooms, layout) {
   // Räume kommen je nach Karte als Objekt mit `id` (rkRooms) oder als HA-Zustand mit
   // `entity_id` (Übersichtskarte) – beide Formen müssen die Reihenfolge verstehen.
   const keyOf = (r) => (r && (r.id || r.entity_id)) || "";
-  // Ältere Layouts haben Raumnamen statt Entitäts-IDs gespeichert – beides akzeptieren,
-  // damit eine gepflegte Reihenfolge nicht stillschweigend verloren geht.
-  const nameOf = (r) => (r && (r.name || (r.attributes && r.attributes.friendly_name))) || "";
-  const pos = (r) => {
-    const key = keyOf(r);
-    let i = order.indexOf(key);
-    if (i < 0) {
-      const name = nameOf(r);
-      if (name) i = order.indexOf(name);
-    }
-    return i < 0 ? order.length : i;
-  };
-  return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => pos(a) - pos(b));
+  // Ältere Layouts haben Raumnamen statt Entitäts-IDs gespeichert – beides akzeptiert
+  // rkOrderPos, damit eine gepflegte Reihenfolge nicht stillschweigend verloren geht.
+  return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
 }
 
 export function rkLayoutSize(layout, id) {

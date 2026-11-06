@@ -1,5 +1,6 @@
 // Regressionstest: Die Raum-Chips bei „Gäste gelten für" brauchen Name und Raum-Kennung.
 // Fehlte beides, blieben die Chips leer (elf graue Punkte ohne Beschriftung).
+// Seit Issue #30 kommen sie über _orderedRooms() – dieselbe Quelle, nur sortiert.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -15,7 +16,8 @@ function guestChipBlock() {
 
 test("Gast-Chips kommen aus den Räumen der Wohnung", () => {
   const block = guestChipBlock();
-  assert.match(block, /this\._rooms/, "muss die Räume der aktuellen Wohnung nutzen");
+  // _orderedRooms() liefert dieselben Räume in gepflegter Reihenfolge (Issue #30).
+  assert.match(block, /this\._rooms|this\._orderedRooms\(\)/, "muss die Räume der aktuellen Wohnung nutzen");
   assert.doesNotMatch(block, /this\._cfg\.rooms/, "Konfigurationsliste hat weder Name noch Kennung");
 });
 

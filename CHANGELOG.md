@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.59.22b1 – 2026-11-06
+
+### Geändert
+- **Alle fünf Dashboard-Seiten gleich breit.** Verlauf, Bericht und Protokoll nutzten im
+  Sections-Layout zwei Spalten, Räume und Einstellungen drei – daher der sichtbare Unterschied.
+  Jetzt überall drei Spalten (`cards/strategy.js`).
+- **Gepflegte Raum-Reihenfolge gilt auch in den Einstellungen** (#30). Bisher sortierte die
+  Integration dort alphabetisch (`rkRooms()`, `shared.js:538`), während Dashboard und Übersicht
+  die Reihenfolge aus *Darstellung → Reihenfolge* nutzten. Neu: `rkRoomsOrdered()` wendet die
+  Reihenfolge an, ohne Räume auszublenden – ein auf „aus" gestellter Raum muss in den
+  Einstellungen anklickbar bleiben. Betrifft Raum-Tabs, die Kacheln „Alle Räume auf einen Blick"
+  und die Chips „Gäste gelten für".
+
+### Tests
+- `frontend/test/room-order.test.mjs` (4 Fälle): Reihenfolge, alte Layouts mit Raumnamen,
+  Ausblenden nur im Dashboard, Verhalten ohne Layout.
+
 ## 0.59.21b1 – 2026-11-06
 
 ### Behoben

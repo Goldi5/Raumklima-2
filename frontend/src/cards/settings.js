@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_VERSION, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_SCHED_FALLBACK, RK_OFF, RK_PKIND, RK_WALL, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_VERSION, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_SCHED_FALLBACK, RK_OFF, RK_PKIND, RK_WALL, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkRoomsOrdered, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 
 // Gruppen (Phase 1): bestehende Gruppen-Überschriften werden auf die neue Leiste abgebildet.
 // So bleibt der Inhalt unverändert, während die Navigation klar wird.
@@ -581,7 +581,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
       this._row(
         "Gäste gelten für",
-        `<div class="chips">${(this._rooms || [])
+        `<div class="chips">${this._orderedRooms()
           .map((r) => {
             // Kennung ist die Raum-Entry-ID (danach fragt die Zentrale), Name der Anzeigename
             const rid = ((r.attrs && r.attrs.settings) || {}).entry_id || r.id;
@@ -758,7 +758,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
     // --- Tabelle
     const yes = (b) => (b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`);
-    const rowsT = this._rooms.map((r) => {
+    const rowsT = this._orderedRooms().map((r) => {
       const s = r.attrs.settings || {};
       const notif = (this._st(r.sib.notifications) || {}).state === "on";
       const wl = (this._st(r.sib.window_logic) || {}).state === "on";
@@ -819,6 +819,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._flash(t("Gespeichert"));
       })
       .catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+  }
+
+  /** Räume in der gepflegten Reihenfolge – „aus" blendet hier bewusst nichts aus. */
+  _orderedRooms() {
+    return rkRoomsOrdered(this._rooms || [], this._layout);
   }
 
   _layoutList() {
@@ -1541,7 +1546,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
   _render() {
     if (!this._hass || !this._rooms) return;
     if (this._renderSoon()) return;
-    const rooms = this._rooms;
+    const rooms = this._orderedRooms();
     if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
     const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` +
       rooms.map((r) => {
