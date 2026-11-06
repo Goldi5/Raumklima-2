@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.59.23b1 – 2026-11-06
+
+### Behoben
+- **Fremde Wohnung als Ventilsensor** (`room_health.py`): Ein Sensor ohne Bereich aus einer
+  anderen Wohnung („Finja Berlin Küche") wurde dem Raum „Finja" in Remscheid zugeordnet, weil
+  unbekannter Bereich als „vielleicht passend" galt. Namens-Heuristik verlangt jetzt einen
+  **bekannten, gleichen** Bereich.
+- **20,0 °C um Mitternacht der Sollwerte:** `target_temp` startete mit 20,0 °C und stand nach
+  jedem Neustart/Videogerät-Aussetzer eine Sekunde im Sollwert (Zacken in Bericht und Karte).
+  Startwert kommt jetzt aus der Wunschtemperatur des Raums.
+
+### Hinzugefügt
+- **Bericht ohne Ventilstellung** (Livisi VRCC, Homematic ohne Positionssensor): Statt leerer
+  Balken zeigt der Bericht **Gradstunden unter Ziel** (K·h, gemessen) oder auf Wunsch
+  Heizstunden. Auswahl unter *Einstellungen → Wärmemenge im Bericht* (Standard: automatisch).
+  PDF und Rangliste („sparsamster Raum", Vergleich je Heizgradtag) benutzen dieselbe Kennzahl.
+- **Gesundheit: „Fensterkontakt meldet sehr oft"** – ab 20 Zustandswechseln in 24 h, weil jeder
+  Wechsel die Heizung pausiert (Remscheid: 194 Wechsel in 3 Tagen).
+- **Im Bericht je Raum „x h nicht erreichbar"**, wenn das Thermostat zeitweise weg war.
+
 ## 0.59.22b1 – 2026-11-06
 
 ### Geändert

@@ -156,23 +156,41 @@ export class RaumklimaReportCard extends HTMLElement {
     // Tage
     const n = P === "week" ? 14 : 31;
     const days = d.daily.slice(-n);
+    // Womit wird „Wärmemenge" gemessen? Geräte ohne Ventilstellung (Livisi VRCC, Homematic
+    // ohne Positionssensor) liefern keine Öffnung – dann Gradstunden unter Ziel, gemessen
+    // statt geschätzt. Kommt vom Server, damit Bericht und PDF dasselbe zeigen.
+    const metric = d.metric || "valve";
+    const valKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[metric] || "valve_h";
+    const valOf = (r) => (r && Number(r[valKey])) || 0;
+    const valText = (v) =>
+      metric === "deficit"
+        ? t("{v} K·h unter Ziel", { v: fmt(v, 1) })
+        : metric === "hours"
+          ? t("{v} h geheizt", { v: fmt(v, 0) })
+          : t("Ventil ≈ {v} h", { v: fmt(v, 1) });
+    const barHint =
+      metric === "deficit"
+        ? t("Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.")
+        : metric === "hours"
+          ? t("Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.")
+          : t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).");
     const names = Object.keys(cur.rooms).sort((a, b) => a.localeCompare(b));
     const color = (nm, i) => this._roomColor(nm) || ROOM_COLORS[i % ROOM_COLORS.length];
-    const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + r.valve_h, 0)));
+    const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + valOf(r), 0)));
     const maxH = Math.max(1, ...days.map((x) => x.hdd || 0));
     const today = d.daily[d.daily.length - 1].date;
     const wd = t("So,Mo,Di,Mi,Do,Fr,Sa").split(",");
     const bars = days.map((x) => {
-      const tot = Object.values(x.rooms).reduce((s, r) => s + r.valve_h, 0);
-      const segs = names.map((nm, i) => { const v = (x.rooms[nm] || {}).valve_h || 0; return v ? `<i style="--c:${color(nm, i)};height:${(100 * v / tot).toFixed(1)}%"></i>` : ""; }).join("");
-      const tip = `${x.date}: ${t("Ventil ≈ {v} h", { v: fmt(tot, 1) })}${x.outdoor != null ? ` · ${t("außen {v} °C", { v: fmt(x.outdoor, 1) })}` : ""}${x.hdd ? ` · ${fmt(x.hdd, 0)} ${t("HGT")}` : ""}`;
+      const tot = Object.values(x.rooms).reduce((s, r) => s + valOf(r), 0);
+      const segs = names.map((nm, i) => { const v = valOf(x.rooms[nm]); return v ? `<i style="--c:${color(nm, i)};height:${(100 * v / tot).toFixed(1)}%"></i>` : ""; }).join("");
+      const tip = `${x.date}: ${valText(tot)}${x.outdoor != null ? ` · ${t("außen {v} °C", { v: fmt(x.outdoor, 1) })}` : ""}${x.hdd ? ` · ${fmt(x.hdd, 0)} ${t("HGT")}` : ""}`;
       return `<div class="day ${x.date === today ? "today" : ""}" title="${esc(tip)}"><div class="stk" style="height:${(100 * tot / maxV).toFixed(1)}%">${segs}</div>${x.hdd ? `<span class="hdd" style="bottom:${(100 * x.hdd / maxH).toFixed(1)}%"></span>` : ""}</div>`;
     }).join("");
     const labs = days.map((x, i) => { const dt = new Date(x.date + "T12:00:00"); const show = n <= 14 || i % 3 === 0 || x.date === today; return `<span>${show ? (n <= 14 ? wd[dt.getDay()] : dt.getDate() + ".") : ""}</span>`; }).join("");
     const legend = names.map((nm, i) => `<span><i style="--c:${color(nm, i)}"></i>${esc(nm)}</span>`).join("") + `<span><i class="dot" style="--c:var(--rk-air)"></i>${t("Heizgradtage (Kälte draußen)")}</span>`;
 
     // Räume
-    const maxRoom = Math.max(1, ...names.map((nm) => cur.rooms[nm].valve_h));
+    const maxRoom = Math.max(1, ...names.map((nm) => valOf(cur.rooms[nm])));
     const rrows = names.map((nm, i) => {
       const r = cur.rooms[nm];
       const facts = [
@@ -185,9 +203,10 @@ export class RaumklimaReportCard extends HTMLElement {
         r.window_pause_h >= 0.5 ? `<span>${t("{v} h Fenster offen", { v: fmt(r.window_pause_h, 1) })}</span>` : "",
         r.night_h >= 0.5 ? `<span>${t("{v} h Nachtlüften", { v: fmt(r.night_h, 0) })}</span>` : "",
         r.arrivals_warm_pct != null ? `<span>${t("<b>{v} %</b> warm bei Ankunft", { v: r.arrivals_warm_pct })}</span>` : "",
+        r.trv_down_h >= 0.5 ? `<span class="w">${t("{v} h nicht erreichbar", { v: fmt(r.trv_down_h, 0) })}</span>` : "",
       ].join("");
       return `<div class="rrow" style="--c:${color(nm, i)}"><div class="nm"><i></i><span>${esc(nm)}</span></div>
-        <div><div class="rbar" title="${t("Ventil voll offen ≈ {v} h", { v: fmt(r.valve_h, 1) })}"><i style="width:${(100 * r.valve_h / maxRoom).toFixed(1)}%;background:var(--c)"></i></div><div class="facts">${facts}</div></div></div>`;
+        <div><div class="rbar" title="${valText(valOf(r))}"><i style="width:${(100 * valOf(r) / maxRoom).toFixed(1)}%;background:var(--c)"></i></div><div class="facts">${facts}</div></div></div>`;
     }).join("");
 
     const arrivals = T.arrivals ? t("Bei {p} % der Ankünfte war es schon warm", { p: T.arrivals_warm_pct ?? "–" }) + (cur.preheats ? " · " + t("{n}× vorgeheizt", { n: cur.preheats }) : "") : "";
@@ -195,7 +214,7 @@ export class RaumklimaReportCard extends HTMLElement {
       ${d.issues && d.issues.length ? `<div class="rsec"><h3><ha-icon icon="mdi:heart-pulse"></ha-icon>${t("Gesundheit")}</h3>${rkIssueList(d.issues, true, this._config.strip_prefix)}</div>` : ""}
       <div class="rsec"><h3><ha-icon icon="mdi:calendar-month-outline"></ha-icon>${t("Heizbedarf pro Tag")}</h3>
         <div class="days">${bars}</div><div class="daylab">${labs}</div><div class="lg">${legend}</div>
-        <div class="hint">${t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge). Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.")}</div></div>
+        <div class="hint">${barHint} ${t("Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.")}</div></div>
       <div class="rsec"><h3><ha-icon icon="mdi:door"></ha-icon>${t("Räume")}</h3><div class="rrows">${rrows}</div>
         ${arrivals ? `<div class="hint">${arrivals}.</div>` : ""}</div>
       <div class="hint">${t("Die Ersparnis ist eine Abschätzung nach der Faustregel der Verbraucherzentrale (≈ 6 % weniger Heizenergie je Grad Absenkung). „Wetterbereinigt“ vergleicht den Heizbedarf je Heizgradtag – ein kalter Monat macht ihn also nicht schlechter.")}</div>`;

@@ -12,7 +12,15 @@ from homeassistant.helpers.event import async_track_time_change, async_track_tim
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_RECIPIENTS, CONF_TTS, DOMAIN, KIND_HEALTH, KIND_REPORT
+from .const import (
+    CONF_RECIPIENTS,
+    CONF_REPORT_METRIC,
+    CONF_TTS,
+    DOMAIN,
+    KIND_HEALTH,
+    KIND_REPORT,
+    REPORT_METRIC_DEFAULT,
+)
 from .health import SEV_INFO, Issue, check_connection, check_notify_targets
 from .msg import tr
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
@@ -267,11 +275,21 @@ class Insights:
                     "date": d.isoformat(),
                     "hdd": s["hdd"],
                     "outdoor": s["outdoor_avg"],
-                    "rooms": {n: {"heating_h": r["heating_h"], "valve_h": r["valve_h"], "setback_h": r["setback_h"]} for n, r in s["rooms"].items()},
+                    "rooms": {
+                        n: {
+                            "heating_h": r["heating_h"],
+                            "valve_h": r["valve_h"],
+                            "valve_calc_h": r["valve_calc_h"],
+                            "deficit_kh": r["deficit_kh"],
+                            "setback_h": r["setback_h"],
+                        }
+                        for n, r in s["rooms"].items()
+                    },
                 }
             )
         first = min((k for days in rooms.values() for k in days), default=None)
         return {
+            "metric": self.report_metric(month),
             "since": first,
             "week": week,
             "prev_week": prev_week,
@@ -281,6 +299,19 @@ class Insights:
             "month_change": compare(month, prev_month),
             "daily": daily,
         }
+
+    def report_metric(self, summary: dict[str, Any]) -> str:
+        """Womit der Bericht die Wärmemenge misst.
+
+        ``auto`` nimmt die Ventilstellung nur, wenn **jeder** Raum mit Daten sie meldet –
+        gemischt wäre der Balkenvergleich wertlos. Sonst Gradstunden (gemessen, nicht geschätzt).
+        """
+        want = (self.hub.opt(CONF_REPORT_METRIC) if self.hub else None) or REPORT_METRIC_DEFAULT
+        if want in ("valve", "deficit", "hours"):
+            return want
+        rooms = (summary.get("rooms") or {}).values()
+        used = [r for r in rooms if r.get("hours", 0) >= 1]
+        return "valve" if used and all(r.get("has_valve") for r in used) else "deficit"
 
     def export_csv(self, days: int | None = None, today: date | None = None) -> str:
         """Tageswerte je Raum als CSV (für Tabellenkalkulation)."""

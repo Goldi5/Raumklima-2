@@ -29,6 +29,7 @@ TRV_OFFSET_PRESETS = ("eco", "comfort", "boost")
 # Tuya TRV602Z: "on" öffnet das Ventil dauerhaft (gemessen 100 %) – ein echter Fehlzustand.
 TRV_OPEN_PRESETS = ("on",)
 WINDOW_OPEN_HOURS = 24.0
+WINDOW_FLIP_LIMIT = 20  # Zustandswechsel pro Tag, ab denen ein Kontakt als defekt gilt
 WINDOW_UNAVAILABLE_HOURS = 2.0
 
 
@@ -121,6 +122,26 @@ def check_trv_mode(mode: str | None, preset: str | None, *, device_preset: bool 
             ),
         )
     return None
+
+
+def check_window_flapping(flips: int) -> Issue | None:
+    """Fensterkontakt meldet im Minutentakt – Kontakt, Batterie oder Magnet prüfen.
+
+    Jede Meldung pausiert die Heizung und startet sie wieder; im Bericht sieht man nur ein
+    Zickzack im Sollwert. Ab etwa 20 Wechseln pro Tag ist es kein Lüften mehr.
+    """
+    if flips < WINDOW_FLIP_LIMIT:
+        return None
+    return Issue(
+        "window_flapping",
+        SEV_WARN,
+        tr("Fensterkontakt meldet sehr oft"),
+        tr(
+            "{n} Zustandswechsel in 24 Stunden – das ist kein Lüften. Jede Meldung pausiert die "
+            "Heizung kurz. Bitte Kontakt, Batterie und Magnet prüfen.",
+            n=flips,
+        ),
+    )
 
 
 def check_not_warming(history: list[HistoryPoint], now: datetime) -> Issue | None:

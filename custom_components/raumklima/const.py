@@ -316,6 +316,12 @@ PRESET_GRACE_SECONDS: Final = 60  # s – Sollwert-Änderungen nach Preset-Wechs
 ON_PRESET_CANDIDATES: Final = ["manual", "heat", "eco", "comfort", "none"]
 ON_PRESET_AVOID: Final = ["on", "off", "antifrost", "auto", "boost", "holiday", "away"]
 CONF_ON_PRESET: Final = "on_preset"
+
+# Womit der Bericht „Wärmemenge" misst. Ohne Ventilstellung (z. B. Livisi VRCC, Homematic
+# ohne Positionssensor) ist die Ventilöffnung unbekannt – dann zählen Gradstunden.
+CONF_REPORT_METRIC: Final = "report_metric"
+REPORT_METRICS: Final = ["auto", "valve", "deficit", "hours"]  # auto = Ventil, sonst Gradstunden
+REPORT_METRIC_DEFAULT: Final = "auto"
 ON_PRESET_AUTO: Final = "auto_detect"
 
 # Zustände

@@ -54,6 +54,8 @@ L = {
         "ya": "Vorjahr",
         "m_heating": "Heizstunden",
         "m_valve": "Ventil-Volllaststunden",
+        "m_deficit": "Gradstunden unter Ziel (K·h)",
+        "m_hours": "Heizstunden",
         "m_hdd": "Heizgradtage",
         "m_outdoor": "Außentemperatur Ø",
         "m_setback": "Abgesenkt (h)",
@@ -164,6 +166,8 @@ L = {
         "ya": "Year ago",
         "m_heating": "Heating hours",
         "m_valve": "Valve full-load hours",
+        "m_deficit": "Degree-hours below target (K·h)",
+        "m_hours": "Heating hours",
         "m_hdd": "Heating degree days",
         "m_outdoor": "Outdoor temperature avg",
         "m_setback": "Set back (h)",
@@ -274,6 +278,8 @@ L = {
         "ya": "Il y a un an",
         "m_heating": "Heures de chauffe",
         "m_valve": "Heures vanne pleine ouverture",
+        "m_deficit": "Degrés-heures sous la cible (K·h)",
+        "m_hours": "Heures de chauffe",
         "m_hdd": "Degrés-jours de chauffage",
         "m_outdoor": "Température extérieure moy.",
         "m_setback": "Abaissé (h)",
@@ -647,9 +653,12 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
         value = s[where][key] if where else s[key]
         return num(value, lang, digits, unit)
 
+    metric = data.get("metric") or "valve"
+    metric_key = {"valve": "valve_h", "deficit": "deficit_kh", "hours": "heating_h"}[metric]
+    metric_label = {"valve": "m_valve", "deficit": "m_deficit", "hours": "m_hours"}[metric]
     rows = [
         [tx["m_heating"], col(cur, "heating_h"), col(prev, "heating_h"), col(ya, "heating_h")],
-        [tx["m_valve"], col(cur, "valve_h", 1), col(prev, "valve_h", 1), col(ya, "valve_h", 1)],
+        [tx[metric_label], col(cur, metric_key, 1), col(prev, metric_key, 1), col(ya, metric_key, 1)],
         [tx["m_hdd"], col(cur, "hdd", 0, "", ""), col(prev, "hdd", 0, "", ""), col(ya, "hdd", 0, "", "")],
         [tx["m_outdoor"], col(cur, "outdoor_avg", 1, " °C", ""), col(prev, "outdoor_avg", 1, " °C", ""), col(ya, "outdoor_avg", 1, " °C", "")],
         [tx["m_setback"], col(cur, "setback_h"), col(prev, "setback_h"), col(ya, "setback_h")],

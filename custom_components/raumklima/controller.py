@@ -299,8 +299,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             )
             self.cal_mode = CAL_TARGET
 
-        # Dauerhafter Zustand (Store)
-        self.target_temp: float = 20.0
+        # Dauerhafter Zustand (Store). Kein geratener Startwert: 20,0 °C stand nach jedem
+        # Neustart für eine Sekunde im Sollwert und erzeugte Zacken im Bericht.
+        self.target_temp: float = float(self.config.get(CONF_COMFORT_TEMP) or 20.0)
         self.hvac_on: bool = True
         # Warum der Raum aus ist (None = an): OFF_SOURCE_USER / OFF_SOURCE_TRV
         self.off_source: str | None = None
@@ -312,6 +313,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
         # Laufzeit
         self.window_paused = False
+        # Zeitpunkte der Fenster-Öffnungen (24 h): ein klemmender Kontakt erzeugt Heizpausen
+        # im Minutentakt – das fällt nur so auf, nicht in der Temperaturkurve.
+        self._window_flips: deque[datetime] = deque(maxlen=400)
         self._window_raw = False
         self.night_since: datetime | None = None  # Schlafen bei offenem Fenster seit
         self._last_valid_windows: dict[str, str | None] = {}

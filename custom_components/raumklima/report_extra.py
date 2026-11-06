@@ -84,14 +84,23 @@ def weekday_weekend(rooms: Rooms, home: Home, start: date, end: date) -> dict[st
 
 
 # ------------------------------------------------------------------ Rangliste
-def ranking(cur: dict[str, Any], prev: dict[str, Any] | None) -> dict[str, tuple[str, float]]:
+def metric_value(room: dict[str, Any], metric: str) -> float:
+    """Wärmemenge eines Raums in der gewählten Kennzahl (siehe insights.report_metric)."""
+    if metric == "hours":
+        return float(room.get("heating_h") or 0.0)
+    if metric == "deficit":
+        return float(room.get("deficit_kh") or 0.0)
+    return float(room.get("valve_h") or 0.0)
+
+
+def ranking(cur: dict[str, Any], prev: dict[str, Any] | None, metric: str = "valve") -> dict[str, tuple[str, float]]:
     """Sparsamster, wärmster, gemütlichster Raum und größte Verbesserung."""
     rooms = {n: r for n, r in cur["rooms"].items() if r["hours"] >= 24}
     out: dict[str, tuple[str, float]] = {}
     if len(rooms) < 2:
         return out
-    eco = min(rooms.items(), key=lambda x: x[1]["valve_h"] / x[1]["hours"])
-    out["eco"] = (eco[0], round(eco[1]["valve_h"] / eco[1]["hours"] * 24, 1))  # Volllast-h pro Tag
+    eco = min(rooms.items(), key=lambda x: metric_value(x[1], metric) / x[1]["hours"])
+    out["eco"] = (eco[0], round(metric_value(eco[1], metric) / eco[1]["hours"] * 24, 1))
     warm = [(n, r["temp_avg"]) for n, r in rooms.items() if r["temp_avg"] is not None]
     if warm:
         out["warm"] = max(warm, key=lambda x: x[1])
@@ -102,8 +111,9 @@ def ranking(cur: dict[str, Any], prev: dict[str, Any] | None) -> dict[str, tuple
         changes = []
         for n, r in rooms.items():
             p = prev["rooms"].get(n)
-            if p and p["hours"] >= 24 and p["valve_h"] > 0 and r["valve_h"] >= 0:
-                changes.append((n, round(100 * ((r["valve_h"] / cur["hdd"]) / (p["valve_h"] / prev["hdd"]) - 1))))
+            cur_v, prev_v = metric_value(r, metric), metric_value(p, metric) if p else 0.0
+            if p and p["hours"] >= 24 and prev_v > 0:
+                changes.append((n, round(100 * ((cur_v / cur["hdd"]) / (prev_v / prev["hdd"]) - 1))))
         best = min(changes, key=lambda x: x[1]) if changes else None
         if best and best[1] <= -5:
             out["improved"] = best

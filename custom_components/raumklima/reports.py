@@ -20,7 +20,7 @@ from homeassistant.components.http import KEY_AUTHENTICATED, HomeAssistantView
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_SEASON_END, CONF_SEASON_START, KIND_REPORT
+from .const import CONF_REPORT_METRIC, CONF_SEASON_END, CONF_SEASON_START, KIND_REPORT
 from .mailer import BUILTIN, MailError, recipients, send as mail_send
 from .msg import tr
 from .report_data import MONTH, SEASON, WEEK, build, period, report_lang
@@ -149,6 +149,7 @@ class PdfReports:
             lang,
             season,
             hub.insights.report_extras(),
+            hub.opt(CONF_REPORT_METRIC) if hub.opt(CONF_REPORT_METRIC) != "auto" else None,
         )
         name = file_name(kind, start, end, lang, current, self._home_label())
         created = dt_util.now()

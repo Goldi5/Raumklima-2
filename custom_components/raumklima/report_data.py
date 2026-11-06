@@ -216,14 +216,22 @@ def build(
     lang: str = "de",
     season: tuple[str, str] = ("10-01", "04-30"),
     extras: dict[str, Any] | None = None,
+    metric: str | None = None,
 ) -> dict[str, Any]:
-    """Alle Zahlen für einen Bericht."""
+    """Alle Zahlen für einen Bericht.
+
+    ``metric`` sagt, womit „Wärmemenge" gemessen wird (ventil / deficit / hours) – nötig für
+    Geräte ohne Ventilstellung (Livisi VRCC, Homematic ohne Positionssensor).
+    """
     cur = summarize(rooms, home, start, end)
     p_start, p_end = previous(kind, start, end, *season)
     prev = summarize(rooms, home, p_start, p_end)
     y_start, y_end = year_ago(kind, start, end)
     ya = summarize(rooms, home, y_start, y_end)
     has_ya = _coverage(ya, y_start, y_end) >= MIN_COVERAGE
+    if not metric:
+        used = [r for r in cur["rooms"].values() if r.get("hours", 0) >= 1]
+        metric = "valve" if used and all(r.get("has_valve") for r in used) else "deficit"
     data = {
         "kind": kind,
         "start": start.isoformat(),
@@ -236,6 +244,7 @@ def build(
         "change": compare(cur, prev),
         "change_year": compare(cur, ya) if has_ya else None,
         "series": series(rooms, home, kind, start, end),
+        "metric": metric,
         "lang": lang,
     }
     data["findings"] = findings(data, issues or [], lang)
@@ -260,7 +269,7 @@ def add_extras(data: dict[str, Any], rooms: dict[str, Any], home: dict[str, Any]
     }
     data["airing"] = rx.airing_rows(cur)
     data["weekday"] = rx.weekday_weekend(rooms, home, start, end)
-    data["ranking"] = rx.ranking(cur, data["previous"])
+    data["ranking"] = rx.ranking(cur, data["previous"], data.get("metric") or "valve")
     data["trends"] = rx.room_trends(rooms, home, kind, start, end)
     data["heatmap"] = grid
     data["highlights"] = rx.season_highlights(daily, data["series"]) if kind == SEASON else None

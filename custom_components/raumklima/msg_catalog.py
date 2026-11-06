@@ -624,6 +624,17 @@ _ROWS: list[tuple[str, str, str]] = [
         "Lien de téléchargement valable 15 minutes : {n}",
     ),
 
+    (
+        "Fensterkontakt meldet sehr oft",
+        "Window contact reports very often",
+        "Le capteur de fenêtre signale très souvent",
+    ),
+    (
+        "{n} Zustandswechsel in 24 Stunden – das ist kein Lüften. Jede Meldung pausiert die Heizung kurz. Bitte Kontakt, Batterie und Magnet prüfen.",
+        "{n} state changes in 24 hours – that is not airing. Every report pauses heating briefly. Please check the contact, battery and magnet.",
+        "{n} changements d’état en 24 heures – ce n’est pas aérer. Chaque signal interrompt brièvement le chauffage. Vérifiez le contact, la pile et l’aimant.",
+    ),
+
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}

@@ -22,6 +22,8 @@ ROOM_FIELDS = (
     "heating_s",  # Status „heizt“
     "valve_pct_s",  # ∫ Ventilöffnung % · s
     "valve_calc_pct_s",  # ∫ berechneter Öffnungsgrad % · s (Schattenmodus)
+    "valve_seen_s",  # Zeit, in der das Gerät überhaupt eine Ventilstellung meldet
+    "deficit_ks",  # ∫ max(0, Ziel − Ist) K · s – Rückfall ohne Ventilstellung
     "setback_s",  # abgesenkt (Abwesenheit)
     "setback_ks",  # ∫ (Wunsch − Ziel) K · s
     "window_pause_s",  # Heizung wegen Fenster pausiert (ohne Nachtlüften)
@@ -98,6 +100,12 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
         day["valve_pct_s"] += max(0.0, min(100.0, s.valve)) * dt
     if s.valve_calc is not None:
         day["valve_calc_pct_s"] += max(0.0, min(100.0, s.valve_calc)) * dt
+    if s.valve is not None:
+        day["valve_seen_s"] += dt
+    # Gradstunden: nur wenn der Raum wirklich regeln soll und zu kalt ist. Absenkung und
+    # Pausen dürfen nicht als Wärmebedarf zählen, sonst wäre der Rückfall wertlos.
+    if s.temp is not None and s.plan_on and not s.paused:
+        day["deficit_ks"] += max(0.0, s.effective - s.temp) * dt
     if s.reason in ("away_short", "away_long"):
         day["setback_s"] += dt
         day["setback_ks"] += max(0.0, s.target - s.effective) * dt
@@ -197,6 +205,11 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         "rf_retries": int(_sum(days, "rf_retries")),
         "heating_h": round(_sum(days, "heating_s") / 3600, 1),
         "valve_h": round(_sum(days, "valve_pct_s") / 100 / 3600, 1),
+        "valve_calc_h": round(_sum(days, "valve_calc_pct_s") / 100 / 3600, 1),
+        # Gradstunden unter Ziel: gemessene Wärmelücke, funktioniert auch ohne Ventilstellung
+        "deficit_kh": round(_sum(days, "deficit_ks") / 3600, 1),
+        # Meldet das Gerät überhaupt eine Ventilstellung? (nicht: „hat gerade 0 %")
+        "has_valve": _sum(days, "valve_seen_s") >= 0.5 * seconds and seconds > 0,
         "setback_h": round(_sum(days, "setback_s") / 3600, 1),
         "setback_avg_k": round(setback_ks / max(_sum(days, "setback_s"), 1), 1),
         "window_pause_h": round(_sum(days, "window_pause_s") / 3600, 1),

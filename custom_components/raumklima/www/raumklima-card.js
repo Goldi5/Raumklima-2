@@ -1,4 +1,4 @@
-/* Raumklima 0.59.22b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.23b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -837,7 +837,18 @@
     "Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen": "Saved: {name} – if no file appeared, please use Load file",
     "Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren": "The browser blocked copying – please select the text in the field and copy it",
     "Geteilt": "Shared",
-    "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: load the file and attach it to the issue. It contains values, entities and the last log lines, but no credentials."
+    "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: load the file and attach it to the issue. It contains values, entities and the last log lines, but no credentials.",
+    "Wärmemenge im Bericht": "Heat delivered in the report",
+    "Ventilstellung": "Valve position",
+    "Gradstunden": "Degree-hours",
+    "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)": "automatic = valve position if every thermostat reports it – otherwise degree-hours below target (measured, not estimated)",
+    "{v} K·h unter Ziel": "{v} K·h below target",
+    "{v} h geheizt": "{v} h heating",
+    "{v} h nicht erreichbar": "{v} h unreachable",
+    "Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.": "Bars = degree-hours below target (K·h): how far the rooms were below their target over time. Measured, not estimated – the devices do not report a valve position.",
+    "Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.": "Bars = heating hours: how long the rooms asked for heat.",
+    "Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).": "Bars = how long the valves were fully open, converted (a measure of heat delivered).",
+    "Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Dots = heating degree days: the colder it was outside, the higher. Tall bars on mild days point to open windows or too high target temperatures."
   };
 
   // src/i18n/fr.js
@@ -1677,7 +1688,18 @@
     "Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen": "Enregistré : {name} – si aucun fichier n'apparaît, utilisez Charger le fichier",
     "Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren": "Le navigateur a bloqué la copie – sélectionnez le texte et copiez-le",
     "Geteilt": "Partagé",
-    "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : chargez le fichier et joignez-le au ticket. Il contient des valeurs, des entités et les dernières lignes de journal, sans identifiants."
+    "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : chargez le fichier et joignez-le au ticket. Il contient des valeurs, des entités et les dernières lignes de journal, sans identifiants.",
+    "Wärmemenge im Bericht": "Chaleur fournie dans le rapport",
+    "Ventilstellung": "Position de vanne",
+    "Gradstunden": "Degrés-heures",
+    "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)": "automatique = position de vanne si chaque thermostat la transmet – sinon degrés-heures sous la cible (mesuré, pas estimé)",
+    "{v} K·h unter Ziel": "{v} K·h sous la cible",
+    "{v} h geheizt": "{v} h de chauffe",
+    "{v} h nicht erreichbar": "{v} h injoignable",
+    "Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.": "Barres = degrés-heures sous la cible (K·h) : à quel point les pièces sont restées sous leur cible. Mesuré, pas estimé – les appareils ne transmettent pas la position de vanne.",
+    "Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.": "Barres = heures de chauffe : combien de temps les pièces ont demandé de la chaleur.",
+    "Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).": "Barres = durée pendant laquelle les vannes étaient entièrement ouvertes, convertie (mesure de la chaleur fournie).",
+    "Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.": "Points = degrés-jours de chauffe : plus il faisait froid dehors, plus haut. Des barres hautes par temps doux indiquent des fenêtres ouvertes ou des consignes trop élevées."
   };
 
   // src/i18n.js
@@ -1721,7 +1743,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.59.22b1";
+  var RK_VERSION = "0.59.23b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4564,6 +4586,16 @@
         this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
         this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
         this._row(
+          "Wärmemenge im Bericht",
+          this._select(H, "report_metric", [
+            { id: "auto", name: t("automatisch") },
+            { id: "valve", name: t("Ventilstellung") },
+            { id: "deficit", name: t("Gradstunden") },
+            { id: "hours", name: t("Heizstunden") }
+          ], this._hubOpt("report_metric") || "auto"),
+          "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)"
+        ),
+        this._row(
           "PDF-Berichte",
           `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => {
             const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k);
@@ -6175,19 +6207,24 @@
       ].join("");
       const n = P === "week" ? 14 : 31;
       const days = d.daily.slice(-n);
+      const metric = d.metric || "valve";
+      const valKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[metric] || "valve_h";
+      const valOf = (r) => r && Number(r[valKey]) || 0;
+      const valText = (v) => metric === "deficit" ? t("{v} K·h unter Ziel", { v: fmt(v, 1) }) : metric === "hours" ? t("{v} h geheizt", { v: fmt(v, 0) }) : t("Ventil ≈ {v} h", { v: fmt(v, 1) });
+      const barHint = metric === "deficit" ? t("Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.") : metric === "hours" ? t("Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.") : t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).");
       const names = Object.keys(cur.rooms).sort((a, b) => a.localeCompare(b));
       const color = (nm, i) => this._roomColor(nm) || ROOM_COLORS[i % ROOM_COLORS.length];
-      const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + r.valve_h, 0)));
+      const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + valOf(r), 0)));
       const maxH = Math.max(1, ...days.map((x) => x.hdd || 0));
       const today = d.daily[d.daily.length - 1].date;
       const wd = t("So,Mo,Di,Mi,Do,Fr,Sa").split(",");
       const bars = days.map((x) => {
-        const tot = Object.values(x.rooms).reduce((s, r) => s + r.valve_h, 0);
+        const tot = Object.values(x.rooms).reduce((s, r) => s + valOf(r), 0);
         const segs = names.map((nm, i) => {
-          const v = (x.rooms[nm] || {}).valve_h || 0;
+          const v = valOf(x.rooms[nm]);
           return v ? `<i style="--c:${color(nm, i)};height:${(100 * v / tot).toFixed(1)}%"></i>` : "";
         }).join("");
-        const tip = `${x.date}: ${t("Ventil ≈ {v} h", { v: fmt(tot, 1) })}${x.outdoor != null ? ` · ${t("außen {v} °C", { v: fmt(x.outdoor, 1) })}` : ""}${x.hdd ? ` · ${fmt(x.hdd, 0)} ${t("HGT")}` : ""}`;
+        const tip = `${x.date}: ${valText(tot)}${x.outdoor != null ? ` · ${t("außen {v} °C", { v: fmt(x.outdoor, 1) })}` : ""}${x.hdd ? ` · ${fmt(x.hdd, 0)} ${t("HGT")}` : ""}`;
         return `<div class="day ${x.date === today ? "today" : ""}" title="${esc(tip)}"><div class="stk" style="height:${(100 * tot / maxV).toFixed(1)}%">${segs}</div>${x.hdd ? `<span class="hdd" style="bottom:${(100 * x.hdd / maxH).toFixed(1)}%"></span>` : ""}</div>`;
       }).join("");
       const labs = days.map((x, i) => {
@@ -6196,7 +6233,7 @@
         return `<span>${show ? n <= 14 ? wd[dt.getDay()] : dt.getDate() + "." : ""}</span>`;
       }).join("");
       const legend = names.map((nm, i) => `<span><i style="--c:${color(nm, i)}"></i>${esc(nm)}</span>`).join("") + `<span><i class="dot" style="--c:var(--rk-air)"></i>${t("Heizgradtage (Kälte draußen)")}</span>`;
-      const maxRoom = Math.max(1, ...names.map((nm) => cur.rooms[nm].valve_h));
+      const maxRoom = Math.max(1, ...names.map((nm) => valOf(cur.rooms[nm])));
       const rrows = names.map((nm, i) => {
         const r = cur.rooms[nm];
         const facts = [
@@ -6208,17 +6245,18 @@
           r.mold_h >= 1 ? `<span class="w">${t("{v} h Schimmelrisiko", { v: fmt(r.mold_h, 0) })}</span>` : "",
           r.window_pause_h >= 0.5 ? `<span>${t("{v} h Fenster offen", { v: fmt(r.window_pause_h, 1) })}</span>` : "",
           r.night_h >= 0.5 ? `<span>${t("{v} h Nachtlüften", { v: fmt(r.night_h, 0) })}</span>` : "",
-          r.arrivals_warm_pct != null ? `<span>${t("<b>{v} %</b> warm bei Ankunft", { v: r.arrivals_warm_pct })}</span>` : ""
+          r.arrivals_warm_pct != null ? `<span>${t("<b>{v} %</b> warm bei Ankunft", { v: r.arrivals_warm_pct })}</span>` : "",
+          r.trv_down_h >= 0.5 ? `<span class="w">${t("{v} h nicht erreichbar", { v: fmt(r.trv_down_h, 0) })}</span>` : ""
         ].join("");
         return `<div class="rrow" style="--c:${color(nm, i)}"><div class="nm"><i></i><span>${esc(nm)}</span></div>
-        <div><div class="rbar" title="${t("Ventil voll offen ≈ {v} h", { v: fmt(r.valve_h, 1) })}"><i style="width:${(100 * r.valve_h / maxRoom).toFixed(1)}%;background:var(--c)"></i></div><div class="facts">${facts}</div></div></div>`;
+        <div><div class="rbar" title="${valText(valOf(r))}"><i style="width:${(100 * valOf(r) / maxRoom).toFixed(1)}%;background:var(--c)"></i></div><div class="facts">${facts}</div></div></div>`;
       }).join("");
       const arrivals = T.arrivals ? t("Bei {p} % der Ankünfte war es schon warm", { p: T.arrivals_warm_pct ?? "–" }) + (cur.preheats ? " · " + t("{n}× vorgeheizt", { n: cur.preheats }) : "") : "";
       return `<div class="tiles">${tiles}</div>
       ${d.issues && d.issues.length ? `<div class="rsec"><h3><ha-icon icon="mdi:heart-pulse"></ha-icon>${t("Gesundheit")}</h3>${rkIssueList(d.issues, true, this._config.strip_prefix)}</div>` : ""}
       <div class="rsec"><h3><ha-icon icon="mdi:calendar-month-outline"></ha-icon>${t("Heizbedarf pro Tag")}</h3>
         <div class="days">${bars}</div><div class="daylab">${labs}</div><div class="lg">${legend}</div>
-        <div class="hint">${t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge). Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.")}</div></div>
+        <div class="hint">${barHint} ${t("Punkte = Heizgradtage: je kälter es draußen war, desto höher. Hohe Balken an milden Tagen sind ein Hinweis auf offene Fenster oder zu hohe Wunschtemperaturen.")}</div></div>
       <div class="rsec"><h3><ha-icon icon="mdi:door"></ha-icon>${t("Räume")}</h3><div class="rrows">${rrows}</div>
         ${arrivals ? `<div class="hint">${arrivals}.</div>` : ""}</div>
       <div class="hint">${t("Die Ersparnis ist eine Abschätzung nach der Faustregel der Verbraucherzentrale (≈ 6 % weniger Heizenergie je Grad Absenkung). „Wetterbereinigt“ vergleicht den Heizbedarf je Heizgradtag – ein kalter Monat macht ihn also nicht schlechter.")}</div>`;

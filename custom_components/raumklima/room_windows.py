@@ -205,6 +205,8 @@ class WindowMixin:
                 self.log(CAT_WINDOW, tr("Fenster zu"))
             self.night_since = None
         if raw != was_raw:
+            if not self._raw_virtual and not was_virtual:
+                self._window_flips.append(dt_util.utcnow())
             self.fire_event("window", {"state": "open" if raw else "closed", "virtual": self._raw_virtual or was_virtual, "night": self.night_since is not None})
         if self.vent:
             self.vent.on_window_raw(raw)

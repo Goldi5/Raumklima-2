@@ -30,6 +30,7 @@ from .health import (
     check_sensor_missing,
     check_trv_mode,
     check_window,
+    check_window_flapping,
 )
 from .logic import (
     is_valid,
@@ -130,6 +131,15 @@ class HealthMixin:
             area = area_of(entry)
             return not trv_area or area in (None, trv_area)
 
+        def same_known_area(entry) -> bool:
+            """Streng: nur ein **bekannter**, gleicher Bereich zählt.
+
+            Nötig für die Namens-Heuristik: ein Sensor ohne Bereich aus einer anderen Wohnung
+            („Finja Berlin Küche“) passte sonst auf den Raum „Finja“ in Remscheid – dessen
+            Bericht zeigte dann fremde Ventilwerte.
+            """
+            return bool(trv_area) and area_of(entry) == trv_area
+
         if trv_entry.device_id:
             hit = pick(er.async_entries_for_device(registry, trv_entry.device_id))
             if hit:
@@ -144,7 +154,8 @@ class HealthMixin:
                 if (other := _entity_stem(e.entity_id))
                 and other != stem
                 and (other.startswith(stem) or stem.startswith(other))
-                and same_area(e)
+                # Namensgleichheit allein reicht nicht: nur bei bekanntem, gleichem Bereich
+                and same_known_area(e)
             ]
             # der längste gemeinsame Namensanfang gewinnt (bei mehreren Kandidaten)
             related.sort(key=lambda e: -_common_prefix(_entity_stem(e.entity_id), stem))
@@ -177,7 +188,7 @@ class HealthMixin:
             same = [
                 e
                 for e in registry.entities.values()
-                if e.device_id and _name_related(name_of(e), trv_name) and same_area(e)
+                if e.device_id and _name_related(name_of(e), trv_name) and same_known_area(e)
             ]
             hit = pick(same)
             if hit:
@@ -241,6 +252,12 @@ class HealthMixin:
         return round(sum(values) / len(values), 1) if values else None
 
     # ================================================================ Bericht & Gesundheit
+    @property
+    def window_flips_24h(self) -> int:
+        """Wie oft ein echter Fensterkontakt in 24 h seinen Zustand gewechselt hat."""
+        cutoff = dt_util.utcnow() - timedelta(hours=24)
+        return sum(1 for t in getattr(self, "_window_flips", ()) if t >= cutoff)
+
     def valve_shadow(self) -> dict[str, Any]:
         """Schattenmodus: berechneter Öffnungsgrad neben dem, den das Gerät meldet.
 
@@ -381,6 +398,7 @@ class HealthMixin:
                 (trv_state.attributes or {}).get("preset_mode") if trv_state else None,
                 device_preset=self.target_via == "comfort_temperature",
             ),
+            check_window_flapping(self.window_flips_24h),
             check_window(
                 self.vent.open_minutes / 60 if self.window_open else None,
                 max(((now - t).total_seconds() / 3600 for t in self._window_unavail_since.values()), default=None),
