@@ -278,7 +278,17 @@ class HealthMixin:
         Gemessener Median, sonst der übliche Takt der Gerätefamilie. FRITZ!DECT etwa
         meldet nur alle 15 Minuten – eine feste Minute Schwelle erzeugt dort Daueralarme.
         """
-        measured = self.trv_report_interval
+        # 80 %-Perzentil statt Median: Geräte melden oft in Schüben (mehrere Attribute in
+        # Sekunden), der Median wäre dann viel zu kurz und die Ausfallgrenze zu scharf.
+        measured = None
+        stamps = list(getattr(self, "_trv_reports", ()) or ())
+        if len(stamps) >= 3:
+            deltas = sorted(
+                (b - a).total_seconds() for a, b in zip(stamps, stamps[1:], strict=False)
+            )
+            deltas = [d for d in deltas if 0 < d <= 7200]
+            if deltas:
+                measured = deltas[min(len(deltas) - 1, int(len(deltas) * 0.8))]
         if measured:
             return float(measured)
         return float(REPORT_SECONDS_BY_PLATFORM.get(self.trv_report_platform(), REPORT_SECONDS_DEFAULT))

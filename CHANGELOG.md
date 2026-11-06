@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.59.31b1 – 2026-11-06
+
+### Behoben
+- **Meldetakt robuster bestimmt:** Geräte melden oft in Schüben (mehrere Attribute innerhalb von
+  Sekunden). Der Median lag dadurch bei 0,2 Minuten und die Ausfallgrenze wäre zu scharf geblieben.
+  Jetzt zählt das **80 %-Perzentil** der Abstände – der typische Abstand zwischen zwei Schüben.
 ## 0.59.30b1 – 2026-11-06
 
 ### Behoben
