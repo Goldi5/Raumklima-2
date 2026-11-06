@@ -49,6 +49,15 @@ meldet Änderungen träge. Wer die Ventilerkennung schneller braucht, schaltet p
 *Thermostat & Fühler → **Schnellere Abfrage*** ein: dann wird alle zwei Minuten aktiv abgefragt –
 auf Kosten der Batterie.
 
+### Antwortzeit statt fester Minute
+
+Wie lange ein Gerät schweigen darf, bevor Raumklima „Thermostat nicht erreichbar" meldet, steht pro
+Raum unter *Thermostat & Fühler → **Antwortzeit des Geräts***. Auf *automatisch* lernt Raumklima die
+übliche Funkpause aus den letzten Ausfällen (80 %-Perzentil, ab drei Beobachtungen) und warnt erst,
+wenn das Gerät deutlich länger wegbleibt; vorher gilt der übliche Takt der Gerätefamilie
+(FRITZ!DECT ~15, tado 5, Netatmo 1, Homematic 10, Zigbee/MQTT 5 Minuten). Fest einstellen lässt sich
+1, 5, 15 oder 30 Minuten – sinnvoll bei Geräten hinter einem Repeater.
+
 ### Livisi / RWE SmartHome
 Der Offset lässt sich am Gerät nicht setzen. Raumklima lernt stattdessen den Unterschied zwischen
 Raumfühler und Gerätesensor (geglättet, begrenzt auf ±4 K) und schiebt den angepassten Sollwert alle
