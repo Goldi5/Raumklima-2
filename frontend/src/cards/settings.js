@@ -64,6 +64,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
   setConfig(config) {
     this._config = { ...config };
     this._tab = this._tab || "general";
+    if (this._sheet === undefined) this._sheet = null;  // Dialog für Sichern/Diagnose/Fehler
     this._local = this._local || {}; // optimistische Werte bis zur Bestätigung
     this._timers = this._timers || {};
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
@@ -146,40 +147,124 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   // ---------------------------------------------------------------- Speichern
   _openBugReport() {
-    // Nur Version, Anzahl Räume und Gerätemodelle – keine Namen, keine Entitäten
+    // Nur Version, Anzahl Räume und Gerätemodelle – keine Namen, keine Entitäten.
+    // Kein window.open/link.click(): iPad-Safari und die HA-App verwerfen neue Tabs aus
+    // einem Skript heraus. Stattdessen ein Dialog mit echtem <a href> und Kopierknopf.
     const rooms = this._rooms || [];
     const thermostats = rooms.map((r) => {
       const ent = (this._hass.entities || {})[r.id] || {};
       const dev = (this._hass.devices || {})[ent.device_id] || {};
       return [dev.manufacturer, dev.model].filter(Boolean).join(" ") || ent.platform || "";
     });
-    const url = rkBugReportUrl({
+    const { url, body } = rkBugReportUrl({
       version: RK_VERSION,
       haVersion: this._hass.config && this._hass.config.version,
       language: this._hass.language,
       rooms: rooms.length,
       homeCount: ((this._cfg && this._cfg.homes) || []).length,
       thermostats,
+      parts: true,
     });
-    // `window.open` wird in der Home-Assistant-App (Webview) oft verworfen – dann passiert
-    // scheinbar nichts. Ein Klick auf einen echten Anker funktioniert dort zuverlässiger.
-    const link = document.createElement("a");
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    // Rückmeldung geben: entweder „kopiert" oder der Link als Notnagel
+    this._openSheet({
+      title: t("Fehler melden"),
+      intro: t("Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren."),
+      text: body,
+      url,
+      share: true,
+    });
+  }
+
+  // ---------------------------------------------------------------- Dialog
+  _openSheet(sheet) {
+    this._sheet = sheet;
+    this._render();
+  }
+
+  _closeSheet() {
+    this._sheet = null;
+    this._render();
+  }
+
+  _sheetHtml() {
+    const s = this._sheet;
+    if (!s) return "";
+    const buttons = [];
+    if (s.url) {
+      buttons.push(
+        `<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" style="--c:var(--rk-warn)"><ha-icon icon="mdi:github"></ha-icon>${t("GitHub öffnen")}</a>`,
+      );
+    }
+    if (s.share) {
+      buttons.push(
+        `<button class="btn" data-sheet-share style="--c:var(--rk-heat)"><ha-icon icon="mdi:share-variant"></ha-icon>${t("Teilen")}</button>`,
+      );
+    }
+    if (s.filename) {
+      buttons.push(
+        `<button class="btn" data-sheet-save style="--c:var(--rk-eco)"><ha-icon icon="mdi:content-save"></ha-icon>${t("Speichern")}</button>`,
+      );
+    }
+    buttons.push(
+      `<button class="btn" data-sheet-copy style="--c:var(--rk-ok)"><ha-icon icon="mdi:content-copy"></ha-icon>${t("Kopieren")}</button>`,
+    );
+    return `<div class="sheetwrap" data-sheet-close>
+      <div class="sheet" role="dialog" aria-modal="true">
+        <div class="stitle">${esc(s.title)}</div>
+        <div class="sintro">${esc(s.intro || "")}</div>
+        <textarea class="stext" readonly rows="8" spellcheck="false">${esc(s.text || "")}</textarea>
+        <div class="sbtns">${buttons.join("")}<button class="btn" data-sheet-close style="--c:var(--rk-off)">${t("Schließen")}</button></div>
+      </div>
+    </div>`;
+  }
+
+  async _sheetCopy() {
+    const text = (this._sheet && this._sheet.text) || "";
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url);
-        this._flash(t("Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage"));
+      await navigator.clipboard.writeText(text);
+      this._flash(t("Kopiert – jetzt im Ziel einfügen"));
+      return true;
+    } catch (e) {
+      // iOS/Webview verweigern die Zwischenablage oft: Text im Feld ist markierbar.
+      this._flash(t("Kopieren hat der Browser blockiert – Text bitte im Feld markieren"));
+      return false;
+    }
+  }
+
+  async _sheetShare() {
+    const text = (this._sheet && this._sheet.text) || "";
+    const name = (this._sheet && this._sheet.filename) || "raumklima.txt";
+    try {
+      const file = new File([text], name, { type: name.endsWith(".json") ? "application/json" : "text/plain" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: (this._sheet && this._sheet.title) || "Raumklima" });
         return;
       }
-    } catch (e) { /* Zwischenablage nicht erlaubt */ }
-    this._flash(t("Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}", { url }));
+      if (navigator.share) {
+        await navigator.share({ text });
+        return;
+      }
+      await this._sheetCopy();
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // selbst abgebrochen
+      await this._sheetCopy();
+    }
+  }
+
+  _sheetSave() {
+    const s = this._sheet;
+    if (!s) return;
+    // Läuft in einem echten Klick – nur so akzeptiert iOS den Download.
+    const blob = new Blob([s.text || ""], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = s.filename || "raumklima.json";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    this._flash(t("Gespeichert: {name} – falls keine Datei kam, bitte Teilen benutzen", { name: s.filename || "" }));
   }
 
   async _backupExport() {
@@ -189,45 +274,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const text = JSON.stringify(res.backup, null, 2);
       const stamp = new Date().toISOString().slice(0, 10);
       const name = `raumklima-einstellungen-${stamp}.json`;
-      // 1. Echter Speichern-Dialog (Chrome/Edge am Rechner) – dort sieht man, wo die Datei landet
-      if (window.showSaveFilePicker) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: name,
-            types: [{ description: "Raumklima-Sicherung", accept: { "application/json": [".json"] } }],
-          });
-          const writable = await handle.createWritable();
-          await writable.write(new Blob([text], { type: "application/json" }));
-          await writable.close();
-          this._flash(t("Sicherung gespeichert: {name}", { name }));
-          return;
-        } catch (err) {
-          if (err && err.name === "AbortError") return; // selbst abgebrochen
-          // sonst weiter mit dem klassischen Download
-        }
-      }
-      // 2. Klassischer Download
-      const blob = new Blob([text], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = name;
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      // 3. Zusätzlich in die Zwischenablage – falls der Browser Downloads blockt (App/Webview)
-      let copied = false;
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(text);
-          copied = true;
-        }
-      } catch (e) { copied = false; }
-      this._flash(copied
-        ? t("Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage", { name })
-        : t("Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download", { name }));
+      // Kein Download direkt nach dem await: iOS wertet das nicht mehr als Benutzeraktion.
+      // Der Dialog hat echte Knöpfe – deren Klick darf wieder speichern/teilen.
+      this._openSheet({
+        title: t("Sicherung erstellt"),
+        intro: t("Enthält alle Räume, Zeitpläne und Einstellungen dieser Wohnung. Auf dem iPhone/iPad über „Teilen“ in Dateien sichern, am Rechner über „Speichern“."),
+        text,
+        filename: name,
+        share: true,
+      });
     } catch (err) {
       this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
     }
@@ -255,18 +310,16 @@ export class RaumklimaSettingsCard extends HTMLElement {
     try {
       this._flash(t("Diagnose wird erstellt …"));
       const data = await this._hass.callWS({ type: "raumklima/diagnostics", ...this._homeMsg() });
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+      const text = JSON.stringify(data, null, 2);
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
       const home = String(data.home_name || "wohnung").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `raumklima-diagnose-${home}-${stamp}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      this._flash(t("Diagnose heruntergeladen"));
+      this._openSheet({
+        title: t("Diagnose"),
+        intro: t("Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten."),
+        text,
+        filename: `raumklima-diagnose-${home}-${stamp}.json`,
+        share: true,
+      });
     } catch (e) {
       this._flash(t("Fehler: {e}", { e: e.message || e }));
     }
@@ -1449,6 +1502,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         ${body}
+        ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
       </ha-card>`);
@@ -1983,6 +2037,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
       restoreInput.value = "";
     });
     $("[data-bug]").forEach((el) => el.addEventListener("click", () => this._openBugReport()));
+    $("[data-sheet-close]").forEach((el) =>
+      el.addEventListener("click", (ev) => {
+        if (ev.target !== el || el.classList.contains("sheet")) return; // Klick im Dialog nicht schließen
+        this._closeSheet();
+      }),
+    );
+    $("[data-sheet-copy]").forEach((el) => el.addEventListener("click", () => this._sheetCopy()));
+    $("[data-sheet-share]").forEach((el) => el.addEventListener("click", () => this._sheetShare()));
+    $("[data-sheet-save]").forEach((el) => el.addEventListener("click", () => this._sheetSave()));
     $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
       await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });
       this._load();

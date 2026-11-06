@@ -1,4 +1,4 @@
-/* Raumklima 0.59.13b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.14b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -821,7 +821,18 @@
     "Höchstens anheben um": "Raise by at most",
     "Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)": "Heating does not fix humidity: beyond this uplift it stops heating and advises airing (1.5 K at night)",
     "Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften": "Humidity too high for this wall · {rh} % (24 h average), {h} h critical – please air",
-    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "raises the setpoint until the coldest wall spot stays below 80 % humidity (DIN 4108-2) – limited by the uplift below"
+    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "raises the setpoint until the coldest wall spot stays below 80 % humidity (DIN 4108-2) – limited by the uplift below",
+    "GitHub öffnen": "Open GitHub",
+    "Teilen": "Share",
+    "Kopieren": "Copy",
+    "Schließen": "Close",
+    "Sicherung erstellt": "Backup created",
+    "Enthält alle Räume, Zeitpläne und Einstellungen dieser Wohnung. Auf dem iPhone/iPad über „Teilen“ in Dateien sichern, am Rechner über „Speichern“.": "Contains all rooms, schedules and settings of this home. On iPhone/iPad use Share → Save to Files, on a computer use Save.",
+    "Gespeichert: {name} – falls keine Datei kam, bitte Teilen benutzen": "Saved: {name} – if no file appeared, please use Share",
+    "Kopiert – jetzt im Ziel einfügen": "Copied – now paste it",
+    "Kopieren hat der Browser blockiert – Text bitte im Feld markieren": "The browser blocked copying – please select the text in the field",
+    "Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: share or save – the file contains values, entities and the last log lines, but no credentials.",
+    "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Check the text – it contains no room names or credentials – then open GitHub and paste it. On iPhone or iPad you can also share or copy."
   };
 
   // src/i18n/fr.js
@@ -1645,7 +1656,18 @@
     "Höchstens anheben um": "Hausse maximale de",
     "Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)": "Chauffer ne résout pas l'humidité : au-delà de cette hausse, le chauffage s'arrête et l'aération est conseillée (1,5 K la nuit)",
     "Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften": "Humidité trop élevée pour ce mur · {rh} % (moyenne 24 h), {h} h critiques – aérez",
-    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "élève la consigne jusqu'à ce que le point de paroi le plus froid reste sous 80 % d'humidité (DIN 4108-2) – limité par la hausse ci-dessous"
+    "hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter": "élève la consigne jusqu'à ce que le point de paroi le plus froid reste sous 80 % d'humidité (DIN 4108-2) – limité par la hausse ci-dessous",
+    "GitHub öffnen": "Ouvrir GitHub",
+    "Teilen": "Partager",
+    "Kopieren": "Copier",
+    "Schließen": "Fermer",
+    "Sicherung erstellt": "Sauvegarde créée",
+    "Enthält alle Räume, Zeitpläne und Einstellungen dieser Wohnung. Auf dem iPhone/iPad über „Teilen“ in Dateien sichern, am Rechner über „Speichern“.": "Contient toutes les pièces, programmes et réglages de ce logement. Sur iPhone/iPad via Partager → Enregistrer dans Fichiers, sur ordinateur via Enregistrer.",
+    "Gespeichert: {name} – falls keine Datei kam, bitte Teilen benutzen": "Enregistré : {name} – si aucun fichier n'apparaît, utilisez Partager",
+    "Kopiert – jetzt im Ziel einfügen": "Copié – collez-le maintenant",
+    "Kopieren hat der Browser blockiert – Text bitte im Feld markieren": "Le navigateur a bloqué la copie – sélectionnez le texte dans le champ",
+    "Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : partager ou enregistrer – le fichier contient des valeurs, des entités et les dernières lignes de journal, sans identifiants.",
+    "Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren.": "Vérifiez le texte – il ne contient ni noms de pièces ni identifiants –, puis ouvrez GitHub et collez-le. Sur iPhone ou iPad, partager ou copier fonctionne aussi."
   };
 
   // src/i18n.js
@@ -1689,11 +1711,11 @@
   }
 
   // src/version.js
-  var RK_VERSION2 = "0.59.13b1";
+  var RK_VERSION2 = "0.59.14b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
-  function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats }) {
+  function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats, parts = false }) {
     const models = [...new Set(thermostats.filter(Boolean))].sort();
     const body = [
       "### Was passiert",
@@ -1718,7 +1740,8 @@
       `body=${encodeURIComponent(body)}`,
       "labels=bug"
     ].join("&");
-    return `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
+    const url = `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
+    return parts ? { url, body } : url;
   }
   var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   var STATUS = tmap({
@@ -2262,6 +2285,21 @@
   .tleg i { width:14px; height:10px; border-radius:3px; background: var(--c); }
 `;
   var SETTINGS_STYLES = `
+  /* Dialog für Sichern/Diagnose/Fehler: echte Knöpfe statt Popup und Blob-Download
+     direkt nach einem await – nur so akzeptieren iPad-Safari und die HA-App das. */
+  .sheetwrap { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .55); backdrop-filter: blur(2px);
+    display: flex; align-items: center; justify-content: center; padding: 14px; }
+  .sheet { display: flex; flex-direction: column; gap: 10px; width: min(680px, 100%); max-height: 86vh;
+    padding: 16px; border-radius: 18px; background: var(--card-background-color, #fff);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .45); }
+  .stitle { font-weight: 700; font-size: 1.05rem; }
+  .sintro { font-size: .85rem; line-height: 1.35; color: var(--secondary-text-color); }
+  .stext { flex: 1 1 auto; min-height: 160px; width: 100%; resize: vertical; padding: 10px; border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--primary-text-color) 18%, transparent);
+    background: var(--secondary-background-color, #f5f5f5); color: var(--primary-text-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78rem; line-height: 1.4; }
+  .sbtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
   details.adv { margin: 12px 0 2px; border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent); }
   details.adv > summary { cursor: pointer; padding: 12px 2px 4px; font-size: .88rem; font-weight: 600; color: var(--secondary-text-color);
     list-style: none; display: flex; align-items: center; gap: 8px; }
@@ -3850,6 +3888,7 @@
     setConfig(config) {
       this._config = { ...config };
       this._tab = this._tab || "general";
+      if (this._sheet === void 0) this._sheet = null;
       this._local = this._local || {};
       this._timers = this._timers || {};
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
@@ -3948,31 +3987,107 @@
         const dev = (this._hass.devices || {})[ent.device_id] || {};
         return [dev.manufacturer, dev.model].filter(Boolean).join(" ") || ent.platform || "";
       });
-      const url = rkBugReportUrl({
+      const { url, body } = rkBugReportUrl({
         version: RK_VERSION,
         haVersion: this._hass.config && this._hass.config.version,
         language: this._hass.language,
         rooms: rooms.length,
         homeCount: (this._cfg && this._cfg.homes || []).length,
-        thermostats
+        thermostats,
+        parts: true
       });
-      const link = document.createElement("a");
-      link.href = url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      this._openSheet({
+        title: t("Fehler melden"),
+        intro: t("Text prüfen – es stehen keine Raumnamen oder Zugangsdaten darin –, dann GitHub öffnen und den Text einfügen. Auf dem iPhone oder iPad geht auch Teilen oder Kopieren."),
+        text: body,
+        url,
+        share: true
+      });
+    }
+    // ---------------------------------------------------------------- Dialog
+    _openSheet(sheet) {
+      this._sheet = sheet;
+      this._render();
+    }
+    _closeSheet() {
+      this._sheet = null;
+      this._render();
+    }
+    _sheetHtml() {
+      const s = this._sheet;
+      if (!s) return "";
+      const buttons = [];
+      if (s.url) {
+        buttons.push(
+          `<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" style="--c:var(--rk-warn)"><ha-icon icon="mdi:github"></ha-icon>${t("GitHub öffnen")}</a>`
+        );
+      }
+      if (s.share) {
+        buttons.push(
+          `<button class="btn" data-sheet-share style="--c:var(--rk-heat)"><ha-icon icon="mdi:share-variant"></ha-icon>${t("Teilen")}</button>`
+        );
+      }
+      if (s.filename) {
+        buttons.push(
+          `<button class="btn" data-sheet-save style="--c:var(--rk-eco)"><ha-icon icon="mdi:content-save"></ha-icon>${t("Speichern")}</button>`
+        );
+      }
+      buttons.push(
+        `<button class="btn" data-sheet-copy style="--c:var(--rk-ok)"><ha-icon icon="mdi:content-copy"></ha-icon>${t("Kopieren")}</button>`
+      );
+      return `<div class="sheetwrap" data-sheet-close>
+      <div class="sheet" role="dialog" aria-modal="true">
+        <div class="stitle">${esc(s.title)}</div>
+        <div class="sintro">${esc(s.intro || "")}</div>
+        <textarea class="stext" readonly rows="8" spellcheck="false">${esc(s.text || "")}</textarea>
+        <div class="sbtns">${buttons.join("")}<button class="btn" data-sheet-close style="--c:var(--rk-off)">${t("Schließen")}</button></div>
+      </div>
+    </div>`;
+    }
+    async _sheetCopy() {
+      const text = this._sheet && this._sheet.text || "";
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(url);
-          this._flash(t("Fehler melden: Issue-Vorlage geöffnet – Link liegt in der Zwischenablage"));
+        await navigator.clipboard.writeText(text);
+        this._flash(t("Kopiert – jetzt im Ziel einfügen"));
+        return true;
+      } catch (e) {
+        this._flash(t("Kopieren hat der Browser blockiert – Text bitte im Feld markieren"));
+        return false;
+      }
+    }
+    async _sheetShare() {
+      const text = this._sheet && this._sheet.text || "";
+      const name = this._sheet && this._sheet.filename || "raumklima.txt";
+      try {
+        const file = new File([text], name, { type: name.endsWith(".json") ? "application/json" : "text/plain" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: this._sheet && this._sheet.title || "Raumklima" });
           return;
         }
+        if (navigator.share) {
+          await navigator.share({ text });
+          return;
+        }
+        await this._sheetCopy();
       } catch (e) {
+        if (e && e.name === "AbortError") return;
+        await this._sheetCopy();
       }
-      this._flash(t("Fehler melden: Link zum Issue – bitte im Browser öffnen: {url}", { url }));
+    }
+    _sheetSave() {
+      const s = this._sheet;
+      if (!s) return;
+      const blob = new Blob([s.text || ""], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = s.filename || "raumklima.json";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5e3);
+      this._flash(t("Gespeichert: {name} – falls keine Datei kam, bitte Teilen benutzen", { name: s.filename || "" }));
     }
     async _backupExport() {
       try {
@@ -3981,41 +4096,13 @@
         const text = JSON.stringify(res.backup, null, 2);
         const stamp = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
         const name = `raumklima-einstellungen-${stamp}.json`;
-        if (window.showSaveFilePicker) {
-          try {
-            const handle = await window.showSaveFilePicker({
-              suggestedName: name,
-              types: [{ description: "Raumklima-Sicherung", accept: { "application/json": [".json"] } }]
-            });
-            const writable = await handle.createWritable();
-            await writable.write(new Blob([text], { type: "application/json" }));
-            await writable.close();
-            this._flash(t("Sicherung gespeichert: {name}", { name }));
-            return;
-          } catch (err) {
-            if (err && err.name === "AbortError") return;
-          }
-        }
-        const blob = new Blob([text], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = name;
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 5e3);
-        let copied = false;
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-            copied = true;
-          }
-        } catch (e) {
-          copied = false;
-        }
-        this._flash(copied ? t("Sicherung gespeichert: {name} · liegt zusätzlich in der Zwischenablage", { name }) : t("Sicherung gespeichert: {name} – falls keine Datei kam, blockt der Browser den Download", { name }));
+        this._openSheet({
+          title: t("Sicherung erstellt"),
+          intro: t("Enthält alle Räume, Zeitpläne und Einstellungen dieser Wohnung. Auf dem iPhone/iPad über „Teilen“ in Dateien sichern, am Rechner über „Speichern“."),
+          text,
+          filename: name,
+          share: true
+        });
       } catch (err) {
         this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
       }
@@ -4039,18 +4126,16 @@
       try {
         this._flash(t("Diagnose wird erstellt …"));
         const data = await this._hass.callWS({ type: "raumklima/diagnostics", ...this._homeMsg() });
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
+        const text = JSON.stringify(data, null, 2);
         const stamp = (/* @__PURE__ */ new Date()).toISOString().slice(0, 19).replace(/[:T]/g, "-");
         const home = String(data.home_name || "wohnung").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `raumklima-diagnose-${home}-${stamp}.json`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 5e3);
-        this._flash(t("Diagnose heruntergeladen"));
+        this._openSheet({
+          title: t("Diagnose"),
+          intro: t("Zum Melden eines Fehlers: teilen oder speichern – die Datei enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten."),
+          text,
+          filename: `raumklima-diagnose-${home}-${stamp}.json`,
+          share: true
+        });
       } catch (e) {
         this._flash(t("Fehler: {e}", { e: e.message || e }));
       }
@@ -5189,6 +5274,7 @@
         <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         ${body}
+        ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
       </ha-card>`);
@@ -5800,6 +5886,15 @@
         restoreInput.value = "";
       });
       $("[data-bug]").forEach((el) => el.addEventListener("click", () => this._openBugReport()));
+      $("[data-sheet-close]").forEach(
+        (el) => el.addEventListener("click", (ev) => {
+          if (ev.target !== el || el.classList.contains("sheet")) return;
+          this._closeSheet();
+        })
+      );
+      $("[data-sheet-copy]").forEach((el) => el.addEventListener("click", () => this._sheetCopy()));
+      $("[data-sheet-share]").forEach((el) => el.addEventListener("click", () => this._sheetShare()));
+      $("[data-sheet-save]").forEach((el) => el.addEventListener("click", () => this._sheetSave()));
       $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
         await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });
         this._load();

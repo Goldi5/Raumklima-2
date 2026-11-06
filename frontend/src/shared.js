@@ -13,7 +13,7 @@ export const rkManualUrl = () =>
  * Issue-URL für „Fehler melden" – mit Version, HA-Version und Gerätemodellen.
  * Bewusst ohne Raumnamen, Entitäts-IDs oder Zugangsdaten (Datenschutz).
  */
-export function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats }) {
+export function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats, parts = false }) {
   const models = [...new Set(thermostats.filter(Boolean))].sort();
   const body = [
     "### Was passiert",
@@ -38,7 +38,10 @@ export function rkBugReportUrl({ version, haVersion, language, rooms, homeCount,
     `body=${encodeURIComponent(body)}`,
     "labels=bug",
   ].join("&");
-  return `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
+  const url = `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
+  // `parts: true` gibt Text und URL getrennt zurück – die Karte zeigt beides in einem Dialog,
+  // weil window.open/link.click() auf iPad und in der HA-App verworfen wird.
+  return parts ? { url, body } : url;
 }
 
 
@@ -660,6 +663,21 @@ export const HISTORY_STYLES = `
 `;
 
 export const SETTINGS_STYLES = `
+  /* Dialog für Sichern/Diagnose/Fehler: echte Knöpfe statt Popup und Blob-Download
+     direkt nach einem await – nur so akzeptieren iPad-Safari und die HA-App das. */
+  .sheetwrap { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .55); backdrop-filter: blur(2px);
+    display: flex; align-items: center; justify-content: center; padding: 14px; }
+  .sheet { display: flex; flex-direction: column; gap: 10px; width: min(680px, 100%); max-height: 86vh;
+    padding: 16px; border-radius: 18px; background: var(--card-background-color, #fff);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .45); }
+  .stitle { font-weight: 700; font-size: 1.05rem; }
+  .sintro { font-size: .85rem; line-height: 1.35; color: var(--secondary-text-color); }
+  .stext { flex: 1 1 auto; min-height: 160px; width: 100%; resize: vertical; padding: 10px; border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--primary-text-color) 18%, transparent);
+    background: var(--secondary-background-color, #f5f5f5); color: var(--primary-text-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78rem; line-height: 1.4; }
+  .sbtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
   details.adv { margin: 12px 0 2px; border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent); }
   details.adv > summary { cursor: pointer; padding: 12px 2px 4px; font-size: .88rem; font-weight: 600; color: var(--secondary-text-color);
     list-style: none; display: flex; align-items: center; gap: 8px; }

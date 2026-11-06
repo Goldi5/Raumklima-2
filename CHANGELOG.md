@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.59.14b1 – 2026-11-06
+
+### Behoben
+- **„Sichern", „Diagnose" und „Fehler melden" gingen auf iPad und in der HA-App nicht.**
+  Ursache: Der Download startete erst nach einem `await`, und ein Tab wurde per `link.click()`
+  geöffnet – beides verwerfen iPad-Safari und die HA-App (WKWebView) ohne Rückmeldung.
+  Jetzt öffnet sich ein Dialog mit echten Knöpfen: **Teilen** (iPhone/iPad: „In Dateien sichern"),
+  **Speichern** (Rechner), **Kopieren** und bei Fehlermeldungen ein echter **GitHub-Link** samt
+  Textfeld zum Prüfen. „Kopieren" meldet ehrlich, wenn der Browser es blockt, statt es zu behaupten.
+
 ## 0.59.13b1 – 2026-11-06
 
 ### Behoben
