@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any
 
 from homeassistant.components.frontend import add_extra_js_url
-from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
@@ -103,12 +102,14 @@ def _card_hash(path: Path) -> str:
 
 async def _async_register_card(hass: HomeAssistant) -> None:
     """Karte ausliefern und als Dashboard-Ressource eintragen."""
-    card = Path(__file__).parent / "www" / "raumklima-card.js"
+    # Auslieferung über eine eigene View statt statisch: sie protokolliert jede Anfrage
+    # (Browser, Version, Cache-Header) und schickt "no-store" – so kann nach einem Update
+    # keine alte Karte mehr im Browser hängen.
+    from .cardview import CardView
+
     try:
-        await hass.http.async_register_static_paths(
-            [StaticPathConfig(CARD_URL, str(card), cache_headers=False)]
-        )
-    except RuntimeError as err:  # bereits registriert (z. B. nach Reload)
+        hass.http.register_view(CardView())
+    except Exception as err:  # noqa: BLE001 – doppelte Registrierung ist harmlos
         _LOGGER.debug("Karte schon registriert: %s", err)
     await _async_register_resource(hass)
 

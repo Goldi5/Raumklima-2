@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.59.19b1 – 2026-11-06
+
+### Hinzugefügt
+- **Die Karte kommt jetzt von einer eigenen View** statt als statische Datei: jede Anfrage
+  steht mit Browser-Kennung, URL und Cache-Header in der Debug-Spur, und die Antwort trägt
+  `Cache-Control: no-store`. Damit ist nachweisbar, welche Fassung Tablet und Rechner laden.
+
 ## 0.59.18b1 – 2026-11-06
 
 ### Hinzugefügt
