@@ -26,6 +26,10 @@ TRV_SCHEDULE_PRESETS = ("auto", "schedule", "program", "programme", "timed", "ti
 TRV_FIXED_PRESETS = ("off", "antifrost")
 # Eigene Abschläge/Aufschläge im Gerät (Tuya: eco/comfort, Bosch: boost).
 TRV_OFFSET_PRESETS = ("eco", "comfort", "boost")
+# Geräte, deren Integration das Preset nur aus dem Sollwert ableitet (AVM/FRITZ!DECT:
+# Sollwert == Komforttemperatur → „comfort"). Dort bedeutet das Preset nichts und darf
+# nicht als eigener Abschlag gemeldet werden – sonst warnt Raumklima bei jedem Zusammentreffen.
+DERIVED_PRESET_PLATFORMS = ("fritzbox",)
 # Tuya TRV602Z: "on" öffnet das Ventil dauerhaft (gemessen 100 %) – ein echter Fehlzustand.
 TRV_OPEN_PRESETS = ("on",)
 WINDOW_OPEN_HOURS = 24.0
@@ -67,7 +71,13 @@ def check_battery(levels: dict[str, float]) -> list[Issue]:
     return issues
 
 
-def check_trv_mode(mode: str | None, preset: str | None, *, device_preset: bool = False) -> Issue | None:
+def check_trv_mode(
+    mode: str | None,
+    preset: str | None,
+    *,
+    device_preset: bool = False,
+    derived_preset: bool = False,
+) -> Issue | None:
     """Thermostat arbeitet seinen eigenen Zeitplan ab (Issue #13).
 
     Viele Geräte (Tuya, Bosch, Homematic) führen im Modus „Auto“ einen eingebauten Wochenplan.
@@ -110,7 +120,7 @@ def check_trv_mode(mode: str | None, preset: str | None, *, device_preset: bool 
                 "Tuya „on“)."
             ),
         )
-    if preset in TRV_OFFSET_PRESETS and not device_preset:
+    if preset in TRV_OFFSET_PRESETS and not device_preset and not derived_preset:
         return Issue(
             "trv_mode",
             SEV_WARN,

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.59.25b1 – 2026-11-06
+
+### Behoben
+- **Falsche Warnung „Thermostat rechnet mit eigenem Abschlag" bei FRITZ!DECT (#31).** Die
+  AVM-Integration leitet `preset_mode` aus dem Sollwert ab: entspricht er der Komforttemperatur,
+  meldet sie „comfort". Raumklima sah darin einen Geräteabschlag, obwohl nichts überstimmt wird.
+  Bei Geräten mit abgeleitetem Preset (`fritzbox`) entfällt dieser Zweig; „aus" und „Ventil
+  dauerhaft offen" werden weiter geprüft.
+
 ## 0.59.24b1 – 2026-11-06
 
 ### Behoben

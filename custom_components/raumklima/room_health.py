@@ -20,6 +20,7 @@ from .decision_log import (
     fmt_temp,
 )
 from .health import (
+    DERIVED_PRESET_PLATFORMS,
     HistoryPoint,
     Issue,
     check_battery,
@@ -252,6 +253,15 @@ class HealthMixin:
         return round(sum(values) / len(values), 1) if values else None
 
     # ================================================================ Bericht & Gesundheit
+    def _preset_is_derived(self) -> bool:
+        """Leitet die Integration das Preset nur aus dem Sollwert ab (AVM/FRITZ!DECT)?
+
+        Bei FRITZ!DECT heißt ``preset_mode == "comfort"`` lediglich „Sollwert entspricht der
+        Komforttemperatur" – keine Geräteeinstellung, die etwas überstimmt.
+        """
+        entry = er.async_get(self.hass).async_get(self.trv)
+        return bool(entry and entry.platform in DERIVED_PRESET_PLATFORMS)
+
     @property
     def window_flips_24h(self) -> int:
         """Wie oft ein echter Fensterkontakt in 24 h seinen Zustand gewechselt hat."""
@@ -397,6 +407,7 @@ class HealthMixin:
                 trv_state.state if trv_state else None,
                 (trv_state.attributes or {}).get("preset_mode") if trv_state else None,
                 device_preset=self.target_via == "comfort_temperature",
+                derived_preset=self._preset_is_derived(),
             ),
             check_window_flapping(self.window_flips_24h),
             check_window(

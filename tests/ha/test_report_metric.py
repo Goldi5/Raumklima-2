@@ -85,3 +85,12 @@ def test_flattern_wird_gemeldet() -> None:
     assert check_window_flapping(5) is None
     issue = check_window_flapping(40)
     assert issue is not None and issue.code == "window_flapping"
+
+
+def test_abgeleitetes_preset_warnt_nicht() -> None:
+    """FRITZ!DECT: „comfort" heißt nur „Sollwert == Komforttemperatur" (Issue #31)."""
+    from custom_components.raumklima.health import check_trv_mode
+
+    assert check_trv_mode("heat", "comfort", derived_preset=True) is None
+    issue = check_trv_mode("heat", "comfort")
+    assert issue is not None and issue.code == "trv_mode"
