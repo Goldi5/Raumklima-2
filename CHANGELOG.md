@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.59.18b1 – 2026-11-06
+
+### Hinzugefügt
+- **Debug-Spur der Karte:** Die Karte meldet per WebSocket, was sie tut – geladene Version,
+  Klick auf „Sichern"/„Diagnose"/„Fehler melden", Antworten, Fehler. Abrufbar über
+  `raumklima/trace/list` und sichtbar im Entscheidungsprotokoll („Debug: …"). Nötig, weil auf
+  dem iPad keine Browser-Konsole erreichbar ist.
+- **Karten-URL mit Inhalts-Hash** (`?v=0.59.18b1-<hash>`): Safari hielt die alte Karte trotz
+  Versionswechsel; mit geändertem Hash ist es für den Browser eine andere Datei.
+
 ## 0.59.17b1 – 2026-11-06
 
 ### Behoben

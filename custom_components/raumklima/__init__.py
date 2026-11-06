@@ -3,6 +3,7 @@ Abwesenheit und Heizsaison."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -92,6 +93,14 @@ def _follow_language(hass: HomeAssistant) -> None:
     hass.bus.async_listen(EVENT_CORE_CONFIG_UPDATE, _changed)
 
 
+def _card_hash(path: Path) -> str:
+    """Kurzer Inhalts-Hash der ausgelieferten Karte (gegen Browser-Cache)."""
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()[:10]
+    except OSError:
+        return "0"
+
+
 async def _async_register_card(hass: HomeAssistant) -> None:
     """Karte ausliefern und als Dashboard-Ressource eintragen."""
     card = Path(__file__).parent / "www" / "raumklima-card.js"
@@ -110,7 +119,10 @@ async def _async_register_resource(hass: HomeAssistant) -> None:
     Extra-Module lädt HA erst nach dem Dashboard-Aufbau – zu spät für
     Strategien. Ressourcen lädt HA vorher. Bei YAML-Ressourcen: Rückfall.
     """
-    url = f"{CARD_URL}?v={VERSION}"
+    # Inhalt-Hash in der URL: ein Versionssprung allein reicht Safari auf dem iPad nicht
+    # immer – mit geändertem Hash ist es für den Browser eine andere Datei.
+    card = Path(__file__).parent / "www" / "raumklima-card.js"
+    url = f"{CARD_URL}?v={VERSION}-{_card_hash(card)}"
     data = hass.data.get("lovelace")
     resources = getattr(data, "resources", None)
     if (

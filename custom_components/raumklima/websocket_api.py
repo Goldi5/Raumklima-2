@@ -286,7 +286,7 @@ ROOM_CHANGES = vol.Schema(
 
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics, ws_export_link):
+    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics, ws_export_link, ws_trace, ws_trace_list):
         websocket_api.async_register_command(hass, handler)
 
 
@@ -757,6 +757,33 @@ async def ws_diagnostics(hass: HomeAssistant, connection: websocket_api.ActiveCo
         connection.send_error(msg["id"], "not_found", "Eintrag nicht gefunden")
         return
     connection.send_result(msg["id"], await async_get_config_entry_diagnostics(hass, entry))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/trace",
+        vol.Required("event"): str,
+        vol.Optional("data"): dict,
+    }
+)
+@websocket_api.require_admin
+@callback
+def ws_trace(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Debug-Spur aus der Karte aufnehmen (Browser dort hat keine Konsole)."""
+    from .trace import add as trace_add
+
+    trace_add(hass, msg["event"], msg.get("data") or {})
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/trace/list"})
+@websocket_api.require_admin
+@callback
+def ws_trace_list(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Die letzten Spur-Zeilen der Karte ausgeben."""
+    from .trace import recent
+
+    connection.send_result(msg["id"], {"items": recent()})
 
 
 @websocket_api.websocket_command(

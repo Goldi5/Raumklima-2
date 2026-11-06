@@ -83,6 +83,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     setLang(hass);
     this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._homeId());
     if (first) {
+      this._trace("card", { layout: "settings" });
       this._load();
       this._loadLayout();
     }
@@ -179,6 +180,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   // ---------------------------------------------------------------- Dialog
   _openSheet(sheet) {
+    this._trace("sheet:open", { title: sheet && sheet.title, download: Boolean(sheet && sheet.download) });
     this._sheet = sheet;
     this._render();
   }
@@ -313,13 +315,16 @@ export class RaumklimaSettingsCard extends HTMLElement {
   async _backupExport() {
     try {
       this._flash(t("Sicherung wird erstellt …"));
+      this._trace("backup:start");
       const res = await this._hass.callWS({ type: "raumklima/backup/export", ...this._homeMsg() });
+      this._trace("backup:data", { ok: Boolean(res && res.backup) });
       const text = JSON.stringify(res.backup, null, 2);
       const stamp = new Date().toISOString().slice(0, 10);
       const name = `raumklima-einstellungen-${stamp}.json`;
       // Echter Datei-Link: iPad-Safari und die HA-App speichern zuverlässig nur, wenn
       // der Nutzer selbst auf einen Link tippt – nicht wenn ein Skript einen Blob öffnet.
       const link = await this._exportLink("backup");
+      this._trace("backup:link", { ok: Boolean(link && link.url), name: link && link.name });
       // Kein Download direkt nach dem await: iOS wertet das nicht mehr als Benutzeraktion.
       // Der Dialog hat echte Knöpfe – deren Klick darf wieder speichern/teilen.
       this._openSheet({
@@ -331,6 +336,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         share: true,
       });
     } catch (err) {
+      this._trace("backup:error", { e: (err && (err.message || err)) || "?" });
       this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
     }
   }
@@ -356,7 +362,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
   async _downloadDiagnostics() {
     try {
       this._flash(t("Diagnose wird erstellt …"));
+      this._trace("diag:start");
       const data = await this._hass.callWS({ type: "raumklima/diagnostics", ...this._homeMsg() });
+      this._trace("diag:data", { ok: Boolean(data) });
       const text = JSON.stringify(data, null, 2);
       const link = await this._exportLink("diagnostics");
       this._openSheet({
@@ -368,6 +376,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         share: true,
       });
     } catch (e) {
+      this._trace("diag:error", { e: e.message || String(e) });
       this._flash(t("Fehler: {e}", { e: e.message || e }));
     }
   }
@@ -463,6 +472,20 @@ export class RaumklimaSettingsCard extends HTMLElement {
       return null;
     }
   }
+  // Debug-Spur zum Server: auf dem iPad gibt es keine Konsole, deshalb meldet die Karte
+  // ihre Schritte selbst. Fehler dürfen die Bedienung nie stören.
+  _trace(event, data = {}) {
+    try {
+      this._hass
+        .callWS({
+          type: "raumklima/trace",
+          event,
+          data: { ...data, version: RK_VERSION, ua: String(navigator.userAgent || "").slice(0, 120) },
+        })
+        .catch(() => {});
+    } catch (e) { /* ignorieren */ }
+  }
+
   _flash(text) {
     this._toast = t(text);
     clearTimeout(this._timers.toast);
@@ -2074,8 +2097,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test, ...this._homeMsg() });
       if (r) this._flash(t("Testnachricht an {n} gesendet", { n: rkPretty(el.dataset.test) }));
     }));
-    $("[data-diag]").forEach((el) => el.addEventListener("click", () => this._downloadDiagnostics()));
-    $("[data-backup]").forEach((el) => el.addEventListener("click", () => this._backupExport()));
+    $("[data-diag]").forEach((el) => el.addEventListener("click", () => { this._trace("click", { what: "diagnose" }); this._downloadDiagnostics(); }));
+    $("[data-backup]").forEach((el) => el.addEventListener("click", () => { this._trace("click", { what: "sichern" }); this._backupExport(); }));
     const restoreInput = this.shadowRoot.getElementById("rkrestore");
     $("[data-restore]").forEach((el) => el.addEventListener("click", () => restoreInput?.click()));
     if (restoreInput) restoreInput.addEventListener("change", async () => {
@@ -2083,16 +2106,16 @@ export class RaumklimaSettingsCard extends HTMLElement {
       if (file) await this._backupImport(file);
       restoreInput.value = "";
     });
-    $("[data-bug]").forEach((el) => el.addEventListener("click", () => this._openBugReport()));
+    $("[data-bug]").forEach((el) => el.addEventListener("click", () => { this._trace("click", { what: "bug" }); this._openBugReport(); }));
     $("[data-sheet-close]").forEach((el) =>
       el.addEventListener("click", (ev) => {
         if (ev.target !== el || el.classList.contains("sheet")) return; // Klick im Dialog nicht schließen
         this._closeSheet();
       }),
     );
-    $("[data-sheet-copy]").forEach((el) => el.addEventListener("click", () => this._sheetCopy()));
-    $("[data-sheet-share]").forEach((el) => el.addEventListener("click", () => this._sheetShare()));
-    $("[data-sheet-save]").forEach((el) => el.addEventListener("click", () => this._sheetSave()));
+    $("[data-sheet-copy]").forEach((el) => el.addEventListener("click", () => { this._trace("sheet:copy"); this._sheetCopy(); }));
+    $("[data-sheet-share]").forEach((el) => el.addEventListener("click", () => { this._trace("sheet:share", { share: Boolean(navigator.share) }); this._sheetShare(); }));
+    $("[data-sheet-save]").forEach((el) => el.addEventListener("click", () => { this._trace("sheet:save"); this._sheetSave(); }));
     $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
       await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });
       this._load();
