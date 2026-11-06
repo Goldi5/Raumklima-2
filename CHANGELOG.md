@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.59.27b1 – 2026-11-06
+
+### Geändert
+- **Karten laufen nicht mehr über die ganze Seitenbreite:** Auf breiten Bildschirmen war eine
+  Raumkarte in der 3-Spalten-Ansicht rund 1500 px breit, der Inhalt stand verloren in der Mitte.
+  Alle Karten sind jetzt auf 1120 px begrenzt und zentriert (`--rk-maxw`), auf schmalen Geräten
+  unverändert 100 %.
+
 ## 0.59.26b1 – 2026-11-06
 
 ### Geändert
