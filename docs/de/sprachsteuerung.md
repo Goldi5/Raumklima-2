@@ -73,6 +73,6 @@ Diese Assistenten beantworten Fragen in ihrer eigenen Cloud. Sie sehen die Raumk
 | „Insufficient funds", „quota exceeded" o. ä. | Guthaben oder Schlüssel des KI-Anbieters – nicht Raumklima |
 | Antwort ohne Zahlen, allgemeines Gerede | „Raumklima" ist in der KI-Integration nicht freigeschaltet (Schritt 2) |
 | „Es wurde mehr als ein Gerät gefunden" | Der Standard-Agent findet mehrere Klimageräte im Bereich – KI-Agent nutzen oder Bereiche eindeutig benennen |
-| Falscher Raum bei zwei Wohnungen | Gleichnamige Räume sind mehrdeutig: Bereiche umbenennen („Bad Berlin", „Bad Remscheid") oder den Raumnamen nennen, den Raumklima zeigt |
+| Falscher Raum bei zwei Wohnungen | Gleichnamige Räume sind mehrdeutig: Bereiche umbenennen („Bad Wohnung A", „Bad Wohnung B") oder den Raumnamen nennen, den Raumklima zeigt |
 
 Welche Werkzeuge das Modell wirklich aufgerufen hat, steht in *Einstellungen → Sprachassistenten →* bei der letzten Ausführung (Trace).

@@ -73,6 +73,6 @@ Ces assistants répondent dans leur propre cloud. Ils ne voient jamais les outil
 | « Insufficient funds », « quota exceeded » | Crédit ou clé du fournisseur IA – pas RaumKlima |
 | Réponse sans chiffres, discours général | « Raumklima » n'est pas activé dans l'intégration IA (étape 2) |
 | « Plusieurs appareils trouvés » | L'agent standard trouve plusieurs thermostats dans la zone – utiliser un agent IA ou nommer les zones de façon unique |
-| Mauvaise pièce avec deux logements | Des noms identiques sont ambigus : renommer les zones (« Bad Berlin », « Bad Remscheid ») ou utiliser le nom affiché par RaumKlima |
+| Mauvaise pièce avec deux logements | Des noms identiques sont ambigus : renommer les zones (« Bad logement A », « Bad logement B ») ou utiliser le nom affiché par RaumKlima |
 
 Les outils réellement appelés par le modèle figurent dans *Réglages → Assistants vocaux →* la dernière exécution (trace).

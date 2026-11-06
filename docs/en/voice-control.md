@@ -73,6 +73,6 @@ Those assistants answer inside their own cloud. They never see the Raumklima too
 | “Insufficient funds”, “quota exceeded” | Credit or key of the AI provider – not Raumklima |
 | Answer without numbers, generic talk | “Raumklima” is not enabled in the AI integration (step 2) |
 | “More than one device found” | The default agent finds several climate devices in the area – use an AI agent or give areas unique names |
-| Wrong room with two flats | Identical room names are ambiguous: rename areas (“Bad Berlin”, “Bad Remscheid”) or use the room name Raumklima shows |
+| Wrong room with two flats | Identical room names are ambiguous: rename areas (“Bad flat A”, “Bad flat B”) or use the room name Raumklima shows |
 
 Which tools the model actually called is listed under *Settings → Voice assistants →* the last run (trace).

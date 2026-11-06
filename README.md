@@ -2,7 +2,7 @@
 
 **Heizung, die mitdenkt.** Raumklima macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: Es regelt nach einem echten Raumfühler, pausiert bei offenem Fenster, berät beim Lüften, senkt ab, wenn niemand zu Hause ist – mit Schimmelschutz – und heizt nur, wenn es draußen wirklich kalt ist.
 
-**Aktuelle Version: 0.59.25b1** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
+**Aktuelle Version: 0.59.26b1** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
 
 > 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) · [Français](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manuel.pdf)
 
@@ -33,7 +33,7 @@
 | 🩺 **Gesundheitscheck** | Batterien, „Raum wird nicht warm“, „Heizkörper kommt kaum hinterher“ (hydraulischer Abgleich), Fühler hängt oder fehlt, Funk- und Verbindungsaussetzer, stiller Fensterkontakt, Schutz gegen Endlosschleifen mit dem Thermostat |
 | 👁️ **Überwachungsraum** | Raum ohne Thermostat: Temperatur, Feuchte, CO₂ und Feinstaub messen, Lüftung anmahnen, berichten – mit eigener großer Karte im Dashboard, ohne jede Heizungsbedienung |
 | 🧠 **Lernen & Warum** | zeigt je Raum die gelernte Aufheizrate, daraus die Vorheizzeit und wie belastbar die Werte sind; auf Wohnungsebene Schlafzeiten und ein **Anwesenheitsprofil** (nur „jemand da“, nie wer); dazu ein Reiter **Entscheidungen** mit Filter nach Zeitraum und Bereich – jede Zeile mit Begründung und Messwerten |
-| 🏘️ **Mehrere Wohnungen** | z. B. Berlin und Remscheid – je eigene Bewohner, Empfänger, Bericht und Protokoll, Umschalter im Dashboard |
+| 🏘️ **Mehrere Wohnungen** | z. B. Zuhause und Ferienwohnung – je eigene Bewohner, Empfänger, Bericht und Protokoll, Umschalter im Dashboard |
 | 📊 **Dashboard** | Raumkarten, Verlauf mit Zeitleiste, Bericht, Protokoll, komplett bearbeitbare Einstellungsseite (Gruppenleiste, Suche, Reihenfolge/Größe/Farbe, Kalender- und Zeitwähler) – automatisch per Strategie, **Deutsch, Englisch oder Französisch** – auch Push-Nachrichten und Protokoll |
 | ⚙️ **Eigene Automationen** | Geräte-Auslöser „Bitte lüften“, „Fenster geöffnet“, „Heizung pausiert“, „Gesundheit“ … |
 

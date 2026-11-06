@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.59.26b1 – 2026-11-06
+
+### Geändert
+- **Änderungsprotokoll und Doku ohne Beispiel-Wohnungsnamen:** Beispiele heißen jetzt neutral
+  (Wohnung A/B, Ferienwohnung), damit Einträge ohne privaten Zusammenhang verständlich bleiben.
+
 ## 0.59.25b1 – 2026-11-06
 
 ### Behoben
@@ -12,7 +18,7 @@
 ## 0.59.24b1 – 2026-11-06
 
 ### Behoben
-- **Berlin wäre fälschlich auf Gradstunden umgestiegen**, weil das neue Feld für „Gerät meldet
+- **Falscher Wechsel auf Gradstunden in einer Wohnung mit Ventilstellung:** Das neue Feld für „Gerät meldet
   eine Ventilstellung" naturgemäß noch keine Historie hatte. Ein gemessener Öffnungswert in der
   Vergangenheit zählt jetzt als Nachweis.
 - **Bericht zeigte gelöschte Räume** („Test Überwachung", alte Raumnamen) als Geisterzeilen mit.
@@ -22,8 +28,8 @@
 
 ### Behoben
 - **Fremde Wohnung als Ventilsensor** (`room_health.py`): Ein Sensor ohne Bereich aus einer
-  anderen Wohnung („Finja Berlin Küche") wurde dem Raum „Finja" in Remscheid zugeordnet, weil
-  unbekannter Bereich als „vielleicht passend" galt. Namens-Heuristik verlangt jetzt einen
+  anderen Wohnung wurde dem gleichnamigen Raum einer Wohnung zugeordnet, weil unbekannter
+  Bereich als „vielleicht passend" galt. Namens-Heuristik verlangt jetzt einen
   **bekannten, gleichen** Bereich.
 - **20,0 °C um Mitternacht der Sollwerte:** `target_temp` startete mit 20,0 °C und stand nach
   jedem Neustart/Videogerät-Aussetzer eine Sekunde im Sollwert (Zacken in Bericht und Karte).
@@ -35,7 +41,7 @@
   Heizstunden. Auswahl unter *Einstellungen → Wärmemenge im Bericht* (Standard: automatisch).
   PDF und Rangliste („sparsamster Raum", Vergleich je Heizgradtag) benutzen dieselbe Kennzahl.
 - **Gesundheit: „Fensterkontakt meldet sehr oft"** – ab 20 Zustandswechseln in 24 h, weil jeder
-  Wechsel die Heizung pausiert (Remscheid: 194 Wechsel in 3 Tagen).
+  Wechsel die Heizung pausiert (im Betrieb gemessen: 194 Wechsel in 3 Tagen bei einem defekten Kontakt).
 - **Im Bericht je Raum „x h nicht erreichbar"**, wenn das Thermostat zeitweise weg war.
 
 ## 0.59.22b1 – 2026-11-06
@@ -305,13 +311,13 @@ zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
 
 ### Behoben
 - **Kopfzeile der Raumkarte bleibt an ihrem Platz:** Ein langer Raumname schob bisher das
-  Fenstersymbol, den Status und den Boost-Knopf aus der Zeile (Bild aus Remscheid: „Sportzimmer“ mit
-  zweizeiligem Status). Jetzt kürzt der Name mit „…“ (vollständiger Name als Tooltip), Fenstersymbol
+  Fenstersymbol, den Status und den Boost-Knopf aus der Zeile (im Betrieb mit einem langen Raumnamen und
+  zweizeiligem Status aufgetreten). Jetzt kürzt der Name mit „…“ (vollständiger Name als Tooltip), Fenstersymbol
   und Boost bleiben rechts daneben, und der Status steht in einer eigenen Zeile darunter – lange Texte
   brechen im Chip um, statt zu verrutschen.
 - **Ventilstellung aus einer anderen Wohnung:** Bei mehreren Wohnungen in einer Installation konnte ein
-  Raum die Ventilstellung eines gleichnamigen Geräts der anderen Wohnung anzeigen („Finja“ zeigte den
-  Sensor von „Finja Berlin – Wohnzimmer“). Jetzt muss der Sensor im selben Bereich liegen; passt keiner,
+  Raum die Ventilstellung eines gleichnamigen Geräts der anderen Wohnung anzeigen (ein Raum zeigte den
+  Sensor des gleichnamigen Raums der anderen Wohnung). Jetzt muss der Sensor im selben Bereich liegen; passt keiner,
   bleibt die Anzeige leer – so wie bei Thermostaten, die keine Stellung melden (z. B. RWE VRCC).
 - **Schimmelschutz gilt jetzt überall:** Zeitplan und Ruhezeit konnten einen feuchten Raum unter die
   Feuchte-Mindesttemperatur drücken, obwohl die Doku zusagt, dass der Schimmelschutz vorrangig bleibt.
@@ -502,7 +508,7 @@ zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
 ## 0.49.3 – 2026-11-04
 
 ### Behoben
-- **Zwei Raumkarten verschwanden komplett** (Bad und Sportzimmer in Remscheid): Der Batterie-Hinweis
+- **Zwei Raumkarten verschwanden komplett** (zwei Räume mit Batteriesensor): Der Batterie-Hinweis
   aus 0.49.0 nutzte `esc`, das in dieser Datei nicht importiert war. Nur Räume **mit** einem
   Batteriesensor liefen in den Fehler – deshalb fehlten genau diese beiden Karten, auf allen Geräten.
 - **Eine Karte kann nicht mehr still verschwinden:** Schlägt das Zeichnen fehl, zeigt die Karte jetzt
@@ -946,7 +952,7 @@ zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
 ### Behoben
 - **Räume einer anderen Wohnung auf eigenen Dashboards** (Rückmeldung aus dem Betrieb): Eine Karte ohne
   `home:` zeigte **alle** Räume – auch die einer zweiten Wohnung. Die Wohnung lässt sich jetzt auch per
-  **Name** setzen (`home: Remscheid`), und der Dashboard-Pfad `heizung-<name>` wird ebenfalls erkannt.
+  **Name** setzen (`home: <Name der Wohnung>`), und der Dashboard-Pfad `heizung-<name>` wird ebenfalls erkannt.
   Die Doku sagt jetzt ausdrücklich: ohne `home:` zeigt die Karte alles, und Räume ohne Wohnung erscheinen
   auf jedem Dashboard.
 - **Sporadisch roter Test** `test_switch_to_always_via_options`: prüft jetzt die Entscheidung des Raums
@@ -1067,7 +1073,7 @@ zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
 
 ### Behoben
 - **Räume wurden in beiden Wohnungen angezeigt** (Issue #10): Karten ohne `home:` zeigten alle Räume –
-  ein selbst gebautes Dashboard wie „Heizung" (Berlin) listete also auch das Sportzimmer aus Remscheid.
+  ein selbst gebautes Dashboard einer Wohnung listete also auch Räume der anderen Wohnung.
   Jetzt richtet sich jede Karte nach dem Dashboard, auf dem sie liegt (Pfad `heizung-<name>` → Wohnung),
   ersatzweise nach `home:` in der Karten-Konfiguration. Betrifft Übersicht, Verlauf, Protokoll, Bericht,
   Einstellungen und die Dashboard-Strategie.
@@ -1552,7 +1558,7 @@ zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
   (`frontend/`), Integrationstests mit Home Assistant, Lint (ruff) und feste Action-Versionen in der CI.
 
 ### Behoben
-- Abwesenheits-Push sprach immer von „Berlin“ – jetzt der Name der Wohnung (nur bei mehreren).
+- Abwesenheits-Push sprach immer vom Namen der ersten Wohnung – jetzt der richtige Wohnungsname (nur bei mehreren).
 - Karten: ein Präfix (`strip_prefix`) mit Sonderzeichen wurde als regulärer Ausdruck gedeutet.
 
 
@@ -1623,7 +1629,7 @@ zusammengefasst werden – nicht jede Korrektur braucht sofort ein Release.
   weitere Zentrale mit eigenen Bewohnern, Zone, Empfängern, Heizsaison, Bericht und Protokoll
   (Empfänger, Ruhezeit und Wetter werden als Startwert übernommen). Räume ordnest du im Raum
   unter „Wohnung“ zu; ohne Zuordnung gehören sie zur ersten Wohnung.
-- Umschalter „Berlin | Remscheid“ oben in der Übersicht und in den Einstellungen; jede Wohnung
+- Umschalter zwischen den Wohnungen oben in der Übersicht und in den Einstellungen; jede Wohnung
   hat ihr eigenes Dashboard (Adresse einstellbar). Alle Karten und die Dashboard-Strategie
   kennen die Option `home`.
 - WebSocket: `raumklima/home/create`; alle Befehle akzeptieren `home`.

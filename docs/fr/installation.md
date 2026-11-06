@@ -73,7 +73,7 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
 - **Second logement via l'intégration :** *Réglages → Appareils et services → Raumklima → Ajouter une
   intégration* propose « pièce dans un logement existant » ou « nouveau logement » (nom, habitants, zone,
   destinataires). Chaque logement a ses pièces et son tableau de bord ; les cartes suivent le tableau de
-  bord sur lequel elles se trouvent – Berlin n'affiche donc pas les pièces de Remscheid.
+  bord sur lequel elles se trouvent – une maison n'affiche donc pas les pièces de l'autre.
 - **Planning par pièce :** dans l’onglet *Réglages* → pièce → **Planning** (jusqu’à six plages horaires avec
   jours de la semaine, de/à et température cible).
 - **Ordre des pièces :** **étage → zone → nom** ; les pièces sans étage viennent en dernier. Pour changer :
