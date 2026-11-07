@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.59.43b1 – 2026-11-07
+
+### Behoben
+- **Sollwert-Prüfung schweigt, wenn nicht geregelt wird.** Bei ausgeschalteter Heizung (Heizpause,
+  Frost, Überwachungsmodus) und bei offenem Fenster steht am Gerät absichtlich ein anderer Wert als
+  das Ziel — ohne diese Bedingung hätte die neue Meldung in jedem ausgeschalteten Raum gestanden.
 ## 0.59.42b1 – 2026-11-07
 
 ### Hinzugefügt

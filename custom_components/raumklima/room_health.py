@@ -515,6 +515,7 @@ class HealthMixin:
             actual is None
             or expected is None
             or self.paused
+            or not self.hvac_on
             or self.monitor
             or self.target_via != "setpoint"
             or abs(actual - expected) < SETPOINT_MISMATCH_K
