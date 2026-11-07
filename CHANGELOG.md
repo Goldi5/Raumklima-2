@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.59.37b1 – 2026-11-07
+
+### Behoben
+- **Bündel nachgezogen:** 0.59.36b1 wurde veröffentlicht, bevor die Karte gebaut war (Banner zeigte
+  die Vorgängerversion). Diese Version enthält das korrekt gebaute Bündel mit dem Import-Fix.
 ## 0.59.36b1 – 2026-11-07
 
 ### Behoben
