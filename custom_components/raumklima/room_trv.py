@@ -114,6 +114,21 @@ class TrvMixin:
         """
         return to_float(self._trv_attr("temperature"))
 
+    @property
+    def trv_expected_target(self) -> float | None:
+        """Sollwert, der am Thermostat stehen **müsste** (Ziel + gelernter Abgleich).
+
+        Die Gegenprobe zu :attr:`trv_target`: weichen beide dauerhaft ab, führt das Gerät einen
+        eigenen Zeitplan oder hat den Wert nicht übernommen – sichtbar in den Attributen und in
+        :func:`health.check_setpoint_ignored`.
+        """
+        if not self.trv:
+            return None
+        target = self.effective_target
+        if self.cal_mode == CAL_TARGET:
+            return clamp(round_step(target + self.shift, 0.5), self.trv_min, self.trv_max)
+        return clamp(target, self.trv_min, self.trv_max)
+
     def _detect_manual_change(self, old: State, new: State) -> None:
         """Änderungen direkt am TRV erkennen (nicht von uns gesendet)."""
         if self.sync.jobs or self.paused or self._apply_lock.locked():

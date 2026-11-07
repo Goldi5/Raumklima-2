@@ -347,6 +347,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._ext_changed_at: datetime | None = None
         self._trv_at_ext_change: float | None = None
         self._window_unavail_since: dict[str, datetime] = {}
+        # Seit wann steht das Gerät auf einem anderen Sollwert als erwartet (Gesundheitsprüfung).
+        self._setpoint_off_since: datetime | None = None
         # Fenster ohne Kontakt (Temperatursturz)
         self._temp_hist: deque[tuple[datetime, float]] = deque(maxlen=40)
         self.mold_guard = MoldGuard()

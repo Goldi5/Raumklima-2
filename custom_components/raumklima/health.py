@@ -35,6 +35,10 @@ TRV_OPEN_PRESETS = ("on",)
 WINDOW_OPEN_HOURS = 24.0
 WINDOW_FLIP_LIMIT = 20  # Zustandswechsel pro Tag, ab denen ein Kontakt als defekt gilt
 WINDOW_UNAVAILABLE_HOURS = 2.0
+# Das Gerät führt den geschriebenen Sollwert nicht: Abweichung zum erwarteten Wert
+# (Ziel + gelernter Abgleich), die länger als das hier steht, ist kein Rundungsrest.
+SETPOINT_MISMATCH_K = 0.5
+SETPOINT_IGNORE_MINUTES = 15
 
 
 @dataclass(frozen=True)
@@ -240,6 +244,30 @@ def check_connection(blips_24h: int, typical_seconds: float | None) -> Issue | N
             "In 24 h waren {n}× alle Thermostate gleichzeitig kurz weg{dur}. Das liegt an Zigbee2MQTT, MQTT oder dem VPN, nicht an den Geräten; die Regelung holt alles nach.",
             n=blips_24h,
             dur=dur,
+        ),
+    )
+
+
+def check_setpoint_ignored(minutes: int | None, actual: float | None, expected: float | None) -> Issue | None:
+    """Thermostat steht dauerhaft auf einem anderen Sollwert als geschrieben.
+
+    Nicht zu verwechseln mit dem gelernter Abgleich: der ist im ``expected`` schon enthalten
+    (``Ziel + offset_auto``). Bleibt das Gerät trotzdem woanders, hält es einen eigenen Zeitplan,
+    einen Boost oder eine Automation – und der Raum erreicht das Ziel nie.
+    """
+    if actual is None or expected is None or not minutes or minutes < SETPOINT_IGNORE_MINUTES:
+        return None
+    if abs(actual - expected) < SETPOINT_MISMATCH_K:
+        return None
+    return Issue(
+        "setpoint_ignored",
+        SEV_WARN,
+        tr("Thermostat übernimmt den Sollwert nicht"),
+        tr(
+            "Steht seit {m} min auf {a} °C, erwartet waren {e} °C – Zeitplan, Boost oder eine Automation am Gerät prüfen",
+            m=minutes,
+            a=f"{actual:.1f}",
+            e=f"{expected:.1f}",
         ),
     )
 

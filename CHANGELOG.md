@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.59.42b1 – 2026-11-07
+
+### Hinzugefügt
+- **Sollwert-Gegenprobe:** neues Attribut `trv_target_expected` — der Wert, der am Thermostat stehen
+  **müsste** (Ziel + gelernter Abgleich). Damit lässt sich `trv_target` endlich deuten: 18,5 bei Ziel
+  21 ist bei einem Abgleich von −2,3 K richtig, ohne Abgleich nicht.
+- **Meldung „Thermostat übernimmt den Sollwert nicht":** steht das Gerät länger als 15 Minuten um
+  mindestens 0,5 K neben dem erwarteten Wert, erscheint das in *Gesundheit der Heizung* und im
+  Protokoll. Vorher meldete `sync: ok` nur „Befehl abgeschickt" — ein Gerät, das den Wert still
+  verwirft (eigener Zeitplan, Boost, Automation), fiel nirgends auf. Im Überwachungsmodus, bei
+  Heizpause und bei Geräten, die über `comfort_temperature` regeln, wird nicht geprüft.
 ## 0.59.41b1 – 2026-11-07
 
 ### Geändert

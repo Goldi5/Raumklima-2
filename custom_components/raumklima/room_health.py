@@ -22,6 +22,7 @@ from .decision_log import (
 )
 from .health import (
     DERIVED_PRESET_PLATFORMS,
+    SETPOINT_MISMATCH_K,
     HistoryPoint,
     Issue,
     check_battery,
@@ -30,6 +31,7 @@ from .health import (
     check_radio,
     check_sensor_frozen,
     check_sensor_missing,
+    check_setpoint_ignored,
     check_trv_mode,
     check_window,
     check_window_flapping,
@@ -479,6 +481,11 @@ class HealthMixin:
                 device_preset=self.target_via == "comfort_temperature",
                 derived_preset=self._preset_is_derived(),
             ),
+            check_setpoint_ignored(
+                self._setpoint_off_minutes(now),
+                self.trv_target,
+                self.trv_expected_target,
+            ),
             check_window_flapping(self.window_flips_24h),
             check_window(
                 self.vent.open_minutes / 60 if self.window_open else None,
@@ -495,6 +502,28 @@ class HealthMixin:
     def issues(self) -> list[Issue]:
         hub = self.hub
         return hub.insights.issues.get(self.entry.entry_id, []) if hub else []
+
+    def _setpoint_off_minutes(self, now: datetime) -> int | None:
+        """Minuten, die das Gerät schon auf einem anderen Sollwert steht als erwartet.
+
+        Nur zählen, wenn die Integration überhaupt regelt: bei Heizpause oder im Überwachungsmodus
+        darf der Gerätesollwert abweichen, ohne dass es ein Fehler ist.
+        """
+        actual = self.trv_target
+        expected = self.trv_expected_target
+        if (
+            actual is None
+            or expected is None
+            or self.paused
+            or self.monitor
+            or self.target_via != "setpoint"
+            or abs(actual - expected) < SETPOINT_MISMATCH_K
+        ):
+            self._setpoint_off_since = None
+            return None
+        if self._setpoint_off_since is None:
+            self._setpoint_off_since = now
+        return int((now - self._setpoint_off_since).total_seconds() // 60)
 
     def _trv_down_confirmed(self) -> None:
         self._trv_down_cancel = None

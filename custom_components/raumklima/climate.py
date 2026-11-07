@@ -130,6 +130,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "paused_by_window": c.paused,
             "trv_temperature": c.trv_temperature,
             "trv_target": c.trv_target,
+            "trv_target_expected": c.trv_expected_target,
             "offset": c.offset,
             "sync": c.sync_state,
             "valve_position": c.valve_position,
