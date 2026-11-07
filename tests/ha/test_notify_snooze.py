@@ -66,3 +66,13 @@ async def test_fremde_aktion_wird_ignoriert(hass: HomeAssistant, trv: FakeTrv, s
 
     assert ctrl.vent.snooze_until is None
     assert ctrl.vent.notify_paused_until is None
+
+
+async def test_dunkler_look_steht_in_den_raum_attributen(
+    hass: HomeAssistant, trv: FakeTrv, sensors: None
+) -> None:
+    """Die Karten lesen die Optik-Einstellung aus `settings` – ohne eigenen Serveraufruf."""
+    _hub, room = await _setup(hass)
+    state = hass.states.get("climate.bad")
+    assert state is not None
+    assert state.attributes["settings"]["look_dark"] == "auto"

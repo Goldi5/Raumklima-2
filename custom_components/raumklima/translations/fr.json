@@ -343,6 +343,13 @@
         "hvac": "Mode HVAC « arrêt »",
         "min_temp": "Température minimale"
       }
+    },
+    "look_dark": {
+      "options": {
+        "auto": "Automatique (selon le thème)",
+        "on": "Toujours sombre",
+        "off": "Toujours clair"
+      }
     }
   },
   "entity": {

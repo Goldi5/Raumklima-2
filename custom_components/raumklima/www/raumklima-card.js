@@ -1,4 +1,4 @@
-/* Raumklima 0.61.2b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.0b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -858,7 +858,11 @@
     "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "how long the device may stay silent before it counts as unreachable – automatic learns from the radio pauses (FRITZ!DECT needs ~15 minutes)",
     "Bericht konnte nicht gezeichnet werden: {e}": "The report could not be drawn: {e}",
     "Hinweise für diesen Raum pausiert": "Notifications paused for this room",
-    "Pause bis {time}": "Paused until {time}"
+    "Pause bis {time}": "Paused until {time}",
+    "Dunkler Look": "Dark look",
+    "Immer dunkel": "Always dark",
+    "Immer hell": "Always light",
+    "gilt für alle Karten dieser Wohnung": "applies to all cards of this home"
   };
 
   // src/i18n/fr.js
@@ -1719,7 +1723,11 @@
     "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "combien de temps l’appareil peut rester silencieux avant d’être considéré injoignable – automatique apprend des pauses radio (FRITZ!DECT a besoin d’environ 15 minutes)",
     "Bericht konnte nicht gezeichnet werden: {e}": "Le rapport n’a pas pu être dessiné : {e}",
     "Hinweise für diesen Raum pausiert": "Notifications en pause pour cette pièce",
-    "Pause bis {time}": "En pause jusqu’à {time}"
+    "Pause bis {time}": "En pause jusqu’à {time}",
+    "Dunkler Look": "Apparence sombre",
+    "Immer dunkel": "Toujours sombre",
+    "Immer hell": "Toujours clair",
+    "gilt für alle Karten dieser Wohnung": "vaut pour toutes les cartes de ce logement"
   };
 
   // src/i18n.js
@@ -1763,7 +1771,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.61.2b1";
+  var RK_VERSION = "0.62.0b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2684,7 +2692,17 @@
   }
   function rkLook(config) {
     const look = config && config.look;
-    return look === "modern" || look === "glass" ? look : "classic";
+    if (look === "classic" || look === "glass") return look;
+    return "modern";
+  }
+  function rkDark(hass, config, settings) {
+    const own = config && config.dark;
+    if (own === true || own === "on") return true;
+    if (own === false || own === "off") return false;
+    const want = settings && settings.look_dark || "auto";
+    if (want === "on") return true;
+    if (want === "off") return false;
+    return !!(hass && hass.themes && hass.themes.darkMode);
   }
   function rkLookStyles(look) {
     return look === "modern" ? MODERN_STYLES : look === "glass" ? GLASS_STYLES : "";
@@ -2714,13 +2732,14 @@
   .modern .name { font-size: 1.22rem; letter-spacing: -.02em; }
   .modern .stat { border-radius: 16px; background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
   .modern .stat .v { font-weight: 300; letter-spacing: -.03em; }
-  /* Auf dunklem Grund verschluckt die Fläche die Tönung – dort kräftiger mischen */
-  @media (prefers-color-scheme: dark) {
-    .modern .room,
-    .modern .room:hover { background:
+  /* Auf dunklem Grund verschluckt die Fläche die Tönung – dort kräftiger mischen.
+     Die Klasse setzt die Karte (Theme + Wohnungs-Einstellung), nicht die Systemabfrage. */
+  .modern.dark .room,
+  .modern.dark .room:hover { background:
       radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 46%, transparent), transparent 70%),
-      color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color))); }
-  }
+      color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color)));
+      border-color: color-mix(in srgb, var(--tone) 40%, transparent); }
+  .modern.dark .rooms { background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
 `;
   var GLASS_STYLES = `
   .glass { border-radius: 28px; border: 1px solid color-mix(in srgb, #fff 26%, transparent);
@@ -2745,12 +2764,10 @@
   .glass .stat { border-radius: 18px; background: color-mix(in srgb, #fff 12%, transparent);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
   .glass .stat .v { font-weight: 300; letter-spacing: -.03em; }
-  @media (prefers-color-scheme: dark) {
-    .glass { background: color-mix(in srgb, #14181f 55%, transparent); border-color: color-mix(in srgb, #fff 16%, transparent); }
-    .glass .room { background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 40%, transparent), color-mix(in srgb, #fff 6%, transparent) 62%);
-      border-color: color-mix(in srgb, #fff 20%, transparent); }
-    .glass .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
-  }
+  .glass.dark { background: color-mix(in srgb, #14181f 55%, transparent); border-color: color-mix(in srgb, #fff 16%, transparent); }
+  .glass.dark .room { background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 40%, transparent), color-mix(in srgb, #fff 6%, transparent) 62%);
+    border-color: color-mix(in srgb, #fff 20%, transparent); }
+  .glass.dark .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
 `;
 
   // src/cards/room.js
@@ -2965,8 +2982,10 @@
       const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
       const calOff = a.offset != null ? a.offset : a.offset_auto;
       const trvNote = !mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? calOff != null && Math.abs(calOff) >= 0.1 ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) }) : t("Thermostat {v}°", { v: fmt(a.trv_target) }) : "";
-      this._html = `<style>${STYLES}${rkLookStyles(rkLook(this._config))}</style>
-      <ha-card class="rcard ${rkLook(this._config) === "classic" ? "" : rkLook(this._config)}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
+      const look = rkLook(this._config);
+      const dark = look !== "classic" && rkDark(this._hass, this._config, a.settings || {});
+      this._html = `<style>${STYLES}${rkLookStyles(look)}</style>
+      <ha-card class="rcard ${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
@@ -3161,7 +3180,10 @@
         </div>
       </div>`;
       };
-      this._html = `<style>${STYLES}${rkLookStyles(rkLook(this._config))}
+      const look = rkLook(this._config);
+      const settings = rows[0] && rows[0].attributes.settings || {};
+      const dark = look !== "classic" && rkDark(this._hass, this._config, settings);
+      this._html = `<style>${STYLES}${rkLookStyles(look)}
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }
@@ -3196,7 +3218,7 @@
       .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }
       .rmeta b { color: var(--st); font-weight:650; }
     </style>
-    <ha-card class="${rkLook(this._config) === "classic" ? "" : rkLook(this._config)}" style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
+    <ha-card class="${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>
@@ -4566,6 +4588,7 @@
         this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
         this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
         this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen"),
+        this._row(t("Dunkler Look"), this._segs(H, "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Karten dieser Wohnung")),
         this._row("Heute heizen", st.heat_today_until ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>` : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage")
       ].join("");
       const sl = st.sleep || {};

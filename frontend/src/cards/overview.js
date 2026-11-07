@@ -1,4 +1,4 @@
-import { rkLookStyles, RK_VERSION, rkLayout, rkLook, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkDark, rkLook, rkLookStyles, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -162,7 +162,10 @@ export class RaumklimaOverviewCard extends HTMLElement {
       </div>`;
     };
 
-    this._html = `<style>${STYLES}${rkLookStyles(rkLook(this._config))}
+    const look = rkLook(this._config);
+    const settings = (rows[0] && rows[0].attributes.settings) || {};
+    const dark = look !== "classic" && rkDark(this._hass, this._config, settings);
+    this._html = `<style>${STYLES}${rkLookStyles(look)}
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }
@@ -197,7 +200,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }
       .rmeta b { color: var(--st); font-weight:650; }
     </style>
-    <ha-card class="${rkLook(this._config) === "classic" ? "" : rkLook(this._config)}" style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
+    <ha-card class="${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>

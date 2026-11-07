@@ -343,6 +343,13 @@
         "hvac": "HVAC mode 'off'",
         "min_temp": "Minimum temperature"
       }
+    },
+    "look_dark": {
+      "options": {
+        "auto": "Automatic (follow theme)",
+        "on": "Always dark",
+        "off": "Always light"
+      }
     }
   },
   "entity": {

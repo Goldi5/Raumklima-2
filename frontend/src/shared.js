@@ -1029,7 +1029,25 @@ export function rkVersionMismatch(cfg, own) {
 // den die Karten nur einhängen, wenn `look: modern` gesetzt ist.
 export function rkLook(config) {
   const look = config && config.look;
-  return look === "modern" || look === "glass" ? look : "classic";
+  if (look === "classic" || look === "glass") return look;
+  // „modern" ist der Standard; `look` bleibt nur als Ausweg (classic/glass) und zum Vergleich.
+  return "modern";
+}
+
+/**
+ * Dunkler Look? Drei Quellen, in dieser Reihenfolge:
+ *   1. Karte selbst (`dark: on|off`) – für Einzelfälle und zum Ausprobieren,
+ *   2. Wohnungs-Einstellung `look_dark` (auto|on|off) aus den Raum-Attributen,
+ *   3. sonst das Theme des Nutzers (`hass.themes.darkMode`), also „Auto".
+ */
+export function rkDark(hass, config, settings) {
+  const own = config && config.dark;
+  if (own === true || own === "on") return true;
+  if (own === false || own === "off") return false;
+  const want = (settings && settings.look_dark) || "auto";
+  if (want === "on") return true;
+  if (want === "off") return false;
+  return !!(hass && hass.themes && hass.themes.darkMode);
 }
 
 /** Stil-Block zu einem Look – leer für „classic". */
@@ -1062,13 +1080,14 @@ export const MODERN_STYLES = `
   .modern .name { font-size: 1.22rem; letter-spacing: -.02em; }
   .modern .stat { border-radius: 16px; background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
   .modern .stat .v { font-weight: 300; letter-spacing: -.03em; }
-  /* Auf dunklem Grund verschluckt die Fläche die Tönung – dort kräftiger mischen */
-  @media (prefers-color-scheme: dark) {
-    .modern .room,
-    .modern .room:hover { background:
+  /* Auf dunklem Grund verschluckt die Fläche die Tönung – dort kräftiger mischen.
+     Die Klasse setzt die Karte (Theme + Wohnungs-Einstellung), nicht die Systemabfrage. */
+  .modern.dark .room,
+  .modern.dark .room:hover { background:
       radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 46%, transparent), transparent 70%),
-      color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color))); }
-  }
+      color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color)));
+      border-color: color-mix(in srgb, var(--tone) 40%, transparent); }
+  .modern.dark .rooms { background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
 `;
 
 // ---------------------------------------------------------------- Look „glass"
@@ -1098,10 +1117,8 @@ export const GLASS_STYLES = `
   .glass .stat { border-radius: 18px; background: color-mix(in srgb, #fff 12%, transparent);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
   .glass .stat .v { font-weight: 300; letter-spacing: -.03em; }
-  @media (prefers-color-scheme: dark) {
-    .glass { background: color-mix(in srgb, #14181f 55%, transparent); border-color: color-mix(in srgb, #fff 16%, transparent); }
-    .glass .room { background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 40%, transparent), color-mix(in srgb, #fff 6%, transparent) 62%);
-      border-color: color-mix(in srgb, #fff 20%, transparent); }
-    .glass .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
-  }
+  .glass.dark { background: color-mix(in srgb, #14181f 55%, transparent); border-color: color-mix(in srgb, #fff 16%, transparent); }
+  .glass.dark .room { background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 40%, transparent), color-mix(in srgb, #fff 6%, transparent) 62%);
+    border-color: color-mix(in srgb, #fff 20%, transparent); }
+  .glass.dark .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
 `;

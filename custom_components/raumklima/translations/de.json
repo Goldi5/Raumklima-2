@@ -343,6 +343,13 @@
         "hvac": "HVAC-Modus „off“",
         "min_temp": "Minimaltemperatur"
       }
+    },
+    "look_dark": {
+      "options": {
+        "auto": "Automatisch (wie das Theme)",
+        "on": "Immer dunkel",
+        "off": "Immer hell"
+      }
     }
   },
   "entity": {

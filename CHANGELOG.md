@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.62.0b1 – 2026-11-07
+
+### Geändert
+- **„Modern" ist jetzt der Standard-Look.** Ohne Angabe in der Kartenkonfiguration sehen Übersicht und
+  Raumkarte aus wie unter `look: modern` (Verlauf, Kontur, größere Ziffern). `look: classic` holt den
+  alten Stand zurück, `look: glass` bleibt zum Ausprobieren.
+
+### Hinzugefügt
+- **Dunkler Look, schaltbar:** neue Wohnungs-Einstellung *Einstellungen → Allgemein → Dunkler Look*
+  mit `Automatisch` (folgt dem Theme des Nutzers), `Immer dunkel`, `Immer hell`. Im Dunkelmodus werden
+  die Flächen kräftiger gemischt, sonst verschluckt der Grund die Tönung.
+  Die Karten lesen den Wert aus ihren eigenen Attributen (`settings.look_dark`) — kein zusätzlicher
+  Serveraufruf, keine Verzögerung beim Laden. Einzelne Karten dürfen mit `dark: on|off` übersteuern.
+- Welche Quelle gilt, ist festgelegt und getestet: Karte → Wohnung → Theme (`hass.themes.darkMode`).
 ## 0.61.2b1 – 2026-11-07
 
 ### Hinzugefügt

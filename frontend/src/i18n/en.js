@@ -859,4 +859,8 @@ export const EN = {
   "Bericht konnte nicht gezeichnet werden: {e}": "The report could not be drawn: {e}",
   "Hinweise für diesen Raum pausiert": "Notifications paused for this room",
   "Pause bis {time}": "Paused until {time}",
+  "Dunkler Look": "Dark look",
+  "Immer dunkel": "Always dark",
+  "Immer hell": "Always light",
+  "gilt für alle Karten dieser Wohnung": "applies to all cards of this home",
 };

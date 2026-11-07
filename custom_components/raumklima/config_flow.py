@@ -57,6 +57,7 @@ from .const import (
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_LONG_AWAY_HOURS,
+    CONF_LOOK_DARK,
     CONF_NAME,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
@@ -95,6 +96,7 @@ from .const import (
     HUB_UNIQUE_ID,
     KIND_LIVE,
     KINDS,
+    LOOK_DARK_MODES,
     OFF_METHODS,
     ON_PRESET_AUTO,
     ROOM_TYPE_OPTIONS,
@@ -443,6 +445,9 @@ def _hub_season_schema(cur: dict[str, Any]) -> vol.Schema:
             vol.Required(CONF_COLD_SNAP_TEMP, default=cur[CONF_COLD_SNAP_TEMP]): _number(0, 20, 0.5, "°C"),
             vol.Required(CONF_FROST_FLOOR, default=cur[CONF_FROST_FLOOR]): _number(5, 20, 0.5, "°C"),
             vol.Required(CONF_VALVE_CARE, default=cur[CONF_VALVE_CARE]): BooleanSelector(),
+            vol.Required(CONF_LOOK_DARK, default=cur.get(CONF_LOOK_DARK, "auto")): _select(
+                LOOK_DARK_MODES, CONF_LOOK_DARK
+            ),
         }
     )
 

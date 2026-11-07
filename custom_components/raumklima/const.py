@@ -109,7 +109,10 @@ CONF_LATITUDE: Final = "latitude"  # je Wohnung: Koordinaten für den Sonnenstan
 CONF_LONGITUDE: Final = "longitude"
 CONF_PREHEAT_KM: Final = "preheat_km"
 CONF_BUILDING: Final = "building_type"  # unrenovated / renovated / new
-CONF_SEASON_MODE: Final = "season_mode"  # auto / always / pause
+CONF_SEASON_MODE: Final = "season_mode"
+# Optik: „auto" folgt dem Theme des Nutzers (hass.themes.darkMode), sonst erzwingt der Wert.
+CONF_LOOK_DARK: Final = "look_dark"
+LOOK_DARK_MODES: Final = ["auto", "on", "off"]  # auto / always / pause
 CONF_SEASON_START: Final = "season_start"  # "10-01"
 CONF_SEASON_END: Final = "season_end"  # "04-30"
 CONF_HEATING_LIMIT: Final = "heating_limit"  # °C Tagesmittel
@@ -235,6 +238,7 @@ HUB_DEFAULTS: Final = {
     CONF_COLD_SNAP_TEMP: 12.0,
     CONF_FROST_FLOOR: 16.0,
     CONF_VALVE_CARE: True,
+    CONF_LOOK_DARK: "auto",
     CONF_NIGHT_START: "20:00:00",
     CONF_NIGHT_END: "03:00:00",
     CONF_NIGHT_ALARM: 12.0,

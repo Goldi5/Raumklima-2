@@ -1,4 +1,4 @@
-import { rkLookStyles, STATUS, STYLES, VENT, rkLook, esc, fmt, humTone, loc, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkDark, rkLook, rkLookStyles, STATUS, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -227,8 +227,10 @@ export class RaumklimaCard extends HTMLElement {
         ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) })
         : t("Thermostat {v}°", { v: fmt(a.trv_target) }))
       : "";
-    this._html = `<style>${STYLES}${rkLookStyles(rkLook(this._config))}</style>
-      <ha-card class="rcard ${rkLook(this._config) === "classic" ? "" : rkLook(this._config)}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
+    const look = rkLook(this._config);
+    const dark = look !== "classic" && rkDark(this._hass, this._config, a.settings || {});
+    this._html = `<style>${STYLES}${rkLookStyles(look)}</style>
+      <ha-card class="rcard ${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}

@@ -859,4 +859,8 @@ export const FR = {
   "Bericht konnte nicht gezeichnet werden: {e}": "Le rapport n’a pas pu être dessiné : {e}",
   "Hinweise für diesen Raum pausiert": "Notifications en pause pour cette pièce",
   "Pause bis {time}": "En pause jusqu’à {time}",
+  "Dunkler Look": "Apparence sombre",
+  "Immer dunkel": "Toujours sombre",
+  "Immer hell": "Toujours clair",
+  "gilt für alle Karten dieser Wohnung": "vaut pour toutes les cartes de ce logement",
 };
