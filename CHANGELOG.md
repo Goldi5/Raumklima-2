@@ -1,5 +1,64 @@
 # Changelog
 
+## 0.60.0 – 2026-11-07
+
+Erste stabile Version seit 0.59.11. Alles hier war vorher als Beta draußen — wer eine Beta
+installiert hatte, hat es schon; für alle anderen ist es die Zusammenfassung.
+
+### Regelung
+- **Jedes Thermostat lernt seine eigene Antwortzeit.** Die Grenze für „nicht erreichbar" ist nicht mehr
+  fest (60 s), sondern folgt dem Gerät: 2 × Meldeabstand + 60 s Reserve, aus den vergangenen
+  Funkpausen gelernt und über einen Neustart hinweg gespeichert. FRITZ!DECT (~15 min) meldet damit
+  keine Fehlalarme mehr, Zigbee-Geräte weiterhin schnell. Neue Raumeinstellung
+  *Thermostat & Fühler → Antwortzeit des Geräts* (automatisch oder fester Wert).
+- **Gegenprobe für den Sollwert:** neues Attribut `trv_target_expected` zeigt, was am Gerät stehen
+  müsste (Ziel + gelernter Abgleich). Steht das Gerät länger als 15 Minuten daneben, warnt
+  *Gesundheit der Heizung* unter „Thermostat übernimmt den Sollwert nicht" — vorher fiel so etwas
+  nirgends auf, weil `sync: ok` nur „Befehl abgeschickt" bedeutet.
+- **Fenster schlägt Schimmelschutz.** Ein offenes Fenster hat Vorrang vor jeder Feuchte-Absenkung;
+  die Meldung dazu war falsch und ist behoben.
+- **Bauart je Raum** (Außenecke / Außenwand / innenliegend / wie die Wohnung) bestimmt den fRsi-Wert
+  für den Schimmelschutz, statt einer Pauschale für die ganze Wohnung.
+- **Startwert statt 20,0 °C:** nach einem Neustart steht der Sollwert nicht mehr kurz auf 20 °C,
+  sondern auf der eingestellten Komforttemperatur — keine Zacken mehr im Verlauf.
+- **Fremder Sensor aus der Nachbarwohnung** wird nicht mehr als eigenes Ventil übernommen.
+- **Feuchtequelle erkennen:** steigt die Feuchte über Stunden trotz Heizung, sagt Raumklima, dass es
+  nicht am Heizen liegt.
+
+### Bericht
+- **Kennzahl folgt dem Gerät, nicht dem Wunsch:** Ventilstellung → Gradstunden unter Ziel (nur bei
+  echtem Mangel) → Heizstunden. Räume ohne Ventilpositions-Meldung (Livisi, Bosch, schlafende
+  TRVs) haben damit endlich einen lesbaren Bericht. Wohnungsweit wählbar unter
+  *Einstellungen → Bericht → Wärmemenge*.
+- **Keine Behauptung „gekippt" mehr.** Ein Fensterkontakt kennt nur auf und zu; der Bericht nennt
+  jetzt nur das Gemessene („11,1 h offen bei 16× Lüften") und die Empfehlung, ohne den Zustand zu
+  erfinden.
+- **CSV enthält den Schattenmodus** (`ventil_berechnet_h` gegen `ventil_voll_offen_h`),
+  Gradstunden und das mittlere Tagesziel — damit lässt sich die Regelung auswerten, ohne neue
+  Oberfläche.
+- **Ventilkachel färbt nach Heizzustand**, nicht nach Prozentwert: 2–6 % im Leerlauf sind
+  Ventilschutz und sehen nicht mehr aus wie „heizt noch".
+- Gelöschte Räume erscheinen nicht mehr als Geisterzeilen.
+
+### Karte und Dashboard
+- **Alle fünf Seiten gleich breit**, und die gepflegte Raum-Reihenfolge gilt überall — auch in
+  Verlauf, Protokoll und Bericht (#30, #32).
+- **Die Karte kommt über eine eigene View** mit `no-store` und Inhalts-Hash in der URL: nach einem
+  Update wird kein alter Stand mehr aus dem Cache gezeigt.
+- **Die Karte kann nicht mehr stumm leer bleiben:** Fehler beim Zeichnen stehen als Text in der
+  Karte und werden an die Debug-Spur gemeldet. Ein fehlender Import hatte die Berichtskarte
+  vollständig leer gelassen, ohne jede Meldung.
+- **Debug-Spur und zwei Wächter:** die Karte meldet geladene Version und jeden Klick an den Server;
+  Tests prüfen, dass kein Befehl ohne passendes Schema aufgerufen wird und keine benutzte Funktion
+  unimportiert bleibt.
+
+### Sichern, Diagnose, Fehler melden
+- **Datei vom Server statt Download aus dem Browser:** „Sichern" und „Diagnose" liefern eine
+  kurzlebige Adresse (`/api/raumklima/export/<Schlüssel>`, 15 Minuten, einmalig). Das funktioniert
+  auf iPad-Safari und in der HA-App, wo Blob-Downloads und Teilen bisher scheiterten.
+- **Dialog mit echten Knöpfen** (Teilen, Speichern, Kopieren) und Statuszeile im Dialog; solange er
+  offen ist, wird die Karte nicht neu gezeichnet.
+
 ## 0.59.43b1 – 2026-11-07
 
 ### Behoben
@@ -55,7 +114,7 @@
 ## 0.59.36b1 – 2026-11-07
 
 ### Behoben
-- **Berichtskarte blieb komplett leer (Remscheid).** In `cards/report.js` wurden `rkLayout` und
+- **Berichtskarte blieb komplett leer (in einer Wohnung ohne Ventilstellung).** In `cards/report.js` wurden `rkLayout` und
   `rkRoomsOrdered` benutzt, aber nicht importiert – der `hass`-Setter warf beim ersten Zeichnen eine
   `ReferenceError`, die Karte zeigte nichts, ohne Meldung. Import ergänzt.
 - **Die Karte kann nicht mehr stumm leer bleiben:** Zeichnen ist jetzt in `try/catch`, ein Fehler
