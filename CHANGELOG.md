@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.60.1 – 2026-11-07
+
+### Behoben
+- **CI-Lint:** eine Import-Zeile im neuen Test war unsortiert (`I001`), dadurch war die
+  „Validate"-Prüfung auf 0.60.0 rot. Keine Auswirkung auf die Integration, nur auf den Testcode.
 ## 0.60.0 – 2026-11-07
 
 Erste stabile Version seit 0.59.11. Alles hier war vorher als Beta draußen — wer eine Beta

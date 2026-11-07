@@ -11,8 +11,8 @@ from __future__ import annotations
 import pytest
 
 from custom_components.raumklima.health import (
-    SEV_WARN,
     SETPOINT_IGNORE_MINUTES,
+    SEV_WARN,
     check_setpoint_ignored,
 )
 
