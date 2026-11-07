@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.59.33b1 – 2026-11-07
+
+### Behoben
+- **Leerer Bericht ohne Ventilstellung:** Der Rückfall auf Gradstunden war gut gemeint, aber in einem
+  gut eingestellten Haus sind sie **immer 0 K·h** – die Balken blieben leer. Jetzt gilt:
+  Ventilstellung, wenn alle Geräte sie melden → Gradstunden nur, wenn es echten Wärmemangel gab
+  (≥ 0,5 K·h im Zeitraum) → sonst **Heizstunden**. Zusätzlich prüft die Karte selbst nach: hat die
+  gewählte Kennzahl über den ganzen Zeitraum keinen Wert, zeichnet sie Heizstunden und sagt es im
+  Hinweis.
 ## 0.59.32b1 – 2026-11-06
 
 ### Hinzugefügt

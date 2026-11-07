@@ -94,3 +94,12 @@ def test_abgeleitetes_preset_warnt_nicht() -> None:
     assert check_trv_mode("heat", "comfort", derived_preset=True) is None
     issue = check_trv_mode("heat", "comfort")
     assert issue is not None and issue.code == "trv_mode"
+
+
+def test_ohne_ventil_und_ohne_waermemangel_zaehlen_heizstunden() -> None:
+    """Ein gut eingestelltes Haus hat 0 K·h – Gradstunden wären dort ein leerer Bericht."""
+    today = date(2026, 11, 7)
+    rooms = {"Bad": {today.isoformat(): _day((_sample(temp=21.0, effective=19.0), 3600))}}
+    data = build(rooms, {}, "week", today - timedelta(days=6), today)
+    assert data["metric"] == "hours"
+    assert data["current"]["rooms"]["Bad"]["heating_h"] == 1.0

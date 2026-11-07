@@ -317,7 +317,12 @@ class Insights:
             return want
         rooms = (summary.get("rooms") or {}).values()
         used = [r for r in rooms if r.get("hours", 0) >= 1]
-        return "valve" if used and all(r.get("has_valve") for r in used) else "deficit"
+        if used and all(r.get("has_valve") for r in used):
+            return "valve"
+        # Gradstunden sind ehrlich, aber bei gut eingestellten Räumen immer 0 – dann wäre der
+        # Bericht leer. Erst wenn es echten Wärmemangel gab, danach zählen; sonst Heizstunden.
+        deficit = sum(float(r.get("deficit_kh") or 0.0) for r in used)
+        return "deficit" if deficit >= 0.5 else "hours"
 
     def export_csv(self, days: int | None = None, today: date | None = None) -> str:
         """Tageswerte je Raum als CSV (für Tabellenkalkulation)."""

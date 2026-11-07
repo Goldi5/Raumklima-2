@@ -6267,9 +6267,12 @@
       const days = d.daily.slice(-n);
       const metric = d.metric || "valve";
       const valKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[metric] || "valve_h";
-      const valOf = (r) => r && Number(r[valKey]) || 0;
-      const valText = (v) => metric === "deficit" ? t("{v} K·h unter Ziel", { v: fmt(v, 1) }) : metric === "hours" ? t("{v} h geheizt", { v: fmt(v, 0) }) : t("Ventil ≈ {v} h", { v: fmt(v, 1) });
-      const barHint = metric === "deficit" ? t("Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.") : metric === "hours" ? t("Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.") : t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).");
+      const sum = (k) => days.reduce((s, x) => s + Object.values(x.rooms).reduce((t2, r) => t2 + (Number(r[k]) || 0), 0), 0);
+      const drawn = metric !== "valve" && sum(valKey) === 0 && sum("heating_h") > 0 ? "hours" : metric;
+      const drawKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[drawn] || "valve_h";
+      const valOf = (r) => r && Number(r[drawKey]) || 0;
+      const valText = (v) => drawn === "deficit" ? t("{v} K·h unter Ziel", { v: fmt(v, 1) }) : drawn === "hours" ? t("{v} h geheizt", { v: fmt(v, 0) }) : t("Ventil ≈ {v} h", { v: fmt(v, 1) });
+      const barHint = drawn === "deficit" ? t("Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.") : drawn === "hours" ? t("Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.") : t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).");
       const names = Object.keys(cur.rooms).sort((a, b) => this._pos(a) - this._pos(b) || a.localeCompare(b));
       const color = (nm, i) => this._roomColor(nm) || ROOM_COLORS[i % ROOM_COLORS.length];
       const maxV = Math.max(1, ...days.map((x) => Object.values(x.rooms).reduce((s, r) => s + valOf(r), 0)));

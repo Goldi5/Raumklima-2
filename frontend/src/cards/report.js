@@ -188,17 +188,22 @@ export class RaumklimaReportCard extends HTMLElement {
     // statt geschätzt. Kommt vom Server, damit Bericht und PDF dasselbe zeigen.
     const metric = d.metric || "valve";
     const valKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[metric] || "valve_h";
-    const valOf = (r) => (r && Number(r[valKey])) || 0;
+    // Sicherheitsnetz: eine Kennzahl ohne einen einzigen Wert (z. B. Gradstunden in einem
+    // gut eingestellten Haus) würde den Bericht leer lassen – dann Heizstunden zeigen.
+    const sum = (k) => days.reduce((s, x) => s + Object.values(x.rooms).reduce((t, r) => t + (Number(r[k]) || 0), 0), 0);
+    const drawn = metric !== "valve" && sum(valKey) === 0 && sum("heating_h") > 0 ? "hours" : metric;
+    const drawKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[drawn] || "valve_h";
+    const valOf = (r) => (r && Number(r[drawKey])) || 0;
     const valText = (v) =>
-      metric === "deficit"
+      drawn === "deficit"
         ? t("{v} K·h unter Ziel", { v: fmt(v, 1) })
-        : metric === "hours"
+        : drawn === "hours"
           ? t("{v} h geheizt", { v: fmt(v, 0) })
           : t("Ventil ≈ {v} h", { v: fmt(v, 1) });
     const barHint =
-      metric === "deficit"
+      drawn === "deficit"
         ? t("Balken = Gradstunden unter Ziel (K·h): wie weit die Räume über die Zeit unter ihrem Ziel lagen. Das ist gemessen, nicht geschätzt – die Geräte melden keine Ventilstellung.")
-        : metric === "hours"
+        : drawn === "hours"
           ? t("Balken = Heizstunden: wie lange die Räume Wärme angefordert haben.")
           : t("Balken = wie lange die Ventile umgerechnet voll offen waren (Maß für die Wärmemenge).");
     const names = Object.keys(cur.rooms).sort((a, b) => this._pos(a) - this._pos(b) || a.localeCompare(b));

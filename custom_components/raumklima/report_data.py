@@ -231,7 +231,11 @@ def build(
     has_ya = _coverage(ya, y_start, y_end) >= MIN_COVERAGE
     if not metric:
         used = [r for r in cur["rooms"].values() if r.get("hours", 0) >= 1]
-        metric = "valve" if used and all(r.get("has_valve") for r in used) else "deficit"
+        if used and all(r.get("has_valve") for r in used):
+            metric = "valve"
+        else:
+            deficit = sum(float(r.get("deficit_kh") or 0.0) for r in used)
+            metric = "deficit" if deficit >= 0.5 else "hours"
     data = {
         "kind": kind,
         "start": start.isoformat(),
