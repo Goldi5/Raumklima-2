@@ -1,4 +1,4 @@
-/* Raumklima 0.60.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.61.0b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -856,7 +856,9 @@
     "15 Minuten": "15 minutes",
     "30 Minuten": "30 minutes",
     "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "how long the device may stay silent before it counts as unreachable – automatic learns from the radio pauses (FRITZ!DECT needs ~15 minutes)",
-    "Bericht konnte nicht gezeichnet werden: {e}": "The report could not be drawn: {e}"
+    "Bericht konnte nicht gezeichnet werden: {e}": "The report could not be drawn: {e}",
+    "Hinweise für diesen Raum pausiert": "Notifications paused for this room",
+    "Pause bis {time}": "Paused until {time}"
   };
 
   // src/i18n/fr.js
@@ -1715,7 +1717,9 @@
     "15 Minuten": "15 minutes",
     "30 Minuten": "30 minutes",
     "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "combien de temps l’appareil peut rester silencieux avant d’être considéré injoignable – automatique apprend des pauses radio (FRITZ!DECT a besoin d’environ 15 minutes)",
-    "Bericht konnte nicht gezeichnet werden: {e}": "Le rapport n’a pas pu être dessiné : {e}"
+    "Bericht konnte nicht gezeichnet werden: {e}": "Le rapport n’a pas pu être dessiné : {e}",
+    "Hinweise für diesen Raum pausiert": "Notifications en pause pour cette pièce",
+    "Pause bis {time}": "En pause jusqu’à {time}"
   };
 
   // src/i18n.js
@@ -1759,7 +1763,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.60.1";
+  var RK_VERSION = "0.61.0b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2901,6 +2905,7 @@
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
           ${a.battery && a.battery.low ? `<span class="chip" style="--tone:var(--rk-warn)" title="${esc(a.battery.name)}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon>${t("Batterie {p} %", { p: a.battery.level })}</span>` : ""}
+          ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
         </div>
         ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
         ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}

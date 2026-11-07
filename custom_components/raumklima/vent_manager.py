@@ -601,7 +601,9 @@ class VentilationManager:
         now = dt_util.utcnow()
         if self.muted_until and now < self.muted_until:
             return
-        if self.snooze_until and now < self.snooze_until and kind != VENT_TOO_COLD:
+        if self.snooze_until and now < self.snooze_until:
+            # Gilt für jede Meldung, die den Knopf anbietet – auch für „Raum kühlt aus".
+            # Die harte Nachtwarnung schickt der Aufrufer an dieser Stelle vorbei.
             return
         last = self._last_sent.get(kind)
         if kind == VENT_DONE:
@@ -770,12 +772,20 @@ class VentilationManager:
         label = {"MUTE": tr("„Heute nicht mehr“"), "SNOOZE": tr("„Später erinnern“"), "DONE": tr("„Erledigt“")}.get(
             action.removeprefix("RAUMKLIMA_").split("_", 1)[0], action
         )
+        self.c.save()  # Pause muss einen Neustart überstehen
         self.c.log(
             "notify",
             tr("Knopf {label} in der Push gedrückt", label=label),
             tr("keine Lüft-Hinweise bis {day} {time}", day=weekday(dt_util.as_local(until).weekday()), time=f"{dt_util.as_local(until):%H:%M}") if until else None,
         )
         self.c.notify_listeners()
+
+    @property
+    def notify_paused_until(self) -> datetime | None:
+        """Bis wann keine Hinweise mehr kommen (Knopf „später"/„heute nicht mehr")."""
+        now = dt_util.utcnow()
+        active = [t for t in (self.snooze_until, self.muted_until) if t and t > now]
+        return max(active) if active else None
 
     # ------------------------------------------------------------ Einstellen
     def set_value(self, key: str, value: float) -> None:

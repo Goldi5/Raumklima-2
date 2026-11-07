@@ -13,6 +13,7 @@ from homeassistant.components.climate import (
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from . import RaumklimaConfigEntry
 from .entity import RaumklimaEntity
@@ -131,6 +132,11 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "trv_temperature": c.trv_temperature,
             "trv_target": c.trv_target,
             "trv_target_expected": c.trv_expected_target,
+            "notify_paused_until": (
+                dt_util.as_local(c.vent.notify_paused_until).isoformat()
+                if c.vent is not None and c.vent.notify_paused_until is not None
+                else None
+            ),
             "offset": c.offset,
             "sync": c.sync_state,
             "valve_position": c.valve_position,

@@ -857,4 +857,6 @@ export const FR = {
   "30 Minuten": "30 minutes",
   "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "combien de temps l’appareil peut rester silencieux avant d’être considéré injoignable – automatique apprend des pauses radio (FRITZ!DECT a besoin d’environ 15 minutes)",
   "Bericht konnte nicht gezeichnet werden: {e}": "Le rapport n’a pas pu être dessiné : {e}",
+  "Hinweise für diesen Raum pausiert": "Notifications en pause pour cette pièce",
+  "Pause bis {time}": "En pause jusqu’à {time}",
 };

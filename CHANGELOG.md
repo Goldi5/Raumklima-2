@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.61.0b1 – 2026-11-07
+
+### Behoben
+- **„In 15 min erinnern" wirkte bei „Raum kühlt aus" nicht.** Die Prüfung in `vent_manager` nahm
+  `too_cold` ausdrücklich aus, obwohl der Knopf bei jeder Meldung angeboten wird. Jetzt gilt die
+  Pause für alles, was den Knopf zeigt; die harte Nachtwarnung („sehr kalt") geht weiter ihren
+  eigenen Weg und schweigt nicht.
+- **Die Pause überlebte keinen Neustart.** `_on_notify_action` speicherte nicht — in der
+  Zustandsdatei stand weiterhin `snoozed_until: null`. Jetzt wird nach jeder Knopfaktion gespeichert.
+
+### Hinzugefügt
+- **Die Pause ist sichtbar:** neues Attribut `notify_paused_until` an der Klima-Entität und ein Chip
+  an der Raumkarte („Pause bis 14:53"). Bisher war nach einem Druck nirgends zu sehen, bis wann Ruhe
+  ist.
+- **Import-Wächter deckt jetzt alle Exporte aus `shared.js` ab** statt nur `RK_*`/`rk*`. Anlass:
+  `loc` fehlte in der Raumkarte — derselbe Fehler wie zuvor bei `RK_VERSION` und `rkLayout`, nur
+  diesmal beim Schreiben des neuen Chips aufgefallen. Der Test liest die Exportliste aus
+  `shared.js`, prüft nur Kartendateien und hat Zähne (Gegenprobe: `loc` entfernt → rot).
 ## 0.60.1 – 2026-11-07
 
 ### Behoben
