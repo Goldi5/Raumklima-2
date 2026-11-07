@@ -49,8 +49,10 @@ from .logic import (
     calc_offset,
     choose_on_preset,
     clamp,
+    device_step,
     is_valid,
-    round_step,
+    round_device,
+    setpoint_tolerance,
     to_float,
     values_match,
 )
@@ -106,6 +108,16 @@ class TrvMixin:
         return to_float(self._trv_attr("current_temperature"))
 
     @property
+    def trv_step(self) -> float:
+        """Schrittweite des Geräts – Moes BRT-100 kann nur ganze Grad, Tuya 0,5 K."""
+        return device_step(self._trv_attr("target_temp_step"))
+
+    @property
+    def setpoint_tol(self) -> float:
+        """Wie weit darf das Gerät vom Wunsch abweichen, ohne als „nicht bestätigt" zu gelten?"""
+        return setpoint_tolerance(self.trv_step, SETPOINT_MATCH_TOLERANCE)
+
+    @property
     def trv_target(self) -> float | None:
         """Sollwert, der gerade **am Thermostat** steht.
 
@@ -126,7 +138,7 @@ class TrvMixin:
             return None
         target = self.effective_target
         if self.cal_mode == CAL_TARGET:
-            return clamp(round_step(target + self.shift, 0.5), self.trv_min, self.trv_max)
+            return clamp(round_device(target + self.shift, self.trv_step), self.trv_min, self.trv_max)
         return clamp(target, self.trv_min, self.trv_max)
 
     def _detect_manual_change(self, old: State, new: State) -> None:
@@ -184,7 +196,7 @@ class TrvMixin:
             return
         # Beim Sollwert-Ausgleich steht am Gerät „Wunsch + Abgleich". Alles andere wurde am
         # Gerät verstellt – auch dann übernehmen, wenn der Versatz mitgeschrieben wird (#11).
-        if values_match(new_t, self._desired_setpoint(), SETPOINT_MATCH_TOLERANCE):
+        if values_match(new_t, self._desired_setpoint(), self.setpoint_tol):
             return
         if self._preset_changed_at and dt_util.utcnow() - self._preset_changed_at < timedelta(
             seconds=PRESET_GRACE_SECONDS
@@ -206,7 +218,7 @@ class TrvMixin:
                 self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
             if self.cal_mode == CAL_TARGET:
                 # Am Gerät steht der Wunsch plus Abgleich – zurückrechnen.
-                self.target_temp = clamp(round_step(new_t - self.shift, 0.5), self.trv_min, self.trv_max)
+                self.target_temp = clamp(round_device(new_t - self.shift, self.trv_step), self.trv_min, self.trv_max)
             else:
                 self.target_temp = new_t
             self._save()
@@ -284,7 +296,7 @@ class TrvMixin:
         target = self.effective_target
         if self.cal_mode == CAL_TARGET:
             # Gelernten Abgleich immer anwenden – nicht nur, wenn gerade ein Messwert eintrifft.
-            return clamp(round_step(target + self.shift, 0.5), self.trv_min, self.trv_max)
+            return clamp(round_device(target + self.shift, self.trv_step), self.trv_min, self.trv_max)
         return clamp(target, self.trv_min, self.trv_max)
 
     async def _call_climate(self, service: str, **data: Any) -> None:
@@ -346,8 +358,8 @@ class TrvMixin:
         """Bestätigt das Gerät den Sollwert? (an der Stelle, an die wir schreiben)"""
         if self.target_via == "comfort_temperature" and self.comfort_number:
             state = self.hass.states.get(self.comfort_number)
-            return values_match(state.state if state else None, value, SETPOINT_MATCH_TOLERANCE)
-        return values_match(self._trv_attr(ATTR_TEMPERATURE), value, SETPOINT_MATCH_TOLERANCE)
+            return values_match(state.state if state else None, value, self.setpoint_tol)
+        return values_match(self._trv_attr(ATTR_TEMPERATURE), value, self.setpoint_tol)
 
     @callback
     def _on_sync_event(self, event: str, job: SyncJob) -> None:

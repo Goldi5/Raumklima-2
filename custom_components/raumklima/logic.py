@@ -33,6 +33,38 @@ def round_step(value: float, step: float) -> float:
     return round(round(value / step) * step, 2)
 
 
+DEFAULT_STEP = 0.5
+
+
+def round_device(value: float, step: float) -> float:
+    """Auf die Schrittweite des **Geräts** runden – halbe Stufen aufwärts.
+
+    `round_step` rundet kaufmännisch-neutral (Pythons `round`), ein BRT-100 rundet 18,5 aber auf
+    19,0. Wer 18,0 schreibt, bekommt 19,0 zurück und hält den Wert für nicht bestätigt.
+    """
+    return round(math.floor(value / step + 0.5) * step, 2)
+
+
+def device_step(attr: object) -> float:
+    """Schrittweite eines Thermostats aus dessen `target_temp_step` (Standard 0,5 K).
+
+    Nicht jedes Gerät kennt halbe Grad: ein Moes BRT-100 meldet `target_temp_step: 1.0` und macht
+    aus 21,5 ein 22,0. Wer trotzdem in 0,5-Schritten schreibt, fordert einen Wert, den das Gerät
+    nie bestätigen kann — der Auftrag bleibt ewig „pending".
+    """
+    step = to_float(attr)
+    return step if step and step > 0 else DEFAULT_STEP
+
+
+def setpoint_tolerance(step: float, base: float) -> float:
+    """Bestätigungstoleranz: nie enger als die halbe Schrittweite des Geräts.
+
+    `base` ist die hausübliche Toleranz (0,25 K); bei einem Gerät mit 1,0-K-Raster ist eine
+    Abweichung von 0,5 K aber unvermeidbar und darf nicht als „nicht bestätigt" gelten.
+    """
+    return max(base, step / 2)
+
+
 def clamp(value: float, low: float, high: float) -> float:
     """Wert begrenzen."""
     return max(low, min(high, value))
@@ -79,8 +111,8 @@ def calc_target_setpoint(
     angehoben, damit der Raum das eigentliche Ziel erreicht.
     """
     if external is None or trv_reported is None:
-        return clamp(round_step(target, step), low, high)
-    return clamp(round_step(target + (trv_reported - external), step), low, high)
+        return clamp(round_device(target, step), low, high)
+    return clamp(round_device(target + (trv_reported - external), step), low, high)
 
 
 def values_match(actual: object, expected: float, tolerance: float) -> bool:

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.62.4b1 – 2026-11-07
+
+### Behoben
+- **Geräte mit ganzen Graden wurden falsch angesteuert.** Ein Moes BRT-100 meldet
+  `target_temp_step: 1.0` — Raumklima schrieb trotzdem in 0,5-Schritten. Das Gerät macht aus 21,5
+  ein 22,0 (gemessen), der Sollwert ließ sich damit nie bestätigen und der Auftrag blieb dauerhaft
+  „sendet …". Jetzt wird die Schrittweite **je Gerät** gelesen (`target_temp_step`, Standard 0,5) und
+  beim Runden benutzt; alle anderen Geräte bleiben bei 0,5 K.
+- **Bestätigung folgt der Schrittweite:** die Toleranz ist nie enger als die halbe Schrittweite
+  (`max(0,25 K, step/2)`). Vorher galt ein Gerät mit 1,0-K-Raster bei jeder Bestätigung als
+  „nicht bestätigt", weil 0,5 K Abweichung unvermeidbar sind.
+- **Geräte runden halbe Stufen aufwärts** (`round_device`): das BRT-100 macht 18,5 zu 19,0, Pythons
+  `round` hätte 18,0 geschrieben — wieder ein Wert, den das Gerät sofort ändert.
 ## 0.62.3b1 – 2026-11-07
 
 ### Behoben

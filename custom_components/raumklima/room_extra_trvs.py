@@ -37,7 +37,18 @@ from .const import (
 )
 from .decision_log import CAT_DEVICE, fmt_temp
 from .health import Issue
-from .logic import calc_offset, calc_target_setpoint, choose_on_preset, clamp, is_valid, to_float, values_match
+from .logic import (
+    calc_offset,
+    calc_target_setpoint,
+    choose_on_preset,
+    clamp,
+    device_step,
+    is_valid,
+    round_device,
+    setpoint_tolerance,
+    to_float,
+    values_match,
+)
 from .msg import tr
 from .sync import SyncJob, SyncManager
 
@@ -158,11 +169,23 @@ class ExtraTrv:
             auto_value=ON_PRESET_AUTO,
         )
 
+    @property
+    def step(self) -> float:
+        """Schrittweite dieses Geräts (Moes BRT-100: 1,0 K, Tuya: 0,5 K)."""
+        return device_step(self.attr("target_temp_step"))
+
     def setpoint_for(self, target: float) -> float:
         """Sollwert für dieses Thermostat (Sollwert-Ausgleich nach seiner eigenen Temperatur)."""
         if self.c.cal_mode == CAL_TARGET and self.c.sensor_ok:
-            return calc_target_setpoint(target, self.c._ext_value, self.temperature, low=self.tmin, high=self.tmax)
-        return clamp(target, self.tmin, self.tmax)
+            return calc_target_setpoint(
+                target,
+                self.c._ext_value,
+                self.temperature,
+                low=self.tmin,
+                high=self.tmax,
+                step=self.step,
+            )
+        return clamp(round_device(target, self.step), self.tmin, self.tmax)
 
     async def apply(self, want_on: bool, method: str, target: float) -> None:
         """Denselben Zustand wie das Haupt-Thermostat herstellen."""
@@ -200,7 +223,9 @@ class ExtraTrv:
             "setpoint",
             tr("Sollwert {t}", t=fmt_temp(setpoint)),
             lambda: self._call("set_temperature", temperature=setpoint),
-            lambda: values_match(self.attr(ATTR_TEMPERATURE), setpoint, SETPOINT_MATCH_TOLERANCE),
+            lambda: values_match(
+                self.attr(ATTR_TEMPERATURE), setpoint, setpoint_tolerance(self.step, SETPOINT_MATCH_TOLERANCE)
+            ),
         )
 
     async def calibrate(self, force: bool = False) -> None:
