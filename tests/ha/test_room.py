@@ -552,6 +552,28 @@ async def test_health_meldet_automatik_modus(hass: HomeAssistant, setup, trv: Fa
     assert "trv_mode" in codes
 
 
+async def test_dauer_preset_bei_offenem_fenster_ist_kein_fehler(hass: HomeAssistant, setup, trv: FakeTrv, monkeypatch) -> None:
+    """Bei Fensterpause schalten **wir** das Ventil aus – das darf kein Fehlalarm sein.
+
+    Vorher meldete die Gesundheitsliste bei jeder Lüftung „Thermostat steht auf Dauerbetrieb"
+    (Preset `off`, das wir selbst gesetzt haben) und der Problem-Sensor der Karte blieb rot.
+    """
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    trv.state = "off"
+    trv.set(preset_mode="off")
+
+    # Ohne Pause bleibt das Preset „off" ein Befund: das Gerät heizt dann gar nicht.
+    monkeypatch.setattr(type(ctrl), "paused", property(lambda self: False))
+    assert "trv_mode" in {i.code for i in ctrl.health_issues(dt_util.utcnow())}
+
+    # Mit Fensterpause ist genau dieses Preset gewollt – keine Meldung.
+    monkeypatch.setattr(type(ctrl), "paused", property(lambda self: True))
+    assert "trv_mode" not in {i.code for i in ctrl.health_issues(dt_util.utcnow())}
+
+
 async def test_ueberwachungsraum_hat_kein_ziel(hass: HomeAssistant, sensors) -> None:
     """Raum ohne Heizung: kein Ziel, keine Modi, kein Boost – aber Temperatur und Status Überwachung."""
     from custom_components.raumklima.const import STATUS_MONITOR

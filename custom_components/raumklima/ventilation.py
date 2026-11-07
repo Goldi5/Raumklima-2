@@ -146,6 +146,9 @@ class VentInput:
     pm25: float | None = None
     pm25_limit: float = PM25_LIMIT
     pm25_done: float = PM25_DONE
+    # Für **diesen** Lüftvorgang wurde bereits „Luft ausgetauscht" gemeldet – dann nicht
+    # nachträglich zum Schließen mahnen (der Manager setzt das je Fensteröffnung).
+    done_reported: bool = False
 
 
 def evaluate(v: VentInput) -> str:
@@ -156,7 +159,10 @@ def evaluate(v: VentInput) -> str:
                 return VENT_TOO_COLD
             if v.temp_at_open is not None and v.temp_at_open - v.room_temp >= v.max_drop:
                 return VENT_TOO_COLD
-        if v.open_minutes >= v.duration:
+        # Zeitgrenze nur, solange wir für diesen Lüftvorgang noch nicht „Luft ausgetauscht"
+        # gemeldet haben: sonst kommt eine Minute nach „du kannst schließen" die Mahnung
+        # „Fenster schließen" – und danach alle paar Minuten erneut.
+        if v.open_minutes >= v.duration and not v.done_reported:
             return VENT_PLEASE_CLOSE
         # Fertig erst, wenn die Luft auch wirklich ausgetauscht ist: Mindestdauer nach
         # Außentemperatur (Empfehlung) UND Feuchte/CO₂ im grünen Bereich.

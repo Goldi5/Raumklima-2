@@ -66,6 +66,19 @@ def test_window_states() -> None:
     assert evaluate(base(window_open=True, open_minutes=4, humidity=60)) == VENT_DONE
 
 
+def test_ausgetauschte_luft_mahnt_nicht_zum_schliessen() -> None:
+    """Nach „Luft ausgetauscht" im selben Lüftvorgang kein „Fenster schließen" mehr.
+
+    Vorher meldete die Integration „✅ Luft ausgetauscht – du kannst schließen" und eine
+    Minute später „🪟 Fenster schließen – Lüftzeit von 5 min erreicht", danach alle fünf
+    Minuten erneut.
+    """
+    assert evaluate(base(window_open=True, open_minutes=6)) == VENT_PLEASE_CLOSE
+    assert evaluate(base(window_open=True, open_minutes=6, done_reported=True)) == VENT_DONE
+    # Ohne brauchbare Luftwerte bleibt die Zeitgrenze zuständig (kein „fertig" ohne Messung).
+    assert evaluate(base(window_open=True, open_minutes=12, humidity=None)) == VENT_PLEASE_CLOSE
+
+
 def test_mindestdauer_verhindert_fruehes_fertig() -> None:
     """Feuchte schon gut, aber die Luft ist noch nicht ausgetauscht (Fühler am Fenster)."""
     # empfohlen 10 min (Winter) → mindestens 6 min

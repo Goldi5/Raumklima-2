@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.62.7b1 – 2026-11-07
+
+### Behoben
+
+- **Fensterpause wurde als Gerätefehler gemeldet.** Bei offenem Fenster schaltet die Integration
+  das Ventil selbst auf „aus" (Preset `off`). Die Gesundheitsprüfung sah nur das Preset und meldete
+  „Thermostat steht auf Dauerbetrieb" – mit Push und rotem Problem-Sensor an der Karte, obwohl
+  alles korrekt lief. Die Prüfung läuft jetzt nur, wenn wirklich geregelt wird (kein offenes
+  Fenster, keine Abwesenheit, keine Frostpause).
+- **„Fenster schließen" widersprach „Luft ausgetauscht".** War die Luft bereits ausgetauscht, kam
+  eine Minute später trotzdem „Lüftzeit von X min erreicht – bitte schließen", danach alle fünf
+  Minuten erneut. Jetzt mahnt der Zeit-Hinweis im selben Lüftvorgang nicht mehr, sobald
+  „du kannst schließen" schon verschickt wurde.
+
 ## 0.62.6b1 – 2026-11-07
 
 ### Behoben

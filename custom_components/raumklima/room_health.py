@@ -505,12 +505,18 @@ class HealthMixin:
                 sum(1 for t in self._unavail_events if now - t <= timedelta(hours=24)),
                 self.sync.state == "failed",
             ),
+            # Nur bei offenem Fenster ausblenden: dort schalten **wir** das Ventil auf „aus",
+            # und das ist kein Dauerbetrieb des Geräts. Nicht an `_regulating()` hängen – das
+            # schluckt auch den Fall, dass das Gerät selbst auf „off" steht, und genau der
+            # gehört gemeldet.
             check_trv_mode(
                 trv_state.state if trv_state else None,
                 (trv_state.attributes or {}).get("preset_mode") if trv_state else None,
                 device_preset=self.target_via == "comfort_temperature",
                 derived_preset=self._preset_is_derived(),
-            ),
+            )
+            if not self.paused
+            else None,
             check_setpoint_ignored(
                 self._setpoint_off_minutes(now),
                 self.trv_target,

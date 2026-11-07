@@ -125,6 +125,7 @@ class VentilationManager:
         self._long_notice_for: datetime | None = None  # Öffnung, für die „ich erinnere nicht mehr“ kam
         self._late_notice_for: datetime | None = None  # Öffnung, für die die Spät-Erinnerung kam
         self._repeat_count: dict[str, int] = {}
+        self._done_for: datetime | None = None  # Öffnung, für die „Luft ausgetauscht" kam
         self._night_alarm_sent = False
         self.live = LiveCountdown(self)
         self._last_shown: str | None = None
@@ -437,10 +438,15 @@ class VentilationManager:
                 min_minutes=self._min_minutes(),
                 pm25_high_minutes=pm_high_minutes,
                 high_delay_minutes=HIGH_DELAY_MINUTES,
+                done_reported=self._done_for is not None and self._done_for == self.window_open_since,
             )
         )
         changed = new != self.state
         self.state = new
+        if new == VENT_DONE:
+            # Merken, für welche Öffnung „du kannst schließen" schon raus ist – danach
+            # nicht mehr zum Schließen mahnen (Widerspruch, Issue-Fall Gästezimmer).
+            self._done_for = self.window_open_since
         if new == VENT_PLEASE_OPEN and changed:
             self.reason = self._current_reason()
         self._check_window_away()
