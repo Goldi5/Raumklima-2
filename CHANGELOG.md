@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.62.10b1 – 2026-11-07
+
+### Behoben
+
+- Die Diagnose meldete bei der CO₂-Grenze weiter den Standardwert 1000 ppm, auch wenn für den
+  Raum eine andere Grenze eingestellt war. Sie zeigt jetzt die geltende Grenze und den
+  eingestellten Tagesdeckel.
+
 ## 0.62.9b1 – 2026-11-07
 
 ### Neu

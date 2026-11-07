@@ -43,7 +43,6 @@ from .logic import in_airing_window, to_float
 from .msg import N_, dec, tr, weekday
 from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
 from .ventilation import (
-    CO2_LIMIT,
     DEFAULT_ROOM_TYPE,
     PM25_DONE,
     PM25_LIMIT,
@@ -310,7 +309,7 @@ class VentilationManager:
             minutes = (dt_util.utcnow() - self.pm25_high_since).total_seconds() / 60
             if minutes >= HIGH_DELAY_MINUTES:
                 return "pm25"
-        if (self.c.current_co2 or 0) >= CO2_LIMIT:
+        if (self.c.current_co2 or 0) >= self._co2_limit():
             return "co2"
         return "humidity"
 
@@ -871,7 +870,8 @@ class VentilationManager:
             "ventilation": shown,
             "ventilation_reason": self.reason if shown == VENT_PLEASE_OPEN else None,
             "co2": self.c.current_co2,
-            "co2_limit": CO2_LIMIT if self.c.co2_sensor else None,
+            "co2_limit": self._co2_limit() if self.c.co2_sensor else None,
+            "notify_cap": self._cap(),
             "pm25": self.c.current_pm25,
             "pm25_limit": PM25_LIMIT if self.c.pm25_sensor else None,
             "humidity_limit": self.humidity_limit,

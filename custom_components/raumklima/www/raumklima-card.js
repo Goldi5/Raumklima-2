@@ -1,4 +1,4 @@
-/* Raumklima 0.62.9b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.10b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1797,7 +1797,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.9b1";
+  var RK_VERSION = "0.62.10b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
