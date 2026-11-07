@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.61.1b1 – 2026-11-07
+
+### Behoben
+- **Einrichtungsdialog zeigte zwei Sprachen gemischt.** Im Auswahlfeld „Raumtyp" fehlten vier
+  Übersetzungen (`office`, `guest`, `hallway`, `gym`) — Home Assistant zeigt dann den rohen Schlüssel.
+  Deshalb stand da „Wohnraum, Küche … office, guest, hallway, gym". Ergänzt in de/en/fr, auch in
+  `strings.json`. „Flur" und „Sportzimmer" heißen jetzt, wie sie heißen.
+
+### Hinzugefügt
+- **Optik-Schalter `look: modern`** an beiden Karten (`raumklima-card`, `raumklima-overview-card`).
+  Ohne Angabe bleibt alles wie bisher. Mit `look: modern`: Verlauf pro Kachel statt Vollton, feine
+  Kontur, größere Ziffern, ein Panel hinter dem Raster, eigene Prozentsätze für den Dunkelmodus.
+  Aufteilung, Markup, Status und Logik sind unverändert — es ist ein reiner CSS-Block
+  (`MODERN_STYLES` in `shared.js`), den die Karten einhängen. So lassen sich beide Stile parallel
+  auf zwei Dashboards vergleichen, und ein Rückweg ist eine Zeile statt einer Version.
 ## 0.61.0b1 – 2026-11-07
 
 ### Behoben

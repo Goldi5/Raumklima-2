@@ -295,7 +295,11 @@
         "bedroom": "Chambre",
         "bathroom": "Salle de bain",
         "children": "Chambre d’enfant",
-        "rarely_used": "Peu utilisée (invités)"
+        "rarely_used": "Peu utilisée (invités)",
+        "office": "Bureau",
+        "guest": "Chambre d’amis",
+        "hallway": "Couloir",
+        "gym": "Salle de sport"
       }
     },
     "on_preset": {

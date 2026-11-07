@@ -1,4 +1,4 @@
-/* Raumklima 0.61.0b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.61.1b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1763,7 +1763,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.61.0b1";
+  var RK_VERSION = "0.61.1b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2682,6 +2682,42 @@
     if (!server || !own) return "";
     return String(server) === String(own) ? "" : String(server);
   }
+  function rkLook(config) {
+    return !!config && config.look === "modern";
+  }
+  var MODERN_STYLES = `
+  .modern { border-radius: 26px; }
+  /* Panel hinter dem Raster – gibt der Fläche Halt, ohne das Markup zu ändern */
+  .modern .rooms { gap: 12px; padding: 10px; border-radius: 24px;
+    background: color-mix(in srgb, var(--primary-text-color) 4%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .modern .room { container-type: inline-size; min-height: 140px; padding: 15px 16px; border-radius: 20px;
+    border: 1px solid color-mix(in srgb, var(--tone) 30%, transparent);
+    background:
+      radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 32%, transparent), transparent 68%),
+      color-mix(in srgb, var(--primary-text-color) 4%, var(--ha-card-background, var(--card-background-color))); }
+  .modern .room:hover { transform: translateY(-3px);
+    box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--tone) 70%, transparent);
+    background:
+      radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 42%, transparent), transparent 72%),
+      color-mix(in srgb, var(--primary-text-color) 5%, var(--ha-card-background, var(--card-background-color))); }
+  .modern .dot { border-radius: 14px; background: color-mix(in srgb, var(--tone) 18%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 22%, transparent); }
+  .modern .rn { font-size: 1.03rem; letter-spacing: -.015em; }
+  .modern .rt { font-size: clamp(1.9rem, 22cqw, 3rem); letter-spacing: -.05em; }
+  .modern .rmeta { font-size: .76rem; }
+  /* Raumkarte: gleiche Sprache, ohne die Aufteilung anzufassen */
+  .modern .name { font-size: 1.22rem; letter-spacing: -.02em; }
+  .modern .stat { border-radius: 16px; background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .modern .stat .v { font-weight: 300; letter-spacing: -.03em; }
+  /* Auf dunklem Grund verschluckt die Fläche die Tönung – dort kräftiger mischen */
+  @media (prefers-color-scheme: dark) {
+    .modern .room,
+    .modern .room:hover { background:
+      radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 46%, transparent), transparent 70%),
+      color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color))); }
+  }
+`;
 
   // src/cards/room.js
   var RaumklimaCard = class extends HTMLElement {
@@ -2895,8 +2931,8 @@
       const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
       const calOff = a.offset != null ? a.offset : a.offset_auto;
       const trvNote = !mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? calOff != null && Math.abs(calOff) >= 0.1 ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) }) : t("Thermostat {v}°", { v: fmt(a.trv_target) }) : "";
-      this._html = `<style>${STYLES}</style>
-      <ha-card class="rcard" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
+      this._html = `<style>${STYLES}${rkLook(this._config) ? MODERN_STYLES : ""}</style>
+      <ha-card class="rcard${rkLook(this._config) ? " modern" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
@@ -3091,7 +3127,7 @@
         </div>
       </div>`;
       };
-      this._html = `<style>${STYLES}
+      this._html = `<style>${STYLES}${rkLook(this._config) ? MODERN_STYLES : ""}
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }
@@ -3126,7 +3162,7 @@
       .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }
       .rmeta b { color: var(--st); font-weight:650; }
     </style>
-    <ha-card style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
+    <ha-card class="${rkLook(this._config) ? "modern" : ""}" style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>

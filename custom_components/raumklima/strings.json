@@ -295,7 +295,11 @@
         "bedroom": "Bedroom",
         "bathroom": "Bathroom",
         "children": "Children's room",
-        "rarely_used": "Rarely used (guests)"
+        "rarely_used": "Rarely used (guests)",
+        "office": "Office",
+        "guest": "Guest room",
+        "hallway": "Hallway",
+        "gym": "Gym"
       }
     },
     "on_preset": {

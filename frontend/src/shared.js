@@ -1022,3 +1022,45 @@ export function rkVersionMismatch(cfg, own) {
   if (!server || !own) return "";
   return String(server) === String(own) ? "" : String(server);
 }
+
+// ---------------------------------------------------------------- Look „modern"
+// Nur Optik: Verlauf pro Kachel, Kontur, größere Ziffern, ruhigere Flächen.
+// Markup, Logik und Aufteilung bleiben gleich – deshalb ein reiner CSS-Block,
+// den die Karten nur einhängen, wenn `look: modern` gesetzt ist.
+export function rkLook(config) {
+  return !!config && config.look === "modern";
+}
+
+export const MODERN_STYLES = `
+  .modern { border-radius: 26px; }
+  /* Panel hinter dem Raster – gibt der Fläche Halt, ohne das Markup zu ändern */
+  .modern .rooms { gap: 12px; padding: 10px; border-radius: 24px;
+    background: color-mix(in srgb, var(--primary-text-color) 4%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .modern .room { container-type: inline-size; min-height: 140px; padding: 15px 16px; border-radius: 20px;
+    border: 1px solid color-mix(in srgb, var(--tone) 30%, transparent);
+    background:
+      radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 32%, transparent), transparent 68%),
+      color-mix(in srgb, var(--primary-text-color) 4%, var(--ha-card-background, var(--card-background-color))); }
+  .modern .room:hover { transform: translateY(-3px);
+    box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--tone) 70%, transparent);
+    background:
+      radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 42%, transparent), transparent 72%),
+      color-mix(in srgb, var(--primary-text-color) 5%, var(--ha-card-background, var(--card-background-color))); }
+  .modern .dot { border-radius: 14px; background: color-mix(in srgb, var(--tone) 18%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 22%, transparent); }
+  .modern .rn { font-size: 1.03rem; letter-spacing: -.015em; }
+  .modern .rt { font-size: clamp(1.9rem, 22cqw, 3rem); letter-spacing: -.05em; }
+  .modern .rmeta { font-size: .76rem; }
+  /* Raumkarte: gleiche Sprache, ohne die Aufteilung anzufassen */
+  .modern .name { font-size: 1.22rem; letter-spacing: -.02em; }
+  .modern .stat { border-radius: 16px; background: color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .modern .stat .v { font-weight: 300; letter-spacing: -.03em; }
+  /* Auf dunklem Grund verschluckt die Fläche die Tönung – dort kräftiger mischen */
+  @media (prefers-color-scheme: dark) {
+    .modern .room,
+    .modern .room:hover { background:
+      radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 46%, transparent), transparent 70%),
+      color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color))); }
+  }
+`;

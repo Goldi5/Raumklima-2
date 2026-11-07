@@ -295,7 +295,11 @@
         "bedroom": "Schlafzimmer",
         "bathroom": "Bad",
         "children": "Kinderzimmer",
-        "rarely_used": "Selten genutzt (Gäste)"
+        "rarely_used": "Selten genutzt (Gäste)",
+        "office": "Arbeitszimmer",
+        "guest": "Gästezimmer",
+        "hallway": "Flur",
+        "gym": "Sportzimmer"
       }
     },
     "on_preset": {
