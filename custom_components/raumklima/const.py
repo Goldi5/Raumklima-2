@@ -328,6 +328,20 @@ CONF_ON_PRESET: Final = "on_preset"
 CONF_TRV_INTERVAL: Final = "trv_interval"
 TRV_INTERVAL_OPTIONS = [0, 1, 5, 15, 30]
 
+# CO₂-Grenze je Raum. 1000 ppm (Pettenkofer) ist für einen Wohnraum mit mehreren Personen zu
+# streng: dort liegt man abends dauerhaft darüber und bekommt die Erinnerung im 30-Minuten-Takt.
+CONF_CO2_LIMIT: Final = "co2_limit"
+CO2_LIMIT_OPTIONS = [800, 1000, 1200, 1500]
+CO2_LIMIT_DEFAULT: Final = 1000
+
+# Wie oft darf dieselbe wiederkehrende Meldung pro Raum und Tag kommen? (0 = unbegrenzt)
+# Betrifft nur Sorten, die sich wiederholen, ohne dass etwas Neues passiert – „Fenster schließen"
+# und „Luft ausgetauscht" hängen an einer echten Fensteröffnung und bleiben ungedeckelt.
+CONF_NOTIFY_CAP: Final = "notify_cap"
+NOTIFY_CAP_OPTIONS = [0, 2, 3, 5, 10]
+NOTIFY_CAP_DEFAULT: Final = 3
+NOTIFY_CAPPED_KINDS: Final = (KIND_VENT_OPEN, KIND_WINDOW_AWAY)
+
 CONF_REPORT_METRIC: Final = "report_metric"
 REPORT_METRICS: Final = ["auto", "valve", "deficit", "hours"]  # auto = Ventil, sonst Gradstunden
 REPORT_METRIC_DEFAULT: Final = "auto"

@@ -12,13 +12,16 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CO2_LIMIT_DEFAULT,
     CONF_AIRING_OCCUPIED_ONLY,
     CONF_AIRING_WINDOWS,
+    CONF_CO2_LIMIT,
     CONF_HUMIDITY_SENSOR,
     CONF_LEARN_AIRING,
     CONF_LONG_AIRING,
     CONF_LONG_AIRING_REMIND,
     CONF_NIGHT_ALARM,
+    CONF_NOTIFY_CAP,
     CONF_NOTIFY_TARGETS,
     CONF_QUIET_END,
     CONF_QUIET_START,
@@ -32,6 +35,8 @@ from .const import (
     KIND_VENT_OPEN,
     KIND_WINDOW_AWAY,
     NOTIFY_ACTION_EVENT,
+    NOTIFY_CAP_DEFAULT,
+    NOTIFY_CAPPED_KINDS,
 )
 from .live_activity import LiveCountdown
 from .logic import in_airing_window, to_float
@@ -126,6 +131,8 @@ class VentilationManager:
         self._late_notice_for: datetime | None = None  # Öffnung, für die die Spät-Erinnerung kam
         self._repeat_count: dict[str, int] = {}
         self._done_for: datetime | None = None  # Öffnung, für die „Luft ausgetauscht" kam
+        # Tagesdeckel: {Sorte: ("JJJJ-MM-TT", Anzahl)} – verhindert Dauerfeuer bei gleichbleibendem Zustand.
+        self._sent_today: dict[str, tuple[str, int]] = {}
         self._night_alarm_sent = False
         self.live = LiveCountdown(self)
         self._last_shown: str | None = None
@@ -148,6 +155,13 @@ class VentilationManager:
         self._restored_since = dt_util.parse_datetime(stored.get("window_open_since") or "")
         self.snooze_until = dt_util.parse_datetime(stored.get("snoozed_until") or "")
         self.muted_until = dt_util.parse_datetime(stored.get("muted_until") or "")
+        raw = stored.get("sent_today") or {}
+        if isinstance(raw, dict):
+            self._sent_today = {
+                str(k): (str(v[0]), int(v[1]))
+                for k, v in raw.items()
+                if isinstance(v, (list, tuple)) and len(v) == 2
+            }
         reason = stored.get("airing_reason")
         self._airing_reason = reason if reason in ("co2", "pm25", "humidity") else None
 
@@ -189,6 +203,37 @@ class VentilationManager:
     def _room_opt(self, key: str, fallback: Any) -> Any:
         value = self._cfg.get(key)
         return fallback if value in (None, "") else value
+
+    def _co2_limit(self) -> float:
+        """CO₂-Grenze dieses Raums (Standard 1000 ppm)."""
+        value = self._room_opt(CONF_CO2_LIMIT, CO2_LIMIT_DEFAULT)
+        try:
+            limit = float(value)
+        except (TypeError, ValueError):
+            return float(CO2_LIMIT_DEFAULT)
+        return limit if 400 <= limit <= 3000 else float(CO2_LIMIT_DEFAULT)
+
+    def _cap(self) -> int:
+        """Wie viele wiederkehrende Meldungen dieser Raum pro Tag bekommen darf (0 = alle)."""
+        value = self._room_opt(CONF_NOTIFY_CAP, NOTIFY_CAP_DEFAULT)
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return NOTIFY_CAP_DEFAULT
+
+    def _cap_reached(self, kind: str, now: datetime) -> bool:
+        """Tagesdeckel für Sorten, die sich ohne neues Ereignis wiederholen."""
+        cap = self._cap()
+        if cap <= 0 or KIND_OF.get(kind) not in NOTIFY_CAPPED_KINDS:
+            return False
+        day, count = self._sent_today.get(kind, ("", 0))
+        return day == now.date().isoformat() and count >= cap
+
+    def _count_sent(self, kind: str, now: datetime) -> None:
+        day = now.date().isoformat()
+        old_day, count = self._sent_today.get(kind, ("", 0))
+        self._sent_today[kind] = (day, (count if old_day == day else 0) + 1)
+        self.c.save()
 
     @property
     def long_airing_minutes(self) -> float:
@@ -287,6 +332,7 @@ class VentilationManager:
             "snoozed_until": self.snooze_until.isoformat() if self.snooze_until else None,
             "muted_until": self.muted_until.isoformat() if self.muted_until else None,
             "airing_reason": self._airing_reason,
+            "sent_today": {k: [d, n] for k, (d, n) in self._sent_today.items()},
         }
 
     # ------------------------------------------------------------ Messwerte
@@ -434,6 +480,7 @@ class VentilationManager:
                 duration=self.duration,
                 dries=self.dries,
                 co2=self.c.current_co2,
+                co2_limit=self._co2_limit(),
                 pm25=self.c.current_pm25,
                 min_minutes=self._min_minutes(),
                 pm25_high_minutes=pm_high_minutes,
@@ -611,6 +658,8 @@ class VentilationManager:
             # Gilt für jede Meldung, die den Knopf anbietet – auch für „Raum kühlt aus".
             # Die harte Nachtwarnung schickt der Aufrufer an dieser Stelle vorbei.
             return
+        if self._cap_reached(kind, now):
+            return  # Tagesdeckel erreicht – der Zustand bleibt, die Erinnerung schweigt
         last = self._last_sent.get(kind)
         if kind == VENT_DONE:
             if last and self.window_open_since and last > self.window_open_since:
@@ -628,6 +677,7 @@ class VentilationManager:
         elif last and not changed and now - last < timedelta(minutes=self.repeat_minutes):
             return
         self._last_sent[kind] = now
+        self._count_sent(kind, now)
         count = self._repeat_count.get(kind, 0)
         calm = kind == VENT_TOO_COLD and count >= TOO_COLD_LOUD
         self._repeat_count[kind] = count + 1

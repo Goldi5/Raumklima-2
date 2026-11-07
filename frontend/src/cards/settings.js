@@ -1184,6 +1184,18 @@ export class RaumklimaSettingsCard extends HTMLElement {
       ${this._lightGroup(r, id, editable)}
       ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
+        this._row(
+          "Höchstens je Tag",
+          editable
+            ? this._select(
+                scope,
+                "notify_cap",
+                [0, 2, 3, 5, 10].map((v) => ({ id: String(v), name: v === 0 ? t("unbegrenzt") : t("{n} je Tag", { n: v }) })),
+                String(this._roomOpt(r, "notify_cap") ?? 3)
+              )
+            : this._v(this._roomOpt(r, "notify_cap") === 0 ? t("unbegrenzt") : t("{n} je Tag", { n: this._roomOpt(r, "notify_cap") ?? 3 })),
+          t("gilt für wiederkehrende Hinweise (Bitte lüften, Fenster bleibt offen) – Fenster schließen und Luft ausgetauscht bleiben frei")
+        ),
         this._row("Empfänger", push.length ? `<div class="chips">${push.map((tg) => `<span class="chip2"><i></i>${esc(rkPretty(tg))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was"),
       ].join(""))}
       ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
@@ -1214,7 +1226,19 @@ export class RaumklimaSettingsCard extends HTMLElement {
         ),
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
-        this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? "ab 1000 ppm: „Bitte lüften“" : ""),
+        this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("ab der Grenze unten: Bitte lüften") : ""),
+        this._row(
+          "CO₂-Grenze",
+          editable
+            ? this._select(
+                scope,
+                "co2_limit",
+                [800, 1000, 1200, 1500].map((v) => ({ id: String(v), name: `${v} ppm` })),
+                String(this._roomOpt(r, "co2_limit") ?? 1000)
+              )
+            : this._v(`${this._roomOpt(r, "co2_limit") ?? 1000} ppm`),
+          t("1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer")
+        ),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"),
         s.calibration_mode === "target"

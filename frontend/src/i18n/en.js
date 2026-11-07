@@ -1,6 +1,13 @@
 // Englische Texte der Karten. Schlüssel = deutscher Text (siehe i18n.js).
 // Neue Texte: node test/extract.mjs listet alle Schlüssel, npm test meldet fehlende.
 export const EN = {
+  "Höchstens je Tag": "At most per day",
+  "unbegrenzt": "unlimited",
+  "{n} je Tag": "{n} per day",
+  "gilt für wiederkehrende Hinweise (Bitte lüften, Fenster bleibt offen) – Fenster schließen und Luft ausgetauscht bleiben frei": "applies to recurring hints (please air, window stays open) – close the window and air exchanged stay unlimited",
+  "CO₂-Grenze": "CO₂ threshold",
+  "1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer": "1000 ppm is the classic guideline – a living room with several people sits above it all evening, 1200 ppm is more realistic there",
+  "ab der Grenze unten: Bitte lüften": "above the threshold below: please air",
   "Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen": "Could not create it – please check Settings → Dashboards",
   "Breite": "Latitude",
   "Dashboard mit der Raumklima-Strategie anlegen": "Create dashboard with the Raumklima strategy",

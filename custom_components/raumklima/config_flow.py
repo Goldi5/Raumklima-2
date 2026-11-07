@@ -42,10 +42,13 @@ from .const import (
     CAL_OFFSET,
     CAL_TARGET,
     CALIBRATION_MODES,
+    CO2_LIMIT_DEFAULT,
+    CO2_LIMIT_OPTIONS,
     CONF_AWAY_DELAY,
     CONF_BUILDING,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
+    CONF_CO2_LIMIT,
     CONF_CO2_SENSOR,
     CONF_COLD_SNAP_TEMP,
     CONF_COMFORT_TEMP,
@@ -60,6 +63,7 @@ from .const import (
     CONF_LOOK_DARK,
     CONF_NAME,
     CONF_NOTIFY,
+    CONF_NOTIFY_CAP,
     CONF_OFF_METHOD,
     CONF_OFFSET_MIN_INTERVAL,
     CONF_OFFSET_THRESHOLD,
@@ -97,6 +101,8 @@ from .const import (
     KIND_LIVE,
     KINDS,
     LOOK_DARK_MODES,
+    NOTIFY_CAP_DEFAULT,
+    NOTIFY_CAP_OPTIONS,
     OFF_METHODS,
     ON_PRESET_AUTO,
     ROOM_TYPE_OPTIONS,
@@ -319,6 +325,14 @@ def _room_schema(defaults: dict[str, Any], presets: list[str]) -> vol.Schema:
             vol.Optional(
                 CONF_TRV_INTERVAL, default=defaults.get(CONF_TRV_INTERVAL) or 0
             ): vol.In(TRV_INTERVAL_OPTIONS),
+            vol.Optional(
+                CONF_CO2_LIMIT, default=defaults.get(CONF_CO2_LIMIT) or CO2_LIMIT_DEFAULT
+            ): vol.In(CO2_LIMIT_OPTIONS),
+            vol.Optional(
+                CONF_NOTIFY_CAP, default=defaults.get(CONF_NOTIFY_CAP)
+                if defaults.get(CONF_NOTIFY_CAP) is not None
+                else NOTIFY_CAP_DEFAULT
+            ): vol.In(NOTIFY_CAP_OPTIONS),
             vol.Optional(
                 CONF_COMFORT_TEMP, description=_suggest(defaults.get(CONF_COMFORT_TEMP))
             ): _number(12, 26, 0.5, "°C"),

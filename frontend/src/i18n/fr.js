@@ -1,6 +1,13 @@
 // Textes français des cartes. Clé = texte allemand (voir i18n.js).
 // Traduction initiale – corrections bienvenues via une issue GitHub.
 export const FR = {
+  "Höchstens je Tag": "Au maximum par jour",
+  "unbegrenzt": "illimité",
+  "{n} je Tag": "{n} par jour",
+  "gilt für wiederkehrende Hinweise (Bitte lüften, Fenster bleibt offen) – Fenster schließen und Luft ausgetauscht bleiben frei": "vaut pour les rappels récurrents (aérer, fenêtre reste ouverte) – fermer la fenêtre et air renouvelé restent sans limite",
+  "CO₂-Grenze": "Seuil de CO₂",
+  "1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer": "1000 ppm est la valeur de référence classique – dans un salon avec plusieurs personnes on la dépasse toute la soirée, 1200 ppm y sont plus réalistes",
+  "ab der Grenze unten: Bitte lüften": "au-dessus du seuil ci-dessous : aérer",
   "Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen": "Création impossible – vérifie Réglages → Tableaux de bord",
   "Breite": "Latitude",
   "Dashboard mit der Raumklima-Strategie anlegen": "Créer le tableau de bord avec la stratégie Raumklima",

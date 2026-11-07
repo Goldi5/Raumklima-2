@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.62.9b1 – 2026-11-07
+
+### Neu
+
+- **Tagesdeckel je Raum** (*Einstellungen → Benachrichtigungen*): „Bitte lüften" und
+  „Fenster bleibt offen" wiederholten sich im 30-Minuten-Takt, solange der Zustand anhielt – in
+  einem Raum kamen so 87 Meldungen in zwei Tagen zusammen. Jetzt gilt ein Deckel (Standard 3 je
+  Raum und Tag, einstellbar 0/2/3/5/10, 0 = unbegrenzt). „Fenster schließen" und
+  „Luft ausgetauscht" hängen an einer echten Fensteröffnung und bleiben ungedeckelt. Der Deckel
+  wird gespeichert und übersteht einen Neustart.
+- **CO₂-Grenze je Raum** (*Einstellungen → Thermostat & Fühler*): 1000 ppm ist der klassische
+  Richtwert, in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber.
+  Wählbar 800 / 1000 / 1200 / 1500 ppm, Standard bleibt 1000 ppm.
+
 ## 0.62.8b1 – 2026-11-07
 
 ### Behoben
