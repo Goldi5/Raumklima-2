@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.59.41b1 – 2026-11-07
+
+### Geändert
+- **Ventilkachel färbt nach Heizzustand, nicht nach Prozentwert.** Viele Geräte lassen das Ventil im
+  Leerlauf 2–6 % offen (Ventilschutz: Bosch SHc, Livisi VRCC, Homematic). Bei „Temperatur erreicht"
+  sah die orange Kachel dadurch aus wie „heizt noch". Die Farbe folgt jetzt `hvac_action`
+  (`heating` = orange, sonst neutral); die Zahl bleibt unverändert sichtbar. Ohne `hvac_action`
+  bleibt es beim alten Verhalten.
 ## 0.59.40b1 – 2026-11-07
 
 ### Hinzugefügt
