@@ -1,4 +1,4 @@
-/* Raumklima 0.61.1b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.61.2b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1763,7 +1763,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.61.1b1";
+  var RK_VERSION = "0.61.2b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2683,7 +2683,11 @@
     return String(server) === String(own) ? "" : String(server);
   }
   function rkLook(config) {
-    return !!config && config.look === "modern";
+    const look = config && config.look;
+    return look === "modern" || look === "glass" ? look : "classic";
+  }
+  function rkLookStyles(look) {
+    return look === "modern" ? MODERN_STYLES : look === "glass" ? GLASS_STYLES : "";
   }
   var MODERN_STYLES = `
   .modern { border-radius: 26px; }
@@ -2716,6 +2720,36 @@
     .modern .room:hover { background:
       radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 46%, transparent), transparent 70%),
       color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color))); }
+  }
+`;
+  var GLASS_STYLES = `
+  .glass { border-radius: 28px; border: 1px solid color-mix(in srgb, #fff 26%, transparent);
+    background: color-mix(in srgb, var(--ha-card-background, #fff) 42%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+    box-shadow: 0 18px 40px -28px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.28); }
+  .glass .rooms { gap: 12px; padding: 10px; border-radius: 24px;
+    background: color-mix(in srgb, #fff 10%, transparent); border: 1px solid color-mix(in srgb, #fff 18%, transparent); }
+  .glass .room { container-type: inline-size; min-height: 140px; padding: 15px 16px; border-radius: 22px;
+    border: 1px solid color-mix(in srgb, #fff 30%, transparent);
+    background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 34%, transparent), color-mix(in srgb, #fff 10%, transparent) 62%);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+  .glass .room:hover { transform: translateY(-3px);
+    box-shadow: 0 20px 38px -26px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.4); }
+  .glass .dot { border-radius: 14px; background: color-mix(in srgb, #fff 22%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 30%, transparent); }
+  .glass .rn { font-size: 1.03rem; letter-spacing: -.015em; }
+  .glass .rt { font-size: clamp(1.9rem, 22cqw, 3rem); letter-spacing: -.05em; }
+  .glass .chip, .glass .hm { background: color-mix(in srgb, #fff 18%, transparent); }
+  .glass .name { font-size: 1.22rem; letter-spacing: -.02em; }
+  .glass .stat { border-radius: 18px; background: color-mix(in srgb, #fff 12%, transparent);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+  .glass .stat .v { font-weight: 300; letter-spacing: -.03em; }
+  @media (prefers-color-scheme: dark) {
+    .glass { background: color-mix(in srgb, #14181f 55%, transparent); border-color: color-mix(in srgb, #fff 16%, transparent); }
+    .glass .room { background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 40%, transparent), color-mix(in srgb, #fff 6%, transparent) 62%);
+      border-color: color-mix(in srgb, #fff 20%, transparent); }
+    .glass .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
   }
 `;
 
@@ -2931,8 +2965,8 @@
       const wlogic = sib.window_logic ? this._hass.states[sib.window_logic] : null;
       const calOff = a.offset != null ? a.offset : a.offset_auto;
       const trvNote = !mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? calOff != null && Math.abs(calOff) >= 0.1 ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) }) : t("Thermostat {v}°", { v: fmt(a.trv_target) }) : "";
-      this._html = `<style>${STYLES}${rkLook(this._config) ? MODERN_STYLES : ""}</style>
-      <ha-card class="rcard${rkLook(this._config) ? " modern" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
+      this._html = `<style>${STYLES}${rkLookStyles(rkLook(this._config))}</style>
+      <ha-card class="rcard ${rkLook(this._config) === "classic" ? "" : rkLook(this._config)}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
@@ -3127,7 +3161,7 @@
         </div>
       </div>`;
       };
-      this._html = `<style>${STYLES}${rkLook(this._config) ? MODERN_STYLES : ""}
+      this._html = `<style>${STYLES}${rkLookStyles(rkLook(this._config))}
       .head { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
       .title { font-size:1.5rem; font-weight:650; letter-spacing:-.02em; color:var(--primary-text-color); }
       .sub { color:var(--secondary-text-color); font-size:.9rem; margin-top:2px; }
@@ -3162,7 +3196,7 @@
       .rmeta { text-align:right; font-size:.78rem; color:var(--secondary-text-color); display:flex; flex-direction:column; gap:2px; }
       .rmeta b { color: var(--st); font-weight:650; }
     </style>
-    <ha-card class="${rkLook(this._config) ? "modern" : ""}" style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
+    <ha-card class="${rkLook(this._config) === "classic" ? "" : rkLook(this._config)}" style="--tone:${toneVar(warn ? "warn" : heating ? "heat" : "ok")}">
       ${homeBar}
       <div class="head">
         <div style="flex:1;min-width:0"><div class="title">${this._config.title || t("Heizung")}</div>

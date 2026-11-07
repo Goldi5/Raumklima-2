@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.61.2b1 – 2026-11-07
+
+### Hinzugefügt
+- **Dritter Look `look: glass`** – Glas-Optik nach iOS: halbtransparente Flächen mit
+  `backdrop-filter`, feine helle Kanten, Verlauf von der Kachelfarbe. Braucht einen Hintergrund
+  zum Durchscheinen (im Theme `lovelace-background`), sonst wirkt es nur flau. Wieder reines CSS auf
+  demselben Markup; `look: modern` bleibt unverändert.
+- **`rkLook`/`rkLookStyles`** in `shared.js` bündeln die Auswahl: `classic` (Standard), `modern`,
+  `glass`. Eine Stelle für alle Karten, damit sie nicht auseinanderlaufen – der Test prüft alle drei
+  Werte und dass jeder Stil-Block die Struktur unangetastet lässt.
 ## 0.61.1b1 – 2026-11-07
 
 ### Behoben

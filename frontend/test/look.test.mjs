@@ -5,13 +5,17 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { MODERN_STYLES, rkLook } from "../src/shared.js";
+import { GLASS_STYLES, MODERN_STYLES, rkLook, rkLookStyles } from "../src/shared.js";
 
-test('rkLook schaltet nur auf «modern»', () => {
-  assert.equal(rkLook({ look: "modern" }), true);
-  assert.equal(rkLook({}), false);
-  assert.equal(rkLook(null), false);
-  assert.equal(rkLook({ look: "klassisch" }), false);
+test('rkLook kennt genau drei Looks', () => {
+  assert.equal(rkLook({ look: "modern" }), "modern");
+  assert.equal(rkLook({ look: "glass" }), "glass");
+  assert.equal(rkLook({}), "classic");
+  assert.equal(rkLook(null), "classic");
+  assert.equal(rkLook({ look: "irgendwas" }), "classic");
+  assert.equal(rkLookStyles("classic"), "");
+  assert.equal(rkLookStyles("modern"), MODERN_STYLES);
+  assert.equal(rkLookStyles("glass"), GLASS_STYLES);
 });
 
 test('MODERN_STYLES ändert keine Struktur, nur Fläche und Schrift', () => {
@@ -21,11 +25,17 @@ test('MODERN_STYLES ändert keine Struktur, nur Fläche und Schrift', () => {
   assert.ok(MODERN_STYLES.includes("prefers-color-scheme"));
 });
 
+test('GLASS_STYLES ist Glas, kein Vollton', () => {
+  assert.ok(GLASS_STYLES.includes("backdrop-filter"));
+  assert.ok(/\b(border-radius|box-shadow)\s*:/.test(GLASS_STYLES));
+  assert.ok(!/display\s*:\s*grid/.test(GLASS_STYLES));
+});
+
 for (const file of ["overview.js", "room.js"]) {
   test(`${file} hängt den Look ein`, () => {
     const src = readFileSync(new URL(`../src/cards/${file}`, import.meta.url), "utf8");
-    assert.ok(src.includes("MODERN_STYLES"), "MODERN_STYLES fehlt im Import/Brauch");
-    assert.ok(/rkLook\(this\._config\)/.test(src), "rkLook wird nicht ausgewertet");
-    assert.ok(/MODERN_STYLES\s*:\s*""/.test(src), "Stil wird nicht bedingt eingehängt");
+    assert.ok(src.includes("rkLookStyles"), "rkLookStyles fehlt im Import");
+    assert.ok(/rkLookStyles\(rkLook\(this\._config\)\)/.test(src), "Stil wird nicht an den Look gebunden");
+    assert.ok(/= ?"classic" \? "" : rkLook/.test(src), "Klasse folgt nicht dem Look");
   });
 }

@@ -1028,7 +1028,13 @@ export function rkVersionMismatch(cfg, own) {
 // Markup, Logik und Aufteilung bleiben gleich – deshalb ein reiner CSS-Block,
 // den die Karten nur einhängen, wenn `look: modern` gesetzt ist.
 export function rkLook(config) {
-  return !!config && config.look === "modern";
+  const look = config && config.look;
+  return look === "modern" || look === "glass" ? look : "classic";
+}
+
+/** Stil-Block zu einem Look – leer für „classic". */
+export function rkLookStyles(look) {
+  return look === "modern" ? MODERN_STYLES : look === "glass" ? GLASS_STYLES : "";
 }
 
 export const MODERN_STYLES = `
@@ -1062,5 +1068,40 @@ export const MODERN_STYLES = `
     .modern .room:hover { background:
       radial-gradient(120% 110% at 18% 0%, color-mix(in srgb, var(--tone) 46%, transparent), transparent 70%),
       color-mix(in srgb, var(--primary-text-color) 6%, var(--ha-card-background, var(--card-background-color))); }
+  }
+`;
+
+// ---------------------------------------------------------------- Look „glass"
+// Glas-Optik (iOS): halbtransparente Flächen, Weichzeichner dahinter, feine helle Kanten.
+// Braucht etwas Hintergrund zum Durchscheinen – im Theme `lovelace-background` setzen,
+// sonst wirkt es nur flau. Markup bleibt identisch, es ist wieder nur CSS.
+export const GLASS_STYLES = `
+  .glass { border-radius: 28px; border: 1px solid color-mix(in srgb, #fff 26%, transparent);
+    background: color-mix(in srgb, var(--ha-card-background, #fff) 42%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+    box-shadow: 0 18px 40px -28px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.28); }
+  .glass .rooms { gap: 12px; padding: 10px; border-radius: 24px;
+    background: color-mix(in srgb, #fff 10%, transparent); border: 1px solid color-mix(in srgb, #fff 18%, transparent); }
+  .glass .room { container-type: inline-size; min-height: 140px; padding: 15px 16px; border-radius: 22px;
+    border: 1px solid color-mix(in srgb, #fff 30%, transparent);
+    background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 34%, transparent), color-mix(in srgb, #fff 10%, transparent) 62%);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+  .glass .room:hover { transform: translateY(-3px);
+    box-shadow: 0 20px 38px -26px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.4); }
+  .glass .dot { border-radius: 14px; background: color-mix(in srgb, #fff 22%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 30%, transparent); }
+  .glass .rn { font-size: 1.03rem; letter-spacing: -.015em; }
+  .glass .rt { font-size: clamp(1.9rem, 22cqw, 3rem); letter-spacing: -.05em; }
+  .glass .chip, .glass .hm { background: color-mix(in srgb, #fff 18%, transparent); }
+  .glass .name { font-size: 1.22rem; letter-spacing: -.02em; }
+  .glass .stat { border-radius: 18px; background: color-mix(in srgb, #fff 12%, transparent);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+  .glass .stat .v { font-weight: 300; letter-spacing: -.03em; }
+  @media (prefers-color-scheme: dark) {
+    .glass { background: color-mix(in srgb, #14181f 55%, transparent); border-color: color-mix(in srgb, #fff 16%, transparent); }
+    .glass .room { background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 40%, transparent), color-mix(in srgb, #fff 6%, transparent) 62%);
+      border-color: color-mix(in srgb, #fff 20%, transparent); }
+    .glass .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
   }
 `;
