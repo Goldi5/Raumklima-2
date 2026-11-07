@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.59.34b1 – 2026-11-07
+
+### Behoben
+- **Karte neu gebaut:** In 0.59.33b1 trug das Bündel noch den Banner der Vorgängerversion (Versionssprung
+  ohne `npm run build`) – die Übersicht hätte die falsche Version gezeigt.
 ## 0.59.33b1 – 2026-11-07
 
 ### Behoben
