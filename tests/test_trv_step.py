@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from custom_components.raumklima.logic import (
     calc_target_setpoint,
+    compensated_shift,
     device_step,
     round_device,
     setpoint_tolerance,
@@ -54,3 +55,17 @@ def test_bestaetigung_klappt_mit_der_richtigen_toleranz() -> None:
     """21,5 gewünscht, Gerät antwortet 22,0: mit 0,25 K nie bestätigt, mit 0,5 K schon."""
     assert values_match(22.0, 21.5, 0.25) is False
     assert values_match(22.0, 21.5, setpoint_tolerance(1.0, 0.25)) is True
+
+
+def test_kein_abschlag_solange_der_raum_zu_kalt_ist() -> None:
+    """#31: Bei kaltem Raum ist „Sollwert senken" immer falsch — es verzögert nur das Aufheizen."""
+    assert compensated_shift(-1.5, 21.0, 18.0) == 0.0
+    # knapp unter dem Ziel zählt der Abschlag weiter (Überhitzungsschutz)
+    assert compensated_shift(-0.5, 21.0, 20.9) == -0.5
+    # am Ziel und darüber gilt er
+    assert compensated_shift(-1.5, 21.0, 21.0) == -1.5
+    assert compensated_shift(-1.5, 21.0, 22.0) == -1.5
+    # Aufschläge sind nie betroffen
+    assert compensated_shift(1.0, 21.0, 18.0) == 1.0
+    # ohne Raumwert nicht raten
+    assert compensated_shift(-1.0, 21.0, None) == -1.0

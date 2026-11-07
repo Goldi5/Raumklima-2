@@ -49,6 +49,7 @@ from .logic import (
     calc_offset,
     choose_on_preset,
     clamp,
+    compensated_shift,
     device_step,
     is_valid,
     round_device,
@@ -106,6 +107,10 @@ class TrvMixin:
     def trv_temperature(self) -> float | None:
         """Vom TRV gemeldete Ist-Temperatur (inkl. Offset)."""
         return to_float(self._trv_attr("current_temperature"))
+
+    def _shift_for(self, target: float) -> float:
+        """Anzuwendender Abgleich – beim Aufheizen nicht bremsen."""
+        return compensated_shift(self.shift, target, self.current_temperature)
 
     @property
     def trv_step(self) -> float:
@@ -296,7 +301,9 @@ class TrvMixin:
         target = self.effective_target
         if self.cal_mode == CAL_TARGET:
             # Gelernten Abgleich immer anwenden – nicht nur, wenn gerade ein Messwert eintrifft.
-            return clamp(round_device(target + self.shift, self.trv_step), self.trv_min, self.trv_max)
+            return clamp(
+                round_device(target + self._shift_for(target), self.trv_step), self.trv_min, self.trv_max
+            )
         return clamp(target, self.trv_min, self.trv_max)
 
     async def _call_climate(self, service: str, **data: Any) -> None:

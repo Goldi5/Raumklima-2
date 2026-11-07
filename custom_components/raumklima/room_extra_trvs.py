@@ -42,6 +42,7 @@ from .logic import (
     calc_target_setpoint,
     choose_on_preset,
     clamp,
+    compensated_shift,
     device_step,
     is_valid,
     round_device,
@@ -177,7 +178,7 @@ class ExtraTrv:
     def setpoint_for(self, target: float) -> float:
         """Sollwert für dieses Thermostat (Sollwert-Ausgleich nach seiner eigenen Temperatur)."""
         if self.c.cal_mode == CAL_TARGET and self.c.sensor_ok:
-            return calc_target_setpoint(
+            raw = calc_target_setpoint(
                 target,
                 self.c._ext_value,
                 self.temperature,
@@ -185,6 +186,9 @@ class ExtraTrv:
                 high=self.tmax,
                 step=self.step,
             )
+            # Was unter dem Ziel liegt, ist ein Abschlag – der bremst nur, solange der Raum zu kalt ist.
+            shift = compensated_shift(raw - target, target, self.c.current_temperature)
+            return clamp(round_device(target + shift, self.step), self.tmin, self.tmax)
         return clamp(round_device(target, self.step), self.tmin, self.tmax)
 
     async def apply(self, want_on: bool, method: str, target: float) -> None:

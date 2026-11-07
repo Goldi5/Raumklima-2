@@ -56,6 +56,19 @@ def device_step(attr: object) -> float:
     return step if step and step > 0 else DEFAULT_STEP
 
 
+def compensated_shift(shift: float, target: float, room: float | None, margin: float = 0.2) -> float:
+    """Abgleich, aber nie bremsend, solange der Raum unter dem Ziel liegt.
+
+    Ein negativer Abgleich senkt den Sollwert, damit das Gerät früher aufhört — sinnvoll, wenn der
+    Raum am Ziel ist oder darüber. Ist er deutlich darunter, verzögert derselbe Abschlag nur das
+    Aufheizen: im gemeldeten Fall (Issue #31) stand der Sollwert zwei Stunden lang unter dem
+    Wunschwert, weil der Gerätefühler kälter maß als der Raumfühler.
+    """
+    if shift < 0 and room is not None and room < target - margin:
+        return 0.0
+    return shift
+
+
 def setpoint_tolerance(step: float, base: float) -> float:
     """Bestätigungstoleranz: nie enger als die halbe Schrittweite des Geräts.
 

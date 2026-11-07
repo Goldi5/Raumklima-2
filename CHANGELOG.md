@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.62.6b1 – 2026-11-07
+
+### Behoben
+- **Der Abgleich bremste das Aufheizen (#31).** Liegt der Raum deutlich unter dem Ziel, wurde der
+  Sollwert trotzdem um den gelernten Abschlag gesenkt — im gemeldeten Fall zwei Stunden lang 0,5 bis
+  1,5 K **unter** dem Wunschwert, weil der Gerätefühler kälter maß als der Raumfühler. Ein Abschlag
+  verhindert Überhitzung; beim Aufheizen verzögert er nur. Jetzt gilt: solange der Raum mehr als
+  0,2 K unter dem Ziel liegt, wird kein negativer Abgleich angewendet (`logic.compensated_shift`) —
+  für das Haupt- und jedes Zusatz-Thermostat. Aufschläge bleiben unberührt, am Ziel gilt der
+  Abschlag wie bisher.
 ## 0.62.5b1 – 2026-11-07
 
 ### Behoben
