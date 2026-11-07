@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.59.39b1 – 2026-11-07
+
+### Hinzugefügt
+- **CSV enthält den Schattenmodus:** zwei neue Spalten `ventil_berechnet_h` (was Raumklima aus
+  Ziel/Ist rechnen würde) und `gradstunden_unter_ziel_Kh` — neben `ventil_voll_offen_h` (Gerät).
+  Damit lässt sich der Schattenmodus je Tag und Raum auswerten, ohne neue Oberfläche: *Bericht → CSV*.
+  Einzelwerte live stehen weiter in der Diagnose unter `values.valve_shadow`.
 ## 0.59.38b1 – 2026-11-07
 
 ### Geändert

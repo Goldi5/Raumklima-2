@@ -327,6 +327,9 @@ CSV_COLUMNS = (
     ("hours", "erfasst_h"),
     ("heating_h", "heizt_h"),
     ("valve_h", "ventil_voll_offen_h"),
+    # Schattenmodus: was Raumklima rechnen würde – Vergleich zur Geräteposition (#28)
+    ("valve_calc_h", "ventil_berechnet_h"),
+    ("deficit_kh", "gradstunden_unter_ziel_Kh"),
     ("setback_h", "abgesenkt_h"),
     ("setback_avg_k", "absenkung_mittel_K"),
     ("window_pause_h", "fenster_pause_h"),
