@@ -1,6 +1,9 @@
 // Textes français des cartes. Clé = texte allemand (voir i18n.js).
 // Traduction initiale – corrections bienvenues via une issue GitHub.
 export const FR = {
+  "Lüfthinweise von": "Conseils d’aération à partir de",
+  "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Aérer, fermer la fenêtre et air renouvelé uniquement pendant cette plage – silencieux la nuit ; refroidissement, gel et pannes d’appareil continuent d’alerter",
+
   "Höchstens je Tag": "Au maximum par jour",
   "unbegrenzt": "illimité",
   "{n} je Tag": "{n} par jour",

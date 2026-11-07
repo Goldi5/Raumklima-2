@@ -28,6 +28,8 @@ from .const import (
     CONF_REPEAT_MINUTES,
     CONF_ROOM_TYPE,
     CONF_TTS_TARGETS,
+    CONF_VENT_FROM,
+    CONF_VENT_TO,
     CONF_WEATHER,
     KIND_TOO_COLD,
     KIND_VENT_CLOSE,
@@ -37,11 +39,14 @@ from .const import (
     NOTIFY_ACTION_EVENT,
     NOTIFY_CAP_DEFAULT,
     NOTIFY_CAPPED_KINDS,
+    VENT_FROM_DEFAULT,
+    VENT_HINT_KINDS,
+    VENT_TO_DEFAULT,
 )
 from .live_activity import LiveCountdown
 from .logic import in_airing_window, to_float
 from .msg import N_, dec, tr, weekday
-from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, mute_until
+from .planning import NIGHT_ALARM_TEMP, NIGHT_MORNING_REPEAT, in_time_window, mute_until
 from .ventilation import (
     DEFAULT_ROOM_TYPE,
     PM25_DONE,
@@ -73,6 +78,8 @@ EVAL_INTERVAL = timedelta(seconds=30)
 HUMIDITY_HYSTERESIS = 5.0
 SNOOZE_MINUTES = 15
 PLEASE_OPEN_REPEAT = 30  # min – Erinnerung "bitte lüften"
+# So lange muss ein Fenster offen gewesen sein, damit der Tagesdeckel als „gelüftet" gilt.
+AIRING_CAP_RESET_MINUTES = 5.0
 TTS_AFTER_REPEATS = 2  # Sprachansage ab der 3. Erinnerung "schließen"
 TOO_COLD_LOUD = 3  # so oft „kühlt aus“ laut, danach leise
 TOO_COLD_QUIET_REPEAT = 30  # min zwischen leisen Erinnerungen
@@ -130,6 +137,8 @@ class VentilationManager:
         self._late_notice_for: datetime | None = None  # Öffnung, für die die Spät-Erinnerung kam
         self._repeat_count: dict[str, int] = {}
         self._done_for: datetime | None = None  # Öffnung, für die „Luft ausgetauscht" kam
+        self._was_open = False  # Fensterzustand im letzten Tick (für die Deckel-Erneuerung)
+        self._open_minutes_last = 0.0  # wie lange es beim Schließen offen war
         # Tagesdeckel: {Sorte: ("JJJJ-MM-TT", Anzahl)} – verhindert Dauerfeuer bei gleichbleibendem Zustand.
         self._sent_today: dict[str, tuple[str, int]] = {}
         self._night_alarm_sent = False
@@ -219,6 +228,32 @@ class VentilationManager:
             return int(value)
         except (TypeError, ValueError):
             return NOTIFY_CAP_DEFAULT
+
+    def _vent_hint_allowed(self, now: datetime) -> bool:
+        """Lüfthinweise nur im eingestellten Zeitfenster (zusätzlich zur Ruhezeit).
+
+        Nachts um drei interessiert niemanden, dass gelüftet werden könnte – geweckt wird
+        trotzdem. Gleiche Start- und Endzeit heißt „immer".
+        """
+        hub = self.c.hub
+        if hub is None:
+            return True
+        start = str(hub.opt(CONF_VENT_FROM) or VENT_FROM_DEFAULT)
+        end = str(hub.opt(CONF_VENT_TO) or VENT_TO_DEFAULT)
+        if not start or not end or start == end:
+            return True
+        return in_time_window(dt_util.as_local(now), start, end)
+
+    def _reset_caps(self) -> None:
+        """Deckel nach einem echten Lüftvorgang erneuern.
+
+        Der Tagesdeckel soll die Wiederholung im selben Zustand bremsen, nicht den nächsten
+        Anlass. Wer gelüftet hat, darf danach wieder erinnert werden.
+        """
+        if not self._sent_today:
+            return
+        self._sent_today.clear()
+        self.c.save()
 
     def _cap_reached(self, kind: str, now: datetime) -> bool:
         """Tagesdeckel für Sorten, die sich ohne neues Ereignis wiederholen."""
@@ -447,6 +482,14 @@ class VentilationManager:
         """Neu bewerten und ggf. benachrichtigen."""
         hum = self.humidity
         now = dt_util.utcnow()
+        # Nach einem echten Lüftvorgang ist der Deckel wieder frei: das Fenster war zu,
+        # also hat der Hinweis gewirkt. Kurzes Auf- und Zumachen zählt nicht.
+        open_now = bool(self.c.window_open)
+        if open_now:
+            self._open_minutes_last = self.open_minutes
+        elif self._was_open and self._open_minutes_last >= AIRING_CAP_RESET_MINUTES:
+            self._reset_caps()
+        self._was_open = open_now
         if hum is not None and hum >= self.humidity_limit:
             if self.humidity_high_since is None:
                 self.humidity_high_since = now
@@ -659,6 +702,8 @@ class VentilationManager:
             return
         if self._cap_reached(kind, now):
             return  # Tagesdeckel erreicht – der Zustand bleibt, die Erinnerung schweigt
+        if KIND_OF.get(kind) in VENT_HINT_KINDS and not self._vent_hint_allowed(now):
+            return  # außerhalb der eingestellten Lüft-Zeit (nachts still)
         last = self._last_sent.get(kind)
         if kind == VENT_DONE:
             if last and self.window_open_since and last > self.window_open_since:

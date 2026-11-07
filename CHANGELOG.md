@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.62.11b1 – 2026-11-07
+
+### Neu
+
+- **Lüfthinweise nur zu bestimmten Zeiten.** Unter *Einstellungen → Allgemein → Benachrichtigung*
+  stehen jetzt „Lüfthinweise von … bis …" (Standard 08:00–21:00). „Bitte lüften", „Fenster
+  schließen" und „Luft ausgetauscht" halten sich daran; „Raum kühlt aus", Frost und Gerätefehler
+  melden sich weiterhin jederzeit.
+
+### Behoben
+
+- **Tagesdeckel erneuert sich nach dem Lüften.** Bisher zählte der Deckel nur je Kalendertag –
+  wer dreimal erinnert wurde und dann gelüftet hat, blieb den Rest des Tages still. Jetzt ist der
+  Deckel nach einem Lüftvorgang ab fünf Minuten wieder frei; kurzes Auf- und Zumachen zählt nicht.
+
 ## 0.62.10b1 – 2026-11-07
 
 ### Behoben

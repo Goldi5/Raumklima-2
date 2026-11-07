@@ -200,6 +200,13 @@ DEFAULT_TTS_KINDS: Final = [KIND_TOO_COLD]
 # Hinweise, die nur anwesende Personen betreffen (nur an sie gesendet)
 PRESENT_ONLY_KINDS: Final = (KIND_VENT_OPEN, KIND_VENT_CLOSE, KIND_VENT_DONE)
 URGENT_KINDS: Final = (KIND_TOO_COLD, KIND_WINDOW_AWAY, KIND_TRV_FAILURE, KIND_STORM)
+# Lüfthinweise hängen an der Uhr: nachts weckt niemand gern, um zu lüften. Gilt zusätzlich
+# zur Ruhezeit – „Raum kühlt aus", Frost und Gerätefehler sind davon nicht betroffen.
+VENT_HINT_KINDS: Final = (KIND_VENT_OPEN, KIND_VENT_CLOSE, KIND_VENT_DONE)
+CONF_VENT_FROM: Final = "vent_from"
+CONF_VENT_TO: Final = "vent_to"
+VENT_FROM_DEFAULT: Final = "08:00:00"
+VENT_TO_DEFAULT: Final = "21:00:00"
 
 HUB_DEFAULTS: Final = {
     CONF_STORM_WARNING: True,
@@ -211,6 +218,8 @@ HUB_DEFAULTS: Final = {
     "quiet_start": "22:00:00",
     "quiet_end": "07:00:00",
     "quiet_end_weekend": "09:00:00",
+    CONF_VENT_FROM: VENT_FROM_DEFAULT,
+    CONF_VENT_TO: VENT_TO_DEFAULT,
     "learn_times": True,
     CONF_LEARN_SHIFT: False,
     CONF_QUIET_SETBACK: False,

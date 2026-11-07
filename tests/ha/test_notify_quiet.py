@@ -78,3 +78,44 @@ async def test_co2_grenze_kommt_aus_dem_raum(hass: HomeAssistant, setup) -> None
     # Unsinn fällt auf den Standard zurück, statt die Lüftung abzuschalten.
     vent._cfg["co2_limit"] = 99999
     assert vent._co2_limit() == CO2_LIMIT_DEFAULT
+
+
+async def test_luefthinweise_nur_im_zeitfenster(hass: HomeAssistant, setup) -> None:
+    """Außerhalb 08–21 Uhr bleibt es still – geweckt wird niemand zum Lüften."""
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    vent = ctrl.vent
+
+    nachts = dt_util.as_utc(dt_util.now().replace(hour=3, minute=0, second=0, microsecond=0))
+    mittags = dt_util.as_utc(dt_util.now().replace(hour=14, minute=0, second=0, microsecond=0))
+    assert vent._vent_hint_allowed(nachts) is False
+    assert vent._vent_hint_allowed(mittags) is True
+
+
+async def test_deckel_erneuert_sich_nach_dem_lueften(hass: HomeAssistant, setup) -> None:
+    """„Bis gelüftet wurde und dann erneut": nach einem echten Lüften ist der Deckel frei."""
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    vent = ctrl.vent
+    vent._sent_today.clear()
+
+    now = dt_util.utcnow()
+    for _ in range(NOTIFY_CAP_DEFAULT):
+        vent._count_sent(VENT_PLEASE_OPEN, now)
+    assert vent._cap_reached(VENT_PLEASE_OPEN, now) is True
+
+    # Fenster war sechs Minuten offen und ist jetzt zu → Deckel erneuert
+    vent._was_open = True
+    vent._open_minutes_last = 6.0
+    hass.states.async_set("binary_sensor.bad_fenster", "off", {"device_class": "window"})
+    await hass.async_block_till_done()
+    vent.update()
+    assert vent._cap_reached(VENT_PLEASE_OPEN, now) is False, "nach dem Lüften wieder frei"
+
+    # Kurzes Auf- und Zumachen (30 s) zählt nicht als Lüften
+    for _ in range(NOTIFY_CAP_DEFAULT):
+        vent._count_sent(VENT_PLEASE_OPEN, now)
+    vent._was_open = True
+    vent._open_minutes_last = 0.5
+    vent.update()
+    assert vent._cap_reached(VENT_PLEASE_OPEN, now) is True, "kurzes Öffnen erneuert nichts"

@@ -86,6 +86,8 @@ from .const import (
     CONF_TRV_INTERVAL,
     CONF_TTS,
     CONF_VALVE_CARE,
+    CONF_VENT_FROM,
+    CONF_VENT_TO,
     CONF_WALL,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
@@ -414,6 +416,8 @@ def _hub_notify_schema(hass: HomeAssistant, cur: dict[str, Any]) -> vol.Schema:
             ),
             vol.Required("quiet_start", default=cur.get("quiet_start") or "22:00:00"): TimeSelector(),
             vol.Required("quiet_end", default=cur.get("quiet_end") or "07:00:00"): TimeSelector(),
+            vol.Optional(CONF_VENT_FROM, default=cur.get(CONF_VENT_FROM) or "08:00:00"): TimeSelector(),
+            vol.Optional(CONF_VENT_TO, default=cur.get(CONF_VENT_TO) or "21:00:00"): TimeSelector(),
             vol.Required("repeat_minutes", default=cur.get("repeat_minutes") or 5): _number(1, 60, 1, "min"),
             vol.Optional("weather_entity", description=_suggest(cur.get("weather_entity"))): EntitySelector(
                 EntitySelectorConfig(domain=["weather", "sensor"])
@@ -809,6 +813,8 @@ class HubOptionsFlow(OptionsFlow):
                 CONF_TTS: {t: old_tts.get(t, list(DEFAULT_TTS_KINDS)) for t in user_input.get(TTS) or []},
                 "quiet_start": user_input["quiet_start"],
                 "quiet_end": user_input["quiet_end"],
+                CONF_VENT_FROM: user_input.get(CONF_VENT_FROM) or "08:00:00",
+                CONF_VENT_TO: user_input.get(CONF_VENT_TO) or "21:00:00",
                 "repeat_minutes": user_input["repeat_minutes"],
                 "weather_entity": user_input.get("weather_entity"),
                 "notify_on_failure": user_input["notify_on_failure"],
