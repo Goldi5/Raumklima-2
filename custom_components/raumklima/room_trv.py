@@ -143,7 +143,12 @@ class TrvMixin:
             return None
         target = self.effective_target
         if self.cal_mode == CAL_TARGET:
-            return clamp(round_device(target + self.shift, self.trv_step), self.trv_min, self.trv_max)
+            # Denselben Abgleich benutzen wie der Schreibpfad: solange der Raum unter dem Ziel
+            # liegt, wird kein negativer Abschlag angewandt – dann darf er auch nicht erwartet
+            # werden, sonst meldet die Gegenprobe einen Fehler, den wir selbst erzeugt haben.
+            return clamp(
+                round_device(target + self._shift_for(target), self.trv_step), self.trv_min, self.trv_max
+            )
         return clamp(target, self.trv_min, self.trv_max)
 
     def _detect_manual_change(self, old: State, new: State) -> None:

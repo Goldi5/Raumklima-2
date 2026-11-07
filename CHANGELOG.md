@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.62.12b1 – 2026-11-07
+
+### Behoben
+
+- **Fehlalarm „Thermostat übernimmt den Sollwert nicht" beim Aufheizen.** Der erwartete Sollwert
+  wurde mit dem vollen Abgleich gerechnet, der Schreibpfad setzt ihn aber aus, solange der Raum
+  unter dem Ziel liegt. Folge: Das Gerät stand auf 21,0 °C (so geschrieben), erwartet wurden
+  20,5 °C – nach 20 Minuten kam die Meldung, obwohl das Gerät genau den befohlenen Wert hatte.
+  Erwartung und Schreibbefehl benutzen jetzt dieselbe Rechnung; die Meldung erscheint nur noch,
+  wenn das Gerät wirklich einen anderen Wert hält.
+- **Doppelte Einheit im Protokoll:** „neuer Sollwert 21,0 °C °C aus den Einstellungen".
+
 ## 0.62.11b1 – 2026-11-07
 
 ### Neu

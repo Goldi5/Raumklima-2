@@ -676,7 +676,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.log(
                     CAT_SETTINGS,
                     tr("Wunschtemperatur übernommen"),
-                    tr("neuer Sollwert {t} °C aus den Einstellungen", t=fmt_temp(new_wish)),
+                    tr("neuer Sollwert {t} aus den Einstellungen", t=fmt_temp(new_wish)),
                 )
         if changed.keys() & {CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP}:
             self.track_presence()

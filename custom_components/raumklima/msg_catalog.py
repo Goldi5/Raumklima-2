@@ -487,7 +487,7 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Ungültige Uhrzeit", "Invalid time", "Heure invalide"),
     ("Raum nicht gefunden", "Room not found", "Pièce introuvable"),
     ("Wunschtemperatur übernommen", "Target temperature applied", "Température de consigne appliquée"),
-    ("neuer Sollwert {t} °C aus den Einstellungen", "new setpoint {t} °C from the settings", "nouvelle consigne {t} °C depuis les réglages"),
+    ("neuer Sollwert {t} aus den Einstellungen", "new setpoint {t} from the settings", "nouvelle consigne {t} depuis les réglages"),
     (
         "Diese Datei ist keine Raumklima-Sicherung",
         "This file is not a Raumklima backup",

@@ -989,3 +989,30 @@ async def test_ventilsensor_aus_anderer_wohnung_wird_nicht_genommen(hass: HomeAs
     ctrl.trv = "climate.finja"
 
     assert ctrl._find_valve_sensor() is None
+
+
+async def test_erwarteter_sollwert_ignoriert_abschlag_im_kalten_raum(
+    hass: HomeAssistant, setup, monkeypatch
+) -> None:
+    """Der erwartete Sollwert muss denselben Abgleich nutzen wie der Schreibpfad.
+
+    Anlass: Der Raum lag unter dem Ziel, deshalb schrieb die Integration 21,0 °C ohne Abschlag.
+    Erwartet wurden aber 20,5 °C (Ziel + Abgleich) — die Gegenprobe meldete „Thermostat
+    übernimmt den Sollwert nicht", obwohl das Gerät genau den geschriebenen Wert hatte.
+    """
+    from custom_components.raumklima.const import CAL_TARGET
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.cal_mode = CAL_TARGET  # Abgleich über den Sollwert (wie im gemeldeten Raum)
+    ctrl.shift = -0.5
+    ctrl.target_temp = 20.5
+
+    # Raum zu kalt (unter Ziel − 0,2 K): Abgleich wird ausgesetzt → Erwartung ist das Ziel
+    monkeypatch.setattr(type(ctrl), "current_temperature", property(lambda self: 19.0))
+    assert ctrl.trv_expected_target == 20.5, "kein Abschlag, solange der Raum zu kalt ist"
+
+    # Raum warm: Abgleich gilt wieder → Erwartung ist Ziel + Abgleich
+    monkeypatch.setattr(type(ctrl), "current_temperature", property(lambda self: 21.0))
+    assert ctrl.trv_expected_target == 20.0
