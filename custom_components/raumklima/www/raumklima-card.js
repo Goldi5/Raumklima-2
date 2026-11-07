@@ -1,4 +1,4 @@
-/* Raumklima 0.62.0b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.1b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -862,7 +862,11 @@
     "Dunkler Look": "Dark look",
     "Immer dunkel": "Always dark",
     "Immer hell": "Always light",
-    "gilt für alle Karten dieser Wohnung": "applies to all cards of this home"
+    "gilt für alle Karten dieser Wohnung": "applies to all cards of this home",
+    "{n} Thermostate": "{n} thermostats",
+    "Haupt": "Main",
+    "erwartet {v}°": "expected {v}°",
+    "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening"
   };
 
   // src/i18n/fr.js
@@ -1727,7 +1731,11 @@
     "Dunkler Look": "Apparence sombre",
     "Immer dunkel": "Toujours sombre",
     "Immer hell": "Toujours clair",
-    "gilt für alle Karten dieser Wohnung": "vaut pour toutes les cartes de ce logement"
+    "gilt für alle Karten dieser Wohnung": "vaut pour toutes les cartes de ce logement",
+    "{n} Thermostate": "{n} thermostats",
+    "Haupt": "Principal",
+    "erwartet {v}°": "attendu {v}°",
+    "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture"
   };
 
   // src/i18n.js
@@ -1771,7 +1779,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.0b1";
+  var RK_VERSION = "0.62.1b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2976,6 +2984,14 @@
           return "";
         })()
       ].join("");
+      const extras = a.settings && a.settings.extra_trvs || [];
+      const shortName = (n) => String(n || "").split(" - ").pop();
+      const devLine = (a.valve_sources || 0) > 1 && extras.length ? `<div class="devs" title="${esc(t("Jedes Thermostat mit eigenem Sollwert und eigener Öffnung"))}">
+          <ha-icon icon="mdi:radiator"></ha-icon>
+          <span>${t("{n} Thermostate", { n: extras.length + 1 })}</span>
+          <b>${t("Haupt")} ${fmt(a.valve_position, 0)} %</b>
+          ${extras.map((x) => `<b class="${!x.available ? "off" : x.sync === "ok" ? "" : "warn"}" title="${esc(x.name)} · ${x.available ? `${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : t("nicht erreichbar")}">${esc(shortName(x.name))} ${x.valve != null ? `${fmt(x.valve, 0)} %` : "–"}</b>`).join("")}
+        </div>` : "";
       const syncCls = a.sync === "ok" ? "" : a.sync;
       const syncLabel = { ok: t("synchron"), pending: t("sendet …"), failed: t("keine Antwort") }[a.sync] || a.sync;
       const notif = sib.notifications ? this._hass.states[sib.notifications] : null;
@@ -3013,6 +3029,7 @@
         </div>`}
         ${banner}
         <div class="stats">${stats}</div>
+        ${devLine}
         <div class="actions">
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
@@ -5126,7 +5143,7 @@
       ].join(""))}
       ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
         this._row("Thermostat", this._v(esc(this._name(s.trv))), (s.extra_trvs || []).length ? "Haupt-Thermostat" : ""),
-        (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
+        (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}${x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
         this._row(
           "Schnellere Abfrage",
           editable ? this._optToggle(scope, "fast_poll", !!(this._roomOpt(r, "fast_poll") ?? s.fast_poll)) : this._v(this._roomOpt(r, "fast_poll") ?? s.fast_poll ? t("an") : t("aus")),

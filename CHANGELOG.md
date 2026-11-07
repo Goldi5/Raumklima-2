@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.62.1b1 – 2026-11-07
+
+### Hinzugefügt
+- **Mehrere Thermostate im Raum sichtbar.** Unter den Messwerten steht bei mehr als einem Gerät eine
+  Zeile mit jedem Thermostat einzeln — Name, Öffnung in Prozent, Warnfarbe wenn ein Gerät nicht
+  erreichbar ist oder die Übertragung hängt, und im Tooltip der erwartete Sollwert. Bisher zeigte die
+  Karte nur den Durchschnitt (`Ventil Ø`) und einen Sollwert, ohne zu sagen, welches Gerät wo steht.
+- **Erwarteter Sollwert je Zusatzgerät** (`setpoint_expected` in `settings.extra_trvs`). Jedes Gerät
+  rechnet mit **seinem eigenen** Abgleich (`room_extra_trvs.setpoint_for`) — bei zwei Modellen stehen
+  deshalb bewusst verschiedene Werte am Gerät. Die Einstellungen zeigen den erwarteten Wert jetzt im
+  Tooltip des Geräte-Chips.
+- **Sollwert-Prüfung je Gerät:** „Thermostat übernimmt den Sollwert nicht" läuft jetzt auch für
+  Zusatz-Thermostate und nennt das Gerät im Titel („Flur - Thermostat Tür: Thermostat übernimmt den
+  Sollwert nicht"). Vorher wurde nur das Hauptgerät geprüft; bei zwei Geräten blieb die Hälfte blind.
 ## 0.62.0b1 – 2026-11-07
 
 ### Geändert

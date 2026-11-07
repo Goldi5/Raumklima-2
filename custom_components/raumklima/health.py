@@ -248,7 +248,12 @@ def check_connection(blips_24h: int, typical_seconds: float | None) -> Issue | N
     )
 
 
-def check_setpoint_ignored(minutes: int | None, actual: float | None, expected: float | None) -> Issue | None:
+def check_setpoint_ignored(
+    minutes: int | None,
+    actual: float | None,
+    expected: float | None,
+    device: str | None = None,
+) -> Issue | None:
     """Thermostat steht dauerhaft auf einem anderen Sollwert als geschrieben.
 
     Nicht zu verwechseln mit dem gelernter Abgleich: der ist im ``expected`` schon enthalten
@@ -259,6 +264,18 @@ def check_setpoint_ignored(minutes: int | None, actual: float | None, expected: 
         return None
     if abs(actual - expected) < SETPOINT_MISMATCH_K:
         return None
+    if device:
+        return Issue(
+            "setpoint_ignored",
+            SEV_WARN,
+            tr("{device}: Thermostat übernimmt den Sollwert nicht", device=device),
+            tr(
+                "Steht seit {m} min auf {a} °C, erwartet waren {e} °C – Zeitplan, Boost oder eine Automation am Gerät prüfen",
+                m=minutes,
+                a=f"{actual:.1f}",
+                e=f"{expected:.1f}",
+            ),
+        )
     return Issue(
         "setpoint_ignored",
         SEV_WARN,

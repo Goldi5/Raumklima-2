@@ -215,6 +215,18 @@ export class RaumklimaCard extends HTMLElement {
       })(),
     ].join("");
 
+    // Mehrere Thermostate im Raum: jedes hat seinen eigenen Sollwert und seine eigene Öffnung.
+    // Ohne diese Zeile sieht man nur den Durchschnitt und weiß nicht, welches Gerät hängt.
+    const extras = (a.settings && a.settings.extra_trvs) || [];
+    const shortName = (n) => String(n || "").split(" - ").pop();
+    const devLine = (a.valve_sources || 0) > 1 && extras.length
+      ? `<div class="devs" title="${esc(t("Jedes Thermostat mit eigenem Sollwert und eigener Öffnung"))}">
+          <ha-icon icon="mdi:radiator"></ha-icon>
+          <span>${t("{n} Thermostate", { n: extras.length + 1 })}</span>
+          <b>${t("Haupt")} ${fmt(a.valve_position, 0)} %</b>
+          ${extras.map((x) => `<b class="${!x.available ? "off" : x.sync === "ok" ? "" : "warn"}" title="${esc(x.name)} · ${x.available ? `${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : t("nicht erreichbar")}">${esc(shortName(x.name))} ${x.valve != null ? `${fmt(x.valve, 0)} %` : "–"}</b>`).join("")}
+        </div>`
+      : "";
     const syncCls = a.sync === "ok" ? "" : a.sync;
     const syncLabel = { ok: t("synchron"), pending: t("sendet …"), failed: t("keine Antwort") }[a.sync] || a.sync;
     const notif = sib.notifications ? this._hass.states[sib.notifications] : null;
@@ -261,6 +273,7 @@ export class RaumklimaCard extends HTMLElement {
         </div>`}
         ${banner}
         <div class="stats">${stats}</div>
+        ${devLine}
         <div class="actions">
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}

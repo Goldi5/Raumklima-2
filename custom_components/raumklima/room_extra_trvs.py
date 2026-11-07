@@ -253,6 +253,11 @@ class ExtraTrv:
             return [Issue(f"extra_trv_sync:{self.entity_id}", "warn", tr("{name} reagiert nicht", name=self.name), tr("Befehle an dieses Thermostat werden nicht bestätigt – es wird weiter versucht."))]
         return []
 
+    @property
+    def setpoint(self) -> float | None:
+        """Sollwert, der gerade **am Gerät** steht (kann vom Raumsollwert abweichen)."""
+        return to_float(self.attr(ATTR_TEMPERATURE))
+
     def summary(self) -> dict[str, Any]:
         return {
             "entity_id": self.entity_id,
@@ -262,6 +267,10 @@ class ExtraTrv:
             "setpoint": to_float(self.attr(ATTR_TEMPERATURE)),
             "valve": self.valve,
             "sync": self.sync.state,
+            # Was am Gerät stehen müsste – pro Gerät eigener Abgleich, deshalb nicht der Raumwert.
+            "setpoint_expected": (
+                self.setpoint_for(self.c.effective_target) if self.available() else None
+            ),
             "calibration_entity": self.cal_entity,
         }
 

@@ -496,6 +496,14 @@ class HealthMixin:
                 issues.append(check)
         for extra in getattr(self, "extra_trvs", []):
             issues += extra.issues()
+            stuck = check_setpoint_ignored(
+                self._extra_off_minutes(extra, now),
+                extra.setpoint,
+                (extra.summary() or {}).get("setpoint_expected"),
+                device=extra.name,
+            )
+            if stuck is not None:
+                issues.append(stuck)
         return issues
 
     @property
@@ -503,28 +511,35 @@ class HealthMixin:
         hub = self.hub
         return hub.insights.issues.get(self.entry.entry_id, []) if hub else []
 
-    def _setpoint_off_minutes(self, now: datetime) -> int | None:
-        """Minuten, die das Gerät schon auf einem anderen Sollwert steht als erwartet.
+    def _regulating(self) -> bool:
+        """Regelt die Integration gerade? Sonst darf der Gerätesollwert abweichen."""
+        return not (self.paused or not self.hvac_on or self.monitor)
 
-        Nur zählen, wenn die Integration überhaupt regelt: bei Heizpause oder im Überwachungsmodus
-        darf der Gerätesollwert abweichen, ohne dass es ein Fehler ist.
-        """
-        actual = self.trv_target
-        expected = self.trv_expected_target
-        if (
-            actual is None
-            or expected is None
-            or self.paused
-            or not self.hvac_on
-            or self.monitor
-            or self.target_via != "setpoint"
-            or abs(actual - expected) < SETPOINT_MISMATCH_K
-        ):
-            self._setpoint_off_since = None
+    def _mismatch_minutes(
+        self, now: datetime, key: str, actual: float | None, expected: float | None
+    ) -> int | None:
+        if actual is None or expected is None or abs(actual - expected) < SETPOINT_MISMATCH_K:
+            self._setpoint_off_since.pop(key, None)
             return None
-        if self._setpoint_off_since is None:
-            self._setpoint_off_since = now
-        return int((now - self._setpoint_off_since).total_seconds() // 60)
+        since = self._setpoint_off_since.get(key)
+        if since is None:
+            since = self._setpoint_off_since[key] = now
+        return int((now - since).total_seconds() // 60)
+
+    def _setpoint_off_minutes(self, now: datetime) -> int | None:
+        """Minuten, die das Haupt-Thermostat auf einem anderen Sollwert steht als erwartet."""
+        if not self._regulating() or self.target_via != "setpoint":
+            self._setpoint_off_since.pop("", None)
+            return None
+        return self._mismatch_minutes(now, "", self.trv_target, self.trv_expected_target)
+
+    def _extra_off_minutes(self, extra: Any, now: datetime) -> int | None:
+        """Dasselbe für ein Zusatz-Thermostat – mit seinem eigenen Abgleich."""
+        if not self._regulating():
+            self._setpoint_off_since.pop(extra.entity_id, None)
+            return None
+        expected = (extra.summary() or {}).get("setpoint_expected")
+        return self._mismatch_minutes(now, extra.entity_id, extra.setpoint, expected)
 
     def _trv_down_confirmed(self) -> None:
         self._trv_down_cancel = None

@@ -863,4 +863,8 @@ export const EN = {
   "Immer dunkel": "Always dark",
   "Immer hell": "Always light",
   "gilt für alle Karten dieser Wohnung": "applies to all cards of this home",
+  "{n} Thermostate": "{n} thermostats",
+  "Haupt": "Main",
+  "erwartet {v}°": "expected {v}°",
+  "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening",
 };

@@ -863,4 +863,8 @@ export const FR = {
   "Immer dunkel": "Toujours sombre",
   "Immer hell": "Toujours clair",
   "gilt für alle Karten dieser Wohnung": "vaut pour toutes les cartes de ce logement",
+  "{n} Thermostate": "{n} thermostats",
+  "Haupt": "Principal",
+  "erwartet {v}°": "attendu {v}°",
+  "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture",
 };

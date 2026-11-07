@@ -646,6 +646,12 @@ _ROWS: list[tuple[str, str, str]] = [
         "Bloqué à {a} °C depuis {m} min, attendu {e} °C – vérifier la programmation, le boost ou une automatisation de l‘appareil",
     ),
 
+    (
+        "{device}: Thermostat übernimmt den Sollwert nicht",
+        "{device}: thermostat does not accept the setpoint",
+        "{device} : le thermostat n‘accepte pas la consigne",
+    ),
+
 ]
 
 CATALOG: dict[str, dict[str, str]] = {de: {"en": en, "fr": fr} for de, en, fr in _ROWS}
