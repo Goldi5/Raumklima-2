@@ -1,4 +1,4 @@
-/* Raumklima 0.62.1b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.2b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -866,7 +866,8 @@
     "{n} Thermostate": "{n} thermostats",
     "Haupt": "Main",
     "erwartet {v}°": "expected {v}°",
-    "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening"
+    "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening",
+    "gilt für alle Räume und Karten dieser Wohnung": "applies to all rooms and cards of this home"
   };
 
   // src/i18n/fr.js
@@ -1735,7 +1736,8 @@
     "{n} Thermostate": "{n} thermostats",
     "Haupt": "Principal",
     "erwartet {v}°": "attendu {v}°",
-    "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture"
+    "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture",
+    "gilt für alle Räume und Karten dieser Wohnung": "vaut pour toutes les pièces et cartes de ce logement"
   };
 
   // src/i18n.js
@@ -1779,7 +1781,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.1b1";
+  var RK_VERSION = "0.62.2b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4605,7 +4607,6 @@
         this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
         this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
         this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen"),
-        this._row(t("Dunkler Look"), this._segs(H, "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Karten dieser Wohnung")),
         this._row("Heute heizen", st.heat_today_until ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>` : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage")
       ].join("");
       const sl = st.sleep || {};
@@ -4835,7 +4836,8 @@
       }).join("");
       const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
-      return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", rows + foot);
+      const look = this._row(t("Dunkler Look"), this._segs("hub", "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Räume und Karten dieser Wohnung"));
+      return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);
     }
     // ---------------------------------------------------------------- Raum
     // ---------------------------------------------------------------- Zeitpläne

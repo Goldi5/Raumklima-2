@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.62.2b1 – 2026-11-07
+
+### Geändert
+- **„Dunkler Look" sitzt jetzt unter *Einstellungen → Darstellung***, nicht mehr unter *Allgemein*.
+  Es ist eine Anzeige-Einstellung und steht damit bei Reihenfolge, Größe und Farbe der Räume.
 ## 0.62.1b1 – 2026-11-07
 
 ### Hinzugefügt

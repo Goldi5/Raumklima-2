@@ -867,4 +867,5 @@ export const EN = {
   "Haupt": "Main",
   "erwartet {v}°": "expected {v}°",
   "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening",
+  "gilt für alle Räume und Karten dieser Wohnung": "applies to all rooms and cards of this home",
 };

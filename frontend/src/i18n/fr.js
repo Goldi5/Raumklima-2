@@ -867,4 +867,5 @@ export const FR = {
   "Haupt": "Principal",
   "erwartet {v}°": "attendu {v}°",
   "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture",
+  "gilt für alle Räume und Karten dieser Wohnung": "vaut pour toutes les pièces et cartes de ce logement",
 };
