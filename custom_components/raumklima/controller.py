@@ -587,6 +587,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "schedule_fallback": self.config.get(CONF_SCHEDULE_FALLBACK),
             "changed": changed,
             "trv": self.trv,
+            "valve_reported": self.valve_position is not None,
+            "valve_own": self.valve_own,
             "room_type": vent.room_type if vent else cfg.get(CONF_ROOM_TYPE),
             "weather_entity": vent.weather if vent else cfg.get(CONF_WEATHER),
             "notify_targets": vent.notify_targets if vent else [],

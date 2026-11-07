@@ -13,6 +13,7 @@ Rückmeldungen von Nutzern und eigenen Messungen; die Liste wächst mit jedem Er
 | Gerät | Anbindung | Läuft gut | Grenzen |
 |---|---|---|---|
 | Tuya-Heizkörperthermostat | Zigbee2MQTT | Sollwert, Presets, Ventilstellung, Batterie | `preset: on` heißt *dauerhaft offen* – wird intern als `comfort` + `comfort_temperature` gesetzt |
+| Moes BRT-100-TRV | Zigbee2MQTT | Sollwert, Presets, Ventilstellung, Ist-Temperatur | Meldet die Ventilstellung als eigenes `sensor.…_position` – Raumklima nimmt sie als Ventilquelle. Presets `none/programming/manual/temporary_manual/holiday`; Bereich 0–35 °C, wird auf 6–30 °C begrenzt |
 | Aqara E1 | Zigbee2MQTT | Sollwert, Fenster, Batterie | meldet keinen Heiz-Zustand; Status wird aus Soll/Ist abgeleitet |
 | Homematic IP / CCU | Homematic-Integration | Sollwert, Ventilstellung, zwei Wege | Rückmeldung oft erst nach 10–20 Minuten (Funk, Batteriesparmodus) |
 | Livisi / RWE SmartHome | Livisi-Integration | Sollwert, Fenster | **kein Offset am Gerät** – Raumklima lernt einen geglätteten Sollwert-Ausgleich |

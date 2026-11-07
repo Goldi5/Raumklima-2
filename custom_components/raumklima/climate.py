@@ -140,6 +140,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "offset": c.offset,
             "sync": c.sync_state,
             "valve_position": c.valve_position,
+            "valve_own": c.valve_own,
             "pm25": c.current_pm25,
             "offset_auto": round(c.shift, 2),
             "valve_sensor": c.valve_sensor,

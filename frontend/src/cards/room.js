@@ -191,9 +191,10 @@ export class RaumklimaCard extends HTMLElement {
       a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)}<small>ppm</small>`, a.co2 >= 1400 ? "cold" : a.co2 >= 1000 ? "warn" : "ok", cfgS.co2_sensor) : "",
       a.pm25 != null ? stat("mdi:molecule", t("Feinstaub"), `${fmt(a.pm25, 0)}<small>µg/m³</small>`, a.pm25 >= 50 ? "cold" : a.pm25 >= 35 ? "warn" : "ok", cfgS.pm25_sensor) : "",
       a.dew_point !== undefined && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
-      a.valve_sensor === undefined || a.valve_sensor
-        ? stat("mdi:valve", (a.valve_sources || 0) > 1 ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === undefined ? "–" : `${fmt(a.valve_position, 0)} %`, valveTone, a.valve_sensor)
-        : "",
+      // Keine gemeldete Öffnung (Livisi, RWE VRCC) → Kachel weglassen statt „–" anzeigen.
+      a.valve_position === null || a.valve_position === undefined
+        ? ""
+        : stat("mdi:valve", (a.valve_sources || 0) > 1 ? t("Ventil Ø") : t("Ventil"), `${fmt(a.valve_position, 0)} %`, valveTone, a.valve_sensor),
       a.outdoor_temperature !== undefined && a.outdoor_temperature !== null
         ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null, cfgS.weather_entity) : "",
       mon ? "" : stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null, cfgS.trv),
@@ -215,16 +216,20 @@ export class RaumklimaCard extends HTMLElement {
       })(),
     ].join("");
 
-    // Mehrere Thermostate im Raum: jedes hat seinen eigenen Sollwert und seine eigene Öffnung.
-    // Ohne diese Zeile sieht man nur den Durchschnitt und weiß nicht, welches Gerät hängt.
+    // Mehrere Thermostate im Raum: jedes mit eigenem Sollwert und eigener Öffnung.
+    // Geräte ohne Positionsmeldung erscheinen ohne Prozentwert – keine erfundene Zahl.
     const extras = (a.settings && a.settings.extra_trvs) || [];
     const shortName = (n) => String(n || "").split(" - ").pop();
-    const devLine = (a.valve_sources || 0) > 1 && extras.length
+    const mainValve = a.valve_own;
+    const devLine = extras.length
       ? `<div class="devs" title="${esc(t("Jedes Thermostat mit eigenem Sollwert und eigener Öffnung"))}">
           <ha-icon icon="mdi:radiator"></ha-icon>
           <span>${t("{n} Thermostate", { n: extras.length + 1 })}</span>
-          <b>${t("Haupt")} ${fmt(a.valve_position, 0)} %</b>
-          ${extras.map((x) => `<b class="${!x.available ? "off" : x.sync === "ok" ? "" : "warn"}" title="${esc(x.name)} · ${x.available ? `${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : t("nicht erreichbar")}">${esc(shortName(x.name))} ${x.valve != null ? `${fmt(x.valve, 0)} %` : "–"}</b>`).join("")}
+          ${mainValve != null ? `<b>${t("Haupt")} ${fmt(mainValve, 0)} %</b>` : ""}
+          ${extras.map((x) => {
+            const valve = x.valve != null && x.available ? `${fmt(x.valve, 0)} %` : "";
+            return `<b class="${!x.available ? "off" : x.sync === "ok" ? "" : "warn"}" title="${esc(x.name)}${x.available && x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}">${esc(shortName(x.name))}${valve ? ` ${valve}` : ""}</b>`;
+          }).join("")}
         </div>`
       : "";
     const syncCls = a.sync === "ok" ? "" : a.sync;

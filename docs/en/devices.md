@@ -13,6 +13,7 @@ feedback and our own measurements; the list grows with every report.
 | Device | Integration | Works well | Limits |
 |---|---|---|---|
 | Tuya radiator thermostat | Zigbee2MQTT | setpoint, presets, valve position, battery | `preset: on` means *permanently open* – used internally as `comfort` + `comfort_temperature` |
+| Moes BRT-100-TRV | Zigbee2MQTT | setpoint, presets, valve position, measured temperature | Reports the valve position as its own `sensor.…_position` – Raumklima uses it as valve source. Presets `none/programming/manual/temporary_manual/holiday`; range 0–35 °C, clamped to 6–30 °C |
 | Aqara E1 | Zigbee2MQTT | setpoint, window, battery | reports no heating state; status is derived from demand |
 | Homematic IP / CCU | Homematic integration | setpoint, valve position, two-way | feedback often only after 10–20 minutes (radio, battery saving) |
 | Livisi / RWE SmartHome | Livisi integration | setpoint, window | **no offset on the device** – Raumklima learns a smoothed setpoint compensation |

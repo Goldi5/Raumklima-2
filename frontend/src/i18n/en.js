@@ -868,4 +868,5 @@ export const EN = {
   "erwartet {v}°": "expected {v}°",
   "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening",
   "gilt für alle Räume und Karten dieser Wohnung": "applies to all rooms and cards of this home",
+  "meldet keine Ventilöffnung": "reports no valve opening",
 };

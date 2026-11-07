@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.62.3b1 – 2026-11-07
+
+### Behoben
+- **Ventilöffnung wurde doppelt gezählt.** Sitzt der Raum-Ventilsensor auf demselben Gerät wie ein
+  Zusatz-Thermostat (z. B. `sensor.…_position` und `climate.…` eines Moes BRT-100-TRV), zählten beide
+  Einträge getrennt: `valve_sources: 2` und ein Mittelwert, obwohl nur **ein** Gerät messte. Jetzt wird
+  je Gerät einmal gezählt (Entdopplung über `device_id`).
+- **Keine erfundene Zahl für Geräte ohne Öffnung.** Ein Livisi/RWE-VRCC meldet keine Ventilstellung —
+  die Kachel zeigt dort künftig gar nichts mehr statt „Ventil –", und die Gerätezeile nennt nur
+  Geräte, die wirklich melden. Neues Attribut `valve_own` (Öffnung des Hauptgeräts, `null` wenn es
+  keine liefert). In den Einstellungen steht beim Thermostat „meldet keine Ventilöffnung".
+
+### Doku
+- **Moes BRT-100-TRV (Zigbee2MQTT)** in die Liste geprüfter Thermostate aufgenommen (de/en/fr):
+  meldet die Ventilstellung über ein eigenes Positions-Sensor, Presets `none/programming/manual/
+  temporary_manual/holiday`, Bereich 0–35 °C (wird auf 6–30 °C begrenzt).
 ## 0.62.2b1 – 2026-11-07
 
 ### Geändert

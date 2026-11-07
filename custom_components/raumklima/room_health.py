@@ -247,26 +247,54 @@ class HealthMixin:
                     break
         return found
 
+    def _valve_device(self, entity_id: str | None) -> str:
+        """Gerät hinter einer Entität – zwei Entitäten desselben Geräts sind eine Quelle."""
+        if not entity_id:
+            return ""
+        entry = er.async_get(self.hass).async_get(entity_id)
+        return (entry.device_id if entry is not None and entry.device_id else "") or entity_id
+
     @property
-    def valve_sources(self) -> int:
-        """Wie viele Geräte liefern gerade wirklich eine Ventilstellung?"""
-        count = 0
+    def valve_readings(self) -> list[tuple[bool, float]]:
+        """Je **Gerät** eine gemeldete Öffnung: (ist das Hauptgerät?, Prozent).
+
+        Ein Raum-Sensor und ein Zusatz-Thermostat können auf demselben Gerät sitzen (z. B.
+        `climate.x` und `sensor.x_position`). Früher zählten beide getrennt – dann behauptete die
+        Karte „2 Quellen" und einen Mittelwert, obwohl nur ein Gerät messte.
+        """
+        found: dict[str, tuple[bool, float]] = {}
+        sensor_value = None
         if self.valve_sensor:
             state = self.hass.states.get(self.valve_sensor)
-            if state is not None and to_float(state.state) is not None:
-                count += 1
-        count += sum(1 for trv in getattr(self, "extra_trvs", []) if trv.valve is not None)
-        return count
+            sensor_value = to_float(state.state) if state is not None else None
+            if sensor_value is not None:
+                found[self._valve_device(self.valve_sensor)] = (False, sensor_value)
+        for trv in getattr(self, "extra_trvs", []):
+            if trv.valve is None:
+                continue
+            found[self._valve_device(trv.entity_id)] = (False, float(trv.valve))
+        main_device = self._valve_device(self.trv)
+        if main_device and main_device in found:
+            found[main_device] = (True, found[main_device][1])
+        return list(found.values())
+
+    @property
+    def valve_sources(self) -> int:
+        """Wie viele **Geräte** liefern gerade wirklich eine Ventilstellung?"""
+        return len(self.valve_readings)
+
+    @property
+    def valve_own(self) -> float | None:
+        """Öffnung des Hauptgeräts – `None`, wenn es keine meldet (Livisi, RWE VRCC)."""
+        for is_main, value in self.valve_readings:
+            if is_main:
+                return value
+        return None
 
     @property
     def valve_position(self) -> float | None:
-        """Ventilstellung – bei mehreren Heizkörpern der Mittelwert."""
-        values = []
-        if self.valve_sensor:
-            state = self.hass.states.get(self.valve_sensor)
-            values.append(to_float(state.state) if state else None)
-        values += [x.valve for x in getattr(self, "extra_trvs", [])]
-        values = [v for v in values if v is not None]
+        """Ventilstellung – bei mehreren Geräten der Mittelwert."""
+        values = [value for _is_main, value in self.valve_readings]
         return round(sum(values) / len(values), 1) if values else None
 
     # ================================================================ Bericht & Gesundheit
@@ -359,6 +387,7 @@ class HealthMixin:
             "paused": self.paused,
             "reason": reason,
             "valve_sources": self.valve_sources,
+            "valve_own": self.valve_own,
         }
 
     def stats_sample(self) -> RoomSample:

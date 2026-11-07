@@ -1187,7 +1187,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._row("Empfänger", push.length ? `<div class="chips">${push.map((tg) => `<span class="chip2"><i></i>${esc(rkPretty(tg))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was"),
       ].join(""))}
       ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
-        this._row("Thermostat", this._v(esc(this._name(s.trv))), (s.extra_trvs || []).length ? "Haupt-Thermostat" : ""),
+        this._row("Thermostat", this._v(esc(this._name(s.trv))), [((s.extra_trvs || []).length ? "Haupt-Thermostat" : ""), s.valve_reported === false ? t("meldet keine Ventilöffnung") : ""].filter(Boolean).join(" · ")),
         (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}${x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
         this._row(
           "Schnellere Abfrage",

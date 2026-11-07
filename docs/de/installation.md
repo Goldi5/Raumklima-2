@@ -107,6 +107,7 @@ Raumklima steuert **jedes Heizkörperthermostat, das in Home Assistant als `clim
 | Thermostat | Anbindung | Status |
 |---|---|---|
 | Tuya TRV602Z | Zigbee2MQTT | ✅ getestet (Offset, Ventilstellung, Presets) |
+| Moes BRT-100-TRV | Zigbee2MQTT | ✅ getestet (Ventilstellung über eigenes Positions-Sensor, Presets, Bereich 0–35 °C) |
 | Aqara Smart Radiator E1 | Zigbee2MQTT | ✅ getestet (kein Heiz-Zustand am Gerät – Status aus der Nachfrage) |
 | Homematic IP WTH-2 + eTRV | Homematic IP (CCU) | ✅ getestet (Gruppe bleibt bestehen, Ventilstellung am eTRV) |
 | Shelly TRV / BLU TRV | Shelly | ❔ noch nicht getestet – Erfahrungsbericht willkommen |

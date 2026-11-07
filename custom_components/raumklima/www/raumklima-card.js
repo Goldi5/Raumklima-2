@@ -1,4 +1,4 @@
-/* Raumklima 0.62.2b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.3b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -867,7 +867,8 @@
     "Haupt": "Main",
     "erwartet {v}°": "expected {v}°",
     "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening",
-    "gilt für alle Räume und Karten dieser Wohnung": "applies to all rooms and cards of this home"
+    "gilt für alle Räume und Karten dieser Wohnung": "applies to all rooms and cards of this home",
+    "meldet keine Ventilöffnung": "reports no valve opening"
   };
 
   // src/i18n/fr.js
@@ -1737,7 +1738,8 @@
     "Haupt": "Principal",
     "erwartet {v}°": "attendu {v}°",
     "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture",
-    "gilt für alle Räume und Karten dieser Wohnung": "vaut pour toutes les pièces et cartes de ce logement"
+    "gilt für alle Räume und Karten dieser Wohnung": "vaut pour toutes les pièces et cartes de ce logement",
+    "meldet keine Ventilöffnung": "ne signale pas d’ouverture de vanne"
   };
 
   // src/i18n.js
@@ -1781,7 +1783,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.2b1";
+  var RK_VERSION = "0.62.3b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2967,7 +2969,8 @@
         a.co2 != null ? stat("mdi:molecule-co2", "CO₂", `${fmt(a.co2, 0)}<small>ppm</small>`, a.co2 >= 1400 ? "cold" : a.co2 >= 1e3 ? "warn" : "ok", cfgS.co2_sensor) : "",
         a.pm25 != null ? stat("mdi:molecule", t("Feinstaub"), `${fmt(a.pm25, 0)}<small>µg/m³</small>`, a.pm25 >= 50 ? "cold" : a.pm25 >= 35 ? "warn" : "ok", cfgS.pm25_sensor) : "",
         a.dew_point !== void 0 && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
-        a.valve_sensor === void 0 || a.valve_sensor ? stat("mdi:valve", (a.valve_sources || 0) > 1 ? t("Ventil Ø") : t("Ventil"), a.valve_position === null || a.valve_position === void 0 ? "–" : `${fmt(a.valve_position, 0)} %`, valveTone, a.valve_sensor) : "",
+        // Keine gemeldete Öffnung (Livisi, RWE VRCC) → Kachel weglassen statt „–" anzeigen.
+        a.valve_position === null || a.valve_position === void 0 ? "" : stat("mdi:valve", (a.valve_sources || 0) > 1 ? t("Ventil Ø") : t("Ventil"), `${fmt(a.valve_position, 0)} %`, valveTone, a.valve_sensor),
         a.outdoor_temperature !== void 0 && a.outdoor_temperature !== null ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null, cfgS.weather_entity) : "",
         mon ? "" : stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null, cfgS.trv),
         // „Offset" gibt es nur, wenn das Gerät eine Offset-Entität hat. Sonst regelt
@@ -2988,11 +2991,15 @@
       ].join("");
       const extras = a.settings && a.settings.extra_trvs || [];
       const shortName = (n) => String(n || "").split(" - ").pop();
-      const devLine = (a.valve_sources || 0) > 1 && extras.length ? `<div class="devs" title="${esc(t("Jedes Thermostat mit eigenem Sollwert und eigener Öffnung"))}">
+      const mainValve = a.valve_own;
+      const devLine = extras.length ? `<div class="devs" title="${esc(t("Jedes Thermostat mit eigenem Sollwert und eigener Öffnung"))}">
           <ha-icon icon="mdi:radiator"></ha-icon>
           <span>${t("{n} Thermostate", { n: extras.length + 1 })}</span>
-          <b>${t("Haupt")} ${fmt(a.valve_position, 0)} %</b>
-          ${extras.map((x) => `<b class="${!x.available ? "off" : x.sync === "ok" ? "" : "warn"}" title="${esc(x.name)} · ${x.available ? `${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : t("nicht erreichbar")}">${esc(shortName(x.name))} ${x.valve != null ? `${fmt(x.valve, 0)} %` : "–"}</b>`).join("")}
+          ${mainValve != null ? `<b>${t("Haupt")} ${fmt(mainValve, 0)} %</b>` : ""}
+          ${extras.map((x) => {
+        const valve = x.valve != null && x.available ? `${fmt(x.valve, 0)} %` : "";
+        return `<b class="${!x.available ? "off" : x.sync === "ok" ? "" : "warn"}" title="${esc(x.name)}${x.available && x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}">${esc(shortName(x.name))}${valve ? ` ${valve}` : ""}</b>`;
+      }).join("")}
         </div>` : "";
       const syncCls = a.sync === "ok" ? "" : a.sync;
       const syncLabel = { ok: t("synchron"), pending: t("sendet …"), failed: t("keine Antwort") }[a.sync] || a.sync;
@@ -5144,7 +5151,7 @@
         this._row("Empfänger", push.length ? `<div class="chips">${push.map((tg) => `<span class="chip2"><i></i>${esc(rkPretty(tg))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was")
       ].join(""))}
       ${this._grp("Thermostat & Fühler", "mdi:radiator", "off", [
-        this._row("Thermostat", this._v(esc(this._name(s.trv))), (s.extra_trvs || []).length ? "Haupt-Thermostat" : ""),
+        this._row("Thermostat", this._v(esc(this._name(s.trv))), [(s.extra_trvs || []).length ? "Haupt-Thermostat" : "", s.valve_reported === false ? t("meldet keine Ventilöffnung") : ""].filter(Boolean).join(" · ")),
         (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}${x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
         this._row(
           "Schnellere Abfrage",

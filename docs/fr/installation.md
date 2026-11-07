@@ -108,6 +108,7 @@ Raumklima pilote **tout thermostat de radiateur qui apparaît comme entité `cli
 | Thermostat | Connexion | Statut |
 |---|---|---|
 | Tuya TRV602Z | Zigbee2MQTT | ✅ testé (décalage, position de la vanne, préréglages) |
+| Moes BRT-100-TRV | Zigbee2MQTT | ✅ testé (position de vanne via son propre capteur, préréglages, plage 0–35 °C) |
 | Aqara Smart Radiator E1 | Zigbee2MQTT | ✅ testé (pas d'état de chauffe sur l'appareil – état déduit de la demande) |
 | Homematic IP WTH-2 + eTRV | Homematic IP (CCU) | ✅ testé (le groupe reste intact, position de vanne lue sur l'eTRV) |
 | Shelly TRV / BLU TRV | Shelly | ❔ pas encore testé – retours bienvenus |

@@ -13,6 +13,7 @@ retours d’utilisateurs et de nos propres mesures ; la liste s’allonge à cha
 | Appareil | Intégration | Fonctionne bien | Limites |
 |---|---|---|---|
 | Thermostat de radiateur Tuya | Zigbee2MQTT | consigne, presets, position de vanne, pile | `preset: on` signifie *ouvert en permanence* – utilisé en interne comme `comfort` + `comfort_temperature` |
+| Moes BRT-100-TRV | Zigbee2MQTT | consigne, préréglages, position de vanne, température mesurée | Signale la position de vanne via son propre `sensor.…_position` – Raumklima l’utilise comme source. Préréglages `none/programming/manual/temporary_manual/holiday` ; plage 0–35 °C, limitée à 6–30 °C |
 | Aqara E1 | Zigbee2MQTT | consigne, fenêtre, pile | ne signale aucun état de chauffe ; l’état est déduit de la demande |
 | Homematic IP / CCU | intégration Homematic | consigne, position de vanne, bidirectionnel | retour souvent après 10 à 20 minutes (radio, économie de pile) |
 | Livisi / RWE SmartHome | intégration Livisi | consigne, fenêtre | **pas d’offset sur l’appareil** – Raumklima apprend une compensation lissée |
