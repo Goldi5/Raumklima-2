@@ -188,10 +188,12 @@ export class RaumklimaReportCard extends HTMLElement {
     // statt geschätzt. Kommt vom Server, damit Bericht und PDF dasselbe zeigen.
     const metric = d.metric || "valve";
     const valKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[metric] || "valve_h";
-    // Sicherheitsnetz: eine Kennzahl ohne einen einzigen Wert (z. B. Gradstunden in einem
-    // gut eingestellten Haus) würde den Bericht leer lassen – dann Heizstunden zeigen.
-    const sum = (k) => days.reduce((s, x) => s + Object.values(x.rooms).reduce((t, r) => t + (Number(r[k]) || 0), 0), 0);
-    const drawn = metric !== "valve" && sum(valKey) === 0 && sum("heating_h") > 0 ? "hours" : metric;
+    // Sicherheitsnetz: eine Kennzahl, die für den Zeitraum kaum Werte hat (z. B. Gradstunden,
+    // die erst seit gestern mitgeschrieben werden), würde nahezu leere Balken zeigen – dann
+    // Heizstunden nehmen und das im Hinweis sagen.
+    const withValue = (k) => days.filter((x) => Object.values(x.rooms).some((r) => (Number(r[k]) || 0) > 0)).length;
+    const fewValues = withValue(valKey) < Math.max(2, days.length * 0.3);
+    const drawn = metric !== "valve" && fewValues && withValue("heating_h") > 0 ? "hours" : metric;
     const drawKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[drawn] || "valve_h";
     const valOf = (r) => (r && Number(r[drawKey])) || 0;
     const valText = (v) =>

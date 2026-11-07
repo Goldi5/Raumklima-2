@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.59.35b1 – 2026-11-07
+
+### Behoben
+- **Bericht wechselt auf Heizstunden, solange eine Kennzahl kaum Werte hat.** Gradstunden gibt es erst
+  seit dem Update – in einem 14-Tage-Fenster wären das ein oder zwei Balken. Liegt für weniger als
+  30 % der Tage ein Wert vor, zeichnet die Karte Heizstunden und sagt es im Hinweis.
 ## 0.59.34b1 – 2026-11-07
 
 ### Behoben

@@ -1,4 +1,4 @@
-/* Raumklima 0.59.34b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.59.35b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1757,7 +1757,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.59.34b1";
+  var RK_VERSION = "0.59.35b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -6267,8 +6267,9 @@
       const days = d.daily.slice(-n);
       const metric = d.metric || "valve";
       const valKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[metric] || "valve_h";
-      const sum = (k) => days.reduce((s, x) => s + Object.values(x.rooms).reduce((t2, r) => t2 + (Number(r[k]) || 0), 0), 0);
-      const drawn = metric !== "valve" && sum(valKey) === 0 && sum("heating_h") > 0 ? "hours" : metric;
+      const withValue = (k) => days.filter((x) => Object.values(x.rooms).some((r) => (Number(r[k]) || 0) > 0)).length;
+      const fewValues = withValue(valKey) < Math.max(2, days.length * 0.3);
+      const drawn = metric !== "valve" && fewValues && withValue("heating_h") > 0 ? "hours" : metric;
       const drawKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[drawn] || "valve_h";
       const valOf = (r) => r && Number(r[drawKey]) || 0;
       const valText = (v) => drawn === "deficit" ? t("{v} K·h unter Ziel", { v: fmt(v, 1) }) : drawn === "hours" ? t("{v} h geheizt", { v: fmt(v, 0) }) : t("Ventil ≈ {v} h", { v: fmt(v, 1) });
