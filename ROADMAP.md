@@ -120,3 +120,6 @@ heat pumps and ACs (cooling, separate targets, short-cycle protection, choose th
 blinds/shading · analytics with model prediction.
 **Maintenance:** backup/restore settings · demo mode · Dependabot and test coverage.
 **Later:** HACS default list · own iPhone app.
+**Idea (no guessing):** use window sensors that report more than open/closed – Homematic IP or Bosch
+window handles distinguish *closed / tilted / open*. Only then can the report name a tilted window;
+a plain reed contact cannot, so Raumklima keeps saying just “open” and never infers a tilt.

@@ -55,7 +55,7 @@ The buttons **Week**, **Month** and **Heating season** create a report **up to t
 |---|---|
 | 1 | **Raumklima grade A–F** (from comfort time, humidity and savings) with history of recent weeks/months · heating hours, savings (optionally **in euros**), comfort time, outdoor temperature · comparison with the previous period and the **year before**, also weather-adjusted · chart of heating hours and outdoor temperature |
 | 2 | **Rooms** with small **trend lines** for temperature and humidity · **ranking** (most economical and warmest room, best comfort time, biggest improvement) · **weekdays vs. weekend** |
-| 3 | **Humidity and mould** as a traffic light per room, problem room, **CO₂** (avg and hours above 1000 ppm) · **airing summary** (how often, how long, tilted > 30 min, “please air” → “air exchanged”) · **heat map** “When is it heating?” – weekday × hour |
+| 3 | **Humidity and mould** as a traffic light per room, problem room, **CO₂** (avg and hours above 1000 ppm) · **airing summary** (how often, how long, open longer than 30 min, “please air” → “air exchanged”) · **heat map** “When is it heating?” – weekday × hour |
 | 4 | **Presence** (nobody home, preheated, warm on arrival, room occupancy, heat-up time per room) · **reliability** (failures, connection drops, **battery levels**) · in the season report a **review** (first/last heating day, coldest day, longest pause, peak month) · **saving tips** with numbers · **findings** |
 
 **Euro estimate:** under *Settings → General → Building & mould protection → Heating costs per year*, enter the costs from your bill (optional). The report then estimates savings in euros and what 1 °C less brings per year – roughly via heating degree days, no meter needed. Leave empty = no euro figures.

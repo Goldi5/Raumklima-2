@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.59.38b1 – 2026-11-07
+
+### Geändert
+- **Keine Behauptung „gekippt" mehr.** Ein Fensterkontakt kennt nur auf und zu – ob gekippt, weit offen
+  oder Tür einen Spalt, ist nicht messbar. Der Bericht sagt jetzt, was gemessen ist („Fenster 11,1 h
+  offen bei 16× Lüften") und gibt nur noch die Empfehlung, ohne den Zustand zu behaupten.
+  Betrifft die Befunde im PDF (`report_extra`), den Berichtstext und die Doku in allen drei Sprachen.
+- **Notiert für später:** Sensoren, die *geschlossen / gekippt / offen* unterscheiden (z. B. Homematic IP
+  oder Bosch Fenstergriffe), könnten den Zustand wirklich liefern — steht in der ROADMAP.
 ## 0.59.37b1 – 2026-11-07
 
 ### Behoben

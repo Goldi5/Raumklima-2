@@ -252,7 +252,7 @@ TIPS = {
         "night": "Nachts (0–5 Uhr) wird {p} % so viel geheizt wie tagsüber – eine Nachtabsenkung spart Energie (z. B. Wunschtemperatur abends per Automation senken).",
         "mild": "An {n} milden Tagen (Tagesmittel ≥ 15 °C) wurde trotzdem geheizt – Heizgrenze oder Wunschtemperaturen prüfen.",
         "all": "1 °C weniger in allen Räumen spart ≈ {e} € im Jahr (Schätzung aus deinen Heizkosten).",
-        "tilt": "{n}× wurde länger als 30 min gelüftet – Kippfenster kühlen Wände aus; besser 5–10 min stoßlüften.",
+        "tilt": "{n}× wurde länger als 30 min gelüftet – lange offene Fenster kühlen die Wände aus; besser 5–10 min stoßlüften.",
         "eur": " (≈ {e} € im Jahr)",
     },
     "en": {
@@ -261,7 +261,7 @@ TIPS = {
         "night": "At night (0–5 am) heating runs at {p} % of the daytime level – a night setback saves energy (e.g. lower the desired temperature in the evening with an automation).",
         "mild": "Heating ran on {n} mild days (daily mean ≥ 15 °C) – check the heating limit or desired temperatures.",
         "all": "1 °C less in all rooms saves ≈ {e} € a year (estimate from your heating costs).",
-        "tilt": "{n}× the window was open longer than 30 min – tilted windows cool the walls; better air wide open for 5–10 min.",
+        "tilt": "{n}× the window was open longer than 30 min – long-open windows cool the walls; better air wide open for 5–10 min.",
         "eur": " (≈ {e} € a year)",
     },
     "fr": {

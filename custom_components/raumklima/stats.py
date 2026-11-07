@@ -54,7 +54,7 @@ ROOM_FIELDS = (
     "vent_done_n",  # „Luft ausgetauscht“
     "vent_close_n",  # „Bitte schließen“
     "vent_cold_n",  # „Raum kühlt aus“
-    "airings_long",  # Lüftungen ≥ 30 min (gekippt?)
+    "airings_long",  # Lüftungen ≥ 30 min (Dauer, kein Rückschluss auf Kippen)
 )
 HOME_FIELDS = ("seconds", "away_s", "outdoor_s", "outdoor_n_s", "preheats", "blips")
 CO2_HIGH = 1000.0
