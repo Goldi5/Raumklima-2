@@ -855,7 +855,8 @@
     "5 Minuten": "5 minutes",
     "15 Minuten": "15 minutes",
     "30 Minuten": "30 minutes",
-    "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "how long the device may stay silent before it counts as unreachable – automatic learns from the radio pauses (FRITZ!DECT needs ~15 minutes)"
+    "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "how long the device may stay silent before it counts as unreachable – automatic learns from the radio pauses (FRITZ!DECT needs ~15 minutes)",
+    "Bericht konnte nicht gezeichnet werden: {e}": "The report could not be drawn: {e}"
   };
 
   // src/i18n/fr.js
@@ -1713,7 +1714,8 @@
     "5 Minuten": "5 minutes",
     "15 Minuten": "15 minutes",
     "30 Minuten": "30 minutes",
-    "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "combien de temps l’appareil peut rester silencieux avant d’être considéré injoignable – automatique apprend des pauses radio (FRITZ!DECT a besoin d’environ 15 minutes)"
+    "wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)": "combien de temps l’appareil peut rester silencieux avant d’être considéré injoignable – automatique apprend des pauses radio (FRITZ!DECT a besoin d’environ 15 minutes)",
+    "Bericht konnte nicht gezeichnet werden: {e}": "Le rapport n’a pas pu être dessiné : {e}"
   };
 
   // src/i18n.js
@@ -2151,7 +2153,7 @@
   });
   var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
   var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
-  function rkLayout2(hass, home) {
+  function rkLayout(hass, home) {
     const key = String(home || "");
     if (!RK_LAYOUT_CACHE.has(key)) {
       RK_LAYOUT_CACHE.set(
@@ -2184,7 +2186,7 @@
     }
     return i < 0 ? order.length : i;
   }
-  function rkRoomsOrdered2(rooms, layout) {
+  function rkRoomsOrdered(rooms, layout) {
     const order = (layout || RK_LAYOUT_EMPTY).order || [];
     return [...rooms || []].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
   }
@@ -2984,7 +2986,7 @@
       }
       if (!this._layoutAsked) {
         this._layoutAsked = true;
-        rkLayout2(hass, rkHomeId(hass, this._config)).then((L) => {
+        rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
           this._layout = L;
           this._render();
         }).catch(() => {
@@ -3009,7 +3011,7 @@
     }
     _reloadLayout() {
       this._layoutAsked = true;
-      rkLayout2(this._hass, rkHomeId(this._hass, this._config)).then((L) => {
+      rkLayout(this._hass, rkHomeId(this._hass, this._config)).then((L) => {
         this._layout = L;
         this._sig = null;
         this._render();
@@ -3207,9 +3209,9 @@
       setLang(hass);
       if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
       if (!this._layout) {
-        rkLayout2(hass, rkHomeId(hass, this._config)).then((L) => {
+        rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
           this._layout = L;
-          this._rooms = rkRoomsOrdered2(this._rooms || [], L);
+          this._rooms = rkRoomsOrdered(this._rooms || [], L);
           this._draw();
         });
       }
@@ -4671,7 +4673,7 @@
     // ---------------------------------------------------------------- Darstellung (A3)
     _loadLayout() {
       const home = this._homeId();
-      rkLayout2(this._hass, home).then((L) => {
+      rkLayout(this._hass, home).then((L) => {
         if (JSON.stringify(L) === JSON.stringify(this._layout || {})) return;
         this._layout = L;
         this._sig = null;
@@ -4690,7 +4692,7 @@
     }
     /** Räume in der gepflegten Reihenfolge – „aus" blendet hier bewusst nichts aus. */
     _orderedRooms() {
-      return rkRoomsOrdered2(this._rooms || [], this._layout);
+      return rkRoomsOrdered(this._rooms || [], this._layout);
     }
     _layoutList() {
       const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
@@ -6130,6 +6132,15 @@
       }
       return 1e6;
     }
+    // Fehler dürfen die Karte nie leer lassen: Meldung an den Server schicken und den Text
+    // anzeigen. Auf dem iPad gibt es keine Konsole, und ein leerer Tab sagt niemandem etwas.
+    _trace(event, data = {}) {
+      try {
+        this._hass.callWS({ type: "raumklima/trace", event, data: { ...data, version: RK_VERSION } }).catch(() => {
+        });
+      } catch (e) {
+      }
+    }
     _colors() {
       const rooms = rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config));
       this._roomColor = (name) => {
@@ -6159,7 +6170,16 @@
       let body;
       if (this._err) body = `<div class="err">${t("Bericht nicht verfügbar: {e}", { e: esc(this._err) })}</div>`;
       else if (!d) body = `<div class="empty">${t("Lade Bericht …")}</div>`;
-      else body = this._body(d, P);
+      else {
+        try {
+          body = this._body(d, P);
+          this._trace("report:ok", { metric: d.metric || "?", rooms: Object.keys((d[P] || {}).rooms || {}).length });
+        } catch (e) {
+          const msg = String(e && (e.stack || e.message) || e).slice(0, 300);
+          this._trace("report:error", { e: msg });
+          body = `<div class="err">${t("Bericht konnte nicht gezeichnet werden: {e}", { e: esc(msg) })}</div>`;
+        }
+      }
       const since = d && d.since ? (/* @__PURE__ */ new Date(d.since + "T00:00:00")).toLocaleDateString(loc(), { day: "numeric", month: "long" }) : null;
       this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
       <ha-card class="report" style="--tone:${toneVar("off")}">
@@ -6264,7 +6284,7 @@
         this._tile("Draußen", "mdi:thermometer", "air", cur.outdoor_avg == null ? "–" : fmt(cur.outdoor_avg, 1), cur.outdoor_avg == null ? "" : " °C", t("{n} Heizgradtage", { n: fmt(cur.hdd, 0) }) + (diff(cur.hdd, prev.hdd, "", 0) ? " · " + diff(cur.hdd, prev.hdd, "", 0) : ""))
       ].join("");
       const n = P === "week" ? 14 : 31;
-      const days = d.daily.slice(-n);
+      const days = Array.isArray(d.daily) ? d.daily.slice(-n) : [];
       const metric = d.metric || "valve";
       const valKey = { valve: "valve_h", deficit: "deficit_kh", hours: "heating_h" }[metric] || "valve_h";
       const withValue = (k) => days.filter((x) => Object.values(x.rooms).some((r) => (Number(r[k]) || 0) > 0)).length;
@@ -6457,9 +6477,9 @@
       setLang(hass);
       if (first) {
         this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
-        rkLayout2(hass, rkHomeId(hass, this._config)).then((L) => {
+        rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
           this._layout = L;
-          this._rooms = rkRoomsOrdered2(this._rooms || [], L);
+          this._rooms = rkRoomsOrdered(this._rooms || [], L);
           this._render();
         });
         if (this._config.entity) {
@@ -6645,7 +6665,7 @@
         return { id: e.entity_id, name, attrs: st ? st.attributes : {}, sib, area, floor };
       }).filter((r) => !homeId || !r.attrs.home || r.attrs.home === homeId).sort(roomSort(config));
       const H = homeId ? { home: homeId } : {};
-      const layout = await rkLayout2(hass, homeId).catch(() => null);
+      const layout = await rkLayout(hass, homeId).catch(() => null);
       const shown = rkLayoutApply(rooms, layout);
       shown.forEach((r, i) => {
         r.color = rkLayoutColor(layout, r.id) || ROOM_COLORS[i % ROOM_COLORS.length];

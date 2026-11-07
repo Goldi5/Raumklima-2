@@ -1,4 +1,5 @@
-import { HISTORY_STYLES, ISSUE_STYLES, REPORT_STYLES, ROOM_COLORS, SETTINGS_STYLES, STYLES, esc, fmt, loc, rkIssueList, rkHomeId, rkRooms, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { RK_VERSION } from "../version.js";
+import { HISTORY_STYLES, ISSUE_STYLES, REPORT_STYLES, ROOM_COLORS, SETTINGS_STYLES, STYLES, esc, fmt, loc, rkIssueList, rkHomeId, rkLayout, rkPretty, rkRooms, rkRoomsOrdered, rkScrolling, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaReportCard extends HTMLElement {
@@ -53,6 +54,16 @@ export class RaumklimaReportCard extends HTMLElement {
     return 1e6;
   }
 
+  // Fehler dürfen die Karte nie leer lassen: Meldung an den Server schicken und den Text
+  // anzeigen. Auf dem iPad gibt es keine Konsole, und ein leerer Tab sagt niemandem etwas.
+  _trace(event, data = {}) {
+    try {
+      this._hass
+        .callWS({ type: "raumklima/trace", event, data: { ...data, version: RK_VERSION } })
+        .catch(() => {});
+    } catch (e) { /* nie stören */ }
+  }
+
   _colors() {
     const rooms = rkRooms(this._hass, this._config.strip_prefix || "", rkHomeId(this._hass, this._config));
     this._roomColor = (name) => {
@@ -84,7 +95,16 @@ export class RaumklimaReportCard extends HTMLElement {
     let body;
     if (this._err) body = `<div class="err">${t("Bericht nicht verfügbar: {e}", { e: esc(this._err) })}</div>`;
     else if (!d) body = `<div class="empty">${t("Lade Bericht …")}</div>`;
-    else body = this._body(d, P);
+    else {
+      try {
+        body = this._body(d, P);
+        this._trace("report:ok", { metric: d.metric || "?", rooms: Object.keys((d[P] || {}).rooms || {}).length });
+      } catch (e) {
+        const msg = String((e && (e.stack || e.message)) || e).slice(0, 300);
+        this._trace("report:error", { e: msg });
+        body = `<div class="err">${t("Bericht konnte nicht gezeichnet werden: {e}", { e: esc(msg) })}</div>`;
+      }
+    }
     const since = d && d.since ? new Date(d.since + "T00:00:00").toLocaleDateString(loc(), { day: "numeric", month: "long" }) : null;
     this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
       <ha-card class="report" style="--tone:${toneVar("off")}">
@@ -182,7 +202,7 @@ export class RaumklimaReportCard extends HTMLElement {
 
     // Tage
     const n = P === "week" ? 14 : 31;
-    const days = d.daily.slice(-n);
+    const days = Array.isArray(d.daily) ? d.daily.slice(-n) : [];
     // Womit wird „Wärmemenge" gemessen? Geräte ohne Ventilstellung (Livisi VRCC, Homematic
     // ohne Positionssensor) liefern keine Öffnung – dann Gradstunden unter Ziel, gemessen
     // statt geschätzt. Kommt vom Server, damit Bericht und PDF dasselbe zeigen.

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.59.36b1 – 2026-11-07
+
+### Behoben
+- **Berichtskarte blieb komplett leer (Remscheid).** In `cards/report.js` wurden `rkLayout` und
+  `rkRoomsOrdered` benutzt, aber nicht importiert – der `hass`-Setter warf beim ersten Zeichnen eine
+  `ReferenceError`, die Karte zeigte nichts, ohne Meldung. Import ergänzt.
+- **Die Karte kann nicht mehr stumm leer bleiben:** Zeichnen ist jetzt in `try/catch`, ein Fehler
+  steht als Text in der Karte und geht zusätzlich an die Debug-Spur (`report:error`, bei Erfolg
+  `report:ok` mit Kennzahl und Raumzahl).
+
+### Geändert
+- **Import-Wächter deckt jetzt auch `rk*`-Helfer ab** (`frontend/test/imports.test.mjs`), nicht nur
+  `RK_*`-Konstanten — genau diese Lücke hat den leeren Bericht durchgelassen.
 ## 0.59.35b1 – 2026-11-07
 
 ### Behoben
