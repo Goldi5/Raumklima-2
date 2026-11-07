@@ -253,6 +253,7 @@ def check_setpoint_ignored(
     actual: float | None,
     expected: float | None,
     device: str | None = None,
+    needed: int | None = None,
 ) -> Issue | None:
     """Thermostat steht dauerhaft auf einem anderen Sollwert als geschrieben.
 
@@ -260,7 +261,10 @@ def check_setpoint_ignored(
     (``Ziel + offset_auto``). Bleibt das Gerät trotzdem woanders, hält es einen eigenen Zeitplan,
     einen Boost oder eine Automation – und der Raum erreicht das Ziel nie.
     """
-    if actual is None or expected is None or not minutes or minutes < SETPOINT_IGNORE_MINUTES:
+    # Wie lange darf es dauern? Ein Gerät, das nur alle 15 Minuten funkt, kann nach 15 Minuten
+    # noch gar nicht gefolgt sein – die Wartezeit kommt deshalb vom Aufrufer (Meldetakt).
+    wait = max(SETPOINT_IGNORE_MINUTES, needed or 0)
+    if actual is None or expected is None or not minutes or minutes < wait:
         return None
     if abs(actual - expected) < SETPOINT_MISMATCH_K:
         return None

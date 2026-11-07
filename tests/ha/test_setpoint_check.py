@@ -45,3 +45,12 @@ def test_rundungsrest_unter_halber_grad_zaehlt_nicht() -> None:
 @pytest.mark.parametrize(("actual", "expected"), [(None, 21.0), (21.0, None)])
 def test_unbekannte_werte_melden_nichts(actual: float | None, expected: float | None) -> None:
     assert check_setpoint_ignored(120, actual, expected) is None
+
+
+def test_wartezeit_folgt_dem_meldetakt() -> None:
+    """Ein Gerät, das alle 15 Minuten funkt, kann nach 20 Minuten nicht gefolgt sein (#35)."""
+    # 15-min-Gerät: erst ab 30 Minuten melden
+    assert check_setpoint_ignored(20, 23.0, 22.5, needed=30) is None
+    assert check_setpoint_ignored(31, 23.0, 22.5, needed=30) is not None
+    # Zigbee (5 min): 15 Minuten bleiben die Untergrenze
+    assert check_setpoint_ignored(14, 23.0, 22.5, needed=10) is None

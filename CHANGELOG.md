@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.62.5b1 – 2026-11-07
+
+### Behoben
+- **„Thermostat übernimmt den Sollwert nicht" schlug bei Funk-Thermostaten zu früh an (#35).** Die
+  Wartezeit war fest auf 15 Minuten gesetzt; ein FRITZ!DECT meldet aber nur alle ~15 Minuten und
+  konnte in dieser Zeit gar nicht gefolgt sein — der Melder bekam eine Warnung, während der Sollwert
+  noch unterwegs war. Die Wartezeit folgt jetzt dem Meldetakt des Geräts: **2 × Meldepause**, mindestens
+  15 Minuten (AVM also 30, Zigbee 15). Dieselbe Regel wie bei der Ausfallmeldung (#33).
 ## 0.62.4b1 – 2026-11-07
 
 ### Behoben

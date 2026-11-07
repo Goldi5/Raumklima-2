@@ -2,7 +2,7 @@
 
 🇬🇧 [English documentation](../en/README.md) · 🇫🇷 [Documentation en français](../fr/README.md)
 
-**Aktuelle Version: 0.62.4b1** – Änderungen siehe [CHANGELOG](../../CHANGELOG.md) · Geplant: [ROADMAP](../../ROADMAP.md)
+**Aktuelle Version: 0.62.5b1** – Änderungen siehe [CHANGELOG](../../CHANGELOG.md) · Geplant: [ROADMAP](../../ROADMAP.md)
 
 **Raumklima** macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: geregelt wird nach einem echten Raumfühler, bei offenem Fenster pausiert, beim Lüften beraten, bei Abwesenheit abgesenkt – und im Sommer gar nicht erst geheizt.
 

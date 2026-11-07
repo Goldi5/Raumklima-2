@@ -22,6 +22,7 @@ from .decision_log import (
 )
 from .health import (
     DERIVED_PRESET_PLATFORMS,
+    SETPOINT_IGNORE_MINUTES,
     SETPOINT_MISMATCH_K,
     HistoryPoint,
     Issue,
@@ -514,6 +515,7 @@ class HealthMixin:
                 self._setpoint_off_minutes(now),
                 self.trv_target,
                 self.trv_expected_target,
+                needed=self.setpoint_wait_minutes(),
             ),
             check_window_flapping(self.window_flips_24h),
             check_window(
@@ -530,6 +532,7 @@ class HealthMixin:
                 extra.setpoint,
                 (extra.summary() or {}).get("setpoint_expected"),
                 device=extra.name,
+                needed=self.setpoint_wait_minutes(),
             )
             if stuck is not None:
                 issues.append(stuck)
@@ -539,6 +542,14 @@ class HealthMixin:
     def issues(self) -> list[Issue]:
         hub = self.hub
         return hub.insights.issues.get(self.entry.entry_id, []) if hub else []
+
+    def setpoint_wait_minutes(self) -> int:
+        """Wie lange darf das Gerät brauchen, bis es den Sollwert übernommen hat?
+
+        Zwei Meldepausen plus eine Minute: ein Gerät, das alle 15 Minuten funkt, hat erst dann
+        überhaupt Gelegenheit gehabt, den neuen Wert zu bekommen (Issue #35).
+        """
+        return max(SETPOINT_IGNORE_MINUTES, int(self.trv_expected_interval / 60) * 2)
 
     def _regulating(self) -> bool:
         """Regelt die Integration gerade? Sonst darf der Gerätesollwert abweichen."""
