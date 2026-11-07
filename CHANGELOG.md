@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.59.40b1 – 2026-11-07
+
+### Hinzugefügt
+- **CSV: mittleres Tagesziel** (`ziel_mittel_C`). Ohne das Ziel lässt sich nicht prüfen, ob die
+  berechnete Ventilöffnung zum Raumverhalten passt — die Rechnung hängt direkt an (Ziel − Ist).
+  Zusätzlich zu `ventil_voll_offen_h`, `ventil_berechnet_h` und `gradstunden_unter_ziel_Kh`.
 ## 0.59.39b1 – 2026-11-07
 
 ### Hinzugefügt

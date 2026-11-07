@@ -24,6 +24,8 @@ ROOM_FIELDS = (
     "valve_calc_pct_s",  # ∫ berechneter Öffnungsgrad % · s (Schattenmodus)
     "valve_seen_s",  # Zeit, in der das Gerät überhaupt eine Ventilstellung meldet
     "deficit_ks",  # ∫ max(0, Ziel − Ist) K · s – Rückfall ohne Ventilstellung
+    "target_s",  # ∫ Ziel · s (Tagesmittel des Ziels)
+    "target_n_s",  # Zeit mit gültigem Ziel
     "setback_s",  # abgesenkt (Abwesenheit)
     "setback_ks",  # ∫ (Wunsch − Ziel) K · s
     "window_pause_s",  # Heizung wegen Fenster pausiert (ohne Nachtlüften)
@@ -106,6 +108,9 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
     # Pausen dürfen nicht als Wärmebedarf zählen, sonst wäre der Rückfall wertlos.
     if s.temp is not None and s.plan_on and not s.paused:
         day["deficit_ks"] += max(0.0, s.effective - s.temp) * dt
+    if s.plan_on and not s.paused:
+        day["target_s"] += s.effective * dt
+        day["target_n_s"] += dt
     if s.reason in ("away_short", "away_long"):
         day["setback_s"] += dt
         day["setback_ks"] += max(0.0, s.target - s.effective) * dt
@@ -208,6 +213,11 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         "valve_calc_h": round(_sum(days, "valve_calc_pct_s") / 100 / 3600, 1),
         # Gradstunden unter Ziel: gemessene Wärmelücke, funktioniert auch ohne Ventilstellung
         "deficit_kh": round(_sum(days, "deficit_ks") / 3600, 1),
+        "target_avg": (
+            round(_sum(days, "target_s") / _sum(days, "target_n_s"), 1)
+            if _sum(days, "target_n_s")
+            else None
+        ),
         # Meldet das Gerät überhaupt eine Ventilstellung? (nicht: „hat gerade 0 %")
         # Neues Feld „valve_seen_s" füllt sich erst ab dem Update – ein gemessener
         # Öffnungswert in der Vergangenheit beweist genauso, dass das Gerät sie meldet.
@@ -330,6 +340,7 @@ CSV_COLUMNS = (
     # Schattenmodus: was Raumklima rechnen würde – Vergleich zur Geräteposition (#28)
     ("valve_calc_h", "ventil_berechnet_h"),
     ("deficit_kh", "gradstunden_unter_ziel_Kh"),
+    ("target_avg", "ziel_mittel_C"),
     ("setback_h", "abgesenkt_h"),
     ("setback_avg_k", "absenkung_mittel_K"),
     ("window_pause_h", "fenster_pause_h"),
