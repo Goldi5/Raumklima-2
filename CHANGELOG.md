@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.62.8b1 – 2026-11-07
+
+### Behoben
+
+- **„Thermostat nicht erreichbar" bei Geräten mit sehr kurzem Meldetakt.** Die Ausfallgrenze war
+  zwei Funkpausen plus zwei Minuten – bei einem Gerät, das im Betrieb alle paar Sekunden meldet
+  (`trv_interval_min` 0,1), ergab das 132 Sekunden. Im Ruhezustand schweigt so ein Gerät aber
+  minutenlang, und die Meldung kam zu Unrecht. Die Grenze hat jetzt eine Untergrenze von fünf
+  Minuten.
+
 ## 0.62.7b1 – 2026-11-07
 
 ### Behoben

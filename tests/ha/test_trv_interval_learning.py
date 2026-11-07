@@ -64,3 +64,20 @@ async def test_lernproben_ueberleben_den_neustart(hass: HomeAssistant, setup) ->
 
     stored = ctrl._stored_data()
     assert stored["outage_durations"] == [300.0, 600.0, 900.0]
+
+
+async def test_untergrenze_verhindert_ausfall_alarm_bei_kurzem_takt(hass: HomeAssistant, setup) -> None:
+    """Sehr kurzer Meldetakt darf nicht zu einer Zwei-Minuten-Grenze führen.
+
+    Ein Tuya-TRV meldet im Betrieb alle paar Sekunden und im Ruhezustand minutenlang nichts.
+    Mit ``2 × 6 s + 120 s`` (= 132 s) galt es als ausgefallen, obwohl es nur schwieg.
+    """
+    _hub, room = setup
+    from custom_components.raumklima.shared import domain_data
+
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl._outage_durations.clear()
+    ctrl.config["trv_interval"] = 0.1  # Minuten → 6 s
+
+    assert ctrl.trv_expected_interval == 6
+    assert ctrl.outage_seconds == 300, "Untergrenze 5 Minuten"

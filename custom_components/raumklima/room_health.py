@@ -58,6 +58,8 @@ REPORT_SECONDS_BY_PLATFORM = {
 }
 REPORT_SECONDS_DEFAULT = 300
 OUTAGE_SAMPLES_MIN = 3  # so viele beobachtete Funkpausen, bevor die eigene Zeit gilt
+# Untergrenze für die Ausfallmeldung: ein Gerät, das im Leerlauf schweigt, ist nicht kaputt.
+OUTAGE_MIN_SECONDS = 300.0
 
 
 
@@ -351,8 +353,14 @@ class HealthMixin:
 
     @property
     def outage_seconds(self) -> float:
-        """Ab wann gilt das Gerät als ausgefallen? Zwei Funkpausen plus zwei Minuten."""
-        return max(120.0, min(self.trv_expected_interval * 2 + 120, 3600.0))
+        """Ab wann gilt das Gerät als ausgefallen? Zwei Funkpausen plus zwei Minuten.
+
+        Mit Untergrenze: ein Gerät, das im Leerlauf schweigt, ist nicht kaputt. Zigbee- und
+        MQTT-Geräte melden im Betrieb alle paar Sekunden und danach minutenlang nichts –
+        ``2 × 6 s + 120 s`` ergäbe 132 s und damit Fehlalarme (Fall: Tuya-TRV, das im
+        Ruhezustand Funkstille hält).
+        """
+        return max(OUTAGE_MIN_SECONDS, min(self.trv_expected_interval * 2 + 120, 3600.0))
 
     def _preset_is_derived(self) -> bool:
         """Leitet die Integration das Preset nur aus dem Sollwert ab (AVM/FRITZ!DECT)?
