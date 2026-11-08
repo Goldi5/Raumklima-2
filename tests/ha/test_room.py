@@ -1046,3 +1046,77 @@ async def test_aus_ohne_bekannte_minimaltemperatur_schreibt_nichts(hass: HomeAss
     assert [
         c for c in trv.calls if c[0] == "set_temperature" and float(c[1].get("temperature", -1)) == 4.0
     ], "mit bekannter Grenze wird abgeschaltet"
+
+
+async def test_eigenes_schreiben_schaltet_den_raum_nicht_ein(
+    hass: HomeAssistant, setup, trv: FakeTrv
+) -> None:
+    """Ein TRV, das beim Sollwertschreiben selbst auf „heat" springt, darf den Raum nicht einschalten.
+
+    Issue #37: Nach einem Neustart schrieb die Integration bei ausgeschalteten Räumen die
+    Gerätegrenze. Ein TRVZB schaltet dabei von „off" auf „heat", das Gerät meldet das zurück —
+    und mit „Drehen am Thermostat übernehmen" wurde daraus ein Handeingriff: der Raum heizte,
+    obwohl er bewusst ausgeschaltet war.
+    """
+    from custom_components.raumklima.const import OFF_SOURCE_USER
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    trv.set(preset_mode="off")  # Gerät ist aus (bei diesem Modell über das Preset)
+    await hass.async_block_till_done()
+    ctrl.hvac_on = False
+    ctrl.off_source = OFF_SOURCE_USER
+
+    ctrl._mark_own_write()  # wir haben gerade geschrieben
+    trv.set(preset_mode="manual")  # Gerät meldet daraufhin „an"
+    await hass.async_block_till_done()
+
+    assert ctrl.hvac_on is False, "eigenes Schreiben ist kein Handeingriff"
+    assert ctrl.off_source == OFF_SOURCE_USER
+
+
+async def test_handeingriff_wird_ohne_eigenes_schreiben_uebernommen(
+    hass: HomeAssistant, setup, trv: FakeTrv
+) -> None:
+    """Gegenprobe: schaltet jemand wirklich am Gerät, gilt das weiterhin als Handeingriff."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.hvac_on = True
+    ctrl.off_source = None
+    ctrl._own_write_at = None  # kein eigener Befehl in der Nähe
+    ctrl.sync.cancel_all()  # keine offenen Schreibaufträge (die würden die Erkennung pausieren)
+    await hass.async_block_till_done()
+
+    trv.set(preset_mode="off")  # jemand schaltet am Gerät aus
+    await hass.async_block_till_done()
+
+    assert ctrl.hvac_on is False, "Gerät aus → Raum aus"
+
+
+async def test_schonfrist_verschluckt_keinen_echten_handeingriff(
+    hass: HomeAssistant, setup, trv: FakeTrv
+) -> None:
+    """Gegenprobe zur Schonfrist: soll der Raum heizen, zählt die Meldung als Handeingriff.
+
+    Die Frist gilt nur, solange der Raum aus sein soll. Sonst bliebe ein echtes Ausschalten am
+    Gerät bei langsamen Thermostaten (Meldetakt 15 min → Frist 30 min) eine halbe Stunde
+    wirkungslos.
+    """
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.hvac_on = True
+    ctrl.off_source = None
+    ctrl.sync.cancel_all()  # offene Aufträge pausieren die Erkennung
+    ctrl._mark_own_write()  # gerade selbst geschrieben – Frist läuft
+    await hass.async_block_till_done()
+
+    trv.set(preset_mode="off")  # jemand schaltet am Gerät aus
+    await hass.async_block_till_done()
+
+    assert ctrl.hvac_on is False, "bei heizendem Raum wird die Meldung übernommen"
+    assert ctrl.off_source is not None

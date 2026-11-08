@@ -78,6 +78,13 @@ SEND_WINDOW = timedelta(minutes=10)
 SEND_BACKOFF = timedelta(minutes=15)
 
 
+# Eigene Schreibvorgänge kommen als Gerätemeldung zurück: ein TRVZB schaltet beim Sollwert
+# selbst von „off" auf „heat". Eine solche Meldung darf nicht als Handeingriff gelten – sonst
+# wird der Raum eingeschaltet, obwohl der Nutzer ihn ausgeschaltet hatte (Issue #37).
+# Die Frist skaliert mit dem Meldetakt, weil langsame Geräte erst beim nächsten Poll melden.
+OWN_WRITE_GRACE = 90.0  # s (Mindestwert)
+
+
 class TrvMixin:
     """Thermostat-Teil des Raum-Controllers."""
 
@@ -152,9 +159,29 @@ class TrvMixin:
             )
         return clamp(target, self.trv_min, self.trv_max)
 
+    def _mark_own_write(self) -> None:
+        """Zeitpunkt des letzten eigenen Schreibbefehls merken (Issue #37)."""
+        self._own_write_at = dt_util.utcnow()
+
+    def _own_write_recent(self) -> bool:
+        """Kam die Gerätemeldung als Folge unseres eigenen Schreibens?"""
+        at = getattr(self, "_own_write_at", None)
+        if at is None:
+            return False
+        interval = float(getattr(self, "trv_expected_interval", 0) or 0)
+        return (dt_util.utcnow() - at).total_seconds() < max(OWN_WRITE_GRACE, 2 * interval)
+
     def _detect_manual_change(self, old: State, new: State) -> None:
         """Änderungen direkt am TRV erkennen (nicht von uns gesendet)."""
         if self.sync.jobs or self.paused or self._apply_lock.locked():
+            return
+        if self._own_write_recent() and not self.hvac_on:
+            # Gerät reagiert auf unseren eigenen Befehl (off → heat beim Sollwertschreiben):
+            # kein Handeingriff – sonst schaltet sich ein ausgeschalteter Raum selbst ein.
+            # Nur in diesem Fall: soll der Raum heizen, ist eine Gerätemeldung eine normale
+            # Aktualisierung und darf nicht verschluckt werden (sonst bliebe ein echtes
+            # „am Gerät einschalten" bis zu einer halben Stunde wirkungslos).
+            _LOGGER.debug("%s: Gerätemeldung nach eigenem Schreiben – ignoriert", self.name)
             return
         method = self._off_method()
         follow = bool(self.config[CONF_FOLLOW_TRV])
@@ -313,6 +340,7 @@ class TrvMixin:
         return clamp(target, self.trv_min, self.trv_max)
 
     async def _call_climate(self, service: str, **data: Any) -> None:
+        self._mark_own_write()
         await self.hass.services.async_call(
             "climate",
             service,
@@ -358,6 +386,7 @@ class TrvMixin:
         if self.target_via == "comfort_temperature" and self.comfort_number:
             if str(self._trv_attr("preset_mode") or "").lower() != "comfort":
                 await self._call_climate("set_preset_mode", preset_mode="comfort")
+            self._mark_own_write()
             await self.hass.services.async_call(
                 "number",
                 "set_value",

@@ -375,13 +375,20 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
     }
 
 
+# Einmal beim Import gelesen (der Import läuft im Executor), nicht bei jedem Aufruf:
+# `raumklima/config` wird bei jedem Dashboard-Laden aufgerufen und läuft im Event-Loop –
+# dort meldet Home Assistant synchrones Datei-I/O als „blocking call" (Issue #36).
+try:
+    _VERSION: str = str(
+        json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8")).get("version") or "0"
+    )
+except (OSError, ValueError):  # pragma: no cover – nur bei kaputter Installation
+    _VERSION = "0"
+
+
 def _installed_version() -> str:
-    """Version aus der manifest.json der laufenden Installation."""
-    try:
-        data = json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return "0"
-    return str(data.get("version") or "0")
+    """Version der laufenden Installation (beim Import der Datei gelesen)."""
+    return _VERSION
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/config", vol.Optional("home"): vol.Any(None, str)})

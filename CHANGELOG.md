@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.62.15b1 – 2026-11-08
+
+### Behoben
+
+- **Ausgeschaltete Räume heizten nach einem Neustart (Issue #37).** Beim Schreiben der
+  Minimaltemperatur schaltet ein Zigbee-TRV selbst von „off" auf „heat" und meldet das zurück.
+  War der Schreibauftrag in dem Moment schon bestätigt, galt die Meldung als Handeingriff – mit
+  „Drehen am Thermostat übernehmen" wurde der Raum eingeschaltet und heizte, bis der periodische
+  Abgleich lief. Eigene Schreibvorgänge werden jetzt erkannt (Frist skaliert mit dem Meldetakt)
+  und nur dann ignoriert, wenn der Raum aus sein soll. Ein echter Handeingriff bei heizendem
+  Raum zählt weiterhin – dafür gibt es eine Gegenprobe im Test.
+- **Blocking call beim Dashboard-Laden (Issue #36).** Die laufende Version wurde bei jedem
+  `raumklima/config`-Aufruf aus der `manifest.json` gelesen, und der Befehl läuft im Event-Loop.
+  Sie wird jetzt einmal beim Import gelesen.
+
+### Geändert
+
+- Die Auswahl der Kalibrierart heißt in der Karte jetzt **„Ohne Abgleich"** statt „Keine"
+  (Issue #38 – die Beschriftung war mehrdeutig).
+
 ## 0.62.14b1 – 2026-11-08
 
 ### Neu
