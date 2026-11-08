@@ -173,6 +173,7 @@ from .room_lights import LightSignal
 from .room_presence import PresenceMixin
 from .room_trv import HEAT_PRESETS, MANUAL_OVERRIDE, TrvMixin
 from .room_windows import WindowMixin
+from .series import RoomSeries
 from .shared import domain_data, get_hub, iso, parse_dt
 from .sync import SyncManager
 from .usage_profile import UsageProfile
@@ -381,6 +382,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         )
 
         self.vent = VentilationManager(self, None)
+        # Kurve für die Diagnose-Datei (4-Minuten-Raster, zusätzlich bei Änderungen).
+        self.series = RoomSeries()
         self.lights = LightSignal(self)
         self.extra_trvs = [ExtraTrv(self, e) for e in self._extra_ids]
         self._rf: dict[str, Any] = {"day": "", "sent": 0, "retries": 0}
@@ -439,6 +442,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self._save()
 
         self.vent.load((stored or {}).get("vent"))
+        self.series.load((stored or {}).get("series"))
         self.valve_sensor = self._find_valve_sensor()
         for extra in self.extra_trvs:
             extra.discover()
@@ -532,6 +536,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "preset_learned": self.preset_learned,
             "shift": self.shift,
             "vent": self.vent.export() if self.vent else None,
+            "series": self.series.export(),
             "heatup": self.heatup.dump(),
             "mold_vapour": self.mold_guard.dump(),
             "rf": self._rf,
@@ -1461,6 +1466,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                         self.hass.async_create_task(extra.calibrate())
         if self.vent:
             self.vent.update()
+        self._sample_series()
         self._notify()
 
     def _ingest_sensor(self, state: State | None) -> bool:
@@ -1575,6 +1581,31 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         )
 
     @callback
+    def _series_action(self) -> str:
+        """Kurzschlüssel des Heiz-Zustands – ohne `plan()`, das hat hier nichts zu suchen."""
+        if self.monitor:
+            return "m"
+        if self.paused:
+            return "w"
+        if not self.hvac_on:
+            return "o"
+        return "h" if self.hvac_action == HVACAction.HEATING else "i"
+
+    @callback
+    def _sample_series(self) -> None:
+        """Einen Punkt für die Diagnose-Kurve aufnehmen (nur wenn Raster oder Änderung)."""
+        if not getattr(self, "_started", False):
+            return
+        self.series.maybe_add(
+            dt_util.utcnow(),
+            current=self.current_temperature,
+            target=self.target_temp,
+            setpoint=self.trv_target,
+            valve=self.valve_position,
+            action=self._series_action(),
+        )
+
+    @callback
     def _on_reconcile(self, _now: datetime) -> None:
         """Sicherheitsnetz: Fenster neu bewerten und Soll-Zustand abgleichen."""
         if self.valve_sensor is None:
@@ -1585,6 +1616,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if state and is_valid(state.state):
                 self._last_valid_windows[entity] = window_open_state(entity, state)
         self._evaluate_windows()
+        self._sample_series()
+        self._save()
         self.hass.async_create_task(self._apply())
 
     @callback

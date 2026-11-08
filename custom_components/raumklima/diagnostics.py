@@ -217,11 +217,52 @@ def _room_block(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> dict[str, A
         "config": config,
         "learned": _learned_room(room),
         "values": values,
+        "series": _series_block(room),
         "entities": entities,
         "services": services,
         "unavailable": unavailable,
         "unknown": unknown,
     }
+
+
+def _series_block(room: Any) -> dict[str, Any]:
+    """Kurve der letzten ~24 h (Ist, Ziel, Gerätesollwert, Ventil, Zustand)."""
+    series = getattr(room, "series", None)
+    if series is None or not hasattr(series, "export"):
+        return {}
+    try:
+        return series.export()
+    except Exception as err:  # noqa: BLE001 – Diagnose darf nie selbst abstürzen
+        return {"error": f"{type(err).__name__}: {err}"}
+
+
+def _setpoint_events(hub: Any, limit: int = 200) -> list[dict[str, Any]]:
+    """Sollwertwechsel mit Quelle: unser Schreibvorgang oder eine Änderung am Gerät.
+
+    Die Unterscheidung ist bei „das Thermostat macht, was es will“ die entscheidende Frage –
+    im Protokoll stehen beide Fälle als eigene Kategorie, hier stehen sie nebeneinander.
+    """
+    if hub is None or not hasattr(hub, "log"):
+        return []
+    out: list[dict[str, Any]] = []
+    for entry in hub.log.query(limit=2000):
+        cat = str(entry.get("cat") or "")
+        msg = str(entry.get("msg") or "")
+        if cat not in ("target", "manual", "device"):
+            continue
+        if not any(word in msg for word in ("Sollwert", "Ziel", "gedreht", "Wunschtemperatur")):
+            continue
+        if msg.startswith("Thermostat: Sollwert") or "Sollwert gesendet" in msg:
+            source = "raumklima"
+        elif "gedreht" in msg:
+            source = "geraet"
+        else:
+            source = "plan"
+        out.append({"t": entry.get("t"), "room": entry.get("room"), "source": source, "cat": cat, "msg": msg})
+        if len(out) >= limit:
+            break
+    out.reverse()  # chronologisch, älteste zuerst
+    return out
 
 
 def _hub_block(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> dict[str, Any] | None:
@@ -343,6 +384,7 @@ async def async_get_config_entry_diagnostics(
             )
         },
         "log": hub.log.query(limit=50) if hub is not None and hasattr(hub, "log") else [],
+        "events": _setpoint_events(hub),
         "debug": debug_tail(),
     }
     secrets: set[str] = set()

@@ -43,6 +43,26 @@ async def test_diagnostics_contains_environment_and_rooms(hass: HomeAssistant, s
     assert bad["values"]["calibration_mode"]
 
 
+async def test_diagnostics_enthaelt_kurve_und_ereignisse(hass: HomeAssistant, setup) -> None:
+    """Die Datei ist keine Momentaufnahme mehr: je Raum eine Kurve, dazu Sollwertwechsel mit Quelle."""
+    hub, _room = setup
+    hass.states.async_set(
+        "sensor.bad_temperatur", "19.5", {"unit_of_measurement": "°C", "device_class": "temperature"}
+    )
+    await hass.async_block_till_done()
+
+    data = await async_get_config_entry_diagnostics(hass, hub)
+    bad = data["rooms"][0]
+    series = bad["series"]
+    assert series["t0"], "die Kurve hat einen Startzeitpunkt"
+    assert series["i"] and isinstance(series["i"][0], float)
+    assert len(series["t"]) == len(series["i"]) == len(series["z"]) == len(series["v"])
+    assert set(series["legend"]) >= {"h", "i", "o"}
+
+    assert isinstance(data["events"], list)
+    assert all("source" in e for e in data["events"])
+
+
 async def test_diagnostics_room_entry_contains_hub(hass: HomeAssistant, setup) -> None:
     _hub, room = setup
     data = await async_get_config_entry_diagnostics(hass, room)

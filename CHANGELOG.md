@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.62.21b1 – 2026-11-08
+
+### Neu
+
+- **Die Diagnose-Datei enthält jetzt Verläufe statt nur einer Momentaufnahme.** Je Raum liegen
+  die letzten ~24 Stunden als Kurve bei: Raumtemperatur, Ziel, Sollwert am Gerät, Ventilstellung
+  und Heiz-Zustand – im 4-Minuten-Raster und zusätzlich bei jeder größeren Änderung. Die Kurve
+  übersteht einen Neustart, weil sie im Raumzustand gespeichert wird. Damit lässt sich eine
+  Meldung wie „heizt, obwohl der Raum zu warm ist“ in einer Zeile entscheiden: Ventil über
+  längere Zeit offen bei Ist über Ziel (Gerät arbeitet dagegen) oder Ventil durchgehend zu
+  (der Raum kühlt nur langsam).
+- **Sollwertwechsel mit Quelle.** Neuer Block `events`: jeder Wechsel der letzten Tage mit
+  Zeitpunkt, Raum und Herkunft (`raumklima` = unser bestätigter Schreibbefehl, `geraet` = am
+  Thermostat gedreht, `plan` = Zeitplan/Anwesenheit). Das trennt „das Gerät ignoriert uns“ von
+  „wir haben den Wert selbst geändert“.
+
+### Behoben
+
+- **Der Debug-Block war nach wenigen Minuten voll.** Bei aktivem DEBUG füllten 500 Zeilen den
+  Puffer in unter zehn Minuten, Warnungen und Fehler wurden dabei herausgedreht. Warnungen und
+  Fehler haben jetzt einen eigenen Platz, und ältere Zeilen als sechs Stunden fallen aus der
+  Datei – der Block zeigt damit das, wofür er gedacht ist.
+
 ## 0.62.20b1 – 2026-11-08
 
 ### Behoben
