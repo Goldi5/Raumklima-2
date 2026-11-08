@@ -450,6 +450,39 @@ async def test_window_open_since_survives_restart(hass: HomeAssistant, setup, tr
     assert neu._take_restored() is None  # nur einmal – danach gilt „jetzt"
 
 
+async def test_neustart_mit_offenem_fenster_loggt_nicht_neu(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Kontakt beim Start stumm: das offene Fenster ist keine neue Öffnung.
+
+    Nach einem Neustart mit offenem Fenster stand ``_window_raw`` auf False, solange der Kontakt
+    funklos war. Der Regler startete die Heizung, und die zurückkommende Meldung galt als neue
+    Öffnung: Protokollzeile, erneute Pause und ein kurzer Ventilhub.
+    """
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub_entry, room = setup
+    hass.states.async_set(WINDOW, "on", {"device_class": "window"})
+    await hass.async_block_till_done()
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    since = ctrl.vent.window_open_since
+    assert since is not None
+    hub = get_hub(hass, None)
+    assert hub is not None
+    vorher = sum(1 for e in hub.log.entries if str(e.get("msg")) == "Fenster auf")
+    assert vorher >= 1
+
+    # Funkloch: der Kontakt meldet nichts mehr, der Speicher kennt das offene Fenster
+    hass.states.async_set(WINDOW, "unavailable", {"device_class": "window"})
+    await hass.async_block_till_done()
+    assert await hass.config_entries.async_reload(room.entry_id)
+    await hass.async_block_till_done()
+
+    neu = domain_data(hass)["rooms"][room.entry_id]
+    assert neu.window_paused is True, "Heizung bleibt pausiert statt kurz anzulaufen"
+    assert neu.vent.window_open_since == since, "Öffnungszeitpunkt bleibt erhalten"
+    nachher = sum(1 for e in hub.log.entries if str(e.get("msg")) == "Fenster auf")
+    assert nachher == vorher, "kein zweites „Fenster auf“ nach dem Neustart"
+
+
 async def test_climate_exposes_window_open_since(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Die Karte bekommt den Öffnungszeitpunkt als Attribut (Grundlage für den Timer)."""
     from custom_components.raumklima.shared import domain_data

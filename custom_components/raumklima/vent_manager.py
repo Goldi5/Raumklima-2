@@ -361,6 +361,11 @@ class VentilationManager:
             return "co2"
         return "humidity"
 
+    @property
+    def restored_open(self) -> datetime | None:
+        """Öffnungszeitpunkt aus dem Speicher, solange er noch nicht übernommen wurde."""
+        return self._restored_since
+
     def _take_restored(self) -> datetime | None:
         """Den gespeicherten Öffnungszeitpunkt genau einmal übernehmen (nach einem Neustart)."""
         since, self._restored_since = self._restored_since, None

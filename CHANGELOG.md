@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.62.20b1 – 2026-11-08
+
+### Behoben
+
+- **Ein offenes Fenster gilt nach einem Neustart nicht mehr als neu geöffnet.** War der
+  Fensterkontakt beim Start funklos (``unavailable``/``unknown``), stand der Raum intern auf
+  „Fenster zu“, obwohl der Öffnungszeitpunkt im Speicher lag. Der Regler startete die Heizung,
+  und die erste Meldung des Kontakts wurde als neue Öffnung gewertet: Protokollzeile
+  „Fenster auf“, erneute Pause und ein kurzer Ventilhub – bei mehreren Starts am Tag mehrfach.
+  Jetzt genügt der gespeicherte Öffnungszeitpunkt, damit die Pause stehen bleibt; das Schließen
+  wird weiterhin sofort erkannt.
+
 ## 0.62.19b1 – 2026-11-08
 
 ### Behoben

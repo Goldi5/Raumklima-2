@@ -481,6 +481,11 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if state and is_valid(state.state):
                 self._last_valid_windows[entity] = window_open_state(entity, state)
         self._window_raw = any_open(self._last_valid_windows, self.windows)
+        if not self._window_raw and self.vent.restored_open is not None:
+            # Der Kontakt war beim Start stumm (Funkloch) – laut Speicher ist das Fenster aber
+            # offen. Dann ist das keine neue Öffnung: ohne diese Zeile protokolliert jeder
+            # Neustart „Fenster auf“, pausiert erneut und schreibt kurz den Sollwert ans Gerät.
+            self._window_raw = True
         self.window_paused = self._window_raw
         if self._window_raw and self.night_applies():
             self.night_since = dt_util.utcnow()
