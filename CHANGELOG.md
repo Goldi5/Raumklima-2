@@ -1,3 +1,7 @@
+## 0.62.23b1 – 2026-11-08
+
+- **Manuelle Änderungen nach eigenem Schreibbefehl** (Issue #37-Nachtrag): Geräte (Tuya/Zigbee) melden in den 90 s bis zwei Meldetakten nach einem eigenen Schreibbefehl abweichende Zwischenwerte (z. B. 19,0 → 20,0 → 19,5 in einer Minute, mehrere Räume gleichzeitig). Diese wurden fälschlich als „Am Thermostat gedreht“ gewertet und überschrieben den Wunsch. In diesem Fenster wird die Meldung jetzt ignoriert.
+
 # Changelog
 
 ## 0.62.22 – 2026-11-08

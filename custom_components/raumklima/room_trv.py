@@ -182,6 +182,15 @@ class TrvMixin:
             # Aktualisierung und darf nicht verschluckt werden (sonst bliebe ein echtes
             # „am Gerät einschalten" bis zu einer halben Stunde wirkungslos).
             _LOGGER.debug("%s: Gerätemeldung nach eigenem Schreiben – ignoriert", self.name)
+        elif self._own_write_recent():
+            # Nach einem eigenen Schreibbefehl kommen manche Geräte (Tuya/Zigbee) in den
+            # folgenden 90 s bis zwei Meldetakte lang mit abweichenden Zwischenwerten
+            # zurück (z. B. 19,0 → 20,0 → 19,5 in einer Minute, mehrere Räume gleichzeitig).
+            # Diese sind kein Handeingriff des Nutzers, sondern Rückmeldungen unserer
+            # eigenen Befehle – als „Am Thermostat gedreht" würden sie den Wunsch still
+            # überschreiben. Deshalb in diesem Fenster ignorieren.
+            _LOGGER.debug("%s: Gerätemeldung im Nachlauf eines eigenen Schreibens – ignoriert", self.name)
+            return
             method = self._off_method()
             if not self._is_trv_off(new, method):
                 # Das Gerät ist unserem Befehl nicht gefolgt, sondern hat von sich aus in den
