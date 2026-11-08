@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.62.13b1 – 2026-11-08
+
+### Behoben
+
+- **„Minimaltemperatur 5,0 °C nach 5 Versuchen nicht bestätigt" bei jedem Neustart.** War ein
+  Thermostat beim Start kurz `unknown`, schrieb die Integration den Rückfallwert 5,0 °C als
+  Abschalt-Ziel, zählte dabei Runden ohne echten Sendebefehl als Fehlversuche und meldete nach
+  fünf davon „Thermostat reagiert nicht" – dringend, also auch nachts. Jetzt wird die
+  Gerätegrenze erst beim Senden gelesen, Runden ohne Sendung kosten kein Versuchsbudget, und
+  wenn nie ein Befehl rausging, kommt eine ruhige Gesundheitsmeldung statt eines Gerätefehlers.
+- **Blocking call beim Start:** Der Inhalts-Hash der Karte wird im Executor berechnet, nicht mehr
+  im Event-Loop (`Detected blocking call to read_bytes`).
+- **Unsinnige Sollwerte bei Zusatz-Thermostaten.** Sitzt der Fühler am Heizkörper und liest 5 K
+  zu warm, ergab Ziel 21 °C einen Sollwert von 26,5 °C. Der Abgleich ist jetzt auf ±2 K begrenzt,
+  und das Protokoll nennt einmal die Abweichung samt beiden Temperaturen, damit die Ursache
+  sichtbar ist.
+
 ## 0.62.12b1 – 2026-11-07
 
 ### Behoben

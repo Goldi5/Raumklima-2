@@ -117,15 +117,22 @@ def calc_target_setpoint(
     low: float = 5.0,
     high: float = 30.0,
     step: float = 0.5,
+    limit: float = 2.0,
 ) -> float:
     """Sollwert fürs TRV bei Kalibrierart "target".
 
     Misst das TRV z. B. 2 °C mehr als der Raum, wird sein Sollwert um 2 °C
     angehoben, damit der Raum das eigentliche Ziel erreicht.
+
+    Der Abgleich wird auf ``limit`` begrenzt: ein Fühler direkt am Heizkörper liest leicht 5 K zu
+    warm, und aus Ziel 21 würde sonst ein Sollwert von 26,5 °C – eine Zahl, die niemand erklären
+    kann und die am Gerät nichts bewirkt (Issue #38).
     """
     if external is None or trv_reported is None:
         return clamp(round_device(target, step), low, high)
-    return clamp(round_device(target + (trv_reported - external), step), low, high)
+    delta = trv_reported - external
+    delta = max(-limit, min(limit, delta))
+    return clamp(round_device(target + delta, step), low, high)
 
 
 def values_match(actual: object, expected: float, tolerance: float) -> bool:

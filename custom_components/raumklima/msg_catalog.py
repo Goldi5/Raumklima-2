@@ -78,6 +78,7 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Thermostat wieder erreichbar", "Thermostat reachable again", "Thermostat de nouveau joignable"),
     ("nach {m} min – offene Befehle werden sofort gesendet", "after {m} min – pending commands are sent now", "après {m} min – les commandes en attente sont envoyées"),
     ("Minimaltemperatur {t}", "Minimum temperature {t}", "Température minimale {t}"),
+    ("Minimaltemperatur", "Minimum temperature", "Température minimale"),
     ("geändert", "changed", "modifié"),
     ("entfernt", "removed", "supprimé"),
     ("gesetzt", "set", "défini"),
@@ -387,6 +388,22 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Am Thermostat ausgeschaltet", "Switched off at the thermostat", "Éteint sur le thermostat"),
     ("Am Thermostat eingeschaltet", "Switched on at the thermostat", "Allumé sur le thermostat"),
     ("Thermostat reagiert nicht: {what}", "Thermostat not responding: {what}", "Le thermostat ne répond pas : {what}"),
+    (
+        "⚠️ {room}: Thermostat war nicht erreichbar",
+        "⚠️ {room}: Thermostat was not reachable",
+        "⚠️ {room} : le thermostat était injoignable",
+    ),
+    (
+        "{what} konnte nicht gesendet werden – das Gerät hat nicht geantwortet.",
+        "{what} could not be sent – the device did not respond.",
+        "{what} n’a pas pu être envoyé – l’appareil n’a pas répondu.",
+    ),
+    ("Gerätefühler weicht {d} K ab", "Device sensor is off by {d} K", "La sonde de l’appareil dévie de {d} K"),
+    (
+        "Thermostat {name} meldet {own} °C, der Raumfühler {ext} °C – Sollwert auf {setpoint} °C begrenzt. Kalibrierung oder Standort des Geräts prüfen.",
+        "Thermostat {name} reports {own} °C, the room sensor {ext} °C – setpoint limited to {setpoint} °C. Check the device’s calibration or location.",
+        "Le thermostat {name} indique {own} °C, la sonde de la pièce {ext} °C – consigne limitée à {setpoint} °C. Vérifier l’étalonnage ou l’emplacement de l’appareil.",
+    ),
     ("{n} Versuche ohne Bestätigung – versuche weiter alle 5 min", "{n} attempts without confirmation – retrying every 5 min", "{n} essais sans confirmation – nouvel essai toutes les 5 min"),
     # ------------------------------------------------------------ E-Mail
     ("E-Mail ist nicht vollständig eingerichtet (Server, Absender, Empfänger).", "Email is not fully set up (server, sender, recipient).", "L’e-mail n’est pas entièrement configuré (serveur, expéditeur, destinataire)."),

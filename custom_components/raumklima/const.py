@@ -316,6 +316,8 @@ OFFSET_MIN: Final = -10.0
 OFFSET_MAX: Final = 10.0
 OFFSET_STEP: Final = 0.1
 OFFSET_MATCH_TOLERANCE: Final = 0.15
+# Höchster Abgleich, den ein Gerätefühler auslösen darf (Zusatz-Thermostat, Issue #38).
+SETPOINT_SHIFT_LIMIT: Final = 2.0
 SETPOINT_MATCH_TOLERANCE: Final = 0.25
 MAX_SENSOR_JUMP: Final = 3.0  # °C – größere Sprünge gelten als Ausreißer
 SENSOR_JUMP_WINDOW: Final = 300  # s

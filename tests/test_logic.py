@@ -55,6 +55,15 @@ def test_target_setpoint_compensates() -> None:
     assert calc_target_setpoint(21.0, 20.0, 22.0) == 23.0
 
 
+def test_target_setpoint_deckelt_den_abgleich() -> None:
+    """Issue #38: Ein Fühler am Heizkörper liest leicht 5 K zu warm – daraus darf kein Unsinn werden."""
+    # Raum 22,5 °C, Gerät meldet 28,0 → ohne Deckel wären es 26,5 °C
+    assert calc_target_setpoint(21.0, 22.5, 28.0) == 23.0
+    assert calc_target_setpoint(21.0, 22.5, 17.0) == 19.0
+    # Deckel ist einstellbar
+    assert calc_target_setpoint(21.0, 22.5, 28.0, limit=4.0) == 25.0
+
+
 def test_target_setpoint_rounded_and_clamped() -> None:
     assert calc_target_setpoint(21.0, 20.0, 21.3) == 22.5
     assert calc_target_setpoint(29.0, 15.0, 25.0, high=30.0) == 30.0

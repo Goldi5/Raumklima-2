@@ -32,7 +32,9 @@ class SyncJob:
     send: Callable[[], Awaitable[None]]
     check: Callable[[], bool]
     why: str | None = None
-    attempts: int = 0
+    attempts: int = 0  # nur echte Sendeversuche (Gerät war erreichbar)
+    sent: int = 0  # davon erfolgreich abgesetzt
+    waits: int = 0  # Runden ohne Sendung, weil das Gerät nicht erreichbar war
     cancel: Callable[[], None] | None = field(default=None, repr=False)
 
 
@@ -151,23 +153,33 @@ class SyncManager:
 
     # ------------------------------------------------------------ intern
     async def _attempt(self, job: SyncJob) -> None:
+        # „Gerät nicht erreichbar" ist kein Fehlversuch: sonst ist das Versuchsbudget aufgebraucht,
+        # ohne dass ein einziger Befehl rausging (Issue #37 – TRVs sind beim Start kurz unknown).
+        if not self._available():
+            job.waits += 1
+            _LOGGER.debug("%s: Gerät nicht erreichbar, warte (%s)", job.description, job.waits)
+            if job.waits > self.max_retries * 5:
+                self._fail(job)
+                return
+            delay = retry_delay(job.attempts or 1, self._base_delay(), self.max_retries, self.slow_interval)
+            job.cancel = self._schedule(delay, lambda: self._verify(job))
+            self._changed()
+            return
         job.attempts += 1
         if self.on_send is not None:
             with contextlib.suppress(Exception):  # Zählen darf das Senden nie stören
                 self.on_send(job.attempts)
-        if self._available():
-            try:
-                await job.send()
-                _LOGGER.debug("Sende %s (Versuch %s)", job.description, job.attempts)
-            except Exception as err:  # noqa: BLE001 – Gerät/Netz kann alles werfen
-                _LOGGER.warning(
-                    "Senden von %s fehlgeschlagen (Versuch %s): %s",
-                    job.description,
-                    job.attempts,
-                    err,
-                )
-        else:
-            _LOGGER.debug("%s: Gerät nicht erreichbar, warte", job.description)
+        try:
+            await job.send()
+            job.sent += 1
+            _LOGGER.debug("Sende %s (Versuch %s)", job.description, job.attempts)
+        except Exception as err:  # noqa: BLE001 – Gerät/Netz kann alles werfen
+            _LOGGER.warning(
+                "Senden von %s fehlgeschlagen (Versuch %s): %s",
+                job.description,
+                job.attempts,
+                err,
+            )
         delay = retry_delay(
             job.attempts, self._base_delay(), self.max_retries, self.slow_interval
         )
@@ -182,14 +194,18 @@ class SyncManager:
             self._done(job)
             return
         if job.attempts == self.max_retries:
-            _LOGGER.warning(
-                "%s nach %s Versuchen nicht bestätigt", job.description, job.attempts
-            )
-            self._event("failed", job)
-            if not self.failed_notified:
-                self.failed_notified = True
-                self._on_failed(job)
+            self._fail(job)
         self._run_task(self._attempt(job))
+
+    def _fail(self, job: SyncJob, what: str | None = None) -> None:
+        """Auftrag endgültig gescheitert – Warnung schreiben und einmal melden."""
+        _LOGGER.warning(
+            "%s nach %s Versuchen nicht bestätigt", what or job.description, job.attempts
+        )
+        self._event("failed", job)
+        if not self.failed_notified:
+            self.failed_notified = True
+            self._on_failed(job)
 
     def _done(self, job: SyncJob) -> None:
         self._drop(job.key)

@@ -123,7 +123,9 @@ async def _async_register_resource(hass: HomeAssistant) -> None:
     # Inhalt-Hash in der URL: ein Versionssprung allein reicht Safari auf dem iPad nicht
     # immer – mit geändertem Hash ist es für den Browser eine andere Datei.
     card = Path(__file__).parent / "www" / "raumklima-card.js"
-    url = f"{CARD_URL}?v={VERSION}-{_card_hash(card)}"
+    # Hash im Executor: die Karte ist ~0,5 MB, HA meldet sonst „blocking call" beim Start (#36).
+    card_hash = await hass.async_add_executor_job(_card_hash, card)
+    url = f"{CARD_URL}?v={VERSION}-{card_hash}"
     data = hass.data.get("lovelace")
     resources = getattr(data, "resources", None)
     if (

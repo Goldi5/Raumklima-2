@@ -1016,3 +1016,33 @@ async def test_erwarteter_sollwert_ignoriert_abschlag_im_kalten_raum(
     # Raum warm: Abgleich gilt wieder → Erwartung ist Ziel + Abgleich
     monkeypatch.setattr(type(ctrl), "current_temperature", property(lambda self: 21.0))
     assert ctrl.trv_expected_target == 20.0
+
+
+async def test_aus_ohne_bekannte_minimaltemperatur_schreibt_nichts(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Issue #37: Beim Start ist `min_temp` unbekannt – dann nicht den Rückfallwert 5,0 schreiben.
+
+    Vorher fror der Aus-Befehl den Fallback ein, das Gerät bestätigte ihn nie (es kennt z. B.
+    min_temp 4,0), und nach fünf Runden kam eine dringende Meldung – bei jedem Neustart.
+    """
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.config["off_method"] = "min_temp"
+
+    # Gerät meldet beim Start noch keine Grenzen
+    trv.attrs.pop("min_temp", None)
+    trv.push()
+    await hass.async_block_till_done()
+
+    await ctrl.async_set_hvac_on(False)
+    await advance(hass, 5)
+    written = [float(c[1].get("temperature", -1)) for c in trv.calls if c[0] == "set_temperature"]
+    assert 5.0 not in written, f"kein Rückfallwert, solange die Grenze unbekannt ist: {written}"
+
+    # Sobald die Grenze bekannt ist, wird sie auch geschrieben.
+    trv.set(min_temp=4.0)
+    await advance(hass, 60)
+    assert [
+        c for c in trv.calls if c[0] == "set_temperature" and float(c[1].get("temperature", -1)) == 4.0
+    ], "mit bekannter Grenze wird abgeschaltet"

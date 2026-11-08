@@ -23,6 +23,7 @@ from .const import (
     CONF_ON_PRESET,
     CONF_TARGET_VIA,
     DOMAIN,
+    KIND_HEALTH,
     KIND_TRV_FAILURE,
     OFF_AUTO,
     OFF_HVAC,
@@ -493,7 +494,17 @@ class TrvMixin:
     @callback
     def _on_sync_failed(self, job: SyncJob) -> None:
         hub = self.hub
-        if hub and hub.has_targets(KIND_TRV_FAILURE):
+        if hub and job.sent == 0:
+            # Nichts ging je raus (Gerät beim Start nicht erreichbar): kein Gerätefehler und
+            # nichts, was jemanden nachts wecken darf (Issue #37).
+            if hub.has_targets(KIND_HEALTH):
+                hub.notify(
+                    KIND_HEALTH,
+                    tr("⚠️ {room}: Thermostat war nicht erreichbar", room=self.name),
+                    tr("{what} konnte nicht gesendet werden – das Gerät hat nicht geantwortet.", what=job.description),
+                    speak=False,
+                )
+        elif hub and hub.has_targets(KIND_TRV_FAILURE):
             hub.notify(
                 KIND_TRV_FAILURE,
                 tr("⚠️ {room}: Thermostat reagiert nicht", room=self.name),

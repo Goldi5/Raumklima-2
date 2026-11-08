@@ -750,6 +750,18 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
 
 
+    async def _write_off_setpoint(self) -> None:
+        """Abschalt-Sollwert schreiben – Gerätegrenze erst hier lesen (Issue #37).
+
+        Solange das Gerät seine Mindesttemperatur nicht meldet, gibt es keinen sinnvollen Wert:
+        der frühere Rückfall (5,0 °C) stand dann dauerhaft „unbestätigt" im Sync und löste nach
+        fünf Runden eine dringende Meldung aus, obwohl nichts zu tun war.
+        """
+        low = to_float(self._trv_attr("min_temp"))
+        if low is None:
+            raise RuntimeError("Mindesttemperatur des Geräts noch unbekannt")
+        await self._write_setpoint(low)
+
     def _update_shift(self) -> None:
         """Abweichung zwischen Thermostat- und Raumfühler nachführen und dauerhaft merken.
 
@@ -1591,11 +1603,16 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                         lambda: self._is_trv_off(self._trv_state(), OFF_HVAC),
                     )
                 else:
-                    low = self.trv_min
+                    # Die Gerätegrenze erst beim Senden lesen: beim Start ist `min_temp` kurz
+                    # unbekannt, und der Rückfallwert (5,0 °C) wurde früher als Ziel eingefroren
+                    # und nie bestätigt (Issue #37). Ist der Wert noch nicht da, scheitert der
+                    # Versuch ohne Schreibbefehl und wird – ohne Versuchsbudget zu kosten –
+                    # wiederholt, sobald das Gerät antwortet.
+                    low = to_float(self._trv_attr("min_temp"))
                     await self.sync.request(
                         "mode",
-                        tr("Minimaltemperatur {t}", t=fmt_temp(low)),
-                        lambda: self._write_setpoint(low),
+                        tr("Minimaltemperatur {t}", t=fmt_temp(low)) if low is not None else tr("Minimaltemperatur"),
+                        self._write_off_setpoint,
                         lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
                     )
                 await self._apply_extras(False, method)

@@ -33,6 +33,7 @@ from .const import (
     ON_PRESET_AVOID,
     ON_PRESET_CANDIDATES,
     SETPOINT_MATCH_TOLERANCE,
+    SETPOINT_SHIFT_LIMIT,
     SLOW_RETRY_INTERVAL,
 )
 from .decision_log import CAT_DEVICE, fmt_temp
@@ -50,7 +51,7 @@ from .logic import (
     to_float,
     values_match,
 )
-from .msg import tr
+from .msg import dec, tr
 from .sync import SyncJob, SyncManager
 
 if TYPE_CHECKING:
@@ -70,6 +71,7 @@ class ExtraTrv:
         self.entity_id = entity_id
         self.cal_entity: str | None = None
         self.valve_sensor: str | None = None
+        self._deviation_note: tuple[float, float] | None = None  # zuletzt gemeldete Fühler-Abweichung
         self.sync = SyncManager(
             schedule=controller._schedule,
             run_task=lambda coro: controller.hass.async_create_task(coro),
@@ -188,8 +190,40 @@ class ExtraTrv:
             )
             # Was unter dem Ziel liegt, ist ein Abschlag – der bremst nur, solange der Raum zu kalt ist.
             shift = compensated_shift(raw - target, target, self.c.current_temperature)
-            return clamp(round_device(target + shift, self.step), self.tmin, self.tmax)
+            value = clamp(round_device(target + shift, self.step), self.tmin, self.tmax)
+            self._note_deviation(value)
+            return value
         return clamp(round_device(target, self.step), self.tmin, self.tmax)
+
+    def _note_deviation(self, setpoint: float) -> None:
+        """Weicht der Gerätefühler stark vom Raumfühler ab, das einmal ins Protokoll schreiben.
+
+        Ohne diese Zeile steht im Protokoll nur der hohe Sollwert, und niemand sieht, dass der
+        Fühler des Geräts die Ursache ist (Issue #38: „immer nur von einem die Rede").
+        """
+        own = self.temperature
+        ext = self.c._ext_value
+        if own is None or ext is None:
+            return
+        delta = own - ext
+        if abs(delta) <= SETPOINT_SHIFT_LIMIT:
+            return
+        key = (round(delta, 1), round(setpoint, 1))
+        if key == self._deviation_note:
+            return
+        self._deviation_note = key
+        self.c.log(
+            CAT_DEVICE,
+            tr("Gerätefühler weicht {d} K ab", d=dec(abs(delta))),
+            tr(
+                "Thermostat {name} meldet {own} °C, der Raumfühler {ext} °C – Sollwert auf {setpoint} °C "
+                "begrenzt. Kalibrierung oder Standort des Geräts prüfen.",
+                name=self.name,
+                own=dec(own),
+                ext=dec(ext),
+                setpoint=dec(setpoint),
+            ),
+        )
 
     async def apply(self, want_on: bool, method: str, target: float) -> None:
         """Denselben Zustand wie das Haupt-Thermostat herstellen."""

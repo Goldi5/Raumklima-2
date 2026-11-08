@@ -55,12 +55,12 @@ class FakeDevice:
         return send
 
 
-def make(clock: FakeClock, device: FakeDevice, events: list[str]) -> SyncManager:
+def make(clock: FakeClock, device: FakeDevice, events: list[str], available: bool = True) -> SyncManager:
     loop = asyncio.get_running_loop()
     return SyncManager(
         schedule=clock.schedule,
         run_task=loop.create_task,
-        is_target_available=lambda: True,
+        is_target_available=lambda: available,
         verify_delay=20,
         max_retries=3,
         slow_interval=300,
@@ -161,3 +161,41 @@ def test_geduld_richtet_sich_nach_dem_geraet() -> None:
     assert make(30)._base_delay() == 20  # normales Gerät: wie eingestellt
     assert make(900)._base_delay() == 1350  # 1,5 × Meldeabstand
     assert make(5000)._base_delay() == SLOW_RETRY_CAP
+
+
+async def test_nicht_erreichbar_verbraucht_kein_versuchsbudget() -> None:
+    """Issue #37: Ein Gerät, das beim Start schweigt, ist kein Fehlversuch.
+
+    Vorher zählte jeder Durchlauf als Versuch, auch wenn nichts gesendet wurde – nach fünf
+    Runden kam „nach 5 Versuchen nicht bestätigt" samt dringender Meldung, obwohl kein einziger
+    Befehl das Gerät erreicht hatte.
+    """
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events, available=False)
+    await sync.request("mode", "Minimaltemperatur 5,0 °C", dev.sender(5.0), lambda: dev.value == 5.0)
+
+    await clock.advance(20 + 40 + 60)
+    job = sync.jobs["mode"]
+    assert job.attempts == 0, "nichts gesendet → kein Versuch"
+    assert job.sent == 0
+    assert job.waits >= 2
+    assert dev.sent == []
+    assert events == [], "kein Fehler, solange das Gerät nur schweigt"
+
+    # Kommt das Gerät zurück, wird normal gesendet und bestätigt.
+    sync._available = lambda: True
+    dev.connected = True
+    await clock.advance(300)
+    await clock.advance(60)
+    assert job.attempts >= 1
+    assert sync.state == "ok"
+
+
+async def test_dauerhaft_stumm_fuehrt_doch_zum_fehler() -> None:
+    """Ganz ohne Meldung darf der Auftrag nicht ewig offen bleiben."""
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events, available=False)
+    await sync.request("mode", "Minimaltemperatur 5,0 °C", dev.sender(5.0), lambda: dev.value == 5.0)
+    await clock.advance(600 * 40)
+    assert events == ["failed"]
+    assert sync.jobs["mode"].sent == 0
