@@ -266,6 +266,7 @@ export const EN = {
   "Offset": "Offset",
   "Offset am Thermostat": "Offset at the thermostat",
   "Ohne Abgleich": "No correction",
+  "Fühler & Sensoren": "Sensors",
   "Pause": "Paused",
   "Pause nach": "Pause after",
   "Pausiert – Fenster offen": "Paused – window open",

@@ -266,6 +266,7 @@ export const FR = {
   "Offset": "Décalage",
   "Offset am Thermostat": "Décalage au thermostat",
   "Ohne Abgleich": "Sans correction",
+  "Fühler & Sensoren": "Capteurs",
   "Pause": "Pause",
   "Pause nach": "Pause après",
   "Pausiert – Fenster offen": "En pause – fenêtre ouverte",

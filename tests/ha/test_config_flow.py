@@ -9,7 +9,45 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.raumklima.const import CONF_ENTRY_TYPE, CONF_HOME, CONF_TRV, DOMAIN, ENTRY_HUB
 
-from .conftest import SENSOR, TRV, WINDOW, FakeTrv
+from .conftest import SENSOR, TRV, WINDOW, FakeTrv, hub_entry, room_entry
+
+
+def test_ueberwachungsraum_schema_ohne_heizfelder() -> None:
+    """Ohne Thermostat werden keine Heizwerte abgefragt – Raumtyp und CO₂ bleiben."""
+    from custom_components.raumklima.config_flow import _room_schema
+
+    def names(schema) -> set[str]:
+        return {str(key) for key in schema.schema}
+
+    monitor = names(_room_schema({}, [], monitor=True))
+    assert {"room_type", "wall", "co2_limit", "notify_cap"} <= monitor
+    assert not {"comfort_temperature", "setback_short", "setback_long", "trv_interval", "advanced"} & monitor
+
+    normal = names(_room_schema({}, []))
+    assert {"comfort_temperature", "setback_short", "setback_long", "trv_interval", "advanced"} <= normal
+
+
+async def test_ueberwachungsraum_ueberspringt_technik(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Der Änderungsdialog endet bei einem Raum ohne Thermostat ohne Technik-Schritt."""
+    from custom_components.raumklima.shared import domain_data
+
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(trv="")
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(hub.entry_id)
+    await hass.async_block_till_done()
+    assert domain_data(hass)["rooms"][room.entry_id].monitor is True
+
+    result = await hass.config_entries.options.async_init(room.entry_id)
+    assert result["step_id"] == "init"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"temperature_sensor": SENSOR, "window_sensors": [WINDOW], "extra_trvs": []},
+    )
+    assert result["step_id"] == "room", result
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"room_type": "living"})
+    assert result["type"] is FlowResultType.CREATE_ENTRY, result
 
 
 async def test_first_room_creates_hub(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
@@ -169,6 +207,7 @@ async def test_ueberwachungsraum_ueber_den_assistenten(hass: HomeAssistant, setu
         result["flow_id"], {"name": "Wohnzimmer", "temperature_sensor": SENSOR}
     )
     assert result["step_id"] == "room"
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], ROOM_STEP)
+    # Ohne Thermostat fragt der Schritt nur Raumtyp, Bauart, CO₂-Grenze und Hinweis-Deckel ab.
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"room_type": "living"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["result"].data[CONF_TRV] == ""

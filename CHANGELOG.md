@@ -1,6 +1,21 @@
 # Changelog
 
-## 0.62.21b1 – 2026-11-08
+## 0.62.22b1 – 2026-11-08
+
+### Geändert
+
+- **Ein Raum ohne Thermostat zeigt nur noch, was er wirklich kann.** In den Einstellungen fallen
+  bei einem Überwachungsraum die Zeitplan-Gruppe sowie alles aus „Fenster“, was eine Heizpause
+  braucht (Pausieren-Schalter, Pause-/Weiter-Zeit, Schimmelschutz samt Zuschlag, Erkennung per
+  Temperatursturz). Aus „Thermostat & Fühler“ wird „Fühler & Sensoren“ mit Temperatur-, Feuchte-,
+  CO₂- und Feinstaubfühler; Thermostat, Zusatzgeräte, schnellere Abfrage, Antwortzeit, Kalibrierung,
+  Ein-/Ausschaltart, „Drehen übernehmen“ und Übertragung entfallen. Lüftung, Feuchte, CO₂-Grenze,
+  Schimmelrisiko, Kontakte, Nachtlüften und der Hinweis-Deckel bleiben.
+- **Der Änderungsdialog fragt ohne Gerät keine Heizwerte mehr ab.** Statt Wunschtemperatur,
+  Absenkung, Geräteantwortzeit und Kalibrierart stehen dort nur Raumtyp, Bauart, CO₂-Grenze und
+  Hinweis-Deckel; der Technik-Schritt entfällt. Der Raumtyp zieht seine Standardwerte weiterhin
+  nach (er bestimmt Feuchte- und Lüftwerte).
+ – 2026-11-08
 
 ### Neu
 

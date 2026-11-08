@@ -315,40 +315,46 @@ def _advanced_fields(defaults: dict[str, Any], presets: list[str]) -> dict[Any, 
     }
 
 
-def _room_schema(defaults: dict[str, Any], presets: list[str]) -> vol.Schema:
+def _room_schema(defaults: dict[str, Any], presets: list[str], monitor: bool = False) -> vol.Schema:
+    """Raum-Einstellungen – bei einem Überwachungsraum ohne alles, was einen Sollwert braucht.
+
+    Ohne Thermostat gibt es keine Wunschtemperatur, keine Absenkung, keine Kalibrierung und
+    keine Geräteantwortzeit; gefragt werden nur Raumtyp (er bestimmt Feuchte- und Lüftwerte),
+    Bauart, CO₂-Grenze und der Hinweis-Deckel.
+    """
     room_type = defaults.get(CONF_ROOM_TYPE) or "living"
     short, long = setback_defaults(room_type)
-    return vol.Schema(
-        {
-            vol.Required(CONF_ROOM_TYPE, default=room_type): _select(ROOM_TYPE_OPTIONS, CONF_ROOM_TYPE),
-            vol.Optional(
-                CONF_WALL, description=_suggest(defaults.get(CONF_WALL) or "auto")
-            ): _select(WALL_OPTIONS, CONF_WALL),
-            vol.Optional(
-                CONF_TRV_INTERVAL, default=defaults.get(CONF_TRV_INTERVAL) or 0
-            ): vol.In(TRV_INTERVAL_OPTIONS),
-            vol.Optional(
-                CONF_CO2_LIMIT, default=defaults.get(CONF_CO2_LIMIT) or CO2_LIMIT_DEFAULT
-            ): vol.In(CO2_LIMIT_OPTIONS),
-            vol.Optional(
-                CONF_NOTIFY_CAP, default=defaults.get(CONF_NOTIFY_CAP)
-                if defaults.get(CONF_NOTIFY_CAP) is not None
-                else NOTIFY_CAP_DEFAULT
-            ): vol.In(NOTIFY_CAP_OPTIONS),
-            vol.Optional(
-                CONF_COMFORT_TEMP, description=_suggest(defaults.get(CONF_COMFORT_TEMP))
-            ): _number(12, 26, 0.5, "°C"),
-            vol.Optional(
-                CONF_SETBACK_SHORT, description=_suggest(defaults.get(CONF_SETBACK_SHORT, short))
-            ): _number(10, 24, 0.5, "°C"),
-            vol.Optional(
-                CONF_SETBACK_LONG, description=_suggest(defaults.get(CONF_SETBACK_LONG, long))
-            ): _number(8, 22, 0.5, "°C"),
-            vol.Required(ADVANCED): section(
-                vol.Schema(_advanced_fields(defaults, presets)), {"collapsed": True}
-            ),
-        }
-    )
+    fields: dict[Any, Any] = {
+        vol.Required(CONF_ROOM_TYPE, default=room_type): _select(ROOM_TYPE_OPTIONS, CONF_ROOM_TYPE),
+        vol.Optional(
+            CONF_WALL, description=_suggest(defaults.get(CONF_WALL) or "auto")
+        ): _select(WALL_OPTIONS, CONF_WALL),
+        vol.Optional(
+            CONF_CO2_LIMIT, default=defaults.get(CONF_CO2_LIMIT) or CO2_LIMIT_DEFAULT
+        ): vol.In(CO2_LIMIT_OPTIONS),
+        vol.Optional(
+            CONF_NOTIFY_CAP, default=defaults.get(CONF_NOTIFY_CAP)
+            if defaults.get(CONF_NOTIFY_CAP) is not None
+            else NOTIFY_CAP_DEFAULT
+        ): vol.In(NOTIFY_CAP_OPTIONS),
+    }
+    if not monitor:
+        fields[vol.Optional(
+            CONF_TRV_INTERVAL, default=defaults.get(CONF_TRV_INTERVAL) or 0
+        )] = vol.In(TRV_INTERVAL_OPTIONS)
+        fields[vol.Optional(
+            CONF_COMFORT_TEMP, description=_suggest(defaults.get(CONF_COMFORT_TEMP))
+        )] = _number(12, 26, 0.5, "°C")
+        fields[vol.Optional(
+            CONF_SETBACK_SHORT, description=_suggest(defaults.get(CONF_SETBACK_SHORT, short))
+        )] = _number(10, 24, 0.5, "°C")
+        fields[vol.Optional(
+            CONF_SETBACK_LONG, description=_suggest(defaults.get(CONF_SETBACK_LONG, long))
+        )] = _number(8, 22, 0.5, "°C")
+        fields[vol.Required(ADVANCED)] = section(
+            vol.Schema(_advanced_fields(defaults, presets)), {"collapsed": True}
+        )
+    return vol.Schema(fields)
 
 
 def _technical_schema(defaults: dict[str, Any]) -> vol.Schema:
@@ -618,7 +624,7 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         }
         return self.async_show_form(
             step_id="room",
-            data_schema=_room_schema(defaults, presets),
+            data_schema=_room_schema(defaults, presets, monitor=self._monitor),
             errors=errors,
             description_placeholders={"found": found or "–"},
         )
@@ -740,6 +746,7 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
     async def async_step_room(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         trv = self._options.get(CONF_TRV) or self._current()[CONF_TRV]
+        monitor = not trv
         if user_input is not None:
             flat = _flatten_room(user_input)
             errors = _validate_calibration(flat)
@@ -747,32 +754,35 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
                 for key in (CONF_COMFORT_TEMP, CONF_CALIBRATION_ENTITY):
                     flat.setdefault(key, None)
                 self._options.update(flat)
+                if monitor:
+                    # Kein Gerät: keine Kalibrierung, keine Ausschaltart, keine Antwortzeit abfragen.
+                    return self.create_room_options()
                 return await self.async_step_technical()
         cur = self._current()
         if not cur.get(CONF_CALIBRATION_ENTITY):
             cur[CONF_CALIBRATION_ENTITY] = find_calibration_entity(self.hass, trv)
         return self.async_show_form(
             step_id="room",
-            data_schema=_room_schema(cur, trv_presets(self.hass, trv)),
+            data_schema=_room_schema(cur, trv_presets(self.hass, trv), monitor=monitor),
             errors=errors,
             description_placeholders={"found": cur.get(CONF_CALIBRATION_ENTITY) or "–"},
         )
 
+    def create_room_options(self) -> ConfigFlowResult:
+        """Optionen speichern und dabei den Raumtyp nachziehen (auch ohne Thermostat)."""
+        options = {**self.config_entry.options, **self._options}
+        old_type = (self.config_entry.options or {}).get(CONF_ROOM_TYPE) or (
+            self.config_entry.data or {}
+        ).get(CONF_ROOM_TYPE)
+        new_type = options.get(CONF_ROOM_TYPE)
+        if new_type and new_type != old_type:
+            options.update(retyped_values({**self.config_entry.data, **options}, old_type, new_type))
+        return self.async_create_entry(data=options)
+
     async def async_step_technical(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
             self._options.update(user_input)
-            options = {**self.config_entry.options, **self._options}
-            # Raumtyp gewechselt: Werte, die noch auf dem Standard des alten Typs stehen,
-            # auf den neuen umstellen (eigene Einstellungen bleiben).
-            old_type = (self.config_entry.options or {}).get(CONF_ROOM_TYPE) or (
-                self.config_entry.data or {}
-            ).get(CONF_ROOM_TYPE)
-            new_type = options.get(CONF_ROOM_TYPE)
-            if new_type and new_type != old_type:
-                options.update(
-                    retyped_values({**self.config_entry.data, **options}, old_type, new_type)
-                )
-            return self.async_create_entry(data=options)
+            return self.create_room_options()
         return self.async_show_form(step_id="technical", data_schema=_technical_schema(self._current()))
 
 
