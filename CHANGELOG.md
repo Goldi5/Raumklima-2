@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.62.22 – 2026-11-08
+
+Diese Version fasst die Beta-Reihe seit 0.60.1 zusammen. Der Code ist identisch mit 0.62.22b1,
+die letzte Beta wird damit zum stabilen Release.
+
+### Regelung und Geräte
+
+- **Mehrere Thermostate in einem Raum** werden einzeln angesteuert und geprüft: jedes bekommt
+  seinen eigenen Sollwert, seine eigene Bestätigung und seine eigene Warnung, wenn es nicht folgt.
+- **Geräte mit ganzen Grad** (z. B. Moes BRT-100) werden richtig bedient: Schrittweite,
+  Aufrunden halber Stufen und Bestätigungstoleranz kommen vom Gerät, nicht aus dem Code.
+- **Kein Ringkampf mehr beim Aufheizen:** liegt der Raum deutlich unter dem Ziel, bremst der
+  Abgleich nicht mehr gegen die Heizung. Zugleich ist die Korrektur auf ±2 K begrenzt – aus Ziel
+  18 °C kann kein Sollwert von 26 °C mehr werden.
+- **Feuchte aus dem Thermostat:** meldet das Gerät selbst Luftfeuchte, nutzt Raumklima sie, wenn
+  kein eigener Fühler gesetzt ist – Schimmelschutz und Lüfthinweise laufen damit auch dort.
+- **Ventilöffnung wird je Gerät gezählt.** Geräte ohne Positionsmeldung bekommen keine erfundene
+  Zahl mehr; der Bericht fällt sauber auf Gradstunden oder Heizstunden zurück.
+- **Bosch Smart Home** ist in der Geräteliste geführt, samt seiner Eigenheiten (keine Presets,
+  Ausschalten nur über den Modus).
+
+### Hinweise und Meldungen
+
+- **Tagesdeckel je Raum** für wiederkehrende Hinweise und **eigene CO₂-Grenze je Raum** – in einem
+  Wohnzimmer mit mehreren Personen waren 1000 ppm dauerhaft zu streng.
+- **Lüfthinweise nur zwischen 08:00 und 21:00 Uhr**, der Deckel erneuert sich nach echtem Lüften
+  (ab fünf Minuten offen), kurzes Auf- und Zumachen zählt nicht.
+- **Fehlalarme beseitigt:** „Thermostat übernimmt den Sollwert nicht" schlug bei langsam
+  meldenden Geräten und beim Aufheizen zu früh an, „Thermostat nicht erreichbar" bei Geräten mit
+  sehr kurzem Meldetakt und beim Start. Die Wartezeiten richten sich jetzt nach dem Gerät.
+- **Eine Fensterpause ist kein Gerätefehler mehr**, und „Fenster schließen" widerspricht nicht
+  länger „Luft ausgetauscht".
+- **Nach einem Neustart** kommt dieselbe Erinnerung nicht sofort wieder, und ein offenes Fenster
+  gilt nicht als neu geöffnet.
+
+### Karte und Einstellungen
+
+- **Drei Optiken:** `classic` (bisher), **`modern` (neuer Standard)** und `glass`. Der dunkle
+  Look lässt sich je Wohnung und je Karte schalten (*Einstellungen → Darstellung*).
+- **Kalibrierart direkt in der Karte** umstellen statt nur ablesen.
+- **Ein Raum ohne Thermostat zeigt nur, was er kann:** keine Zeitplan- oder Heizpausen-Zeilen,
+  keine Kalibrierung, kein Geräteblock – und im Änderungsdialog nur Raumtyp, Bauart, CO₂-Grenze
+  und Hinweis-Deckel.
+
+### Diagnose und Stabilität
+
+- **Die Diagnose-Datei enthält Verläufe:** je Raum 24 Stunden Temperatur, Ziel, Sollwert am
+  Gerät, Ventil und Heiz-Zustand, dazu jeden Sollwertwechsel mit Herkunft (Raumklima, Gerät oder
+  Zeitplan). Damit ist „heizt, obwohl zu warm" ohne Rückfrage entscheidbar.
+- **Blockierende Aufrufe im Event-Loop beseitigt** (#36), ebenso der Aus-Zustand nach dem
+  Abschalten (#37) und der Fehlalarm nach einem Neustart (#38).
+
 ## 0.62.22b1 – 2026-11-08
 
 ### Geändert
@@ -15,7 +67,8 @@
   Absenkung, Geräteantwortzeit und Kalibrierart stehen dort nur Raumtyp, Bauart, CO₂-Grenze und
   Hinweis-Deckel; der Technik-Schritt entfällt. Der Raumtyp zieht seine Standardwerte weiterhin
   nach (er bestimmt Feuchte- und Lüftwerte).
- – 2026-11-08
+
+## 0.62.21b1 – 2026-11-08
 
 ### Neu
 
