@@ -182,6 +182,15 @@ class TrvMixin:
             # Aktualisierung und darf nicht verschluckt werden (sonst bliebe ein echtes
             # „am Gerät einschalten" bis zu einer halben Stunde wirkungslos).
             _LOGGER.debug("%s: Gerätemeldung nach eigenem Schreiben – ignoriert", self.name)
+            method = self._off_method()
+            if not self._is_trv_off(new, method):
+                # Das Gerät ist unserem Befehl nicht gefolgt, sondern hat von sich aus in den
+                # Heizmodus geschaltet (typisch: Setzen der Minimaltemperatur beim Abschalten).
+                # Ohne Nachziehen bleibt es bis zum nächsten Abgleich – bei einem 5-Minuten-Gerät
+                # bis zu zehn Minuten – im Heizmodus stehen (Issue #37, Nachtrag).
+                # Nur wenn das Gerät *nicht* aus ist: wäre es korrekt aus, würde jeder Poll einen
+                # weiteren Schreibbefehl auslösen.
+                self.hass.async_create_task(self._apply())
             return
         method = self._off_method()
         follow = bool(self.config[CONF_FOLLOW_TRV])

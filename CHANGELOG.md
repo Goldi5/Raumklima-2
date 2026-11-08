@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.62.18b1 – 2026-11-08
+
+### Behoben
+
+- **Ausgeschalteter Raum bleibt nach dem Abschalten nicht mehr im Heizmodus des Geräts stehen.**
+  Manche Thermostate (TRVZB, Bosch) wechseln beim Setzen der Minimaltemperatur selbst auf „heizen".
+  Das wurde seit 0.62.15b1 korrekt als eigenes Schreiben erkannt und ignoriert – der Raum blieb aus,
+  das Gerät stand aber bis zum nächsten Abgleich (bei 5-Minuten-Takt bis zu zehn Minuten) auf
+  „heizen" mit geschlossenem Ventil. Jetzt wird der Aus-Zustand sofort nachgezogen, und zwar nur,
+  wenn das Gerät tatsächlich nicht aus ist: eingeschaltet entsteht kein zusätzlicher Befehl.
+
 ## 0.62.17b1 – 2026-11-08
 
 ### Neu
