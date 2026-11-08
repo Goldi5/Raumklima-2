@@ -170,6 +170,19 @@ class VentilationManager:
                 for k, v in raw.items()
                 if isinstance(v, (list, tuple)) and len(v) == 2
             }
+        # Wann zuletzt erinnert wurde, muss einen Neustart überleben: sonst steht nach jedem
+        # Core-Neustart die Wiederholungssperre offen und dieselbe Meldung geht sofort wieder raus.
+        raw_last = stored.get("last_sent") or {}
+        if isinstance(raw_last, dict):
+            for key, value in raw_last.items():
+                parsed = dt_util.parse_datetime(str(value))
+                if parsed is not None:
+                    self._last_sent[str(key)] = parsed
+        raw_repeat = stored.get("repeat_count") or {}
+        if isinstance(raw_repeat, dict):
+            self._repeat_count = {
+                str(k): int(v) for k, v in raw_repeat.items() if isinstance(v, (int, float))
+            }
         reason = stored.get("airing_reason")
         self._airing_reason = reason if reason in ("co2", "pm25", "humidity") else None
 
@@ -367,6 +380,8 @@ class VentilationManager:
             "muted_until": self.muted_until.isoformat() if self.muted_until else None,
             "airing_reason": self._airing_reason,
             "sent_today": {k: [d, n] for k, (d, n) in self._sent_today.items()},
+            "last_sent": {k: v.isoformat() for k, v in self._last_sent.items()},
+            "repeat_count": dict(self._repeat_count),
         }
 
     # ------------------------------------------------------------ Messwerte

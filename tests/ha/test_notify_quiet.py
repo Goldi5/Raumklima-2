@@ -14,7 +14,12 @@ from homeassistant.util import dt as dt_util
 
 from custom_components.raumklima.const import CO2_LIMIT_DEFAULT, NOTIFY_CAP_DEFAULT
 from custom_components.raumklima.shared import domain_data
-from custom_components.raumklima.ventilation import VENT_PLEASE_CLOSE, VENT_PLEASE_OPEN
+from custom_components.raumklima.vent_manager import TOO_COLD_LOUD
+from custom_components.raumklima.ventilation import (
+    VENT_PLEASE_CLOSE,
+    VENT_PLEASE_OPEN,
+    VENT_TOO_COLD,
+)
 
 
 async def test_deckel_begrenzt_wiederholte_meldungen(hass: HomeAssistant, setup) -> None:
@@ -61,6 +66,29 @@ async def test_deckel_null_schaltet_die_begrenzung_ab(hass: HomeAssistant, setup
     for _ in range(20):
         vent._count_sent(VENT_PLEASE_OPEN, now)
     assert vent._cap_reached(VENT_PLEASE_OPEN, now) is False
+
+
+async def test_letzte_meldung_uebersteht_neustart(hass: HomeAssistant, setup, monkeypatch) -> None:
+    """Nach einem Neustart gilt die Wiederholungssperre weiter.
+
+    Die Zeitpunkte wurden gespeichert, aber nicht zurückgelesen: jeder Core-Start schickte dieselbe
+    Meldung sofort erneut, obwohl sie Minuten vorher schon raus war.
+    """
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    vent = ctrl.vent
+    now = dt_util.utcnow()
+    vent._last_sent[VENT_PLEASE_OPEN] = now
+    vent._repeat_count[VENT_TOO_COLD] = TOO_COLD_LOUD
+    stored = vent.export()
+
+    # Neustart: nur der Speicher kommt zurück, der Manager ist neu.
+    vent._last_sent.clear()
+    vent._repeat_count.clear()
+    vent.load(stored)
+
+    assert vent._last_sent[VENT_PLEASE_OPEN] == now, "Zeitpunkt der letzten Meldung geht nicht verloren"
+    assert vent._repeat_count[VENT_TOO_COLD] == TOO_COLD_LOUD, "laute Phase bleibt gezählt"
 
 
 async def test_co2_grenze_kommt_aus_dem_raum(hass: HomeAssistant, setup) -> None:

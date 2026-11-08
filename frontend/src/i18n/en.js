@@ -265,6 +265,7 @@ export const EN = {
   "Offenes Fenster an Temperatursturz erkennen": "Detect open window from temperature drop",
   "Offset": "Offset",
   "Offset am Thermostat": "Offset at the thermostat",
+  "Ohne Abgleich": "No correction",
   "Pause": "Paused",
   "Pause nach": "Pause after",
   "Pausiert – Fenster offen": "Paused – window open",

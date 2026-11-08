@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.62.19b1 – 2026-11-08
+
+### Behoben
+
+- **Nach einem Neustart kommt dieselbe Erinnerung nicht mehr sofort wieder.** Der Zeitpunkt der
+  letzten Meldung lag nur im Arbeitsspeicher – nach jedem Start des Cores stand die
+  Wiederholungssperre offen, und „bitte lüften“ bzw. „Fenster schließen“ ging erneut raus, obwohl
+  dieselbe Meldung Minuten vorher schon verschickt worden war.
+  Bei mehreren Starts am Tag ergab das genau die Häufung, die der Tagesdeckel verhindern soll.
+  Zusammen mit den Zeitpunkten wird auch der Zähler für die laute Phase („Raum kühlt aus“)
+  wiederhergestellt, damit die Meldung nach einem Neustart nicht wieder laut beginnt.
+
 ## 0.62.18b1 – 2026-11-08
 
 ### Behoben

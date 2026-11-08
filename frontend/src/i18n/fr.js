@@ -265,6 +265,7 @@ export const FR = {
   "Offenes Fenster an Temperatursturz erkennen": "Détecter une fenêtre ouverte à la chute de température",
   "Offset": "Décalage",
   "Offset am Thermostat": "Décalage au thermostat",
+  "Ohne Abgleich": "Sans correction",
   "Pause": "Pause",
   "Pause nach": "Pause après",
   "Pausiert – Fenster offen": "En pause – fenêtre ouverte",

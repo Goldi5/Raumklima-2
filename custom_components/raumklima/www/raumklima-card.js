@@ -1,4 +1,4 @@
-/* Raumklima 0.62.18b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.19b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -265,6 +265,7 @@
     "Offenes Fenster an Temperatursturz erkennen": "Detect open window from temperature drop",
     "Offset": "Offset",
     "Offset am Thermostat": "Offset at the thermostat",
+    "Ohne Abgleich": "No correction",
     "Pause": "Paused",
     "Pause nach": "Pause after",
     "Pausiert – Fenster offen": "Paused – window open",
@@ -1146,6 +1147,7 @@
     "Offenes Fenster an Temperatursturz erkennen": "Détecter une fenêtre ouverte à la chute de température",
     "Offset": "Décalage",
     "Offset am Thermostat": "Décalage au thermostat",
+    "Ohne Abgleich": "Sans correction",
     "Pause": "Pause",
     "Pause nach": "Pause après",
     "Pausiert – Fenster offen": "En pause – fenêtre ouverte",
@@ -1803,7 +1805,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.18b1";
+  var RK_VERSION = "0.62.19b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
