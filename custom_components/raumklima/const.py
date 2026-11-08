@@ -2,9 +2,24 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Final
 
 DOMAIN: Final = "raumklima"
+
+# Version der laufenden Installation – einmal beim Import gelesen (der Import des Pakets läuft
+# im Executor). Weder das Setup noch ein WebSocket-Aufruf darf dafür eine Datei öffnen: beides
+# läuft im Event-Loop und wird von Home Assistant als „blocking call" gemeldet (Issue #36).
+def _read_version() -> str:
+    """Version aus der manifest.json neben diesem Modul."""
+    try:
+        return str(json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8")).get("version") or "0")
+    except (OSError, ValueError):  # pragma: no cover – nur bei kaputter Installation
+        return "0"
+
+
+VERSION: Final = _read_version()
 PLATFORMS: Final = ["climate", "sensor", "binary_sensor", "switch", "button", "number"]
 HUB_PLATFORMS: Final = ["sensor", "switch", "select", "button"]
 

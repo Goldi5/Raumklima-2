@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 import re
 from typing import Any
 
@@ -111,6 +109,7 @@ from .const import (
     SCHEDULE_TEMP_MIN,
     SEASON_MODES,
     SOLAR_FACADE_OPTIONS,
+    VERSION,
     WALL_OPTIONS,
 )
 from .decision_log import CATEGORIES
@@ -375,20 +374,10 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
     }
 
 
-# Einmal beim Import gelesen (der Import läuft im Executor), nicht bei jedem Aufruf:
-# `raumklima/config` wird bei jedem Dashboard-Laden aufgerufen und läuft im Event-Loop –
-# dort meldet Home Assistant synchrones Datei-I/O als „blocking call" (Issue #36).
-try:
-    _VERSION: str = str(
-        json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8")).get("version") or "0"
-    )
-except (OSError, ValueError):  # pragma: no cover – nur bei kaputter Installation
-    _VERSION = "0"
-
 
 def _installed_version() -> str:
-    """Version der laufenden Installation (beim Import der Datei gelesen)."""
-    return _VERSION
+    """Version der laufenden Installation (kommt aus ``const``, ohne Datei-I/O)."""
+    return VERSION
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/config", vol.Optional("home"): vol.Any(None, str)})

@@ -4,7 +4,6 @@ Abwesenheit und Heizsaison."""
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
 from pathlib import Path
 from typing import Any
@@ -34,11 +33,12 @@ from .const import (
     ENTRY_HUB,
     HUB_PLATFORMS,
     PLATFORMS,
+    VERSION,
 )
 
 _LOGGER = logging.getLogger(__name__)
 # Beim Import (läuft im Executor) lesen, nicht im Event-Loop
-VERSION: str = json.loads((Path(__file__).parent / "manifest.json").read_text()).get("version", "0")
+
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 type RaumklimaConfigEntry = ConfigEntry[Any]

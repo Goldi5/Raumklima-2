@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.62.16b1 – 2026-11-08
+
+### Behoben
+
+- **Der Blocking-Call beim Start blieb (Issue #36, Nachtrag).** Die Version wurde zwar nur noch
+  einmal gelesen – aber `websocket_api` wird erst in `async_setup` importiert, und das läuft im
+  Event-Loop. Damit fiel der Lesevorgang weiterhin dorthin. Die Version steht jetzt in `const` und
+  wird beim Import des Pakets gelesen (der läuft im Executor); weder das Setup noch
+  `raumklima/config` öffnen noch eine Datei.
+
 ## 0.62.15b1 – 2026-11-08
 
 ### Behoben
