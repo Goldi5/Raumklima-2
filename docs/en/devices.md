@@ -20,6 +20,7 @@ feedback and our own measurements; the list grows with every report.
 | Sonoff TRVZB | ZHA | setpoint, offset via `number.<name>_lokaler_temperatur_offset` | falls asleep regularly; no valve position, no presets |
 | Netatmo | Netatmo integration | setpoint, room sensor | sluggish; valve position often missing |
 | FRITZ!DECT (Comet, 440) | AVM FRITZ!SmartHome | setpoint, room sensor | valve position often empty; device schedules must be off |
+| Bosch Smart Home (SHc) | Bosch Smart Home | setpoint, valve position (`sensor.…_ventilstoessel`), off via mode | **no presets** (`preset_mode` always empty); **minimum temperature 18 °C** – switching off via minimum temperature is impossible, Raumklima uses the “off” mode instead; room schedule in the Bosch app must be off |
 
 ## What every device needs
 
@@ -74,6 +75,13 @@ Valve position is missing on many models.
 ### FRITZ!DECT (Comet, DECT 440)
 Disable schedules and boost in the FRITZ!Box. Valve position is often empty, battery level is still
 reported.
+
+### Bosch Smart Home (SHc)
+Thermostats on the Bosch controller have **no presets** – `preset_mode` is always empty and Raumklima
+only writes the setpoint. The **minimum temperature is 18 °C**, so a room cannot be switched off via the
+minimum temperature: *Turn off via* stays on **Automatic**, which detects the “off” mode. Valve position
+comes from a separate sensor (`sensor.…_ventilstoessel`). Schedules and scenes in the Bosch app must be
+off, otherwise they override the setpoint.
 
 ## When something shows “–”
 

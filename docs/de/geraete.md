@@ -20,6 +20,7 @@ Rückmeldungen von Nutzern und eigenen Messungen; die Liste wächst mit jedem Er
 | Sonoff TRVZB | ZHA | Sollwert, Offset über `number.<name>_lokaler_temperatur_offset` | schläft zwischendurch; keine Ventilstellung, keine Presets |
 | Netatmo | Netatmo-Integration | Sollwert, Raumfühler | träge; Ventilstellung fehlt häufig |
 | FRITZ!DECT (Comet, 301, 302, 440) | AVM FRITZ!SmartHome | Sollwert, Raumfühler | Ventilstellung häufig leer; Geräte-Zeitpläne müssen aus sein; funkt nur alle ~15 Minuten (Antwortzeit steht auf *automatisch*) |
+| Bosch Smart Home (SHc) | Bosch Smart Home | Sollwert, Ventilstellung (`sensor.…_ventilstoessel`), Aus über Modus | **keine Presets** (`preset_mode` immer leer); **Mindesttemperatur 18 °C** – Ausschalten über die Minimaltemperatur ist unmöglich, Raumklima nimmt dafür den Modus „aus“; Raumprogramm in der Bosch-App muss aus sein |
 
 ## Was jedes Gerät braucht
 
@@ -83,6 +84,13 @@ Die Ventilstellung fehlt bei vielen Modellen.
 ### FRITZ!DECT (Comet, DECT 440)
 Zeitpläne und Boost in der FRITZ!Box abschalten. Die Ventilstellung ist häufig leer, die Batterie
 wird trotzdem gemeldet.
+
+### Bosch Smart Home (SHc)
+Die Thermostate der Bosch-Zentrale kennen **keine Presets** – `preset_mode` ist immer leer, Raumklima
+schreibt ausschließlich den Sollwert. Die **Mindesttemperatur liegt bei 18 °C**, deshalb lässt sich ein
+Raum nicht über die Minimaltemperatur abschalten: *Ausschalten über* steht auf **Automatisch**, das
+erkennt den Modus „aus“. Die Ventilstellung kommt als eigener Sensor (`sensor.…_ventilstoessel`).
+Zeitprogramme und Szenen in der Bosch-App müssen aus sein, sonst überschreiben sie den Sollwert.
 
 ## Wenn etwas „–" zeigt
 

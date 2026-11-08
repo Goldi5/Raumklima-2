@@ -110,6 +110,7 @@ Raumklima controls **every radiator thermostat that appears as a `climate` entit
 | Shelly TRV / BLU TRV | Shelly | ❔ not tested yet – reports welcome |
 | Sonoff TRVZB | ZHA | ✅ user report (offset via `number.…_lokaler_temperatur_offset`; no valve position, no presets) |
 | Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ not tested yet |
+| Bosch Smart Home (SHc) | Bosch Smart Home | ❔ field report – no presets, switching off via mode |
 
 Per-device quirks – sleepy thermostats, missing offset, presets, valve position – are covered in **[Devices & thermostats](devices.md)**.
 

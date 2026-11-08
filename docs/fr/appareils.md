@@ -20,6 +20,7 @@ retours d’utilisateurs et de nos propres mesures ; la liste s’allonge à cha
 | Sonoff TRVZB | ZHA | consigne, offset via `number.<name>_lokaler_temperatur_offset` | se met en veille régulièrement ; pas de position de vanne, pas de presets |
 | Netatmo | intégration Netatmo | consigne, sonde de pièce | lent ; position de vanne souvent absente |
 | FRITZ!DECT (Comet, 440) | AVM FRITZ!SmartHome | consigne, sonde de pièce | position de vanne souvent vide ; programmes de l’appareil à désactiver |
+| Bosch Smart Home (SHc) | Bosch Smart Home | consigne, position de vanne (`sensor.…_ventilstoessel`), arrêt via mode | **pas de presets** (`preset_mode` toujours vide) ; **température minimale 18 °C** – l’extinction via la température minimale est impossible, Raumklima utilise donc le mode « off » ; le programme de pièce dans l’app Bosch doit être désactivé |
 
 ## Ce dont chaque appareil a besoin
 
@@ -75,6 +76,13 @@ La position de vanne manque sur de nombreux modèles.
 ### FRITZ!DECT (Comet, DECT 440)
 Désactivez programmes et boost dans la FRITZ!Box. La position de vanne est souvent vide, le niveau de
 pile reste remonté.
+
+### Bosch Smart Home (SHc)
+Les thermostats de la centrale Bosch n’ont **aucun preset** – `preset_mode` est toujours vide et Raumklima
+n’écrit que la consigne. La **température minimale est de 18 °C** : une pièce ne peut donc pas être
+éteinte via la température minimale, *Extinction via* reste sur **Automatique**, ce qui détecte le mode
+« off ». La position de vanne vient d’un capteur séparé (`sensor.…_ventilstoessel`). Les programmes et
+scènes de l’app Bosch doivent être désactivés, sinon ils écrasent la consigne.
 
 ## Quand quelque chose affiche « – »
 

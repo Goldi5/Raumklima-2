@@ -113,6 +113,7 @@ Raumklima steuert **jedes Heizkörperthermostat, das in Home Assistant als `clim
 | Shelly TRV / BLU TRV | Shelly | ❔ noch nicht getestet – Erfahrungsbericht willkommen |
 | Sonoff TRVZB | ZHA | ✅ Erfahrungsbericht (Offset über `number.…_lokaler_temperatur_offset`; keine Ventilstellung, keine Presets) |
 | Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ noch nicht getestet |
+| Bosch Smart Home (SHc) | Bosch Smart Home | ❔ Erfahrungsbericht – kein Preset, Ausschalten über den Modus |
 
 Eigenheiten je Gerät – schlafende Thermostate, fehlender Offset, Presets, Ventilstellung – stehen unter **[Geräte & Thermostate](geraete.md)**.
 

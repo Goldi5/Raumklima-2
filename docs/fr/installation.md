@@ -114,6 +114,7 @@ Raumklima pilote **tout thermostat de radiateur qui apparaît comme entité `cli
 | Shelly TRV / BLU TRV | Shelly | ❔ pas encore testé – retours bienvenus |
 | Sonoff TRVZB | ZHA | ✅ retour d’expérience (offset via `number.…_lokaler_temperatur_offset` ; pas de position de vanne, pas de presets) |
 | Eve Thermo, Aqara, Bosch (Matter) | Matter/Thread | ❔ pas encore testé |
+| Bosch Smart Home (SHc) | Bosch Smart Home | ❔ retour d’expérience – pas de preset, extinction via le mode |
 
 Les particularités par appareil – thermostats en veille, offset absent, presets, position de vanne – sont décrites dans **[Appareils & thermostats](appareils.md)**.
 
