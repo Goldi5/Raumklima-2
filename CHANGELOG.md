@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.62.17b1 – 2026-11-08
+
+### Neu
+
+- **Feuchte aus dem Thermostat.** Meldet das Gerät selbst Luftfeuchte – als eigener Sensor oder nur
+  als Attribut an der Klima-Entität – nutzt Raumklima sie, wenn kein eigener Feuchtefühler gesetzt ist.
+  Lüftungshinweise, Taupunkt und Schimmelschutz laufen damit auch bei Livisi, Bosch und anderen
+  Geräten, bei denen der Wert bisher ungenutzt blieb. Fällt ein gesetzter Fühler aus, springt der
+  Gerätewert ein. Ein eigener Raumfühler hat weiter Vorrang: er sitzt in der Raummitte statt am
+  Heizkörper.
+
 ## 0.62.16b1 – 2026-11-08
 
 ### Behoben

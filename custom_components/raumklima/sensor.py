@@ -33,7 +33,7 @@ async def async_setup_entry(
     if c.cal_mode == CAL_OFFSET:
         entities.append(OffsetSensor(c))
     entities.append(RecommendedDurationSensor(c))
-    if c.humidity_sensor:
+    if c.humidity_capable:
         entities += [VentilationSensor(c), DewPointSensor(c), AbsHumiditySensor(c)]
     async_add_entities(entities)
 

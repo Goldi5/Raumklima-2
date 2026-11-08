@@ -26,8 +26,14 @@ retours d’utilisateurs et de nos propres mesures ; la liste s’allonge à cha
 
 - **Un thermostat `climate`** dans la pièce. Sans lui, utilisez une **pièce de surveillance** (mesurer,
   rappeler, rapporter – sans toucher aux consignes).
-- **Une sonde de pièce est recommandée, pas obligatoire.** Sans elle, Raumklima régule avec la sonde du
-  thermostat – il n’y a alors pas de compensation d’offset, mesure et chauffe étant au même endroit.
+- **Une sonde de pièce est recommandée, pas obligatoire.** Le dialogue de configuration demande une
+  entité de température – la sonde du thermostat (`sensor.…_local_temperature`) suffit. Il n’y a alors
+  pas de compensation d’offset, mesure et chauffe étant au même endroit.
+- **Humidité :** une sonde d’humidité séparée est optionnelle. Sans sonde – ou si elle tombe en panne –
+  Raumklima utilise l’humidité que le thermostat annonce (`current_humidity`) ; les conseils
+  d’aération et la protection anti-moisissure continuent de fonctionner. La valeur est prise au
+  radiateur et paraît trop sèche pendant la chauffe : pour une salle de bain ou une cuisine, une vraie
+  sonde de pièce reste plus honnête.
 - **Contact(s) de fenêtre** en `binary_sensor` (les capteurs d’ouverture et `cover` fonctionnent aussi).
   Plusieurs fenêtres par pièce sont possibles ; ouverte reste ouverte.
 - **La position de vanne est optionnelle.** Si l’appareil ne la fournit pas, la tuile affiche « – ».

@@ -26,8 +26,13 @@ Rückmeldungen von Nutzern und eigenen Messungen; die Liste wächst mit jedem Er
 
 - **Ein `climate`-Thermostat** im Raum. Ohne Thermostat geht ein **Überwachungsraum** (messen, anmahnen,
   berichten – ohne Sollwerte anzufassen).
-- **Raumfühler empfohlen, aber nicht Pflicht.** Ohne eigenen Fühler regelt Raumklima nach dem Fühler im
-  Thermostat – dann entfällt der Offset-Ausgleich, weil Mess- und Regelort identisch sind.
+- **Raumfühler empfohlen, aber nicht Pflicht.** Im Einrichtungsdialog muss eine Temperatur-Entität
+  gewählt werden – dafür genügt der Sensor des Thermostats selbst (`sensor.…_local_temperature`).
+  Dann entfällt der Offset-Ausgleich, weil Mess- und Regelort identisch sind.
+- **Feuchte:** Ein eigener Feuchtefühler ist optional. Ist keiner gesetzt – oder fällt er aus –, nimmt
+  Raumklima die Feuchte, die das Thermostat selbst meldet (`current_humidity`); Lüftungshinweise und
+  Schimmelschutz laufen dann trotzdem. Der Wert sitzt am Heizkörper und liest im Heizbetrieb zu
+  trocken: für Bad und Küche ist ein eigener Raumfühler die ehrlichere Wahl.
 - **Fensterkontakt(e)** als `binary_sensor` (auch `cover`/Öffnungssensoren). Mehrere Fenster pro Raum
   sind erlaubt; offen ist offen.
 - **Ventilstellung ist optional.** Liefert das Gerät sie nicht, zeigt die Kachel „–". Das ist Absicht:

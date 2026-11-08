@@ -834,10 +834,51 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     @property
     def current_humidity(self) -> float | None:
-        if not self.humidity_sensor:
+        """Raumfeuchte: eigener Fühler, sonst das, was das Thermostat selbst misst.
+
+        Viele Thermostate haben einen Feuchtefühler (Livisi, Bosch, FRITZ!DECT, Tuya) – bei
+        einigen steht der Wert nur als Attribut an der `climate`-Entität und lässt sich im
+        Dialog nicht auswählen. Ohne Rückfall blieben Lüftungshinweise und Schimmelschutz dort
+        stumm, obwohl die Zahl vorhanden ist.
+        """
+        state = self.hass.states.get(self.humidity_sensor) if self.humidity_sensor else None
+        value = to_float(state.state) if state is not None else None
+        if value is not None:
+            return value
+        return self.trv_humidity
+
+    @property
+    def trv_humidity(self) -> float | None:
+        """Feuchte, die das Raumthermostat selbst meldet (`current_humidity`)."""
+        if not self.trv:
             return None
-        state = self.hass.states.get(self.humidity_sensor)
-        return to_float(state.state) if state else None
+        state = self.hass.states.get(self.trv)
+        return to_float((state.attributes or {}).get("current_humidity")) if state is not None else None
+
+    @property
+    def humidity_capable(self) -> bool:
+        """Kann dieser Raum überhaupt eine Feuchte auswerten?
+
+        Eigener Fühler oder der Feuchtefühler im Thermostat. Bewusst nicht „Wert ist gerade da":
+        ein Gerät, das nur sporadisch meldet, soll die Entitäten trotzdem einmal bekommen.
+        """
+        if self.humidity_sensor:
+            return True
+        if self.trv_humidity is not None:
+            return True
+        state = self.hass.states.get(self.trv) if self.trv else None
+        return state is not None and "current_humidity" in (state.attributes or {})
+
+    @property
+    def humidity_source(self) -> str | None:
+        """Woher die Feuchte kommt – „sensor", „trv" oder nichts (für Diagnose und Karte)."""
+        if self.current_humidity is None:
+            return None
+        if self.humidity_sensor:
+            state = self.hass.states.get(self.humidity_sensor)
+            if state is not None and to_float(state.state) is not None:
+                return "sensor"
+        return "trv"
 
     @property
     def current_pm25(self) -> float | None:
@@ -924,7 +965,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         """
         mode = self.config.get(CONF_MOLD_MODE) or MOLD_STRICT
         window_open = bool(self.paused or self.window_paused)
-        if mode == MOLD_OFF or not on or reason in MOLD_EXEMPT or not self.humidity_sensor or window_open:
+        if mode == MOLD_OFF or not on or reason in MOLD_EXEMPT or not self.humidity_capable or window_open:
             self._mold_raw = None  # Schutz greift nicht: Hysterese zurücksetzen
             self._mold_capped = False
             return on, target, reason
@@ -1037,7 +1078,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     def check_moisture_source(self, now: datetime) -> None:
         """Steigt die Feuchte im Raum, obwohl geheizt wird? Dann liegt die Ursache im Zimmer."""
-        if self.monitor or not self.humidity_sensor or self.paused or self.window_logic and self.window_paused:
+        if self.monitor or not self.humidity_capable or self.paused or self.window_logic and self.window_paused:
             return
         sent = getattr(self, "_moisture_sent", None)
         if sent is not None and now - sent < MOISTURE_COOLDOWN:
@@ -1123,7 +1164,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             if self._manual_until and now < self._manual_until:
                 return True, self.target_temp, REASON_MANUAL
             mold = None
-            if self.humidity_sensor and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
+            if self.humidity_capable and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
                 mold = self.mold_min(hub)
             target = setback_target(
                 self.target_temp, stage, self.setback_short, self.setback_long, mold
@@ -1187,7 +1228,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         # „Anwesenheit aus": auch der leere Raum senkt nicht ab (Issue #10)
         if self.room_eco_applies() and not hub.opt(CONF_PRESENCE_OFF):
             floor = self.setback_short
-            if self.humidity_sensor:
+            if self.humidity_capable:
                 mold = self.mold_min(hub)
                 if mold is not None:
                     floor = max(floor, mold)

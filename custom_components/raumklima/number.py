@@ -27,7 +27,7 @@ async def async_setup_entry(
     entities = [
         VentNumber(c, key, low, high, step, unit, dclass)
         for key, low, high, step, unit, dclass in NUMBERS
-        if key != "humidity_limit" or c.humidity_sensor
+        if key != "humidity_limit" or c.humidity_capable
     ]
     async_add_entities(entities)
 

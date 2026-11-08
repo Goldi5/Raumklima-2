@@ -168,6 +168,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "humidity_entity": c.humidity_sensor,
             "window_entities": c.windows,
             "humidity_sensor": bool(c.humidity_sensor),
+            "humidity_source": c.humidity_source,
             **(c.vent.attributes() if c.vent else {}),
             **c.presence_attributes(),
             "settings": c.settings_summary(),

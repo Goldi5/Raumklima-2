@@ -24,7 +24,7 @@ async def async_setup_entry(
     entities: list[BinarySensorEntity] = [ProblemSensor(c)]
     if c.windows:
         entities.append(WindowSensor(c))
-    if c.humidity_sensor:
+    if c.humidity_capable:
         entities.append(MoldRiskSensor(c))
     async_add_entities(entities)
 

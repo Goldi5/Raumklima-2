@@ -26,9 +26,13 @@ feedback and our own measurements; the list grows with every report.
 
 - **A `climate` thermostat** in the room. Without one, use a **monitoring room** (measure, remind,
   report – without touching setpoints).
-- **A room sensor is recommended, not required.** Without one, Raumklima controls by the thermostat's
-  own sensor – then there is no offset compensation, because measuring and heating happen in the same
-  place.
+- **A room sensor is recommended, not required.** The setup dialog asks for a temperature entity – the
+  thermostat's own sensor (`sensor.…_local_temperature`) is enough. Then there is no offset
+  compensation, because measuring and heating happen in the same place.
+- **Humidity:** a separate humidity sensor is optional. If none is set – or it becomes unavailable –
+  Raumklima uses the humidity the thermostat reports (`current_humidity`), and ventilation hints and
+  mould protection keep working. The value sits at the radiator and reads too dry while heating: for
+  a bathroom or kitchen a real room sensor is the more honest choice.
 - **Window contact(s)** as `binary_sensor` (opening sensors and `cover` work too). Several windows per
   room are fine; open is open.
 - **Valve position is optional.** If the device does not provide it, the tile shows “–”. That is
