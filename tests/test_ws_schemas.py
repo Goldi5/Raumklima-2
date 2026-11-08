@@ -51,3 +51,19 @@ def test_genutzte_befehle_nehmen_home_an() -> None:
     blocks = _command_blocks()
     without = sorted(name for name in _called_with_home() if '"home"' not in blocks.get(name, ""))
     assert not without, f"Schema ohne 'home' (Karte schickt es mit): {without}"
+
+
+def test_raumkalibrierung_ist_schaltbar() -> None:
+    """Die Kalibrierart steht in der Karte als Schalter – das Schema muss sie annehmen.
+
+    Anlass: In der Karte war „Kalibrierung" nur eine Anzeige; wer sie ändern wollte, fand
+    keinen Weg (zwei Melder suchten vergeblich). Jetzt schickt die Karte
+    ``calibration_mode`` über ``raumklima/room/update`` – fehlt der Schlüssel im Schema,
+    antwortet Home Assistant mit „extra keys not allowed" und die Auswahl springt zurück.
+    """
+    src = (BACKEND / "websocket_api.py").read_text(encoding="utf-8")
+    match = re.search(r"ROOM_CHANGES = vol\.Schema\((.+?)\n\)\n", src, re.S)
+    assert match, "ROOM_CHANGES nicht gefunden – Muster geändert?"
+    assert "CONF_CALIBRATION_MODE" in match.group(1), "ROOM_CHANGES nimmt die Kalibrierart nicht an"
+    frontend = (FRONTEND / "cards" / "settings.js").read_text(encoding="utf-8")
+    assert '_segs(scope, "calibration_mode"' in frontend, "Karte bietet den Schalter nicht an"

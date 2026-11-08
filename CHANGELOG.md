@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.62.14b1 – 2026-11-08
+
+### Neu
+
+- **Kalibrierart direkt in der Karte umstellbar.** Bisher war „Kalibrierung" unter
+  *Einstellungen → Raum* nur eine Anzeige; ändern ließ sie sich nur im Optionen-Dialog der
+  Integration, und zwei Melder suchten vergeblich danach. Jetzt steht dort ein Schalter:
+  **Sollwert-Ausgleich** oder **Ohne Abgleich** (bei Geräten mit eigener Offset-Entität
+  zusätzlich **Offset am Thermostat**). Die Karte schickt die Auswahl über
+  `raumklima/room/update`; der Raum lädt danach einmal neu.
+
 ## 0.62.13b1 – 2026-11-08
 
 ### Behoben

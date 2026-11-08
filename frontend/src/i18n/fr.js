@@ -1,6 +1,7 @@
 // Textes français des cartes. Clé = texte allemand (voir i18n.js).
 // Traduction initiale – corrections bienvenues via une issue GitHub.
 export const FR = {
+  "auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "aussi appelé « équilibrage » : l’appareil n’a pas d’offset, Raumklima décale donc la consigne de l’écart entre capteur et thermostat",
   "Lüfthinweise von": "Conseils d’aération à partir de",
   "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Aérer, fermer la fenêtre et air renouvelé uniquement pendant cette plage – silencieux la nuit ; refroidissement, gel et pannes d’appareil continuent d’alerter",
 

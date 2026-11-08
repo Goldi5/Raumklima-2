@@ -18,6 +18,7 @@ from .const import (
     BOOST_TEMP_MAX,
     BOOST_TEMP_MIN,
     BUILDING_TYPES,
+    CALIBRATION_MODES,
     CO2_LIMIT_OPTIONS,
     CONF_AIRING_MIN_MINUTES,
     CONF_AIRING_OCCUPIED_ONLY,
@@ -29,6 +30,7 @@ from .const import (
     CONF_CALENDAR,
     CONF_CALENDAR_AWAY,
     CONF_CALENDAR_HOME,
+    CONF_CALIBRATION_MODE,
     CONF_CO2_LIMIT,
     CONF_COLD_SNAP_TEMP,
     CONF_COMFORT_TEMP,
@@ -229,6 +231,7 @@ ROOM_CHANGES = vol.Schema(
     {
         vol.Optional(CONF_COMFORT_TEMP): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(12, 26))),
         vol.Optional(CONF_ROOM_TYPE): vol.In(ROOM_TYPE_OPTIONS),
+        vol.Optional(CONF_CALIBRATION_MODE): vol.In(CALIBRATION_MODES),
         vol.Optional(CONF_TRV_INTERVAL): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(0, 60))),
         vol.Optional(CONF_CO2_LIMIT): vol.All(vol.Coerce(int), vol.In(CO2_LIMIT_OPTIONS)),
         vol.Optional(CONF_NOTIFY_CAP): vol.All(vol.Coerce(int), vol.In(NOTIFY_CAP_OPTIONS)),

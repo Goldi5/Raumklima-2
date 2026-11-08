@@ -1,7 +1,8 @@
-/* Raumklima 0.62.13b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.14b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
+    "auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "also called “balancing”: the device has no offset, so Raumklima shifts the setpoint by the difference between sensor and thermostat",
     "Lüfthinweise von": "Air hints from",
     "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Please air, close the window and air exchanged only within this time – silent at night; room cooling down, frost and device faults still report",
     "Höchstens je Tag": "At most per day",
@@ -882,6 +883,7 @@
 
   // src/i18n/fr.js
   var FR = {
+    "auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "aussi appelé « équilibrage » : l’appareil n’a pas d’offset, Raumklima décale donc la consigne de l’écart entre capteur et thermostat",
     "Lüfthinweise von": "Conseils d’aération à partir de",
     "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Aérer, fermer la fenêtre et air renouvelé uniquement pendant cette plage – silencieux la nuit ; refroidissement, gel et pannes d’appareil continuent d’alerter",
     "Höchstens je Tag": "Au maximum par jour",
@@ -1801,7 +1803,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.13b1";
+  var RK_VERSION = "0.62.14b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -5223,8 +5225,8 @@
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         this._row(
           "Kalibrierung",
-          this._v(RK_CAL[s.calibration_mode] || "–"),
-          s.calibration_mode === "target" ? t("das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat") : offTxt
+          editable ? this._segs(scope, "calibration_mode", s.calibration_entity ? RK_CAL : { target: RK_CAL.target, none: RK_CAL.none }, s.calibration_mode || "target") : this._v(RK_CAL[s.calibration_mode] || "–"),
+          s.calibration_mode === "target" ? t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat") : offTxt
         ),
         this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
         this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),

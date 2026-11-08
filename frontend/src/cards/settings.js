@@ -1245,9 +1245,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
           t("1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer")
         ),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
-        this._row("Kalibrierung", this._v(RK_CAL[s.calibration_mode] || "–"),
+        this._row("Kalibrierung", editable
+          ? this._segs(scope, "calibration_mode", s.calibration_entity
+              ? RK_CAL
+              : { target: RK_CAL.target, none: RK_CAL.none }, s.calibration_mode || "target")
+          : this._v(RK_CAL[s.calibration_mode] || "–"),
         s.calibration_mode === "target"
-          ? t("das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat")
+          ? t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat")
           : offTxt),
         this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
         this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
