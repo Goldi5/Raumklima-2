@@ -1,3 +1,7 @@
+## 0.62.25b1 – 2026-11-09
+
+- **Livisi: verify_delay auf 60 s angehoben.** Livisi-Thermostate bestätigen Sollwert-Schreibbefehle verzögert; mit dem bisherigen 20-s-Intervall blieben Sync-Jobs als „pending" hängen, obwohl das Gerät den Wert übernommen hatte. Erkennung über Entity-Registry-Platform ("livisi").
+
 ## 0.62.24b1 – 2026-11-09
 
 - **Bosch (und kompatible): internes Zeitprogramm deaktivieren.** TRVs, die ein `operating_mode`-Attribut ausweisen (z. B. Bosch BTH-RM/BTH-RA), werden beim ersten Zustandsupdate auf `manual` gestellt, damit externe Setpoints nicht vom Geraete-eigenen Zeitplan ueberschrieben werden. Quelle: Better Thermostat 1.8.0+ (nur Konzept, Code eigenstaendig).

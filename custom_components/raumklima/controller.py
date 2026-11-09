@@ -401,6 +401,15 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             on_recovered=self._on_sync_recovered,
             on_event=self._on_sync_event,
         )
+        # Livisi bestätigt Sollwerte verzögert – verify_delay anheben
+        try:
+            import homeassistant.helpers.entity_registry as er
+            _reg = er.async_get(hass)
+            _entry = _reg.async_get(self.trv)
+            if _entry is not None and _entry.platform == "livisi" and self.sync.verify_delay < 60:
+                self.sync.verify_delay = 60.0
+        except Exception:  # noqa: BLE001
+            pass
         self._last_plan: tuple[bool, float, str] | None = None
         self._peeking = False  # plan() nur lesen, keine Zustände verbrauchen
         self._trv_reports: deque[datetime] = deque(maxlen=6)
