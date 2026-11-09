@@ -1545,6 +1545,13 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self._detect_manual_change(old, new)
         self._update_shift()
         self.sync.check_all()
+        # Bosch (und kompatible): internes Zeitprogramm deaktivieren - sonst ignoriert
+        # das Geraet externe Setpoints und heizt nach eigenem Plan (Better Thermostat:
+        # manual-Modus beim Start). Nur wenn das Geraet operating_mode ausweist.
+        om = new.attributes.get("operating_mode")
+        if om is not None and om != "manual" and not getattr(self, "_bosch_manual_pending", False):
+            self._bosch_manual_pending = True
+            self.hass.async_create_task(self._ensure_bosch_manual())
         if self.cal_mode == CAL_OFFSET:
             if old.attributes.get("current_temperature") != new.attributes.get(
                 "current_temperature"
@@ -1637,6 +1644,20 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
 
 
+
+    async def _ensure_bosch_manual(self) -> None:
+        """Bosch (und kompatible): internes Zeitprogramm deaktivieren.
+
+        Setzt operating_mode auf 'manual', damit externe Setpoints nicht vom
+        Geraete-eigenen Zeitplan ueberschrieben werden (Better Thermostat 1.8.0+).
+        """
+        try:
+            await self._call_climate("set_preset_mode", preset_mode="manual")
+            _LOGGER.info("%s: Bosch operating_mode auf 'manual' gesetzt", self.name)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("%s: operating_mode 'manual' nicht unterstuetzt: %s", self.name, exc)
+        finally:
+            self._bosch_manual_pending = False
 
     async def _apply(self, from_measurement: bool = False) -> None:
         """Soll-Zustand berechnen und ans TRV senden (mit Prüfung)."""
