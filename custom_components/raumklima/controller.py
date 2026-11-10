@@ -1735,6 +1735,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 return  # Raum wird gerade entladen/neu geladen – nichts mehr senden
             if self.monitor:
                 return  # Überwachungsraum: nichts zu regeln, nichts zu senden
+            if getattr(self, "_manual_candidate", None) is not None:
+                # Gerät hat gerade einen neuen Sollwert gemeldet – erst die Standzeit abwarten,
+                # sonst überschreiben wir den Handeingriff mit dem alten Ziel.
+                return
             if self.throttled_until and dt_util.utcnow() < self.throttled_until:
                 return  # Bremse aktiv – zu viele Befehle in kurzer Zeit
             method = self._off_method()

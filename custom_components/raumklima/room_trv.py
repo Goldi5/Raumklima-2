@@ -83,6 +83,10 @@ SEND_BACKOFF = timedelta(minutes=15)
 # wird der Raum eingeschaltet, obwohl der Nutzer ihn ausgeschaltet hatte (Issue #37).
 # Die Frist skaliert mit dem Meldetakt, weil langsame Geräte erst beim nächsten Poll melden.
 OWN_WRITE_GRACE = 90.0  # s (Mindestwert)
+# Ein Handeingriff gilt erst, wenn der Wert so lange unverändert am Gerät steht.
+# Tuya-Thermostate zählen zum Tageswechsel (00:05) ihre Sollwerte durch – drei Werte in
+# vier Sekunden; ohne diese Frist würde jeder davon als „Am Thermostat gedreht" übernommen.
+MANUAL_STABLE_SECONDS = 45.0
 
 
 class TrvMixin:
@@ -268,24 +272,52 @@ class TrvMixin:
             _LOGGER.debug("%s: Sollwert %s kurz nach Preset-Wechsel ignoriert", self.name, new_t)
             self.hass.async_create_task(self._apply())
             return
-        if follow:
-            _LOGGER.info("%s: Sollwert am TRV geändert auf %s", self.name, new_t)
-            away = self.plan()[2] in AWAY_STAGES
-            self.log(
-                CAT_MANUAL,
-                tr("Am Thermostat gedreht: {t}", t=fmt_temp(new_t)),
-                tr("wird neue Wunschtemperatur") + (tr("; Absenkung für 3 h ausgesetzt") if away else ""),
-            )
-            if away:
-                self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
-            if self.cal_mode == CAL_TARGET:
-                # Am Gerät steht der Wunsch plus Abgleich – zurückrechnen.
-                self.target_temp = clamp(round_device(new_t - self.shift, self.trv_step), self.trv_min, self.trv_max)
-            else:
-                self.target_temp = new_t
-            self._save()
-        else:
+        if not follow:
             self.hass.async_create_task(self._apply())
+            return
+        # Erst übernehmen, wenn der Wert stabil steht (siehe MANUAL_STABLE_SECONDS).
+        self._queue_manual_setpoint(new_t)
+
+    def _queue_manual_setpoint(self, value: float) -> None:
+        """Handeingriff vormerken und nach kurzer Standzeit übernehmen."""
+        self._manual_candidate = value
+        if getattr(self, "_manual_timer", None):
+            self._manual_timer()
+            self._manual_timer = None
+        self._manual_timer = self._schedule(MANUAL_STABLE_SECONDS, self._manual_confirm)
+
+    def _manual_confirm(self) -> None:
+        """Nach der Standzeit prüfen: steht der Wert noch? Dann ist es ein Handeingriff."""
+        self._manual_timer = None
+        value = getattr(self, "_manual_candidate", None)
+        self._manual_candidate = None
+        if value is None or self.sync.jobs or self.paused:
+            return
+        current = to_float(self._trv_attr(ATTR_TEMPERATURE))
+        if current is None or not values_match(current, value, self.setpoint_tol):
+            _LOGGER.debug("%s: Sollwert %.1f war nicht stabil – kein Handeingriff", self.name, value)
+            return
+        self._adopt_manual_setpoint(value)
+
+    def _adopt_manual_setpoint(self, new_t: float) -> None:
+        """Wert vom Gerät als neuen Wunsch übernehmen."""
+        _LOGGER.info("%s: Sollwert am TRV geändert auf %s", self.name, new_t)
+        away = self.plan()[2] in AWAY_STAGES
+        self.log(
+            CAT_MANUAL,
+            tr("Am Thermostat gedreht: {t}", t=fmt_temp(new_t)),
+            tr("wird neue Wunschtemperatur") + (tr("; Absenkung für 3 h ausgesetzt") if away else ""),
+        )
+        if away:
+            self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
+        if self.cal_mode == CAL_TARGET:
+            # Am Gerät steht der Wunsch plus Abgleich – zurückrechnen.
+            self.target_temp = clamp(round_device(new_t - self.shift, self.trv_step), self.trv_min, self.trv_max)
+        else:
+            self.target_temp = new_t
+        self._save()
+        self._notify()
+        self.hass.async_create_task(self._apply())
 
     # ================================================================ TRV steuern
     def _off_method(self) -> str:

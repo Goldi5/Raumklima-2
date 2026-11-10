@@ -101,7 +101,21 @@ async def test_window_contact_unavailable_keeps_last_state(hass: HomeAssistant, 
 async def test_manual_change_at_trv_is_followed(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     trv.set(temperature=19.0)
     await hass.async_block_till_done()
+    # Erst nach der Standzeit gilt es als Handeingriff (MANUAL_STABLE_SECONDS)
+    assert hass.states.get("climate.bad").attributes["temperature"] != 19.0
+    await advance(hass, 50)
     assert hass.states.get("climate.bad").attributes["temperature"] == 19.0
+
+
+async def test_sollwert_runde_am_tageswechsel_wird_ignoriert(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Tuya zählt um Mitternacht drei Sollwerte durch – das ist kein Handeingriff."""
+    before = hass.states.get("climate.bad").attributes["temperature"]
+    for value in (before - 0.5, before + 0.5, before):
+        trv.set(temperature=value)
+        await hass.async_block_till_done()
+        await advance(hass, 1)
+    await advance(hass, 50)
+    assert hass.states.get("climate.bad").attributes["temperature"] == before
 
 
 async def test_eco_comfort_flip_does_not_fight(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
@@ -1129,7 +1143,7 @@ async def test_manual_change_at_trv_is_adopted_with_cal_target(
 
     trv.set(temperature=21.5)
     await hass.async_block_till_done()
-    await advance(hass, 2)
+    await advance(hass, 50)
 
     # Fühler und TRV zeigen hier denselben Wert -> Abgleich 0, der Wunsch kommt 1:1 an.
     assert hass.states.get("climate.bad").attributes["temperature"] == 21.5

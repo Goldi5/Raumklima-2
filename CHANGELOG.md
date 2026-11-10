@@ -1,3 +1,8 @@
+## 0.62.30b1 – 2026-11-10
+
+- **Handeingriff erst nach Standzeit:** Ein am Thermostat verstellter Sollwert wird erst übernommen, wenn er 45 s unverändert steht. Tuya-Geräte zählen zum Tageswechsel (kurz nach 00:05) ihre Sollwerte durch — Wunsch −0,5 → Wunsch +0,5 → Wunsch in vier Sekunden. Bisher wurden alle drei als „Am Thermostat gedreht" übernommen, mit drei Funkbefehlen je Raum und Nacht; jetzt bleibt das Ziel unberührt.
+- Solange ein Kandidat wartet, schreibt die Regelung nichts ans Gerät, damit der Handeingriff nicht vom alten Ziel überschrieben wird.
+
 ## 0.62.29b1 – 2026-11-10
 
 - **Problem-Indikator trägt den Befund** (Issue #42): Der Sensor heißt jetzt wie der wichtigste offene Befund, z. B. „Problem: Batterie schwach" (bei mehreren „… +1"). In der Geräteliste ist damit sofort sichtbar, was anliegt; die vollständige Liste bleibt als Attribut.
