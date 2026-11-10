@@ -121,7 +121,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
         return {
             "status": c.status,
             "off_source": c.off_source,
-            "boost_until": c.boost_until.isoformat() if c.boost_active else None,
+            "boost_until": c.boost_until.isoformat() if (c.boost_until and c.boost_active) else None,
+            "boost_open": bool(c.boost_open and c.boost_active),
             "window_open": c.window_open,
             "window_open_since": (
                 c.vent.window_open_since.isoformat()
@@ -185,6 +186,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "presence": hub.stage if hub else None,
             "night_airing": c.night_airing,
             "home": hub.entry.entry_id if hub else None,
+            "room": c.entry.entry_id,
             "home_name": hub.name if hub else None,
             "window_virtual": c.window_virtual,
             "heating_mode": hub.decision if hub else None,

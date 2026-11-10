@@ -20,6 +20,9 @@ from .const import (
     CONF_LONG_AWAY_HOURS,
     CONF_PREHEAT_KM,
     CONF_PRESENCE_OFF,
+    CONF_ROOM_PERSONS,
+    CONF_VACATION_HOURS,
+    CONF_VACATION_KM,
     KIND_PRESENCE,
 )
 from .decision_log import (
@@ -169,6 +172,7 @@ class PresenceMixin:
             # Präsenzmelder: jemand ist zu Hause, auch ohne Handy (nicht im Urlaub – Katze, Blumengießer)
             self.sensed = [] if (self.vacation or cal == CAL_AWAY) else self.sensed_rooms()
             anyone = phones or bool(self.sensed)
+            self._auto_vacation(anyone, now)
             if anyone:
                 if self._was_present is False and self.vacation and phones:
                     _LOGGER.info("Ankunft – Urlaub beendet")
@@ -252,11 +256,55 @@ class PresenceMixin:
             self._save()
             self._changed(rooms=False)
 
+    def _auto_vacation(self, anyone: bool, now: datetime) -> None:
+        """Urlaub erkennen: alle Bewohner weit weg – und das schon eine Weile.
+
+        Bewusst nicht relativ zum Zonenradius (100 m): „doppelt so weit" wäre der Supermarkt.
+        Ohne gültige Ortung aller Bewohner wird nichts erkannt – ein Handy, das zu Hause
+        liegen bleibt, soll keinen Urlaub auslösen.
+        """
+        km = float(self.opt(CONF_VACATION_KM) or 0)
+        if km <= 0 or not self.persons:
+            self._far_since = None
+            return
+        valid = [p for p in self.persons.values() if p.get("distance_km") is not None]
+        far = (
+            len(valid) == len(self.persons)
+            and all(p["distance_km"] > km for p in valid)
+            and not any(p.get("approaching") for p in valid)
+        )
+        if anyone or not far:
+            self._far_since = None
+            return
+        if getattr(self, "_far_since", None) is None:
+            self._far_since = now
+            return
+        hours = float(self.opt(CONF_VACATION_HOURS) or 12)
+        if not self.vacation and now - self._far_since >= timedelta(hours=hours):
+            self.vacation = True
+            self.log.add(
+                CAT_PRESENCE,
+                tr("Urlaub erkannt"),
+                tr(
+                    "alle Bewohner seit {h} h weiter als {km} km entfernt",
+                    h=f"{hours:.0f}",
+                    km=f"{km:.0f}",
+                ),
+            )
+            self._save()
+
     def stage_for_room(self, entry_id: str) -> str:
         """Stufe für einen Raum – „Gäste da" kann auf ausgewählte Räume begrenzt sein.
 
         Ohne Auswahl gilt sie wie bisher für die ganze Wohnung.
         """
+        # Raum gehört bestimmten Personen: ist keine von ihnen da, wird abgesenkt – auch wenn
+        # andere Bewohner zu Hause sind (Kinderzimmer, Gästezimmer).
+        room = self.rooms.get(entry_id)
+        if room is not None and not self.guests:
+            persons = list(room.config.get(CONF_ROOM_PERSONS) or [])
+            if persons and not any(self.persons.get(p, {}).get("present") for p in persons):
+                return STAGE_AWAY_LONG if self.stage == STAGE_AWAY_LONG else STAGE_AWAY_SHORT
         if self.stage != STAGE_GUESTS:
             return self.stage
         chosen = list(self.opt(CONF_GUESTS_ROOMS) or [])

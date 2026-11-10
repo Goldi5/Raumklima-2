@@ -1,5 +1,23 @@
 import { rkDark, rkLook, rkLookStyles, STATUS, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
+// Boost-Fenster: Zeitstrahl und Auswahl (eigene Styles, damit die Karte unverändert bleibt)
+const BOOST_CSS = `
+.bsheet{margin:8px 12px 4px;padding:10px 12px;border-radius:14px;background:var(--card-background-color,#fff);box-shadow:0 2px 10px rgba(0,0,0,.12);position:relative;z-index:3}
+.bshead{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--primary-text-color,#111)}
+.bshead ha-icon{color:var(--rk-heat,#e8590c)}
+.bshead span{flex:1}
+.bsx{border:0;background:transparent;font-size:22px;line-height:1;color:var(--secondary-text-color,#777);cursor:pointer}
+.btl{margin:10px 0 4px}
+.btlbar{position:relative;height:10px;border-radius:6px;background:rgba(120,120,120,.18);overflow:hidden}
+.btlfill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--rk-heat,#e8590c);opacity:.85}
+.btlticks{position:relative;height:14px;font-size:10px;color:var(--secondary-text-color,#888)}
+.btlticks span{position:absolute;transform:translateX(-50%)}
+.bslabel{font-size:12px;color:var(--secondary-text-color,#777);margin:2px 0 8px}
+.bschips{display:flex;flex-wrap:wrap;gap:6px}
+.bschip{border:1px solid rgba(120,120,120,.35);background:transparent;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:inherit}
+.bschip:hover{border-color:var(--rk-heat,#e8590c)}
+`;
+
 export class RaumklimaCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
   set _html(html) { rkPaint(this, html); }
@@ -72,6 +90,48 @@ export class RaumklimaCard extends HTMLElement {
 
   _moreInfo(entityId) {
     this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }));
+  }
+
+  _boostSheet(a) {
+    const active = !!(a.boost_until || a.boost_open);
+    const until = a.boost_until ? Date.parse(a.boost_until) : null;
+    const mins = until ? Math.max(0, Math.round((until - Date.now()) / 60000)) : null;
+    const span = 360; // 6 h Zeitstrahl
+    const width = mins == null ? 100 : Math.min(100, (mins / span) * 100);
+    const ticks = [0, 1, 2, 3, 4, 5, 6].map((h) => {
+      const d = new Date(Date.now() + h * 3600000);
+      return `<span style="left:${(h / 6) * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc(), { hour: "2-digit" })}</span>`;
+    }).join("");
+    const chip = (mode, min, label) => `<button class="bschip" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
+    return `<style>${BOOST_CSS}</style>
+      <div class="bsheet">
+        <div class="bshead"><ha-icon icon="mdi:fire"></ha-icon><span>${t("Wärmer für kurze Zeit")}</span><button class="bsx" data-bsclose aria-label="${t("schließen")}">×</button></div>
+        <div class="btl">
+          <div class="btlbar"><i class="btlfill" style="width:${width}%"></i></div>
+          <div class="btlticks">${ticks}</div>
+        </div>
+        <div class="bslabel">${active ? (mins == null ? t("läuft ohne Zeitlimit") : t("läuft noch {m} min", { m: mins })) : t("Wie lange soll es wärmer sein?")}</div>
+        <div class="bschips">
+          ${chip("minutes", 15, t("15 min"))}${chip("minutes", 30, t("30 min"))}${chip("minutes", 60, t("1 h"))}${chip("minutes", 120, t("2 h"))}
+          ${chip("next", null, t("Bis Zeitfenster"))}${chip("unlimited", null, t("Ohne Limit"))}
+          ${active ? chip("off", null, t("Beenden")) : ""}
+        </div>
+      </div>`;
+  }
+
+  async _boost(mode, minutes) {
+    const st = this._hass.states[this._config.entity];
+    const entry = st && st.attributes && st.attributes.room;
+    if (!entry) return;
+    const payload = { type: "raumklima/boost", entry_id: entry, mode };
+    if (minutes) payload.minutes = Number(minutes);
+    try {
+      await this._hass.connection.sendMessagePromise(payload);
+    } catch (e) {
+      console.error("raumklima boost:", e);
+    }
+    this._boostOpen = false;
+    this._render();
   }
 
   _tick() {
@@ -251,7 +311,7 @@ export class RaumklimaCard extends HTMLElement {
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
+          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until || a.boost_open ? "on" : ""}" data-boostopen title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : t("Boost")}</button>` : ""}
         </div>
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
@@ -279,6 +339,7 @@ export class RaumklimaCard extends HTMLElement {
         ${banner}
         <div class="stats">${stats}</div>
         ${devLine}
+        ${this._boostOpen ? this._boostSheet(a) : ""}
         <div class="actions">
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
@@ -290,7 +351,9 @@ export class RaumklimaCard extends HTMLElement {
     const p = this.shadowRoot.querySelector("[data-power]");
     if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
     this.shadowRoot.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call("switch", "toggle", { entity_id: b.dataset.toggle })));
-    this.shadowRoot.querySelectorAll("[data-boost]").forEach((b) => b.addEventListener("click", () => this._call("button", "press", { entity_id: b.dataset.boost })));
+    this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boostOpen = !this._boostOpen; this._render(); }));
+    this.shadowRoot.querySelectorAll("[data-bs]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boost(b.dataset.bs, b.dataset.min); }));
+    this.shadowRoot.querySelectorAll("[data-bsclose]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boostOpen = false; this._render(); }));
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));
     this._tick();
   }

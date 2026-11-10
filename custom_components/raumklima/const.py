@@ -75,6 +75,9 @@ CONF_QUIET_START: Final = "quiet_start"
 CONF_QUIET_END: Final = "quiet_end"
 CONF_LEARN_SHIFT: Final = "learn_shift"  # Schichtdienst: Tagschlaf mitlernen
 CONF_QUIET_SETBACK: Final = "quiet_setback"  # Ruhezeit senkt Schlafräume ab
+CONF_VACATION_KM: Final = "vacation_km"  # ab dieser Entfernung gilt Urlaub automatisch (0 = aus)
+CONF_VACATION_HOURS: Final = "vacation_hours"  # … und erst nach so vielen Stunden
+CONF_ROOM_PERSONS: Final = "room_persons"  # person.*, die diesen Raum nutzen (leer = alle)
 CONF_QUIET_MODE: Final = "quiet_mode"  # je Raum: auto (nach Raumtyp) / on / off
 QUIET_MODES: Final = ("auto", "on", "off")
 CONF_NIGHT_LEVEL: Final = "night_level"  # Ziel der Nachtabsendung: short / long / frost
@@ -325,6 +328,9 @@ DEFAULTS: Final = {
     CONF_AIRING_MIN_MINUTES: 0,
     CONF_MOLD_MODE: "strict",
     CONF_QUIET_MODE: "auto",
+    CONF_VACATION_KM: 0,
+    CONF_VACATION_HOURS: 12,
+    CONF_ROOM_PERSONS: [],
     CONF_SCHEDULE_FALLBACK: "wish",
     CONF_GUESTS_ROOMS: [],
     CONF_FAST_POLL: False,

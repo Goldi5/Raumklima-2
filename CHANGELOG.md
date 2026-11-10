@@ -1,3 +1,9 @@
+## 0.62.28b1 – 2026-11-10
+
+- **Boost-Fenster statt Ein-Klick-Zeit:** Der vorhandene Boost-Knopf öffnet jetzt ein Fenster mit Zeitstrahl und Auswahl — 15/30/60/120 Minuten, **bis zum nächsten Zeitfenster** oder **ohne Limit** (läuft bis „Beenden"). Auf der Karte steht bei aktivem Boost die Uhrzeit bzw. „∞".
+- **Urlaub automatisch erkennen:** Sind alle Bewohner weiter als die eingestellte Entfernung entfernt (Standard 0 = aus) und das länger als die eingestellte Dauer (Standard 12 h), gilt Urlaub — Frostschutz statt Heizbetrieb. Ein Tagesausflug löst nicht aus, ein zu Hause vergessenes Handy verhindert die Erkennung bewusst.
+- **Raum gilt für Personen:** Je Raum lassen sich Personen auswählen. Ist keine von ihnen zu Hause, wird der Raum abgesenkt, auch wenn andere Bewohner da sind — gedacht für Kinder- und Gästezimmer.
+
 ## 0.62.27b1 – 2026-11-10
 
 - **Nachtabsendung je Raum** (Issue #43): neue Raum-Option „Nachtabsendung" mit *Automatisch* (wie bisher nur Schlafzimmer und selten genutzte Räume), *Immer* (auch Wohnräume) und *Nie*. Damit lässt sich jeder Raum einzeln in die Ruhezeit-Absenkung aufnehmen oder davon ausnehmen.

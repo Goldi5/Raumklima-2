@@ -79,6 +79,7 @@ from .const import (
     CONF_ROOM_ECO,
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
+    CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
     CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULE_FROM,
@@ -272,6 +273,7 @@ LIVE_OPTIONS = frozenset(
         CONF_MOLD_CAP,
         CONF_MOLD_MODE,
         CONF_QUIET_MODE,
+        CONF_ROOM_PERSONS,
         CONF_WALL,
         CONF_SCHEDULE_FALLBACK,
     }
@@ -317,6 +319,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         self.off_source: str | None = None
         # Boost: zeitlich begrenzt wärmer (None = kein Boost)
         self.boost_until: datetime | None = None
+        self.boost_open: bool = False  # Boost ohne Zeitlimit, bis „Beenden"
         self.boost_temperature: float | None = None
         self.window_logic: bool = True
         self.trv_on_preset: str | None = None
@@ -425,6 +428,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.hvac_on = bool(stored.get("hvac_on", self.hvac_on))
             self.off_source = stored.get("off_source") or (None if self.hvac_on else OFF_SOURCE_USER)
             self.boost_until = parse_dt(stored.get("boost_until"))
+            self.boost_open = bool(stored.get("boost_open") or False)
             self.boost_temperature = stored.get("boost_temperature")
             self.window_logic = bool(stored.get("window_logic", self.window_logic))
             self.trv_on_preset = stored.get("trv_on_preset")
@@ -541,6 +545,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "hvac_on": self.hvac_on,
             "off_source": self.off_source,
             "boost_until": iso(self.boost_until),
+            "boost_open": self.boost_open,
             "boost_temperature": self.boost_temperature,
             "window_logic": self.window_logic,
             "trv_on_preset": self.trv_on_preset,
@@ -1190,8 +1195,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             return False, self.target_temp, REASON_SEASON
         self._frost_active = False
         # Boost: bewusste Nutzeraktion – schlägt die Absenkung bei Abwesenheit
-        if self.boost_until is not None:
-            if now < self.boost_until:
+        if self.boost_open or self.boost_until is not None:
+            if self.boost_open or now < self.boost_until:
                 boost = self.boost_temperature if self.boost_temperature is not None else self.target_temp
                 return True, min(boost, self.trv_max), REASON_BOOST
             if not self._peeking:
@@ -1413,29 +1418,68 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         await self._apply()
 
     async def async_set_boost(self, minutes: int | None = None, temperature: float | None = None) -> None:
-        """Zeitlich begrenzt wärmer heizen („30 min wärmer“), danach gilt wieder der Rest."""
-        duration = int(self.config.get(CONF_BOOST_MINUTES) or 30) if minutes is None else int(minutes)
-        duration = max(BOOST_MINUTES_MIN, min(BOOST_MINUTES_MAX, duration))
-        offset = float(self.config.get(CONF_BOOST_TEMP) or 2.0) if temperature is None else float(temperature)
+        """Zeitlich begrenzt wärmer heizen („30 min wärmer"), danach gilt wieder der Rest."""
+        if temperature is not None:
+            offset = max(BOOST_TEMP_MIN, min(BOOST_TEMP_MAX, float(temperature)))
+            self.boost_temperature = min(self.comfort_temp + offset, self.trv_max)
+        await self._set_boost(
+            minutes if minutes is not None else int(self.config.get(CONF_BOOST_MINUTES) or 30)
+        )
+
+    async def async_boost(self, mode: str = "minutes", minutes: int | None = None) -> None:
+        """Boost mit Ziel: ``minutes`` | ``next`` (bis zum nächsten Zeitfenster) | ``unlimited`` | ``off``."""
+        if mode == "off":
+            await self.async_clear_boost()
+            return
+        if mode == "unlimited":
+            await self._set_boost(None, open_ended=True)
+            return
+        if mode == "next":
+            local_now = dt_util.now()
+            nxt = next_schedule_window(self.config.get(CONF_SCHEDULES), local_now)
+            if nxt is None:
+                await self._set_boost(120)
+                return
+            start, _want = nxt
+            delta = (start - local_now).total_seconds() / 60
+            await self._set_boost(max(5, min(480, int(delta))))
+            return
+        await self._set_boost(minutes if minutes is not None else int(self.config.get(CONF_BOOST_MINUTES) or 30))
+
+    async def _set_boost(self, minutes: int | None, open_ended: bool = False) -> None:
+        """Boost setzen – ``open_ended`` heißt: bis zum Ausschalten."""
+        offset = float(self.config.get(CONF_BOOST_TEMP) or 2.0)
         offset = max(BOOST_TEMP_MIN, min(BOOST_TEMP_MAX, offset))
         self.boost_temperature = min(self.comfort_temp + offset, self.trv_max)
-        self.boost_until = dt_util.utcnow() + timedelta(minutes=duration)
+        if open_ended:
+            self.boost_open = True
+            self.boost_until = None
+            self.log(
+                CAT_MANUAL,
+                tr("Boost {t} ohne Zeitlimit", t=fmt_temp(self.boost_temperature)),
+                tr("läuft, bis du den Boost beendest"),
+            )
+        else:
+            duration = max(BOOST_MINUTES_MIN, min(BOOST_MINUTES_MAX, int(minutes or 30)))
+            self.boost_open = False
+            self.boost_until = dt_util.utcnow() + timedelta(minutes=duration)
+            self.log(
+                CAT_MANUAL,
+                tr("Boost {t} für {m} min", t=fmt_temp(self.boost_temperature), m=duration),
+                tr("in Home Assistant"),
+            )
         if not self.hvac_on:
             self.hvac_on = True
             self.off_source = None
-        self.log(
-            CAT_MANUAL,
-            tr("Boost {t} für {m} min", t=fmt_temp(self.boost_temperature), m=duration),
-            tr("in Home Assistant"),
-        )
         self._save()
         self._notify()
         await self._apply()
 
     async def async_clear_boost(self) -> None:
         """Laufenden Boost vorzeitig beenden."""
-        if self.boost_until is None:
+        if self.boost_until is None and not self.boost_open:
             return
+        self.boost_open = False
         self.boost_until = None
         self.boost_temperature = None
         self.log(CAT_MANUAL, tr("Boost beendet"), tr("in Home Assistant"))
@@ -1445,7 +1489,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     @property
     def boost_active(self) -> bool:
-        return self.boost_until is not None and dt_util.utcnow() < self.boost_until
+        return self.boost_open or (self.boost_until is not None and dt_util.utcnow() < self.boost_until)
 
     async def async_set_window_logic(self, enabled: bool) -> None:
         self.window_logic = enabled

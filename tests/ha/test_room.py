@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
@@ -439,6 +439,100 @@ async def test_night_switch_forces_setback(hass: HomeAssistant, setup, trv: Fake
 
     hub.set_night_manual(False)
     assert ctrl.plan()[2] != "sleep"
+
+
+async def test_boost_unlimited_laeuft_bis_beenden(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Boost ohne Zeitlimit: bleibt an, bis er beendet wird."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    await ctrl.async_boost("unlimited")
+    assert ctrl.boost_open is True
+    assert ctrl.plan()[2] == "boost"
+
+    # Auch ohne Datum bleibt der Boost aktiv
+    ctrl.boost_until = None
+    assert ctrl.plan()[2] == "boost"
+
+    await ctrl.async_clear_boost()
+    assert ctrl.boost_open is False
+    assert ctrl.plan()[2] != "boost"
+
+
+async def test_boost_bis_zum_naechsten_zeitfenster(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """„Bis Zeitfenster" rechnet bis zum Beginn des nächsten Fensters."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    now = dt_util.now()
+    start = now + timedelta(minutes=90)
+    ctrl.config[CONF_SCHEDULES] = [
+        {
+            "days": [],
+            "start": start.strftime("%H:%M"),
+            "end": (start + timedelta(minutes=60)).strftime("%H:%M"),
+            "temperature": 22.0,
+        }
+    ]
+    await ctrl.async_boost("next")
+    assert ctrl.boost_until is not None
+    minutes = (ctrl.boost_until - dt_util.utcnow()).total_seconds() / 60
+    assert 80 <= minutes <= 92, f"erwartet ~90 min, war {minutes:.0f}"
+
+
+async def test_raum_gilt_nur_bestimmten_personen(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Raum mit Personenzuordnung wird abgesenkt, wenn keine dieser Personen da ist."""
+    from custom_components.raumklima.const import CONF_ROOM_PERSONS
+    from custom_components.raumklima.planning import STAGE_AWAY_SHORT
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    ctrl.config[CONF_ROOM_PERSONS] = ["person.luna"]
+
+    hub.persons = {"person.luna": {"present": False, "distance_km": None}}
+    hub.stage = "home"
+    assert hub.stage_for_room(ctrl.entry.entry_id) == STAGE_AWAY_SHORT
+
+    hub.persons = {"person.luna": {"present": True, "distance_km": 0.0}}
+    assert hub.stage_for_room(ctrl.entry.entry_id) == "home"
+
+
+async def test_urlaub_wird_aus_entfernung_erkannt(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Alle weit weg und das lange genug → Urlaub; ein Tagesausflug löst nicht aus."""
+    from datetime import timedelta
+
+    from custom_components.raumklima.const import CONF_VACATION_HOURS, CONF_VACATION_KM
+    from custom_components.raumklima.shared import get_hub
+
+    _hub, _room = setup
+    hub = get_hub(hass, None)
+    hub.config[CONF_VACATION_KM] = 60.0
+    hub.config[CONF_VACATION_HOURS] = 12.0
+    hub.persons = {"person.a": {"present": False, "distance_km": 120.0, "approaching": False}}
+
+    now = datetime(2026, 11, 10, 12, 0, tzinfo=dt_util.UTC)
+    hub._auto_vacation(False, now)
+    assert hub.vacation is False, "gerade erst weit weg – noch kein Urlaub"
+    hub._auto_vacation(False, now + timedelta(hours=6))
+    assert hub.vacation is False, "6 h reichen nicht"
+    hub._auto_vacation(False, now + timedelta(hours=13))
+    assert hub.vacation is True
+
+    # Zurück in der Nähe → kein neuer Urlaub (Timer wird zurückgesetzt)
+    hub.vacation = False
+    hub.persons["person.a"]["distance_km"] = 30.0
+    hub._auto_vacation(False, now + timedelta(hours=15))
+    assert hub.vacation is False
+    assert getattr(hub, "_far_since", None) is None
 
 
 async def test_solar_uses_room_facade(hass: HomeAssistant, setup, trv: FakeTrv) -> None:

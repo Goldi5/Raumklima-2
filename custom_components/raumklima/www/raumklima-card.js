@@ -1,4 +1,4 @@
-/* Raumklima 0.62.27b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.28b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -889,7 +889,23 @@
     "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsendung“ ein- oder ausgeschlossen": "applies during quiet hours and when the “Night mode” switch is on – include or exclude each room under “Night setback”",
     "wie bisher: nur Schlafzimmer und selten genutzte Räume": "as before: only bedrooms and rarely used rooms",
     "wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist": "is set back as soon as quiet hours apply or the “Night mode” switch is on",
-    "wird nachts nicht abgesenkt": "is not set back at night"
+    "wird nachts nicht abgesenkt": "is not set back at night",
+    "1 h": "1 h",
+    "15 min": "15 min",
+    "2 h": "2 h",
+    "30 min": "30 min",
+    "Bis Zeitfenster": "Until next schedule",
+    "Ohne Limit": "No limit",
+    "Wie lange soll es wärmer sein?": "How long should it stay warmer?",
+    "läuft noch {m} min": "{m} min left",
+    "läuft ohne Zeitlimit": "runs without time limit",
+    "Gilt für Personen": "Applies to people",
+    "Urlaub automatisch ab": "Vacation detected beyond",
+    "… nach": "… after",
+    "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)": "only after this long does being far away count as vacation (a day trip does not trigger it)",
+    "keine Auswahl = der Raum gilt allen Bewohnern": "no selection = the room applies to all residents",
+    "nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt": "only while one of these people is home – otherwise the room is set back",
+    "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus": "if all residents are farther away, vacation applies after the delay – 0 = off"
   };
 
   // src/i18n/fr.js
@@ -1781,7 +1797,23 @@
     "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsendung“ ein- oder ausgeschlossen": "s’applique pendant les heures calmes et lorsque l’interrupteur « Mode nuit » est activé – incluez ou excluez chaque pièce sous « Réduction nocturne »",
     "wie bisher: nur Schlafzimmer und selten genutzte Räume": "comme avant : uniquement les chambres et les pièces peu utilisées",
     "wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist": "est abaissée dès que les heures calmes s’appliquent ou que l’interrupteur « Mode nuit » est activé",
-    "wird nachts nicht abgesenkt": "n’est pas abaissée la nuit"
+    "wird nachts nicht abgesenkt": "n’est pas abaissée la nuit",
+    "1 h": "1 h",
+    "15 min": "15 min",
+    "2 h": "2 h",
+    "30 min": "30 min",
+    "Bis Zeitfenster": "Jusqu’à la prochaine plage",
+    "Ohne Limit": "Sans limite",
+    "Wie lange soll es wärmer sein?": "Pendant combien de temps faire plus chaud ?",
+    "läuft noch {m} min": "encore {m} min",
+    "läuft ohne Zeitlimit": "fonctionne sans limite de temps",
+    "Gilt für Personen": "Concerne les personnes",
+    "Urlaub automatisch ab": "Vacances détectées au-delà de",
+    "… nach": "… après",
+    "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)": "ce n’est qu’après ce délai qu’être loin compte comme des vacances (une excursion d’un jour ne déclenche rien)",
+    "keine Auswahl = der Raum gilt allen Bewohnern": "aucune sélection = la pièce concerne tous les habitants",
+    "nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt": "seulement si l’une de ces personnes est présente – sinon la pièce est abaissée",
+    "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus": "si tous les habitants sont plus loin, les vacances s’appliquent après le délai – 0 = désactivé"
   };
 
   // src/i18n.js
@@ -1825,7 +1857,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.27b1";
+  var RK_VERSION = "0.62.28b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2826,6 +2858,22 @@
 `;
 
   // src/cards/room.js
+  var BOOST_CSS = `
+.bsheet{margin:8px 12px 4px;padding:10px 12px;border-radius:14px;background:var(--card-background-color,#fff);box-shadow:0 2px 10px rgba(0,0,0,.12);position:relative;z-index:3}
+.bshead{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--primary-text-color,#111)}
+.bshead ha-icon{color:var(--rk-heat,#e8590c)}
+.bshead span{flex:1}
+.bsx{border:0;background:transparent;font-size:22px;line-height:1;color:var(--secondary-text-color,#777);cursor:pointer}
+.btl{margin:10px 0 4px}
+.btlbar{position:relative;height:10px;border-radius:6px;background:rgba(120,120,120,.18);overflow:hidden}
+.btlfill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--rk-heat,#e8590c);opacity:.85}
+.btlticks{position:relative;height:14px;font-size:10px;color:var(--secondary-text-color,#888)}
+.btlticks span{position:absolute;transform:translateX(-50%)}
+.bslabel{font-size:12px;color:var(--secondary-text-color,#777);margin:2px 0 8px}
+.bschips{display:flex;flex-wrap:wrap;gap:6px}
+.bschip{border:1px solid rgba(120,120,120,.35);background:transparent;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:inherit}
+.bschip:hover{border-color:var(--rk-heat,#e8590c)}
+`;
   var RaumklimaCard = class extends HTMLElement {
     // Neu zeichnen ohne Springen der Seite
     set _html(html) {
@@ -2906,6 +2954,46 @@
     }
     _moreInfo(entityId) {
       this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }));
+    }
+    _boostSheet(a) {
+      const active = !!(a.boost_until || a.boost_open);
+      const until = a.boost_until ? Date.parse(a.boost_until) : null;
+      const mins = until ? Math.max(0, Math.round((until - Date.now()) / 6e4)) : null;
+      const span = 360;
+      const width = mins == null ? 100 : Math.min(100, mins / span * 100);
+      const ticks = [0, 1, 2, 3, 4, 5, 6].map((h) => {
+        const d = new Date(Date.now() + h * 36e5);
+        return `<span style="left:${h / 6 * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc(), { hour: "2-digit" })}</span>`;
+      }).join("");
+      const chip = (mode, min, label) => `<button class="bschip" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
+      return `<style>${BOOST_CSS}</style>
+      <div class="bsheet">
+        <div class="bshead"><ha-icon icon="mdi:fire"></ha-icon><span>${t("Wärmer für kurze Zeit")}</span><button class="bsx" data-bsclose aria-label="${t("schließen")}">×</button></div>
+        <div class="btl">
+          <div class="btlbar"><i class="btlfill" style="width:${width}%"></i></div>
+          <div class="btlticks">${ticks}</div>
+        </div>
+        <div class="bslabel">${active ? mins == null ? t("läuft ohne Zeitlimit") : t("läuft noch {m} min", { m: mins }) : t("Wie lange soll es wärmer sein?")}</div>
+        <div class="bschips">
+          ${chip("minutes", 15, t("15 min"))}${chip("minutes", 30, t("30 min"))}${chip("minutes", 60, t("1 h"))}${chip("minutes", 120, t("2 h"))}
+          ${chip("next", null, t("Bis Zeitfenster"))}${chip("unlimited", null, t("Ohne Limit"))}
+          ${active ? chip("off", null, t("Beenden")) : ""}
+        </div>
+      </div>`;
+    }
+    async _boost(mode, minutes) {
+      const st = this._hass.states[this._config.entity];
+      const entry = st && st.attributes && st.attributes.room;
+      if (!entry) return;
+      const payload = { type: "raumklima/boost", entry_id: entry, mode };
+      if (minutes) payload.minutes = Number(minutes);
+      try {
+        await this._hass.connection.sendMessagePromise(payload);
+      } catch (e) {
+        console.error("raumklima boost:", e);
+      }
+      this._boostOpen = false;
+      this._render();
     }
     _tick() {
       const bl = this.shadowRoot && this.shadowRoot.querySelector("[data-boostleft]");
@@ -3057,7 +3145,7 @@
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until ? "on" : ""}" data-boost="${sib.boost}" title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_until ? `<span data-boostleft></span>` : t("Boost")}</button>` : ""}
+          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until || a.boost_open ? "on" : ""}" data-boostopen title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : t("Boost")}</button>` : ""}
         </div>
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
@@ -3082,6 +3170,7 @@
         ${banner}
         <div class="stats">${stats}</div>
         ${devLine}
+        ${this._boostOpen ? this._boostSheet(a) : ""}
         <div class="actions">
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
@@ -3092,7 +3181,20 @@
       const p = this.shadowRoot.querySelector("[data-power]");
       if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
       this.shadowRoot.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call("switch", "toggle", { entity_id: b.dataset.toggle })));
-      this.shadowRoot.querySelectorAll("[data-boost]").forEach((b) => b.addEventListener("click", () => this._call("button", "press", { entity_id: b.dataset.boost })));
+      this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        this._boostOpen = !this._boostOpen;
+        this._render();
+      }));
+      this.shadowRoot.querySelectorAll("[data-bs]").forEach((b) => b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        this._boost(b.dataset.bs, b.dataset.min);
+      }));
+      this.shadowRoot.querySelectorAll("[data-bsclose]").forEach((b) => b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        this._boostOpen = false;
+        this._render();
+      }));
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));
       this._tick();
     }
@@ -4646,6 +4748,8 @@
         this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
         this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
         this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
+        this._row("Urlaub automatisch ab", this._optStepper(H, "vacation_km", this._hubOpt("vacation_km") ?? 0, " km", 10, 0, 1e3), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
+        this._row("… nach", this._optStepper(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12, " h", 1, 1, 96), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
         this._row(
           "Präsenzmelder zählen",
           this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
@@ -5180,6 +5284,16 @@
             "Nachtabsendung",
             editable ? this._segs(scope, "quiet_mode", RK_QUIET, qm) : this._v(RK_QUIET[qm] || "–"),
             qm === "off" ? t("wird nachts nicht abgesenkt") : qm === "on" ? t("wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist") : t("wie bisher: nur Schlafzimmer und selten genutzte Räume")
+          );
+        })(),
+        (() => {
+          const persons = this._cfg && this._cfg.choices && this._cfg.choices.persons || [];
+          if (!persons.length) return "";
+          const cur = this._roomOpt(r, "room_persons") ?? s.room_persons ?? [];
+          return this._row(
+            "Gilt für Personen",
+            `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
+            cur.length ? t("nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern")
           );
         })()
       ].join(""))}
@@ -5830,6 +5944,12 @@
         });
       }));
       const sp = (v) => String(v).split("|");
+      $("[data-roomperson]").forEach((el) => el.addEventListener("click", () => {
+        const entry = el.dataset.entry;
+        const cur = roomList(entry, "room_persons", []);
+        const next = cur.includes(el.dataset.roomperson) ? cur.filter((x) => x !== el.dataset.roomperson) : [...cur, el.dataset.roomperson];
+        this._setRoom(entry, { room_persons: next }, 300);
+      }));
       $("[data-guestroom]").forEach((el) => el.addEventListener("click", () => {
         const rid = el.dataset.guestroom;
         const cur = [...this._hubOpt("guests_rooms") || []];

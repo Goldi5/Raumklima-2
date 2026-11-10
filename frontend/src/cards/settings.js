@@ -576,6 +576,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
       this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
       this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
+      this._row("Urlaub automatisch ab", this._optStepper(H, "vacation_km", this._hubOpt("vacation_km") ?? 0, " km", 10, 0, 1000), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
+      this._row("… nach", this._optStepper(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12, " h", 1, 1, 96), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
       this._row("Präsenzmelder zählen", this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
         (st.sensed && st.sensed.length) ? t("gerade jemand in: {r}", { r: esc(st.sensed.join(", ")) }) : "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie"),
       this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
@@ -1145,6 +1147,14 @@ export class RaumklimaSettingsCard extends HTMLElement {
           const qm = this._roomOpt(r, "quiet_mode") ?? "auto";
           return this._row("Nachtabsendung", editable ? this._segs(scope, "quiet_mode", RK_QUIET, qm) : this._v(RK_QUIET[qm] || "–"),
             qm === "off" ? t("wird nachts nicht abgesenkt") : qm === "on" ? t("wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist") : t("wie bisher: nur Schlafzimmer und selten genutzte Räume"));
+        })(),
+        (() => {
+          const persons = ((this._cfg && this._cfg.choices && this._cfg.choices.persons) || []);
+          if (!persons.length) return "";
+          const cur = this._roomOpt(r, "room_persons") ?? s.room_persons ?? [];
+          return this._row("Gilt für Personen",
+            `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
+            cur.length ? t("nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern"));
         })(),
       ].join(""))}
       ${mon ? "" : this._scheduleGroup(r, id, editable)}
@@ -1813,6 +1823,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // Zeitplan bearbeiten: jede Änderung geht gesammelt (700 ms Pause) an den Raum
     const sp = (v) => String(v).split("|");
     // Lüftfenster: gleiche Bedienung wie Zeitfenster, nur ohne Temperatur
+    $("[data-roomperson]").forEach((el) => el.addEventListener("click", () => {
+      const entry = el.dataset.entry;
+      const cur = roomList(entry, "room_persons", []);
+      const next = cur.includes(el.dataset.roomperson) ? cur.filter((x) => x !== el.dataset.roomperson) : [...cur, el.dataset.roomperson];
+      this._setRoom(entry, { room_persons: next }, 300);
+    }));
     $("[data-guestroom]").forEach((el) => el.addEventListener("click", () => {
       const rid = el.dataset.guestroom;
       const cur = [...(this._hubOpt("guests_rooms") || [])];

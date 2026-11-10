@@ -70,6 +70,7 @@ from .const import (
     CONF_ROOM_ECO,
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
+    CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
     CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULES,
@@ -85,6 +86,8 @@ from .const import (
     CONF_STORM_WARNING,
     CONF_TRV_INTERVAL,
     CONF_TTS,
+    CONF_VACATION_HOURS,
+    CONF_VACATION_KM,
     CONF_VALVE_CARE,
     CONF_VENT_FROM,
     CONF_VENT_TO,
@@ -185,6 +188,8 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_LEARN_SHIFT): bool,
         vol.Optional(CONF_QUIET_SETBACK): bool,
         vol.Optional(CONF_NIGHT_LEVEL): vol.In(NIGHT_LEVELS),
+        vol.Optional(CONF_VACATION_KM): vol.All(vol.Coerce(float), vol.Range(0, 1000)),
+        vol.Optional(CONF_VACATION_HOURS): vol.All(vol.Coerce(float), vol.Range(1, 336)),
         vol.Optional("name"): str,
         vol.Optional("dashboard"): str,
         vol.Optional(CONF_REPORT_METRIC): vol.In(REPORT_METRICS),
@@ -248,6 +253,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_AIRING_MIN_MINUTES): vol.All(vol.Coerce(int), vol.Range(0, 30)),
         vol.Optional(CONF_MOLD_MODE): vol.In(MOLD_MODES),
         vol.Optional(CONF_QUIET_MODE): vol.In(QUIET_MODES),
+        vol.Optional(CONF_ROOM_PERSONS): vol.All([str], vol.Length(max=20)),
         vol.Optional(CONF_MOLD_CAP): vol.All(vol.Coerce(float), vol.Range(0, 6)),
         vol.Optional(CONF_SCHEDULE_FALLBACK): vol.In(SCHEDULE_FALLBACKS),
         vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
@@ -307,9 +313,37 @@ ROOM_CHANGES = vol.Schema(
 )
 
 
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/boost",
+        vol.Required("entry_id"): str,
+        vol.Optional("mode", default="minutes"): vol.In(("minutes", "next", "unlimited", "off")),
+        vol.Optional("minutes"): vol.All(vol.Coerce(int), vol.Range(5, 480)),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_boost(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Boost setzen: feste Minuten, bis zum nächsten Zeitfenster, unbegrenzt oder beenden."""
+    room = domain_data(hass)["rooms"].get(msg["entry_id"])
+    if room is None:
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
+        return
+    await room.async_boost(msg["mode"], msg.get("minutes"))
+    connection.send_result(
+        msg["id"],
+        {
+            "ok": True,
+            "boost_until": room.boost_until.isoformat() if room.boost_until else None,
+            "boost_open": bool(room.boost_open),
+            "boost_active": room.boost_active,
+        },
+    )
+
+
 @callback
 def async_register_websocket(hass: HomeAssistant) -> None:
-    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics, ws_export_link, ws_trace, ws_trace_list):
+    for handler in (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_boost, ws_report, ws_report_export, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics, ws_export_link, ws_trace, ws_trace_list):
         websocket_api.async_register_command(hass, handler)
 
 
