@@ -71,6 +71,9 @@ from .const import (
     CONF_ON_PRESET,
     CONF_OVERRIDE_MINUTES,
     CONF_PM25_SENSOR,
+    CONF_PREHEAT_LEAD,
+    CONF_PREHEAT_MODE,
+    CONF_PREHEAT_NOT_BEFORE,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
     CONF_PRESENCE_OFF,
@@ -272,6 +275,9 @@ LIVE_OPTIONS = frozenset(
         CONF_NOTIFY_CAP,
         CONF_MOLD_CAP,
         CONF_MOLD_MODE,
+        CONF_PREHEAT_LEAD,
+        CONF_PREHEAT_MODE,
+        CONF_PREHEAT_NOT_BEFORE,
         CONF_QUIET_MODE,
         CONF_ROOM_PERSONS,
         CONF_WALL,
@@ -1154,6 +1160,30 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self._save()
         self.check_moisture_source(now)
 
+    def _preheat_allowed(self, start: datetime, now: datetime) -> bool:
+        """Darf jetzt vorgeheizt werden? (Issue #10: nicht mitten in der Nacht)
+
+        ``auto``  – so früh, wie die gelernte Aufheizzeit es verlangt (bisheriges Verhalten)
+        ``lead``  – höchstens X Minuten vor dem Zeitfenster
+        ``clock`` – frühestens ab der eingestellten Uhrzeit
+        ``off``   – gar nicht; geheizt wird erst zum Beginn des Zeitfensters
+        """
+        mode = str(self.config.get(CONF_PREHEAT_MODE) or "auto")
+        if mode == "off":
+            return False
+        if mode == "lead":
+            lead = max(0, int(self.config.get(CONF_PREHEAT_LEAD) or 90))
+            return now >= start - timedelta(minutes=lead)
+        if mode == "clock":
+            hhmm = str(self.config.get(CONF_PREHEAT_NOT_BEFORE) or "05:00")
+            hour, _sep, minute = hhmm.partition(":")
+            try:
+                allowed = now.replace(hour=int(hour), minute=int(minute or 0), second=0, microsecond=0)
+            except (TypeError, ValueError):
+                return True
+            return now >= allowed
+        return True
+
     def _night_setback_applies(self, hub: Any) -> bool:
         """Gilt die Nachtabsendung für diesen Raum?
 
@@ -1250,7 +1280,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         # Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit
         nxt = next_schedule_window(self.config.get(CONF_SCHEDULES), local_now)
         cur = self.current_temperature
-        if nxt is not None and cur is not None:
+        if nxt is not None and cur is not None and self._preheat_allowed(nxt[0], local_now):
             start, want = nxt
             need = self.heatup.minutes_needed(want - cur, hub.outdoor_temp())
             if need is not None and local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:

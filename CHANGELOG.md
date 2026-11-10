@@ -1,3 +1,28 @@
+## 0.62.31 – 2026-11-10
+
+Sammel-Release der Beta-Reihe 0.62.23b1–0.62.30b1.
+
+### Regelung und Geräte
+
+- **Bosch** (BTH-RM/RA): `operating_mode` wird beim ersten Zustandsupdate auf `manual` gesetzt, damit das Gerät externe Sollwerte nicht ignoriert.
+- **Livisi**: `verify_delay` auf 60 s — die Geräte bestätigen Sollwerte verzögert, Aufträge hingen sonst als „nicht bestätigt".
+- **Handeingriff erst nach Standzeit**: Ein am Thermostat verstellter Sollwert gilt erst nach 45 s unveränderter Meldung. Tuya-Geräte zählen zum Tageswechsel ihre Sollwerte durch (drei Werte in vier Sekunden) — das löste bisher jede Nacht drei Funkbefehle je Raum aus.
+- **Überwachungsräume** melden keine „Heizung pausiert/läuft weiter" mehr, wenn sie kein Thermostat haben.
+
+### Bedienung
+
+- **Nachtabsendung je Raum**: Automatisch (Schlafzimmer und selten genutzte Räume), Immer oder Nie.
+- **Schalter „Nachtruhe"** und **Auswahl des Absenkwerts** (kurz weg / länger weg / Frostschutz) — für wechselnde Schlafenszeiten, unabhängig von der Uhrzeit.
+- **Boost-Fenster**: Der Boost-Knopf öffnet einen Zeitstrahl mit 15/30/60/120 Minuten, „bis zum nächsten Zeitfenster" oder „ohne Limit"; auf der Karte steht „bis HH:MM" bzw. „∞".
+- **Vorheizen steuerbar**: Automatisch, Frühestens ab Uhrzeit, Höchstens X Minuten vor dem Zeitfenster oder Erst zum Zeitplan (dann ist der Raum zum Start noch kalt).
+- **Problem-Indikator** trägt den Befund im Namen („Problem: Batterie schwach", bei mehreren „… +1").
+- Raum-Dialog: rohe Schlüssel (`wall`, `co2_limit`, …) durch Klartext ersetzt.
+
+### Anwesenheit
+
+- **Urlaub automatisch erkennen**: alle Bewohner weiter als X km (0 = aus) und länger als Y Stunden unterwegs → Frostschutz. Ein Tagesausflug löst nicht aus; ein zu Hause vergessenes Handy verhindert die Erkennung bewusst.
+- **Raum gilt für Personen**: Ist keine der zugeordneten Personen zu Hause, wird der Raum abgesenkt — für Kinder- und Gästezimmer.
+
 ## 0.62.30b1 – 2026-11-10
 
 - **Handeingriff erst nach Standzeit:** Ein am Thermostat verstellter Sollwert wird erst übernommen, wenn er 45 s unverändert steht. Tuya-Geräte zählen zum Tageswechsel (kurz nach 00:05) ihre Sollwerte durch — Wunsch −0,5 → Wunsch +0,5 → Wunsch in vier Sekunden. Bisher wurden alle drei als „Am Thermostat gedreht" übernommen, mit drei Funkbefehlen je Raum und Nacht; jetzt bleibt das Ziel unberührt.

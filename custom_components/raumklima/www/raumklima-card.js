@@ -1,4 +1,4 @@
-/* Raumklima 0.62.30b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.31 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -905,7 +905,18 @@
     "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)": "only after this long does being far away count as vacation (a day trip does not trigger it)",
     "keine Auswahl = der Raum gilt allen Bewohnern": "no selection = the room applies to all residents",
     "nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt": "only while one of these people is home – otherwise the room is set back",
-    "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus": "if all residents are farther away, vacation applies after the delay – 0 = off"
+    "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus": "if all residents are farther away, vacation applies after the delay – 0 = off",
+    "Erst zum Zeitplan": "Only at the schedule",
+    "Frühestens ab": "Not before",
+    "Frühestens vorher": "At most this early",
+    "ab {h}:00": "from {h}:00",
+    "heizt erst zum Beginn des Zeitfensters – der Raum ist dann noch kalt": "heats only when the schedule starts – the room is still cold then",
+    "so viele Minuten vor dem Zeitfenster": "this many minutes before the schedule",
+    "startet höchstens so viele Minuten vor dem Zeitfenster": "starts at most this many minutes before the schedule",
+    "startet nicht vor der eingestellten Uhrzeit – zum Beginn evtl. noch nicht ganz warm": "never starts before the set time – may not be fully warm at the start",
+    "startet so früh, wie die gelernte Aufheizzeit es verlangt": "starts as early as the learned heat-up time requires",
+    "… höchstens": "… at most",
+    "… nicht vor": "… not before"
   };
 
   // src/i18n/fr.js
@@ -1813,7 +1824,18 @@
     "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)": "ce n’est qu’après ce délai qu’être loin compte comme des vacances (une excursion d’un jour ne déclenche rien)",
     "keine Auswahl = der Raum gilt allen Bewohnern": "aucune sélection = la pièce concerne tous les habitants",
     "nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt": "seulement si l’une de ces personnes est présente – sinon la pièce est abaissée",
-    "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus": "si tous les habitants sont plus loin, les vacances s’appliquent après le délai – 0 = désactivé"
+    "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus": "si tous les habitants sont plus loin, les vacances s’appliquent après le délai – 0 = désactivé",
+    "Erst zum Zeitplan": "Seulement à la plage",
+    "Frühestens ab": "Pas avant",
+    "Frühestens vorher": "Au plus tôt",
+    "ab {h}:00": "à partir de {h}:00",
+    "heizt erst zum Beginn des Zeitfensters – der Raum ist dann noch kalt": "chauffe seulement au début de la plage – la pièce est encore froide",
+    "so viele Minuten vor dem Zeitfenster": "autant de minutes avant la plage",
+    "startet höchstens so viele Minuten vor dem Zeitfenster": "démarre au plus tôt ce nombre de minutes avant la plage",
+    "startet nicht vor der eingestellten Uhrzeit – zum Beginn evtl. noch nicht ganz warm": "ne démarre pas avant l’heure définie – peut ne pas être tout à fait chaud au début",
+    "startet so früh, wie die gelernte Aufheizzeit es verlangt": "démarre aussi tôt que le temps de chauffe appris l’exige",
+    "… höchstens": "… au plus",
+    "… nicht vor": "… pas avant"
   };
 
   // src/i18n.js
@@ -1857,7 +1879,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.30b1";
+  var RK_VERSION = "0.62.31";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2332,6 +2354,7 @@
   });
   var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
   var RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
+  var RK_PREHEAT = tmap({ auto: "Automatisch", clock: "Frühestens ab", lead: "Frühestens vorher", off: "Erst zum Zeitplan" });
   var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
   var RK_MAIL_PROVIDERS = {
     gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
@@ -3969,6 +3992,36 @@
       "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
       "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent."
     ],
+    "Vorheizen": [
+      "Ob und wie früh der Raum vor dem nächsten Zeitfenster warm wird. „Automatisch“ startet so früh, wie die gelernte Aufheizzeit es verlangt – bei langsam warm werdenden Räumen auch mitten in der Nacht.",
+      "Whether and how early the room warms up before the next schedule window. “Automatic” starts as early as the learned heat-up time requires – for slow rooms that can be in the middle of the night.",
+      "Si et à quel point la pièce chauffe avant la prochaine plage. « Automatique » démarre aussi tôt que le temps de chauffe appris l’exige – pour les pièces lentes, parfois en pleine nuit."
+    ],
+    "… nicht vor": [
+      "Frühestens ab dieser Uhrzeit wird vorgeheizt. Zum Beginn des Zeitfensters kann der Raum dann noch etwas kälter sein.",
+      "Preheating starts no earlier than this time. At the start of the schedule the room may still be a little cooler.",
+      "Le préchauffage ne commence pas avant cette heure. Au début de la plage, la pièce peut être encore un peu plus froide."
+    ],
+    "… höchstens": [
+      "Höchstens so viele Minuten vor dem Zeitfenster beginnt das Vorheizen. Reicht die Zeit nicht, ist der Raum zum Start noch nicht ganz warm.",
+      "Preheating starts at most this many minutes before the schedule. If that is not enough, the room is not fully warm at the start.",
+      "Le préchauffage commence au plus tôt ce nombre de minutes avant la plage. Si ce n’est pas assez, la pièce n’est pas tout à fait chaude au début."
+    ],
+    "Urlaub automatisch ab": [
+      "Sind alle Bewohner weiter als diese Entfernung entfernt und das länger als die eingestellte Dauer, gilt Urlaub (Frostschutz). 0 schaltet die Erkennung aus.",
+      "If all residents are farther away than this and for longer than the set duration, vacation applies (frost protection). 0 turns detection off.",
+      "Si tous les habitants sont plus loin que cette distance et plus longtemps que la durée définie, les vacances s’appliquent (hors gel). 0 désactive la détection."
+    ],
+    "… nach": [
+      "So lange müssen alle schon weit weg sein. Ein Tagesausflug löst damit keinen Urlaub aus.",
+      "All residents must have been that far away for this long. A day trip does not trigger vacation.",
+      "Tous les habitants doivent être aussi loin depuis ce délai. Une excursion d’un jour ne déclenche pas de vacances."
+    ],
+    "Gilt für Personen": [
+      "Der Raum wird nur warm gehalten, wenn eine dieser Personen zu Hause ist – gedacht für Kinder- und Gästezimmer. Ohne Auswahl gilt der Raum allen Bewohnern.",
+      "The room is only kept warm while one of these people is home – meant for children’s and guest rooms. Without a selection the room applies to all residents.",
+      "La pièce n’est chauffée que si l’une de ces personnes est présente – prévu pour les chambres d’enfants et d’amis. Sans sélection, la pièce concerne tous les habitants."
+    ],
     "Nachtabsendung": [
       "Ob dieser Raum während der Ruhezeit abgesenkt wird. „Automatisch“ nimmt nur Schlafzimmer und selten genutzte Räume, „Immer“ auch Wohnräume, „Nie“ keinen.",
       "Whether this room is set back during quiet hours. “Automatic” covers bedrooms and rarely used rooms, “Always” also living rooms, “Never” none.",
@@ -5275,6 +5328,24 @@
         this._row(
           "Aufheizen",
           this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: s.heatup && s.heatup.episodes || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
+          (() => {
+            const pm = this._roomOpt(r, "preheat_mode") ?? "auto";
+            const rows = [this._row(
+              "Vorheizen",
+              editable ? this._segs(scope, "preheat_mode", RK_PREHEAT, pm) : this._v(RK_PREHEAT[pm] || "–"),
+              pm === "off" ? t("heizt erst zum Beginn des Zeitfensters – der Raum ist dann noch kalt") : pm === "auto" ? t("startet so früh, wie die gelernte Aufheizzeit es verlangt") : pm === "clock" ? t("startet nicht vor der eingestellten Uhrzeit – zum Beginn evtl. noch nicht ganz warm") : t("startet höchstens so viele Minuten vor dem Zeitfenster")
+            )];
+            if (pm === "clock") {
+              const cur = this._roomOpt(r, "preheat_not_before") ?? "05:00";
+              const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: t("ab {h}:00", { h }) }));
+              rows.push(this._row("… nicht vor", editable ? this._select(scope, "preheat_not_before", items, cur) : this._v(cur)));
+            }
+            if (pm === "lead") {
+              const lead = this._roomOpt(r, "preheat_lead_min") ?? 90;
+              rows.push(this._row("… höchstens", editable ? this._optStepper(scope, "preheat_lead_min", lead, " min", 15, 15, 360) : this._v(`${lead} min`), t("so viele Minuten vor dem Zeitfenster")));
+            }
+            return rows.join("");
+          })(),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"
         ),
         this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),

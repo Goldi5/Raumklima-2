@@ -574,6 +574,37 @@ async def test_problem_sensor_traegt_den_befund(hass: HomeAssistant, setup, trv:
     assert st.name.endswith("+1"), "weitere Befunde werden gezählt"
 
 
+async def test_vorheizen_grenzen(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Vorheizen je Raum: automatisch, frühestens ab, höchstens X Minuten, aus (Issue #10)."""
+    from custom_components.raumklima.const import (
+        CONF_PREHEAT_LEAD,
+        CONF_PREHEAT_MODE,
+        CONF_PREHEAT_NOT_BEFORE,
+    )
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    start = datetime(2026, 11, 11, 6, 0)
+
+    ctrl.config[CONF_PREHEAT_MODE] = "auto"
+    assert ctrl._preheat_allowed(start, datetime(2026, 11, 11, 3, 0)) is True
+
+    ctrl.config[CONF_PREHEAT_MODE] = "off"
+    assert ctrl._preheat_allowed(start, datetime(2026, 11, 11, 5, 59)) is False
+    assert ctrl._preheat_allowed(start, datetime(2026, 11, 11, 3, 0)) is False
+
+    ctrl.config[CONF_PREHEAT_MODE] = "lead"
+    ctrl.config[CONF_PREHEAT_LEAD] = 60
+    assert ctrl._preheat_allowed(start, datetime(2026, 11, 11, 4, 30)) is False
+    assert ctrl._preheat_allowed(start, datetime(2026, 11, 11, 5, 15)) is True
+
+    ctrl.config[CONF_PREHEAT_MODE] = "clock"
+    ctrl.config[CONF_PREHEAT_NOT_BEFORE] = "05:00"
+    assert ctrl._preheat_allowed(start, datetime(2026, 11, 11, 4, 59)) is False
+    assert ctrl._preheat_allowed(start, datetime(2026, 11, 11, 5, 0)) is True
+
+
 async def test_solar_uses_room_facade(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Die Fassade des Raums wird an die Sonnenprüfung durchgereicht (Issue #5)."""
     from custom_components.raumklima.const import CONF_SOLAR, CONF_SOLAR_FACADE

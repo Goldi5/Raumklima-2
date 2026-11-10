@@ -75,6 +75,10 @@ CONF_QUIET_START: Final = "quiet_start"
 CONF_QUIET_END: Final = "quiet_end"
 CONF_LEARN_SHIFT: Final = "learn_shift"  # Schichtdienst: Tagschlaf mitlernen
 CONF_QUIET_SETBACK: Final = "quiet_setback"  # Ruhezeit senkt Schlafräume ab
+CONF_PREHEAT_MODE: Final = "preheat_mode"  # auto / lead (frühestens X min vorher) / clock (frühestens ab) / off
+PREHEAT_MODES: Final = ("auto", "lead", "clock", "off")
+CONF_PREHEAT_LEAD: Final = "preheat_lead_min"  # Minuten vor dem Zeitfenster (lead)
+CONF_PREHEAT_NOT_BEFORE: Final = "preheat_not_before"  # "HH:MM" (clock)
 CONF_VACATION_KM: Final = "vacation_km"  # ab dieser Entfernung gilt Urlaub automatisch (0 = aus)
 CONF_VACATION_HOURS: Final = "vacation_hours"  # … und erst nach so vielen Stunden
 CONF_ROOM_PERSONS: Final = "room_persons"  # person.*, die diesen Raum nutzen (leer = alle)
@@ -328,6 +332,9 @@ DEFAULTS: Final = {
     CONF_AIRING_MIN_MINUTES: 0,
     CONF_MOLD_MODE: "strict",
     CONF_QUIET_MODE: "auto",
+    CONF_PREHEAT_MODE: "auto",
+    CONF_PREHEAT_LEAD: 90,
+    CONF_PREHEAT_NOT_BEFORE: "05:00",
     CONF_VACATION_KM: 0,
     CONF_VACATION_HOURS: 12,
     CONF_ROOM_PERSONS: [],

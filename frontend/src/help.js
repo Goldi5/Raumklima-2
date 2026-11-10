@@ -232,6 +232,36 @@ export const HELP = {
     "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
     "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent.",
   ],
+  "Vorheizen": [
+    "Ob und wie früh der Raum vor dem nächsten Zeitfenster warm wird. „Automatisch“ startet so früh, wie die gelernte Aufheizzeit es verlangt – bei langsam warm werdenden Räumen auch mitten in der Nacht.",
+    "Whether and how early the room warms up before the next schedule window. “Automatic” starts as early as the learned heat-up time requires – for slow rooms that can be in the middle of the night.",
+    "Si et à quel point la pièce chauffe avant la prochaine plage. « Automatique » démarre aussi tôt que le temps de chauffe appris l’exige – pour les pièces lentes, parfois en pleine nuit.",
+  ],
+  "… nicht vor": [
+    "Frühestens ab dieser Uhrzeit wird vorgeheizt. Zum Beginn des Zeitfensters kann der Raum dann noch etwas kälter sein.",
+    "Preheating starts no earlier than this time. At the start of the schedule the room may still be a little cooler.",
+    "Le préchauffage ne commence pas avant cette heure. Au début de la plage, la pièce peut être encore un peu plus froide.",
+  ],
+  "… höchstens": [
+    "Höchstens so viele Minuten vor dem Zeitfenster beginnt das Vorheizen. Reicht die Zeit nicht, ist der Raum zum Start noch nicht ganz warm.",
+    "Preheating starts at most this many minutes before the schedule. If that is not enough, the room is not fully warm at the start.",
+    "Le préchauffage commence au plus tôt ce nombre de minutes avant la plage. Si ce n’est pas assez, la pièce n’est pas tout à fait chaude au début.",
+  ],
+  "Urlaub automatisch ab": [
+    "Sind alle Bewohner weiter als diese Entfernung entfernt und das länger als die eingestellte Dauer, gilt Urlaub (Frostschutz). 0 schaltet die Erkennung aus.",
+    "If all residents are farther away than this and for longer than the set duration, vacation applies (frost protection). 0 turns detection off.",
+    "Si tous les habitants sont plus loin que cette distance et plus longtemps que la durée définie, les vacances s’appliquent (hors gel). 0 désactive la détection.",
+  ],
+  "… nach": [
+    "So lange müssen alle schon weit weg sein. Ein Tagesausflug löst damit keinen Urlaub aus.",
+    "All residents must have been that far away for this long. A day trip does not trigger vacation.",
+    "Tous les habitants doivent être aussi loin depuis ce délai. Une excursion d’un jour ne déclenche pas de vacances.",
+  ],
+  "Gilt für Personen": [
+    "Der Raum wird nur warm gehalten, wenn eine dieser Personen zu Hause ist – gedacht für Kinder- und Gästezimmer. Ohne Auswahl gilt der Raum allen Bewohnern.",
+    "The room is only kept warm while one of these people is home – meant for children’s and guest rooms. Without a selection the room applies to all residents.",
+    "La pièce n’est chauffée que si l’une de ces personnes est présente – prévu pour les chambres d’enfants et d’amis. Sans sélection, la pièce concerne tous les habitants.",
+  ],
   "Nachtabsendung": [
     "Ob dieser Raum während der Ruhezeit abgesenkt wird. „Automatisch“ nimmt nur Schlafzimmer und selten genutzte Räume, „Immer“ auch Wohnräume, „Nie“ keinen.",
     "Whether this room is set back during quiet hours. “Automatic” covers bedrooms and rarely used rooms, “Always” also living rooms, “Never” none.",
