@@ -153,13 +153,21 @@
           "room_type": "Raumtyp",
           "comfort_temperature": "Wunschtemperatur (optional)",
           "setback_short": "Absenkung „kurz weg“",
-          "setback_long": "Absenkung „länger weg“"
+          "setback_long": "Absenkung „länger weg“",
+          "wall": "Bauart",
+          "co2_limit": "CO₂-Grenze",
+          "notify_cap": "Hinweise pro Tag",
+          "trv_interval": "Meldetakt des Thermostats"
         },
         "data_description": {
           "room_type": "Setzt passende Standards: Wohnraum 18 °C / 70 %, Schlafzimmer und selten genutzt 16 °C, Bad 75 %. Feinjustierung später über die Regler am Gerät.",
           "comfort_temperature": "Leer lassen = Standard des Raumtyps: Wohnraum/Kinderzimmer 20 °C, Küche 19 °C, Bad 22 °C, Schlafzimmer/selten genutzt 17 °C. Gilt beim ersten Start und beim Einschalten eines Raums, der aus war.",
           "setback_short": "Wenn alle Bewohner weg sind (nach der Wartezeit). Vorschlag nach Verbraucherzentrale: Wohnräume 18 °C, Schlafzimmer 16 °C.",
-          "setback_long": "Ab 24 h Abwesenheit oder im Urlaub. Nicht unter 16 °C empfohlen. Bei feuchter Luft hält der Schimmelschutz den Raum automatisch wärmer."
+          "setback_long": "Ab 24 h Abwesenheit oder im Urlaub. Nicht unter 16 °C empfohlen. Bei feuchter Luft hält der Schimmelschutz den Raum automatisch wärmer.",
+          "wall": "Bestimmt, wie kalt die kälteste Wandstelle wird – davon hängt der Schimmelschutz ab.",
+          "co2_limit": "Ab diesem Wert kommt „Bitte lüften“.",
+          "notify_cap": "Höchstens so viele Erinnerungen pro Tag und Raum (0 = unbegrenzt).",
+          "trv_interval": "Nur nötig bei trägen Geräten, die von selbst selten melden."
         },
         "sections": {
           "advanced": {

@@ -153,13 +153,21 @@
           "room_type": "Room type",
           "comfort_temperature": "Preferred temperature (optional)",
           "setback_short": "Setback 'briefly away'",
-          "setback_long": "Setback 'away longer'"
+          "setback_long": "Setback 'away longer'",
+          "wall": "Wall type",
+          "co2_limit": "CO₂ limit",
+          "notify_cap": "Hints per day",
+          "trv_interval": "Thermostat report interval"
         },
         "data_description": {
           "room_type": "Sets sensible defaults; fine-tune later with the device's number controls.",
           "comfort_temperature": "Empty = room type default. Used on first start and when switching on a room that was off.",
           "setback_short": "When all residents are away (after the delay). Suggested: living rooms 18 °C, bedroom 16 °C.",
-          "setback_long": "After 24 h or on vacation. Not below 16 °C recommended; the mold guard keeps humid rooms warmer automatically."
+          "setback_long": "After 24 h or on vacation. Not below 16 °C recommended; the mold guard keeps humid rooms warmer automatically.",
+          "wall": "Determines how cold the coldest wall spot gets – the mould guard depends on it.",
+          "co2_limit": "From this value on you get “please air the room”.",
+          "notify_cap": "At most this many reminders per day and room (0 = unlimited).",
+          "trv_interval": "Only needed for slow devices that rarely report by themselves."
         },
         "sections": {
           "advanced": {

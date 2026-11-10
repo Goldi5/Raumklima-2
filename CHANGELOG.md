@@ -1,3 +1,8 @@
+## 0.62.29b1 – 2026-11-10
+
+- **Problem-Indikator trägt den Befund** (Issue #42): Der Sensor heißt jetzt wie der wichtigste offene Befund, z. B. „Problem: Batterie schwach" (bei mehreren „… +1"). In der Geräteliste ist damit sofort sichtbar, was anliegt; die vollständige Liste bleibt als Attribut.
+- **Raum-Dialog beschriftet**: Im Optionsdialog eines Raums standen rohe Schlüssel (`wall`, `co2_limit`, `notify_cap`, `trv_interval`). Jetzt mit Klartext und Kurzerklärung in allen drei Sprachen.
+
 ## 0.62.28b1 – 2026-11-10
 
 - **Boost-Fenster statt Ein-Klick-Zeit:** Der vorhandene Boost-Knopf öffnet jetzt ein Fenster mit Zeitstrahl und Auswahl — 15/30/60/120 Minuten, **bis zum nächsten Zeitfenster** oder **ohne Limit** (läuft bis „Beenden"). Auf der Karte steht bei aktivem Boost die Uhrzeit bzw. „∞".

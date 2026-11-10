@@ -535,6 +535,31 @@ async def test_urlaub_wird_aus_entfernung_erkannt(hass: HomeAssistant, setup, tr
     assert getattr(hub, "_far_since", None) is None
 
 
+async def test_problem_sensor_traegt_den_befund(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Der Problem-Sensor heißt wie der wichtigste Befund, nicht nur „Problem" (Issue #42)."""
+    from custom_components.raumklima.health import Issue
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+
+    st = hass.states.get("binary_sensor.bad_problem")
+    assert st is not None
+    assert st.name.endswith("Problem"), "ohne Befund bleibt der neutrale Name"
+
+    hub.insights.issues[room.entry_id] = [
+        Issue("battery", "warn", "Batterie schwach", "Bad: 15 %"),
+        Issue("radio", "warn", "Funkaussetzer", "3 in 24 h"),
+    ]
+    ctrl._notify()
+    await hass.async_block_till_done()
+
+    st = hass.states.get("binary_sensor.bad_problem")
+    assert "Batterie schwach" in st.name
+    assert st.name.endswith("+1"), "weitere Befunde werden gezählt"
+
+
 async def test_solar_uses_room_facade(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Die Fassade des Raums wird an die Sonnenprüfung durchgereicht (Issue #5)."""
     from custom_components.raumklima.const import CONF_SOLAR, CONF_SOLAR_FACADE

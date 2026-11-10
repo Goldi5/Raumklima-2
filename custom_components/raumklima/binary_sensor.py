@@ -65,6 +65,19 @@ class ProblemSensor(RaumklimaEntity, BinarySensorEntity):
         return any(i.severity != "info" for i in c.issues)
 
     @property
+    def name(self) -> str:
+        """Der Name trägt den wichtigsten Befund (Issue #42).
+
+        In der Geräte-Liste steht sonst nur „Problem"; der Grund lag bisher allein im Attribut.
+        """
+        issues = [i for i in self.controller.issues if i.severity != "info"]
+        if not issues:
+            return super().name
+        first = issues[0]
+        extra = f" +{len(issues) - 1}" if len(issues) > 1 else ""
+        return f"Problem: {first.title}{extra}"
+
+    @property
     def extra_state_attributes(self) -> dict:
         return {"issues": [i.as_dict() for i in self.controller.issues]}
 

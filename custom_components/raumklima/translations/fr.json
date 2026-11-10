@@ -153,13 +153,21 @@
           "room_type": "Type de pièce",
           "comfort_temperature": "Température souhaitée (facultatif)",
           "setback_short": "Abaissement « brève absence »",
-          "setback_long": "Abaissement « absent longtemps »"
+          "setback_long": "Abaissement « absent longtemps »",
+          "wall": "Type de mur",
+          "co2_limit": "Seuil de CO₂",
+          "notify_cap": "Rappels par jour",
+          "trv_interval": "Intervalle de relevé du thermostat"
         },
         "data_description": {
           "room_type": "Définit des valeurs par défaut adaptées ; ajustez-les ensuite avec les réglages numériques de l’appareil.",
           "comfort_temperature": "Vide = valeur par défaut du type de pièce. Utilisée au premier démarrage et à la remise en marche d’une pièce arrêtée.",
           "setback_short": "Quand tous les habitants sont absents (après le délai). Suggestion : pièces de vie 18 °C, chambre 16 °C.",
-          "setback_long": "Après 24 h ou en vacances. Pas en dessous de 16 °C recommandé ; la protection contre les moisissures garde automatiquement les pièces humides plus chaudes."
+          "setback_long": "Après 24 h ou en vacances. Pas en dessous de 16 °C recommandé ; la protection contre les moisissures garde automatiquement les pièces humides plus chaudes.",
+          "wall": "Détermine la froideur de la paroi la plus froide – la protection anti-moisissure en dépend.",
+          "co2_limit": "À partir de cette valeur, « Merci d’aérer » apparaît.",
+          "notify_cap": "Au plus ce nombre de rappels par jour et par pièce (0 = illimité).",
+          "trv_interval": "Nécessaire uniquement pour les appareils lents qui rapportent rarement."
         },
         "sections": {
           "advanced": {
