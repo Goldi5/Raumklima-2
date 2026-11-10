@@ -456,6 +456,9 @@
       },
       "guests": {
         "name": "Invités"
+      },
+      "night": {
+        "name": "Mode nuit"
       }
     },
     "select": {
@@ -465,6 +468,14 @@
           "auto": "Automatique",
           "always": "Toujours chauffer",
           "pause": "Pause de chauffage"
+        }
+      },
+      "night_level": {
+        "name": "Réduction nocturne",
+        "state": {
+          "short": "Absence courte",
+          "long": "Absence prolongée",
+          "frost": "Hors gel"
         }
       }
     },

@@ -882,4 +882,13 @@ export const FR = {
   "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture",
   "gilt für alle Räume und Karten dieser Wohnung": "vaut pour toutes les pièces et cartes de ce logement",
   "meldet keine Ventilöffnung": "ne signale pas d’ouverture de vanne",
+  "Absenkwert nachts": "Valeur de réduction nocturne",
+  "Frostschutz": "Hors gel",
+  "Immer": "Toujours",
+  "Nachtabsendung": "Réduction nocturne",
+  "Nie": "Jamais",
+  "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsendung“ ein- oder ausgeschlossen": "s’applique pendant les heures calmes et lorsque l’interrupteur « Mode nuit » est activé – incluez ou excluez chaque pièce sous « Réduction nocturne »",
+  "wie bisher: nur Schlafzimmer und selten genutzte Räume": "comme avant : uniquement les chambres et les pièces peu utilisées",
+  "wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist": "est abaissée dès que les heures calmes s’appliquent ou que l’interrupteur « Mode nuit » est activé",
+  "wird nachts nicht abgesenkt": "n’est pas abaissée la nuit",
 };

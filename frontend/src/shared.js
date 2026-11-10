@@ -566,6 +566,7 @@ export const RK_WALL = tmap({
   interior: "innenliegend",
 });
 export const RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
+export const RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
 // Zeitplan: was außerhalb der Fenster gilt
 export const RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
 // Anbieter für den Mail-Versand: Server, Port, Verschlüsselung, Name

@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import UnitOfTemperature
 
-from .const import CONF_SEASON_MODE, SEASON_MODES
+from .const import CONF_NIGHT_LEVEL, CONF_SEASON_MODE, NIGHT_LEVELS, SEASON_MODES
 from .hub import RaumklimaHub
 from .hub_entity import HubEntity
 from .planning import SEASON_STATES, STAGES
@@ -160,6 +160,45 @@ class SeasonModeSelect(HubEntity, SelectEntity):
         )
 
 
+class NightSwitch(HubEntity, SwitchEntity):
+    """Nachtruhe von Hand – unabhängig von der Uhrzeit."""
+
+    _attr_translation_key = "night"
+
+    def __init__(self, hub: RaumklimaHub) -> None:
+        super().__init__(hub, "night")
+
+    @property
+    def is_on(self) -> bool:
+        return bool(getattr(self.hub, "night_manual", False))
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        self.hub.set_night_manual(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        self.hub.set_night_manual(False)
+
+
+class NightLevelSelect(HubEntity, SelectEntity):
+    """Ziel der Nachtabsendung: kurz weg, länger weg oder Frostschutz."""
+
+    _attr_translation_key = "night_level"
+    _attr_options = list(NIGHT_LEVELS)
+
+    def __init__(self, hub: RaumklimaHub) -> None:
+        super().__init__(hub, "night_level")
+
+    @property
+    def current_option(self) -> str:
+        return str(self.hub.opt(CONF_NIGHT_LEVEL) or "long")
+
+    async def async_select_option(self, option: str) -> None:
+        entry = self.hub.entry
+        self.hass.config_entries.async_update_entry(
+            entry, options={**entry.options, CONF_NIGHT_LEVEL: option}
+        )
+
+
 class HeatTodayButton(HubEntity, ButtonEntity):
     _attr_translation_key = "heat_today"
 
@@ -174,9 +213,9 @@ def hub_entities(platform: str, hub: RaumklimaHub) -> list:
     if platform == "sensor":
         return [PresenceSensor(hub), SeasonSensor(hub), OutdoorMeanSensor(hub), HealthSensor(hub)]
     if platform == "switch":
-        return [VacationSwitch(hub), GuestsSwitch(hub)]
+        return [VacationSwitch(hub), GuestsSwitch(hub), NightSwitch(hub)]
     if platform == "select":
-        return [SeasonModeSelect(hub)]
+        return [SeasonModeSelect(hub), NightLevelSelect(hub)]
     if platform == "button":
         return [HeatTodayButton(hub)]
     return []

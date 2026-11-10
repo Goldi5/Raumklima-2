@@ -74,6 +74,7 @@ from .const import (
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
     CONF_PRESENCE_OFF,
+    CONF_QUIET_MODE,
     CONF_QUIET_SETBACK,
     CONF_ROOM_ECO,
     CONF_ROOM_ECO_AFTER,
@@ -270,6 +271,7 @@ LIVE_OPTIONS = frozenset(
         CONF_NOTIFY_CAP,
         CONF_MOLD_CAP,
         CONF_MOLD_MODE,
+        CONF_QUIET_MODE,
         CONF_WALL,
         CONF_SCHEDULE_FALLBACK,
     }
@@ -1147,6 +1149,24 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self._save()
         self.check_moisture_source(now)
 
+    def _night_setback_applies(self, hub: Any) -> bool:
+        """Gilt die Nachtabsendung für diesen Raum?
+
+        Reihenfolge: Raum-Option (auto/on/off) vor Raumtyp, ausdrücklicher Schalter
+        „Nachtruhe" vor der Uhrzeit. ``auto`` heißt wie bisher: nur Schlafzimmer und
+        selten genutzte Räume, und nur mit der Wohnungs-Option „Ruhezeit senkt ab".
+        """
+        mode = str(self.config.get(CONF_QUIET_MODE) or "auto")
+        if mode == "off" or not hub.night_setback_now():
+            return False
+        if mode == "on":
+            return True
+        if getattr(hub, "night_manual", False):
+            return True
+        if not hub.opt(CONF_QUIET_SETBACK):
+            return False
+        return self.config.get(CONF_ROOM_TYPE) in NIGHT_ROOM_TYPES
+
     def _plan_rules(self) -> tuple[bool, float, str]:
         """Regelkette ohne Nachbedingung (siehe ``plan()``)."""
         if self.monitor:
@@ -1218,14 +1238,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             return True, min(sched, self.trv_max), REASON_SCHEDULE
         # Ruhezeit: Schlafräume werden abgesenkt, auch wenn jemand zu Hause ist – nach einer
         # Nachtschicht wird tagsüber geschlafen. Der Regler am Thermostat gilt weiter.
-        if (
-            hub.opt(CONF_QUIET_SETBACK)
-            and hub.quiet_now()
-            and self.config.get(CONF_ROOM_TYPE) in NIGHT_ROOM_TYPES
-        ):
+        if self._night_setback_applies(hub):
             if manual_until and now < manual_until:
                 return True, self.target_temp, REASON_MANUAL
-            return True, self.setback_long, REASON_SLEEP
+            return True, hub.night_target(self), REASON_SLEEP
         # Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit
         nxt = next_schedule_window(self.config.get(CONF_SCHEDULES), local_now)
         cur = self.current_temperature

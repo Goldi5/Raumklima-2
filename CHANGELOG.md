@@ -1,3 +1,9 @@
+## 0.62.27b1 – 2026-11-10
+
+- **Nachtabsendung je Raum** (Issue #43): neue Raum-Option „Nachtabsendung" mit *Automatisch* (wie bisher nur Schlafzimmer und selten genutzte Räume), *Immer* (auch Wohnräume) und *Nie*. Damit lässt sich jeder Raum einzeln in die Ruhezeit-Absenkung aufnehmen oder davon ausnehmen.
+- **Schalter „Nachtruhe"** für die Zentrale: senkt die Heizung unabhängig von der Uhrzeit ab — für wechselnde Schlafenszeiten aus einer Automation oder von der Karte aus. Der Schalter schaltet bewusst keine Benachrichtigungen stumm.
+- **Absenkwert wählbar**: neue Auswahl-Entität „Nachtabsendung" (kurz weg / länger weg / Frostschutz), gilt für Ruhezeit und Nachtruhe-Schalter.
+
 ## 0.62.26b1 – 2026-11-09
 
 - **Überwachungsraum meldet keine Heizpause mehr.** Räume ohne Thermostat (z. B. Küche) protokollierten bei offenem Fenster „Heizung pausiert“ / „Heizung läuft weiter“, obwohl es nichts zu regeln gibt. Fenster auf/zu bleibt im Protokoll.

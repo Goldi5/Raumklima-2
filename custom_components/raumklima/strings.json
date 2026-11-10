@@ -456,6 +456,9 @@
       },
       "guests": {
         "name": "Guests"
+      },
+      "night": {
+        "name": "Night mode"
       }
     },
     "select": {
@@ -465,6 +468,14 @@
           "auto": "Automatic",
           "always": "Always heat",
           "pause": "Heating pause"
+        }
+      },
+      "night_level": {
+        "name": "Night setback",
+        "state": {
+          "short": "Short away",
+          "long": "Longer away",
+          "frost": "Frost protection"
         }
       }
     },

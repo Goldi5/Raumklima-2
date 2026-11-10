@@ -456,6 +456,9 @@
       },
       "guests": {
         "name": "Gäste da"
+      },
+      "night": {
+        "name": "Nachtruhe"
       }
     },
     "select": {
@@ -465,6 +468,14 @@
           "auto": "Automatisch",
           "always": "Immer heizen",
           "pause": "Heizpause"
+        }
+      },
+      "night_level": {
+        "name": "Nachtabsendung",
+        "state": {
+          "short": "Kurz weg",
+          "long": "Länger weg",
+          "frost": "Frostschutz"
         }
       }
     },

@@ -217,6 +217,31 @@ export const HELP = {
     "Which home the room belongs to – determines residents, zone, recipients and report.",
     "Le logement auquel appartient la pièce – détermine habitants, zone, destinataires et rapport.",
   ],
+  "Außentemperatur von": [
+    "Woher die Außentemperatur kommt. Eine eigene Wetterstation ist genauer als der Wetterdienst; die Vorhersage für die Heizgrenze kommt weiterhin vom Wetterdienst.",
+    "Where the outdoor temperature comes from. Your own station is more accurate than a weather service; the forecast for the heating limit still comes from the service.",
+    "D'où vient la température extérieure. Votre propre station est plus précise qu'un service météo ; la prévision pour la limite de chauffe vient toujours du service.",
+  ],
+  "Nur an anwesende Personen": [
+    "Lüft-Hinweise gehen nur an Handys von Personen, die laut Ortung zu Hause sind. Dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle.",
+    "Airing hints go only to phones of people who are home according to tracking. Urgent messages (window open while away, frost, failure) still go to everyone.",
+    "Les rappels d'aération ne vont qu'aux téléphones des personnes présentes selon la localisation. Les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde.",
+  ],
+  "Lüftfenster": [
+    "Zeiten, in denen keine Lüft-Hinweise kommen – etwa beim Training morgens. Die Regelung läuft weiter, nur die Erinnerungen schweigen.",
+    "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
+    "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent.",
+  ],
+  "Nachtabsendung": [
+    "Ob dieser Raum während der Ruhezeit abgesenkt wird. „Automatisch“ nimmt nur Schlafzimmer und selten genutzte Räume, „Immer“ auch Wohnräume, „Nie“ keinen.",
+    "Whether this room is set back during quiet hours. “Automatic” covers bedrooms and rarely used rooms, “Always” also living rooms, “Never” none.",
+    "Si cette pièce est abaissée pendant les heures calmes. « Automatique » ne concerne que les chambres et pièces peu utilisées, « Toujours » aussi les séjours, « Jamais » aucune.",
+  ],
+  "Absenkwert nachts": [
+    "Auf welche Temperatur die Nachtabsendung geht: kurz weg, länger weg oder Frostschutz. Gilt für die Ruhezeit und für den Schalter „Nachtruhe“.",
+    "Which temperature the night setback uses: short away, longer away or frost protection. Applies to quiet hours and to the “Night mode” switch.",
+    "Température utilisée pour la réduction nocturne : absence courte, absence prolongée ou hors gel. Vaut pour les heures calmes et l'interrupteur « Mode nuit ».",
+  ],
   "Sonnenseite": [
     "Für Räume mit großen Süd- oder Westfenstern: Ist Sonne vorhergesagt und der Raum schon fast warm, heizt er 1 °C weniger – die Sonne erledigt den Rest.",
     "For rooms with large south or west windows: if sun is forecast and the room is almost warm, it heats 1 °C less – the sun does the rest.",

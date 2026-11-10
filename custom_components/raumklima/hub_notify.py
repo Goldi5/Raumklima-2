@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_NIGHT_LEVEL,
     CONF_NOTIFY_PRESENT_ONLY,
     CONF_RECIPIENTS,
     CONF_TTS,
@@ -16,6 +17,7 @@ from .const import (
 )
 from .decision_log import (
     CAT_NOTIFY,
+    CAT_PRESENCE,
 )
 from .msg import tr
 from .notify_filter import keep_present
@@ -55,6 +57,35 @@ class NotifyMixin:
                 return False  # Licht an am Morgen: alle wach
         times = self.times_for(now)
         return in_time_window(now, times["quiet_start"], times["quiet_end"])
+
+    def night_setback_now(self) -> bool:
+        """Gilt die Nachtabsendung gerade? (Schalter „Nachtruhe“ oder Ruhezeit).
+
+        Getrennt von ``quiet_now()``: der Schalter soll die Heizung absenken, aber keine
+        Benachrichtigungen stumm schalten.
+        """
+        if getattr(self, "night_manual", False):
+            return True
+        return self.quiet_now()
+
+    def night_target(self, room: Any) -> float:
+        """Ziel der Nachtabsendung: kurz weg, länger weg oder Frostschutz."""
+        level = self.opt(CONF_NIGHT_LEVEL) or "long"
+        if level == "short":
+            return room.setback_short
+        if level == "frost":
+            return self.frost_floor
+        return room.setback_long
+
+    def set_night_manual(self, on: bool) -> None:
+        """Schalter „Nachtruhe“ – bewusste Aktion, unabhängig von der Uhrzeit."""
+        self.night_manual = bool(on)
+        self.log.add(
+            CAT_PRESENCE,
+            tr("Nachtruhe {s}", s=tr("eingeschaltet") if on else tr("ausgeschaltet")),
+            tr("von Hand geschaltet – gilt bis zum Ausschalten"),
+        )
+        self._changed()
 
     def notify(
         self,

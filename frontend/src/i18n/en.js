@@ -882,4 +882,13 @@ export const EN = {
   "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening",
   "gilt für alle Räume und Karten dieser Wohnung": "applies to all rooms and cards of this home",
   "meldet keine Ventilöffnung": "reports no valve opening",
+  "Absenkwert nachts": "Night setback value",
+  "Frostschutz": "Frost protection",
+  "Immer": "Always",
+  "Nachtabsendung": "Night setback",
+  "Nie": "Never",
+  "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsendung“ ein- oder ausgeschlossen": "applies during quiet hours and when the “Night mode” switch is on – include or exclude each room under “Night setback”",
+  "wie bisher: nur Schlafzimmer und selten genutzte Räume": "as before: only bedrooms and rarely used rooms",
+  "wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist": "is set back as soon as quiet hours apply or the “Night mode” switch is on",
+  "wird nachts nicht abgesenkt": "is not set back at night",
 };

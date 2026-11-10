@@ -377,6 +377,70 @@ async def test_quiet_time_needs_bedroom_and_setting(hass: HomeAssistant, setup, 
     assert ctrl.plan()[2] != "sleep"
 
 
+async def test_quiet_mode_per_room(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Raum-Option „Nachtabsendung": immer / nie schlägt den Raumtyp."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_QUIET_MODE, CONF_QUIET_SETBACK, CONF_ROOM_TYPE
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    now = dt_util.now()
+    hub.config["quiet_start"] = (now - timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config["quiet_end"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config[CONF_QUIET_SETBACK] = True
+
+    # Wohnraum, aber ausdrücklich „immer" → wird abgesenkt
+    ctrl.config[CONF_ROOM_TYPE] = "living"
+    ctrl.config[CONF_QUIET_MODE] = "on"
+    assert ctrl.plan()[2] == "sleep"
+    assert ctrl.plan()[1] == ctrl.setback_long
+
+    # Schlafzimmer, aber ausdrücklich „nie" → nicht
+    ctrl.config[CONF_ROOM_TYPE] = "bedroom"
+    ctrl.config[CONF_QUIET_MODE] = "off"
+    assert ctrl.plan()[2] != "sleep"
+
+
+async def test_night_switch_forces_setback(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Schalter „Nachtruhe" senkt ohne Ruhezeit ab und nutzt den gewählten Wert."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import (
+        CONF_NIGHT_LEVEL,
+        CONF_QUIET_SETBACK,
+        CONF_ROOM_TYPE,
+    )
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    now = dt_util.now()
+    # Ruhezeit liegt außerhalb von „jetzt", die Wohnungs-Option ist aus
+    hub.config["quiet_start"] = (now + timedelta(hours=3)).strftime("%H:%M:%S")
+    hub.config["quiet_end"] = (now + timedelta(hours=4)).strftime("%H:%M:%S")
+    hub.config[CONF_QUIET_SETBACK] = False
+    ctrl.config[CONF_ROOM_TYPE] = "bedroom"
+    assert ctrl.plan()[2] != "sleep"
+
+    hub.config[CONF_NIGHT_LEVEL] = "short"
+    hub.set_night_manual(True)
+    on, target, reason = ctrl.plan()
+    assert reason == "sleep"
+    assert on is True
+    assert target == ctrl.setback_short, "der gewählte Absenkwert gilt"
+
+    hub.set_night_manual(False)
+    assert ctrl.plan()[2] != "sleep"
+
+
 async def test_solar_uses_room_facade(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Die Fassade des Raums wird an die Sonnenprüfung durchgereicht (Issue #5)."""
     from custom_components.raumklima.const import CONF_SOLAR, CONF_SOLAR_FACADE

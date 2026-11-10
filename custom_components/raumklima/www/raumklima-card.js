@@ -1,4 +1,4 @@
-/* Raumklima 0.62.26b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.27b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -880,7 +880,16 @@
     "erwartet {v}°": "expected {v}°",
     "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Each thermostat with its own setpoint and opening",
     "gilt für alle Räume und Karten dieser Wohnung": "applies to all rooms and cards of this home",
-    "meldet keine Ventilöffnung": "reports no valve opening"
+    "meldet keine Ventilöffnung": "reports no valve opening",
+    "Absenkwert nachts": "Night setback value",
+    "Frostschutz": "Frost protection",
+    "Immer": "Always",
+    "Nachtabsendung": "Night setback",
+    "Nie": "Never",
+    "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsendung“ ein- oder ausgeschlossen": "applies during quiet hours and when the “Night mode” switch is on – include or exclude each room under “Night setback”",
+    "wie bisher: nur Schlafzimmer und selten genutzte Räume": "as before: only bedrooms and rarely used rooms",
+    "wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist": "is set back as soon as quiet hours apply or the “Night mode” switch is on",
+    "wird nachts nicht abgesenkt": "is not set back at night"
   };
 
   // src/i18n/fr.js
@@ -1763,7 +1772,16 @@
     "erwartet {v}°": "attendu {v}°",
     "Jedes Thermostat mit eigenem Sollwert und eigener Öffnung": "Chaque thermostat avec sa propre consigne et ouverture",
     "gilt für alle Räume und Karten dieser Wohnung": "vaut pour toutes les pièces et cartes de ce logement",
-    "meldet keine Ventilöffnung": "ne signale pas d’ouverture de vanne"
+    "meldet keine Ventilöffnung": "ne signale pas d’ouverture de vanne",
+    "Absenkwert nachts": "Valeur de réduction nocturne",
+    "Frostschutz": "Hors gel",
+    "Immer": "Toujours",
+    "Nachtabsendung": "Réduction nocturne",
+    "Nie": "Jamais",
+    "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsendung“ ein- oder ausgeschlossen": "s’applique pendant les heures calmes et lorsque l’interrupteur « Mode nuit » est activé – incluez ou excluez chaque pièce sous « Réduction nocturne »",
+    "wie bisher: nur Schlafzimmer und selten genutzte Räume": "comme avant : uniquement les chambres et les pièces peu utilisées",
+    "wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist": "est abaissée dès que les heures calmes s’appliquent ou que l’interrupteur « Mode nuit » est activé",
+    "wird nachts nicht abgesenkt": "n’est pas abaissée la nuit"
   };
 
   // src/i18n.js
@@ -1807,7 +1825,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.26b1";
+  var RK_VERSION = "0.62.27b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2281,6 +2299,7 @@
     interior: "innenliegend"
   });
   var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
+  var RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
   var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
   var RK_MAIL_PROVIDERS = {
     gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
@@ -3833,6 +3852,31 @@
       "Which home the room belongs to – determines residents, zone, recipients and report.",
       "Le logement auquel appartient la pièce – détermine habitants, zone, destinataires et rapport."
     ],
+    "Außentemperatur von": [
+      "Woher die Außentemperatur kommt. Eine eigene Wetterstation ist genauer als der Wetterdienst; die Vorhersage für die Heizgrenze kommt weiterhin vom Wetterdienst.",
+      "Where the outdoor temperature comes from. Your own station is more accurate than a weather service; the forecast for the heating limit still comes from the service.",
+      "D'où vient la température extérieure. Votre propre station est plus précise qu'un service météo ; la prévision pour la limite de chauffe vient toujours du service."
+    ],
+    "Nur an anwesende Personen": [
+      "Lüft-Hinweise gehen nur an Handys von Personen, die laut Ortung zu Hause sind. Dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle.",
+      "Airing hints go only to phones of people who are home according to tracking. Urgent messages (window open while away, frost, failure) still go to everyone.",
+      "Les rappels d'aération ne vont qu'aux téléphones des personnes présentes selon la localisation. Les messages urgents (fenêtre ouverte en absence, gel, panne) vont toujours à tout le monde."
+    ],
+    "Lüftfenster": [
+      "Zeiten, in denen keine Lüft-Hinweise kommen – etwa beim Training morgens. Die Regelung läuft weiter, nur die Erinnerungen schweigen.",
+      "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
+      "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent."
+    ],
+    "Nachtabsendung": [
+      "Ob dieser Raum während der Ruhezeit abgesenkt wird. „Automatisch“ nimmt nur Schlafzimmer und selten genutzte Räume, „Immer“ auch Wohnräume, „Nie“ keinen.",
+      "Whether this room is set back during quiet hours. “Automatic” covers bedrooms and rarely used rooms, “Always” also living rooms, “Never” none.",
+      "Si cette pièce est abaissée pendant les heures calmes. « Automatique » ne concerne que les chambres et pièces peu utilisées, « Toujours » aussi les séjours, « Jamais » aucune."
+    ],
+    "Absenkwert nachts": [
+      "Auf welche Temperatur die Nachtabsendung geht: kurz weg, länger weg oder Frostschutz. Gilt für die Ruhezeit und für den Schalter „Nachtruhe“.",
+      "Which temperature the night setback uses: short away, longer away or frost protection. Applies to quiet hours and to the “Night mode” switch.",
+      "Température utilisée pour la réduction nocturne : absence courte, absence prolongée ou hors gel. Vaut pour les heures calmes et l'interrupteur « Mode nuit »."
+    ],
     "Sonnenseite": [
       "Für Räume mit großen Süd- oder Westfenstern: Ist Sonne vorhergesagt und der Raum schon fast warm, heizt er 1 °C weniger – die Sonne erledigt den Rest.",
       "For rooms with large south or west windows: if sun is forecast and the room is almost warm, it heats 1 °C less – the sun does the rest.",
@@ -4663,6 +4707,7 @@
         this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
         this._row("Schichtdienst", this._optToggle(H, "learn_shift", !!this._hubOpt("learn_shift")), "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht"),
         this._row("Ruhezeit senkt ab", this._optToggle(H, "quiet_setback", !!this._hubOpt("quiet_setback")), "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist"),
+        this._row("Absenkwert nachts", this._select(H, "night_level", [{ id: "short", name: t("Kurz weg") }, { id: "long", name: t("Länger weg") }, { id: "frost", name: t("Frostschutz") }], this._hubOpt("night_level") || "long"), "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsendung“ ein- oder ausgeschlossen"),
         this._row("Feiertage", this._select(H, "holiday_state", ch.states || [], this._hubOpt("holiday_state") || "", "– keine –"), sl.tonight && sl.tonight.holiday ? t("morgen: {h} – Ruhezeit wie am Wochenende", { h: esc(sl.tonight.holiday) }) : "Nacht vor einem Feiertag gilt wie Wochenende"),
         this._row("Schlaf-Signale", `<div class="chips">${sigChips || this._v("keine", true)}</div>`, "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden"),
         this._admin && sigAvail.length ? `<div class="addrow"><select class="sel" id="addSig">${sigAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-sigadd style="--c:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Signal hinzufügen")}</button></div>` : "",
@@ -5128,7 +5173,15 @@
           this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: s.heatup && s.heatup.episodes || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"
         ),
-        this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer")
+        this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
+        (() => {
+          const qm = this._roomOpt(r, "quiet_mode") ?? "auto";
+          return this._row(
+            "Nachtabsendung",
+            editable ? this._segs(scope, "quiet_mode", RK_QUIET, qm) : this._v(RK_QUIET[qm] || "–"),
+            qm === "off" ? t("wird nachts nicht abgesenkt") : qm === "on" ? t("wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist") : t("wie bisher: nur Schlafzimmer und selten genutzte Räume")
+          );
+        })()
       ].join(""))}
       ${mon ? "" : this._scheduleGroup(r, id, editable)}
       ${this._grp("Lüften & Feuchte", "mdi:water-percent", "air", [

@@ -75,6 +75,10 @@ CONF_QUIET_START: Final = "quiet_start"
 CONF_QUIET_END: Final = "quiet_end"
 CONF_LEARN_SHIFT: Final = "learn_shift"  # Schichtdienst: Tagschlaf mitlernen
 CONF_QUIET_SETBACK: Final = "quiet_setback"  # Ruhezeit senkt Schlafräume ab
+CONF_QUIET_MODE: Final = "quiet_mode"  # je Raum: auto (nach Raumtyp) / on / off
+QUIET_MODES: Final = ("auto", "on", "off")
+CONF_NIGHT_LEVEL: Final = "night_level"  # Ziel der Nachtabsendung: short / long / frost
+NIGHT_LEVELS: Final = ("short", "long", "frost")
 CONF_REPEAT_MINUTES: Final = "repeat_minutes"
 CONF_LONG_AIRING: Final = "long_airing_minutes"  # ab so vielen Minuten Dauerlüftung still
 CONF_LONG_AIRING_REMIND: Final = "long_airing_remind"  # eine stille Erinnerung danach (0 = aus)
@@ -238,6 +242,7 @@ HUB_DEFAULTS: Final = {
     "learn_times": True,
     CONF_LEARN_SHIFT: False,
     CONF_QUIET_SETBACK: False,
+    CONF_NIGHT_LEVEL: "long",
     "name": "",
     "dashboard": "",
     "presence_off": False,
@@ -319,6 +324,7 @@ DEFAULTS: Final = {
     CONF_LEARN_AIRING: True,
     CONF_AIRING_MIN_MINUTES: 0,
     CONF_MOLD_MODE: "strict",
+    CONF_QUIET_MODE: "auto",
     CONF_SCHEDULE_FALLBACK: "wish",
     CONF_GUESTS_ROOMS: [],
     CONF_FAST_POLL: False,
