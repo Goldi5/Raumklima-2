@@ -632,6 +632,35 @@ async def test_ueberwachungsraum_hat_kein_ziel(hass: HomeAssistant, sensors) -> 
     assert not [e for e in hass.states.async_entity_ids("button") if "boost" in e.lower()]
 
 
+async def test_ueberwachungsraum_meldet_keine_heizpause(hass: HomeAssistant, sensors) -> None:
+    """Raum ohne Thermostat: offenes Fenster pausiert keine Heizung – also keine Heiz-Meldung.
+
+    Die Küche läuft als Überwachungsraum; „Heizung pausiert“ war dort sinnlos, weil es nichts
+    zu pausieren gibt. Fenster auf/zu wird weiter protokolliert.
+    """
+    from custom_components.raumklima.shared import get_hub
+
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(trv="")
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(room.entry_id)
+    await hass.async_block_till_done()
+
+    live = get_hub(hass, None)
+    assert live is not None
+
+    hass.states.async_set(WINDOW, "on", {"device_class": "window"})
+    await advance(hass, 11)
+    hass.states.async_set(WINDOW, "off", {"device_class": "window"})
+    await advance(hass, 11)
+
+    msgs = [str(e.get("msg")) for e in live.log.entries]
+    assert "Fenster auf" in msgs and "Fenster zu" in msgs, "Fensterzustand wird weiter protokolliert"
+    assert "Heizung pausiert" not in msgs
+    assert "Heizung läuft weiter" not in msgs
+
+
 async def test_thermostat_im_optionsdialog_optional(hass: HomeAssistant, sensors) -> None:
     """Im Optionsdialog eines Überwachungsraums ist das Thermostat optional (leer = weiter messen)."""
     hub = hub_entry()

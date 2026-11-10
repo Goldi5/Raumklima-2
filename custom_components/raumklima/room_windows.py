@@ -230,13 +230,12 @@ class WindowMixin:
                 "%s: Fenster %s", self.name, "offen – pausiere" if raw else "zu – fortsetzen"
             )
             delay = float(self.config[CONF_WINDOW_OPEN_DELAY if raw else CONF_WINDOW_CLOSE_DELAY])
-            if self.window_logic:
+            if self.window_logic and not self.monitor:
+                # Überwachungsräume haben kein Thermostat: „Heizung pausiert" wäre dort falsch.
                 self.fire_event("heating", {"state": "paused" if raw else "resumed"})
-            if not self.window_logic:
-                pass
-            elif raw:
-                self.log(CAT_TARGET, tr("Heizung pausiert"), tr("Fenster seit {s} s offen", s=f"{delay:.0f}"))
-            else:
-                self.log(CAT_TARGET, tr("Heizung läuft weiter"), tr("Fenster seit {s} s zu – Ziel {t}", s=f"{delay:.0f}", t=fmt_temp(self.plan()[1])))
+                if raw:
+                    self.log(CAT_TARGET, tr("Heizung pausiert"), tr("Fenster seit {s} s offen", s=f"{delay:.0f}"))
+                else:
+                    self.log(CAT_TARGET, tr("Heizung läuft weiter"), tr("Fenster seit {s} s zu – Ziel {t}", s=f"{delay:.0f}", t=fmt_temp(self.plan()[1])))
             self._notify()
             self.hass.async_create_task(self._apply())

@@ -1,3 +1,8 @@
+## 0.62.26b1 – 2026-11-09
+
+- **Überwachungsraum meldet keine Heizpause mehr.** Räume ohne Thermostat (z. B. Küche) protokollierten bei offenem Fenster „Heizung pausiert“ / „Heizung läuft weiter“, obwohl es nichts zu regeln gibt. Fenster auf/zu bleibt im Protokoll.
+- **Handeingriff-Schutz verengt:** Im Nachlauf eines eigenen Schreibbefehls werden nur reine Sollwert-Meldungen ignoriert. Aus- und Preset-Wechsel am Gerät gelten weiterhin als Handeingriff (behebt drei Testfehler aus 0.62.23b1).
+
 ## 0.62.25b1 – 2026-11-09
 
 - **Livisi: verify_delay auf 60 s angehoben.** Livisi-Thermostate bestätigen Sollwert-Schreibbefehle verzögert; mit dem bisherigen 20-s-Intervall blieben Sync-Jobs als „pending" hängen, obwohl das Gerät den Wert übernommen hatte. Erkennung über Entity-Registry-Platform ("livisi").
