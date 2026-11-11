@@ -1,4 +1,4 @@
-/* Raumklima 0.62.36b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.37b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -936,7 +936,9 @@
     "Nachtruhe über Entität": "Night mode via entity",
     "so warm, solange ein Melder jemanden im Raum sieht": "this warm while a sensor sees someone in the room",
     "… Homeoffice / zu Hause": "… home office / at home",
-    "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "comma-separated, free choice; an event with this word turns home office on and lowers nothing"
+    "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "comma-separated, free choice; an event with this word turns home office on and lowers nothing",
+    "Automatik am Gerät": "Automatic on the device",
+    "Automatik": "Automatic"
   };
 
   // src/i18n/fr.js
@@ -1875,7 +1877,9 @@
     "Nachtruhe über Entität": "Mode nuit via entité",
     "so warm, solange ein Melder jemanden im Raum sieht": "cette température tant qu’un capteur voit quelqu’un dans la pièce",
     "… Homeoffice / zu Hause": "… télétravail / à la maison",
-    "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "séparés par des virgules, choix libre ; un rendez-vous avec ce mot active le télétravail et n’abaisse rien"
+    "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "séparés par des virgules, choix libre ; un rendez-vous avec ce mot active le télétravail et n’abaisse rien",
+    "Automatik am Gerät": "Automatique sur l’appareil",
+    "Automatik": "Automatique"
   };
 
   // src/i18n.js
@@ -1919,7 +1923,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.36b1";
+  var RK_VERSION = "0.62.37b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2059,6 +2063,7 @@
       schedule_preheat: "Vorheizen",
       home_office: "Homeoffice",
       presence: "Anwesend",
+      device_auto: "Automatik",
       boost: "Boost",
       sleep: "Ruhezeit",
       away_short: "Abgesenkt",
@@ -2088,6 +2093,7 @@
       if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
       if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
       if (r === "presence") return t("Anwesend · {v}°", { v: fmt(tgt) });
+      if (r === "device_auto") return t("Automatik am Gerät");
       if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
       if (r === "mold") {
         const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;

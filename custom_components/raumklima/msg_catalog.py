@@ -8,6 +8,26 @@ from __future__ import annotations
 
 _ROWS: list[tuple[str, str, str]] = [
     (
+        "Automatik am Gerät",
+        "Automatic on the device",
+        "Automatique sur l’appareil",
+    ),
+    (
+        "Raumklima pausiert – das Thermostat fährt sein eigenes Programm",
+        "Raumklima pauses – the thermostat runs its own program",
+        "RaumKlima se met en pause – le thermostat suit son propre programme",
+    ),
+    (
+        "Automatik beendet",
+        "Automatic ended",
+        "Automatique terminée",
+    ),
+    (
+        "Raumklima übernimmt wieder",
+        "Raumklima takes over again",
+        "RaumKlima reprend la main",
+    ),
+    (
         "Thermostat steht auf Dauerbetrieb",
         "Thermostat is set to permanent operation",
         "Le thermostat est en fonctionnement permanent",

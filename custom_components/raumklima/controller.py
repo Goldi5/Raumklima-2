@@ -229,6 +229,7 @@ REASON_MOLD = "mold"
 REASON_SCHEDULE_FALLBACK = "schedule_fallback"
 REASON_HOME_OFFICE = "home_office"
 REASON_PRESENCE = "presence"
+REASON_DEVICE_AUTO = "device_auto"
 # Schimmelschutz-Stufen (Raum-Einstellung)
 MOLD_STRICT = "strict"
 MOLD_WISH = "wish"
@@ -324,6 +325,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         # Neustart für eine Sekunde im Sollwert und erzeugte Zacken im Bericht.
         self.target_temp: float = float(self.config.get(CONF_COMFORT_TEMP) or 20.0)
         self.hvac_on: bool = True
+        self.hvac_auto: bool = False  # Gerät fährt sein eigenes Programm (Karten-Modus „Auto“)
         # Warum der Raum aus ist (None = an): OFF_SOURCE_USER / OFF_SOURCE_TRV
         self.off_source: str | None = None
         # Boost: zeitlich begrenzt wärmer (None = kein Boost)
@@ -435,6 +437,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if stored:
             self.target_temp = float(stored.get("target_temp", self.target_temp))
             self.hvac_on = bool(stored.get("hvac_on", self.hvac_on))
+            self.hvac_auto = bool(stored.get("hvac_auto", self.hvac_auto))
             self.off_source = stored.get("off_source") or (None if self.hvac_on else OFF_SOURCE_USER)
             self.boost_until = parse_dt(stored.get("boost_until"))
             self.boost_open = bool(stored.get("boost_open") or False)
@@ -552,6 +555,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return {
             "target_temp": self.target_temp,
             "hvac_on": self.hvac_on,
+            "hvac_auto": self.hvac_auto,
             "off_source": self.off_source,
             "boost_until": iso(self.boost_until),
             "boost_open": self.boost_open,
@@ -1217,6 +1221,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         """Regelkette ohne Nachbedingung (siehe ``plan()``)."""
         if self.monitor:
             return False, self.target_temp, REASON_MONITOR
+        if self.hvac_auto:
+            return False, self.target_temp, REASON_DEVICE_AUTO
         now = dt_util.utcnow()
         if self._valve_care_until and now < self._valve_care_until:
             return True, self.trv_max, REASON_VALVE_CARE
@@ -1373,6 +1379,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     @property
     def hvac_action(self) -> HVACAction:
+        if self.hvac_auto:
+            action = self._trv_attr("hvac_action")
+            return action if action in (HVACAction.HEATING, HVACAction.IDLE) else HVACAction.IDLE
         if not self.hvac_on or self.paused or not self.plan()[0]:
             return HVACAction.OFF
         action = self._trv_attr("hvac_action")
@@ -1456,7 +1465,51 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.config.get(CONF_COMFORT_TEMP), self.config.get(CONF_ROOM_TYPE)
         )
 
+    async def async_set_hvac_mode(self, mode: str) -> None:
+        """Heat / Auto / Off aus der Karte.
+
+        ``auto`` heißt: Raumklima pausiert für diesen Raum und das Gerät fährt sein
+        eigenes Wochenprogramm — es wird kein Sollwert mehr geschrieben.
+        """
+        mode = str(mode or "").lower()
+        if mode == "auto":
+            if not self.hvac_auto:
+                self.log(
+                    CAT_MANUAL,
+                    tr("Automatik am Gerät"),
+                    tr("Raumklima pausiert – das Thermostat fährt sein eigenes Programm"),
+                )
+            self.hvac_auto = True
+            self.hvac_on = True
+            self.off_source = None
+            self._save()
+            self._notify()
+            await self._hand_over_to_device()
+            return
+        if self.hvac_auto:
+            self.hvac_auto = False
+            self.log(CAT_MANUAL, tr("Automatik beendet"), tr("Raumklima übernimmt wieder"))
+            self._save()
+            self._notify()
+        await self.async_set_hvac_on(mode != "off")
+
+    async def _hand_over_to_device(self) -> None:
+        """Gerät auf sein eigenes Programm stellen (Preset „auto“/„schedule“)."""
+        presets = [str(p).lower() for p in (self._trv_attr("preset_modes") or [])]
+        target = next((p for p in ("auto", "schedule", "program", "programme", "timer", "timed") if p in presets), None)
+        if target is None:
+            return
+        try:
+            await self._call_climate("set_preset_mode", preset_mode=target)
+            _LOGGER.info("%s: Gerät auf eigenes Programm gestellt (%s)", self.name, target)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("%s: Preset %s nicht setzbar: %s", self.name, target, exc)
+
     async def async_set_hvac_on(self, on: bool) -> None:
+        if on and self.hvac_auto:
+            # „Ein“ heißt: Raumklima übernimmt wieder
+            self.hvac_auto = False
+            self.log(CAT_MANUAL, tr("Automatik beendet"), tr("Raumklima übernimmt wieder"))
         if on and not self.hvac_on and self.target_temp < MIN_USEFUL_TARGET:
             # Raum war aus (Sollwert-Rest wie 5 °C) → mit Wunschtemperatur starten
             self.target_temp = self.comfort_temp
@@ -1786,6 +1839,8 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 return  # Raum wird gerade entladen/neu geladen – nichts mehr senden
             if self.monitor:
                 return  # Überwachungsraum: nichts zu regeln, nichts zu senden
+            if self.hvac_auto:
+                return  # Gerät fährt sein eigenes Programm – nicht dazwischenfunken
             if getattr(self, "_manual_candidate", None) is not None:
                 # Gerät hat gerade einen neuen Sollwert gemeldet – erst die Standzeit abwarten,
                 # sonst überschreiben wir den Handeingriff mit dem alten Ziel.

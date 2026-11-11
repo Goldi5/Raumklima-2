@@ -523,9 +523,11 @@ class HealthMixin:
                 device_preset=self.target_via == "comfort_temperature",
                 derived_preset=self._preset_is_derived(),
             )
-            if not self.paused
+            if not self.paused and not self.hvac_auto
             else None,
-            check_setpoint_ignored(
+            None
+            if self.hvac_auto
+            else check_setpoint_ignored(
                 self._setpoint_off_minutes(now),
                 self.trv_target,
                 self.trv_expected_target,

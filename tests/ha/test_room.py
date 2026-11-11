@@ -505,6 +505,41 @@ async def test_anwesenheit_hebt_ziel(hass: HomeAssistant, setup, trv: FakeTrv) -
     ctrl._occupied = None
 
 
+async def test_hvac_auto_uebergibt_ans_geraet(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Karten-Modus „Auto“: Raumklima pausiert, das Gerät fährt sein eigenes Programm."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    trv.attrs["preset_modes"] = ["manual", "auto", "off"]
+    trv.push()
+
+    assert [getattr(m, "value", m) for m in hass.states.get("climate.bad").attributes["hvac_modes"]] == ["heat", "auto", "off"]
+
+    await hass.services.async_call(
+        "climate", "set_hvac_mode", {"entity_id": "climate.bad", "hvac_mode": "auto"}, blocking=True
+    )
+    await hass.async_block_till_done()
+    assert ctrl.hvac_auto is True
+    assert ctrl.plan()[2] == "device_auto"
+    assert hass.states.get("climate.bad").state == "auto"
+    assert ("set_preset_mode", {"preset_mode": "auto"}) in trv.calls
+
+    # keine Schreibvorgänge mehr, solange die Automatik läuft
+    writes = len([c for c in trv.calls if c[0] == "set_temperature"])
+    await ctrl._apply()
+    await hass.async_block_till_done()
+    assert len([c for c in trv.calls if c[0] == "set_temperature"]) == writes
+
+    # zurück auf Heizbetrieb → Raumklima übernimmt wieder
+    await hass.services.async_call(
+        "climate", "set_hvac_mode", {"entity_id": "climate.bad", "hvac_mode": "heat"}, blocking=True
+    )
+    await hass.async_block_till_done()
+    assert ctrl.hvac_auto is False
+    assert ctrl.plan()[2] != "device_auto"
+
+
 async def test_quiet_time_sets_back_bedroom(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Ruhezeit senkt den Schlafraum ab, auch wenn jemand zu Hause ist (Schichtdienst)."""
     from datetime import timedelta
@@ -1094,7 +1129,7 @@ async def test_thermostat_nachtraeglich_ergaenzen(hass: HomeAssistant, sensors, 
     st = hass.states.get("climate.bad")
     assert st is not None
     assert st.attributes["monitor"] is False
-    assert st.attributes["hvac_modes"] == ["heat", "off"]
+    assert [getattr(m, "value", m) for m in st.attributes["hvac_modes"]] == ["heat", "auto", "off"]
     assert st.attributes.get("temperature") is not None
 
 

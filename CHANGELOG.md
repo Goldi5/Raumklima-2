@@ -1,3 +1,9 @@
+## 0.62.37b1 – 2026-11-11
+
+- **Dritter Modus „Automatik“** an der Raum-Entität: Heat / Auto / Aus. „Auto“ heißt: Raumklima pausiert für diesen Raum und das Thermostat fährt sein eigenes Wochenprogramm (Preset `auto`/`schedule` wird gesetzt) — es wird kein Sollwert mehr geschrieben. Zurück auf „Heat“ übernimmt Raumklima wieder, ohne Neustart.
+- Die Warnung „Thermostat arbeitet nach eigenem Zeitplan“ und „Sollwert nicht bestätigt“ entfallen, solange die Automatik bewusst gewählt ist.
+- Der Zustand bleibt über einen Neustart erhalten; im Protokoll steht „Automatik am Gerät“ bzw. „Automatik beendet“.
+
 ## 0.62.36b1 – 2026-11-11
 
 - **Homeoffice-Wort frei wählbar**: Der Kalender braucht nicht „Homeoffice“ — die Wortliste in den Einstellungen („… Homeoffice / zu Hause“) ist frei editierbar, Komma-getrennt. Bisher hieß die Zeile nur „jemand bleibt zu Hause“, was nicht verriet, dass sie das Homeoffice steuert.

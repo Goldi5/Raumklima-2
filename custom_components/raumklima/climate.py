@@ -32,7 +32,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
 
     _attr_name = None  # heißt wie das Gerät (der Raum)
     _attr_translation_key = "raumklima"
-    _attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF]
+    _attr_hvac_modes = [HVACMode.HEAT, HVACMode.AUTO, HVACMode.OFF]
     # Beide Varianten: native_* ab HA 2026.12, alte Namen für ältere Versionen
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
@@ -71,7 +71,9 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
     def hvac_mode(self) -> HVACMode | None:
         if self.controller.monitor:
             return None
-        return HVACMode.HEAT if self.controller.hvac_on else HVACMode.OFF
+        if not self.controller.hvac_on:
+            return HVACMode.OFF
+        return HVACMode.AUTO if self.controller.hvac_auto else HVACMode.HEAT
 
     @property
     def hvac_action(self) -> HVACAction | None:
@@ -149,6 +151,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "usage": c.usage_summary.get("text") or None,
             "usage_windows": c.usage_summary.get("windows") or [],
             "battery": c.battery_low,
+            "hvac_auto": self.controller.hvac_auto,
             "override_until": (
                 c.manual_until.isoformat()
                 if getattr(c, "manual_until", None) is not None
@@ -215,7 +218,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         if self.controller.monitor:
             return
-        await self.controller.async_set_hvac_on(hvac_mode != HVACMode.OFF)
+        await self.controller.async_set_hvac_mode(str(getattr(hvac_mode, "value", hvac_mode)))
 
     async def async_turn_on(self) -> None:
         await self.controller.async_set_hvac_on(True)
