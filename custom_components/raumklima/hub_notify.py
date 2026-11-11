@@ -64,7 +64,7 @@ class NotifyMixin:
         Getrennt von ``quiet_now()``: der Schalter soll die Heizung absenken, aber keine
         Benachrichtigungen stumm schalten.
         """
-        if getattr(self, "night_manual", False):
+        if getattr(self, "night_manual", False) or self.night_entity_on():
             return True
         return self.quiet_now()
 

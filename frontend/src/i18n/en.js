@@ -928,4 +928,12 @@ export const EN = {
   "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "during this time the selected rooms heat to the wish; afterwards the schedule runs again",
   "Homeoffice nur wenn jemand da": "Home office only when someone is home",
   "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "applies to calendar events; the switch heats even without presence tracking",
+  "0 °C = aus; sonst gilt der Zeitplan": "0 °C = off; otherwise the schedule applies",
+  "Anwesend · {v}°": "Occupied · {v}°",
+  "Bei Anwesenheit": "When someone is present",
+  "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung": "HA switch that also turns home office on – works like the switch, without the presence check",
+  "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "HA switch that also turns on night mode – the built-in switch stays",
+  "Homeoffice über Entität": "Home office via entity",
+  "Nachtruhe über Entität": "Night mode via entity",
+  "so warm, solange ein Melder jemanden im Raum sieht": "this warm while a sensor sees someone in the room",
 };

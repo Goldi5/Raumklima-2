@@ -1,4 +1,4 @@
-/* Raumklima 0.62.33b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.34b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -926,7 +926,15 @@
     "nur diese Räume werden auf Wunsch geheizt": "only these rooms are heated to the wish",
     "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "during this time the selected rooms heat to the wish; afterwards the schedule runs again",
     "Homeoffice nur wenn jemand da": "Home office only when someone is home",
-    "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "applies to calendar events; the switch heats even without presence tracking"
+    "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "applies to calendar events; the switch heats even without presence tracking",
+    "0 °C = aus; sonst gilt der Zeitplan": "0 °C = off; otherwise the schedule applies",
+    "Anwesend · {v}°": "Occupied · {v}°",
+    "Bei Anwesenheit": "When someone is present",
+    "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung": "HA switch that also turns home office on – works like the switch, without the presence check",
+    "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "HA switch that also turns on night mode – the built-in switch stays",
+    "Homeoffice über Entität": "Home office via entity",
+    "Nachtruhe über Entität": "Night mode via entity",
+    "so warm, solange ein Melder jemanden im Raum sieht": "this warm while a sensor sees someone in the room"
   };
 
   // src/i18n/fr.js
@@ -1855,7 +1863,15 @@
     "nur diese Räume werden auf Wunsch geheizt": "seules ces pièces sont chauffées à la consigne",
     "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "pendant cette période, les pièces choisies chauffent à la consigne ; ensuite la plage horaire reprend",
     "Homeoffice nur wenn jemand da": "Télétravail seulement si quelqu’un est là",
-    "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "s’applique aux rendez-vous du calendrier ; l’interrupteur chauffe même sans détection de présence"
+    "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "s’applique aux rendez-vous du calendrier ; l’interrupteur chauffe même sans détection de présence",
+    "0 °C = aus; sonst gilt der Zeitplan": "0 °C = désactivé ; sinon la plage horaire s’applique",
+    "Anwesend · {v}°": "Présence · {v}°",
+    "Bei Anwesenheit": "En cas de présence",
+    "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung": "Interrupteur HA qui active aussi le télétravail – comme l’interrupteur, sans contrôle de présence",
+    "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "Interrupteur HA qui active aussi le mode nuit – l’interrupteur interne reste",
+    "Homeoffice über Entität": "Télétravail via entité",
+    "Nachtruhe über Entität": "Mode nuit via entité",
+    "so warm, solange ein Melder jemanden im Raum sieht": "cette température tant qu’un capteur voit quelqu’un dans la pièce"
   };
 
   // src/i18n.js
@@ -1899,7 +1915,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.33b1";
+  var RK_VERSION = "0.62.34b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2038,6 +2054,7 @@
       schedule: "Zeitplan",
       schedule_preheat: "Vorheizen",
       home_office: "Homeoffice",
+      presence: "Anwesend",
       boost: "Boost",
       sleep: "Ruhezeit",
       away_short: "Abgesenkt",
@@ -2066,6 +2083,7 @@
       if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
       if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
       if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
+      if (r === "presence") return t("Anwesend · {v}°", { v: fmt(tgt) });
       if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
       if (r === "mold") {
         const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
@@ -4019,6 +4037,21 @@
       "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",
       "Interrupteur pour les jours de télétravail. Pendant la plage définie, les pièces choisies chauffent à la consigne et la plage horaire est suspendue — ensuite elle reprend. Un rendez-vous contenant « télétravail » active la même chose automatiquement."
     ],
+    "Nachtruhe über Entität": [
+      "Ein vorhandener HA-Schalter (input_boolean, switch) schaltet die Nachtruhe mit. An = Nachtabsendung gilt, aus = normaler Zeitplan. Der eingebaute Schalter bleibt zusätzlich nutzbar.",
+      "An existing HA switch (input_boolean, switch) also turns night mode on. On = night setback applies, off = normal schedule. The built-in switch keeps working too.",
+      "Un interrupteur HA existant (input_boolean, switch) active aussi le mode nuit. Activé = l’abaissement nocturne s’applique, désactivé = plage horaire normale. L’interrupteur intégré reste utilisable."
+    ],
+    "Homeoffice über Entität": [
+      "Ein vorhandener HA-Schalter schaltet Homeoffice mit — wie der eingebaute Schalter, also ohne Anwesenheitsprüfung. Gedacht für Wandtaster oder ein Dashboard-Kachel.",
+      "An existing HA switch also turns home office on — like the built-in switch, so without the presence check. Meant for wall buttons or a dashboard tile.",
+      "Un interrupteur HA existant active aussi le télétravail — comme l’interrupteur intégré, donc sans contrôle de présence. Prévoir pour boutons muraux ou une tuile du tableau de bord."
+    ],
+    "Bei Anwesenheit": [
+      "Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, bei Anwesenheit 21 °C. 0 °C schaltet die Regel aus; danach gilt wieder Zeitplan bzw. Absenkung.",
+      "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",
+      "Température vers laquelle la pièce chauffe tant qu’un capteur de présence voit quelqu’un — p. ex. bureau 19 °C, 21 °C en cas de présence. 0 °C désactive la règle ; la plage horaire ou l’abaissement reprend."
+    ],
     "Homeoffice nur wenn jemand da": [
       "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",
       "From the calendar, home office only applies when presence tracking sees someone at home — an event alone is not enough, you may be at the office. The “Home office” switch is pressed on purpose and heats without presence tracking. Turn this off if the calendar should decide alone.",
@@ -4863,6 +4896,16 @@
         ),
         this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
         this._row(
+          "Nachtruhe über Entität",
+          this._select(H, "night_entity", ch.signals || [], this._hubOpt("night_entity"), "– keiner –"),
+          "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt"
+        ),
+        this._row(
+          "Homeoffice über Entität",
+          this._select(H, "home_office_entity", ch.signals || [], this._hubOpt("home_office_entity"), "– keiner –"),
+          "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung"
+        ),
+        this._row(
           "Homeoffice nur wenn jemand da",
           this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
           "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"
@@ -5412,6 +5455,14 @@
               rows.push(this._row("… höchstens", editable ? this._optStepper(scope, "preheat_lead_min", lead, " min", 15, 15, 360) : this._v(`${lead} min`), t("so viele Minuten vor dem Zeitfenster")));
             }
             return rows.join("");
+          })(),
+          (() => {
+            const pt = Number(this._roomOpt(r, "presence_target") || 0);
+            return this._row(
+              "Bei Anwesenheit",
+              editable ? this._optStepper(scope, "presence_target", pt, " °C", 0.5, 0, 30) : this._v(pt ? `${pt} °C` : t("aus")),
+              pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")
+            );
           })(),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"
         ),

@@ -443,6 +443,68 @@ async def test_homeoffice_kalender_nur_mit_anwesenheit(hass: HomeAssistant, setu
     hub.set_home_office(False)
 
 
+async def test_nacht_und_homeoffice_ueber_entitaet(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Ein vorhandener HA-Schalter schaltet Nachtruhe und Homeoffice mit."""
+    from custom_components.raumklima.const import (
+        CONF_HOME_OFFICE_ENTITY,
+        CONF_HOME_OFFICE_FROM,
+        CONF_HOME_OFFICE_ROOMS,
+        CONF_HOME_OFFICE_TO,
+        CONF_NIGHT_ENTITY,
+    )
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 17:00:00+00:00")  # 10:00 Ortszeit
+    hub = get_hub(hass, None)
+    hub.config[CONF_NIGHT_ENTITY] = "input_boolean.nacht"
+    hub.config[CONF_HOME_OFFICE_ENTITY] = "input_boolean.homeoffice"
+    hub.config[CONF_HOME_OFFICE_FROM] = "08:00"
+    hub.config[CONF_HOME_OFFICE_TO] = "17:00"
+    hub.config[CONF_HOME_OFFICE_ROOMS] = []
+
+    hass.states.async_set("input_boolean.nacht", "off")
+    hass.states.async_set("input_boolean.homeoffice", "off")
+    await hass.async_block_till_done()
+    assert hub.night_setback_now() is False
+    assert hub.home_office_active is False
+
+    hass.states.async_set("input_boolean.nacht", "on")
+    hass.states.async_set("input_boolean.homeoffice", "on")
+    await hass.async_block_till_done()
+    assert hub.night_setback_now() is True
+    assert hub.home_office_active is True
+
+    # Entität fehlt/weg → keine Wirkung
+    hass.states.async_set("input_boolean.nacht", "unavailable")
+    await hass.async_block_till_done()
+    assert hub.night_setback_now() is False
+
+
+async def test_anwesenheit_hebt_ziel(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Solange jemand im Raum ist, gilt die Anwesenheits-Temperatur."""
+    from custom_components.raumklima.const import CONF_PRESENCE_TARGET
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.target_temp = 19.0
+    ctrl.config[CONF_PRESENCE_TARGET] = 21.0
+
+    ctrl._occupied = False
+    assert ctrl.plan()[2] != "presence"
+
+    ctrl._occupied = True
+    on, target, reason = ctrl.plan()
+    assert reason == "presence"
+    assert on is True
+    assert target == 21.0
+
+    # 0 °C = aus
+    ctrl.config[CONF_PRESENCE_TARGET] = 0.0
+    assert ctrl.plan()[2] != "presence"
+    ctrl._occupied = None
+
+
 async def test_quiet_time_sets_back_bedroom(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Ruhezeit senkt den Schlafraum ab, auch wenn jemand zu Hause ist (Schichtdienst)."""
     from datetime import timedelta

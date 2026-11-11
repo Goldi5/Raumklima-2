@@ -77,6 +77,7 @@ from .const import (
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
     CONF_PRESENCE_OFF,
+    CONF_PRESENCE_TARGET,
     CONF_QUIET_MODE,
     CONF_QUIET_SETBACK,
     CONF_ROOM_ECO,
@@ -227,6 +228,7 @@ REASON_SLEEP = "sleep"
 REASON_MOLD = "mold"
 REASON_SCHEDULE_FALLBACK = "schedule_fallback"
 REASON_HOME_OFFICE = "home_office"
+REASON_PRESENCE = "presence"
 # Schimmelschutz-Stufen (Raum-Einstellung)
 MOLD_STRICT = "strict"
 MOLD_WISH = "wish"
@@ -1161,6 +1163,14 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self._save()
         self.check_moisture_source(now)
 
+    @property
+    def presence_target(self) -> float:
+        """Temperatur, solange ein Melder jemanden im Raum sieht (0 = aus)."""
+        try:
+            return float(self.config.get(CONF_PRESENCE_TARGET) or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
     def _preheat_allowed(self, start: datetime, now: datetime) -> bool:
         """Darf jetzt vorgeheizt werden? (Issue #10: nicht mitten in der Nacht)
 
@@ -1234,6 +1244,13 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.boost_until = None
                 self.boost_temperature = None
                 self._save()
+        # Jemand im Raum: auf die Anwesenheits-Temperatur heizen (z. B. Arbeitszimmer 19 → 21)
+        if (
+            self.presence_target > 0
+            and self.occupied is True
+            and not hub.vacation
+        ):
+            return True, min(self.presence_target, self.trv_max), REASON_PRESENCE
         # Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert
         if not hub.vacation and hub.home_office_applies(self.entry.entry_id):
             return True, min(self.target_temp, self.trv_max), REASON_HOME_OFFICE

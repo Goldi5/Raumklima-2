@@ -178,6 +178,7 @@ export function planTag(a) {
     schedule: "Zeitplan",
     schedule_preheat: "Vorheizen",
     home_office: "Homeoffice",
+    presence: "Anwesend",
     boost: "Boost",
     sleep: "Ruhezeit",
     away_short: "Abgesenkt",
@@ -210,6 +211,7 @@ export function planText(a, off, compact = false) {
     if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
     if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
     if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
+    if (r === "presence") return t("Anwesend · {v}°", { v: fmt(tgt) });
     if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
     if (r === "mold") {
       // Wie viel der Schutz drauflegt – die Zahl erklärt, warum es wärmer ist als gewünscht.

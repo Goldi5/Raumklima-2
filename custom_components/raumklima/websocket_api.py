@@ -7,6 +7,7 @@ from typing import Any
 
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
+import homeassistant.helpers.config_validation as cv
 from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
@@ -39,6 +40,7 @@ from .const import (
     CONF_HEATING_LIMIT,
     CONF_HOME,
     CONF_HOME_OFFICE_CHECK,
+    CONF_HOME_OFFICE_ENTITY,
     CONF_HOME_OFFICE_FROM,
     CONF_HOME_OFFICE_ROOMS,
     CONF_HOME_OFFICE_TO,
@@ -57,6 +59,7 @@ from .const import (
     CONF_NIGHT_AIRING,
     CONF_NIGHT_ALARM,
     CONF_NIGHT_END,
+    CONF_NIGHT_ENTITY,
     CONF_NIGHT_LEVEL,
     CONF_NIGHT_START,
     CONF_NOTIFY_CAP,
@@ -69,6 +72,7 @@ from .const import (
     CONF_PREHEAT_NOT_BEFORE,
     CONF_PRESENCE,
     CONF_PRESENCE_KIND,
+    CONF_PRESENCE_TARGET,
     CONF_QUIET_MODE,
     CONF_QUIET_SETBACK,
     CONF_RECIPIENTS,
@@ -209,6 +213,8 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_HOME_OFFICE_TO): vol.Match(r"^\d{1,2}:\d{2}$"),
         vol.Optional(CONF_HOME_OFFICE_ROOMS): vol.All([str], vol.Length(max=30)),
         vol.Optional(CONF_HOME_OFFICE_CHECK): bool,
+        vol.Optional(CONF_NIGHT_ENTITY): vol.Any(None, cv.entity_id),
+        vol.Optional(CONF_HOME_OFFICE_ENTITY): vol.Any(None, cv.entity_id),
         vol.Optional("weather_entity"): vol.Any(None, str),
         vol.Optional("outdoor_temp_entity"): vol.Any(None, str),
         vol.Optional("notify_on_failure"): bool,
@@ -268,6 +274,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_ROOM_PERSONS): vol.All([str], vol.Length(max=20)),
         vol.Optional(CONF_PREHEAT_MODE): vol.In(PREHEAT_MODES),
         vol.Optional(CONF_PREHEAT_LEAD): vol.All(vol.Coerce(int), vol.Range(0, 360)),
+        vol.Optional(CONF_PRESENCE_TARGET): vol.All(vol.Coerce(float), vol.Range(0, 30)),
         vol.Optional(CONF_PREHEAT_NOT_BEFORE): vol.Match(r"^\d{1,2}:\d{2}$"),
         vol.Optional(CONF_MOLD_CAP): vol.All(vol.Coerce(float), vol.Range(0, 6)),
         vol.Optional(CONF_SCHEDULE_FALLBACK): vol.In(SCHEDULE_FALLBACKS),

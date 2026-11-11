@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.62.33b1** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
+**Current version: 0.62.34b1** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 

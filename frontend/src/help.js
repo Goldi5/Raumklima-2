@@ -237,6 +237,21 @@ export const HELP = {
     "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",
     "Interrupteur pour les jours de télétravail. Pendant la plage définie, les pièces choisies chauffent à la consigne et la plage horaire est suspendue — ensuite elle reprend. Un rendez-vous contenant « télétravail » active la même chose automatiquement.",
   ],
+  "Nachtruhe über Entität": [
+    "Ein vorhandener HA-Schalter (input_boolean, switch) schaltet die Nachtruhe mit. An = Nachtabsendung gilt, aus = normaler Zeitplan. Der eingebaute Schalter bleibt zusätzlich nutzbar.",
+    "An existing HA switch (input_boolean, switch) also turns night mode on. On = night setback applies, off = normal schedule. The built-in switch keeps working too.",
+    "Un interrupteur HA existant (input_boolean, switch) active aussi le mode nuit. Activé = l’abaissement nocturne s’applique, désactivé = plage horaire normale. L’interrupteur intégré reste utilisable.",
+  ],
+  "Homeoffice über Entität": [
+    "Ein vorhandener HA-Schalter schaltet Homeoffice mit — wie der eingebaute Schalter, also ohne Anwesenheitsprüfung. Gedacht für Wandtaster oder ein Dashboard-Kachel.",
+    "An existing HA switch also turns home office on — like the built-in switch, so without the presence check. Meant for wall buttons or a dashboard tile.",
+    "Un interrupteur HA existant active aussi le télétravail — comme l’interrupteur intégré, donc sans contrôle de présence. Prévoir pour boutons muraux ou une tuile du tableau de bord.",
+  ],
+  "Bei Anwesenheit": [
+    "Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, bei Anwesenheit 21 °C. 0 °C schaltet die Regel aus; danach gilt wieder Zeitplan bzw. Absenkung.",
+    "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",
+    "Température vers laquelle la pièce chauffe tant qu’un capteur de présence voit quelqu’un — p. ex. bureau 19 °C, 21 °C en cas de présence. 0 °C désactive la règle ; la plage horaire ou l’abaissement reprend.",
+  ],
   "Homeoffice nur wenn jemand da": [
     "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",
     "From the calendar, home office only applies when presence tracking sees someone at home — an event alone is not enough, you may be at the office. The “Home office” switch is pressed on purpose and heats without presence tracking. Turn this off if the calendar should decide alone.",

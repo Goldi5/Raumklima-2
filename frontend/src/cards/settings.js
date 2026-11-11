@@ -595,6 +595,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
         (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
       ),
       this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
+      this._row("Nachtruhe über Entität", this._select(H, "night_entity", ch.signals || [], this._hubOpt("night_entity"), "– keiner –"),
+        "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt"),
+      this._row("Homeoffice über Entität", this._select(H, "home_office_entity", ch.signals || [], this._hubOpt("home_office_entity"), "– keiner –"),
+        "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung"),
       this._row("Homeoffice nur wenn jemand da", this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
         "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"),
       (() => {
@@ -1174,6 +1178,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
             rows.push(this._row("… höchstens", editable ? this._optStepper(scope, "preheat_lead_min", lead, " min", 15, 15, 360) : this._v(`${lead} min`), t("so viele Minuten vor dem Zeitfenster")));
           }
           return rows.join("");
+        })(),
+        (() => {
+          const pt = Number(this._roomOpt(r, "presence_target") || 0);
+          return this._row("Bei Anwesenheit", editable ? this._optStepper(scope, "presence_target", pt, " °C", 0.5, 0, 30) : this._v(pt ? `${pt} °C` : t("aus")),
+            pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan"));
         })(),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"),
         this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),

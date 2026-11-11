@@ -152,7 +152,7 @@ class HomeOfficeSwitch(HubEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool:
-        return self.hub.home_office
+        return self.hub.home_office or self.hub.home_office_entity_on()
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -193,7 +193,7 @@ class NightSwitch(HubEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool:
-        return bool(getattr(self.hub, "night_manual", False))
+        return bool(getattr(self.hub, "night_manual", False)) or self.hub.night_entity_on()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         self.hub.set_night_manual(True)

@@ -27,9 +27,11 @@ from .const import (
     CONF_CALENDAR,
     CONF_FROST_FLOOR,
     CONF_HOME_OFFICE_CHECK,
+    CONF_HOME_OFFICE_ENTITY,
     CONF_HOME_OFFICE_FROM,
     CONF_HOME_OFFICE_ROOMS,
     CONF_HOME_OFFICE_TO,
+    CONF_NIGHT_ENTITY,
     CONF_RESIDENTS,
     CONF_ZONE,
     DOMAIN,
@@ -199,11 +201,12 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         ``home_office_check``.
         """
         from_calendar = self.calendar_mode == "home"
-        if not (self.home_office or from_calendar):
+        manual = self.home_office or self.home_office_entity_on()
+        if not (manual or from_calendar):
             return False
         if (
             from_calendar
-            and not self.home_office
+            and not manual
             and self.opt(CONF_HOME_OFFICE_CHECK)
             and not self.someone_present()
         ):
@@ -216,6 +219,18 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         if start <= end:
             return start <= now < end
         return now >= start or now < end  # Fenster über Mitternacht
+
+    def entity_on(self, key: str) -> bool:
+        """Externer HA-Schalter (``switch``, ``input_boolean``, ``binary_sensor``) an?"""
+        entity = self.opt(key)
+        state = self.hass.states.get(entity) if entity else None
+        return bool(state and state.state == "on")
+
+    def night_entity_on(self) -> bool:
+        return self.entity_on(CONF_NIGHT_ENTITY)
+
+    def home_office_entity_on(self) -> bool:
+        return self.entity_on(CONF_HOME_OFFICE_ENTITY)
 
     def someone_present(self) -> bool:
         """Ist gerade jemand zu Hause? (Ortung, sonst Präsenzmelder)"""
@@ -328,6 +343,9 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             tracked.append(self.zone)
         if self.opt(CONF_CALENDAR):
             tracked.append(self.opt(CONF_CALENDAR))
+        for key in (CONF_NIGHT_ENTITY, CONF_HOME_OFFICE_ENTITY):
+            if self.opt(key):
+                tracked.append(self.opt(key))
         if tracked:
             self._unsubs.append(
                 async_track_state_change_event(self.hass, tracked, self._on_tracker_change)
