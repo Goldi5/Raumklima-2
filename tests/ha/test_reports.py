@@ -15,7 +15,7 @@ from custom_components.raumklima.stats import RoomSample, add_home_sample, add_r
 from .conftest import FakeTrv
 from .test_features import _setup
 
-PHONE = "notify.mobile_app_antje"
+PHONE = "notify.mobile_app_b"
 
 
 def _seed(hub_entry, days: int = 40) -> None:
@@ -69,7 +69,7 @@ async def test_language_follows_home_assistant(hass: HomeAssistant, trv: FakeTrv
 
 async def test_send_push_link_and_email(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path) -> None:
     hass.config.language = "de"
-    push = async_mock_service(hass, "notify", "mobile_app_antje")
+    push = async_mock_service(hass, "notify", "mobile_app_b")
     mail = async_mock_service(hass, "notify", "mail")
     hub, _room = await _ready(hass, tmp_path, {"recipients": {PHONE: ["report"]}, "report_email": "notify.mail"})
     pdf = hub.runtime_data.pdf
@@ -84,7 +84,7 @@ async def test_send_push_link_and_email(hass: HomeAssistant, trv: FakeTrv, senso
 
 
 async def test_weekly_sends_pdf_instead_of_text_only(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path) -> None:
-    push = async_mock_service(hass, "notify", "mobile_app_antje")
+    push = async_mock_service(hass, "notify", "mobile_app_b")
     hub, _room = await _ready(hass, tmp_path, {"recipients": {PHONE: ["report"]}})
     await hub.runtime_data.insights._weekly(dt_util.now().date(), "10 Heizstunden")
     await hass.async_block_till_done()
@@ -93,7 +93,7 @@ async def test_weekly_sends_pdf_instead_of_text_only(hass: HomeAssistant, trv: F
 
 
 async def test_weekly_without_pdf_keeps_text(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path) -> None:
-    push = async_mock_service(hass, "notify", "mobile_app_antje")
+    push = async_mock_service(hass, "notify", "mobile_app_b")
     hub, _room = await _ready(hass, tmp_path, {"recipients": {PHONE: ["report"]}, "report_pdf": ["month"]})
     await hub.runtime_data.insights._weekly(dt_util.now().date(), "10 Heizstunden")
     await hass.async_block_till_done()

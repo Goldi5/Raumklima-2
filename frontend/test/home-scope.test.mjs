@@ -15,27 +15,27 @@ function fakeHass(homes, panelUrl = "") {
 }
 
 test("rkHomeId nimmt die ID aus der Konfiguration", () => {
-  const hass = fakeHass([{ id: "A", name: "Berlin", dashboard: "heizung-berlin" }]);
+  const hass = fakeHass([{ id: "A", name: "Nordhaus", dashboard: "heizung-nordhaus" }]);
   assert.equal(rkHomeId(hass, { home: "A" }), "A");
 });
 
 test("rkHomeId akzeptiert auch den Wohnungsnamen", () => {
-  const hass = fakeHass([{ id: "A", name: "Berlin", dashboard: "heizung-berlin" }]);
-  assert.equal(rkHomeId(hass, { home: "Berlin" }), "A");
+  const hass = fakeHass([{ id: "A", name: "Nordhaus", dashboard: "heizung-nordhaus" }]);
+  assert.equal(rkHomeId(hass, { home: "Nordhaus" }), "A");
 });
 
 test("rkHomeId leitet die Wohnung aus dem Dashboard-Pfad ab", () => {
   const hass = fakeHass(
     [
-      { id: "A", name: "Berlin", dashboard: "heizung-berlin" },
-      { id: "B", name: "Remscheid", dashboard: "heizung-remscheid" },
+      { id: "A", name: "Nordhaus", dashboard: "heizung-nordhaus" },
+      { id: "B", name: "Osthaus", dashboard: "heizung-osthaus" },
     ],
-    "/heizung-remscheid"
+    "/heizung-osthaus"
   );
   assert.equal(rkHomeId(hass, {}), "B");
 });
 
 test("ohne Treffer bleibt alles sichtbar (Standard-Dashboard)", () => {
-  const hass = fakeHass([{ id: "A", name: "Berlin", dashboard: "heizung-berlin" }], "/lovelace");
+  const hass = fakeHass([{ id: "A", name: "Nordhaus", dashboard: "heizung-nordhaus" }], "/lovelace");
   assert.equal(rkHomeId(hass, {}), null);
 });

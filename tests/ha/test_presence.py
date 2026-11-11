@@ -82,10 +82,10 @@ async def test_pir_switched_on_lowers_after_long_hold(hass: HomeAssistant, trv: 
 
 async def test_radar_keeps_home_occupied(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
     hass.states.async_set("zone.home", "0", {"latitude": 52.5, "longitude": 13.4, "radius": 100})
-    hass.states.async_set("person.antje", "not_home", {"device_trackers": []})
+    hass.states.async_set("person.b", "not_home", {"device_trackers": []})
     _radar(hass, True)
     hub, _room = await _setup(
-        hass, {"residents": ["person.antje"], "zone": "zone.home", "away_delay": 10}, room_type="living", presence_sensors=[RADAR]
+        hass, {"residents": ["person.b"], "zone": "zone.home", "away_delay": 10}, room_type="living", presence_sensors=[RADAR]
     )
     h = hub.runtime_data
     await _later(hass, freezer, 30)
@@ -102,9 +102,9 @@ async def test_radar_keeps_home_occupied(hass: HomeAssistant, trv: FakeTrv, sens
 
 async def test_pir_does_not_count_for_home_by_default(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
     hass.states.async_set("zone.home", "0", {"latitude": 52.5, "longitude": 13.4, "radius": 100})
-    hass.states.async_set("person.antje", "not_home", {"device_trackers": []})
+    hass.states.async_set("person.b", "not_home", {"device_trackers": []})
     _pir(hass, True)
-    hub, _room = await _setup(hass, {"residents": ["person.antje"], "zone": "zone.home", "away_delay": 10}, presence_sensors=[PIR])
+    hub, _room = await _setup(hass, {"residents": ["person.b"], "zone": "zone.home", "away_delay": 10}, presence_sensors=[PIR])
     h = hub.runtime_data
     await _later(hass, freezer, 15)
     assert h.sensed == []
@@ -117,9 +117,9 @@ async def test_pir_does_not_count_for_home_by_default(hass: HomeAssistant, trv: 
 
 async def test_vacation_ignores_sensors(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
     hass.states.async_set("zone.home", "0", {"latitude": 52.5, "longitude": 13.4, "radius": 100})
-    hass.states.async_set("person.antje", "not_home", {"device_trackers": []})
+    hass.states.async_set("person.b", "not_home", {"device_trackers": []})
     _radar(hass, True)
-    hub, _room = await _setup(hass, {"residents": ["person.antje"], "zone": "zone.home"}, presence_sensors=[RADAR])
+    hub, _room = await _setup(hass, {"residents": ["person.b"], "zone": "zone.home"}, presence_sensors=[RADAR])
     h = hub.runtime_data
     h.set_vacation(True)
     await hass.async_block_till_done()

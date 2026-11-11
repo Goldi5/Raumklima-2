@@ -156,7 +156,7 @@ class HealthMixin:
             """Streng: nur ein **bekannter**, gleicher Bereich zählt.
 
             Nötig für die Namens-Heuristik: ein Sensor ohne Bereich aus einer anderen Wohnung
-            („Finja Berlin Küche“) passte sonst auf den Raum „Finja“ in Remscheid – dessen
+            („Haus A Küche“) passte sonst auf den Raum „Haus A“ in einer anderen Wohnung – dessen
             Bericht zeigte dann fremde Ventilwerte.
             """
             return bool(trv_area) and area_of(entry) == trv_area

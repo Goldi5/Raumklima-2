@@ -13,7 +13,7 @@ _UMLAUTE = {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}
 
 
 def slug(text: str) -> str:
-    """Name oder Dienst-Kürzel vergleichbar machen ('Christian Müller' → 'christian_mueller')."""
+    """Name oder Dienst-Kürzel vergleichbar machen ('Person A' → 'person_a')."""
     out = []
     for ch in str(text).lower():
         if ch in _UMLAUTE:
@@ -26,7 +26,7 @@ def slug(text: str) -> str:
 
 
 def person_for(target: str, persons: dict[str, dict[str, Any]]) -> str | None:
-    """notify-Dienst einer Person zuordnen (notify.christian → person.christian)."""
+    """notify-Dienst einer Person zuordnen (notify.a → person.a)."""
     name = target.split(".", 1)[-1].removeprefix("mobile_app_")
     key_slug = slug(name)
     for entity_id, info in persons.items():

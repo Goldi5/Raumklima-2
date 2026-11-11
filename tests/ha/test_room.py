@@ -797,7 +797,7 @@ async def test_home_location_overrides_hass_location(hass: HomeAssistant, setup,
 
     hub.config[CONF_LATITUDE] = 52.51
     hub.config[CONF_LONGITUDE] = 13.40
-    assert hub.sun_location == (52.51, 13.40)  # Berlin statt Remscheid
+    assert hub.sun_location == (52.51, 13.40)  # Sonnenstand der Wohnung, nicht der Zentrale
 
     # 0/0 gilt nicht als Standort → Rückfall auf Home Assistant
     hub.config[CONF_LATITUDE] = 0.0
@@ -1405,10 +1405,10 @@ async def test_manual_change_overrides_schedule_for_a_while(hass: HomeAssistant,
 
 
 async def test_ventilsensor_aus_anderer_wohnung_wird_nicht_genommen(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
-    """Zwei Wohnungen in einer Installation: „Finja“ darf nicht den Sensor aus „Finja Berlin“ erben.
+    """Zwei Wohnungen in einer Installation: „Haus A“ darf nicht den Sensor aus „Haus A Nord“ erben.
 
-    Beide RWE-Thermostate (VRCC) melden keine Ventilstellung. Der Namensstamm „Finja“ passte aber
-    auf ein Gerät der anderen Wohnung („Finja Berlin - Wohnzimmer Thermostat“) – deshalb zeigte
+    Beide RWE-Thermostate (VRCC) melden keine Ventilstellung. Der Namensstamm „Haus A“ passte aber
+    auf ein Gerät der anderen Wohnung („Haus A Nord - Wohnzimmer Thermostat“) – deshalb zeigte
     genau ein Raum einen fremden Wert. Jetzt entscheidet der Bereich mit.
     """
     from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er
@@ -1421,11 +1421,11 @@ async def test_ventilsensor_aus_anderer_wohnung_wird_nicht_genommen(hass: HomeAs
     devs = dr.async_get(hass)
     regs = er.async_get(hass)
 
-    eigen = areas.async_create("Finja")
-    fremd = areas.async_create("Finja Berlin")
+    eigen = areas.async_create("Haus A")
+    fremd = areas.async_create("Haus A Nord")
 
     trv_dev = devs.async_get_or_create(
-        config_entry_id=room.entry_id, identifiers={("demo", "vrcc-finja")}, name="Finja", suggested_area="Finja"
+        config_entry_id=room.entry_id, identifiers={("demo", "vrcc-a")}, name="Haus A", suggested_area="Haus A"
     )
     devs.async_update_device(trv_dev.id, area_id=eigen.id)
     regs.async_get_or_create("climate", "demo", "vrcc-c", suggested_object_id="finja", device_id=trv_dev.id)
@@ -1433,7 +1433,7 @@ async def test_ventilsensor_aus_anderer_wohnung_wird_nicht_genommen(hass: HomeAs
     fremd_dev = devs.async_get_or_create(
         config_entry_id=room.entry_id,
         identifiers={("demo", "berlin-wz")},
-        name="Finja Berlin - Wohnzimmer Thermostat",
+        name="Haus A Nord - Wohnzimmer Thermostat",
     )
     devs.async_update_device(fremd_dev.id, area_id=fremd.id)
     regs.async_get_or_create("climate", "demo", "berlin-c", suggested_object_id="finja_berlin_wz", device_id=fremd_dev.id)

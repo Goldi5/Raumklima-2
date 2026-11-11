@@ -68,11 +68,11 @@ async def test_away_message_names_home_only_with_several_homes(hass: HomeAssista
     hub = hub_cfg.runtime_data
     assert hub._where() == ""
     second = MockConfigEntry(
-        domain="raumklima", title="Remscheid", unique_id="raumklima_home_remscheid",
-        data={"entry_type": "hub"}, options={"name": "Remscheid", "season_mode": "always"},
+        domain="raumklima", title="Wohnung B", unique_id="raumklima_home_b",
+        data={"entry_type": "hub"}, options={"name": "Wohnung B", "season_mode": "always"},
     )
     second.add_to_hass(hass)
     assert await hass.config_entries.async_setup(second.entry_id)
     await hass.async_block_till_done()
     assert hub._where() == " in Allgemein"
-    assert second.runtime_data._where() == " in Remscheid"
+    assert second.runtime_data._where() == " in Wohnung B"

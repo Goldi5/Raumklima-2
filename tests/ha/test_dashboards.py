@@ -12,7 +12,7 @@ async def test_dashboards_befehl_listet_neue_dashboards(hass: HomeAssistant, set
     client = await hass_ws_client(hass)
 
     await client.send_json_auto_id(
-        {"type": "lovelace/dashboards/create", "url_path": "heizung-remscheid", "title": "Remscheid"}
+        {"type": "lovelace/dashboards/create", "url_path": "heizung-wohnung-b", "title": "Wohnung B"}
     )
     msg = await client.receive_json()
     assert msg["success"], msg
@@ -21,4 +21,4 @@ async def test_dashboards_befehl_listet_neue_dashboards(hass: HomeAssistant, set
     await client.send_json_auto_id({"type": "raumklima/dashboards"})
     msg = await client.receive_json()
     assert msg["success"], msg
-    assert "heizung-remscheid" in msg["result"]["dashboards"]
+    assert "heizung-wohnung-b" in msg["result"]["dashboards"]

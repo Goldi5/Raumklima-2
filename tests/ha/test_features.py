@@ -45,8 +45,8 @@ async def test_co2_asks_to_air(hass: HomeAssistant, trv: FakeTrv, sensors) -> No
 async def test_calendar_vacation_and_homeoffice(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
     hass.states.async_set("calendar.familie", "off", {"message": ""})
     hass.states.async_set("zone.home", "0", {"latitude": 52.5, "longitude": 13.4, "radius": 100})
-    hass.states.async_set("person.antje", "not_home", {"device_trackers": []})
-    hub, _room = await _setup(hass, {"calendar_entity": "calendar.familie", "residents": ["person.antje"], "zone": "zone.home"})
+    hass.states.async_set("person.b", "not_home", {"device_trackers": []})
+    hub, _room = await _setup(hass, {"calendar_entity": "calendar.familie", "residents": ["person.b"], "zone": "zone.home"})
     h = hub.runtime_data
     h.last_present = dt_util.utcnow() - timedelta(hours=1)
 
@@ -145,7 +145,7 @@ def test_dashboard_slug() -> None:
     """Standard-Dashboardpfad einer Wohnung (auch für das automatische Anlegen)."""
     from custom_components.raumklima.hub import dashboard_slug
 
-    assert dashboard_slug("Remscheid") == "heizung-remscheid"
+    assert dashboard_slug("Wohnung B") == "heizung-wohnung-b"
     assert dashboard_slug("Allgemein") == "heizung"
     assert dashboard_slug("Ferien Wohnung") == "heizung-ferien-wohnung"
     assert dashboard_slug("Größe") == "heizung-groesse"

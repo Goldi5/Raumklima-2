@@ -158,8 +158,8 @@ class SeasonMixin:
     def sun_location(self) -> tuple[float, float]:
         """Standort der Wohnung: eigene Koordinaten, sonst die von Home Assistant.
 
-        Wichtig, wenn eine Wohnung fern überwacht wird (Home Assistant in Remscheid, Wohnung in
-        Berlin): der Sonnenstand hängt am Ort der Wohnung, nicht am Ort der Zentrale.
+        Wichtig, wenn eine Wohnung fern überwacht wird (Zentrale an einem Ort, Wohnung an einem
+        anderen): der Sonnenstand hängt am Ort der Wohnung, nicht am Ort der Zentrale.
         """
         lat, lon = self.opt(CONF_LATITUDE), self.opt(CONF_LONGITUDE)
         if location_known(lat, lon):

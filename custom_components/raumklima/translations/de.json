@@ -218,7 +218,7 @@
           "notify_on_failure": "Benachrichtigen, wenn das TRV nicht reagiert"
         },
         "data_description": {
-          "push_targets": "z. B. notify.christian. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
+          "push_targets": "z. B. notify.a. iPhone-Nachrichten bekommen Knöpfe: Erledigt, In 15 min erinnern, Heute nicht mehr.",
           "tts_targets_hub": "Alexa-Ansage nur bei „Raum kühlt aus“ oder nach mehreren Erinnerungen, nie in der Ruhezeit.",
           "quiet_start": "In der Ruhezeit nur stille Push-Nachrichten, keine Ansagen (Ausnahme: Raum kühlt aus).",
           "weather_entity": "Für Lüftdauer, Heizgrenze und Schimmelschutz.",

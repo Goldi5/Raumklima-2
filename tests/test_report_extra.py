@@ -124,5 +124,5 @@ def test_full_report_renders_all_sections():
             assert data["co2"]["Schlafzimmer"]["high_h"] > 0
             if kind == "season":
                 assert data["highlights"]
-            pdf = render(data, "Berlin", datetime(2026, 11, 1, 18))
+            pdf = render(data, "Wohnung A", datetime(2026, 11, 1, 18))
             assert pdf[:4] == b"%PDF"

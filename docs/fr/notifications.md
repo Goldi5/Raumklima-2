@@ -11,14 +11,14 @@ Sous **Réglages → Général → Qui reçoit quoi**, vous choisissez pour chaq
 | 🥶 La pièce se refroidit | en dessous de la température minimale ou refroidissement trop important | push + voix |
 | ✅ Air renouvelé | humidité de nouveau sous la limite (et CO₂ sous 800 ppm) | push, silencieux |
 | 🚪 Fenêtre ouverte, personne à la maison | fenêtre ouverte > 2 min, tous les habitants absents | push |
-| 🏠 Absence et préchauffage | tout le monde absent, absence prolongée, « Antje arrive – préchauffage », retour | désactivé |
+| 🏠 Absence et préchauffage | tout le monde absent, absence prolongée, « quelqu’un arrive – préchauffage », retour | désactivé |
 | 🍂 Début/fin de la saison de chauffage | la saison de chauffage commence, pause de chauffage, coup de froid | push |
 | ⚠️ Thermostat ne répond pas | commande non confirmée après toutes les tentatives | push + notification HA |
 | 🩺 Contrôle de santé du chauffage | pile faible, la pièce ne chauffe pas malgré une vanne ouverte, sonde bloquée, radio instable, contact de fenêtre muet – au plus une fois par jour et par problème | push, silencieux |
 | 📊 Rapport hebdomadaire | dimanches 18:00 : heures de chauffage, comparaison ajustée à la météo, abaissement, pièces trop humides – avec un **PDF** (ainsi que le mois le 1er et le bilan de saison), voir [Rapports PDF](utilisation.md#rapports-pdf) | push, silencieux |
 | 📱 Compte à rebours d’aération sur l’écran verrouillé | fenêtre ouverte pour aérer – voir [ci-dessous](#compte-a-rebours-daeration-sur-lecran-verrouille) | désactivé, application uniquement |
 
-Les **destinataires** sont des services `notify`, par ex. `notify.mobile_app_iphone` ou votre propre service comme `notify.christian`. **Tester** envoie un message d’exemple.
+Les **destinataires** sont des services `notify`, par ex. `notify.mobile_app_iphone` ou votre propre service comme `notify.a`. **Tester** envoie un message d’exemple.
 
 > Les textes des messages suivent la langue du système Home Assistant (*Réglages → Système → Général*) : allemand, français, sinon anglais.
 

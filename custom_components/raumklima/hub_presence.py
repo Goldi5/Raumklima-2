@@ -416,7 +416,7 @@ class PresenceMixin:
             self.notify(KIND_PRESENCE, tr("👋 Willkommen"), tr("Räume heizen wieder auf Wunschtemperatur."))
 
     def _where(self) -> str:
-        """„ in Berlin“ – nur wenn es mehrere Wohnungen gibt."""
+        """„ in <Wohnung>“ – nur wenn es mehrere Wohnungen gibt."""
         return tr(" in {name}", name=self.name) if len(all_hubs(self.hass)) > 1 else ""
 
     @property

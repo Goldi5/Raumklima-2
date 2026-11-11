@@ -287,7 +287,7 @@ class TrackerFilter:
     """Sprung- und Genauigkeitsfilter für einen Tracker.
 
     Verwirft Ortungen, die eine unmögliche Geschwindigkeit bedeuten würden
-    (z. B. Berlin → Remscheid in Minuten durch einen VPN-Ausreißer). Bleibt ein
+    (z. B. ein Sprung zwischen zwei Wohnungen in Minuten durch einen VPN-Ausreißer). Bleibt ein
     „Sprung“ länger als `confirm_minutes` bestehen, wird er übernommen (echte Reise).
     """
 

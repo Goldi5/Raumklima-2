@@ -133,7 +133,7 @@ async def test_new_home_starts_empty(hass: HomeAssistant, setup, hass_ws_client)
     from custom_components.raumklima.shared import get_hub
 
     hub = get_hub(hass, None)
-    hub.config["recipients"] = {"notify.christian": ["too_cold"]}
+    hub.config["recipients"] = {"notify.a": ["too_cold"]}
     hub.config["weather_entity"] = "weather.berlin"
     client = await hass_ws_client(hass)
     await client.send_json_auto_id({"type": "raumklima/home/create", "name": "Ferienwohnung"})

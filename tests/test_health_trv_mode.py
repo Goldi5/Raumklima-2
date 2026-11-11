@@ -77,8 +77,8 @@ def test_auto_ist_ok_wenn_wir_comfort_temperature_schreiben() -> None:
 
 def test_missing_notify_target_is_reported() -> None:
     """Eingerichteter Empfänger, den es nicht mehr gibt (Issue: Meldungen liefen ins Leere)."""
-    issue = check_notify_targets(["notify.christian"])
+    issue = check_notify_targets(["notify.a"])
     assert issue is not None
     assert issue.code == "notify_targets"
-    assert "notify.christian" in issue.message
+    assert "notify.a" in issue.message
     assert check_notify_targets([]) is None

@@ -7,7 +7,7 @@ const hass = (panelUrl) => ({
   panelUrl,
   states: {
     "switch.a": { attributes: { home_id: "A", home_name: "Allgemein", home_dashboard: "" } },
-    "switch.r": { attributes: { home_id: "R", home_name: "Remscheid", home_dashboard: "heizung-remscheid" } },
+    "switch.r": { attributes: { home_id: "R", home_name: "Osthaus", home_dashboard: "heizung-osthaus" } },
   },
   entities: {
     "switch.a": { platform: "raumklima", translation_key: "presence", entity_id: "switch.a", device_id: "d1" },
@@ -16,15 +16,15 @@ const hass = (panelUrl) => ({
 });
 
 test("ohne home zeigt die Karte alle Räume", () => {
-  assert.equal(rkHomeId(hass("/heizung-berlin"), {}), null);
+  assert.equal(rkHomeId(hass("/heizung-nordhaus"), {}), null);
 });
 
 test("Wohnungsname in beliebiger Schreibweise", () => {
-  assert.equal(rkHomeId(hass("/heizung-berlin"), { home: "remscheid" }), "R");
-  assert.equal(rkHomeId(hass("/"), { home: "Remscheid" }), "R");
+  assert.equal(rkHomeId(hass("/heizung-nordhaus"), { home: "osthaus" }), "R");
+  assert.equal(rkHomeId(hass("/"), { home: "Osthaus" }), "R");
 });
 
 test("Dashboard-Pfad erkennt die Wohnung", () => {
-  assert.equal(rkHomeId(hass("/heizung-remscheid"), {}), "R");
-  assert.equal(rkHomeId(hass("/heizung-remscheid/raeume"), {}), "R");
+  assert.equal(rkHomeId(hass("/heizung-osthaus"), {}), "R");
+  assert.equal(rkHomeId(hass("/heizung-osthaus/raeume"), {}), "R");
 });

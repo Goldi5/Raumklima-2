@@ -93,7 +93,7 @@ Probleme erscheinen im Bericht, unter *Einstellungen → Allgemein → Gesundhei
 Hier steht live jede Entscheidung mit Begründung, z. B.:
 
 - *Anwesenheit: jemand da → kurz weg* – warum: wer wie weit weg ist, seit wann niemand da ist.
-- *Ortung von Christian ignoriert* – Sprung auf 431 km, zu schnell für echte Bewegung (VPN).
+- *Ortung einer Person ignoriert* – Sprung auf 431 km, zu schnell für echte Bewegung (VPN).
 - *Wohnzimmer: Ziel 18,0 °C* – alle weg, Absenkung „kurz weg“.
 - *Heizbetrieb: Heizen → Heizpause* – mit den Außen-Mittelwerten und der Heizgrenze.
 - *Gästezimmer: Fenster auf – Nachtlüften* – Schlafraum, im Zeitfenster, jemand da.

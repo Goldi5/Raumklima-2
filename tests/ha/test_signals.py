@@ -17,7 +17,7 @@ from .conftest import WINDOW, FakeTrv
 from .test_features import _setup
 
 LAMP = "light.bad_spiegel"
-PHONE = "notify.mobile_app_antje"
+PHONE = "notify.mobile_app_b"
 
 
 @pytest.fixture(autouse=True)
@@ -146,7 +146,7 @@ async def test_websocket_lights_live_and_test(
 
 # ------------------------------------------------------------------ Live-Aktivität
 async def test_live_countdown_starts_and_ends(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
-    calls = async_mock_service(hass, "notify", "mobile_app_antje")
+    calls = async_mock_service(hass, "notify", "mobile_app_b")
     _hub, room = await _setup(hass, {"recipients": {PHONE: ["live"]}})
     vent = room.runtime_data.vent
 
@@ -169,7 +169,7 @@ async def test_live_countdown_starts_and_ends(hass: HomeAssistant, trv: FakeTrv,
 
 
 async def test_live_countdown_only_when_chosen(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
-    calls = async_mock_service(hass, "notify", "mobile_app_antje")
+    calls = async_mock_service(hass, "notify", "mobile_app_b")
     _hub, room = await _setup(hass, {"recipients": {PHONE: ["vent_open"]}})
     hass.states.async_set(WINDOW, "on", {"device_class": "window"})
     await hass.async_block_till_done()
@@ -182,7 +182,7 @@ async def test_live_link_only_when_dashboard_exists(hass: HomeAssistant, trv: Fa
     """Kein Deep-Link auf ein Dashboard, das es nicht gibt – sonst landet man woanders."""
     from types import SimpleNamespace
 
-    calls = async_mock_service(hass, "notify", "mobile_app_antje")
+    calls = async_mock_service(hass, "notify", "mobile_app_b")
     ld = hass.data.get("lovelace")
     if ld is not None and hasattr(ld, "dashboards"):
         ld.dashboards.pop("gibt-es-nicht", None)

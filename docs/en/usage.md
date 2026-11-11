@@ -95,7 +95,7 @@ Problems appear in the report, under *Settings → General → Heating health*, 
 Every decision appears here live with its reason, for example:
 
 - *Presence: someone home → briefly away* – why: who is how far away, since when nobody is home.
-- *Location of Christian ignored* – jump to 431 km, too fast for real movement (VPN).
+- *Location of a person ignored* – jump to 431 km, too fast for real movement (VPN).
 - *Living room: target 18.0 °C* – everyone away, setback “briefly away”.
 - *Heating mode: heating → paused* – with the outdoor means and the heating limit.
 - *Guest room: window open – night airing* – bedroom, within the time window, someone home.

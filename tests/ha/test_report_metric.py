@@ -1,6 +1,6 @@
 """Bericht ohne Ventilstellung: Gradstunden statt geratener Öffnung.
 
-Hintergrund: Livisi-VRCC-Thermostate (Remscheid) melden keine Ventilstellung. Der Bericht
+Hintergrund: Livisi-VRCC-Thermostate (zweite Wohnung) melden keine Ventilstellung. Der Bericht
 zeigte dadurch leere Balken – und einen einzigen, der aus einer fremden Wohnung stammte.
 """
 

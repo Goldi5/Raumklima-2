@@ -96,11 +96,11 @@ async def test_notify_targets_are_services_not_entities(hass: HomeAssistant, set
     """`notify.*` ist ein Dienst – er darf nicht als fehlende Entität auftauchen."""
     hub, _room = setup
     hass.config_entries.async_update_entry(
-        hub, options={**hub.options, "recipients": {"notify.christian": ["health"]}}
+        hub, options={**hub.options, "recipients": {"notify.a": ["health"]}}
     )
     await hass.async_block_till_done()
 
     data = await async_get_config_entry_diagnostics(hass, hub)
-    assert "notify.christian" in data["services"]
-    assert data["services"]["notify.christian"]["exists"] is False  # im Test gibt es den Dienst nicht
-    assert "notify.christian" not in data["rooms"][0]["unavailable"]
+    assert "notify.a" in data["services"]
+    assert data["services"]["notify.a"]["exists"] is False  # im Test gibt es den Dienst nicht
+    assert "notify.a" not in data["rooms"][0]["unavailable"]

@@ -21,9 +21,9 @@ def _zone(hass: HomeAssistant) -> None:
 async def test_handy_ohne_koordinaten_meldet_sich_zu_wort(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
     """Kein Handy meldet einen Standort → verständlicher Hinweis statt stiller Absenkung."""
     _zone(hass)
-    hass.states.async_set("person.antje", "not_home", {"device_trackers": ["device_tracker.handy"]})
+    hass.states.async_set("person.b", "not_home", {"device_trackers": ["device_tracker.handy"]})
     hass.states.async_set("device_tracker.handy", "not_home")  # ohne Koordinaten
-    hub, _room = await _setup(hass, {CONF_RESIDENTS: ["person.antje"], CONF_ZONE: "zone.home"})
+    hub, _room = await _setup(hass, {CONF_RESIDENTS: ["person.b"], CONF_ZONE: "zone.home"})
     live = get_hub(hass, None)
     assert hub is not None
 

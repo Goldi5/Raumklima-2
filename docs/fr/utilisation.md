@@ -95,7 +95,7 @@ Les problèmes apparaissent dans le rapport, sous *Réglages → Général → S
 Chaque décision apparaît ici en direct avec sa raison, par exemple :
 
 - *Présence : quelqu’un à la maison → brièvement absent* – pourquoi : qui est à quelle distance, depuis quand personne n’est à la maison.
-- *Position de Christian ignorée* – saut de 431 km, trop rapide pour un déplacement réel (VPN).
+- *Position d’une personne ignorée* – saut de 431 km, trop rapide pour un déplacement réel (VPN).
 - *Salon : consigne 18,0 °C* – tout le monde absent, abaissement « brièvement absent ».
 - *Mode de chauffage : chauffage → pause* – avec les moyennes extérieures et la limite de chauffage.
 - *Chambre d’amis : fenêtre ouverte – aération nocturne* – chambre à coucher, dans la plage horaire, quelqu’un à la maison.

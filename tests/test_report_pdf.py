@@ -53,7 +53,7 @@ def test_render_pdf_de_en_and_empty():
     rooms, home = _data()
     for lang in ("de", "en", "fr"):
         for kind, start in (("week", TODAY - timedelta(days=6)), ("month", date(2026, 10, 1)), ("season", date(2026, 10, 1))):
-            pdf = render(build(rooms, home, kind, start, TODAY, [], lang), "Berlin", datetime(2026, 11, 1, 18))
+            pdf = render(build(rooms, home, kind, start, TODAY, [], lang), "Wohnung A", datetime(2026, 11, 1, 18))
             assert pdf[:4] == b"%PDF" and len(pdf) > 3000
     empty = render(build({}, {}, "week", TODAY - timedelta(days=6), TODAY, [], "de"), "", datetime(2026, 11, 1))
     assert empty[:4] == b"%PDF"

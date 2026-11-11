@@ -1,6 +1,6 @@
 // Kopfzeile der Raumkarte: Name kürzt, Fenstersymbol und Boost bleiben stehen.
 // Ohne diese Regeln schob ein langer Raumname den Status und den Boost-Knopf aus der Zeile
-// (Bild aus Remscheid: „Sportzimmer“ mit zweizeiligem Status).
+// (Bild aus einer Wohnung: „Sportzimmer“ mit zweizeiligem Status).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";

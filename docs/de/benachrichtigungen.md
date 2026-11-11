@@ -11,14 +11,14 @@ Unter **Einstellungen → Allgemein → Wer bekommt was** wählst du für jeden 
 | 🥶 Raum kühlt aus | unter Mindesttemperatur oder zu stark abgekühlt | Push + Sprache |
 | ✅ Luft ausgetauscht | Feuchte wieder unter der Grenze (und CO₂ unter 800 ppm) | Push, leise |
 | 🚪 Fenster offen, niemand da | Fenster > 2 min offen, alle Bewohner weg | Push |
-| 🏠 Abwesenheit & Vorheizen | alle weg, länger weg, „Antje kommt – heize vor“, Willkommen | aus |
+| 🏠 Abwesenheit & Vorheizen | alle weg, länger weg, „jemand kommt – heize vor“, Willkommen | aus |
 | 🍂 Heizsaison Start/Ende | Heizsaison beginnt, Heizpause, Kälteeinbruch | Push |
 | ⚠️ Thermostat reagiert nicht | Befehl nach allen Wiederholungen nicht bestätigt | Push + HA-Glocke |
 | 🩺 Gesundheit der Heizung | Batterie schwach, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funk wackelt, Fensterkontakt still – höchstens einmal pro Tag je Problem | Push, leise |
 | 📊 Wochenbericht | sonntags 18 Uhr: Heizstunden, wetterbereinigter Vergleich, Absenkung, zu feuchte Räume – mit **PDF** (auch Monat am 1. und Saison-Bilanz), siehe [PDF-Berichte](bedienung.md#pdf-berichte) | Push, leise |
 | 📱 Lüft-Countdown auf dem Sperrbildschirm | Fenster zum Lüften offen – siehe [unten](#lüft-countdown-auf-dem-sperrbildschirm) | aus, nur Handy-App |
 
-**Empfänger** sind `notify`-Dienste, z. B. `notify.mobile_app_iphone` oder ein eigener Dienst wie `notify.christian`. Mit **Test** schickst du eine Probenachricht.
+**Empfänger** sind `notify`-Dienste, z. B. `notify.mobile_app_iphone` oder ein eigener Dienst wie `notify.a`. Mit **Test** schickst du eine Probenachricht.
 
 ## Schlafenszeiten lernen
 

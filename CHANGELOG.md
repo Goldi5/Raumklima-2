@@ -1,8 +1,12 @@
+## 0.62.35b1 – 2026-11-11
+
+- **Namen raus**: Changelog, Handbuch und Beispiele arbeiten ohne Personennamen — „Person A/B“, „Haus A“, „Wohnung A/B“. Auch Tests und Kommentare im Code sind neutral. Keine Verhaltensänderung.
+
 ## 0.62.34b1 – 2026-11-11
 
 - **Nachtruhe über Entität**: Ein vorhandener HA-Schalter (`input_boolean`, `switch`, `binary_sensor`) schaltet die Nachtruhe mit — an = Absenkung gilt, aus = normaler Zeitplan. Der eingebaute Schalter bleibt zusätzlich nutzbar, es ist keine Automation mehr nötig.
 - **Homeoffice über Entität**: derselbe Weg für Homeoffice. Gilt wie der eingebaute Schalter, also ohne Anwesenheitsprüfung — gedacht für Wandtaster oder eine Dashboard-Kachel.
-- **Bei Anwesenheit** (je Raum): Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, mit Antje am Schreibtisch 21 °C. 0 °C = aus; danach gilt wieder Zeitplan bzw. Absenkung. Verschwindet die Meldung, läuft nach der normalen Haltezeit wieder der Plan.
+- **Bei Anwesenheit** (je Raum): Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, sobald jemand im Raum ist 21 °C. 0 °C = aus; danach gilt wieder Zeitplan bzw. Absenkung. Verschwindet die Meldung, läuft nach der normalen Haltezeit wieder der Plan.
 
 ## 0.62.33b1 – 2026-11-11
 

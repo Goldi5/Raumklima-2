@@ -35,7 +35,7 @@ RENOTIFY = timedelta(hours=24)
 
 
 def shorten_names(names: list[str]) -> dict[str, str]:
-    """Gemeinsamen Wort-Präfix entfernen („Finja Berlin Bad“ → „Bad“)."""
+    """Gemeinsamen Wort-Präfix entfernen („Haus A Bad“ → „Bad“)."""
     if len(names) < 2:
         return {n: n for n in names}
     words = [n.split() for n in names]

@@ -121,6 +121,6 @@ async def test_benutzername_landet_im_protokoll(hass: HomeAssistant, setup) -> N
     ctrl = domain_data(hass)["rooms"][room.entry_id]
     ctrl.target_temp = 20.0
     hub = get_hub(hass, None)
-    await ctrl.async_set_target(21.0, by="Antje")
+    await ctrl.async_set_target(21.0, by="Alex")
     texte = [str(e.get("why") or "") for e in hub.log.entries]
-    assert any("Antje" in t for t in texte), texte[-3:]
+    assert any("Alex" in t for t in texte), texte[-3:]

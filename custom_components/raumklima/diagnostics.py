@@ -53,7 +53,7 @@ def _iso(value: Any) -> str | None:
 
 
 def _service_ids_from(value: Any) -> list[str]:
-    """Dienste wie notify.christian aus einem Konfigurationswert ziehen."""
+    """Dienste wie notify.a aus einem Konfigurationswert ziehen."""
     out: list[str] = []
     if isinstance(value, str):
         if _ENTITY_RE.match(value) and value.split(".", 1)[0] in _SERVICE_DOMAINS:
