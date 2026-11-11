@@ -1,4 +1,4 @@
-/* Raumklima 0.62.35b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.36b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -934,7 +934,9 @@
     "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "HA switch that also turns on night mode – the built-in switch stays",
     "Homeoffice über Entität": "Home office via entity",
     "Nachtruhe über Entität": "Night mode via entity",
-    "so warm, solange ein Melder jemanden im Raum sieht": "this warm while a sensor sees someone in the room"
+    "so warm, solange ein Melder jemanden im Raum sieht": "this warm while a sensor sees someone in the room",
+    "… Homeoffice / zu Hause": "… home office / at home",
+    "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "comma-separated, free choice; an event with this word turns home office on and lowers nothing"
   };
 
   // src/i18n/fr.js
@@ -1871,7 +1873,9 @@
     "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "Interrupteur HA qui active aussi le mode nuit – l’interrupteur interne reste",
     "Homeoffice über Entität": "Télétravail via entité",
     "Nachtruhe über Entität": "Mode nuit via entité",
-    "so warm, solange ein Melder jemanden im Raum sieht": "cette température tant qu’un capteur voit quelqu’un dans la pièce"
+    "so warm, solange ein Melder jemanden im Raum sieht": "cette température tant qu’un capteur voit quelqu’un dans la pièce",
+    "… Homeoffice / zu Hause": "… télétravail / à la maison",
+    "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "séparés par des virgules, choix libre ; un rendez-vous avec ce mot active le télétravail et n’abaisse rien"
   };
 
   // src/i18n.js
@@ -1915,7 +1919,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.35b1";
+  var RK_VERSION = "0.62.36b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -3872,10 +3876,10 @@
       "Words in the event title that mean “travelling”, separated by commas. Case doesn't matter.",
       "Mots du titre d’un événement qui signifient « en voyage », séparés par des virgules. Majuscules/minuscules indifférentes."
     ],
-    "… jemand bleibt zu Hause": [
-      "Wörter im Termintitel, bei denen nicht abgesenkt werden soll, z. B. Homeoffice – auch wenn das Handy kurz woanders ist.",
-      "Words in the event title for which nothing should be lowered, e.g. home office – even if the phone is briefly elsewhere.",
-      "Mots du titre d’un événement pour lesquels il ne faut pas abaisser, p. ex. télétravail – même si le téléphone est brièvement ailleurs."
+    "… Homeoffice / zu Hause": [
+      "Frei wählbare Wörter im Termintitel (Komma-getrennt) – „Homeoffice“ ist nur der Vorschlag. Ein laufender Termin mit einem dieser Wörter schaltet Homeoffice ein und senkt nicht ab, auch wenn das Handy kurz woanders ist.",
+      "Freely chosen words in the event title (comma-separated) – “home office” is only the default. A running event containing one of them turns home office on and lowers nothing, even if the phone is briefly elsewhere.",
+      "Mots librement choisis dans le titre de l’événement (séparés par des virgules) – « télétravail » n’est qu’une proposition. Un rendez-vous en cours contenant un de ces mots active le télétravail et n’abaisse rien, même si le téléphone est brièvement ailleurs."
     ],
     "Betriebsart": [
       "Automatisch: geheizt wird nur, wenn es draußen kalt genug ist (Heizgrenze, Heizsaison, Kälteeinbruch). Immer heizen: ganzjährig. Heizpause: nie – außer ein Raum fällt unter die Sicherung.",
@@ -4935,7 +4939,7 @@
           st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"
         ),
         this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
-        this._hubOpt("calendar_entity") ? this._row("… jemand bleibt zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; dann wird nicht abgesenkt") : ""
+        this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : ""
       ].join("");
       const mode = this._hubOpt("season_mode");
       const mdToInput = (v) => v && /^\d{2}-\d{2}$/.test(v) ? `2000-${v}` : "";

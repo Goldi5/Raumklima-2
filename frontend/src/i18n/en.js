@@ -936,4 +936,6 @@ export const EN = {
   "Homeoffice über Entität": "Home office via entity",
   "Nachtruhe über Entität": "Night mode via entity",
   "so warm, solange ein Melder jemanden im Raum sieht": "this warm while a sensor sees someone in the room",
+  "… Homeoffice / zu Hause": "… home office / at home",
+  "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "comma-separated, free choice; an event with this word turns home office on and lowers nothing",
 };

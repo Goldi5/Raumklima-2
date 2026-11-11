@@ -1,3 +1,7 @@
+## 0.62.36b1 – 2026-11-11
+
+- **Homeoffice-Wort frei wählbar**: Der Kalender braucht nicht „Homeoffice“ — die Wortliste in den Einstellungen („… Homeoffice / zu Hause“) ist frei editierbar, Komma-getrennt. Bisher hieß die Zeile nur „jemand bleibt zu Hause“, was nicht verriet, dass sie das Homeoffice steuert.
+
 ## 0.62.35b1 – 2026-11-11
 
 - **Namen raus**: Changelog, Handbuch und Beispiele arbeiten ohne Personennamen — „Person A/B“, „Haus A“, „Wohnung A/B“. Auch Tests und Kommentare im Code sind neutral. Keine Verhaltensänderung.

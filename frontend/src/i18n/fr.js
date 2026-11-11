@@ -936,4 +936,6 @@ export const FR = {
   "Homeoffice über Entität": "Télétravail via entité",
   "Nachtruhe über Entität": "Mode nuit via entité",
   "so warm, solange ein Melder jemanden im Raum sieht": "cette température tant qu’un capteur voit quelqu’un dans la pièce",
+  "… Homeoffice / zu Hause": "… télétravail / à la maison",
+  "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "séparés par des virgules, choix libre ; un rendez-vous avec ce mot active le télétravail et n’abaisse rien",
 };

@@ -72,10 +72,10 @@ export const HELP = {
     "Words in the event title that mean “travelling”, separated by commas. Case doesn't matter.",
     "Mots du titre d’un événement qui signifient « en voyage », séparés par des virgules. Majuscules/minuscules indifférentes.",
   ],
-  "… jemand bleibt zu Hause": [
-    "Wörter im Termintitel, bei denen nicht abgesenkt werden soll, z. B. Homeoffice – auch wenn das Handy kurz woanders ist.",
-    "Words in the event title for which nothing should be lowered, e.g. home office – even if the phone is briefly elsewhere.",
-    "Mots du titre d’un événement pour lesquels il ne faut pas abaisser, p. ex. télétravail – même si le téléphone est brièvement ailleurs.",
+  "… Homeoffice / zu Hause": [
+    "Frei wählbare Wörter im Termintitel (Komma-getrennt) – „Homeoffice“ ist nur der Vorschlag. Ein laufender Termin mit einem dieser Wörter schaltet Homeoffice ein und senkt nicht ab, auch wenn das Handy kurz woanders ist.",
+    "Freely chosen words in the event title (comma-separated) – “home office” is only the default. A running event containing one of them turns home office on and lowers nothing, even if the phone is briefly elsewhere.",
+    "Mots librement choisis dans le titre de l’événement (séparés par des virgules) – « télétravail » n’est qu’une proposition. Un rendez-vous en cours contenant un de ces mots active le télétravail et n’abaisse rien, même si le téléphone est brièvement ailleurs.",
   ],
   "Betriebsart": [
     "Automatisch: geheizt wird nur, wenn es draußen kalt genug ist (Heizgrenze, Heizsaison, Kälteeinbruch). Immer heizen: ganzjährig. Heizpause: nie – außer ein Raum fällt unter die Sicherung.",
