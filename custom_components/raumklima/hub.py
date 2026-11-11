@@ -26,6 +26,7 @@ from .const import (
     CONF_BUILDING,
     CONF_CALENDAR,
     CONF_FROST_FLOOR,
+    CONF_HOME_OFFICE_CHECK,
     CONF_HOME_OFFICE_FROM,
     CONF_HOME_OFFICE_ROOMS,
     CONF_HOME_OFFICE_TO,
@@ -190,8 +191,22 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
 
     @property
     def home_office_active(self) -> bool:
-        """Homeoffice läuft: Schalter an oder Kalendertermin, und gerade im Fenster."""
-        if not (self.home_office or self.calendar_mode == "home"):
+        """Homeoffice läuft: Schalter an oder Kalendertermin, und gerade im Fenster.
+
+        Aus dem Kalender gilt es nur, wenn jemand da ist — ein Termin allein reicht nicht
+        (man kann im Büro sitzen und den Termin trotzdem im Kalender haben). Der Schalter
+        dagegen wird bewusst gedrückt und gilt ohne Prüfung. Abschaltbar über
+        ``home_office_check``.
+        """
+        from_calendar = self.calendar_mode == "home"
+        if not (self.home_office or from_calendar):
+            return False
+        if (
+            from_calendar
+            and not self.home_office
+            and self.opt(CONF_HOME_OFFICE_CHECK)
+            and not self.someone_present()
+        ):
             return False
         start = _clock(self.opt(CONF_HOME_OFFICE_FROM), 8)
         end = _clock(self.opt(CONF_HOME_OFFICE_TO), 17)
@@ -201,6 +216,12 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         if start <= end:
             return start <= now < end
         return now >= start or now < end  # Fenster über Mitternacht
+
+    def someone_present(self) -> bool:
+        """Ist gerade jemand zu Hause? (Ortung, sonst Präsenzmelder)"""
+        if not self.presence_configured:
+            return True
+        return any(p.get("present") for p in self.persons.values()) or bool(self.sensed)
 
     def home_office_applies(self, entry_id: str) -> bool:
         """Gilt Homeoffice für diesen Raum? (leere Auswahl = alle Räume)"""

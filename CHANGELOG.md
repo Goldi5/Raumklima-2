@@ -1,3 +1,9 @@
+## 0.62.33b1 – 2026-11-11
+
+- **Homeoffice aus dem Kalender nur bei Anwesenheit**: Ein Termin allein schaltet nicht mehr, wenn niemand zu Hause ist — man kann im Büro sitzen und den Termin trotzdem im Kalender haben. Geprüft wird Ortung (Bewohner) und Präsenzmelder.
+- **Abschaltbar**: „Homeoffice nur wenn jemand da“ in den Einstellungen. Aus = der Kalender entscheidet allein.
+- **Der Schalter bleibt ohne Prüfung**: Wer „Homeoffice“ drückt, sitzt davor — spontan einschalten funktioniert weiterhin sofort.
+
 ## 0.62.32b1 – 2026-11-11
 
 - **Homeoffice** (Issue #10): Schalter plus Zeitfenster. Im Fenster (Standard 08:00–17:00) heizen die gewählten Räume auf Wunschtemperatur, der Zeitplan ist so lange ausgesetzt — danach läuft er unverändert weiter. Ein Kalendertermin mit „Homeoffice“ schaltet dasselbe automatisch, ohne dass jemand drückt.

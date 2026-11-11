@@ -595,6 +595,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
         (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
       ),
       this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
+      this._row("Homeoffice nur wenn jemand da", this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
+        "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"),
       (() => {
         const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: `${String(h).padStart(2, "0")}:00` }));
         const from = this._hubOpt("home_office_from") || "08:00";

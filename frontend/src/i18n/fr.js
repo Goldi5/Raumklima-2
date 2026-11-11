@@ -926,4 +926,6 @@ export const FR = {
   "keine Auswahl = alle Räume mit Thermostat": "aucune sélection = toutes les pièces avec thermostat",
   "nur diese Räume werden auf Wunsch geheizt": "seules ces pièces sont chauffées à la consigne",
   "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "pendant cette période, les pièces choisies chauffent à la consigne ; ensuite la plage horaire reprend",
+  "Homeoffice nur wenn jemand da": "Télétravail seulement si quelqu’un est là",
+  "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "s’applique aux rendez-vous du calendrier ; l’interrupteur chauffe même sans détection de présence",
 };

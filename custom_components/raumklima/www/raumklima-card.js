@@ -1,4 +1,4 @@
-/* Raumklima 0.62.32b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.33b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -924,7 +924,9 @@
     "im Fenster gilt der Wunsch, der Zeitplan pausiert": "during the window the wish applies, the schedule pauses",
     "keine Auswahl = alle Räume mit Thermostat": "no selection = all rooms with a thermostat",
     "nur diese Räume werden auf Wunsch geheizt": "only these rooms are heated to the wish",
-    "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "during this time the selected rooms heat to the wish; afterwards the schedule runs again"
+    "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "during this time the selected rooms heat to the wish; afterwards the schedule runs again",
+    "Homeoffice nur wenn jemand da": "Home office only when someone is home",
+    "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "applies to calendar events; the switch heats even without presence tracking"
   };
 
   // src/i18n/fr.js
@@ -1851,7 +1853,9 @@
     "im Fenster gilt der Wunsch, der Zeitplan pausiert": "pendant la plage, la consigne s’applique et la plage horaire est suspendue",
     "keine Auswahl = alle Räume mit Thermostat": "aucune sélection = toutes les pièces avec thermostat",
     "nur diese Räume werden auf Wunsch geheizt": "seules ces pièces sont chauffées à la consigne",
-    "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "pendant cette période, les pièces choisies chauffent à la consigne ; ensuite la plage horaire reprend"
+    "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "pendant cette période, les pièces choisies chauffent à la consigne ; ensuite la plage horaire reprend",
+    "Homeoffice nur wenn jemand da": "Télétravail seulement si quelqu’un est là",
+    "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "s’applique aux rendez-vous du calendrier ; l’interrupteur chauffe même sans détection de présence"
   };
 
   // src/i18n.js
@@ -1895,7 +1899,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.32b1";
+  var RK_VERSION = "0.62.33b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4015,6 +4019,11 @@
       "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",
       "Interrupteur pour les jours de télétravail. Pendant la plage définie, les pièces choisies chauffent à la consigne et la plage horaire est suspendue — ensuite elle reprend. Un rendez-vous contenant « télétravail » active la même chose automatiquement."
     ],
+    "Homeoffice nur wenn jemand da": [
+      "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",
+      "From the calendar, home office only applies when presence tracking sees someone at home — an event alone is not enough, you may be at the office. The “Home office” switch is pressed on purpose and heats without presence tracking. Turn this off if the calendar should decide alone.",
+      "Depuis le calendrier, le télétravail ne s’applique que si la détection voit quelqu’un à la maison — un rendez-vous seul ne suffit pas, on peut être au bureau. L’interrupteur « Télétravail » est actionné volontairement et chauffe sans détection. Désactiver si le calendrier doit décider seul."
+    ],
     "Homeoffice-Fenster": [
       "Von wann bis wann Homeoffice gilt. Außerhalb dieser Zeit verhält sich der Raum wie immer — der Zeitplan gilt.",
       "When home office applies. Outside this window the room behaves as usual — the schedule applies.",
@@ -4853,6 +4862,11 @@
           (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
         ),
         this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
+        this._row(
+          "Homeoffice nur wenn jemand da",
+          this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
+          "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"
+        ),
         (() => {
           const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: `${String(h).padStart(2, "0")}:00` }));
           const from = this._hubOpt("home_office_from") || "08:00";

@@ -926,4 +926,6 @@ export const EN = {
   "keine Auswahl = alle Räume mit Thermostat": "no selection = all rooms with a thermostat",
   "nur diese Räume werden auf Wunsch geheizt": "only these rooms are heated to the wish",
   "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "during this time the selected rooms heat to the wish; afterwards the schedule runs again",
+  "Homeoffice nur wenn jemand da": "Home office only when someone is home",
+  "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung": "applies to calendar events; the switch heats even without presence tracking",
 };

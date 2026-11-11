@@ -237,6 +237,11 @@ export const HELP = {
     "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",
     "Interrupteur pour les jours de télétravail. Pendant la plage définie, les pièces choisies chauffent à la consigne et la plage horaire est suspendue — ensuite elle reprend. Un rendez-vous contenant « télétravail » active la même chose automatiquement.",
   ],
+  "Homeoffice nur wenn jemand da": [
+    "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",
+    "From the calendar, home office only applies when presence tracking sees someone at home — an event alone is not enough, you may be at the office. The “Home office” switch is pressed on purpose and heats without presence tracking. Turn this off if the calendar should decide alone.",
+    "Depuis le calendrier, le télétravail ne s’applique que si la détection voit quelqu’un à la maison — un rendez-vous seul ne suffit pas, on peut être au bureau. L’interrupteur « Télétravail » est actionné volontairement et chauffe sans détection. Désactiver si le calendrier doit décider seul.",
+  ],
   "Homeoffice-Fenster": [
     "Von wann bis wann Homeoffice gilt. Außerhalb dieser Zeit verhält sich der Raum wie immer — der Zeitplan gilt.",
     "When home office applies. Outside this window the room behaves as usual — the schedule applies.",

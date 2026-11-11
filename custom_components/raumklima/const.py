@@ -148,6 +148,7 @@ CONF_VALVE_CARE: Final = "valve_care"
 CONF_HOME_OFFICE_FROM: Final = "home_office_from"  # Homeoffice-Fenster: von
 CONF_HOME_OFFICE_TO: Final = "home_office_to"  # Homeoffice-Fenster: bis
 CONF_HOME_OFFICE_ROOMS: Final = "home_office_rooms"  # Räume (leer = alle mit Thermostat)
+CONF_HOME_OFFICE_CHECK: Final = "home_office_check"  # Kalender-Homeoffice nur, wenn jemand da ist
 CONF_CALENDAR: Final = "calendar_entity"  # Termine wie „Urlaub“ / „Homeoffice“
 CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
@@ -284,6 +285,7 @@ HUB_DEFAULTS: Final = {
     CONF_HOME_OFFICE_FROM: "08:00",
     CONF_HOME_OFFICE_TO: "17:00",
     CONF_HOME_OFFICE_ROOMS: [],
+    CONF_HOME_OFFICE_CHECK: True,
     CONF_CALENDAR: None,
     CONF_CALENDAR_AWAY: "Urlaub, Reise, Dienstreise, verreist, vacation, trip",
     CONF_CALENDAR_HOME: "Homeoffice, Home-Office, zu Hause, home office, wfh",

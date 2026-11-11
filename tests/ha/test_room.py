@@ -387,6 +387,62 @@ async def test_homeoffice_fenster(hass: HomeAssistant, setup, trv: FakeTrv, free
     hub.set_home_office(False)
 
 
+async def test_homeoffice_kalender_nur_mit_anwesenheit(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Kalender-Homeoffice gilt nur mit Anwesenheit; der Schalter ohne Prüfung; Prüfung abschaltbar."""
+    from custom_components.raumklima.const import (
+        CONF_HOME_OFFICE_CHECK,
+        CONF_HOME_OFFICE_FROM,
+        CONF_HOME_OFFICE_ROOMS,
+        CONF_HOME_OFFICE_TO,
+        CONF_RESIDENTS,
+        CONF_SCHEDULES,
+        CONF_ZONE,
+    )
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    freezer.move_to("2026-06-15 17:00:00+00:00")  # 10:00 Ortszeit (US/Pacific)
+    hub = get_hub(hass, None)
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub.config[CONF_HOME_OFFICE_FROM] = "08:00"
+    hub.config[CONF_HOME_OFFICE_TO] = "17:00"
+    hub.config[CONF_HOME_OFFICE_ROOMS] = []
+    hub.config[CONF_HOME_OFFICE_CHECK] = True
+    ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": "18:00", "end": "22:00", "temperature": 24.0}]}
+    )
+    ctrl.target_temp = 21.0
+    await hass.async_block_till_done()
+
+    # Anwesenheit konfiguriert (Bewohner + Zone), aber niemand da
+    hub.config[CONF_RESIDENTS] = ["basti"]
+    hub.config[CONF_ZONE] = "home"
+    hub.persons = {"basti": {"present": False}}
+    hub.sensed = False
+    hub.calendar_mode = "home"
+
+    assert hub.home_office_active is False
+    assert ctrl.plan()[2] != "home_office"
+
+    # Person ist da → Kalender greift
+    hub.persons = {"basti": {"present": True}}
+    assert hub.home_office_active is True
+    assert ctrl.plan()[2] == "home_office"
+
+    # Prüfung aus → Kalender gilt auch ohne Anwesenheit
+    hub.persons = {"basti": {"present": False}}
+    hub.config[CONF_HOME_OFFICE_CHECK] = False
+    assert hub.home_office_active is True
+
+    # Schalter von Hand: gilt immer, auch mit Prüfung und ohne Anwesenheit
+    hub.config[CONF_HOME_OFFICE_CHECK] = True
+    hub.calendar_mode = None
+    hub.set_home_office(True)
+    assert hub.home_office_active is True
+    assert ctrl.plan()[2] == "home_office"
+    hub.set_home_office(False)
+
+
 async def test_quiet_time_sets_back_bedroom(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Ruhezeit senkt den Schlafraum ab, auch wenn jemand zu Hause ist (Schichtdienst)."""
     from datetime import timedelta
