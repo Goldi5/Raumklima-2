@@ -426,7 +426,12 @@ class PresenceMixin:
     @property
     def nobody_home(self) -> bool:
         """Niemand da (auch während der Wartezeit/beim Vorheizen)."""
-        if not self.presence_configured or self.guests or self.calendar_mode == CAL_HOME:
+        if (
+            not self.presence_configured
+            or self.guests
+            or self.calendar_mode == CAL_HOME
+            or self.home_office_active
+        ):
             return False
         return not any(p.get("present") for p in self.persons.values()) and not self.sensed
 
@@ -445,6 +450,13 @@ class PresenceMixin:
 
     def set_vacation(self, on: bool) -> None:
         self.vacation = on
+        self._evaluate_presence()
+        self._save()
+        self._changed()
+
+    def set_home_office(self, on: bool) -> None:
+        """Schalter „Homeoffice“: im eingestellten Fenster Wunsch statt Zeitplan."""
+        self.home_office = on
         self._evaluate_presence()
         self._save()
         self._changed()

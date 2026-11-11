@@ -467,6 +467,9 @@
       },
       "night": {
         "name": "Mode nuit"
+      },
+      "home_office": {
+        "name": "Télétravail"
       }
     },
     "select": {

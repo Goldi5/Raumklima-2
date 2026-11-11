@@ -1,3 +1,9 @@
+## 0.62.32b1 – 2026-11-11
+
+- **Homeoffice** (Issue #10): Schalter plus Zeitfenster. Im Fenster (Standard 08:00–17:00) heizen die gewählten Räume auf Wunschtemperatur, der Zeitplan ist so lange ausgesetzt — danach läuft er unverändert weiter. Ein Kalendertermin mit „Homeoffice“ schaltet dasselbe automatisch, ohne dass jemand drückt.
+- **Raumauswahl**: ohne Auswahl gilt Homeoffice für alle Räume mit Thermostat, sonst nur für die gewählten (analog „Gäste gelten für“).
+- **Vorheizen** ist nicht mehr nötig, solange Homeoffice läuft — der Raum ist ja schon warm; der Plan greift erst nach dem Fenster wieder.
+
 ## 0.62.31 – 2026-11-10
 
 Sammel-Release der Beta-Reihe 0.62.23b1–0.62.30b1.

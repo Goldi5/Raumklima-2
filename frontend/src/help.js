@@ -232,6 +232,21 @@ export const HELP = {
     "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
     "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent.",
   ],
+  "Homeoffice": [
+    "Schalter für Tage, an denen du zu Hause arbeitest. Im eingestellten Fenster heizen die gewählten Räume auf Wunschtemperatur, der Zeitplan ist so lange ausgesetzt — danach läuft er weiter. Ein Kalendertermin mit „Homeoffice“ schaltet dasselbe automatisch.",
+    "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",
+    "Interrupteur pour les jours de télétravail. Pendant la plage définie, les pièces choisies chauffent à la consigne et la plage horaire est suspendue — ensuite elle reprend. Un rendez-vous contenant « télétravail » active la même chose automatiquement.",
+  ],
+  "Homeoffice-Fenster": [
+    "Von wann bis wann Homeoffice gilt. Außerhalb dieser Zeit verhält sich der Raum wie immer — der Zeitplan gilt.",
+    "When home office applies. Outside this window the room behaves as usual — the schedule applies.",
+    "De quand à quand le télétravail s’applique. En dehors de cette plage, la pièce se comporte comme d’habitude — la plage horaire s’applique.",
+  ],
+  "Homeoffice gilt für": [
+    "Nur diese Räume werden im Homeoffice-Fenster auf Wunsch geheizt — gedacht für Büro und Wohnzimmer. Ohne Auswahl gilt es für alle Räume mit Thermostat.",
+    "Only these rooms are heated to the wish during the home office window — meant for office and living room. Without a selection it applies to all rooms with a thermostat.",
+    "Seules ces pièces sont chauffées à la consigne pendant la plage de télétravail — prévu pour le bureau et le salon. Sans sélection, cela s’applique à toutes les pièces avec thermostat.",
+  ],
   "Vorheizen": [
     "Ob und wie früh der Raum vor dem nächsten Zeitfenster warm wird. „Automatisch“ startet so früh, wie die gelernte Aufheizzeit es verlangt – bei langsam warm werdenden Räumen auch mitten in der Nacht.",
     "Whether and how early the room warms up before the next schedule window. “Automatic” starts as early as the learned heat-up time requires – for slow rooms that can be in the middle of the night.",

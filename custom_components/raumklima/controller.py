@@ -226,6 +226,7 @@ REASON_SCHEDULE_PREHEAT = "schedule_preheat"
 REASON_SLEEP = "sleep"
 REASON_MOLD = "mold"
 REASON_SCHEDULE_FALLBACK = "schedule_fallback"
+REASON_HOME_OFFICE = "home_office"
 # Schimmelschutz-Stufen (Raum-Einstellung)
 MOLD_STRICT = "strict"
 MOLD_WISH = "wish"
@@ -1233,6 +1234,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.boost_until = None
                 self.boost_temperature = None
                 self._save()
+        # Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert
+        if not hub.vacation and hub.home_office_applies(self.entry.entry_id):
+            return True, min(self.target_temp, self.trv_max), REASON_HOME_OFFICE
         stage = hub.stage_for_room(self.entry.entry_id)
         if stage in AWAY_STAGES:
             if self._manual_until and now < self._manual_until:

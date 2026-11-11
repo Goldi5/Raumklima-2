@@ -594,6 +594,23 @@ export class RaumklimaSettingsCard extends HTMLElement {
           .join("")}</div>`,
         (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
       ),
+      this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
+      (() => {
+        const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: `${String(h).padStart(2, "0")}:00` }));
+        const from = this._hubOpt("home_office_from") || "08:00";
+        const to = this._hubOpt("home_office_to") || "17:00";
+        return this._row("Homeoffice-Fenster", `<span class="inline">${this._select(H, "home_office_from", items, from)} – ${this._select(H, "home_office_to", items, to)}</span>`,
+          "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter");
+      })(),
+      this._row("Homeoffice gilt für", `<div class="chips">${this._orderedRooms()
+          .map((r) => {
+            const rid = ((r.attrs && r.attrs.settings) || {}).entry_id || r.id;
+            const chosen = (this._hubOpt("home_office_rooms") || []).includes(rid);
+            return `<button class="chip2 ${chosen ? "" : "off"}" data-horoom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
+          })
+          .join("")}</div>`,
+        (this._hubOpt("home_office_rooms") || []).length ? t("nur diese Räume werden auf Wunsch geheizt") : t("keine Auswahl = alle Räume mit Thermostat")
+      ),
       this._row("Kalender", this._select(H, "calendar_entity", ch.calendars || [], this._hubOpt("calendar_entity"), "– keiner –"),
         st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"),
       this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
@@ -1851,6 +1868,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._local = this._local || {};
       this._local["hub:guests_rooms"] = next;
       this._setHub({ guests_rooms: next }, 300);
+      this._flash(t("Gespeichert"));
+    }));
+    $("[data-horoom]").forEach((el) => el.addEventListener("click", () => {
+      const rid = el.dataset.horoom;
+      const cur = [...(this._hubOpt("home_office_rooms") || [])];
+      const next = cur.includes(rid) ? cur.filter((x) => x !== rid) : [...cur, rid];
+      this._local = this._local || {};
+      this._local["hub:home_office_rooms"] = next;
+      this._setHub({ home_office_rooms: next }, 300);
       this._flash(t("Gespeichert"));
     }));
     $("[data-airadd]").forEach((el) => el.addEventListener("click", () => {

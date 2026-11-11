@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Callable
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -26,6 +26,9 @@ from .const import (
     CONF_BUILDING,
     CONF_CALENDAR,
     CONF_FROST_FLOOR,
+    CONF_HOME_OFFICE_FROM,
+    CONF_HOME_OFFICE_ROOMS,
+    CONF_HOME_OFFICE_TO,
     CONF_RESIDENTS,
     CONF_ZONE,
     DOMAIN,
@@ -118,6 +121,16 @@ def dashboard_slug(name: str) -> str:
     return f"heizung-{slug}" if slug and slug != "allgemein" else "heizung"
 
 
+def _clock(value: Any, fallback: int) -> time:
+    """„HH:MM“ aus den Optionen lesen; Unsinn → Standardstunde."""
+    text = str(value or "").strip()
+    hour, _sep, minute = text.partition(":")
+    try:
+        return time(int(hour), int(minute or 0))
+    except (TypeError, ValueError):
+        return time(fallback, 0)
+
+
 class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMixin):
     """Einstellungen und Zustände, die für die ganze Wohnung gelten."""
 
@@ -134,6 +147,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         # Anwesenheit
         self.vacation = False
         self.guests = False
+        self.home_office = False  # Schalter „Homeoffice“: Wunsch statt Zeitplan im Fenster
         self.last_present: datetime | None = None
         self.stage = STAGE_HOME
         self.persons: dict[str, dict[str, Any]] = {}
@@ -173,6 +187,27 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
     # ------------------------------------------------------------ Konfiguration
     def load_config(self) -> None:
         self.config = {**HUB_DEFAULTS, **self.entry.data, **self.entry.options}
+
+    @property
+    def home_office_active(self) -> bool:
+        """Homeoffice läuft: Schalter an oder Kalendertermin, und gerade im Fenster."""
+        if not (self.home_office or self.calendar_mode == "home"):
+            return False
+        start = _clock(self.opt(CONF_HOME_OFFICE_FROM), 8)
+        end = _clock(self.opt(CONF_HOME_OFFICE_TO), 17)
+        if start is None or end is None:
+            return True
+        now = dt_util.now().time()
+        if start <= end:
+            return start <= now < end
+        return now >= start or now < end  # Fenster über Mitternacht
+
+    def home_office_applies(self, entry_id: str) -> bool:
+        """Gilt Homeoffice für diesen Raum? (leere Auswahl = alle Räume)"""
+        if not self.home_office_active:
+            return False
+        rooms = list(self.opt(CONF_HOME_OFFICE_ROOMS) or [])
+        return not rooms or entry_id in rooms
 
     def opt(self, key: str) -> Any:
         return self.config.get(key, HUB_DEFAULTS.get(key))
@@ -230,6 +265,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self.vacation = bool(stored.get("vacation", False))
         self._storm_notified = stored.get("storm_notified") or None
         self.guests = bool(stored.get("guests", False))
+        self.home_office = bool(stored.get("home_office", False))
         self.last_present = parse_dt(stored.get("last_present"))
         self.heat_today_until = parse_dt(stored.get("heat_today_until"))
         season = stored.get("season") or {}
@@ -355,6 +391,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         return {
             "vacation": self.vacation,
             "guests": self.guests,
+            "home_office": self.home_office,
             "storm_notified": getattr(self, "_storm_notified", None),
             "last_present": iso(self.last_present),
             "heat_today_until": iso(self.heat_today_until),

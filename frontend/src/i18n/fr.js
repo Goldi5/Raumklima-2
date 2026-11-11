@@ -918,4 +918,12 @@ export const FR = {
   "startet so früh, wie die gelernte Aufheizzeit es verlangt": "démarre aussi tôt que le temps de chauffe appris l’exige",
   "… höchstens": "… au plus",
   "… nicht vor": "… pas avant",
+  "Homeoffice": "Télétravail",
+  "Homeoffice gilt für": "Télétravail s’applique à",
+  "Homeoffice · {v}°": "Télétravail · {v}°",
+  "Homeoffice-Fenster": "Plage de télétravail",
+  "im Fenster gilt der Wunsch, der Zeitplan pausiert": "pendant la plage, la consigne s’applique et la plage horaire est suspendue",
+  "keine Auswahl = alle Räume mit Thermostat": "aucune sélection = toutes les pièces avec thermostat",
+  "nur diese Räume werden auf Wunsch geheizt": "seules ces pièces sont chauffées à la consigne",
+  "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "pendant cette période, les pièces choisies chauffent à la consigne ; ensuite la plage horaire reprend",
 };

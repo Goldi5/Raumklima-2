@@ -1,4 +1,4 @@
-/* Raumklima 0.62.31 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.32b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -916,7 +916,15 @@
     "startet nicht vor der eingestellten Uhrzeit – zum Beginn evtl. noch nicht ganz warm": "never starts before the set time – may not be fully warm at the start",
     "startet so früh, wie die gelernte Aufheizzeit es verlangt": "starts as early as the learned heat-up time requires",
     "… höchstens": "… at most",
-    "… nicht vor": "… not before"
+    "… nicht vor": "… not before",
+    "Homeoffice": "Home office",
+    "Homeoffice gilt für": "Home office applies to",
+    "Homeoffice · {v}°": "Home office · {v}°",
+    "Homeoffice-Fenster": "Home office window",
+    "im Fenster gilt der Wunsch, der Zeitplan pausiert": "during the window the wish applies, the schedule pauses",
+    "keine Auswahl = alle Räume mit Thermostat": "no selection = all rooms with a thermostat",
+    "nur diese Räume werden auf Wunsch geheizt": "only these rooms are heated to the wish",
+    "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "during this time the selected rooms heat to the wish; afterwards the schedule runs again"
   };
 
   // src/i18n/fr.js
@@ -1835,7 +1843,15 @@
     "startet nicht vor der eingestellten Uhrzeit – zum Beginn evtl. noch nicht ganz warm": "ne démarre pas avant l’heure définie – peut ne pas être tout à fait chaud au début",
     "startet so früh, wie die gelernte Aufheizzeit es verlangt": "démarre aussi tôt que le temps de chauffe appris l’exige",
     "… höchstens": "… au plus",
-    "… nicht vor": "… pas avant"
+    "… nicht vor": "… pas avant",
+    "Homeoffice": "Télétravail",
+    "Homeoffice gilt für": "Télétravail s’applique à",
+    "Homeoffice · {v}°": "Télétravail · {v}°",
+    "Homeoffice-Fenster": "Plage de télétravail",
+    "im Fenster gilt der Wunsch, der Zeitplan pausiert": "pendant la plage, la consigne s’applique et la plage horaire est suspendue",
+    "keine Auswahl = alle Räume mit Thermostat": "aucune sélection = toutes les pièces avec thermostat",
+    "nur diese Räume werden auf Wunsch geheizt": "seules ces pièces sont chauffées à la consigne",
+    "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "pendant cette période, les pièces choisies chauffent à la consigne ; ensuite la plage horaire reprend"
   };
 
   // src/i18n.js
@@ -1879,7 +1895,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.31";
+  var RK_VERSION = "0.62.32b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -2017,6 +2033,7 @@
       mold: "Schimmel",
       schedule: "Zeitplan",
       schedule_preheat: "Vorheizen",
+      home_office: "Homeoffice",
       boost: "Boost",
       sleep: "Ruhezeit",
       away_short: "Abgesenkt",
@@ -2044,6 +2061,7 @@
       if (r === "schedule") return t("Zeitplan · {v}°", { v: fmt(tgt) });
       if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
       if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
+      if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
       if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
       if (r === "mold") {
         const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
@@ -3992,6 +4010,21 @@
       "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
       "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent."
     ],
+    "Homeoffice": [
+      "Schalter für Tage, an denen du zu Hause arbeitest. Im eingestellten Fenster heizen die gewählten Räume auf Wunschtemperatur, der Zeitplan ist so lange ausgesetzt — danach läuft er weiter. Ein Kalendertermin mit „Homeoffice“ schaltet dasselbe automatisch.",
+      "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",
+      "Interrupteur pour les jours de télétravail. Pendant la plage définie, les pièces choisies chauffent à la consigne et la plage horaire est suspendue — ensuite elle reprend. Un rendez-vous contenant « télétravail » active la même chose automatiquement."
+    ],
+    "Homeoffice-Fenster": [
+      "Von wann bis wann Homeoffice gilt. Außerhalb dieser Zeit verhält sich der Raum wie immer — der Zeitplan gilt.",
+      "When home office applies. Outside this window the room behaves as usual — the schedule applies.",
+      "De quand à quand le télétravail s’applique. En dehors de cette plage, la pièce se comporte comme d’habitude — la plage horaire s’applique."
+    ],
+    "Homeoffice gilt für": [
+      "Nur diese Räume werden im Homeoffice-Fenster auf Wunsch geheizt — gedacht für Büro und Wohnzimmer. Ohne Auswahl gilt es für alle Räume mit Thermostat.",
+      "Only these rooms are heated to the wish during the home office window — meant for office and living room. Without a selection it applies to all rooms with a thermostat.",
+      "Seules ces pièces sont chauffées à la consigne pendant la plage de télétravail — prévu pour le bureau et le salon. Sans sélection, cela s’applique à toutes les pièces avec thermostat."
+    ],
     "Vorheizen": [
       "Ob und wie früh der Raum vor dem nächsten Zeitfenster warm wird. „Automatisch“ startet so früh, wie die gelernte Aufheizzeit es verlangt – bei langsam warm werdenden Räumen auch mitten in der Nacht.",
       "Whether and how early the room warms up before the next schedule window. “Automatic” starts as early as the learned heat-up time requires – for slow rooms that can be in the middle of the night.",
@@ -4818,6 +4851,26 @@
             return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
           }).join("")}</div>`,
           (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
+        ),
+        this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
+        (() => {
+          const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: `${String(h).padStart(2, "0")}:00` }));
+          const from = this._hubOpt("home_office_from") || "08:00";
+          const to = this._hubOpt("home_office_to") || "17:00";
+          return this._row(
+            "Homeoffice-Fenster",
+            `<span class="inline">${this._select(H, "home_office_from", items, from)} – ${this._select(H, "home_office_to", items, to)}</span>`,
+            "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter"
+          );
+        })(),
+        this._row(
+          "Homeoffice gilt für",
+          `<div class="chips">${this._orderedRooms().map((r) => {
+            const rid = (r.attrs && r.attrs.settings || {}).entry_id || r.id;
+            const chosen = (this._hubOpt("home_office_rooms") || []).includes(rid);
+            return `<button class="chip2 ${chosen ? "" : "off"}" data-horoom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
+          }).join("")}</div>`,
+          (this._hubOpt("home_office_rooms") || []).length ? t("nur diese Räume werden auf Wunsch geheizt") : t("keine Auswahl = alle Räume mit Thermostat")
         ),
         this._row(
           "Kalender",
@@ -6028,6 +6081,15 @@
         this._local = this._local || {};
         this._local["hub:guests_rooms"] = next;
         this._setHub({ guests_rooms: next }, 300);
+        this._flash(t("Gespeichert"));
+      }));
+      $("[data-horoom]").forEach((el) => el.addEventListener("click", () => {
+        const rid = el.dataset.horoom;
+        const cur = [...this._hubOpt("home_office_rooms") || []];
+        const next = cur.includes(rid) ? cur.filter((x) => x !== rid) : [...cur, rid];
+        this._local = this._local || {};
+        this._local["hub:home_office_rooms"] = next;
+        this._setHub({ home_office_rooms: next }, 300);
         this._flash(t("Gespeichert"));
       }));
       $("[data-airadd]").forEach((el) => el.addEventListener("click", () => {

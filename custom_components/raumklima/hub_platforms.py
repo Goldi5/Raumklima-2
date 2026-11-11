@@ -142,6 +142,29 @@ class GuestsSwitch(HubEntity, SwitchEntity):
         self.hub.set_guests(False)
 
 
+class HomeOfficeSwitch(HubEntity, SwitchEntity):
+    """Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert."""
+
+    _attr_translation_key = "home_office"
+
+    def __init__(self, hub: RaumklimaHub) -> None:
+        super().__init__(hub, "home_office")
+
+    @property
+    def is_on(self) -> bool:
+        return self.hub.home_office
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {"active_now": self.hub.home_office_active}
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        self.hub.set_home_office(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        self.hub.set_home_office(False)
+
+
 class SeasonModeSelect(HubEntity, SelectEntity):
     _attr_translation_key = "season_mode"
     _attr_options = SEASON_MODES
@@ -213,7 +236,7 @@ def hub_entities(platform: str, hub: RaumklimaHub) -> list:
     if platform == "sensor":
         return [PresenceSensor(hub), SeasonSensor(hub), OutdoorMeanSensor(hub), HealthSensor(hub)]
     if platform == "switch":
-        return [VacationSwitch(hub), GuestsSwitch(hub), NightSwitch(hub)]
+        return [VacationSwitch(hub), GuestsSwitch(hub), HomeOfficeSwitch(hub), NightSwitch(hub)]
     if platform == "select":
         return [SeasonModeSelect(hub), NightLevelSelect(hub)]
     if platform == "button":

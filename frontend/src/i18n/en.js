@@ -918,4 +918,12 @@ export const EN = {
   "startet so früh, wie die gelernte Aufheizzeit es verlangt": "starts as early as the learned heat-up time requires",
   "… höchstens": "… at most",
   "… nicht vor": "… not before",
+  "Homeoffice": "Home office",
+  "Homeoffice gilt für": "Home office applies to",
+  "Homeoffice · {v}°": "Home office · {v}°",
+  "Homeoffice-Fenster": "Home office window",
+  "im Fenster gilt der Wunsch, der Zeitplan pausiert": "during the window the wish applies, the schedule pauses",
+  "keine Auswahl = alle Räume mit Thermostat": "no selection = all rooms with a thermostat",
+  "nur diese Räume werden auf Wunsch geheizt": "only these rooms are heated to the wish",
+  "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter": "during this time the selected rooms heat to the wish; afterwards the schedule runs again",
 };

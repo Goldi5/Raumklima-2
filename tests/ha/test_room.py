@@ -340,6 +340,53 @@ async def test_preheat_only_with_rate_and_when_somebody_is_home(hass: HomeAssist
     hub.stage = STAGE_HOME
 
 
+async def test_homeoffice_fenster(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Homeoffice: im Fenster gilt der Wunsch, außerhalb der Zeitplan; Raumauswahl wird beachtet."""
+    from custom_components.raumklima.const import (
+        CONF_HOME_OFFICE_FROM,
+        CONF_HOME_OFFICE_ROOMS,
+        CONF_HOME_OFFICE_TO,
+        CONF_SCHEDULES,
+    )
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    # HA-Tests laufen in US/Pacific: 17:00 UTC = 10:00 Ortszeit
+    freezer.move_to("2026-06-15 17:00:00+00:00")
+    hub = get_hub(hass, None)
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub.config[CONF_HOME_OFFICE_FROM] = "08:00"
+    hub.config[CONF_HOME_OFFICE_TO] = "17:00"
+    hub.config[CONF_HOME_OFFICE_ROOMS] = []
+    # Zeitplan nur abends: tagsüber gilt sonst die Absenkung außerhalb der Fenster
+    ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": "18:00", "end": "22:00", "temperature": 24.0}]}
+    )
+    ctrl.target_temp = 21.0
+    await hass.async_block_till_done()
+
+    # Schalter aus → Zeitplan/ Absenkung
+    assert ctrl.plan()[2] != "home_office"
+
+    # Schalter an, 10:00 liegt im Fenster → Wunsch
+    hub.set_home_office(True)
+    on, target, reason = ctrl.plan()
+    assert reason == "home_office"
+    assert on is True
+    assert target == 21.0
+
+    # 18:30: Fenster vorbei → wieder Zeitplan
+    freezer.move_to("2026-06-16 02:00:00+00:00")  # 19:00 Ortszeit
+    assert ctrl.plan()[2] == "schedule"
+    freezer.move_to("2026-06-15 17:00:00+00:00")
+
+    # Auswahl schließt den Raum aus → kein Homeoffice
+    hub.config[CONF_HOME_OFFICE_ROOMS] = ["ein-anderer-raum"]
+    assert ctrl.plan()[2] != "home_office"
+    hub.config[CONF_HOME_OFFICE_ROOMS] = []
+    hub.set_home_office(False)
+
+
 async def test_quiet_time_sets_back_bedroom(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Ruhezeit senkt den Schlafraum ab, auch wenn jemand zu Hause ist (Schichtdienst)."""
     from datetime import timedelta

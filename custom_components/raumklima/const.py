@@ -145,6 +145,9 @@ CONF_HEATING_LIMIT: Final = "heating_limit"  # °C Tagesmittel
 CONF_COLD_SNAP_TEMP: Final = "cold_snap_temp"
 CONF_FROST_FLOOR: Final = "frost_floor"
 CONF_VALVE_CARE: Final = "valve_care"
+CONF_HOME_OFFICE_FROM: Final = "home_office_from"  # Homeoffice-Fenster: von
+CONF_HOME_OFFICE_TO: Final = "home_office_to"  # Homeoffice-Fenster: bis
+CONF_HOME_OFFICE_ROOMS: Final = "home_office_rooms"  # Räume (leer = alle mit Thermostat)
 CONF_CALENDAR: Final = "calendar_entity"  # Termine wie „Urlaub“ / „Homeoffice“
 CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
@@ -278,6 +281,9 @@ HUB_DEFAULTS: Final = {
     CONF_NIGHT_START: "20:00:00",
     CONF_NIGHT_END: "03:00:00",
     CONF_NIGHT_ALARM: 12.0,
+    CONF_HOME_OFFICE_FROM: "08:00",
+    CONF_HOME_OFFICE_TO: "17:00",
+    CONF_HOME_OFFICE_ROOMS: [],
     CONF_CALENDAR: None,
     CONF_CALENDAR_AWAY: "Urlaub, Reise, Dienstreise, verreist, vacation, trip",
     CONF_CALENDAR_HOME: "Homeoffice, Home-Office, zu Hause, home office, wfh",

@@ -467,6 +467,9 @@
       },
       "night": {
         "name": "Night mode"
+      },
+      "home_office": {
+        "name": "Home office"
       }
     },
     "select": {
