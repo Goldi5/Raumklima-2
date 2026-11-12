@@ -1,4 +1,4 @@
-/* Raumklima 0.62.42b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.43b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1935,7 +1935,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.42b1";
+  var RK_VERSION = "0.62.43b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -5498,18 +5498,6 @@
             }
             return rows.join("");
           })(),
-          (() => {
-            const pt = Number(this._roomOpt(r, "presence_target") || 0);
-            const pd = Number(this._roomOpt(r, "presence_delay_min") || 0);
-            return [
-              this._row(
-                "Bei Anwesenheit",
-                editable ? this._optStepper(scope, "presence_target", pt, " °C", 0.5, 0, 30) : this._v(pt ? `${pt} °C` : t("aus")),
-                pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")
-              ),
-              pt ? this._row("… erst nach", editable ? this._optStepper(scope, "presence_delay_min", pd, " min", 1, 0, 120) : this._v(`${pd} min`), t("Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt")) : ""
-            ].join("");
-          })(),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"
         ),
         this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
@@ -5701,9 +5689,17 @@
       const drop = this._roomOpt(r, "room_eco_drop") ?? s.room_eco_drop ?? 1.5;
       const pk = this._roomOpt(r, "presence_kind") ?? s.presence_kind ?? "auto";
       const state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt");
+      const pt = Number(this._roomOpt(r, "presence_target") || 0);
+      const pd = Number(this._roomOpt(r, "presence_delay_min") || 0);
       return this._grp("Präsenzmelder", "mdi:motion-sensor", "ok", [
         list.length ? `<div class="status"><span class="chip" style="--tone:${a.occupied ? "var(--rk-ok)" : "var(--rk-off)"}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon>${state}</span></div>` : "",
         this._row("Melder", `<div class="chips">${chips || this._v("keine", true)}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
+        list.length ? this._row(
+          "Bei Anwesenheit",
+          editable ? this._optStepper(scope, "presence_target", pt, " °C", 0.5, 0, 30) : this._v(pt ? `${pt} °C` : t("aus")),
+          pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")
+        ) : "",
+        pt ? this._row("… erst nach", editable ? this._optStepper(scope, "presence_delay_min", pd, " min", 1, 0, 120) : this._v(`${pd} min`), t("Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt")) : "",
         editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "",
         list.length ? this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung") : "",
         list.length ? this._row(

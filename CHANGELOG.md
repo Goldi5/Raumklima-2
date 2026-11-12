@@ -1,3 +1,7 @@
+## 0.62.43b1 – 2026-11-12
+
+- **Anwesenheits-Temperatur in die Anwesenheits-Gruppe verschoben**: „Bei Anwesenheit“ und „… erst nach“ stehen jetzt unter *Raum → Präsenzmelder* statt unter *Temperatur*. Keine Verhaltensänderung.
+
 ## 0.62.42b1 – 2026-11-12
 
 - **Anwesenheits-Temperatur mit Wartezeit**: In *Einstellungen → Raum → Temperatur* gibt es neben „Bei Anwesenheit“ jetzt „… erst nach“ (0–120 min). Der Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt; 0 = sofort. Fällt der Melder länger als der Nachlauf aus, beginnt die Zeit neu.
