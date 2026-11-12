@@ -244,6 +244,10 @@ Es zählen nur **mmWave-Melder** – ein Bewegungsmelder sieht auch die Katze. U
 Ein Melder im Wohnzimmer verhindert auch, dass Raumklima fälschlich „alle weg“ denkt – etwa wenn ein Handy aus ist oder Besuch allein da ist. Im Urlaub zählen die Melder nicht, die Katze beendet also nicht den Urlaub.
 :::
 
+**Vorwärmen nach gelernten Zeiten:** Raumklima merkt sich, wann der Raum belegt ist. War er an 3 der letzten 4 gleichen Wochentage zur selben Zeit belegt (z. B. Mo–Fr ab 08:00), wird vorher auf die Anwesenheits-Temperatur gewärmt – so früh, wie der Raum laut gelernter Aufheizzeit braucht. Kommt 30 Minuten nach dem üblichen Beginn niemand, gilt wieder der Wert von vorher. Was gelernt ist, steht unter dem Schalter („meist belegt: Mo–Fr 08:00–12:30“). Alte Gewohnheiten vergisst Raumklima nach vier Wochen.
+
+**Lampen als Anwesenheit:** Unter *Weitere Einstellungen* lassen sich Lampen eintragen – eine eingeschaltete Schreibtischlampe heißt dann „jemand ist im Raum“. Das hilft in Räumen ohne mmWave-Melder. Lampen zählen nur für den Raum, nie für „jemand zu Hause“.
+
 ## Warum das Thermostat eine andere Zahl zeigt
 
 Am Gerät steht manchmal ein anderer Sollwert als in der Karte – zum Beispiel **Ziel 18,0 °C**, am
@@ -414,6 +418,18 @@ Im Reiter **Entscheidungen** kannst du den Zeitraum (heute, 7 oder 14 Tage) und 
 (Heizen, Lüften, Anwesenheit, Gesundheit). Oben stehen drei Kennzahlen, darunter der Verlauf.
 Ein Tipp auf eine Zeile klappt die vollständige Begründung auf, samt der Messwerte, die dazu geführt haben.
 In *Allgemein* kommt zusätzlich eine Raumauswahl dazu.
+
+### Warum heizt der Raum (nicht)?
+
+Erster Reiter unter *Raum → Lernen*. Oben steht das Ergebnis („Heizt auf 21,0 °C“, „Heizt nicht – Fenster offen“), darunter
+- die **Voraussetzungen** mit ✓/!: Heizsaison, Thermostat eingeschaltet, Fenster, Thermostat erreichbar, Befehle bestätigt, Raumfühler, Ventil,
+- **jede Regel** in ihrer Rangfolge: welche *das Ziel bestimmt*, welche *greifen würde, aber nachrangig* ist (z. B. Zeitplan unter Boost) und welche gerade *nicht greift*.
+
+Die Seite fragt nur ab und verändert nichts. *Neu prüfen* holt den aktuellen Stand.
+
+### Batterie und Funk
+
+Unter *Raum → Heizung → Geräte* steht je Batterie, wie lange sie voraussichtlich noch hält – geschätzt aus dem Verlauf der letzten Wochen (ab 7 Tagen Daten), dazu die Funkbefehle am Tag. Unter 30 Tagen meldet der Gesundheitscheck „Batterie bald leer“. Funkt ein Thermostat auffällig viel (über 150 Befehle am Tag), steht das dabei – meist steckt eine andere Automation, ein Zeitplan am Gerät oder ein zu feiner Abgleich dahinter.
 
 ## Alle Räume auf einen Blick
 

@@ -1,5 +1,37 @@
 ## Unreleased
 
+## 0.62.46rc2 – 2026-11-12
+
+Zweiter Release Candidate: drei neue Funktionen rund um Anwesenheit und Diagnose, dazu ein großer
+Umbau im Inneren (gleiches Verhalten, kleinere Dateien).
+
+### Neu
+- **„Warum heizt der Raum (nicht)?“** – neuer erster Reiter unter *Raum → Lernen*. Oben das Ergebnis,
+  darunter alle Voraussetzungen mit ✓/! (Heizsaison, Thermostat an, Fenster, erreichbar, Befehle bestätigt,
+  Raumfühler, Ventil) und jede Regel in ihrer Rangfolge: bestimmt das Ziel / würde greifen, aber nachrangig /
+  greift nicht. Fragt nur ab, ändert nichts.
+- **Vorwärmen nach gelernten Belegungszeiten:** War ein Raum an 3 der letzten 4 gleichen Wochentage zur
+  selben Zeit belegt, wärmt Raumklima vorher auf die Anwesenheits-Temperatur – so früh wie die gelernte
+  Aufheizzeit es braucht. Kommt 30 min nach dem üblichen Beginn niemand, gilt wieder der Wert von vorher.
+  Schalter *Belegungszeiten lernen* (Standard an) zeigt, was gelernt ist. Gewohnheiten älter als 4 Wochen
+  fallen heraus.
+- **Lampen als Anwesenheit:** Unter *Anwesenheit → Weitere Einstellungen* Lampen eintragen – eingeschaltet
+  heißt „jemand im Raum“ (2 min Nachlauf). Für Räume ohne mmWave-Melder; zählt nie für „jemand zu Hause“.
+- **Batterie-Prognose:** Unter *Geräte* je Batterie „hält noch ~N Tage“, geschätzt aus dem Verlauf (ab
+  7 Tagen). Gesundheitscheck meldet unter 30 Tagen. Dazu Funkbefehle pro Tag und eine Warnung ab 150/Tag.
+
+### Intern
+- `controller.py` von 2277 auf 1129 Zeilen: Regelkette (`room_plan.py`), Schimmelschutz
+  (`room_mold.py`), Senden ans Gerät (`room_apply.py`, `_apply` in drei Schritte geteilt), Einstellungen
+  (`room_settings.py`), Speichern/Laden (`room_store.py`, symmetrisch mit Test), Funk/Batterie
+  (`room_radio.py`); Konstanten und `PLAN_RULES` in `room_const.py`. Ventilsuche als Tabelle in
+  `valve_finder.py`.
+- `websocket_api.py` aufgeteilt in `ws_hub.py`, `ws_room.py`, `ws_report.py`, `ws_common.py`.
+  Zahl-Grenzen nur noch in `fields.py`; `frontend/src/fields.js` wird daraus erzeugt (Test prüft es).
+- PDF-Bericht: jede Seite eine eigene Funktion.
+- Einstellungen-Karte: `settings.js` in `settings/*.js` geteilt, CSS in `styles.js`; alle Klicks über einen
+  zentralen Verteiler statt hunderter einzelner Listener.
+
 ## 0.62.46rc1 – 2026-11-12
 
 Release Candidate: fasst die Beta-Reihe seit 0.62.31 zusammen (Heizquellen, Einstellungen aufgeräumt,

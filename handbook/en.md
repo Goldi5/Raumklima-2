@@ -243,6 +243,10 @@ Only **mmWave sensors** count – a motion sensor also sees the cat. Under *More
 A sensor in the living room also stops Raumklima from wrongly thinking “everyone is away” – e.g. when a phone is off or a visitor is home alone. During vacation the sensors don't count, so the cat won't end your vacation.
 :::
 
+**Warm up by learned times:** Raumklima remembers when the room is occupied. If it was occupied at the same time on 3 of the last 4 same weekdays (e.g. Mon–Fri from 08:00), it warms up to the presence temperature beforehand – as early as the room needs according to its learned heat-up time. If nobody comes within 30 minutes of the usual start, the previous value applies again. What has been learned is shown below the switch (“usually occupied: Mon–Fri 08:00–12:30”). Old habits are forgotten after four weeks.
+
+**Lamps as presence:** under *More settings* you can add lamps – a desk lamp that is on then means “someone is in the room”. This helps in rooms without an mmWave sensor. Lamps only count for the room, never for “someone home”.
+
 ## Why the thermostat shows a different number
 
 The device sometimes shows another setpoint than the card – for example **target 18.0 °C**, on the
@@ -408,6 +412,18 @@ The learning area is split into tabs – depending on whether you are in a room 
 In the **Decisions** tab you pick the period (today, 7 or 14 days) and the area (heating, airing,
 presence, health). Three key figures sit on top, the history follows. Tapping a row unfolds the full
 reason including the measured values behind it. In *Home* a room selector is added.
+
+### Why is the room (not) heating?
+
+First tab under *Room → Learning*. At the top is the result (“Heating to 21.0 °C”, “Not heating – window open”), below it
+- the **requirements** with ✓/!: heating season, thermostat on, window, thermostat reachable, commands confirmed, room sensor, valve,
+- **every rule** in its order: which one *sets the target*, which one *would apply but has lower priority* (e.g. schedule under boost) and which ones *do not apply* right now.
+
+The page only reads and changes nothing. *Check again* fetches the current state.
+
+### Battery and radio
+
+Under *Room → Heating → Devices* each battery shows how long it is expected to last – estimated from the last weeks (after 7 days of data), plus the radio commands per day. Below 30 days the health check reports “Battery empty soon”. If a thermostat transmits unusually often (over 150 commands a day), that is mentioned too – usually another automation, a schedule on the device or too fine a calibration is behind it.
 
 ## All rooms at a glance
 

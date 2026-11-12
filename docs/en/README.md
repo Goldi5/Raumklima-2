@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.62.46rc1** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
+**Current version: 0.62.46rc2** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
@@ -28,16 +28,16 @@
 - **Reliable over flaky radio and VPN links:** every command is verified and repeated.
 - **Particulate matter (PM2.5):** optional sensor per room – from 35 µg/m³ Raumklima suggests airing, below 15 µg/m³ the air counts as exchanged.
 - **Monitoring room:** a room without a thermostat – measure, remind, report, with its own large card; setpoints are never touched.
-- **Learning & why:** learned heat-up rate with reliability, sleep times, a presence profile and a decisions tab with reasons.
+- **Learning & why:** learned heat-up rate with reliability, sleep times, a presence profile and a decisions tab with reasons; check page “Why is the room (not) heating?”.
 - **Airing assistant:** humidity limit per room, optional CO₂ sensor, airing time by outdoor temperature, checks whether airing actually dries, warns when the room cools down; **night airing** for people who sleep with the window open.
 - **Absence:** residents + home zone, setback “briefly away” / “away longer”, mould protection per DIN 4108-2, preheating on approach and by **arrival time** (learned heat-up time per room), calendar events (“vacation”, “home office”), smaller setback on frost nights.
 - **Heating season:** heating limit from the daily mean (measured + forecast), cold-snap rule, “heat today”, summer valve exercise; rooms on the sunny side heat 1 °C less when sun is forecast.
 - **Sleep times are learned** from night airing and lights – quiet hours adapt, weekends and public holidays (German states) separately.
 - **Notifications:** choose per recipient which messages they get; push with action buttons, quiet hours, optional voice announcements; **airing countdown on the lock screen** (iPhone Live Activity, Android Live Update).
-- **Presence sensors:** mmWave and PIR (PIR weighted more cautiously) – nobody is wrongly “away” while someone is home; empty rooms a little cooler if you like.
+- **Presence sensors:** mmWave and PIR (PIR weighted more cautiously) – nobody is wrongly “away” while someone is home; empty rooms a little cooler if you like; presence temperature per room, lamps as presence, warm-up by learned occupancy times.
 - **Light signal:** lights in the room blink blue for “please air the room” and orange for “please close” – then back to how they were.
 - **Heating report** for week and month – heating hours, weather-adjusted comparison, savings from setback, comfort time; weekly push; **CSV export**; **PDF report** for week, month and heating season with year-over-year comparison – via push link, email or download.
-- **Health check:** batteries, “room doesn't warm up”, radiator can't keep up (hydraulic balancing), stuck or missing sensor, radio and connection dropouts, silent window contact, protection against endless loops with the thermostat.
+- **Health check:** batteries, “room doesn't warm up”, radiator can't keep up (hydraulic balancing), stuck or missing sensor, radio and connection dropouts, silent window contact, protection against endless loops with the thermostat; battery forecast and warning for unusually many radio commands.
 - **Several homes** (e.g. city flat and holiday home), each with its own residents, recipients, report and log.
 - **Modern dashboard** with room cards, history, timeline, report, live decision log and a fully editable settings page – in **English, German or French**, following your Home Assistant language.
 - **Your own automations:** device triggers such as “please air the room”, “window opened” or “heating paused”.

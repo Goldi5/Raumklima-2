@@ -2,7 +2,7 @@
 
 🇬🇧 [English documentation](../en/README.md) · 🇫🇷 [Documentation en français](../fr/README.md)
 
-**Aktuelle Version: 0.62.46rc1** – Änderungen siehe [CHANGELOG](../../CHANGELOG.md) · Geplant: [ROADMAP](../../ROADMAP.md)
+**Aktuelle Version: 0.62.46rc2** – Änderungen siehe [CHANGELOG](../../CHANGELOG.md) · Geplant: [ROADMAP](../../ROADMAP.md)
 
 **Raumklima** macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: geregelt wird nach einem echten Raumfühler, bei offenem Fenster pausiert, beim Lüften beraten, bei Abwesenheit abgesenkt – und im Sommer gar nicht erst geheizt.
 
@@ -32,12 +32,12 @@
 - **Absicherung gegen Funk- und VPN-Aussetzer:** jeder Befehl wird geprüft und wiederholt.
 - **Feinstaub (PM2,5):** optionaler Fühler je Raum – ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.
 - **Überwachungsraum:** Raum ohne Thermostat – messen, anmahnen, berichten, mit eigener großer Karte; Sollwerte werden nie angefasst.
-- **Lernen & Warum:** gelernte Aufheizrate mit Zuverlässigkeit, Schlafzeiten, Anwesenheitsprofil und ein Reiter Entscheidungen mit Begründung.
+- **Lernen & Warum:** gelernte Aufheizrate mit Zuverlässigkeit, Schlafzeiten, Anwesenheitsprofil und ein Reiter Entscheidungen mit Begründung; Prüfseite „Warum heizt der Raum (nicht)?“.
 - **Lüftungsassistent:** Feuchtegrenze je Raum, optional CO₂-Sensor, Lüftdauer nach Außentemperatur, Prüfung ob Lüften überhaupt trocknet, Warnung beim Auskühlen.
 - **Abwesenheit:** Bewohner + Wohnung, Absenkung „kurz weg“ / „länger weg“, Schimmelschutz nach DIN 4108-2, Vorheizen bei Annäherung, Kalendertermine („Urlaub“, „Homeoffice“), in Frostnächten weniger absenken.
 - **Heizsaison:** Heizgrenze nach Tagesmittel und Wettervorhersage, Kälteeinbruch-Regel, „Heute heizen“, Sommerpflege der Ventile; Sonnenseite-Räume heizen bei Sonne 1 °C weniger.
 - **Benachrichtigungen:** pro Empfänger wählbar, welche Nachrichten er bekommt; Push mit Knöpfen, optional Sprachansagen; **Lüft-Countdown auf dem Sperrbildschirm** (iPhone-Live-Aktivität, Android-Live-Update).
-- **Präsenzmelder:** mmWave und PIR (PIR vorsichtiger gewichtet) – niemand wird fälschlich „weg“, solange jemand da ist; leere Räume auf Wunsch etwas kühler.
+- **Präsenzmelder:** mmWave und PIR (PIR vorsichtiger gewichtet) – niemand wird fälschlich „weg“, solange jemand da ist; leere Räume auf Wunsch etwas kühler; Anwesenheits-Temperatur je Raum, Lampen als Anwesenheit, Vorwärmen nach gelernten Belegungszeiten.
 - **Lichtsignal:** Lampen im Raum blinken blau bei „Bitte lüften“ und orange bei „Bitte schließen“ – danach wie vorher.
 - **Modernes Dashboard** mit Raumkarten, Verlauf, Zeitleiste, Heizbericht (auch als CSV und als **PDF** für Woche, Monat und Heizsaison – per Push, E-Mail oder Download) und einer komplett bearbeitbaren Einstellungsseite – auf Deutsch, Englisch oder Französisch, je nach Sprache in Home Assistant. Auch Push-Nachrichten, Protokoll und Hinweise folgen der Systemsprache.
 - **Eigene Automationen:** Geräte-Auslöser wie „Bitte lüften“, „Fenster geöffnet“ oder „Heizung pausiert“.

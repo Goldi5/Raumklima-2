@@ -2,7 +2,7 @@
 
 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇬🇧 [English documentation](../en/README.md)
 
-**Version actuelle : 0.62.46rc1** – modifications dans le [CHANGELOG](../../CHANGELOG.md) · prévu : [ROADMAP](../../ROADMAP.md)
+**Version actuelle : 0.62.46rc2** – modifications dans le [CHANGELOG](../../CHANGELOG.md) · prévu : [ROADMAP](../../ROADMAP.md)
 
 **Raumklima** transforme chaque thermostat de radiateur (TRV) de Home Assistant en thermostat d’ambiance intelligent : il régule selon une vraie sonde dans la pièce, se met en pause quand une fenêtre est ouverte, vous guide pour aérer, abaisse la température quand personne n’est là – avec protection contre les moisissures – et ne chauffe que quand il fait vraiment froid dehors.
 
@@ -29,13 +29,13 @@
 - **Fenêtre ouverte = pause**, puis reprise avec le réglage précédent ; fenêtre ouverte détectée aussi **sans contact** grâce à la chute de température. Plusieurs radiateurs et autant de contacts de fenêtre que nécessaire par pièce.
 - **Particules fines (PM2,5) :** capteur optionnel par pièce – dès 35 µg/m³ Raumklima conseille d’aérer, sous 15 µg/m³ l’air est considéré comme renouvelé.
 - **Pièce de surveillance :** une pièce sans thermostat – mesurer, rappeler, rapporter, avec sa propre grande carte ; les consignes ne sont jamais touchées.
-- **Apprentissage & pourquoi :** vitesse de montée apprise avec fiabilité, heures de sommeil, profil de présence et un onglet décisions avec justification.
+- **Apprentissage & pourquoi :** vitesse de montée apprise avec fiabilité, heures de sommeil, profil de présence et un onglet décisions avec justification; page de contrôle « Pourquoi la pièce chauffe-t-elle (ou pas) ? ».
 - **Assistant d’aération** : humidité et CO₂, durée d’aération selon la température extérieure, « l’aération assèche-t-elle vraiment ? », alerte « la pièce se refroidit », **aération nocturne** ; compte à rebours sur l’écran verrouillé et **signal lumineux**.
 - **Absence** : habitants + zone, abaissement « absence courte » / « absence prolongée », préchauffage selon la distance et l’heure d’arrivée, calendrier (vacances, télétravail), **détecteurs de présence** (mmWave et PIR).
 - **Saison de chauffage** selon la moyenne journalière et la prévision météo, côté ensoleillé, nuits de gel.
 - **Notifications** par destinataire, heures calmes, heures de sommeil apprises, annonces vocales.
 - **Rapports PDF** (semaine, mois, saison) avec note A–F, comparaison avec l’année précédente, conseils d’économie – en téléchargement, en push ou **par e-mail**.
-- **Contrôle de santé** : piles, radio, sonde bloquée, « la pièce ne chauffe pas », équilibrage hydraulique.
+- **Contrôle de santé** : piles, radio, sonde bloquée, « la pièce ne chauffe pas », équilibrage hydraulique; prévision des piles et alerte en cas de trop nombreuses commandes radio.
 - **Tableau de bord** complet avec un **« ? »** d’explication derrière chaque réglage – en allemand, anglais ou français selon la langue de Home Assistant.
 
 ## Installation

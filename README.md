@@ -2,7 +2,7 @@
 
 **Heizung, die mitdenkt.** Raumklima macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: Es regelt nach einem echten Raumfühler, pausiert bei offenem Fenster, berät beim Lüften, senkt ab, wenn niemand zu Hause ist – mit Schimmelschutz – und heizt nur, wenn es draußen wirklich kalt ist.
 
-**Aktuelle Version: 0.62.46rc1** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
+**Aktuelle Version: 0.62.46rc2** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
 
 > 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) · [Français](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manuel.pdf)
 
@@ -26,13 +26,13 @@
 | 🍂 **Heizsaison** | Heizgrenze nach Tagesmittel aus Messung + Wettervorhersage, Kälteeinbruch-Regel, „Heute heizen“, Sommerpflege der Ventile |
 | ☀️ **Wettervorhersage** | Sonnenseite-Räume heizen bei erwarteter Sonne 1 °C weniger; in Frostnächten (≤ −5 °C) nur halb so tief absenken |
 | 📱 **Benachrichtigungen** | pro Empfänger wählbar, welche Nachrichten; Push mit Knöpfen, Ruhezeit (am Wochenende länger), optional Sprachansagen; **Lüft-Countdown auf dem Sperrbildschirm** (Live-Aktivität) |
-| 👤 **Präsenzmelder** | mmWave und PIR (PIR vorsichtiger gewichtet): niemand fälschlich „weg“, solange jemand da ist; leere Räume auf Wunsch etwas kühler |
+| 👤 **Präsenzmelder** | mmWave und PIR (PIR vorsichtiger gewichtet): niemand fälschlich „weg“, solange jemand da ist; leere Räume auf Wunsch etwas kühler; **Anwesenheits-Temperatur** je Raum (z. B. 21 °C, solange jemand da ist), Lampen zählen als Anwesenheit, **Vorwärmen nach gelernten Belegungszeiten** |
 | 💡 **Lichtsignal** | Lampen im Raum blinken blau bei „Bitte lüften“, orange bei „Bitte schließen“ – danach wie vorher |
 | 📈 **Heizbericht** | Woche/Monat: Heizstunden, wetterbereinigter Vergleich, Ersparnis durch Absenkung, Wohlfühlzeit; Wochen-Push sonntags; **CSV-Export**; **PDF-Bericht** für Woche, Monat und Heizsaison mit Note A–F, Vorjahresvergleich, Feuchte-Ampel, Wärmebild, Rangliste und Spartipps (auf Wunsch in Euro) – per Push-Link, E-Mail oder Download |
 | 🧾 **Protokoll** | live: was wann warum entschieden wurde – Anwesenheit, Ziele, Fenster, Nachrichten, Thermostat-Befehle |
-| 🩺 **Gesundheitscheck** | Batterien, „Raum wird nicht warm“, „Heizkörper kommt kaum hinterher“ (hydraulischer Abgleich), Fühler hängt oder fehlt, Funk- und Verbindungsaussetzer, stiller Fensterkontakt, Schutz gegen Endlosschleifen mit dem Thermostat |
+| 🩺 **Gesundheitscheck** | Batterien, „Raum wird nicht warm“, „Heizkörper kommt kaum hinterher“ (hydraulischer Abgleich), Fühler hängt oder fehlt, Funk- und Verbindungsaussetzer, stiller Fensterkontakt, Schutz gegen Endlosschleifen mit dem Thermostat; **Batterie-Prognose** („hält noch ~40 Tage“) und Warnung bei auffällig vielen Funkbefehlen |
 | 👁️ **Überwachungsraum** | Raum ohne Thermostat: Temperatur, Feuchte, CO₂ und Feinstaub messen, Lüftung anmahnen, berichten – mit eigener großer Karte im Dashboard, ohne jede Heizungsbedienung |
-| 🧠 **Lernen & Warum** | zeigt je Raum die gelernte Aufheizrate, daraus die Vorheizzeit und wie belastbar die Werte sind; auf Wohnungsebene Schlafzeiten und ein **Anwesenheitsprofil** (nur „jemand da“, nie wer); dazu ein Reiter **Entscheidungen** mit Filter nach Zeitraum und Bereich – jede Zeile mit Begründung und Messwerten |
+| 🧠 **Lernen & Warum** | zeigt je Raum die gelernte Aufheizrate, daraus die Vorheizzeit und wie belastbar die Werte sind; auf Wohnungsebene Schlafzeiten und ein **Anwesenheitsprofil** (nur „jemand da“, nie wer); dazu ein Reiter **Entscheidungen** mit Filter nach Zeitraum und Bereich – jede Zeile mit Begründung und Messwerten; Prüfseite **„Warum heizt der Raum (nicht)?“** mit allen Voraussetzungen und jeder Regel |
 | 🏘️ **Mehrere Wohnungen** | z. B. Zuhause und Ferienwohnung – je eigene Bewohner, Empfänger, Bericht und Protokoll, Umschalter im Dashboard |
 | 📊 **Dashboard** | Raumkarten, Verlauf mit Zeitleiste, Bericht, Protokoll, komplett bearbeitbare Einstellungsseite (Gruppenleiste, Suche, Reihenfolge/Größe/Farbe, Kalender- und Zeitwähler) – automatisch per Strategie, **Deutsch, Englisch oder Französisch** – auch Push-Nachrichten und Protokoll |
 | ⚙️ **Eigene Automationen** | Geräte-Auslöser „Bitte lüften“, „Fenster geöffnet“, „Heizung pausiert“, „Gesundheit“ … |

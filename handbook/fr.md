@@ -243,6 +243,10 @@ Seuls les **capteurs mmWave** comptent – un détecteur de mouvement voit aussi
 Un détecteur dans le salon empêche aussi Raumklima de penser à tort que « tout le monde est absent » – par ex. quand un téléphone est éteint ou qu’un visiteur est seul à la maison. Pendant les vacances, les détecteurs ne comptent pas, pour que le chat ne mette pas fin à vos vacances.
 :::
 
+**Préchauffer selon les horaires appris :** Raumklima retient quand la pièce est occupée. Si elle l’était à la même heure 3 des 4 derniers mêmes jours de semaine (p. ex. lun.–ven. dès 08:00), elle préchauffe à la température de présence – aussi tôt que la pièce en a besoin selon le temps de chauffe appris. Si personne ne vient dans les 30 minutes, la valeur d’avant s’applique de nouveau. Ce qui a été appris s’affiche sous l’interrupteur. Les anciennes habitudes sont oubliées après quatre semaines.
+
+**Lampes comme présence :** sous *Autres réglages*, des lampes peuvent être ajoutées – une lampe de bureau allumée signifie alors « quelqu’un est dans la pièce ». Utile dans les pièces sans capteur mmWave. Les lampes ne comptent que pour la pièce, jamais pour « quelqu’un à la maison ».
+
 ## Pourquoi le thermostat affiche un autre chiffre
 
 L'appareil affiche parfois une autre consigne que la carte – par exemple **cible 18,0 °C**, sur le
@@ -408,6 +412,18 @@ L'espace d'apprentissage est divisé en onglets – selon que vous êtes dans un
 Dans l'onglet **Décisions**, choisissez la période (aujourd'hui, 7 ou 14 jours) et le domaine
 (chauffage, aération, présence, santé). Trois indicateurs en haut, l'historique en dessous. Toucher une
 ligne déploie la justification complète avec les valeurs mesurées. Dans *Logement*, un sélecteur de pièce s'ajoute.
+
+### Pourquoi la pièce chauffe-t-elle (ou pas) ?
+
+Premier onglet sous *Pièce → Apprentissage*. En haut le résultat (« Chauffe à 21,0 °C », « Ne chauffe pas – fenêtre ouverte »), en dessous
+- les **conditions** avec ✓/! : saison de chauffage, thermostat allumé, fenêtre, thermostat joignable, commandes confirmées, capteur de pièce, vanne,
+- **chaque règle** dans son ordre : celle qui *fixe la consigne*, celles qui *s’appliqueraient mais sont prioritaires plus bas* (p. ex. programme sous boost) et celles qui *ne s’appliquent pas*.
+
+La page ne fait que lire et ne change rien. *Vérifier à nouveau* récupère l’état actuel.
+
+### Pile et radio
+
+Sous *Pièce → Chauffage → Appareils*, chaque pile indique combien de temps elle devrait encore tenir – estimé d’après les dernières semaines (à partir de 7 jours de données), avec les commandes radio par jour. Sous 30 jours, le contrôle de santé signale « Pile bientôt vide ». Si un thermostat émet anormalement souvent (plus de 150 commandes par jour), c’est indiqué aussi.
 
 ## Toutes les pièces en un coup d'œil
 
