@@ -1,3 +1,7 @@
+## 0.62.40b1 – 2026-11-12
+
+- Internes Übergabedokument wieder aus dem Repository entfernt — es gehört nicht in die Öffentlichkeit. Keine Verhaltensänderung an der Integration.
+
 ## 0.62.39b1 – 2026-11-12
 
 - **Übergabedokument** `docs/HANDOFF.md`: Projektaufbau, Zugänge (Repo, Produktiv-HA per REST/WebSocket, HA-Gast, Test-Container, Vault), Arbeitsweise, Versionsschema und die wiederkehrenden Fallen — damit auch ein anderer Agent ohne Vorwissen weiterarbeiten kann. Keine Verhaltensänderung.
