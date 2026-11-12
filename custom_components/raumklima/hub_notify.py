@@ -160,16 +160,24 @@ class NotifyMixin:
         payload: dict[str, Any] = {"message": message}
         if title:
             payload["title"] = title
-        if data:
+        entity_target = is_entity_target(self.hass, target)
+        # notify-Entitäten (Telegram, Alexa Devices) sprechen send_message an und
+        # kennen nur message/title. `data` (Push-Optionen wie interruption-level) würde
+        # den Aufruf ungültig machen und die Meldung still verschlucken (Issue #45).
+        if data and not entity_target:
             payload["data"] = data
         try:
-            if is_entity_target(self.hass, target):
-                # notify-Entitäten (z. B. Alexa Devices) sprechen send_message an
+            if entity_target:
                 await self.hass.services.async_call("notify", "send_message", {**payload, "entity_id": target})
             else:
                 await self.hass.services.async_call("notify", target.split(".", 1)[1], payload)
         except Exception as err:  # noqa: BLE001
             _LOGGER.warning("Benachrichtigung an %s fehlgeschlagen: %s", target, err)
+            self.log.add(
+                CAT_NOTIFY,
+                tr("Benachrichtigung an {target} fehlgeschlagen", target=_who(target)),
+                tr("Der Dienst hat den Aufruf abgelehnt: {err}", err=str(err)),
+            )
 
     async def async_test(self, target: str) -> None:
         """Testnachricht an einen Empfänger."""

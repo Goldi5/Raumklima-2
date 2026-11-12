@@ -184,6 +184,8 @@ _ROWS: list[tuple[str, str, str]] = [
     ("dringend (auch in der Ruhezeit)", "urgent (also during quiet hours)", "urgent (aussi pendant les heures calmes)"),
     (" – Ruhezeit", " – quiet hours", " – heures calmes"),
     ("{who} (Sprache)", "{who} (voice)", "{who} (voix)"),
+    ("Benachrichtigung an {target} fehlgeschlagen", "Notification to {target} failed", "Échec de la notification à {target}"),
+    ("Der Dienst hat den Aufruf abgelehnt: {err}", "The service rejected the call: {err}", "Le service a refusé l’appel : {err}"),
     # ------------------------------------------------------------ Anwesenheit
     ("jemand da", "someone home", "quelqu’un est là"),
     ("Gäste da", "guests", "invités présents"),

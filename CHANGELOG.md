@@ -1,3 +1,8 @@
+## 0.62.41b1 – 2026-11-12
+
+- **Telegram in der Ruhezeit**: Meldungen kamen nachts nur aufs iPhone, nicht nach Telegram (Issue #45). Ursache: Telegram ist seit HA 2026.11 eine notify-Entität; der Aufruf `send_message` darf dort kein `data` enthalten. Raumklima schickt `data` (Push-Optionen) jetzt nur noch an Dienste (Companion App), nicht mehr an Entitäten.
+- Sende-Fehler erscheinen zusätzlich im Raumklima-Protokoll statt nur im HA-Log.
+
 ## 0.62.40b1 – 2026-11-12
 
 - Internes Übergabedokument wieder aus dem Repository entfernt — es gehört nicht in die Öffentlichkeit. Keine Verhaltensänderung an der Integration.

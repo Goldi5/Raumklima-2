@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from pytest_homeassistant_custom_component.common import async_mock_service
+import voluptuous as vol
 
-from custom_components.raumklima.const import KIND_VENT_OPEN
+from custom_components.raumklima.const import KIND_MOISTURE, KIND_VENT_OPEN
 from custom_components.raumklima.notify_targets import notify_choices
 
 from .conftest import FakeTrv
@@ -47,3 +49,55 @@ async def test_dienst_wird_weiter_klassisch_angesprochen(hass: HomeAssistant, tr
     await hass.async_block_till_done()
 
     assert len(service) == 1 and send == []
+
+
+async def test_entitaet_bekommt_in_ruhezeit_kein_push_data(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """send_message kennt nur message/title – data würde den Aufruf ungültig machen (Issue #45)."""
+    hub_entry, _room = await _setup(hass, {"recipients": {SONOS: [KIND_MOISTURE]}})
+    hub = hub_entry.runtime_data
+    hass.states.async_set(SONOS, "unknown")
+    send = async_mock_service(hass, "notify", "send_message")
+
+    hub.quiet_now = lambda: True
+    await hub.async_notify(KIND_MOISTURE, "Titel", "Text")
+    await hass.async_block_till_done()
+
+    assert len(send) == 1
+    assert send[0].data["entity_id"] == SONOS
+    assert "data" not in send[0].data
+
+
+async def test_dienst_bekommt_in_ruhezeit_push_data(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Companion-App-Dienste bekommen das Push-Attribut weiterhin."""
+    hub_entry, _room = await _setup(hass, {"recipients": {"notify.mobile_app_test": [KIND_MOISTURE]}})
+    hub = hub_entry.runtime_data
+    service = async_mock_service(hass, "notify", "mobile_app_test")
+
+    hub.quiet_now = lambda: True
+    await hub.async_notify(KIND_MOISTURE, "Titel", "Text")
+    await hass.async_block_till_done()
+
+    assert service[0].data["data"] == {"push": {"interruption-level": "passive"}}
+
+
+async def test_schickfehler_kommt_ins_protokoll(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Eine abgelehnte Meldung darf nicht still verschwinden – sie gehört ins Log."""
+    hub_entry, _room = await _setup(hass, {"recipients": {"notify.mobile_app_test": [KIND_MOISTURE]}})
+    hub = hub_entry.runtime_data
+
+    async def _boom(_call) -> None:
+        raise HomeAssistantError("data not allowed")
+
+    # Strenges Schema wie bei notify-Entitäten: message/title, kein data.
+    hass.services.async_register(
+        "notify",
+        "mobile_app_test",
+        _boom,
+        schema=vol.Schema({vol.Required("message"): str, vol.Optional("title"): str}),
+    )
+
+    hub.quiet_now = lambda: True
+    await hub.async_notify(KIND_MOISTURE, "Titel", "Text")
+    await hass.async_block_till_done()
+
+    assert any("fehlgeschlagen" in (e.get("msg") or "") for e in hub.log.entries)
