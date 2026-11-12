@@ -1,12 +1,13 @@
 // iPad/iPhone: „Sichern", „Diagnose" und „Fehler melden" dürfen keinen Download und kein
 // window.open direkt aus dem Skript versuchen – beides wird dort verworfen. Der Dialog mit
 // echten Knöpfen ist der Weg, der auf allen Geräten funktioniert.
+import { settingsSource } from "./settings-source.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const src = readFileSync(new URL("../src/cards/settings.js", import.meta.url), "utf8");
-const shared = readFileSync(new URL("../src/shared.js", import.meta.url), "utf8");
+const src = settingsSource();
+const shared = readFileSync(new URL("../src/styles.js", import.meta.url), "utf8"); // CSS liegt in styles.js
 
 test("Fehler melden öffnet keinen Tab mehr aus dem Skript", () => {
   const start = src.indexOf("_openBugReport()");
@@ -36,7 +37,8 @@ test("Sichern und Diagnose liefern erst Daten, dann den Dialog", () => {
   assert.match(backup, /this\._openSheet\(/);
   assert.doesNotMatch(backup, /a\.download/, "kein Blob-Download direkt nach dem await");
 
-  const diag = src.slice(src.indexOf("async _downloadDiagnostics()"), src.indexOf("_hubOpt(key)"));
+  const start = src.indexOf("async _downloadDiagnostics()");
+  const diag = src.slice(start, src.indexOf("\n  }", start)); // bis zum Ende der Methode
   assert.match(diag, /callWS\(\{ type: "raumklima\/diagnostics"/);
   assert.match(diag, /this\._openSheet\(/);
   assert.doesNotMatch(diag, /a\.download/);

@@ -2,11 +2,12 @@
 // Fehlte beides, blieben die Chips leer (elf graue Punkte ohne Beschriftung).
 // Seit Issue #30 kommen sie über _orderedRooms() – dieselbe Quelle, nur sortiert.
 
+import { settingsSource } from "./settings-source.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const src = readFileSync(new URL("../src/cards/settings.js", import.meta.url), "utf8");
+const src = settingsSource();
 
 function guestChipBlock() {
   const i = src.indexOf('"Gäste gelten für"');

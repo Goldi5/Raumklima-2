@@ -2027,294 +2027,7 @@
   // src/version.js
   var RK_VERSION = "0.62.46rc1";
 
-  // src/shared.js
-  var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
-  function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats, parts = false }) {
-    const models = [...new Set(thermostats.filter(Boolean))].sort();
-    const body = [
-      "### Was passiert",
-      "<!-- kurz beschreiben, was du beobachtest -->",
-      "",
-      "### Was du erwartet hast",
-      "",
-      "### Umgebung (automatisch ausgefüllt)",
-      `- Raumklima: ${version || "?"}`,
-      `- Home Assistant: ${haVersion || "?"}`,
-      `- Sprache: ${language || "?"}`,
-      `- Räume: ${rooms} in ${homeCount} Wohnung(en)`,
-      `- Thermostate: ${models.length ? models.join(", ") : "unbekannt"}`,
-      "",
-      "### Diagnose-Datei",
-      "Bitte *Einstellungen → Allgemein → Diagnose* anklicken und die JSON-Datei hier anhängen.",
-      "Darin stehen Werte, Entitäten und die letzten Protokollzeilen – ohne Zugangsdaten.",
-      ""
-    ].join("\n");
-    const query = [
-      `title=${encodeURIComponent("[Fehler] ")}`,
-      `body=${encodeURIComponent(body)}`,
-      "labels=bug"
-    ].join("&");
-    const url = `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
-    return parts ? { url, body } : url;
-  }
-  var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  var STATUS = tmap({
-    heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
-    idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
-    window_open: { label: "Pausiert – Fenster offen", icon: "mdi:window-open-variant", tone: "air" },
-    off: { label: "Aus", icon: "mdi:power", tone: "off" },
-    off_trv: { label: "Aus – am Thermostat abgeschaltet", icon: "mdi:power-plug-off", tone: "off" },
-    sensor_unavailable: { label: "Fühler ausgefallen", icon: "mdi:thermometer-alert", tone: "warn" },
-    trv_unavailable: { label: "Thermostat nicht erreichbar", icon: "mdi:lan-disconnect", tone: "warn" },
-    season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
-    setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
-    night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" }
-  });
-  var PRESENCE = tmap({
-    home: { label: "Jemand da", icon: "mdi:home-account", tone: "ok" },
-    guests: { label: "Gäste da", icon: "mdi:account-group", tone: "ok" },
-    preheat: { label: "Vorheizen", icon: "mdi:car-arrow-right", tone: "heat" },
-    away_short: { label: "Alle weg", icon: "mdi:home-export-outline", tone: "eco" },
-    away_long: { label: "Länger weg", icon: "mdi:bag-suitcase", tone: "eco" }
-  });
-  var SEASON = tmap({
-    heating: { label: "Heizsaison", icon: "mdi:radiator", tone: "heat" },
-    pause: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
-    cold_snap: { label: "Kälteeinbruch", icon: "mdi:snowflake-thermometer", tone: "cold" },
-    heat_today: { label: "Heute heizen", icon: "mdi:fire-circle", tone: "heat" },
-    always: { label: "Immer heizen", icon: "mdi:radiator", tone: "heat" },
-    manual_pause: { label: "Heizpause (Hand)", icon: "mdi:radiator-off", tone: "off" }
-  });
-  function rkNeedsDashboard(dashboards, path, current = "") {
-    const p = String(path || "").replace(/^\//, "");
-    if (!p) return false;
-    if (p === String(current || "").replace(/^\//, "")) return false;
-    return !Object.prototype.hasOwnProperty.call(dashboards || {}, p);
-  }
-  function rkHomes(hass) {
-    return Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima" && e.translation_key === "presence" && hass.states[e.entity_id]).map((e) => {
-      const a = hass.states[e.entity_id].attributes;
-      return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id };
-    }).filter((h) => h.id);
-  }
-  function rkSchedSortKey(w) {
-    const mins = (v) => {
-      const [h, m] = String(v || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
-      return h * 60 + m;
-    };
-    const start = mins(w && w.start);
-    const end = mins(w && w.end);
-    const days = w && w.days || [];
-    return [start >= end ? start - 1440 : start, -days.length, String(days.join(""))];
-  }
-  function rkTimeValue(text) {
-    const s = String(text || "").trim();
-    const parts = s.split(/[:. ]+/).filter(Boolean);
-    const digits = s.replace(/\D/g, "");
-    let h;
-    let min;
-    if (parts.length >= 2) {
-      h = parseInt(parts[0], 10);
-      min = parseInt(parts[1], 10);
-    } else if (digits.length <= 2) {
-      h = parseInt(digits, 10);
-      min = 0;
-    } else {
-      h = parseInt(digits.slice(0, digits.length - 2), 10);
-      min = parseInt(digits.slice(-2), 10);
-    }
-    if (!Number.isFinite(h) || !Number.isFinite(min) || h < 0 || h > 23 || min < 0 || min > 59) return "";
-    return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
-  }
-  var RK_UMLAUT = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
-  function rkSlug(v) {
-    return String(v || "").toLowerCase().replace(/[äöüß]/g, (c) => RK_UMLAUT[c]).replace(/[^a-z0-9]/g, "");
-  }
-  function rkHomeId(hass, config = {}) {
-    const hs = rkHomes(hass);
-    const want = String(config && config.home || "").trim();
-    if (want) {
-      const hit = hs.find((h) => h.id === want) || hs.find((h) => h.name === want) || hs.find((h) => rkSlug(h.name) === rkSlug(want));
-      return hit ? hit.id : want;
-    }
-    const path = String(hass && hass.panelUrl || "").replace(/^\//, "");
-    if (path) {
-      const byPath = hs.find((h) => String(h.dashboard || "").replace(/^\//, "") === path);
-      if (byPath) return byPath.id;
-      const seg = path.split("/")[0];
-      const hit = hs.find((h) => rkSlug(h.name) && seg.endsWith(rkSlug(h.name)));
-      if (hit) return hit.id;
-    }
-    return null;
-  }
-  function rkHub(hass, home) {
-    const out = {};
-    const reg = Object.values(hass.entities || {});
-    const all = reg.filter((e) => e.platform === "raumklima" && e.translation_key === "presence");
-    const pres = home && all.find((e) => (hass.states[e.entity_id] || { attributes: {} }).attributes.home_id === home) || all[0];
-    if (!pres) return out;
-    for (const e of reg) if (e.device_id === pres.device_id && e.translation_key) out[e.translation_key] = e.entity_id;
-    return out;
-  }
-  function planTag(a) {
-    const r = a && a.plan_reason;
-    if (!r || r === "normal" || r === "manual" || r === "monitor") return "";
-    const map = {
-      mold: "Schimmel",
-      schedule: "Zeitplan",
-      schedule_preheat: "Vorheizen",
-      home_office: "Homeoffice",
-      presence: "Anwesend",
-      device_auto: "Automatik",
-      boost: "Boost",
-      sleep: "Ruhezeit",
-      away_short: "Abgesenkt",
-      away_long: "Abgesenkt",
-      room_empty: "Leer",
-      solar: "Sonne",
-      frost: "Frost",
-      valve_care: "Ventilpflege",
-      season: "Heizpause"
-    };
-    return map[r] ? t(map[r]) : "";
-  }
-  function planText(a, off, compact = false) {
-    if (off) return t("Heizung aus");
-    const r = a.plan_reason;
-    if (r === "season") return t("Heizpause");
-    if (r === "valve_care") return t("Ventilpflege läuft");
-    const tgt = a.effective_target != null ? a.effective_target : a.temperature;
-    const wish = a.wish != null ? a.wish : a.temperature;
-    if (compact) {
-      if (r === "frost") return t("Frostschutz {v}°", { v: fmt(tgt) });
-      if (r === "away_short" || r === "away_long") return t("Abgesenkt · Wunsch {w}°", { w: fmt(wish) });
-      if (r === "manual") return t("Von Hand · {v}°", { v: fmt(a.temperature) });
-      if (r === "room_empty") return t("Leer · {v}°", { v: fmt(tgt) });
-      if (r === "schedule") return t("Zeitplan · {v}°", { v: fmt(tgt) });
-      if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
-      if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
-      if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
-      if (r === "presence") return t("Anwesend · {v}°", { v: fmt(tgt) });
-      if (r === "device_auto") return t("Automatik am Gerät");
-      if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
-      if (r === "mold") {
-        const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
-        if (plus != null && plus >= 0.2) return t("Schimmel +{d}°", { d: fmt(plus) });
-        return t("Schimmel · {v}°", { v: fmt(tgt) });
-      }
-      if (r === "solar") return t("Sonne · {v}°", { v: fmt(tgt) });
-      return t("Ziel {v}°", { v: fmt(a.temperature) });
-    }
-    if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    if (r === "mold") {
-      const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
-      const rh = a.mold_rh != null ? fmt(a.mold_rh, 0) : null;
-      if (a.mold_capped) {
-        return t("Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften", {
-          rh: rh || "–",
-          h: a.mold_risk_hours != null ? fmt(a.mold_risk_hours, 1) : "–"
-        });
-      }
-      if (plus != null && plus >= 0.2 && rh) {
-        return t("Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel", {
-          d: fmt(plus),
-          v: fmt(a.mold_min),
-          rh
-        });
-      }
-      return t("Schimmelschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    }
-    if ((r === "away_short" || r === "away_long") && a.effective_target != null)
-      return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(wish) });
-    if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
-    if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    if (r === "schedule_preheat" && a.effective_target != null) return t("Vorheizen für Zeitplan · <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    if (r === "sleep" && a.effective_target != null) return t("Ruhezeit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    if (r === "mold" && a.effective_target != null) return t("Schimmelschutz · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
-    return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
-  }
-  var VENT = tmap({
-    ok: null,
-    please_open: { label: "Bitte lüften", icon: "mdi:air-filter", tone: "air" },
-    airing: { label: "Lüftet", icon: "mdi:weather-windy", tone: "air" },
-    done: { label: "Luft ausgetauscht – du kannst schließen", icon: "mdi:check-decagram", tone: "ok" },
-    please_close: { label: "Lüftzeit erreicht – bitte schließen", icon: "mdi:window-closed-variant", tone: "warn" },
-    too_cold: { label: "Raum kühlt aus – jetzt schließen", icon: "mdi:snowflake-alert", tone: "cold" }
-  });
-  function rkWindowOpen(hass, id) {
-    const st = hass.states[id];
-    if (!st) return false;
-    if (String(id).startsWith("cover.")) {
-      if (["open", "opening"].includes(st.state)) return true;
-      const pos = st.attributes && st.attributes.current_position;
-      return pos != null && Number(pos) > 0;
-    }
-    return st.state === "on";
-  }
-  function rkOpenSince(hass, a) {
-    if (!a || !a.window_open) return null;
-    const times = (a.window_entities || []).map((e) => hass.states[e]).filter((s) => s && (s.state === "on" || (s.entity_id || "").startsWith("cover.") && ["open", "opening"].includes(s.state)) && s.last_changed).map((s) => Date.parse(s.last_changed));
-    if (a.window_open_since) times.push(Date.parse(a.window_open_since));
-    return times.length ? Math.min(...times.filter((x) => !isNaN(x))) : null;
-  }
-  function rkDuration(ms) {
-    const s = Math.max(0, Math.floor(ms / 1e3));
-    if (s < 60) return t("{n} s", { n: s });
-    const m = Math.floor(s / 60);
-    if (m < 60) return t("{n} min", { n: m });
-    const h = Math.floor(m / 60);
-    if (h < 24) return t("{h} h {m} min", { h, m: String(m % 60).padStart(2, "0") });
-    return t("{d} Tg. {h} h", { d: Math.floor(h / 24), h: h % 24 });
-  }
-  function rkClock(ms) {
-    const d = new Date(ms);
-    const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
-    return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
-  }
-  function rkPaint(host, html) {
-    const root = host.shadowRoot;
-    const h = host.offsetHeight;
-    const y = window.scrollY;
-    const scrollers = [];
-    for (let el = host.parentElement || host.getRootNode() && host.getRootNode().host; el; el = el.parentElement || el.getRootNode() && el.getRootNode().host) {
-      if (el.scrollTop) scrollers.push([el, el.scrollTop]);
-    }
-    if (h) host.style.minHeight = `${h}px`;
-    root.innerHTML = html;
-    if (window.scrollY !== y) window.scrollTo(0, y);
-    for (const [el, top] of scrollers) if (el.scrollTop !== top) el.scrollTop = top;
-    clearTimeout(host._rkHold);
-    host._rkHold = setTimeout(() => {
-      host.style.minHeight = "";
-    }, 600);
-  }
-  var rkLastScroll = 0;
-  if (typeof window !== "undefined") {
-    const mark = () => {
-      rkLastScroll = Date.now();
-    };
-    for (const ev of ["scroll", "wheel", "touchmove"]) window.addEventListener(ev, mark, { capture: true, passive: true });
-  }
-  var rkScrolling = () => Date.now() - rkLastScroll < 600;
-  function rkLater(host, fn) {
-    clearTimeout(host._rkLater);
-    host._rkLater = setTimeout(() => rkScrolling() ? rkLater(host, fn) : fn(), 700);
-  }
-  function rkChanged(host, hass, ids) {
-    const refs = ids.map((id) => hass.states[id]);
-    const prev = host._rkRefs;
-    host._rkRefs = refs;
-    return !prev || prev.length !== refs.length || refs.some((r, i) => r !== prev[i]);
-  }
-  function rkBusy(host) {
-    const a = host.shadowRoot && host.shadowRoot.activeElement;
-    return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
-  }
-  var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
-  var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
+  // src/styles.js
   var STYLES = `
   .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 12px; border-radius:999px; font-weight:600; font-size:.84rem;
     background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); color: var(--secondary-text-color); }
@@ -2398,161 +2111,6 @@
   .sync.pending { color: var(--rk-warn); } .sync.failed { color: var(--rk-cold); }
   .err { padding:16px; color: var(--rk-cold); }
 `;
-  function toneVar(tone) {
-    return `var(--rk-${tone || "off"})`;
-  }
-  var DAY_LOCALE = { de: "de-DE", en: "en-GB", fr: "fr-FR" };
-  function schedDayName(index) {
-    const d = new Date(2026, 10, 2 + Number(index));
-    return new Intl.DateTimeFormat(DAY_LOCALE[getLang()] || "en-GB", { weekday: "short" }).format(d);
-  }
-  function schedDaysLabel(days) {
-    const list = (days || []).slice().sort((a, b) => a - b);
-    if (!list.length || list.length === 7) return t("täglich");
-    return list.map(schedDayName).join(" ");
-  }
-  var RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
-  var SEG = tmap({
-    season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
-    setback: { c: "var(--rk-eco)", l: "Abgesenkt" },
-    heating: { c: "var(--rk-heat)", l: "Heizt" },
-    idle: { c: "var(--rk-ok)", l: "Erreicht" },
-    window_open: { c: "var(--rk-air)", l: "Fenster offen" },
-    night_airing: { c: "color-mix(in srgb, var(--rk-air) 55%, #1e2a5a)", l: "Nachtlüften" },
-    off: { c: "color-mix(in srgb, var(--rk-off) 45%, transparent)", l: "Aus" },
-    sensor_unavailable: { c: "var(--rk-warn)", l: "Fühler fehlt" },
-    trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" }
-  });
-  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
-  var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
-  function rkLayout(hass, home) {
-    const key = String(home || "");
-    if (!RK_LAYOUT_CACHE.has(key)) {
-      RK_LAYOUT_CACHE.set(
-        key,
-        hass.callWS({ type: "raumklima/layout/get", home: home || null }).then((r) => ({ ...RK_LAYOUT_EMPTY, ...r && r.layout || {} })).catch(() => ({ ...RK_LAYOUT_EMPTY }))
-      );
-    }
-    return RK_LAYOUT_CACHE.get(key);
-  }
-  function rkLayoutRemember(layout, home) {
-    if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
-  }
-  function rkLayoutChanged(home) {
-    try {
-      window.dispatchEvent(new CustomEvent("raumklima-layout", { detail: { home: String(home || "") } }));
-    } catch (e) {
-    }
-  }
-  function rkOnLayoutChanged(handler) {
-    const fn = (e) => handler(e && e.detail && e.detail.home || "");
-    window.addEventListener("raumklima-layout", fn);
-    return () => window.removeEventListener("raumklima-layout", fn);
-  }
-  function rkOrderPos(order, r) {
-    const key = r && (r.id || r.entity_id) || "";
-    let i = order.indexOf(key);
-    if (i < 0) {
-      const name = r && (r.name || r.attributes && r.attributes.friendly_name) || "";
-      if (name) i = order.indexOf(name);
-    }
-    return i < 0 ? order.length : i;
-  }
-  function rkRoomsOrdered(rooms, layout) {
-    const order = (layout || RK_LAYOUT_EMPTY).order || [];
-    return [...rooms || []].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
-  }
-  function rkLayoutApply(rooms, layout) {
-    const L = layout || RK_LAYOUT_EMPTY;
-    const hidden = new Set(L.hidden || []);
-    const order = L.order || [];
-    const keyOf = (r) => r && (r.id || r.entity_id) || "";
-    return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
-  }
-  function rkLayoutSize(layout, id) {
-    return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
-  }
-  function rkLayoutColor(layout, id) {
-    return ((layout || RK_LAYOUT_EMPTY).color || {})[id] || null;
-  }
-  function rkRooms(hass, prefix, home) {
-    const reg = Object.values(hass.entities || {});
-    const rooms = reg.filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => {
-      const st = hass.states[e.entity_id];
-      const sib = {};
-      reg.forEach((x) => {
-        if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id;
-      });
-      const full = st && st.attributes.friendly_name || e.entity_id;
-      return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + escRe(prefix) + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
-    }).sort((a, b) => a.name.localeCompare(b.name));
-    const mine = home ? rooms.filter((r) => !r.attrs.home || r.attrs.home === home) : rooms;
-    mine.forEach((r, i) => {
-      r.color = RK_COLORS[i % RK_COLORS.length];
-    });
-    return mine;
-  }
-  var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
-  var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich" });
-  var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
-  var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
-  var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
-  var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
-  var RK_WALL = tmap({
-    auto: "wie die Wohnung",
-    corner: "Außenecke",
-    wall: "Außenwand",
-    interior: "innenliegend"
-  });
-  var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
-  var RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
-  var RK_PREHEAT = tmap({ auto: "Automatisch", clock: "Frühestens ab", lead: "Frühestens vorher", off: "Erst zum Zeitplan" });
-  var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
-  var RK_MAIL_PROVIDERS = {
-    gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
-    gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
-    webde: ["smtp.web.de", 587, "starttls", "WEB.DE"],
-    outlook: ["smtp-mail.outlook.com", 587, "starttls", "Outlook / Hotmail"],
-    tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
-    icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
-    posteo: ["posteo.de", 587, "starttls", "Posteo"],
-    einsundeins: ["smtp.1und1.de", 587, "starttls", "1&1"],
-    ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"]
-  };
-  var RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
-  var RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
-  var RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
-  var RK_KINDS = tmap({
-    vent_open: ["💧", "Bitte lüften"],
-    vent_close: ["🪟", "Fenster schließen"],
-    too_cold: ["🥶", "Raum kühlt aus"],
-    vent_done: ["✅", "Luft ausgetauscht"],
-    window_away: ["🚪", "Fenster offen, niemand da"],
-    presence: ["🏠", "Abwesenheit & Vorheizen"],
-    season: ["🍂", "Heizsaison Start/Ende"],
-    trv_failure: ["⚠️", "Thermostat reagiert nicht"],
-    health: ["🩺", "Gesundheit der Heizung"],
-    report: ["📊", "Wochenbericht"],
-    storm: ["🌪", "Sturm & Starkregen"],
-    moisture: ["🧺", "Feuchtequelle im Raum"],
-    live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"]
-  });
-  var RK_LIGHT_SIGNALS = tmap({
-    open: ["#005aff", "Bitte lüften"],
-    close: ["#ff6e00", "Bitte schließen"],
-    done: ["#00c83c", "Luft ausgetauscht"],
-    problem: ["#ff0000", "Problem mit der Heizung"]
-  });
-  var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report", "moisture"];
-  var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
-  function rkIssueList(issues, withRoom, prefix) {
-    if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
-    const order = { alert: 0, warn: 1, info: 2 };
-    return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
-      const sv = RK_SEV[i.severity] || RK_SEV.info;
-      return `<div class="issue" style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
-    }).join("")}</div>`;
-  }
   var ISSUE_STYLES = `
   .issues { display:grid; gap:10px; }
   .issue { display:grid; grid-template-columns: 26px 1fr auto; gap:12px; align-items:center; padding:12px 14px; border-radius:16px;
@@ -2564,11 +2122,6 @@
   .hok { display:flex; align-items:center; gap:10px; font-size:.98rem; color:var(--primary-text-color); }
   .hok ha-icon { color: var(--rk-ok); }
 `;
-  function rkPretty(target) {
-    const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
-    return s.split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || target;
-  }
-  var esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   var HISTORY_STYLES = `
   .hhead { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .htitle { font-size:1.15rem; font-weight:650; letter-spacing:-.01em; flex:1; color:var(--primary-text-color); display:flex; align-items:center; gap:8px; }
@@ -2951,29 +2504,6 @@
   @container (max-width: 520px) { .rrow { grid-template-columns: 1fr; gap:8px; } }
   .empty { padding:24px 0 8px; color:var(--secondary-text-color); line-height:1.5; }
 `;
-  var ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
-  function rkVersionMismatch(cfg, own) {
-    const server = cfg && cfg.version;
-    if (!server || !own) return "";
-    return String(server) === String(own) ? "" : String(server);
-  }
-  function rkLook(config) {
-    const look = config && config.look;
-    if (look === "classic" || look === "glass") return look;
-    return "modern";
-  }
-  function rkDark(hass, config, settings) {
-    const own = config && config.dark;
-    if (own === true || own === "on") return true;
-    if (own === false || own === "off") return false;
-    const want = settings && settings.look_dark || "auto";
-    if (want === "on") return true;
-    if (want === "off") return false;
-    return !!(hass && hass.themes && hass.themes.darkMode);
-  }
-  function rkLookStyles(look) {
-    return look === "modern" ? MODERN_STYLES : look === "glass" ? GLASS_STYLES : "";
-  }
   var MODERN_STYLES = `
   .modern { border-radius: 26px; }
   /* Panel hinter dem Raster – gibt der Fläche Halt, ohne das Markup zu ändern */
@@ -3036,6 +2566,478 @@
     border-color: color-mix(in srgb, #fff 20%, transparent); }
   .glass.dark .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
 `;
+
+  // src/shared.js
+  var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
+  function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats, parts = false }) {
+    const models = [...new Set(thermostats.filter(Boolean))].sort();
+    const body = [
+      "### Was passiert",
+      "<!-- kurz beschreiben, was du beobachtest -->",
+      "",
+      "### Was du erwartet hast",
+      "",
+      "### Umgebung (automatisch ausgefüllt)",
+      `- Raumklima: ${version || "?"}`,
+      `- Home Assistant: ${haVersion || "?"}`,
+      `- Sprache: ${language || "?"}`,
+      `- Räume: ${rooms} in ${homeCount} Wohnung(en)`,
+      `- Thermostate: ${models.length ? models.join(", ") : "unbekannt"}`,
+      "",
+      "### Diagnose-Datei",
+      "Bitte *Einstellungen → Allgemein → Diagnose* anklicken und die JSON-Datei hier anhängen.",
+      "Darin stehen Werte, Entitäten und die letzten Protokollzeilen – ohne Zugangsdaten.",
+      ""
+    ].join("\n");
+    const query = [
+      `title=${encodeURIComponent("[Fehler] ")}`,
+      `body=${encodeURIComponent(body)}`,
+      "labels=bug"
+    ].join("&");
+    const url = `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
+    return parts ? { url, body } : url;
+  }
+  var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  var STATUS = tmap({
+    heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
+    idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
+    window_open: { label: "Pausiert – Fenster offen", icon: "mdi:window-open-variant", tone: "air" },
+    off: { label: "Aus", icon: "mdi:power", tone: "off" },
+    off_trv: { label: "Aus – am Thermostat abgeschaltet", icon: "mdi:power-plug-off", tone: "off" },
+    sensor_unavailable: { label: "Fühler ausgefallen", icon: "mdi:thermometer-alert", tone: "warn" },
+    trv_unavailable: { label: "Thermostat nicht erreichbar", icon: "mdi:lan-disconnect", tone: "warn" },
+    season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
+    setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
+    night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" }
+  });
+  var PRESENCE = tmap({
+    home: { label: "Jemand da", icon: "mdi:home-account", tone: "ok" },
+    guests: { label: "Gäste da", icon: "mdi:account-group", tone: "ok" },
+    preheat: { label: "Vorheizen", icon: "mdi:car-arrow-right", tone: "heat" },
+    away_short: { label: "Alle weg", icon: "mdi:home-export-outline", tone: "eco" },
+    away_long: { label: "Länger weg", icon: "mdi:bag-suitcase", tone: "eco" }
+  });
+  var SEASON = tmap({
+    heating: { label: "Heizsaison", icon: "mdi:radiator", tone: "heat" },
+    pause: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
+    cold_snap: { label: "Kälteeinbruch", icon: "mdi:snowflake-thermometer", tone: "cold" },
+    heat_today: { label: "Heute heizen", icon: "mdi:fire-circle", tone: "heat" },
+    always: { label: "Immer heizen", icon: "mdi:radiator", tone: "heat" },
+    manual_pause: { label: "Heizpause (Hand)", icon: "mdi:radiator-off", tone: "off" }
+  });
+  function rkNeedsDashboard(dashboards, path, current = "") {
+    const p = String(path || "").replace(/^\//, "");
+    if (!p) return false;
+    if (p === String(current || "").replace(/^\//, "")) return false;
+    return !Object.prototype.hasOwnProperty.call(dashboards || {}, p);
+  }
+  function rkHomes(hass) {
+    return Object.values(hass.entities || {}).filter((e) => e.platform === "raumklima" && e.translation_key === "presence" && hass.states[e.entity_id]).map((e) => {
+      const a = hass.states[e.entity_id].attributes;
+      return { id: a.home_id, name: a.home_name || t("Allgemein"), dashboard: a.home_dashboard, presence: e.entity_id };
+    }).filter((h) => h.id);
+  }
+  function rkSchedSortKey(w) {
+    const mins = (v) => {
+      const [h, m] = String(v || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
+      return h * 60 + m;
+    };
+    const start = mins(w && w.start);
+    const end = mins(w && w.end);
+    const days = w && w.days || [];
+    return [start >= end ? start - 1440 : start, -days.length, String(days.join(""))];
+  }
+  function rkTimeValue(text) {
+    const s = String(text || "").trim();
+    const parts = s.split(/[:. ]+/).filter(Boolean);
+    const digits = s.replace(/\D/g, "");
+    let h;
+    let min;
+    if (parts.length >= 2) {
+      h = parseInt(parts[0], 10);
+      min = parseInt(parts[1], 10);
+    } else if (digits.length <= 2) {
+      h = parseInt(digits, 10);
+      min = 0;
+    } else {
+      h = parseInt(digits.slice(0, digits.length - 2), 10);
+      min = parseInt(digits.slice(-2), 10);
+    }
+    if (!Number.isFinite(h) || !Number.isFinite(min) || h < 0 || h > 23 || min < 0 || min > 59) return "";
+    return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+  }
+  var RK_UMLAUT = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
+  function rkSlug(v) {
+    return String(v || "").toLowerCase().replace(/[äöüß]/g, (c) => RK_UMLAUT[c]).replace(/[^a-z0-9]/g, "");
+  }
+  function rkHomeId(hass, config = {}) {
+    const hs = rkHomes(hass);
+    const want = String(config && config.home || "").trim();
+    if (want) {
+      const hit = hs.find((h) => h.id === want) || hs.find((h) => h.name === want) || hs.find((h) => rkSlug(h.name) === rkSlug(want));
+      return hit ? hit.id : want;
+    }
+    const path = String(hass && hass.panelUrl || "").replace(/^\//, "");
+    if (path) {
+      const byPath = hs.find((h) => String(h.dashboard || "").replace(/^\//, "") === path);
+      if (byPath) return byPath.id;
+      const seg = path.split("/")[0];
+      const hit = hs.find((h) => rkSlug(h.name) && seg.endsWith(rkSlug(h.name)));
+      if (hit) return hit.id;
+    }
+    return null;
+  }
+  function rkHub(hass, home) {
+    const out = {};
+    const reg = Object.values(hass.entities || {});
+    const all = reg.filter((e) => e.platform === "raumklima" && e.translation_key === "presence");
+    const pres = home && all.find((e) => (hass.states[e.entity_id] || { attributes: {} }).attributes.home_id === home) || all[0];
+    if (!pres) return out;
+    for (const e of reg) if (e.device_id === pres.device_id && e.translation_key) out[e.translation_key] = e.entity_id;
+    return out;
+  }
+  function planTag(a) {
+    const r = a && a.plan_reason;
+    if (!r || r === "normal" || r === "manual" || r === "monitor") return "";
+    const map = {
+      mold: "Schimmel",
+      schedule: "Zeitplan",
+      schedule_preheat: "Vorheizen",
+      home_office: "Homeoffice",
+      presence: "Anwesend",
+      device_auto: "Automatik",
+      boost: "Boost",
+      sleep: "Ruhezeit",
+      away_short: "Abgesenkt",
+      away_long: "Abgesenkt",
+      room_empty: "Leer",
+      solar: "Sonne",
+      frost: "Frost",
+      valve_care: "Ventilpflege",
+      season: "Heizpause"
+    };
+    return map[r] ? t(map[r]) : "";
+  }
+  function planText(a, off, compact = false) {
+    if (off) return t("Heizung aus");
+    const r = a.plan_reason;
+    if (r === "season") return t("Heizpause");
+    if (r === "valve_care") return t("Ventilpflege läuft");
+    const tgt = a.effective_target != null ? a.effective_target : a.temperature;
+    const wish = a.wish != null ? a.wish : a.temperature;
+    if (compact) {
+      if (r === "frost") return t("Frostschutz {v}°", { v: fmt(tgt) });
+      if (r === "away_short" || r === "away_long") return t("Abgesenkt · Wunsch {w}°", { w: fmt(wish) });
+      if (r === "manual") return t("Von Hand · {v}°", { v: fmt(a.temperature) });
+      if (r === "room_empty") return t("Leer · {v}°", { v: fmt(tgt) });
+      if (r === "schedule") return t("Zeitplan · {v}°", { v: fmt(tgt) });
+      if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
+      if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
+      if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
+      if (r === "presence") return t("Anwesend · {v}°", { v: fmt(tgt) });
+      if (r === "device_auto") return t("Automatik am Gerät");
+      if (r === "sleep") return t("Ruhezeit · {v}°", { v: fmt(tgt) });
+      if (r === "mold") {
+        const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
+        if (plus != null && plus >= 0.2) return t("Schimmel +{d}°", { d: fmt(plus) });
+        return t("Schimmel · {v}°", { v: fmt(tgt) });
+      }
+      if (r === "solar") return t("Sonne · {v}°", { v: fmt(tgt) });
+      return t("Ziel {v}°", { v: fmt(a.temperature) });
+    }
+    if (r === "frost") return t("Frostschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "mold") {
+      const plus = a.mold_min != null && wish != null ? a.mold_min - wish : null;
+      const rh = a.mold_rh != null ? fmt(a.mold_rh, 0) : null;
+      if (a.mold_capped) {
+        return t("Feuchte zu hoch für die Wand · {rh} % im Tagesmittel, {h} h kritisch – bitte lüften", {
+          rh: rh || "–",
+          h: a.mold_risk_hours != null ? fmt(a.mold_risk_hours, 1) : "–"
+        });
+      }
+      if (plus != null && plus >= 0.2 && rh) {
+        return t("Schimmelschutz <b>+{d} °C</b> auf {v} °C · {rh} % Feuchte im Tagesmittel", {
+          d: fmt(plus),
+          v: fmt(a.mold_min),
+          rh
+        });
+      }
+      return t("Schimmelschutz <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    }
+    if ((r === "away_short" || r === "away_long") && a.effective_target != null)
+      return t("Abgesenkt <b>{v} °C</b> · Wunsch {w}°", { v: fmt(a.effective_target), w: fmt(wish) });
+    if (r === "manual") return t("Ziel <b>{v} °C</b> · von Hand", { v: fmt(a.temperature) });
+    if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "schedule_preheat" && a.effective_target != null) return t("Vorheizen für Zeitplan · <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "sleep" && a.effective_target != null) return t("Ruhezeit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "mold" && a.effective_target != null) return t("Schimmelschutz · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "solar" && a.effective_target != null) return t("Sonne heizt mit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    return t("Ziel <b>{v} °C</b>", { v: fmt(a.temperature) });
+  }
+  var VENT = tmap({
+    ok: null,
+    please_open: { label: "Bitte lüften", icon: "mdi:air-filter", tone: "air" },
+    airing: { label: "Lüftet", icon: "mdi:weather-windy", tone: "air" },
+    done: { label: "Luft ausgetauscht – du kannst schließen", icon: "mdi:check-decagram", tone: "ok" },
+    please_close: { label: "Lüftzeit erreicht – bitte schließen", icon: "mdi:window-closed-variant", tone: "warn" },
+    too_cold: { label: "Raum kühlt aus – jetzt schließen", icon: "mdi:snowflake-alert", tone: "cold" }
+  });
+  function rkWindowOpen(hass, id) {
+    const st = hass.states[id];
+    if (!st) return false;
+    if (String(id).startsWith("cover.")) {
+      if (["open", "opening"].includes(st.state)) return true;
+      const pos = st.attributes && st.attributes.current_position;
+      return pos != null && Number(pos) > 0;
+    }
+    return st.state === "on";
+  }
+  function rkOpenSince(hass, a) {
+    if (!a || !a.window_open) return null;
+    const times = (a.window_entities || []).map((e) => hass.states[e]).filter((s) => s && (s.state === "on" || (s.entity_id || "").startsWith("cover.") && ["open", "opening"].includes(s.state)) && s.last_changed).map((s) => Date.parse(s.last_changed));
+    if (a.window_open_since) times.push(Date.parse(a.window_open_since));
+    return times.length ? Math.min(...times.filter((x) => !isNaN(x))) : null;
+  }
+  function rkDuration(ms) {
+    const s = Math.max(0, Math.floor(ms / 1e3));
+    if (s < 60) return t("{n} s", { n: s });
+    const m = Math.floor(s / 60);
+    if (m < 60) return t("{n} min", { n: m });
+    const h = Math.floor(m / 60);
+    if (h < 24) return t("{h} h {m} min", { h, m: String(m % 60).padStart(2, "0") });
+    return t("{d} Tg. {h} h", { d: Math.floor(h / 24), h: h % 24 });
+  }
+  function rkClock(ms) {
+    const d = new Date(ms);
+    const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
+    return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
+  }
+  function rkPaint(host, html) {
+    const root = host.shadowRoot;
+    const h = host.offsetHeight;
+    const y = window.scrollY;
+    const scrollers = [];
+    for (let el = host.parentElement || host.getRootNode() && host.getRootNode().host; el; el = el.parentElement || el.getRootNode() && el.getRootNode().host) {
+      if (el.scrollTop) scrollers.push([el, el.scrollTop]);
+    }
+    if (h) host.style.minHeight = `${h}px`;
+    root.innerHTML = html;
+    if (window.scrollY !== y) window.scrollTo(0, y);
+    for (const [el, top] of scrollers) if (el.scrollTop !== top) el.scrollTop = top;
+    clearTimeout(host._rkHold);
+    host._rkHold = setTimeout(() => {
+      host.style.minHeight = "";
+    }, 600);
+  }
+  var rkLastScroll = 0;
+  if (typeof window !== "undefined") {
+    const mark = () => {
+      rkLastScroll = Date.now();
+    };
+    for (const ev of ["scroll", "wheel", "touchmove"]) window.addEventListener(ev, mark, { capture: true, passive: true });
+  }
+  var rkScrolling = () => Date.now() - rkLastScroll < 600;
+  function rkLater(host, fn) {
+    clearTimeout(host._rkLater);
+    host._rkLater = setTimeout(() => rkScrolling() ? rkLater(host, fn) : fn(), 700);
+  }
+  function rkChanged(host, hass, ids) {
+    const refs = ids.map((id) => hass.states[id]);
+    const prev = host._rkRefs;
+    host._rkRefs = refs;
+    return !prev || prev.length !== refs.length || refs.some((r, i) => r !== prev[i]);
+  }
+  function rkBusy(host) {
+    const a = host.shadowRoot && host.shadowRoot.activeElement;
+    return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
+  }
+  var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
+  var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
+  function toneVar(tone) {
+    return `var(--rk-${tone || "off"})`;
+  }
+  var DAY_LOCALE = { de: "de-DE", en: "en-GB", fr: "fr-FR" };
+  function schedDayName(index) {
+    const d = new Date(2026, 10, 2 + Number(index));
+    return new Intl.DateTimeFormat(DAY_LOCALE[getLang()] || "en-GB", { weekday: "short" }).format(d);
+  }
+  function schedDaysLabel(days) {
+    const list = (days || []).slice().sort((a, b) => a - b);
+    if (!list.length || list.length === 7) return t("täglich");
+    return list.map(schedDayName).join(" ");
+  }
+  var RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
+  var SEG = tmap({
+    season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
+    setback: { c: "var(--rk-eco)", l: "Abgesenkt" },
+    heating: { c: "var(--rk-heat)", l: "Heizt" },
+    idle: { c: "var(--rk-ok)", l: "Erreicht" },
+    window_open: { c: "var(--rk-air)", l: "Fenster offen" },
+    night_airing: { c: "color-mix(in srgb, var(--rk-air) 55%, #1e2a5a)", l: "Nachtlüften" },
+    off: { c: "color-mix(in srgb, var(--rk-off) 45%, transparent)", l: "Aus" },
+    sensor_unavailable: { c: "var(--rk-warn)", l: "Fühler fehlt" },
+    trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" }
+  });
+  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
+  var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
+  function rkLayout(hass, home) {
+    const key = String(home || "");
+    if (!RK_LAYOUT_CACHE.has(key)) {
+      RK_LAYOUT_CACHE.set(
+        key,
+        hass.callWS({ type: "raumklima/layout/get", home: home || null }).then((r) => ({ ...RK_LAYOUT_EMPTY, ...r && r.layout || {} })).catch(() => ({ ...RK_LAYOUT_EMPTY }))
+      );
+    }
+    return RK_LAYOUT_CACHE.get(key);
+  }
+  function rkLayoutRemember(layout, home) {
+    if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
+  }
+  function rkLayoutChanged(home) {
+    try {
+      window.dispatchEvent(new CustomEvent("raumklima-layout", { detail: { home: String(home || "") } }));
+    } catch (e) {
+    }
+  }
+  function rkOnLayoutChanged(handler) {
+    const fn = (e) => handler(e && e.detail && e.detail.home || "");
+    window.addEventListener("raumklima-layout", fn);
+    return () => window.removeEventListener("raumklima-layout", fn);
+  }
+  function rkOrderPos(order, r) {
+    const key = r && (r.id || r.entity_id) || "";
+    let i = order.indexOf(key);
+    if (i < 0) {
+      const name = r && (r.name || r.attributes && r.attributes.friendly_name) || "";
+      if (name) i = order.indexOf(name);
+    }
+    return i < 0 ? order.length : i;
+  }
+  function rkRoomsOrdered(rooms, layout) {
+    const order = (layout || RK_LAYOUT_EMPTY).order || [];
+    return [...rooms || []].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
+  }
+  function rkLayoutApply(rooms, layout) {
+    const L = layout || RK_LAYOUT_EMPTY;
+    const hidden = new Set(L.hidden || []);
+    const order = L.order || [];
+    const keyOf = (r) => r && (r.id || r.entity_id) || "";
+    return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
+  }
+  function rkLayoutSize(layout, id) {
+    return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
+  }
+  function rkLayoutColor(layout, id) {
+    return ((layout || RK_LAYOUT_EMPTY).color || {})[id] || null;
+  }
+  function rkRooms(hass, prefix, home) {
+    const reg = Object.values(hass.entities || {});
+    const rooms = reg.filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => {
+      const st = hass.states[e.entity_id];
+      const sib = {};
+      reg.forEach((x) => {
+        if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id;
+      });
+      const full = st && st.attributes.friendly_name || e.entity_id;
+      return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + escRe(prefix) + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+    const mine = home ? rooms.filter((r) => !r.attrs.home || r.attrs.home === home) : rooms;
+    mine.forEach((r, i) => {
+      r.color = RK_COLORS[i % RK_COLORS.length];
+    });
+    return mine;
+  }
+  var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
+  var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich" });
+  var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
+  var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
+  var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
+  var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+  var RK_WALL = tmap({
+    auto: "wie die Wohnung",
+    corner: "Außenecke",
+    wall: "Außenwand",
+    interior: "innenliegend"
+  });
+  var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
+  var RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
+  var RK_PREHEAT = tmap({ auto: "Automatisch", clock: "Frühestens ab", lead: "Frühestens vorher", off: "Erst zum Zeitplan" });
+  var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
+  var RK_MAIL_PROVIDERS = {
+    gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
+    gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
+    webde: ["smtp.web.de", 587, "starttls", "WEB.DE"],
+    outlook: ["smtp-mail.outlook.com", 587, "starttls", "Outlook / Hotmail"],
+    tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
+    icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
+    posteo: ["posteo.de", 587, "starttls", "Posteo"],
+    einsundeins: ["smtp.1und1.de", 587, "starttls", "1&1"],
+    ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"]
+  };
+  var RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
+  var RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
+  var RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
+  var RK_KINDS = tmap({
+    vent_open: ["💧", "Bitte lüften"],
+    vent_close: ["🪟", "Fenster schließen"],
+    too_cold: ["🥶", "Raum kühlt aus"],
+    vent_done: ["✅", "Luft ausgetauscht"],
+    window_away: ["🚪", "Fenster offen, niemand da"],
+    presence: ["🏠", "Abwesenheit & Vorheizen"],
+    season: ["🍂", "Heizsaison Start/Ende"],
+    trv_failure: ["⚠️", "Thermostat reagiert nicht"],
+    health: ["🩺", "Gesundheit der Heizung"],
+    report: ["📊", "Wochenbericht"],
+    storm: ["🌪", "Sturm & Starkregen"],
+    moisture: ["🧺", "Feuchtequelle im Raum"],
+    live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"]
+  });
+  var RK_LIGHT_SIGNALS = tmap({
+    open: ["#005aff", "Bitte lüften"],
+    close: ["#ff6e00", "Bitte schließen"],
+    done: ["#00c83c", "Luft ausgetauscht"],
+    problem: ["#ff0000", "Problem mit der Heizung"]
+  });
+  var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report", "moisture"];
+  var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
+  function rkIssueList(issues, withRoom, prefix) {
+    if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
+    const order = { alert: 0, warn: 1, info: 2 };
+    return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
+      const sv = RK_SEV[i.severity] || RK_SEV.info;
+      return `<div class="issue" style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
+    }).join("")}</div>`;
+  }
+  function rkPretty(target) {
+    const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
+    return s.split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || target;
+  }
+  var esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  var ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
+  function rkVersionMismatch(cfg, own) {
+    const server = cfg && cfg.version;
+    if (!server || !own) return "";
+    return String(server) === String(own) ? "" : String(server);
+  }
+  function rkLook(config) {
+    const look = config && config.look;
+    if (look === "classic" || look === "glass") return look;
+    return "modern";
+  }
+  function rkDark(hass, config, settings) {
+    const own = config && config.dark;
+    if (own === true || own === "on") return true;
+    if (own === false || own === "off") return false;
+    const want = settings && settings.look_dark || "auto";
+    if (want === "on") return true;
+    if (want === "off") return false;
+    return !!(hass && hass.themes && hass.themes.darkMode);
+  }
+  function rkLookStyles(look) {
+    return look === "modern" ? MODERN_STYLES : look === "glass" ? GLASS_STYLES : "";
+  }
 
   // src/cards/room.js
   var BOOST_CSS = `
@@ -4506,7 +4508,7 @@
     room_eco_drop: { unit: " °C", step: 0.5, min: 0.5, max: 4, dec: 1 }
   };
 
-  // src/cards/settings.js
+  // src/cards/settings/const.js
   var RK_GROUP_META = {
     home: { label: "Wohnung", icon: "mdi:home-outline" },
     room: { label: "Raum", icon: "mdi:door-open" },
@@ -4572,98 +4574,9 @@
     { id: "NW", name: t("Nordwest") }
   ];
   var rkFacadeName = (v) => v ? (RK_FACADES().find((f) => f.id === v) || {}).name || v : t("nur Vorhersage");
-  var RaumklimaSettingsCard = class extends HTMLElement {
-    static getConfigForm() {
-      return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }] };
-    }
-    static getStubConfig() {
-      return {};
-    }
-    setConfig(config) {
-      this._config = { ...config };
-      this._tab = this._tab || "general";
-      if (this._sheet === void 0) this._sheet = null;
-      this._local = this._local || {};
-      this._timers = this._timers || {};
-      if (!this.shadowRoot) this.attachShadow({ mode: "open" });
-    }
-    getCardSize() {
-      return 14;
-    }
-    getGridOptions() {
-      return { columns: "full", rows: "auto" };
-    }
-    connectedCallback() {
-      this.style.display = "block";
-      this._poll = setInterval(() => this._load(), 6e4);
-    }
-    disconnectedCallback() {
-      clearInterval(this._poll);
-    }
-    set hass(hass) {
-      const first = !this._hass;
-      this._hass = hass;
-      setLang(hass);
-      this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._homeId());
-      if (first) {
-        this._trace("card", { layout: "settings" });
-        this._load();
-        this._loadLayout();
-      }
-      const hubIds = rkHub(hass, this._homeId());
-      const sig = JSON.stringify([
-        this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)]),
-        Object.values(hubIds).map((id) => hass.states[id] && [hass.states[id].state, hass.states[id].attributes]),
-        this._tab,
-        this._cfgVer,
-        this._toast
-      ]);
-      if (sig === this._sig) return;
-      this._sig = sig;
-      if (this._sheet) return;
-      if (rkScrolling()) {
-        rkLater(this, () => this._render());
-        return;
-      }
-      this._render();
-    }
-    _renderSoon() {
-      if (rkBusy(this)) {
-        if (!this._waiting) {
-          this._waiting = true;
-          this.shadowRoot.addEventListener("focusout", () => {
-            this._waiting = false;
-            setTimeout(() => this._render(), 50);
-          }, { once: true });
-        }
-        return true;
-      }
-      return false;
-    }
-    _homeId() {
-      return this._home || rkHomeId(this._hass, this._config) || this._cfg && this._cfg.hub && this._cfg.hub.entry_id || null;
-    }
-    _homeMsg() {
-      const h = this._home || this._config.home;
-      return h ? { home: h } : {};
-    }
-    async _load() {
-      if (!this._hass) return;
-      try {
-        this._cfg = await this._hass.callWS({ type: "raumklima/config", ...this._homeMsg() });
-        this._rooms = rkRooms(this._hass, this._config.strip_prefix || "", this._homeId());
-        this._err = null;
-      } catch (e) {
-        this._err = String(e && e.message ? e.message : e);
-      }
-      this._cfgVer = (this._cfgVer || 0) + 1;
-      this._sig = null;
-      this._render();
-      if (this._admin && !this._dashRepaired && this._cfg) {
-        this._dashRepaired = true;
-        this._repairDashboards();
-      }
-    }
+
+  // src/cards/settings/sheet.js
+  var SheetMethods = {
     async _repairDashboards() {
       const homes = this._cfg && this._cfg.homes || [];
       let made = 0;
@@ -4674,7 +4587,7 @@
         this._flash(t("{n} Dashboard(s) für deine Wohnungen angelegt", { n: made }));
         this._render();
       }
-    }
+    },
     // ---------------------------------------------------------------- Speichern
     _openBugReport() {
       const rooms = this._rooms || [];
@@ -4699,18 +4612,18 @@
         url,
         share: true
       });
-    }
+    },
     // ---------------------------------------------------------------- Dialog
     _openSheet(sheet) {
       this._trace("sheet:open", { title: sheet && sheet.title, download: Boolean(sheet && sheet.download) });
       this._sheet = sheet;
       this._render();
-    }
+    },
     _closeSheet() {
       this._sheet = null;
       this._sig = null;
       this._render();
-    }
+    },
     _sheetStatus(text) {
       if (!this._sheet) return;
       this._sheet.status = text;
@@ -4719,7 +4632,7 @@
         el.textContent = text;
         el.style.display = text ? "block" : "none";
       }
-    }
+    },
     _sheetHtml() {
       const s = this._sheet;
       if (!s) return "";
@@ -4752,7 +4665,7 @@
         <div class="sbtns">${buttons.join("")}<button class="btn" data-sheet-close style="--c:var(--rk-off)">${t("Schließen")}</button></div>
       </div>
     </div>`;
-    }
+    },
     async _sheetCopy() {
       const text = this._sheet && this._sheet.text || "";
       try {
@@ -4776,7 +4689,7 @@
         this._sheetStatus(t("Kopieren hat der Browser blockiert – Text bitte im Feld markieren und selbst kopieren"));
         return false;
       }
-    }
+    },
     async _sheetShare() {
       const text = this._sheet && this._sheet.text || "";
       const name = this._sheet && this._sheet.filename || "raumklima.txt";
@@ -4797,7 +4710,7 @@
         if (e && e.name === "AbortError") return;
         await this._sheetCopy();
       }
-    }
+    },
     _sheetSave() {
       const s = this._sheet;
       if (!s) return;
@@ -4812,14 +4725,14 @@
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5e3);
       this._sheetStatus(t("Gespeichert: {name} – falls keine Datei kam, bitte Datei laden benutzen", { name: s.filename || "" }));
-    }
+    },
     async _exportLink(kind) {
       try {
         return await this._hass.callWS({ type: "raumklima/export/link", kind, ...this._homeMsg() });
       } catch (e) {
         return {};
       }
-    }
+    },
     async _backupExport() {
       try {
         this._flash(t("Sicherung wird erstellt …"));
@@ -4843,7 +4756,7 @@
         this._trace("backup:error", { e: err && (err.message || err) || "?" });
         this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
       }
-    }
+    },
     async _backupImport(file) {
       try {
         this._flash(t("Sicherung wird geprüft …"));
@@ -4858,7 +4771,7 @@
       } catch (err) {
         this._flash(t("Sicherung fehlgeschlagen: {e}", { e: err.message || err }));
       }
-    }
+    },
     async _downloadDiagnostics() {
       try {
         this._flash(t("Diagnose wird erstellt …"));
@@ -4880,216 +4793,10 @@
         this._flash(t("Fehler: {e}", { e: e.message || e }));
       }
     }
-    _hubOpt(key) {
-      if (this._local["hub:" + key] !== void 0) return this._local["hub:" + key];
-      return this._cfg && this._cfg.hub ? this._cfg.hub.options[key] : void 0;
-    }
-    _roomOpt(room, key) {
-      const lk = `room:${room.entry_id}:${key}`;
-      if (this._local[lk] !== void 0) return this._local[lk];
-      const r = this._cfgRoom(room);
-      if (!r) return void 0;
-      if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature") return r[key];
-      return r.options[key];
-    }
-    _cfgRoom(room) {
-      const id = (room.attrs.settings || {}).entry_id;
-      return this._cfg ? (this._cfg.rooms || []).find((r) => r.entry_id === id) : null;
-    }
-    _setHub(changes, delay = 700) {
-      for (const [k, v] of Object.entries(changes)) this._local["hub:" + k] = v;
-      this._pendingHub = { ...this._pendingHub || {}, ...changes };
-      clearTimeout(this._timers.hub);
-      this._timers.hub = setTimeout(() => this._flushHub(), delay);
-      this._sig = null;
-      this._render();
-    }
-    async _flushHub() {
-      const changes = this._pendingHub;
-      this._pendingHub = null;
-      if (!changes) return;
-      try {
-        await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
-        this._flash("Gespeichert");
-      } catch (e) {
-        this._flash(t("Fehler: {e}", { e: e.message || e }));
-      }
-      await this._load();
-      for (const k of Object.keys(changes)) delete this._local["hub:" + k];
-    }
-    _setRoom(entryId, changes, delay = 1500) {
-      for (const [k, v] of Object.entries(changes)) this._local[`room:${entryId}:${k}`] = v;
-      this._pendingRoom = this._pendingRoom || {};
-      this._pendingRoom[entryId] = { ...this._pendingRoom[entryId] || {}, ...changes };
-      clearTimeout(this._timers["room:" + entryId]);
-      this._timers["room:" + entryId] = setTimeout(() => this._flushRoom(entryId), delay);
-      this._sig = null;
-      this._render();
-    }
-    async _flushRoom(entryId) {
-      const changes = (this._pendingRoom || {})[entryId];
-      delete this._pendingRoom[entryId];
-      if (!changes) return;
-      try {
-        await this._hass.callWS({ type: "raumklima/room/update", entry_id: entryId, changes });
-        this._flash("Gespeichert – Raum übernimmt die Werte");
-      } catch (e) {
-        this._flash(t("Fehler: {e}", { e: e.message || e }));
-      }
-      await this._load();
-      if (this._sched) delete this._sched[entryId];
-      for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
-    }
-    // Bekannte Dashboards: die Zentrale ist maßgeblich, hass.dashboards nur Ersatz.
-    _dashKnown() {
-      const list = this._cfg && this._cfg.dashboards || [];
-      if (list.length) return Object.fromEntries(list.map((p) => [p, 1]));
-      return this._hass.dashboards || {};
-    }
-    // Für eine neue Wohnung gleich ein Dashboard mit der Raumklima-Strategie anlegen
-    async _ensureDashboard(path, name, entryId) {
-      const p = String(path || "").replace(/^\//, "");
-      const cur = String(this._hass && this._hass.panelUrl || "").replace(/^\//, "");
-      if (!rkNeedsDashboard(this._dashKnown(), p, cur)) return null;
-      try {
-        await this._hass.callWS({
-          type: "lovelace/dashboards/create",
-          url_path: p,
-          title: name,
-          icon: "mdi:home-thermometer",
-          show_in_sidebar: true,
-          require_admin: false
-        });
-        await this._hass.callWS({
-          type: "lovelace/config/save",
-          url_path: p,
-          config: { strategy: { type: "custom:raumklima", home: entryId } }
-        });
-        if (this._hass.dashboards) {
-          this._hass.dashboards[p] = this._hass.dashboards[p] || { title: name, mode: "storage", show_in_sidebar: true };
-        }
-        if (this._cfg && Array.isArray(this._cfg.dashboards) && !this._cfg.dashboards.includes(p)) {
-          this._cfg.dashboards.push(p);
-        }
-        return p;
-      } catch (e) {
-        return null;
-      }
-    }
-    // Debug-Spur zum Server: auf dem iPad gibt es keine Konsole, deshalb meldet die Karte
-    // ihre Schritte selbst. Fehler dürfen die Bedienung nie stören.
-    _trace(event, data = {}) {
-      try {
-        this._hass.callWS({
-          type: "raumklima/trace",
-          event,
-          data: { ...data, version: RK_VERSION, ua: String(navigator.userAgent || "").slice(0, 120) }
-        }).catch(() => {
-        });
-      } catch (e) {
-      }
-    }
-    _flash(text) {
-      this._toast = t(text);
-      clearTimeout(this._timers.toast);
-      this._timers.toast = setTimeout(() => {
-        this._toast = null;
-        this._sig = null;
-        this._render();
-      }, 2500);
-      this._sig = null;
-      this._render();
-    }
-    get _admin() {
-      return !this._cfg || this._cfg.admin !== false;
-    }
-    // ---------------------------------------------------------------- Bausteine
-    _st(id) {
-      return id ? this._hass.states[id] : void 0;
-    }
-    _name(id) {
-      const s = this._st(id);
-      return s && s.attributes.friendly_name || id || "–";
-    }
-    _row(label, value, sub) {
-      const help = HELP[label];
-      this._helpOpen = this._helpOpen || /* @__PURE__ */ new Set();
-      const open = help && this._helpOpen.has(label);
-      const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
-      const box = open ? `<div class="helpbox">${esc(help[{ de: 0, en: 1, fr: 2 }[getLang()] ?? 1])}</div>` : "";
-      return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
-    }
-    _v(text, mute) {
-      return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`;
-    }
-    _grp(g, title, icon, tone, rows, cls = "", extra = "") {
-      const rowCount = (rows.match(/class="row"/g) || []).length;
-      const ctlCount = (rows.match(/class="tgl/g) || []).length + (rows.match(/class="segs"/g) || []).length;
-      const pairable = rowCount >= 4 && rowCount % 2 === 0 && ctlCount >= rowCount && !/tblwrap|class="people"|roomrow|whyrow|mailprov|stepper|numedit|<details/.test(rows);
-      return `<div class="grp ${cls}${pairable ? " pair" : ""}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
-    }
-    // Wert weicht vom Standard ab? (dann klappt der Aufklapper von selbst auf)
-    _changed(scope, keys) {
-      const hub = scope === "hub";
-      const cfg = this._cfg || {};
-      const defs = hub ? cfg.hub && cfg.hub.defaults : cfg.room_defaults;
-      return (keys || []).some((k) => {
-        const v = hub ? this._hubOpt(k) : this._roomOpt(scope, k);
-        if (v === void 0 || v === null || v === "") return false;
-        const d = defs && k in defs ? defs[k] : RK_IMPLICIT[k];
-        if (d === void 0) {
-          if (!defs) return false;
-          return Array.isArray(v) ? v.length > 0 : typeof v === "object" ? Object.keys(v).length > 0 : !!v;
-        }
-        return JSON.stringify(v) !== JSON.stringify(d);
-      });
-    }
-    // Selten gebrauchte Zeilen einklappen. Offen, wenn Profi-Ansicht an ist, der Nutzer es geöffnet hat
-    // oder ein Wert darin vom Standard abweicht – nichts Geändertes bleibt versteckt.
-    _more(id, title, rows, scope, keys = []) {
-      if (!rows || !/class="row"|class="addrow"/.test(rows)) return rows || "";
-      const key = `${id}:${scope === "hub" ? "hub" : this._tab}`;
-      const n = (rows.match(/class="row"/g) || []).length;
-      const changed = this._changed(scope, keys);
-      const user = this._moreOpen ? this._moreOpen.get(key) : void 0;
-      const open = this._pro || (user !== void 0 ? user : changed);
-      return `<details class="adv more" data-more="${key}" data-open="${open ? 1 : 0}"${open ? " open" : ""}><summary>${t(title)}<span class="cnt">${n}</span>${changed ? `<span class="chg" title="${t("vom Standard abweichend")}"></span>` : ""}</summary>${rows}</details>`;
-    }
-    _stepper(attrs, value, unit, dec) {
-      const ro = !this._admin;
-      return `<div class="stepper ${ro ? "ro" : ""}"><button ${attrs} data-d="-1" aria-label="${t("weniger")}">−</button><span>${value == null || isNaN(value) ? "–" : fmt(value, dec)}${unit}</span><button ${attrs} data-d="1" aria-label="${t("mehr")}">+</button></div>`;
-    }
-    // Stepper für Zahl-Entitäten (number.*)
-    _numStepper(id, unit, dec = 0) {
-      const s = this._st(id);
-      if (!s) return `<span class="v mute">–</span>`;
-      return this._stepper(`data-num="${id}"`, parseFloat(s.state), unit, dec);
-    }
-    // Stepper für Optionen (Zentrale oder Raum)
-    // Zahl-Einstellung: Einheit, Schrittweite und Grenzen stehen einmal in fields.js (RK_NUM)
-    _num(scope, key, value) {
-      const f = RK_NUM[key];
-      if (!f) throw new Error(`RK_NUM: „${key}" fehlt in fields.js`);
-      return this._optStepper(scope, key, value, f.unit, f.step, f.min, f.max, f.dec);
-    }
-    _optStepper(scope, key, value, unit, step, min, max, dec = 0) {
-      return this._stepper(`data-opt="${scope}" data-key="${key}" data-step="${step}" data-min="${min}" data-max="${max}" data-val="${value ?? ""}"`, value, unit, dec);
-    }
-    _toggle(id, on) {
-      const s = this._st(id);
-      if (!s && on === void 0) return `<span class="v mute">–</span>`;
-      const isOn = on !== void 0 ? on : s.state === "on";
-      return `<button class="tgl ${isOn ? "on" : ""}" ${id ? `data-tgl="${id}"` : ""} ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`;
-    }
-    _optToggle(scope, key, on) {
-      return `<button class="tgl ${on ? "on" : ""}" data-optbool="${scope}" data-key="${key}" data-val="${on ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`;
-    }
-    _segs(scope, key, options, current) {
-      return `<div class="segs">${Object.entries(options).map(([v, l]) => `<button class="${v === current ? "on" : ""}" data-seg="${scope}" data-key="${key}" data-val="${v}" ${this._admin ? "" : "disabled"}>${l}</button>`).join("")}</div>`;
-    }
-    _select(scope, key, items, current, empty) {
-      return `<select class="sel" data-sel="${scope}" data-key="${key}" ${this._admin ? "" : "disabled"}>${empty !== void 0 ? `<option value="">${t(empty)}</option>` : ""}${items.map((it) => `<option value="${esc(it.id)}" ${it.id === current ? "selected" : ""}>${esc(it.name)}</option>`).join("")}</select>`;
-    }
+  };
+
+  // src/cards/settings/general.js
+  var GeneralMethods = {
     // ---------------------------------------------------------------- Allgemein
     _general() {
       if (this._err) return `<div class="hint">${t("Einstellungen konnten nicht geladen werden: {e}", { e: esc(this._err) })}</div>`;
@@ -5399,7 +5106,45 @@
       ${this._learnHub(st)}
       ${this._layoutGroup()}
     </div>`;
+    },
+    _mailSetup(mailServices = []) {
+      const o = (k) => this._mailForm && this._mailForm[k] !== void 0 ? this._mailForm[k] : this._hubOpt(k) ?? "";
+      const cur = String(this._hubOpt("report_email") || "");
+      const viaService = cur.startsWith("notify.");
+      const active = cur === "raumklima";
+      const ok = active && !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
+      const open = this._mailOpen ?? (active && !ok);
+      const dis = this._admin ? "" : "disabled";
+      const sec = o("mail_security") || "starttls";
+      const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
+      const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
+      <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
+      return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
+      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${viaService ? `<span class="ok">● ${t("über {s}", { s: esc(rkPretty(cur)) })}</span>` : ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
+      <div class="mailform">
+        <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
+          <div class="segs mailprov">${Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<button class="${p[0] === o("mail_server") ? "on" : ""}" data-mailprov="${k}" ${dis}>${esc(p[3])}</button>`).join("")}<button data-mailprov="other" ${dis}>${t("Anderer Anbieter")}</button></div></label>
+        ${field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse")}
+        ${field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort")}
+        ${field("mail_to", "Empfänger", "text", "ich@example.de, partner@example.de", "mehrere mit Komma")}
+        <details class="adv"><summary>${t("Server-Einstellungen")}</summary>
+          ${field("mail_server", "Server", "text", "smtp.example.de")}
+          ${field("mail_port", "Port", "number", "587")}
+          <label class="mf"><span>${t("Verschlüsselung")}</span><div class="segs">${["starttls", "ssl", "none"].map((v) => `<button class="${v === sec ? "on" : ""}" data-mailsec="${v}" ${dis}>${{ starttls: "STARTTLS", ssl: "SSL/TLS", none: t("keine") }[v]}</button>`).join("")}</div></label>
+          ${field("mail_from", "Absender", "email", "", "leer = Benutzer")}
+        </details>
+        <div class="mailact"><button class="btn" data-mailcheck ${dis}><ha-icon icon="mdi:shield-check-outline"></ha-icon>${t("Zugang prüfen")}</button><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
+        ${this._mailSteps ? `<div class="msteps">${this._mailSteps.map((s) => `<div class="mstep ${s.ok ? "ok" : "bad"}"><b>${s.ok ? "✓" : "✕"}</b><span><b>${esc(t({ connect: "Server erreichbar", tls: "Verschlüsselung", login: "Anmeldung", recipients: "Empfänger" }[s.step] || s.step))}</b> – ${esc(s.msg)}</span></div>`).join("")}</div>` : ""}
+        ${this._mailMsg ? `<div class="hint ${this._mailMsg[0]}">${esc(this._mailMsg[1])}</div>` : ""}
+        ${mailServices.length || viaService ? `<label class="mf"><span>${t("Oder vorhandenen Mail-Dienst nutzen")}<small>${t("statt der Zugangsdaten oben")}</small></span>
+          <select class="sel" data-sel="hub" data-key="report_email" ${dis}><option value="${active ? "raumklima" : ""}">${t("– nein, Zugangsdaten oben –")}</option>${[.../* @__PURE__ */ new Set([...mailServices, ...viaService ? [cur] : []])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("")}</select></label>` : ""}
+        <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
+      </div></details>`;
     }
+  };
+
+  // src/cards/settings/layout.js
+  var LayoutMethods = {
     // ---------------------------------------------------------------- Darstellung (A3)
     _loadLayout() {
       const home = this._homeId();
@@ -5410,7 +5155,7 @@
         this._render();
       }).catch(() => {
       });
-    }
+    },
     _layoutSave() {
       const home = this._homeId();
       const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
@@ -5419,15 +5164,14 @@
         rkLayoutChanged(home);
         this._flash(t("Gespeichert"));
       }).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
-    }
-    /** Räume in der gepflegten Reihenfolge – „aus" blendet hier bewusst nichts aus. */
+    },
     _orderedRooms() {
       return rkRoomsOrdered(this._rooms || [], this._layout);
-    }
+    },
     _layoutList() {
       const L = this._layout || { order: [], hidden: [], size: {}, color: {} };
       return rkLayoutApply(this._rooms || [], L);
-    }
+    },
     _layoutGroup() {
       if (!this._layout) {
         return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", this._row("Reihenfolge", this._v("lädt …", true)));
@@ -5452,6 +5196,10 @@
       const look = this._row(t("Dunkler Look"), this._segs("hub", "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Räume und Karten dieser Wohnung"));
       return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);
     }
+  };
+
+  // src/cards/settings/schedule.js
+  var ScheduleMethods = {
     // ---------------------------------------------------------------- Raum
     // ---------------------------------------------------------------- Zeitpläne
     // Raum-Referenz je Eintrag merken, damit Ereignisse aus dem Zeitplan-Editor immer aus der
@@ -5462,7 +5210,7 @@
       if (!r) return null;
       const s = r.attrs.settings || {};
       return this._roomOpt(r, "schedules") ?? s.schedules ?? [];
-    }
+    },
     _schedList(id, stored) {
       this._sched = this._sched || {};
       if (!(id in this._sched)) {
@@ -5475,19 +5223,18 @@
         }));
       }
       return this._sched[id];
-    }
+    },
     _schedLen(id) {
       return (this._sched[id] || []).length;
-    }
-    /** Minuten seit Mitternacht. */
+    },
     _schedStart(w) {
       const [h, m] = String(w && w.start || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
       return h * 60 + m;
-    }
+    },
     _schedEnd(w) {
       const [h, m] = String(w && w.end || "00:00").split(":").map((x) => parseInt(x, 10) || 0);
       return h * 60 + m;
-    }
+    },
     _pushSched(id) {
       const list = (this._sched[id] || []).map((w) => ({
         days: [...w.days || []].sort((a, b) => a - b),
@@ -5497,7 +5244,7 @@
         sources: [...w.sources || []].sort()
       }));
       this._setRoom(id, { schedules: list }, 700);
-    }
+    },
     _schedWin(id, w, i, ro) {
       const days = w.days || [];
       const on = (d) => !days.length || days.includes(d);
@@ -5511,7 +5258,7 @@
       <div class="stepper mv"><button data-schedmove="${id}|${i}|-1" title="${t("nach oben")}" aria-label="${t("nach oben")}" ${i === 0 ? "disabled" : ""}>▲</button><button data-schedmove="${id}|${i}|1" title="${t("nach unten")}" aria-label="${t("nach unten")}" ${i === this._schedLen(id) - 1 ? "disabled" : ""}>▼</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
-    }
+    },
     _schedSourcesRow(id, w, i, ro) {
       const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
       const sources = room && room.attrs.heat_sources || [];
@@ -5525,7 +5272,7 @@
         return `<button class="chip2 ${on ? "" : "off"}${off}" data-schedsrc="${id}|${i}|${esc(src.id)}" title="${esc(src.entity)}"${dis}><i></i>${esc(src.name)}</button>`;
       }).join("");
       return this._row("Quellen", `<div class="chips">${chips}</div>`, all ? t("alle Quellen – antippen schließt eine aus") : t("nur die gewählten Quellen"));
-    }
+    },
     _scheduleGroup(r, id, editable) {
       this._roomRefs = this._roomRefs || {};
       this._roomRefs[id] = r;
@@ -5598,7 +5345,7 @@
       rows.push(...boostRows);
       rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
       return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
-    }
+    },
     // ---------------------------------------------------------------- Lüften ohne Erinnerung
     _airList(id, stored) {
       this._air = this._air || {};
@@ -5610,11 +5357,11 @@
         }));
       }
       return this._air[id];
-    }
+    },
     _pushAir(id) {
       const list = (this._air[id] || []).map((w) => ({ days: [...w.days || []].sort((a, b) => a - b), start: w.start, end: w.end }));
       this._setRoom(id, { airing_windows: list }, 700);
-    }
+    },
     _airWin(id, w, i, ro) {
       const days = w.days || [];
       const on = (d) => !days.length || days.includes(d);
@@ -5625,7 +5372,7 @@
       <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-airtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
       ${ro ? "" : `<button class="del" data-airdel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
-    }
+    },
     _airingGroup(r, id, editable) {
       const s = r.attrs.settings || {};
       const scope = `room:${id}`;
@@ -5679,7 +5426,51 @@
       rows.push(...learnRows);
       rows.push(this._more("airing-more", "Weitere Einstellungen", moreRows.join(""), r, ["airing_min_minutes", "long_airing_minutes", "long_airing_remind", "airing_occupied_only"]));
       return this._grp("air", "Lüften ohne Erinnerung", "mdi:weather-windy-variant", "air", rows.join(""), "span");
+    },
+    // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.
+    _timePop() {
+      const hh = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+      const mm = ["00", "15", "30", "45"];
+      return `<div class="tpick" data-tpick hidden>
+      <div class="tpickhead"><b>${t("Uhrzeit")}</b><button class="mini x" data-tclose title="${t("schließen")}">✕</button></div>
+      <div class="tpickbody">
+        <div class="twheel" data-twh>${hh.map((h, i) => `<button data-th="${i}" class="${i === 0 ? "on" : ""}">${h}</button>`).join("")}</div>
+        <span class="tcolon">:</span>
+        <div class="twheel small" data-twmn>${mm.map((m, i) => `<button data-tm="${i}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
+        <span class="tpickunit">${t("Uhr")}</span>
+      </div>
+      <div class="tpickfoot">
+        <input class="inp" data-tin inputmode="numeric" maxlength="5" placeholder="HH:MM">
+        <button class="btn primary" data-tok>${t("Übernehmen")}</button>
+      </div>
+    </div>`;
+    },
+    _openTime(key, val) {
+      const pop = this.shadowRoot.querySelector("[data-tpick]");
+      if (!pop) return;
+      pop.hidden = false;
+      const [hRaw, mRaw] = String(val || "07:00").split(":");
+      const h = Math.max(0, Math.min(23, parseInt(hRaw, 10) || 0));
+      const m = Math.max(0, Math.min(3, Math.round((parseInt(mRaw, 10) || 0) / 15)));
+      this._tp = { key, h, m };
+      pop.querySelector("[data-twh]").scrollTop = h * 40;
+      pop.querySelector("[data-twmn]").scrollTop = m * 40;
+      pop.querySelector("[data-tin]").value = `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
+    },
+    _timeSync(pop) {
+      if (!this._tp) return;
+      const h = Math.round(pop.querySelector("[data-twh]").scrollTop / 40);
+      const m = Math.round(pop.querySelector("[data-twmn]").scrollTop / 40);
+      this._tp.h = Math.max(0, Math.min(23, h));
+      this._tp.m = Math.max(0, Math.min(3, m));
+      pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
+      pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
+      pop.querySelector("[data-tin]").value = `${String(this._tp.h).padStart(2, "0")}:${String(this._tp.m * 15).padStart(2, "0")}`;
     }
+  };
+
+  // src/cards/settings/room.js
+  var RoomMethods = {
     _room(r) {
       const a = r.attrs, s = a.settings || {}, sib = r.sib;
       const mon = a.monitor === true;
@@ -5901,46 +5692,12 @@
       <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>${t("Geräte & Technik ändern")}</button>
     </div>
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
-    }
-    _mailSetup(mailServices = []) {
-      const o = (k) => this._mailForm && this._mailForm[k] !== void 0 ? this._mailForm[k] : this._hubOpt(k) ?? "";
-      const cur = String(this._hubOpt("report_email") || "");
-      const viaService = cur.startsWith("notify.");
-      const active = cur === "raumklima";
-      const ok = active && !!(this._hubOpt("mail_server") && this._hubOpt("mail_to"));
-      const open = this._mailOpen ?? (active && !ok);
-      const dis = this._admin ? "" : "disabled";
-      const sec = o("mail_security") || "starttls";
-      const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
-      const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
-      <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
-      return `<details class="mailbox" ${open ? "open" : ""} data-mailbox>
-      <summary><ha-icon icon="mdi:email-outline"></ha-icon>${t("E-Mail einrichten")} ${viaService ? `<span class="ok">● ${t("über {s}", { s: esc(rkPretty(cur)) })}</span>` : ok ? `<span class="ok">● ${t("eingerichtet")}</span>` : `<span class="no">○ ${t("noch nicht eingerichtet")} – ${t("hier antippen")}</span>`}</summary>
-      <div class="mailform">
-        <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
-          <div class="segs mailprov">${Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<button class="${p[0] === o("mail_server") ? "on" : ""}" data-mailprov="${k}" ${dis}>${esc(p[3])}</button>`).join("")}<button data-mailprov="other" ${dis}>${t("Anderer Anbieter")}</button></div></label>
-        ${field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse")}
-        ${field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort")}
-        ${field("mail_to", "Empfänger", "text", "ich@example.de, partner@example.de", "mehrere mit Komma")}
-        <details class="adv"><summary>${t("Server-Einstellungen")}</summary>
-          ${field("mail_server", "Server", "text", "smtp.example.de")}
-          ${field("mail_port", "Port", "number", "587")}
-          <label class="mf"><span>${t("Verschlüsselung")}</span><div class="segs">${["starttls", "ssl", "none"].map((v) => `<button class="${v === sec ? "on" : ""}" data-mailsec="${v}" ${dis}>${{ starttls: "STARTTLS", ssl: "SSL/TLS", none: t("keine") }[v]}</button>`).join("")}</div></label>
-          ${field("mail_from", "Absender", "email", "", "leer = Benutzer")}
-        </details>
-        <div class="mailact"><button class="btn" data-mailcheck ${dis}><ha-icon icon="mdi:shield-check-outline"></ha-icon>${t("Zugang prüfen")}</button><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
-        ${this._mailSteps ? `<div class="msteps">${this._mailSteps.map((s) => `<div class="mstep ${s.ok ? "ok" : "bad"}"><b>${s.ok ? "✓" : "✕"}</b><span><b>${esc(t({ connect: "Server erreichbar", tls: "Verschlüsselung", login: "Anmeldung", recipients: "Empfänger" }[s.step] || s.step))}</b> – ${esc(s.msg)}</span></div>`).join("")}</div>` : ""}
-        ${this._mailMsg ? `<div class="hint ${this._mailMsg[0]}">${esc(this._mailMsg[1])}</div>` : ""}
-        ${mailServices.length || viaService ? `<label class="mf"><span>${t("Oder vorhandenen Mail-Dienst nutzen")}<small>${t("statt der Zugangsdaten oben")}</small></span>
-          <select class="sel" data-sel="hub" data-key="report_email" ${dis}><option value="${active ? "raumklima" : ""}">${t("– nein, Zugangsdaten oben –")}</option>${[.../* @__PURE__ */ new Set([...mailServices, ...viaService ? [cur] : []])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("")}</select></label>` : ""}
-        <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
-      </div></details>`;
-    }
+    },
     _srcList(id) {
       const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
       const cur = room && (this._roomOpt(room, "heat_sources") ?? (room.attrs.settings || {}).heat_sources) || [];
       return cur.map((x) => ({ ...x }));
-    }
+    },
     _sourceGroup(r, id, editable) {
       const s = r.attrs.settings || {};
       const scope = `room:${id}`;
@@ -5982,7 +5739,7 @@
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><select class="sel" id="addSrc-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-srcadd="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Quelle hinzufügen")}</button></div></div>`);
       }
       return this._grp("heating", "Heizquellen", "mdi:radiator", "heat", rows.join(""), "span");
-    }
+    },
     _presenceGroup(r, id, editable) {
       const a = r.attrs, s = a.settings || {};
       const scope = `room:${id}`;
@@ -6054,7 +5811,7 @@
       ];
       rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
       return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
-    }
+    },
     _lightGroup(r, id, editable) {
       const s = r.attrs.settings || {};
       const lights = this._roomOpt(r, "signal_lights") ?? s.signal_lights ?? [];
@@ -6071,19 +5828,38 @@
         lights.length && this._admin ? this._row("Ausprobieren", `<button class="btn" data-lighttest="${id}" style="--c:var(--rk-air)"><ha-icon icon="mdi:play"></ha-icon>${t("Test")}</button>`) : "",
         `<div class="hint">${t("Nicht in der Ruhezeit, nicht beim Schlafen mit offenem Fenster und nicht, wenn niemand zu Hause ist. Lampen ohne Farbe blinken einfach hell.")}</div>`
       ].join(""));
+    },
+    // 24-h-Balken: 96 Viertelstunden, Höhe = Anteil der Tage mit Anwesenheit
+    _presenceBars(arr) {
+      if (!Array.isArray(arr) || !arr.length) return this._v("–", true);
+      const cells = arr.map((v) => `<i style="height:${Math.max(8, Math.round(v * 100))}%;opacity:${(0.18 + v * 0.82).toFixed(2)}"></i>`).join("");
+      return `<div class="pbars" title="${t("Anteil der Tage mit jemand zu Hause")}">${cells}</div>`;
+    },
+    _presenceText(arr) {
+      if (!Array.isArray(arr) || !arr.length) return "";
+      const on = arr.map((v, i) => v >= 0.5 ? i : -1).filter((i) => i >= 0);
+      if (!on.length) return t("keine klare Zeit – meist niemand zu Hause");
+      const lab = (i) => `${String(Math.floor(i / 4) % 24).padStart(2, "0")}:${String(i % 4 * 15).padStart(2, "0")}`;
+      const a = lab(on[0]);
+      const b = lab((on[on.length - 1] + 1) % 96);
+      return t("meist {a}–{b} jemand zu Hause", { a, b });
     }
+  };
+
+  // src/cards/settings/learn.js
+  var LearnMethods = {
     // Gelernte Schlafzeiten (Wohnungsebene) – gehört zum Lernen, nicht zu den Einstellrädern.
     // ---------------------------------------------------------------- Lernen (Unterreiter)
     _learnTabs(active, keys) {
       const names = { overview: "Übersicht", sleep: "Schlafen & Anwesenheit", decisions: "Entscheidungen", how: "So rechnet es" };
       return `<div class="ltabs">${keys.map((k) => `<button class="ltab ${k === active ? "on" : ""}" data-ltab="${k}">${t(names[k])}</button>`).join("")}</div>`;
-    }
+    },
     // Wohnungsebene: Schlafzeiten, Anwesenheitsprofil, Entscheidungen, Erklärung
     _learnHub(st) {
       const tab = this._ltabHub || "sleep";
       const body = tab === "sleep" ? this._sleepRows(st) : tab === "decisions" ? this._decisions(null) : this._howRows("home");
       return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["sleep", "decisions", "how"]) + body);
-    }
+    },
     _sleepRows(st) {
       const sl = st && st.sleep || {};
       const line = (k, label) => {
@@ -6106,7 +5882,7 @@
       ) : this._row(t("Vorschlag"), this._v(t("sammelt noch"), true), t("ab einer erfassten Woche"));
       const profile = head + (hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
       return [line("weekday", "Werktags"), line("weekend", "Wochenende"), profile, tipRow].join("");
-    }
+    },
     // Einrichtungs-Checkliste: was fehlt noch, und wo stellt man es ein
     _checkRows(st, ch) {
       const rooms = this._rooms || [];
@@ -6138,7 +5914,7 @@
         ...optional.map(([label, on, where]) => this._row(label, chip(on, true), `${where} · ${t("bringt mehr Genauigkeit, ist aber nicht nötig")}`))
       ];
       return rows.join("");
-    }
+    },
     // Raum-Ebene: Aufheizrate & Co., Entscheidungen, Erklärung
     _learnRoom(r) {
       const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
@@ -6171,7 +5947,7 @@
       ].join("");
       const body = tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
       return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["overview", "decisions", "how"]) + body);
-    }
+    },
     _howRows(scope) {
       const rows = scope === "room" ? [
         this._row(t("Aufheizrate"), this._v(t("Median aus echten Vorgängen")), t("Gemessen wird, wie schnell der Raum bei geöffnetem Ventil wärmer wird – nur ab 0,3 K Anstieg, damit Messrauschen nicht zählt.")),
@@ -6185,7 +5961,7 @@
         this._row(t("Grenzen"), this._v(t("ehrlich")), t("Urlaub, Schichtdienst und unregelmäßige Tage verfälschen das Profil. Deshalb schlägt Raumklima nur vor und stellt nichts von selbst um."))
       ];
       return rows.join("");
-    }
+    },
     // ---------------------------------------------------------------- Entscheidungen
     _decisions(entryId) {
       const range = this._decRange ?? 0;
@@ -6199,12 +5975,12 @@
       <div class="dkpis" data-dkpi></div>
       <div class="decs" data-decs="${esc(entryId || "")}"><div class="hint">${t("Lade …")}</div></div>
       <div class="hint">${t("Antippen einer Zeile zeigt die vollständige Begründung.")}</div>`;
-    }
+    },
     _decRoomChips() {
       const cur = this._decRoom || "all";
       const list = [["all", t("Alle Räume")], ...this._rooms.map((r) => [r.id, r.name])];
       return list.map(([id, name]) => `<button class="chip2 ${id === cur ? "" : "off"}" data-droom="${esc(id)}">${esc(name)}</button>`).join("");
-    }
+    },
     _decRow(e) {
       const d = new Date(e.t);
       const sameDay = !isNaN(d.getTime()) && d.toDateString() === (/* @__PURE__ */ new Date()).toDateString();
@@ -6214,7 +5990,7 @@
       const extra = [e.room ? esc(e.room) : "", e.data ? esc(Object.entries(e.data).map(([k, v]) => `${k}: ${v}`).join(" · ")) : ""].filter(Boolean).join(" · ");
       return `<details class="dec"><summary><span class="wtime">${esc(when)}</span><span class="dl"><b>${esc(e.msg)}${many}</b>${why}</span></summary>
       <div class="dfull">${e.why ? `<p>${esc(e.why)}</p>` : ""}${extra ? `<p class="ddata">${extra}</p>` : ""}</div></details>`;
-    }
+    },
     _paintDec(box, list) {
       box.innerHTML = list.length ? list.map((e) => this._decRow(e)).join("") : `<div class="hint">${t("Keine Entscheidungen in diesem Zeitraum.")}</div>`;
       const kpi = this.shadowRoot.querySelector("[data-dkpi]");
@@ -6222,7 +5998,7 @@
       const sets = list.filter((e) => e.cat === "target").length;
       const air = list.filter((e) => e.cat === "window").length;
       kpi.innerHTML = [[String(list.length), t("Entscheidungen")], [`${sets}×`, t("Ziel geändert")], [`${air}×`, t("Lüften")]].map(([b, s]) => `<div class="dkpi"><b>${b}</b><span>${s}</span></div>`).join("");
-    }
+    },
     async _decFetch() {
       const root = this.shadowRoot;
       const box = root && root.querySelector("[data-decs]");
@@ -6251,157 +6027,10 @@
         this._decBusy = false;
       }
     }
-    // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.
-    _timePop() {
-      const hh = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-      const mm = ["00", "15", "30", "45"];
-      return `<div class="tpick" data-tpick hidden>
-      <div class="tpickhead"><b>${t("Uhrzeit")}</b><button class="mini x" data-tclose title="${t("schließen")}">✕</button></div>
-      <div class="tpickbody">
-        <div class="twheel" data-twh>${hh.map((h, i) => `<button data-th="${i}" class="${i === 0 ? "on" : ""}">${h}</button>`).join("")}</div>
-        <span class="tcolon">:</span>
-        <div class="twheel small" data-twmn>${mm.map((m, i) => `<button data-tm="${i}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
-        <span class="tpickunit">${t("Uhr")}</span>
-      </div>
-      <div class="tpickfoot">
-        <input class="inp" data-tin inputmode="numeric" maxlength="5" placeholder="HH:MM">
-        <button class="btn primary" data-tok>${t("Übernehmen")}</button>
-      </div>
-    </div>`;
-    }
-    _openTime(key, val) {
-      const pop = this.shadowRoot.querySelector("[data-tpick]");
-      if (!pop) return;
-      pop.hidden = false;
-      const [hRaw, mRaw] = String(val || "07:00").split(":");
-      const h = Math.max(0, Math.min(23, parseInt(hRaw, 10) || 0));
-      const m = Math.max(0, Math.min(3, Math.round((parseInt(mRaw, 10) || 0) / 15)));
-      this._tp = { key, h, m };
-      pop.querySelector("[data-twh]").scrollTop = h * 40;
-      pop.querySelector("[data-twmn]").scrollTop = m * 40;
-      pop.querySelector("[data-tin]").value = `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
-    }
-    _timeSync(pop) {
-      if (!this._tp) return;
-      const h = Math.round(pop.querySelector("[data-twh]").scrollTop / 40);
-      const m = Math.round(pop.querySelector("[data-twmn]").scrollTop / 40);
-      this._tp.h = Math.max(0, Math.min(23, h));
-      this._tp.m = Math.max(0, Math.min(3, m));
-      pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
-      pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
-      pop.querySelector("[data-tin]").value = `${String(this._tp.h).padStart(2, "0")}:${String(this._tp.m * 15).padStart(2, "0")}`;
-    }
-    // 24-h-Balken: 96 Viertelstunden, Höhe = Anteil der Tage mit Anwesenheit
-    _presenceBars(arr) {
-      if (!Array.isArray(arr) || !arr.length) return this._v("–", true);
-      const cells = arr.map((v) => `<i style="height:${Math.max(8, Math.round(v * 100))}%;opacity:${(0.18 + v * 0.82).toFixed(2)}"></i>`).join("");
-      return `<div class="pbars" title="${t("Anteil der Tage mit jemand zu Hause")}">${cells}</div>`;
-    }
-    _presenceText(arr) {
-      if (!Array.isArray(arr) || !arr.length) return "";
-      const on = arr.map((v, i) => v >= 0.5 ? i : -1).filter((i) => i >= 0);
-      if (!on.length) return t("keine klare Zeit – meist niemand zu Hause");
-      const lab = (i) => `${String(Math.floor(i / 4) % 24).padStart(2, "0")}:${String(i % 4 * 15).padStart(2, "0")}`;
-      const a = lab(on[0]);
-      const b = lab((on[on.length - 1] + 1) % 96);
-      return t("meist {a}–{b} jemand zu Hause", { a, b });
-    }
-    // ---------------------------------------------------------------- Lernen & Warum
-    // ---------------------------------------------------------------- Rendern
-    _render() {
-      if (!this._hass || !this._rooms) return;
-      if (this._pro === void 0) {
-        try {
-          this._pro = localStorage.getItem("raumklima-settings-pro") === "1";
-        } catch (e) {
-          this._pro = false;
-        }
-      }
-      this._moreOpen = this._moreOpen || /* @__PURE__ */ new Map();
-      if (this._renderSoon()) return;
-      const rooms = this._orderedRooms();
-      if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
-      const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` + rooms.map((r) => {
-        const sick = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).some((i) => i.entry_id === (r.attrs.settings || {}).entry_id && i.severity !== "info");
-        return `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}${sick ? ` <ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)"></ha-icon>` : ""}</button>`;
-      }).join("");
-      const room = rooms.find((r) => r.id === this._tab);
-      const body = room ? this._room(room) : this._general();
-      const homes = this._cfg && this._cfg.homes || [];
-      const me = homes.find((h) => h.entry_id === this._homeId());
-      this._ctxHome = me ? me.name : this._config && this._config.home || t("Wohnung");
-      const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
-      rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
-      <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
-          <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
-          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
-        ${homeBar}
-        <div class="tabs">${tabs}</div>
-        <div class="crumb" id="rkc"></div>
-        ${room ? `<div class="resetbar">${(() => {
-        const n = ((room.attrs.settings || {}).changed || []).length;
-        return n ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n })}</span><button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>` : `<span>${t("Alles auf Standard")}</span>`;
-      })()}</div>` : ""}
-        <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
-        <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
-        <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
-        ${body}
-        ${this._sheetHtml()}
-        ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
-        ${this._timePop()}
-      </ha-card>`);
-      this._bind();
-      this._filter();
-      this._decFetch();
-    }
-    // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
-    _filter() {
-      const root = this.shadowRoot;
-      if (!root) return;
-      const q = String(this._search || "").toLowerCase().trim();
-      const secs = [...root.querySelectorAll(".grp")];
-      const present = /* @__PURE__ */ new Set();
-      let active = null;
-      let shown = 0;
-      for (const g of RK_GROUP_ORDER) {
-        if (secs.some((el) => (el.dataset.g || "advanced") === g)) {
-          active = g;
-          break;
-        }
-      }
-      if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group)) active = this._group;
-      secs.forEach((el) => {
-        const g = el.dataset.g || "advanced";
-        present.add(g);
-        const hit = !q || el.textContent.toLowerCase().includes(q);
-        const vis = q ? hit : g === active;
-        el.style.display = vis ? "" : "none";
-        if (vis) shown += 1;
-      });
-      root.querySelectorAll("details.more").forEach((d) => {
-        d.open = q ? d.textContent.toLowerCase().includes(q) : d.dataset.open === "1";
-      });
-      const visible = secs.filter((el) => el.style.display !== "none");
-      secs.forEach((el) => el.classList.toggle("solo", visible.length === 1 && el.style.display !== "none"));
-      root.querySelector(".groups")?.classList.toggle("solo", visible.length === 1);
-      root.querySelectorAll(".railbtn").forEach((b) => {
-        if (!root.querySelector(`.grp[data-g="${b.dataset.g}"]`)) b.remove();
-      });
-      root.querySelectorAll(".railbtn").forEach((b) => {
-        const g = b.dataset.g;
-        b.classList.toggle("empty", !present.has(g));
-        b.classList.toggle("on", !q && g === active);
-      });
-      const nos = root.querySelector(".nosearch");
-      if (nos) nos.style.display = q && !shown ? "" : "none";
-      const crumb = root.querySelector("#rkc");
-      if (crumb) {
-        const room = (this._rooms || []).find((r) => r.id === this._tab);
-        const parts = [this._ctxHome || t("Wohnung"), room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label)];
-        crumb.innerHTML = parts.map((x, i) => i === parts.length - 1 ? `<b>${esc(x)}</b>` : `${esc(x)} <span>›</span>`).join(" ");
-      }
-    }
+  };
+
+  // src/cards/settings/bind.js
+  var BindMethods = {
     // Ein Listener je Ereignistyp an der Schatten-Wurzel. Er läuft vom Ziel nach außen (wie das
     // normale Aufsteigen eines Ereignisses) und ruft jeden passenden Handler; stopPropagation() im
     // Handler beendet den Lauf wie gewohnt. Neu gezeichnete Teile brauchen so kein neues Anbinden.
@@ -6419,7 +6048,7 @@
           }
         });
       }
-    }
+    },
     _bind() {
       this._handlers = [];
       const on = (type, sel, make) => this._handlers.push({ type, sel, make });
@@ -7113,6 +6742,408 @@
       });
     }
   };
+
+  // src/cards/settings.js
+  var RaumklimaSettingsCard = class extends HTMLElement {
+    static getConfigForm() {
+      return { schema: [{ name: "title", selector: { text: {} } }, { name: "strip_prefix", selector: { text: {} } }] };
+    }
+    static getStubConfig() {
+      return {};
+    }
+    setConfig(config) {
+      this._config = { ...config };
+      this._tab = this._tab || "general";
+      if (this._sheet === void 0) this._sheet = null;
+      this._local = this._local || {};
+      this._timers = this._timers || {};
+      if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+    }
+    getCardSize() {
+      return 14;
+    }
+    getGridOptions() {
+      return { columns: "full", rows: "auto" };
+    }
+    connectedCallback() {
+      this.style.display = "block";
+      this._poll = setInterval(() => this._load(), 6e4);
+    }
+    disconnectedCallback() {
+      clearInterval(this._poll);
+    }
+    set hass(hass) {
+      const first = !this._hass;
+      this._hass = hass;
+      setLang(hass);
+      this._rooms = rkRooms(hass, this._config.strip_prefix || "", this._homeId());
+      if (first) {
+        this._trace("card", { layout: "settings" });
+        this._load();
+        this._loadLayout();
+      }
+      const hubIds = rkHub(hass, this._homeId());
+      const sig = JSON.stringify([
+        this._rooms.map((r) => [r.attrs, Object.values(r.sib).map((id) => hass.states[id] && hass.states[id].state)]),
+        Object.values(hubIds).map((id) => hass.states[id] && [hass.states[id].state, hass.states[id].attributes]),
+        this._tab,
+        this._cfgVer,
+        this._toast
+      ]);
+      if (sig === this._sig) return;
+      this._sig = sig;
+      if (this._sheet) return;
+      if (rkScrolling()) {
+        rkLater(this, () => this._render());
+        return;
+      }
+      this._render();
+    }
+    _renderSoon() {
+      if (rkBusy(this)) {
+        if (!this._waiting) {
+          this._waiting = true;
+          this.shadowRoot.addEventListener("focusout", () => {
+            this._waiting = false;
+            setTimeout(() => this._render(), 50);
+          }, { once: true });
+        }
+        return true;
+      }
+      return false;
+    }
+    _homeId() {
+      return this._home || rkHomeId(this._hass, this._config) || this._cfg && this._cfg.hub && this._cfg.hub.entry_id || null;
+    }
+    _homeMsg() {
+      const h = this._home || this._config.home;
+      return h ? { home: h } : {};
+    }
+    async _load() {
+      if (!this._hass) return;
+      try {
+        this._cfg = await this._hass.callWS({ type: "raumklima/config", ...this._homeMsg() });
+        this._rooms = rkRooms(this._hass, this._config.strip_prefix || "", this._homeId());
+        this._err = null;
+      } catch (e) {
+        this._err = String(e && e.message ? e.message : e);
+      }
+      this._cfgVer = (this._cfgVer || 0) + 1;
+      this._sig = null;
+      this._render();
+      if (this._admin && !this._dashRepaired && this._cfg) {
+        this._dashRepaired = true;
+        this._repairDashboards();
+      }
+    }
+    _hubOpt(key) {
+      if (this._local["hub:" + key] !== void 0) return this._local["hub:" + key];
+      return this._cfg && this._cfg.hub ? this._cfg.hub.options[key] : void 0;
+    }
+    _roomOpt(room, key) {
+      const lk = `room:${room.entry_id}:${key}`;
+      if (this._local[lk] !== void 0) return this._local[lk];
+      const r = this._cfgRoom(room);
+      if (!r) return void 0;
+      if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature") return r[key];
+      return r.options[key];
+    }
+    _cfgRoom(room) {
+      const id = (room.attrs.settings || {}).entry_id;
+      return this._cfg ? (this._cfg.rooms || []).find((r) => r.entry_id === id) : null;
+    }
+    _setHub(changes, delay = 700) {
+      for (const [k, v] of Object.entries(changes)) this._local["hub:" + k] = v;
+      this._pendingHub = { ...this._pendingHub || {}, ...changes };
+      clearTimeout(this._timers.hub);
+      this._timers.hub = setTimeout(() => this._flushHub(), delay);
+      this._sig = null;
+      this._render();
+    }
+    async _flushHub() {
+      const changes = this._pendingHub;
+      this._pendingHub = null;
+      if (!changes) return;
+      try {
+        await this._hass.callWS({ type: "raumklima/hub/update", changes, ...this._homeMsg() });
+        this._flash("Gespeichert");
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
+      await this._load();
+      for (const k of Object.keys(changes)) delete this._local["hub:" + k];
+    }
+    _setRoom(entryId, changes, delay = 1500) {
+      for (const [k, v] of Object.entries(changes)) this._local[`room:${entryId}:${k}`] = v;
+      this._pendingRoom = this._pendingRoom || {};
+      this._pendingRoom[entryId] = { ...this._pendingRoom[entryId] || {}, ...changes };
+      clearTimeout(this._timers["room:" + entryId]);
+      this._timers["room:" + entryId] = setTimeout(() => this._flushRoom(entryId), delay);
+      this._sig = null;
+      this._render();
+    }
+    async _flushRoom(entryId) {
+      const changes = (this._pendingRoom || {})[entryId];
+      delete this._pendingRoom[entryId];
+      if (!changes) return;
+      try {
+        await this._hass.callWS({ type: "raumklima/room/update", entry_id: entryId, changes });
+        this._flash("Gespeichert – Raum übernimmt die Werte");
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
+      await this._load();
+      if (this._sched) delete this._sched[entryId];
+      for (const k of Object.keys(changes)) delete this._local[`room:${entryId}:${k}`];
+    }
+    // Bekannte Dashboards: die Zentrale ist maßgeblich, hass.dashboards nur Ersatz.
+    _dashKnown() {
+      const list = this._cfg && this._cfg.dashboards || [];
+      if (list.length) return Object.fromEntries(list.map((p) => [p, 1]));
+      return this._hass.dashboards || {};
+    }
+    // Für eine neue Wohnung gleich ein Dashboard mit der Raumklima-Strategie anlegen
+    async _ensureDashboard(path, name, entryId) {
+      const p = String(path || "").replace(/^\//, "");
+      const cur = String(this._hass && this._hass.panelUrl || "").replace(/^\//, "");
+      if (!rkNeedsDashboard(this._dashKnown(), p, cur)) return null;
+      try {
+        await this._hass.callWS({
+          type: "lovelace/dashboards/create",
+          url_path: p,
+          title: name,
+          icon: "mdi:home-thermometer",
+          show_in_sidebar: true,
+          require_admin: false
+        });
+        await this._hass.callWS({
+          type: "lovelace/config/save",
+          url_path: p,
+          config: { strategy: { type: "custom:raumklima", home: entryId } }
+        });
+        if (this._hass.dashboards) {
+          this._hass.dashboards[p] = this._hass.dashboards[p] || { title: name, mode: "storage", show_in_sidebar: true };
+        }
+        if (this._cfg && Array.isArray(this._cfg.dashboards) && !this._cfg.dashboards.includes(p)) {
+          this._cfg.dashboards.push(p);
+        }
+        return p;
+      } catch (e) {
+        return null;
+      }
+    }
+    // Debug-Spur zum Server: auf dem iPad gibt es keine Konsole, deshalb meldet die Karte
+    // ihre Schritte selbst. Fehler dürfen die Bedienung nie stören.
+    _trace(event, data = {}) {
+      try {
+        this._hass.callWS({
+          type: "raumklima/trace",
+          event,
+          data: { ...data, version: RK_VERSION, ua: String(navigator.userAgent || "").slice(0, 120) }
+        }).catch(() => {
+        });
+      } catch (e) {
+      }
+    }
+    _flash(text) {
+      this._toast = t(text);
+      clearTimeout(this._timers.toast);
+      this._timers.toast = setTimeout(() => {
+        this._toast = null;
+        this._sig = null;
+        this._render();
+      }, 2500);
+      this._sig = null;
+      this._render();
+    }
+    get _admin() {
+      return !this._cfg || this._cfg.admin !== false;
+    }
+    // ---------------------------------------------------------------- Bausteine
+    _st(id) {
+      return id ? this._hass.states[id] : void 0;
+    }
+    _name(id) {
+      const s = this._st(id);
+      return s && s.attributes.friendly_name || id || "–";
+    }
+    _row(label, value, sub) {
+      const help = HELP[label];
+      this._helpOpen = this._helpOpen || /* @__PURE__ */ new Set();
+      const open = help && this._helpOpen.has(label);
+      const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
+      const box = open ? `<div class="helpbox">${esc(help[{ de: 0, en: 1, fr: 2 }[getLang()] ?? 1])}</div>` : "";
+      return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
+    }
+    _v(text, mute) {
+      return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`;
+    }
+    _grp(g, title, icon, tone, rows, cls = "", extra = "") {
+      const rowCount = (rows.match(/class="row"/g) || []).length;
+      const ctlCount = (rows.match(/class="tgl/g) || []).length + (rows.match(/class="segs"/g) || []).length;
+      const pairable = rowCount >= 4 && rowCount % 2 === 0 && ctlCount >= rowCount && !/tblwrap|class="people"|roomrow|whyrow|mailprov|stepper|numedit|<details/.test(rows);
+      return `<div class="grp ${cls}${pairable ? " pair" : ""}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
+    }
+    // Wert weicht vom Standard ab? (dann klappt der Aufklapper von selbst auf)
+    _changed(scope, keys) {
+      const hub = scope === "hub";
+      const cfg = this._cfg || {};
+      const defs = hub ? cfg.hub && cfg.hub.defaults : cfg.room_defaults;
+      return (keys || []).some((k) => {
+        const v = hub ? this._hubOpt(k) : this._roomOpt(scope, k);
+        if (v === void 0 || v === null || v === "") return false;
+        const d = defs && k in defs ? defs[k] : RK_IMPLICIT[k];
+        if (d === void 0) {
+          if (!defs) return false;
+          return Array.isArray(v) ? v.length > 0 : typeof v === "object" ? Object.keys(v).length > 0 : !!v;
+        }
+        return JSON.stringify(v) !== JSON.stringify(d);
+      });
+    }
+    // Selten gebrauchte Zeilen einklappen. Offen, wenn Profi-Ansicht an ist, der Nutzer es geöffnet hat
+    // oder ein Wert darin vom Standard abweicht – nichts Geändertes bleibt versteckt.
+    _more(id, title, rows, scope, keys = []) {
+      if (!rows || !/class="row"|class="addrow"/.test(rows)) return rows || "";
+      const key = `${id}:${scope === "hub" ? "hub" : this._tab}`;
+      const n = (rows.match(/class="row"/g) || []).length;
+      const changed = this._changed(scope, keys);
+      const user = this._moreOpen ? this._moreOpen.get(key) : void 0;
+      const open = this._pro || (user !== void 0 ? user : changed);
+      return `<details class="adv more" data-more="${key}" data-open="${open ? 1 : 0}"${open ? " open" : ""}><summary>${t(title)}<span class="cnt">${n}</span>${changed ? `<span class="chg" title="${t("vom Standard abweichend")}"></span>` : ""}</summary>${rows}</details>`;
+    }
+    _stepper(attrs, value, unit, dec) {
+      const ro = !this._admin;
+      return `<div class="stepper ${ro ? "ro" : ""}"><button ${attrs} data-d="-1" aria-label="${t("weniger")}">−</button><span>${value == null || isNaN(value) ? "–" : fmt(value, dec)}${unit}</span><button ${attrs} data-d="1" aria-label="${t("mehr")}">+</button></div>`;
+    }
+    // Stepper für Zahl-Entitäten (number.*)
+    _numStepper(id, unit, dec = 0) {
+      const s = this._st(id);
+      if (!s) return `<span class="v mute">–</span>`;
+      return this._stepper(`data-num="${id}"`, parseFloat(s.state), unit, dec);
+    }
+    // Stepper für Optionen (Zentrale oder Raum)
+    // Zahl-Einstellung: Einheit, Schrittweite und Grenzen stehen einmal in fields.js (RK_NUM)
+    _num(scope, key, value) {
+      const f = RK_NUM[key];
+      if (!f) throw new Error(`RK_NUM: „${key}" fehlt in fields.js`);
+      return this._optStepper(scope, key, value, f.unit, f.step, f.min, f.max, f.dec);
+    }
+    _optStepper(scope, key, value, unit, step, min, max, dec = 0) {
+      return this._stepper(`data-opt="${scope}" data-key="${key}" data-step="${step}" data-min="${min}" data-max="${max}" data-val="${value ?? ""}"`, value, unit, dec);
+    }
+    _toggle(id, on) {
+      const s = this._st(id);
+      if (!s && on === void 0) return `<span class="v mute">–</span>`;
+      const isOn = on !== void 0 ? on : s.state === "on";
+      return `<button class="tgl ${isOn ? "on" : ""}" ${id ? `data-tgl="${id}"` : ""} ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`;
+    }
+    _optToggle(scope, key, on) {
+      return `<button class="tgl ${on ? "on" : ""}" data-optbool="${scope}" data-key="${key}" data-val="${on ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`;
+    }
+    _segs(scope, key, options, current) {
+      return `<div class="segs">${Object.entries(options).map(([v, l]) => `<button class="${v === current ? "on" : ""}" data-seg="${scope}" data-key="${key}" data-val="${v}" ${this._admin ? "" : "disabled"}>${l}</button>`).join("")}</div>`;
+    }
+    _select(scope, key, items, current, empty) {
+      return `<select class="sel" data-sel="${scope}" data-key="${key}" ${this._admin ? "" : "disabled"}>${empty !== void 0 ? `<option value="">${t(empty)}</option>` : ""}${items.map((it) => `<option value="${esc(it.id)}" ${it.id === current ? "selected" : ""}>${esc(it.name)}</option>`).join("")}</select>`;
+    }
+    // ---------------------------------------------------------------- Lernen & Warum
+    // ---------------------------------------------------------------- Rendern
+    _render() {
+      if (!this._hass || !this._rooms) return;
+      if (this._pro === void 0) {
+        try {
+          this._pro = localStorage.getItem("raumklima-settings-pro") === "1";
+        } catch (e) {
+          this._pro = false;
+        }
+      }
+      this._moreOpen = this._moreOpen || /* @__PURE__ */ new Map();
+      if (this._renderSoon()) return;
+      const rooms = this._orderedRooms();
+      if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
+      const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` + rooms.map((r) => {
+        const sick = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).some((i) => i.entry_id === (r.attrs.settings || {}).entry_id && i.severity !== "info");
+        return `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}${sick ? ` <ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)"></ha-icon>` : ""}</button>`;
+      }).join("");
+      const room = rooms.find((r) => r.id === this._tab);
+      const body = room ? this._room(room) : this._general();
+      const homes = this._cfg && this._cfg.homes || [];
+      const me = homes.find((h) => h.entry_id === this._homeId());
+      this._ctxHome = me ? me.name : this._config && this._config.home || t("Wohnung");
+      const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
+      rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
+      <ha-card class="settings" style="--tone:${toneVar("off")}">
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
+          <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
+          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+        ${homeBar}
+        <div class="tabs">${tabs}</div>
+        <div class="crumb" id="rkc"></div>
+        ${room ? `<div class="resetbar">${(() => {
+        const n = ((room.attrs.settings || {}).changed || []).length;
+        return n ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n })}</span><button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>` : `<span>${t("Alles auf Standard")}</span>`;
+      })()}</div>` : ""}
+        <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
+        <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
+        <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
+        ${body}
+        ${this._sheetHtml()}
+        ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
+        ${this._timePop()}
+      </ha-card>`);
+      this._bind();
+      this._filter();
+      this._decFetch();
+    }
+    // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
+    _filter() {
+      const root = this.shadowRoot;
+      if (!root) return;
+      const q = String(this._search || "").toLowerCase().trim();
+      const secs = [...root.querySelectorAll(".grp")];
+      const present = /* @__PURE__ */ new Set();
+      let active = null;
+      let shown = 0;
+      for (const g of RK_GROUP_ORDER) {
+        if (secs.some((el) => (el.dataset.g || "advanced") === g)) {
+          active = g;
+          break;
+        }
+      }
+      if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group)) active = this._group;
+      secs.forEach((el) => {
+        const g = el.dataset.g || "advanced";
+        present.add(g);
+        const hit = !q || el.textContent.toLowerCase().includes(q);
+        const vis = q ? hit : g === active;
+        el.style.display = vis ? "" : "none";
+        if (vis) shown += 1;
+      });
+      root.querySelectorAll("details.more").forEach((d) => {
+        d.open = q ? d.textContent.toLowerCase().includes(q) : d.dataset.open === "1";
+      });
+      const visible = secs.filter((el) => el.style.display !== "none");
+      secs.forEach((el) => el.classList.toggle("solo", visible.length === 1 && el.style.display !== "none"));
+      root.querySelector(".groups")?.classList.toggle("solo", visible.length === 1);
+      root.querySelectorAll(".railbtn").forEach((b) => {
+        if (!root.querySelector(`.grp[data-g="${b.dataset.g}"]`)) b.remove();
+      });
+      root.querySelectorAll(".railbtn").forEach((b) => {
+        const g = b.dataset.g;
+        b.classList.toggle("empty", !present.has(g));
+        b.classList.toggle("on", !q && g === active);
+      });
+      const nos = root.querySelector(".nosearch");
+      if (nos) nos.style.display = q && !shown ? "" : "none";
+      const crumb = root.querySelector("#rkc");
+      if (crumb) {
+        const room = (this._rooms || []).find((r) => r.id === this._tab);
+        const parts = [this._ctxHome || t("Wohnung"), room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label)];
+        crumb.innerHTML = parts.map((x, i) => i === parts.length - 1 ? `<b>${esc(x)}</b>` : `${esc(x)} <span>›</span>`).join(" ");
+      }
+    }
+  };
+  Object.assign(RaumklimaSettingsCard.prototype, SheetMethods, GeneralMethods, LayoutMethods, ScheduleMethods, RoomMethods, LearnMethods, BindMethods);
 
   // src/cards/report.js
   var RaumklimaReportCard = class extends HTMLElement {

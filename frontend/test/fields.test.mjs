@@ -1,6 +1,7 @@
 // Zahl-Einstellungen (fields.js): in sich stimmig und innerhalb der Grenzen des Backends.
 // Anlass: beim Schimmelschutz-Deckel waren Schritt, Minimum und Maximum vertauscht –
 // jeder Tipp setzte den Wert auf 0,5 K.
+import { settingsSource } from "./settings-source.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -9,7 +10,7 @@ import { RK_NUM } from "../src/fields.js";
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const ws = read("../../custom_components/raumklima/websocket_api.py");
 const konst = read("../../custom_components/raumklima/const.py");
-const settings = read("../src/cards/settings.js");
+const settings = settingsSource();
 
 const names = Object.fromEntries([...konst.matchAll(/^(CONF_\w+): Final = "(\w+)"/gm)].map((m) => [m[1], m[2]]));
 const numbers = Object.fromEntries([...konst.matchAll(/^(\w+): Final = ([\d.]+)\s*(?:#.*)?$/gm)].map((m) => [m[1], parseFloat(m[2])]));

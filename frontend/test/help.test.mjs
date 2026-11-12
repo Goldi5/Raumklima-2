@@ -1,10 +1,11 @@
 // Jede Erklärung hinter dem „?“ gehört zu einer echten Einstellung und hat Deutsch + Englisch.
+import { settingsSource } from "./settings-source.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { HELP } from "../src/help.js";
 
-const src = readFileSync(new URL("../src/cards/settings.js", import.meta.url), "utf8");
+const src = settingsSource();
 const labels = new Set([...src.matchAll(/_row\("([^"]+)"/g)].map((m) => m[1]));
 
 test("Erklärungen passen zu Einstellungen", () => {
