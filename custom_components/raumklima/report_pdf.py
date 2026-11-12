@@ -561,15 +561,17 @@ def _sparkline(pdf: _Pdf, x: float, y: float, w: float, h: float, values: list[f
 
 def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
     """PDF-Bytes aus den Zahlen von report_data.build() – eine Funktion je Seite."""
-    pdf = _page_overview(data, home, created)
+    pdf, has_data = _page_overview(data, home, created)
+    if not has_data:
+        return bytes(pdf.output())  # keine Heizstunden: nur Seite 1 mit Hinweis
     _page_rooms(pdf, data)
     _page_humidity(pdf, data)
     _page_devices(pdf, data)
     return bytes(pdf.output())
 
 
-def _page_overview(data: dict[str, Any], home: str, created: datetime) -> _Pdf:
-    """Seite 1: Kopf mit Note, Kennzahlen, Vergleich mit Vorzeitraum/Vorjahr, Verlaufsdiagramm."""
+def _page_overview(data: dict[str, Any], home: str, created: datetime) -> tuple[_Pdf, bool]:
+    """Seite 1: Kopf mit Note, Kennzahlen, Vergleich, Verlaufsdiagramm. (pdf, hat Daten?)"""
     lang = data["lang"]
     tx = L[lang]
     start, end = date.fromisoformat(data["start"]), date.fromisoformat(data["end"])
@@ -620,7 +622,7 @@ def _page_overview(data: dict[str, Any], home: str, created: datetime) -> _Pdf:
         pdf.set_font("Helvetica", size=11)
         pdf.set_text_color(*NAVY)
         pdf.multi_cell(0, 6, clean(tx["nodata"]))
-        return bytes(pdf.output())
+        return pdf, False
 
     # ---- Kennzahlen
     gap, w = 4, (full - 12) / 4
@@ -691,7 +693,7 @@ def _page_overview(data: dict[str, Any], home: str, created: datetime) -> _Pdf:
         pdf.add_page()
     pdf.heading(tx["chart_season" if data["kind"] == "season" else "chart"])
     pdf.chart(points, labels)
-    return pdf
+    return pdf, True
 
 
 def _page_rooms(pdf: _Pdf, data: dict[str, Any]) -> None:

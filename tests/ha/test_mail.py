@@ -83,12 +83,12 @@ async def test_password_never_sent_to_card_and_kept(hass: HomeAssistant, trv: Fa
 async def test_ws_mail_test(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path, hass_ws_client: WebSocketGenerator) -> None:
     await _ready(hass, tmp_path, MAIL)
     client = await hass_ws_client(hass)
-    with patch("custom_components.raumklima.websocket_api.mail_send") as send:
+    with patch("custom_components.raumklima.ws_hub.mail_send") as send:
         await client.send_json_auto_id({"type": "raumklima/mail/test", "settings": {"mail_to": "test@example.de", "mail_password": ""}})
         msg = await client.receive_json()
     assert msg["result"] == {"ok": True, "to": ["test@example.de"]}
     assert send.call_args.args[0]["mail_password"] == "geheim"
-    with patch("custom_components.raumklima.websocket_api.mail_send", side_effect=mailer.MailError("Anmeldung abgelehnt")):
+    with patch("custom_components.raumklima.ws_hub.mail_send", side_effect=mailer.MailError("Anmeldung abgelehnt")):
         await client.send_json_auto_id({"type": "raumklima/mail/test"})
         msg = await client.receive_json()
     assert msg["error"]["code"] == "mail_failed" and "Anmeldung" in msg["error"]["message"]
@@ -146,8 +146,8 @@ async def test_ws_check_only(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_pat
     await _ready(hass, tmp_path, MAIL)
     client = await hass_ws_client(hass)
     steps = [{"step": "connect", "ok": True, "msg": "ok"}, {"step": "login", "ok": False, "msg": "abgelehnt"}]
-    with patch("custom_components.raumklima.websocket_api.mail_verify", return_value=steps) as verify, \
-         patch("custom_components.raumklima.websocket_api.mail_send") as send:
+    with patch("custom_components.raumklima.ws_hub.mail_verify", return_value=steps) as verify, \
+         patch("custom_components.raumklima.ws_hub.mail_send") as send:
         await client.send_json_auto_id({"type": "raumklima/mail/test", "send": False, "settings": {"mail_user": "x@y.de"}})
         msg = await client.receive_json()
     assert msg["result"] == {"ok": False, "steps": steps}
