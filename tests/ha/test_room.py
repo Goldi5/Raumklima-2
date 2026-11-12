@@ -490,10 +490,10 @@ async def test_anwesenheit_hebt_ziel(hass: HomeAssistant, setup, trv: FakeTrv) -
     ctrl.target_temp = 19.0
     ctrl.config[CONF_PRESENCE_TARGET] = 21.0
 
-    ctrl._occupied = False
+    ctrl._ph_active = False
     assert ctrl.plan()[2] != "presence"
 
-    ctrl._occupied = True
+    ctrl._ph_active = True  # belegt seit der Wartezeit (siehe occupancy.presence_heat)
     on, target, reason = ctrl.plan()
     assert reason == "presence"
     assert on is True
@@ -502,7 +502,7 @@ async def test_anwesenheit_hebt_ziel(hass: HomeAssistant, setup, trv: FakeTrv) -
     # 0 °C = aus
     ctrl.config[CONF_PRESENCE_TARGET] = 0.0
     assert ctrl.plan()[2] != "presence"
-    ctrl._occupied = None
+    ctrl._ph_active = False
 
 
 async def test_hvac_auto_uebergibt_ans_geraet(hass: HomeAssistant, setup, trv: FakeTrv) -> None:

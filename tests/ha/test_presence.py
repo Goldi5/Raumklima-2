@@ -251,7 +251,7 @@ async def test_anwesenheit_ablauf_wie_gewuenscht(hass: HomeAssistant, trv: FakeT
     _radar(hass, False)
     _hub, room = await _setup(hass, room_type="office", presence_sensors=[RADAR], presence_target=21.0)
     c = room.runtime_data
-    c.target_temp = 18.5
+    await c.async_set_target(18.5)
     await _later(hass, freezer, 1)
     assert trv.setpoint == 18.5
     assert c.room_eco_enabled() is False, "mit Anwesenheits-Temperatur senkt „Automatisch“ nicht zusätzlich ab"

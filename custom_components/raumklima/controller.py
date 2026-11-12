@@ -292,6 +292,10 @@ MOLD_EXEMPT = frozenset(
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
     {
+        CONF_PRESENCE_TARGET,
+        CONF_PRESENCE_DELAY,
+        CONF_PRESENCE_RELEASE,
+        CONF_PRESENCE_PIR,
         CONF_COMFORT_TEMP,
         CONF_SETBACK_SHORT,
         CONF_SETBACK_LONG,
