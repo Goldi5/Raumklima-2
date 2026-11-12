@@ -1,3 +1,37 @@
+## 0.62.45b1 – 2026-11-12
+
+### Einstellungen aufgeräumt
+- **Selten Gebrauchtes ist eingeklappt.** Jede Gruppe zeigt die Zeilen für den Alltag; der Rest steckt unter
+  **„Weitere Einstellungen“** (mit Anzahl). Der Aufklapper öffnet sich von selbst, sobald darin ein Wert vom
+  Standard abweicht (ein Punkt markiert ihn) – nichts Geändertes bleibt versteckt. Die **Suche** klappt Treffer
+  auf, und **„Profi-Ansicht“** oben rechts zeigt dauerhaft alles (je Browser gemerkt).
+- **Neu sortiert:** eigene Gruppen **Nacht & Ruhezeit** (Ruhezeit, Nachtlüften, Schlafenszeiten – vorher auf
+  „Benachrichtigungen“ und „Anwesenheit“ verteilt), **Berichte** (PDF, E-Mail, Heizkosten) und je Raum
+  **Schimmelschutz** (Stufe, Deckel, Bauart – lag unter „Fenster“ und „Temperatur“). Bauart und Wetterquelle
+  stehen bei der Wohnung, die CO₂-Grenze bei „Lüften & Feuchte“, Heizquellen bei „Heizung“. Die Leiste hat
+  dafür die Punkte **Nacht** und **Berichte**; „Erweitert“ als Sammelbecken entfällt.
+- Im Zeitplan stehen die Zeitfenster oben, darunter der Boost.
+
+### Behoben
+- **„Höchstens anheben um“ (Schimmelschutz-Deckel) sprang bei jedem Tipp auf 0,5 K** – Schrittweite, Minimum
+  und Maximum waren vertauscht.
+- **„Vorheizen“ steckte im Kleingedruckten der Zeile „Aufheizen“** (seit 0.62.31); der Hinweis zur gelernten
+  Aufheizrate fehlte ganz.
+- **Vorheizen mit „Zeitplan von“:** Räume, die den Zeitplan eines anderen Raums nutzen, wurden nicht
+  vorgeheizt – das Vorheizen sah nur in den eigenen (leeren) Zeitplan.
+- **Schimmelschutz-Stundenbudget:** Messlücken bei offenem Fenster wurden auf die übrigen Werte verteilt; nach
+  einer Nacht mit offenem Fenster zählte jede feuchte Stunde etwa 1,5-fach.
+- **„Bei Anwesenheit“** zeigte halbe Grade gerundet an (21,5 °C als 22 °C).
+- Schreibfehler „Nachtabsendung“ → **„Nachtabsenkung“** überall.
+- Die Anzeige (Status, Heizt/Aus, Diagnose) verändert keinen Zustand mehr – ein abgelaufener Boost wird nur
+  noch von der Regelung selbst aufgeräumt.
+
+### Intern
+- **Regelkette zerlegt:** statt einer Funktion mit 36 Verzweigungen 16 benannte Regeln; die Rangfolge steht als
+  Liste `PLAN_RULES` im Code. Verhalten unverändert.
+- **Zahl-Einstellungen an einer Stelle** (`frontend/src/fields.js`): Einheit, Schrittweite und Grenzen; ein
+  Test prüft sie gegen die Grenzen des Backends.
+
 ## 0.62.44b1 – 2026-11-12
 
 - **Heizquellen je Raum**: Thermostate und Klimaanlagen als Quellen mit Name, Typ, festem Offset, Auslöser-Entität und „unangetastet“. Die Auswahl steht unter *Raum → Heizquellen*.

@@ -287,11 +287,11 @@ Every week, every month and at the end of the heating season a **PDF report** (s
 - a **heat map** of when it heats,
 - **battery levels**, failures and **saving tips** with numbers.
 
-If you enter your **heating costs per year** under *Settings → General → Building & mould protection*, the report roughly converts savings into **euros**.
+If you enter your **heating costs per year** under *Settings → General → Reports → More settings*, the report roughly converts savings into **euros**.
 
 - **Download:** at the very bottom of the **Report** tab under *PDF reports* – tap **Download**. The buttons *Week*, *Month* and *Heating season* give you a report up to today right away.
 - **On your phone:** the push message has an **Open PDF** button.
-- **By email:** *Settings → General → Notifications – general → PDF by email* → tap **Set up email** right below, pick your provider (e.g. Gmail), enter user, password and recipients, test them with **Check login** and then tap **Save & send test email**. Gmail, iCloud and Outlook need an app password.
+- **By email:** *Settings → General → Reports → PDF by email* → tap **Set up email** right below, pick your provider (e.g. Gmail), enter user, password and recipients, test them with **Check login** and then tap **Save & send test email**. Gmail, iCloud and Outlook need an app password.
 
 :::tip
 The report follows the Home Assistant language: German, French, English for every other language. Push messages, the log and notices do the same.
@@ -315,7 +315,7 @@ Not sure? Keep the defaults. They follow the recommendations of German consumer 
 | **General → Heating season** | when to heat, heat today |
 | **General → Who gets what** | recipients and which messages they get |
 | **General → Notifications** | quiet hours, reminders, weather source, PDF reports, email |
-| **General → Sleep times** | Raumklima learns when you sleep |
+| **General → Night & quiet time** | Raumklima learns when you sleep |
 | **Room → Temperature** | desired temperature, setback, sunny side |
 | **Room → Airing & humidity** | from which humidity to ask for airing |
 | **Room → Windows** | pause while a window is open, sleeping with the window open |

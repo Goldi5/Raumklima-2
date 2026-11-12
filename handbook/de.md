@@ -288,11 +288,11 @@ Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** 
 - ein **Wärmebild**, wann geheizt wird,
 - **Batteriestände**, Ausfälle und **Spartipps** mit Zahlen.
 
-Trägst du unter *Einstellungen → Allgemein → Gebäude & Schimmelschutz* deine **Heizkosten pro Jahr** ein, rechnet der Bericht die Ersparnis grob in **Euro** um.
+Trägst du unter *Einstellungen → Allgemein → Berichte → Weitere Einstellungen* deine **Heizkosten pro Jahr** ein, rechnet der Bericht die Ersparnis grob in **Euro** um.
 
 - **Herunterladen:** ganz unten im Reiter **Bericht** unter *PDF-Berichte* – auf **Herunterladen** tippen. Mit den Knöpfen *Woche*, *Monat* und *Heizsaison* bekommst du sofort einen Bericht bis heute.
 - **Aufs Handy:** Die Push-Nachricht hat einen Knopf **PDF öffnen**.
-- **Per E-Mail:** *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail* → darunter auf **E-Mail einrichten** tippen, deinen Anbieter wählen (z. B. GMX oder Gmail), Benutzer, Passwort und Empfänger eintragen, mit **Zugang prüfen** testen und dann **Speichern & Test-Mail senden** tippen. Bei Gmail, iCloud und Outlook brauchst du ein App-Passwort.
+- **Per E-Mail:** *Einstellungen → Allgemein → Berichte → PDF per E-Mail* → darunter auf **E-Mail einrichten** tippen, deinen Anbieter wählen (z. B. GMX oder Gmail), Benutzer, Passwort und Empfänger eintragen, mit **Zugang prüfen** testen und dann **Speichern & Test-Mail senden** tippen. Bei Gmail, iCloud und Outlook brauchst du ein App-Passwort.
 
 :::tip
 Der Bericht kommt in der Sprache von Home Assistant: auf Deutsch, Französisch oder – bei jeder anderen Sprache – auf Englisch. Push-Nachrichten, Protokoll und Hinweise ebenso.
@@ -315,9 +315,11 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Allgemein → Anwesenheit** | Bewohner, Zone, wann abgesenkt wird, Urlaub, Gäste, Kalender |
 | **Allgemein → Heizsaison** | wann geheizt wird, Heute heizen |
 | **Allgemein → Wer bekommt was** | Empfänger und welche Nachrichten sie bekommen |
-| **Allgemein → Benachrichtigungen** | Ruhezeit, Erinnerungen, Wetterquelle, PDF-Berichte, E-Mail |
-| **Allgemein → Schlafenszeiten** | Raumklima lernt, wann ihr schlaft |
-| **Raum → Temperatur** | Wunschtemperatur, Absenkung, Sonnenseite |
+| **Allgemein → Benachrichtigungen** | Lüfthinweise, Sturmwarnung, Erinnerungen |
+| **Allgemein → Berichte** | PDF-Berichte, E-Mail, Heizkosten |
+| **Allgemein → Nacht & Ruhezeit** | Raumklima lernt, wann ihr schlaft |
+| **Raum → Temperatur** | Wunschtemperatur, Absenkung; eingeklappt: Vorheizen, Nachtabsenkung, Sonnenseite |
+| **Raum → Schimmelschutz** | Stufe; eingeklappt: Deckel, Bauart des Raums |
 | **Raum → Lüften & Feuchte** | ab welcher Feuchte gelüftet werden soll |
 | **Raum → Fenster** | Pause bei offenem Fenster, Schlafen bei offenem Fenster |
 | **Raum → Präsenzmelder** | Melder, leeren Raum absenken |
@@ -337,8 +339,10 @@ Beim Scrollen siehst du sofort, wo ein Abschnitt anfängt.
 |---|---|
 | **Wohnung** | Heizsaison, Alle Räume, Darstellung |
 | **Heizung** | Gesundheit der Heizung, Heizgrenze |
-| **Anwesenheit** | Personen, Zone, Urlaub, Schlafenszeiten |
-| **Benachrichtigungen** | Empfänger, Ruhezeit, E-Mail, Berichte |
+| **Anwesenheit** | Personen, Zone, Urlaub, Gäste, Homeoffice |
+| **Nacht** | Ruhezeit, Nachtlüften, gelernte Schlafenszeiten |
+| **Benachrichtigungen** | Empfänger, Lüfthinweise, Sturmwarnung |
+| **Berichte** | PDF-Berichte, E-Mail, Heizkosten |
 | **Lernen** | gelernte Schlafzeiten, Anwesenheitsprofil |
 
 | Gruppe (Raum) | Inhalt |

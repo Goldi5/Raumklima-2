@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 from collections import deque
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 import logging
 from typing import Any
@@ -244,6 +245,45 @@ SCHEDULE_FALLBACK_SHORT = "short"
 SCHEDULE_FALLBACK_LONG = "long"
 SCHEDULE_FALLBACK_FROST = "frost"
 # Bei diesen Gründen greift der Schimmelschutz nicht ein (bewusste Aktion oder Heizung ohnehin aus)
+PlanResult = tuple[bool, float, str] | None
+
+# Rangfolge der Regelkette: die erste Regel mit Ergebnis gewinnt (siehe ``_plan_rules``).
+# Danach gilt der Wunsch; der Schimmelschutz hebt jedes Ergebnis als Boden an (``_mold_floor``).
+PLAN_RULES: tuple[str, ...] = (
+    "_rule_monitor",
+    "_rule_device_auto",
+    "_rule_valve_care",
+    "_rule_no_hub",
+    "_rule_season",
+    "_rule_boost",
+    "_rule_presence",
+    "_rule_home_office",
+    "_rule_away",
+    "_rule_expire_manual",
+    "_rule_schedule",
+    "_rule_night",
+    "_rule_preheat",
+    "_rule_schedule_fallback",
+    "_rule_empty_room",
+    "_rule_solar",
+)
+
+
+@dataclass
+class _PlanContext:
+    """Was alle Regeln eines Durchlaufs gemeinsam sehen."""
+
+    now: datetime  # UTC
+    local_now: datetime
+    hub: Any
+    manual_until: datetime | None = None
+
+    @property
+    def manual_active(self) -> bool:
+        """Läuft gerade eine Handverstellung?"""
+        return bool(self.manual_until and self.now < self.manual_until)
+
+
 MOLD_EXEMPT = frozenset(
     {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD}
 )
@@ -1249,124 +1289,199 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return self.config.get(CONF_ROOM_TYPE) in NIGHT_ROOM_TYPES
 
     def _plan_rules(self) -> tuple[bool, float, str]:
-        """Regelkette ohne Nachbedingung (siehe ``plan()``)."""
+        """Regelkette ohne Nachbedingung (siehe ``plan()``).
+
+        Die Reihenfolge in ``PLAN_RULES`` *ist* die Rangfolge: die erste Regel, die ein Ergebnis
+        liefert, gewinnt. Jede Regel steht für sich und gibt ``None`` zurück, wenn sie nicht greift.
+        """
+        ctx = _PlanContext(now=dt_util.utcnow(), local_now=dt_util.now(), hub=self.hub)
+        for name in PLAN_RULES:
+            result = getattr(self, name)(ctx)
+            if result is not None:
+                return result
+        return True, self.target_temp, REASON_NORMAL
+
+    def _rule_monitor(self, ctx: _PlanContext) -> PlanResult:
+        """Überwachungsraum ohne Thermostat: nie heizen."""
         if self.monitor:
             return False, self.target_temp, REASON_MONITOR
+        return None
+
+    def _rule_device_auto(self, ctx: _PlanContext) -> PlanResult:
+        """HVAC-Modus Auto: das Gerät fährt sein eigenes Programm."""
         if self.hvac_auto:
             return False, self.target_temp, REASON_DEVICE_AUTO
-        now = dt_util.utcnow()
-        if self._valve_care_until and now < self._valve_care_until:
+        return None
+
+    def _rule_valve_care(self, ctx: _PlanContext) -> PlanResult:
+        """Sommerpflege: Ventil kurz ganz öffnen."""
+        if self._valve_care_until and ctx.now < self._valve_care_until:
             return True, self.trv_max, REASON_VALVE_CARE
-        hub = self.hub
-        if hub is None:
+        return None
+
+    def _rule_no_hub(self, ctx: _PlanContext) -> PlanResult:
+        """Ohne Zentrale gilt schlicht der Wunsch."""
+        if ctx.hub is None:
             return True, self.target_temp, REASON_NORMAL
-        if not hub.heating_allowed:
-            floor = hub.frost_floor
-            cur = self.current_temperature
-            if self._frost_active and (cur is None or cur >= floor + 1):
-                if not self._peeking:
-                    self._frost_active = False
-            elif not self._frost_active and cur is not None and cur < floor and not self._peeking:
-                self._frost_active = True
-            if self._frost_active:
-                return True, min(floor + 1, self.trv_max), REASON_FROST
-            return False, self.target_temp, REASON_SEASON
-        self._frost_active = False
-        # Boost: bewusste Nutzeraktion – schlägt die Absenkung bei Abwesenheit
-        if self.boost_open or self.boost_until is not None:
-            if self.boost_open or now < self.boost_until:
-                boost = self.boost_temperature if self.boost_temperature is not None else self.target_temp
-                return True, min(boost, self.trv_max), REASON_BOOST
+        return None
+
+    def _rule_season(self, ctx: _PlanContext) -> PlanResult:
+        """Heizpause – mit Sicherung: fällt der Raum unter den Frostboden, heizt er trotzdem."""
+        hub = ctx.hub
+        if hub.heating_allowed:
+            self._frost_active = False
+            return None
+        floor = hub.frost_floor
+        cur = self.current_temperature
+        if self._frost_active and (cur is None or cur >= floor + 1):
             if not self._peeking:
-                self.boost_until = None
-                self.boost_temperature = None
-                self._save()
-        # Jemand im Raum: auf die Anwesenheits-Temperatur heizen (z. B. Arbeitszimmer 19 → 21)
+                self._frost_active = False
+        elif not self._frost_active and cur is not None and cur < floor and not self._peeking:
+            self._frost_active = True
+        if self._frost_active:
+            return True, min(floor + 1, self.trv_max), REASON_FROST
+        return False, self.target_temp, REASON_SEASON
+
+    def _rule_boost(self, ctx: _PlanContext) -> PlanResult:
+        """Boost: bewusste Nutzeraktion – schlägt die Absenkung bei Abwesenheit."""
+        if not (self.boost_open or self.boost_until is not None):
+            return None
+        if self.boost_open or ctx.now < self.boost_until:
+            boost = self.boost_temperature if self.boost_temperature is not None else self.target_temp
+            return True, min(boost, self.trv_max), REASON_BOOST
+        if not self._peeking:
+            self.boost_until = None
+            self.boost_temperature = None
+            self._save()
+        return None
+
+    def _rule_presence(self, ctx: _PlanContext) -> PlanResult:
+        """Jemand im Raum: auf die Anwesenheits-Temperatur heizen (z. B. Arbeitszimmer 19 → 21)."""
         if (
             self.presence_target > 0
             and self.occupied is True
-            and not hub.vacation
-            and self._presence_ready(now)
+            and not ctx.hub.vacation
+            and self._presence_ready(ctx.now)
         ):
             return True, min(self.presence_target, self.trv_max), REASON_PRESENCE
-        # Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert
+        return None
+
+    def _rule_home_office(self, ctx: _PlanContext) -> PlanResult:
+        """Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert."""
+        hub = ctx.hub
         if not hub.vacation and hub.home_office_applies(self.entry.entry_id):
             return True, min(self.target_temp, self.trv_max), REASON_HOME_OFFICE
+        return None
+
+    def _rule_away(self, ctx: _PlanContext) -> PlanResult:
+        """Niemand zu Hause: Absenkung „kurz weg" / „länger weg" (mit Schimmelschutz und Frostnacht)."""
+        hub = ctx.hub
         stage = hub.stage_for_room(self.entry.entry_id)
-        if stage in AWAY_STAGES:
-            if self._manual_until and now < self._manual_until:
-                return True, self.target_temp, REASON_MANUAL
-            mold = None
-            if self.humidity_capable and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
-                mold = self.mold_min(hub)
-            target = setback_target(
-                self.target_temp, stage, self.setback_short, self.setback_long, mold
-            )
-            frost = hub.frost_night
-            if not self._peeking:
-                self.frost_night_low = frost if target < self.target_temp else None
-            if frost is not None and target < self.target_temp:
-                target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
-            if target < self.target_temp:
-                return True, target, stage
-            # Nichts zu senken (Wunsch liegt schon auf dem Absenkwert, z. B. Sportzimmer 18,0 °C):
-            # trotzdem als „abgesenkt" melden – außer ein Zeitplanfenster gilt gerade.
-            if schedule_target(self.schedules, dt_util.now()) is None:
-                return True, target, stage
-        manual_until = self._manual_until
+        if stage not in AWAY_STAGES:
+            return None
+        if self._manual_until and ctx.now < self._manual_until:
+            return True, self.target_temp, REASON_MANUAL
+        mold = None
+        if self.humidity_capable and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
+            mold = self.mold_min(hub)
+        target = setback_target(
+            self.target_temp, stage, self.setback_short, self.setback_long, mold
+        )
+        frost = hub.frost_night
         if not self._peeking:
-            # Nur *abgelaufene* Handverstellungen verwerfen – eine laufende muss bleiben,
-            # sonst wäre sie nach dem ersten plan()-Aufruf schon weg (Zeitplan-Pause).
-            if manual_until is not None and manual_until <= now:
-                manual_until = None
+            self.frost_night_low = frost if target < self.target_temp else None
+        if frost is not None and target < self.target_temp:
+            target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
+        if target < self.target_temp:
+            return True, target, stage
+        # Nichts zu senken (Wunsch liegt schon auf dem Absenkwert, z. B. Sportzimmer 18,0 °C):
+        # trotzdem als „abgesenkt" melden – außer ein Zeitplanfenster gilt gerade.
+        if schedule_target(self.schedules, ctx.local_now) is None:
+            return True, target, stage
+        return None
+
+    def _rule_expire_manual(self, ctx: _PlanContext) -> PlanResult:
+        """Kein Ergebnis – räumt nur auf: abgelaufene Handverstellung verwerfen.
+
+        Nur *abgelaufene* Handverstellungen verwerfen – eine laufende muss bleiben, sonst wäre
+        sie nach dem ersten plan()-Aufruf schon weg (Zeitplan-Pause).
+        """
+        ctx.manual_until = self._manual_until
+        if not self._peeking:
+            if ctx.manual_until is not None and ctx.manual_until <= ctx.now:
+                ctx.manual_until = None
                 self._manual_until = None
                 self._save()
             self.frost_night_low = None
-        # Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne
-        local_now = dt_util.now()
-        sched = schedule_target(self.schedules, local_now)
-        if sched is not None:
-            if manual_until and now < manual_until and not values_match(self.target_temp, sched, 0.05):
-                # Von Hand gestellt: der Zeitplan pausiert bis override_minutes abgelaufen sind
-                return True, min(self.target_temp, self.trv_max), REASON_MANUAL
-            return True, min(sched, self.trv_max), REASON_SCHEDULE
-        # Ruhezeit: Schlafräume werden abgesenkt, auch wenn jemand zu Hause ist – nach einer
-        # Nachtschicht wird tagsüber geschlafen. Der Regler am Thermostat gilt weiter.
-        if self._night_setback_applies(hub):
-            if manual_until and now < manual_until:
-                return True, self.target_temp, REASON_MANUAL
-            return True, hub.night_target(self), REASON_SLEEP
-        # Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit
-        nxt = next_schedule_window(self.schedules, local_now)
+        return None
+
+    def _rule_schedule(self, ctx: _PlanContext) -> PlanResult:
+        """Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne."""
+        sched = schedule_target(self.schedules, ctx.local_now)
+        if sched is None:
+            return None
+        if ctx.manual_active and not values_match(self.target_temp, sched, 0.05):
+            # Von Hand gestellt: der Zeitplan pausiert bis override_minutes abgelaufen sind
+            return True, min(self.target_temp, self.trv_max), REASON_MANUAL
+        return True, min(sched, self.trv_max), REASON_SCHEDULE
+
+    def _rule_night(self, ctx: _PlanContext) -> PlanResult:
+        """Ruhezeit: Schlafräume werden abgesenkt, auch wenn jemand zu Hause ist.
+
+        Nach einer Nachtschicht wird tagsüber geschlafen. Der Regler am Thermostat gilt weiter.
+        """
+        if not self._night_setback_applies(ctx.hub):
+            return None
+        if ctx.manual_active:
+            return True, self.target_temp, REASON_MANUAL
+        return True, ctx.hub.night_target(self), REASON_SLEEP
+
+    def _rule_preheat(self, ctx: _PlanContext) -> PlanResult:
+        """Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit."""
+        nxt = next_schedule_window(self.schedules, ctx.local_now)
         cur = self.current_temperature
-        if nxt is not None and cur is not None and self._preheat_allowed(nxt[0], local_now):
-            start, want = nxt
-            need = self.heatup.minutes_needed(want - cur, hub.outdoor_temp())
-            if need is not None and local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:
-                return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
-        # Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt
+        if nxt is None or cur is None or not self._preheat_allowed(nxt[0], ctx.local_now):
+            return None
+        start, want = nxt
+        need = self.heatup.minutes_needed(want - cur, ctx.hub.outdoor_temp())
+        if need is not None and ctx.local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:
+            return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
+        return None
+
+    def _rule_schedule_fallback(self, ctx: _PlanContext) -> PlanResult:
+        """Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt."""
         fb = self.config.get(CONF_SCHEDULE_FALLBACK) or SCHEDULE_FALLBACK_WISH
-        if self.schedules and fb != SCHEDULE_FALLBACK_WISH:
-            outside = {
-                SCHEDULE_FALLBACK_SHORT: self.setback_short,
-                SCHEDULE_FALLBACK_LONG: self.setback_long,
-                SCHEDULE_FALLBACK_FROST: hub.frost_floor,
-            }.get(fb)
-            if outside is not None and outside < self.target_temp - 0.05:
-                return True, min(outside, self.trv_max), REASON_SCHEDULE_FALLBACK
-        # „Anwesenheit aus": auch der leere Raum senkt nicht ab (Issue #10)
-        if self.room_eco_applies() and not hub.opt(CONF_PRESENCE_OFF):
-            floor = self.setback_short
-            if self.humidity_capable:
-                mold = self.mold_min(hub)
-                if mold is not None:
-                    floor = max(floor, mold)
-            target = room_eco_target(self.target_temp, self.room_eco_drop, floor)
-            if target < self.target_temp:
-                return True, target, REASON_EMPTY
-        if self._solar_applies(hub):
+        if not self.schedules or fb == SCHEDULE_FALLBACK_WISH:
+            return None
+        outside = {
+            SCHEDULE_FALLBACK_SHORT: self.setback_short,
+            SCHEDULE_FALLBACK_LONG: self.setback_long,
+            SCHEDULE_FALLBACK_FROST: ctx.hub.frost_floor,
+        }.get(fb)
+        if outside is not None and outside < self.target_temp - 0.05:
+            return True, min(outside, self.trv_max), REASON_SCHEDULE_FALLBACK
+        return None
+
+    def _rule_empty_room(self, ctx: _PlanContext) -> PlanResult:
+        """Leerer Raum (Präsenzmelder): etwas kühler. „Anwesenheit aus" schaltet das ab (Issue #10)."""
+        hub = ctx.hub
+        if not self.room_eco_applies() or hub.opt(CONF_PRESENCE_OFF):
+            return None
+        floor = self.setback_short
+        if self.humidity_capable:
+            mold = self.mold_min(hub)
+            if mold is not None:
+                floor = max(floor, mold)
+        target = room_eco_target(self.target_temp, self.room_eco_drop, floor)
+        if target < self.target_temp:
+            return True, target, REASON_EMPTY
+        return None
+
+    def _rule_solar(self, ctx: _PlanContext) -> PlanResult:
+        """Sonnenseite: bei erwarteter Sonne etwas weniger – sie heizt mit."""
+        if self._solar_applies(ctx.hub):
             return True, self.target_temp - SOLAR_REDUCTION, REASON_SOLAR
-        return True, self.target_temp, REASON_NORMAL
+        return None
 
     def _solar_applies(self, hub: RaumklimaHub) -> bool:
         """Sonnen-Raum: bei erwarteter Sonne 1 °C weniger – einmal an, bis die Sonne weg ist (keine Schwingung)."""
@@ -1414,7 +1529,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if self.hvac_auto:
             action = self._trv_attr("hvac_action")
             return action if action in (HVACAction.HEATING, HVACAction.IDLE) else HVACAction.IDLE
-        if not self.hvac_on or self.paused or not self.plan()[0]:
+        if not self.hvac_on or self.paused or not self.peek_plan()[0]:
             return HVACAction.OFF
         action = self._trv_attr("hvac_action")
         if action == HVACAction.HEATING or self._trv_attr("running_state") == "heat":
@@ -1449,7 +1564,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             return STATUS_OFF_TRV if self.off_source == OFF_SOURCE_TRV else STATUS_OFF
         if self.paused:
             return STATUS_NIGHT if self.night_airing else STATUS_WINDOW
-        on, _target, reason = self.plan()
+        on, _target, reason = self.peek_plan()
         if not on and reason == REASON_SEASON:
             return STATUS_SEASON
         if not self.sensor_ok:

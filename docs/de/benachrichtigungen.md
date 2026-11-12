@@ -27,7 +27,7 @@ Die Integration lernt, wann ihr schlafen geht und aufsteht:
 - **aus dem Nachtlüften:** Fenster im Schlafraum abends auf = ins Bett, morgens zu = aufgestanden.
 - **aus Schlaf-Signalen** (optional, z. B. Licht im Wohnzimmer): abends 20 Minuten lang alle aus = ins Bett, morgens eins an = aufgestanden. Mit Signalen gilt die Ruhezeit zusätzlich live: Licht aus → Ruhe, Licht morgens an → wach.
 
-Pro Nacht zählt das früheste Ereignis, Werktag und Wochenende (Fr→Sa, Sa→So) getrennt; ab 4 Nächten gilt der typische Wert der letzten 6 Wochen. Die Ruhezeit beginnt dann 30 Minuten vor der Bettzeit und endet 30 Minuten nach dem Aufstehen – **aber nie kürzer als eingestellt**. Das Nachtlüften-Fenster wird ebenso erweitert. Einstellen und ansehen unter *Allgemein → Schlafenszeiten*.
+Pro Nacht zählt das früheste Ereignis, Werktag und Wochenende (Fr→Sa, Sa→So) getrennt; ab 4 Nächten gilt der typische Wert der letzten 6 Wochen. Die Ruhezeit beginnt dann 30 Minuten vor der Bettzeit und endet 30 Minuten nach dem Aufstehen – **aber nie kürzer als eingestellt**. Das Nachtlüften-Fenster wird ebenso erweitert. Einstellen und ansehen unter *Allgemein → Nacht & Ruhezeit*.
 
 ## Nachtlüften
 
@@ -94,7 +94,7 @@ Die Lampen blinken dreimal und bekommen danach ihren vorherigen Zustand zurück 
 
 ## Ruhezeit
 
-Am **Wochenende** (Sa/So) endet die Ruhezeit später – Standard 9:00, einstellbar unter *Allgemein → Benachrichtigungen allgemein → Wochenende bis*.
+Am **Wochenende** (Sa/So) endet die Ruhezeit später – Standard 9:00, einstellbar unter *Allgemein → Nacht → Nacht & Ruhezeit → Wochenende bis*.
 
 Standard 22:00–07:00 Uhr. In der Ruhezeit kommen Push-Nachrichten **still** an. Laut melden sich nur dringende Nachrichten: *Raum kühlt aus*, *Fenster offen, niemand da* und *Thermostat reagiert nicht*. Sprachansagen gibt es in der Ruhezeit nie.
 

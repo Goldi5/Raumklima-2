@@ -58,7 +58,7 @@ Mit den Knöpfen **Woche**, **Monat** und **Heizsaison** entsteht sofort ein Ber
 | 3 | **Feuchte und Schimmel** als Ampel je Raum, Problemraum, **CO₂** (Ø und Stunden über 1000 ppm) · **Lüft-Bilanz** (wie oft, wie lange, länger als 30 min offen, „Bitte lüften“ → „Luft ausgetauscht“) · **Wärmebild** „Wann wird geheizt?“ – Wochentag × Uhrzeit |
 | 4 | **Anwesenheit** (niemand da, vorgeheizt, warm bei Ankunft, Raumbelegung, Aufheizzeit je Raum) · **Zuverlässigkeit** (Ausfälle, Verbindungsunterbrechungen, **Batteriestände**) · im Saisonbericht **Rückblick** (erster/letzter Heiztag, kältester Tag, längste Heizpause, stärkster Monat) · **Spartipps** mit Zahlen · **Auffälligkeiten** |
 
-**Euro-Schätzung:** Unter *Einstellungen → Allgemein → Gebäude & Schimmelschutz → Heizkosten pro Jahr* die Kosten laut Abrechnung eintragen (optional). Daraus schätzt der Bericht die Ersparnis in Euro und was 1 °C weniger im Jahr bringt – grob über die Heizgradtage, kein Zähler nötig. Leer lassen = keine Euro-Angaben.
+**Euro-Schätzung:** Unter *Einstellungen → Allgemein → Berichte → Weitere Einstellungen → Heizkosten pro Jahr* die Kosten laut Abrechnung eintragen (optional). Daraus schätzt der Bericht die Ersparnis in Euro und was 1 °C weniger im Jahr bringt – grob über die Heizgradtage, kein Zähler nötig. Leer lassen = keine Euro-Angaben.
 
 Wärmebild, CO₂, Lüft-Ergebnisse und Ausfälle werden ab Version 0.13 gesammelt – sie füllen sich also erst mit der Zeit.
 
@@ -66,7 +66,7 @@ Wärmebild, CO₂, Lüft-Ergebnisse und Ausfälle werden ab Version 0.13 gesamme
 
 **Zustellung:**
 - **Push** an alle, die den *Wochenbericht* bekommen – mit Knopf **PDF öffnen** (Link 30 Tage gültig).
-- **E-Mail mit Anhang:** unter *Einstellungen → Allgemein → Benachrichtigungen allgemein → PDF per E-Mail* direkt darunter auf **E-Mail einrichten** tippen: Anbieter wählen (Gmail, GMX, WEB.DE, 1&1, Outlook, T-Online, iCloud, Posteo, IONOS – füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen. **Zugang prüfen** testet Server, Verschlüsselung und Anmeldung, ohne eine Mail zu senden; danach **Speichern & Test-Mail senden**. Bei Gmail, iCloud und Outlook ein **App-Passwort** verwenden. Das Passwort bleibt in Home Assistant und wird nie angezeigt. Wer schon einen Mail-Dienst (`notify`) in Home Assistant hat, kann stattdessen den wählen.
+- **E-Mail mit Anhang:** unter *Einstellungen → Allgemein → Berichte → PDF per E-Mail* direkt darunter auf **E-Mail einrichten** tippen: Anbieter wählen (Gmail, GMX, WEB.DE, 1&1, Outlook, T-Online, iCloud, Posteo, IONOS – füllt Server und Port aus), Benutzer, Passwort und Empfänger eintragen. **Zugang prüfen** testet Server, Verschlüsselung und Anmeldung, ohne eine Mail zu senden; danach **Speichern & Test-Mail senden**. Bei Gmail, iCloud und Outlook ein **App-Passwort** verwenden. Das Passwort bleibt in Home Assistant und wird nie angezeigt. Wer schon einen Mail-Dienst (`notify`) in Home Assistant hat, kann stattdessen den wählen.
 - **Ablage:** im Medienordner unter `raumklima/` – auch unter *Medien* in Home Assistant zu finden. Aufgehoben werden die letzten 26 Wochen-, 24 Monats- und 20 Saisonberichte.
 
 Welche Berichte automatisch entstehen, stellst du unter *PDF-Berichte* ein (Standard: alle drei). Der Download geht nur angemeldet oder über einen signierten Link.
@@ -112,9 +112,12 @@ Hier ist **alles zu sehen und direkt änderbar**:
 - *Anwesenheit & Absenkung:* Bewohner antippen, Zone wählen, Wartezeit, „länger weg“, Vorheizen, Urlaub, Gäste. Man sieht, wer gerade da ist und wie weit die anderen entfernt sind.
 - *Heizsaison & Heizgrenze:* Betriebsart, Heizgrenze, Saisonzeitraum, Kälteeinbruch, Sicherung, Sommerpflege, **Heute heizen**. Darüber das aktuelle Außen-Mittel und die Vorhersage.
 - *Wer bekommt was:* je Empfänger die Nachrichtenarten antippen, **Test** senden, Empfänger hinzufügen oder entfernen (Push oder Sprachansage).
-- *Benachrichtigungen allgemein:* Ruhezeit, Erinnerungsabstand, Wetterquelle, Fehler in der HA-Glocke.
-- *Schlafenszeiten:* Zeiten lernen, **Schichtdienst** (auch Tagschlaf), **Ruhezeit senkt ab**, Feiertage, Schlaf-Signale – darunter steht, was gelernt wurde.
-- *Gebäude & Schimmelschutz:* Bauart.
+- *Benachrichtigungen allgemein:* Lüfthinweise von–bis, nur an anwesende Personen, Sturm- und Regenwarnung; eingeklappt: Erinnerungsabstand, Fehler in der HA-Glocke.
+- *Berichte:* PDF-Berichte, PDF per E-Mail; eingeklappt: Wärmemenge im Bericht, Heizkosten pro Jahr.
+- *Nacht & Ruhezeit:* Ruhezeit (Wochenende getrennt), Nachtlüften, Zeiten lernen, **Schichtdienst** (auch Tagschlaf), **Ruhezeit senkt ab**, Feiertage, Schlaf-Signale – darunter steht, was gelernt wurde.
+- *Wohnung:* Name, Bauart, Wetterquelle; eingeklappt: Dashboard, Standort, weitere Wohnung anlegen.
+
+Selten gebrauchte Zeilen stecken je Gruppe unter **Weitere Einstellungen** (die Zahl dahinter sagt, wie viele). Der Aufklapper öffnet sich von selbst, sobald darin ein Wert vom Standard abweicht – ein Punkt markiert ihn dann. Die Suche klappt Treffer auf, und **Profi-Ansicht** oben rechts zeigt dauerhaft alles.
 - *Alle Räume auf einen Blick:* Tabelle; antippen öffnet den Raum.
 
 ![Allgemein komplett](../images/einstellungen-allgemein.png)

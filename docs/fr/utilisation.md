@@ -58,7 +58,7 @@ Les boutons **Semaine**, **Mois** et **Saison de chauffage** créent immédiatem
 | 3 | **Humidité et moisissures** sous forme de feu tricolore par pièce, pièce à problème, **CO₂** (moyenne et heures au-dessus de 1000 ppm) · **résumé des aérations** (fréquence, durée, entrebâillée > 30 min, « veuillez aérer » → « air renouvelé ») · **carte de chaleur** « Quand chauffe-t-on ? » – jour de semaine × heure |
 | 4 | **Présence** (personne à la maison, préchauffée, chaude à l’arrivée, occupation de la pièce, temps de montée en température par pièce) · **fiabilité** (pannes, coupures de connexion, **niveaux de piles**) · dans le rapport de saison, un **bilan** (premier/dernier jour de chauffage, jour le plus froid, plus longue pause, mois de pointe) · **conseils d’économie** avec chiffres · **constats** |
 
-**Estimation en euros :** sous *Réglages → Général → Bâtiment et protection contre les moisissures → Coûts de chauffage par an*, saisissez les coûts de votre facture (facultatif). Le rapport estime alors les économies en euros et ce qu’apporte 1 °C de moins par an – approximativement via les degrés-jours de chauffage, sans compteur. Laisser vide = pas de chiffres en euros.
+**Estimation en euros :** sous *Réglages → Général → Rapports → Autres réglages → Coûts de chauffage par an*, saisissez les coûts de votre facture (facultatif). Le rapport estime alors les économies en euros et ce qu’apporte 1 °C de moins par an – approximativement via les degrés-jours de chauffage, sans compteur. Laisser vide = pas de chiffres en euros.
 
 La carte de chaleur, le CO₂, les résultats d’aération et les pannes sont collectés à partir de la version 0.13 – ils se remplissent au fil du temps.
 
@@ -66,7 +66,7 @@ La carte de chaleur, le CO₂, les résultats d’aération et les pannes sont c
 
 **Livraison :**
 - **Push** à tous ceux qui reçoivent le *rapport hebdomadaire* – avec un bouton **Ouvrir le PDF** (lien valable 30 jours).
-- **E-mail avec pièce jointe :** sous *Réglages → Général → Notifications – général → PDF par e-mail*, appuyez juste en dessous sur **Configurer l’e-mail** : choisissez votre fournisseur (Gmail, GMX, WEB.DE, 1&1, Outlook, T-Online, iCloud, Posteo, IONOS – remplit le serveur et le port), saisissez utilisateur, mot de passe et destinataires. **Vérifier la connexion** teste le serveur, le chiffrement et la connexion sans envoyer d’e-mail ; puis **Enregistrer et envoyer un e-mail de test**. Gmail, iCloud et Outlook nécessitent un **mot de passe d’application**. Le mot de passe reste dans Home Assistant et n’est jamais affiché. Si vous disposez déjà d’un service de messagerie (`notify`) dans Home Assistant, vous pouvez le choisir à la place.
+- **E-mail avec pièce jointe :** sous *Réglages → Général → Rapports → PDF par e-mail*, appuyez juste en dessous sur **Configurer l’e-mail** : choisissez votre fournisseur (Gmail, GMX, WEB.DE, 1&1, Outlook, T-Online, iCloud, Posteo, IONOS – remplit le serveur et le port), saisissez utilisateur, mot de passe et destinataires. **Vérifier la connexion** teste le serveur, le chiffrement et la connexion sans envoyer d’e-mail ; puis **Enregistrer et envoyer un e-mail de test**. Gmail, iCloud et Outlook nécessitent un **mot de passe d’application**. Le mot de passe reste dans Home Assistant et n’est jamais affiché. Si vous disposez déjà d’un service de messagerie (`notify`) dans Home Assistant, vous pouvez le choisir à la place.
 - **Stockage :** dans le dossier media sous `raumklima/` – également visible sous *Média* dans Home Assistant. Les 26 derniers rapports hebdomadaires, 24 mensuels et 20 de saison sont conservés.
 
 Quels rapports sont créés automatiquement se règle sous *Rapports PDF* (par défaut : les trois). Le téléchargement ne fonctionne qu’une fois connecté ou avec un lien signé.
@@ -116,10 +116,12 @@ Ici, **tout est visible et modifiable directement** :
 - *Présence et abaissement :* touchez les habitants, choisissez la zone, le délai, « absent plus longtemps », le préchauffage, les vacances, les invités, le calendrier. Vous voyez qui est à la maison et à quelle distance se trouvent les autres.
 - *Saison de chauffage et limite :* mode, limite de chauffage, période de la saison, coup de froid, minimum de sécurité, nuit de gel, exercice des vannes en été, **Chauffer aujourd’hui**. Au-dessus, la moyenne extérieure actuelle et la prévision.
 - *Qui reçoit quoi :* touchez les types de messages par destinataire, envoyez un **Test**, ajoutez ou supprimez des destinataires (push ou voix).
-- *Notifications – général :* heures calmes (week-end séparément), plage d’aération nocturne, intervalle de rappel, source météo, erreurs dans la cloche de notification de HA.
-- *Heures de sommeil :* apprendre les horaires, **travail posté** (sommeil de jour aussi), **l’heure de repos abaisse**, jours fériés, signaux de sommeil – en dessous, ce qui a été appris.
-- *Heures de sommeil :* apprentissage activé/désactivé, jours fériés (Land allemand), signaux de sommeil, heures apprises.
-- *Bâtiment et protection contre les moisissures :* type de bâtiment.
+- *Notifications – général :* conseils d’aération de–à, seulement aux personnes présentes, alerte tempête et pluie ; replié : intervalle de rappel, erreurs dans la cloche de notification de HA.
+- *Rapports :* rapports PDF, PDF par e-mail ; replié : mesure de chaleur dans le rapport, coûts de chauffage par an.
+- *Nuit et heures calmes :* heures calmes (week-end séparément), aération nocturne, apprendre les horaires, **travail posté** (sommeil de jour aussi), **l’heure de repos abaisse**, jours fériés, signaux de sommeil – en dessous, ce qui a été appris.
+- *Logement :* nom, type de bâtiment, source météo ; replié : tableau de bord, emplacement, autre logement.
+
+Les lignes rarement utilisées se trouvent dans chaque groupe sous **Autres réglages** (le nombre indique combien). Le volet s’ouvre de lui-même dès qu’une valeur diffère de la valeur par défaut – un point le signale. La recherche ouvre les résultats, et **Vue expert** en haut à droite garde tout déplié.
 - *Maison :* nom et tableau de bord de la maison, créer une autre maison.
 - *Toutes les pièces en un coup d’œil :* tableau ; touchez pour ouvrir la pièce.
 

@@ -1,4 +1,4 @@
-/* Raumklima 0.62.44b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.45b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1991,7 +1991,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.44b1";
+  var RK_VERSION = "0.62.45b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4427,6 +4427,40 @@
     ]
   };
 
+  // src/fields.js
+  var RK_NUM = {
+    away_delay: { unit: " min", step: 5, min: 0, max: 240, dec: 0 },
+    long_away_hours: { unit: " h", step: 1, min: 2, max: 168, dec: 0 },
+    preheat_km: { unit: " km", step: 1, min: 0, max: 200, dec: 0 },
+    vacation_km: { unit: " km", step: 10, min: 0, max: 1e3, dec: 0 },
+    vacation_hours: { unit: " h", step: 1, min: 1, max: 96, dec: 0 },
+    work_zone_minutes: { unit: " min", step: 1, min: 0, max: 120, dec: 0 },
+    heating_limit: { unit: " °C", step: 0.5, min: 5, max: 25, dec: 1 },
+    cold_snap_temp: { unit: " °C", step: 0.5, min: 0, max: 20, dec: 1 },
+    frost_floor: { unit: " °C", step: 0.5, min: 5, max: 20, dec: 1 },
+    night_alarm_temp: { unit: " °C", step: 0.5, min: 5, max: 20, dec: 1 },
+    storm_gust_kmh: { unit: " km/h", step: 10, min: 30, max: 200, dec: 0 },
+    storm_rain_mm: { unit: " mm/h", step: 1, min: 1, max: 50, dec: 0 },
+    repeat_minutes: { unit: " min", step: 1, min: 1, max: 60, dec: 0 },
+    boost_temperature: { unit: " K", step: 0.5, min: 0.5, max: 5, dec: 1 },
+    boost_minutes: { unit: " min", step: 5, min: 5, max: 240, dec: 0 },
+    override_minutes: { unit: " min", step: 15, min: 0, max: 480, dec: 0 },
+    airing_min_minutes: { unit: " min", step: 1, min: 0, max: 30, dec: 0 },
+    long_airing_minutes: { unit: " min", step: 5, min: 0, max: 180, dec: 0 },
+    long_airing_remind: { unit: " min", step: 15, min: 0, max: 240, dec: 0 },
+    comfort_temperature: { unit: " °C", step: 0.5, min: 12, max: 26, dec: 1 },
+    setback_short: { unit: " °C", step: 0.5, min: 10, max: 24, dec: 1 },
+    setback_long: { unit: " °C", step: 0.5, min: 8, max: 22, dec: 1 },
+    preheat_lead_min: { unit: " min", step: 15, min: 15, max: 360, dec: 0 },
+    mold_cap: { unit: " K", step: 0.5, min: 0, max: 6, dec: 1 },
+    window_open_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
+    window_close_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
+    presence_target: { unit: " °C", step: 0.5, min: 0, max: 30, dec: 1 },
+    presence_delay_min: { unit: " min", step: 1, min: 0, max: 120, dec: 0 },
+    room_eco_after: { unit: " min", step: 5, min: 5, max: 240, dec: 0 },
+    room_eco_drop: { unit: " °C", step: 0.5, min: 0.5, max: 4, dec: 1 }
+  };
+
   // src/cards/settings.js
   var RK_GROUP_META = {
     home: { label: "Wohnung", icon: "mdi:home-outline" },
@@ -4982,6 +5016,12 @@
       return this._stepper(`data-num="${id}"`, parseFloat(s.state), unit, dec);
     }
     // Stepper für Optionen (Zentrale oder Raum)
+    // Zahl-Einstellung: Einheit, Schrittweite und Grenzen stehen einmal in fields.js (RK_NUM)
+    _num(scope, key, value) {
+      const f = RK_NUM[key];
+      if (!f) throw new Error(`RK_NUM: „${key}" fehlt in fields.js`);
+      return this._optStepper(scope, key, value, f.unit, f.step, f.min, f.max, f.dec);
+    }
     _optStepper(scope, key, value, unit, step, min, max, dec = 0) {
       return this._stepper(`data-opt="${scope}" data-key="${key}" data-step="${step}" data-min="${min}" data-max="${max}" data-val="${value ?? ""}"`, value, unit, dec);
     }
@@ -5023,7 +5063,7 @@
         `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
         this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
         this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
-        this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
+        this._row("Absenken nach", this._num(H, "away_delay", this._hubOpt("away_delay")), "damit kurze Wege nichts auslösen"),
         this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
         this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
         this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
@@ -5080,15 +5120,15 @@
             }).join("")}</div>`,
             (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
           ),
-          this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
-          this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
-          this._row("Urlaub automatisch ab", this._optStepper(H, "vacation_km", this._hubOpt("vacation_km") ?? 0, " km", 10, 0, 1e3), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
-          this._row("… nach", this._optStepper(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12, " h", 1, 1, 96), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
+          this._row("„Länger weg“ ab", this._num(H, "long_away_hours", this._hubOpt("long_away_hours"))),
+          this._row("Vorheizen ab", this._num(H, "preheat_km", this._hubOpt("preheat_km")), "wenn sich jemand nähert"),
+          this._row("Urlaub automatisch ab", this._num(H, "vacation_km", this._hubOpt("vacation_km") ?? 0), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
+          this._row("… nach", this._num(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
           this._row("Arbeitsplätze", `<div class="chips">${(ch.zones || []).map((z) => {
             const chosen = (this._hubOpt("work_zones") || []).includes(z.id);
             return `<button class="chip2 ${chosen ? "" : "off"}" data-workzone="${z.id}" title="${esc(z.name)}"><i></i>${esc(z.name)}</button>`;
           }).join("")}</div>`, "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück"),
-          this._row("… gilt nach", this._optStepper(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5, " min", 1, 0, 120), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
+          this._row("… gilt nach", this._num(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
           this._row(
             "Präsenzmelder zählen",
             this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
@@ -5102,13 +5142,13 @@
         `<div class="status"><span class="chip" style="--tone:${toneVar(seas.tone)}"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}</span>
         <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Ø 24 h {p} · Vorhersage {f}", { p: st.mean_past == null ? t("sammelt noch") : fmt(st.mean_past) + "°", f: st.mean_forecast == null ? "–" : fmt(st.mean_forecast) + "°" })}</span></div>`,
         this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
-        this._row("Heizgrenze", this._optStepper(H, "heating_limit", this._hubOpt("heating_limit"), " °C", 0.5, 5, 25, 1), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
+        this._row("Heizgrenze", this._num(H, "heating_limit", this._hubOpt("heating_limit")), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
         this._row("Heute heizen", st.heat_today_until ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>` : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage"),
         this._more("seas-more", "Weitere Einstellungen", [
           this._row("Heizsaison", `<span class="v"><input class="inp short" type="date" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" type="date" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Kalender antippen – Tag und Monat zählen, das Jahr ist egal"),
           this._row("Außentemperatur von", this._select(H, "outdoor_temp_entity", ch.outdoor || [], this._hubOpt("outdoor_temp_entity"), "Wetterdienst"), "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst"),
-          this._row("Kälteeinbruch unter", this._optStepper(H, "cold_snap_temp", this._hubOpt("cold_snap_temp"), " °C", 0.5, 0, 20, 1), "3 Tage darunter → heizt auch außerhalb der Saison"),
-          this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
+          this._row("Kälteeinbruch unter", this._num(H, "cold_snap_temp", this._hubOpt("cold_snap_temp")), "3 Tage darunter → heizt auch außerhalb der Saison"),
+          this._row("Sicherung", this._num(H, "frost_floor", this._hubOpt("frost_floor")), "fällt ein Raum darunter, heizt er immer"),
           this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
           this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen")
         ].join(""), "hub", ["season_start", "season_end", "outdoor_temp_entity", "cold_snap_temp", "frost_floor", "frost_night", "valve_care"])
@@ -5147,7 +5187,7 @@
             "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt"
           ),
           this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
-          this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
+          this._row("… leise warnen unter", this._num(H, "night_alarm_temp", this._hubOpt("night_alarm_temp")), "einmal pro Nacht"),
           this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
           this._row("Schichtdienst", this._optToggle(H, "learn_shift", !!this._hubOpt("learn_shift")), "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht"),
           this._row("Feiertage", this._select(H, "holiday_state", ch.states || [], this._hubOpt("holiday_state") || "", "– keine –"), sl.tonight && sl.tonight.holiday ? t("morgen: {h} – Ruhezeit wie am Wochenende", { h: esc(sl.tonight.holiday) }) : "Nacht vor einem Feiertag gilt wie Wochenende"),
@@ -5262,15 +5302,15 @@
         this._more("noti-more", "Weitere Einstellungen", [
           this._row(
             "… Böen ab",
-            this._optStepper(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70, " km/h", 10, 30, 200, 0),
+            this._num(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70),
             t("ab dieser Böenstärke gilt es als Sturm")
           ),
           this._row(
             "… Regen ab",
-            this._optStepper(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8, " mm/h", 1, 1, 50, 0),
+            this._num(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8),
             t("ab dieser Regenmenge gilt es als Starkregen")
           ),
-          this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
+          this._row("Erinnern alle", this._num(H, "repeat_minutes", this._hubOpt("repeat_minutes")), "solange das Problem besteht"),
           this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure")))
         ].join(""), "hub", ["storm_gust_kmh", "storm_rain_mm", "repeat_minutes", "notify_on_failure"])
       ].join("");
@@ -5458,12 +5498,12 @@
       const boostRows = [
         this._row(
           "Wärmer für kurze Zeit (Boost)",
-          editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),
+          editable ? this._num(scope, "boost_temperature", boostTemp) : this._v(`${fmt(boostTemp, 1)} K`),
           t("so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn")
         ),
         this._row(
           "Dauer des Boosts",
-          editable ? this._optStepper(scope, "boost_minutes", boostMin, " min", 5, 5, 240) : this._v(`${boostMin} min`),
+          editable ? this._num(scope, "boost_minutes", boostMin) : this._v(`${boostMin} min`),
           t("danach gilt wieder Zeitplan bzw. Automatik")
         )
       ];
@@ -5476,7 +5516,7 @@
         ),
         this._row(
           "Zeitplan überschreiben",
-          editable ? this._optStepper(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120, " min", 15, 0, 480) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
+          editable ? this._num(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
           t("so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus")
         ),
         this._row(
@@ -5559,17 +5599,17 @@
       const moreRows = [
         this._row(
           "Mindestdauer Lüften",
-          editable ? this._optStepper(scope, "airing_min_minutes", airMin, " min", 1, 0, 30) : this._v(airMin ? `${airMin} min` : t("automatisch")),
+          editable ? this._num(scope, "airing_min_minutes", airMin) : this._v(airMin ? `${airMin} min` : t("automatisch")),
           airMin ? t("so lange bleibt „Lüften läuft“ mindestens stehen, auch wenn die Feuchte schon passt") : t("automatisch: 60 % der empfohlenen Dauer, mindestens 4 Minuten (gerade {v} min)", { v: recMin })
         ),
         this._row(
           "Dauerlüftung ab",
-          editable ? this._optStepper(scope, "long_airing_minutes", longMin, " min", 5, 0, 180) : this._v(`${longMin} min`),
+          editable ? this._num(scope, "long_airing_minutes", longMin) : this._v(`${longMin} min`),
           t("danach keine Erinnerungen mehr, bis das Fenster zu ist – 0 schaltet es aus")
         ),
         this._row(
           "Leise Erinnerung danach",
-          editable ? this._optStepper(scope, "long_airing_remind", lateMin, " min", 15, 0, 240) : this._v(`${lateMin} min`),
+          editable ? this._num(scope, "long_airing_remind", lateMin) : this._v(`${lateMin} min`),
           t("eine einzige, stille Meldung bei sehr langem Lüften – 0 = aus")
         ),
         ...presEff.length ? [this._row(
@@ -5623,15 +5663,15 @@
       ].join(""), "span") : ""}
       ${a.monitor ? "" : this._grp("room", "Temperatur", "mdi:thermometer", "heat", [
         plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
-        this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
+        this._row("Wunschtemperatur", editable ? this._num(scope, "comfort_temperature", comfort) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
         this._row(
           "Raumtyp",
           editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–"),
           t("jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben")
         ),
         (this._cfg && this._cfg.homes || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
-        this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
-        this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
+        this._row("Absenkung „kurz weg“", editable ? this._num(scope, "setback_short", sbShort) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
+        this._row("Absenkung „länger weg“", editable ? this._num(scope, "setback_long", sbLong) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
         this._row(
           "Aufheizen",
           this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: s.heatup && s.heatup.episodes || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
@@ -5652,7 +5692,7 @@
             }
             if (pm === "lead") {
               const lead = this._roomOpt(r, "preheat_lead_min") ?? 90;
-              rows.push(this._row("… höchstens", editable ? this._optStepper(scope, "preheat_lead_min", lead, " min", 15, 15, 360) : this._v(`${lead} min`), t("so viele Minuten vor dem Zeitfenster")));
+              rows.push(this._row("… höchstens", editable ? this._num(scope, "preheat_lead_min", lead) : this._v(`${lead} min`), t("so viele Minuten vor dem Zeitfenster")));
             }
             return rows.join("");
           })(),
@@ -5718,16 +5758,7 @@
         this._more("mold-more", "Weitere Einstellungen", [
           moldMode !== "off" ? this._row(
             "Höchstens anheben um",
-            editable ? this._optStepper(
-              scope,
-              "mold_cap",
-              this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5,
-              " K",
-              0.5,
-              0,
-              6,
-              1
-            ) : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)} K`),
+            editable ? this._num(scope, "mold_cap", this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5) : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)} K`),
             t("Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)")
           ) : "",
           this._row(
@@ -5742,8 +5773,8 @@
         mon ? "" : this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
         this._row("Kontakte", `<div class="chips">${contacts}</div>`),
         this._more("win-more", "Weitere Einstellungen", [
-          mon ? "" : this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
-          mon ? "" : this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
+          mon ? "" : this._row("Pause nach", editable ? this._num(scope, "window_open_delay", wOpen) : this._v(`${wOpen ?? "–"} s`)),
+          mon ? "" : this._row("Weiter nach", editable ? this._num(scope, "window_close_delay", wClose) : this._v(`${wClose ?? "–"} s`)),
           this._row(
             "Schlafen bei offenem Fenster",
             editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),
@@ -5928,10 +5959,10 @@
         this._row("Melder", `<div class="chips">${chips || this._v("keine", true)}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
         list.length ? this._row(
           "Bei Anwesenheit",
-          editable ? this._optStepper(scope, "presence_target", pt, " °C", 0.5, 0, 30) : this._v(pt ? `${pt} °C` : t("aus")),
+          editable ? this._num(scope, "presence_target", pt) : this._v(pt ? `${pt} °C` : t("aus")),
           pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")
         ) : "",
-        pt ? this._row("… erst nach", editable ? this._optStepper(scope, "presence_delay_min", pd, " min", 1, 0, 120) : this._v(`${pd} min`), t("Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt")) : "",
+        pt ? this._row("… erst nach", editable ? this._num(scope, "presence_delay_min", pd) : this._v(`${pd} min`), t("Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt")) : "",
         editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "",
         list.length ? this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung") : "",
         list.length ? this._row(
@@ -5939,8 +5970,8 @@
           editable ? this._segs(scope, "room_eco", RK_NIGHT, eco) : this._v(RK_NIGHT[eco]),
           eco === "auto" ? s.room_eco_enabled ? "Automatisch: ja (mmWave, passender Raumtyp)" : "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave" : ""
         ) : "",
-        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… wenn leer seit", editable ? this._optStepper(scope, "room_eco_after", after, " min", 5, 5, 240) : this._v(`${after} min`)) : "",
-        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… um", editable ? this._optStepper(scope, "room_eco_drop", drop, " °C", 0.5, 0.5, 4, 1) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
+        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
+        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
       ].join(""));
     }
     _lightGroup(r, id, editable) {

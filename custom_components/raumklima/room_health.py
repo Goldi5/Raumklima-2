@@ -651,7 +651,7 @@ class HealthMixin:
                 for key, job in self.sync.jobs.items()
             },
             "status": self.status,
-            "plan": list(self.plan()),
+            "plan": list(self.peek_plan()),
             "manual_until": self._manual_until.isoformat() if self._manual_until else None,
             "valve_sensor": self.valve_sensor,
             "valve_position": self.valve_position,

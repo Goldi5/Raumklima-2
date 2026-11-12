@@ -286,11 +286,11 @@ Chaque semaine, chaque mois et à la fin de la saison de chauffage, un **rapport
 - une **carte de chaleur** indiquant quand il chauffe,
 - les **niveaux de pile**, les pannes et des **conseils d’économie** chiffrés.
 
-Si vous saisissez vos **frais de chauffage par an** sous *Réglages → Allgemein → Bâtiment et protection contre les moisissures*, le rapport convertit approximativement les économies en **euros**.
+Si vous saisissez vos **frais de chauffage par an** sous *Réglages → Général → Rapports → Autres réglages*, le rapport convertit approximativement les économies en **euros**.
 
 - **Téléchargement :** tout en bas de l’onglet **Rapport** sous *Rapports PDF* – touchez **Télécharger**. Les boutons *Semaine*, *Mois* et *Saison de chauffage* vous donnent immédiatement un rapport jusqu’à aujourd’hui.
 - **Sur votre téléphone :** le message push contient un bouton **Ouvrir le PDF**.
-- **Par e-mail :** *Réglages → Allgemein → Notifications – général → PDF par e-mail* → touchez **Configurer l’e-mail** juste en dessous, choisissez votre fournisseur (par ex. Gmail), saisissez l’utilisateur, le mot de passe et les destinataires, testez-les avec **Vérifier la connexion**, puis touchez **Enregistrer et envoyer un e-mail de test**. Gmail, iCloud et Outlook nécessitent un mot de passe d’application.
+- **Par e-mail :** *Réglages → Général → Rapports → PDF par e-mail* → touchez **Configurer l’e-mail** juste en dessous, choisissez votre fournisseur (par ex. Gmail), saisissez l’utilisateur, le mot de passe et les destinataires, testez-les avec **Vérifier la connexion**, puis touchez **Enregistrer et envoyer un e-mail de test**. Gmail, iCloud et Outlook nécessitent un mot de passe d’application.
 
 :::tip
 Le rapport suit la langue de Home Assistant : allemand, français, anglais pour toute autre langue. Les messages push, le journal et les notifications font de même.
@@ -314,7 +314,7 @@ Vous hésitez ? Gardez les valeurs par défaut. Elles suivent les recommandation
 | **Allgemein → Saison de chauffage** | quand chauffer, chauffer aujourd’hui |
 | **Allgemein → Qui reçoit quoi** | destinataires et quels messages ils reçoivent |
 | **Allgemein → Notifications** | heures calmes, rappels, source météo, rapports PDF, e-mail |
-| **Allgemein → Heures de sommeil** | Raumklima apprend quand vous dormez |
+| **Général → Nuit et heures calmes** | Raumklima apprend quand vous dormez |
 | **Pièce → Température** | température souhaitée, abaissement, côté ensoleillé |
 | **Pièce → Aération et humidité** | à partir de quelle humidité demander une aération |
 | **Pièce → Fenêtres** | pause pendant qu’une fenêtre est ouverte, sommeil avec la fenêtre ouverte |

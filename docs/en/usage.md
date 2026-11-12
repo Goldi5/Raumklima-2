@@ -58,7 +58,7 @@ The buttons **Week**, **Month** and **Heating season** create a report **up to t
 | 3 | **Humidity and mould** as a traffic light per room, problem room, **CO₂** (avg and hours above 1000 ppm) · **airing summary** (how often, how long, open longer than 30 min, “please air” → “air exchanged”) · **heat map** “When is it heating?” – weekday × hour |
 | 4 | **Presence** (nobody home, preheated, warm on arrival, room occupancy, heat-up time per room) · **reliability** (failures, connection drops, **battery levels**) · in the season report a **review** (first/last heating day, coldest day, longest pause, peak month) · **saving tips** with numbers · **findings** |
 
-**Euro estimate:** under *Settings → General → Building & mould protection → Heating costs per year*, enter the costs from your bill (optional). The report then estimates savings in euros and what 1 °C less brings per year – roughly via heating degree days, no meter needed. Leave empty = no euro figures.
+**Euro estimate:** under *Settings → General → Reports → More settings → Heating costs per year*, enter the costs from your bill (optional). The report then estimates savings in euros and what 1 °C less brings per year – roughly via heating degree days, no meter needed. Leave empty = no euro figures.
 
 Heat map, CO₂, airing results and failures are collected from version 0.13 on – they fill up over time.
 
@@ -66,7 +66,7 @@ Heat map, CO₂, airing results and failures are collected from version 0.13 on 
 
 **Delivery:**
 - **Push** to everyone who receives the *weekly report* – with an **Open PDF** button (link valid for 30 days).
-- **Email with attachment:** under *Settings → General → Notifications – general → PDF by email*, tap **Set up email** right below: pick your provider (Gmail, GMX, WEB.DE, 1&1, Outlook, T-Online, iCloud, Posteo, IONOS – fills in server and port), enter user, password and recipients. **Check login** tests server, encryption and login without sending an email; then **Save & send test email**. Gmail, iCloud and Outlook need an **app password**. The password stays in Home Assistant and is never shown. If you already have a mail service (`notify`) in Home Assistant, you can choose that instead.
+- **Email with attachment:** under *Settings → General → Reports → PDF by email*, tap **Set up email** right below: pick your provider (Gmail, GMX, WEB.DE, 1&1, Outlook, T-Online, iCloud, Posteo, IONOS – fills in server and port), enter user, password and recipients. **Check login** tests server, encryption and login without sending an email; then **Save & send test email**. Gmail, iCloud and Outlook need an **app password**. The password stays in Home Assistant and is never shown. If you already have a mail service (`notify`) in Home Assistant, you can choose that instead.
 - **Storage:** in the media folder under `raumklima/` – also visible under *Media* in Home Assistant. The last 26 weekly, 24 monthly and 20 season reports are kept.
 
 Which reports are created automatically is set under *PDF reports* (default: all three). Downloading only works when logged in or with a signed link.
@@ -116,10 +116,12 @@ Here **everything is visible and can be changed directly**:
 - *Presence & setback:* tap residents, choose the zone, delay, “away longer”, preheating, vacation, guests, calendar. You see who is home and how far away the others are.
 - *Heating season & limit:* mode, heating limit, season period, cold snap, safety minimum, frost night, summer valve exercise, **Heat today**. Above it the current outdoor mean and the forecast.
 - *Who gets what:* tap the message types per recipient, send a **Test**, add or remove recipients (push or voice).
-- *Notifications – general:* quiet hours (weekend separately), night airing window, reminder interval, weather source, errors in the HA notification bell.
-- *Sleep times:* learn times, **shift work** (daytime sleep too), **quiet time sets back**, holidays, sleep signals – below you see what has been learned.
-- *Sleep times:* learning on/off, public holidays (German state), sleep signals, learned times.
-- *Building & mould protection:* building type.
+- *Notifications – general:* airing hints from–to, only to people at home, storm and rain warning; folded: reminder interval, errors in the HA notification bell.
+- *Reports:* PDF reports, PDF by email; folded: heat measure in the report, heating costs per year.
+- *Night & quiet time:* quiet hours (weekend separately), night airing, learn times, **shift work** (daytime sleep too), **quiet time sets back**, holidays, sleep signals – below you see what has been learned.
+- *Home:* name, building type, weather source; folded: dashboard, location, add another home.
+
+Rarely used rows sit under **More settings** in each group (the number says how many). The fold opens by itself as soon as a value in it differs from the default – a dot marks it. Search opens matches, and **Expert view** at the top right keeps everything expanded.
 - *Home:* name and dashboard of the home, create another home.
 - *All rooms at a glance:* table; tap to open the room.
 

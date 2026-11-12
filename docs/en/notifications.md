@@ -29,7 +29,7 @@ The integration learns when you go to bed and get up:
 - **from night airing:** bedroom window opened in the evening = bedtime, closed in the morning = up.
 - **from sleep signals** (optional, e.g. the living room lights): all off for 20 minutes in the evening = bedtime, one on in the morning = up. With signals, quiet hours also apply live: lights off → quiet, lights on in the morning → awake.
 
-Each night counts its earliest event, weekdays and weekends (Fri→Sat, Sat→Sun) separately; from 4 nights the typical value of the last 6 weeks applies. Quiet hours then start 30 minutes before bedtime and end 30 minutes after getting up – **but never shorter than configured**. The night airing window is extended the same way. Configure and view under *General → Sleep times*. Choose a German state under *Public holidays* to treat the night before a holiday like a weekend.
+Each night counts its earliest event, weekdays and weekends (Fri→Sat, Sat→Sun) separately; from 4 nights the typical value of the last 6 weeks applies. Quiet hours then start 30 minutes before bedtime and end 30 minutes after getting up – **but never shorter than configured**. The night airing window is extended the same way. Configure and view under *General → Night & quiet time*. Choose a German state under *Public holidays* to treat the night before a holiday like a weekend.
 
 ## Night airing
 
@@ -99,7 +99,7 @@ The lights blink three times and then return to how they were – a light that w
 
 Default 22:00–07:00. During quiet hours push messages arrive **silently**. Only urgent messages make a sound: *room cooling down*, *window open, nobody home* and *thermostat not responding*. Voice announcements never happen during quiet hours.
 
-On **weekends** (Sat/Sun) quiet hours end later – default 09:00, configurable under *General → Notifications – general → Weekend until*.
+On **weekends** (Sat/Sun) quiet hours end later – default 09:00, configurable under *General → Night → Night & quiet time → Weekend until*.
 
 ## Voice announcements
 

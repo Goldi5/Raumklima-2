@@ -21,7 +21,7 @@ Non. Sans contact, Raumklima détecte une fenêtre ouverte grâce à une chute s
 Non. Tout se fait dans la boîte de dialogue de configuration de Home Assistant et dans la page de réglages du tableau de bord.
 
 ### Je travaille en horaires décalés – est-ce possible ?
-Oui. L’abaissement et le préchauffage suivent votre présence réelle (téléphone), pas l’horloge – que vous rentriez à 6 h ou à 1 h du matin. En plus, *Réglages → Général → Heures de sommeil* propose l’option **Travail posté** : le coucher et le lever sont alors appris par jour de la semaine et le sommeil de jour est détecté aussi (coucher jusqu’à 09:00, lever jusqu’à 17:00). Avec **L’heure de repos abaisse**, les chambres et les pièces peu utilisées sont abaissées pendant l’heure de repos – le chauffage reste donc arrêté pendant votre sommeil après une nuit de travail. Une plage horaire en cours et le bouton du thermostat restent prioritaires.
+Oui. L’abaissement et le préchauffage suivent votre présence réelle (téléphone), pas l’horloge – que vous rentriez à 6 h ou à 1 h du matin. En plus, *Réglages → Général → Nuit et heures calmes* propose l’option **Travail posté** : le coucher et le lever sont alors appris par jour de la semaine et le sommeil de jour est détecté aussi (coucher jusqu’à 09:00, lever jusqu’à 17:00). Avec **L’heure de repos abaisse**, les chambres et les pièces peu utilisées sont abaissées pendant l’heure de repos – le chauffage reste donc arrêté pendant votre sommeil après une nuit de travail. Une plage horaire en cours et le bouton du thermostat restent prioritaires.
 
 ### Puis-je définir des heures de chauffe fixes ?
 Oui – sous *Réglages → pièce → Planning*. Vous y créez des plages horaires avec jours de la semaine, de/à et
@@ -106,7 +106,7 @@ Un mois froid nécessite plus de chauffage. « Ajusté à la météo » en tient
 Oui : appuyez sur **CSV** en haut à droite du rapport de chauffage.
 
 ### Existe-t-il un rapport PDF – aussi par e-mail ?
-Oui. La semaine, le mois et la saison de chauffage sont générés automatiquement en PDF ; ils sont listés en bas du rapport de chauffage pour **téléchargement**. Une notification push apporte un lien, un e-mail apporte le PDF en pièce jointe : sous *Général → Notifications – général → PDF par e-mail*, appuyez sur **Configurer l'e-mail**, choisissez votre fournisseur, saisissez utilisateur, mot de passe et destinataires puis appuyez sur **Enregistrer et envoyer un e-mail de test** – aucun YAML nécessaire.
+Oui. La semaine, le mois et la saison de chauffage sont générés automatiquement en PDF ; ils sont listés en bas du rapport de chauffage pour **téléchargement**. Une notification push apporte un lien, un e-mail apporte le PDF en pièce jointe : sous *Général → Rapports → PDF par e-mail*, appuyez sur **Configurer l'e-mail**, choisissez votre fournisseur, saisissez utilisateur, mot de passe et destinataires puis appuyez sur **Enregistrer et envoyer un e-mail de test** – aucun YAML nécessaire.
 
 ## Divers
 

@@ -21,7 +21,7 @@ No. Without a contact, Raumklima detects an open window from a sudden temperatur
 No. Everything is done in the Home Assistant setup dialog and the settings page in the dashboard.
 
 ### I work shifts – does that work?
-Yes. Setback and preheating follow your actual presence (phone), not the clock – whether you get home at 6 am or 1 am. On top of that, *Settings → General → Sleep times* has the **shift work** option: bedtime and getting-up times are then learned per weekday and daytime sleep is detected too (bedtime up to 09:00, getting up up to 17:00). With **quiet time sets back**, bedrooms and rarely used rooms are set back during quiet time – so the heating stays off while you sleep after a night shift. A running time window and the dial on the thermostat still take precedence.
+Yes. Setback and preheating follow your actual presence (phone), not the clock – whether you get home at 6 am or 1 am. On top of that, *Settings → General → Night & quiet time* has the **shift work** option: bedtime and getting-up times are then learned per weekday and daytime sleep is detected too (bedtime up to 09:00, getting up up to 17:00). With **quiet time sets back**, bedrooms and rarely used rooms are set back during quiet time – so the heating stays off while you sleep after a night shift. A running time window and the dial on the thermostat still take precedence.
 
 ### Can I set fixed heating times?
 Yes – under *Settings → room → Schedule*. There you create time windows with weekdays, from/to and a target temperature, e.g. “daily 7–9 pm 22 °C”. The schedule only sets the target temperature: windows, frost, mould, heating break and absence stay in charge. For “a bit warmer for a while” there is the **Warmer** (boost) button on the room card. Once the room has learned its heat-up rate, it starts heating in time so it is warm when the window begins.
@@ -103,7 +103,7 @@ A cold month needs more heating. “Weather-adjusted” takes that into account 
 Yes: tap **CSV** at the top right of the heating report.
 
 ### Is there a PDF report – also by email?
-Yes. Week, month and heating season are created automatically as PDFs; they are listed at the bottom of the heating report to **download**. A push brings a link, an email brings the PDF as an attachment: under *General → Notifications – general → PDF by email* tap **Set up email**, pick your provider, enter user, password and recipients and tap **Save & send test email** – no YAML needed.
+Yes. Week, month and heating season are created automatically as PDFs; they are listed at the bottom of the heating report to **download**. A push brings a link, an email brings the PDF as an attachment: under *General → Reports → PDF by email* tap **Set up email**, pick your provider, enter user, password and recipients and tap **Save & send test email** – no YAML needed.
 
 ## Other
 

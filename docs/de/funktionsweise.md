@@ -86,7 +86,7 @@ Dampfdruck der Raumluft bleibt beim Absenken gleich
 - **fRsi** (Temperaturfaktor) nach Bauart: Altbau unsaniert 0,60 · Altbau saniert 0,70 · Neubau 0,80.
 - Ist die Luft **trocken**, darf deutlich abgesenkt werden. Beispiel: 18 °C / 45 % bei 0 °C draußen – unbedenklich bis etwa 13 °C.
 - Ist die Luft **feucht** (z. B. Bad nach dem Duschen), bleibt der Raum wärmer, bis die Feuchte gesunken ist. Warme Luft nimmt mehr Wasser auf, dadurch sinkt die Feuchte an der Wand.
-- **Drei Stufen** je Raum (*Einstellungen → Raum → Temperatur → Schimmelschutz*):
+- **Drei Stufen** je Raum (*Einstellungen → Raum → Lüften → Schimmelschutz*):
   **Streng nach DIN** (Standard) hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % bleibt – auch über den Wunsch hinaus; **Nur bis Wunsch** hebt höchstens bis zur eingestellten Wunschtemperatur an; **Aus** schaltet den Boden ab, dann fährt der Raum genau den eingestellten Wert.
 - Der Boden gilt **überall**, auch für Zeitplan und Ruhezeit: Läge ein Fenster oder die Nacht-Absenkung darunter, hebt Raumklima auf die Mindesttemperatur an – im Protokoll steht dann „Schimmelschutz“ als Grund. Ausgenommen sind nur bewusste Aktionen (Boost, Ventilpflege) und die Heizpause.
 - Gerechnet wird mit dem **Mittel der letzten 24 Stunden** (Wasserdampf der Raumluft), nicht mit dem Augenblickswert: Kochen, Duschen oder eine Nacht im Schlafzimmer heben den Boden nicht sofort um mehrere Grad. Der Boden liegt in **0,5-°C-Schritten**, steigt sofort und sinkt erst, wenn die Rechnung deutlich (0,7 °C) darunter liegt – das Thermostat wird nicht alle paar Minuten umgestellt. Frisch eingerichtet (weniger als 1 h Daten) zählt der aktuelle Wert mit.

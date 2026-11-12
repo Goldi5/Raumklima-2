@@ -29,7 +29,7 @@ L’intégration apprend quand vous vous couchez et quand vous vous levez :
 - **à partir de l’aération nocturne :** fenêtre de la chambre ouverte le soir = heure du coucher, fermée le matin = lever.
 - **à partir de signaux de sommeil** (facultatif, par ex. les lumières du salon) : tout éteint pendant 20 minutes le soir = heure du coucher, une allumée le matin = lever. Avec les signaux, les heures calmes s’appliquent aussi en direct : lumières éteintes → calme, lumières allumées le matin → éveillé.
 
-Chaque nuit compte son événement le plus précoce, les jours de semaine et les week-ends (ven→sam, sam→dim) séparément ; à partir de 4 nuits, la valeur typique des 6 dernières semaines s’applique. Les heures calmes commencent alors 30 minutes avant l’heure du coucher et se terminent 30 minutes après le lever – **mais jamais plus courtes que configuré**. La fenêtre d’aération nocturne est prolongée de la même manière. À configurer et consulter sous *Général → Heures de sommeil*. Choisissez un Land allemand sous *Jours fériés* pour traiter la nuit précédant un jour férié comme un week-end.
+Chaque nuit compte son événement le plus précoce, les jours de semaine et les week-ends (ven→sam, sam→dim) séparément ; à partir de 4 nuits, la valeur typique des 6 dernières semaines s’applique. Les heures calmes commencent alors 30 minutes avant l’heure du coucher et se terminent 30 minutes après le lever – **mais jamais plus courtes que configuré**. La fenêtre d’aération nocturne est prolongée de la même manière. À configurer et consulter sous *Général → Nuit et heures calmes*. Choisissez un Land allemand sous *Jours fériés* pour traiter la nuit précédant un jour férié comme un week-end.
 
 ## Aération nocturne
 
@@ -100,7 +100,7 @@ Les lumières clignotent trois fois puis reviennent à leur état initial – un
 
 Par défaut 22:00–07:00. Pendant les heures calmes, les messages push arrivent de manière **silencieuse**. Seuls les messages urgents émettent un son : *la pièce se refroidit*, *fenêtre ouverte, personne à la maison* et *thermostat ne répond pas*. Les annonces vocales n’ont jamais lieu pendant les heures calmes.
 
-Le **week-end** (sam/dim), les heures calmes se terminent plus tard – par défaut 09:00, configurable sous *Général → Notifications – général → Week-end jusqu’à*.
+Le **week-end** (sam/dim), les heures calmes se terminent plus tard – par défaut 09:00, configurable sous *Général → Nuit → Nuit et heures calmes → Week-end jusqu’à*.
 
 ## Annonces vocales
 

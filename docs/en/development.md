@@ -13,6 +13,8 @@
 The integration is split into **logic without Home Assistant** (`logic.py`, `planning.py`, `ventilation.py`, `health.py`, `stats.py`, `sleep.py`, `heatup.py`, `sync.py` – quick to test) and the parts that talk to Home Assistant:
 
 - Room: `controller.py` (flow, control) with `room_windows.py` (window logic), `room_trv.py` (thermostat control, offset, loop protection) and `room_health.py` (health check, diagnostics)
+- Rule chain: `PLAN_RULES` in `controller.py` is the precedence – the first rule (`_rule_…`) returning a result wins, mould protection then raises it as a floor. New rule = new method + one entry at the right place in the list (`tests/ha/test_plan_rules.py` checks both match).
+- Settings card: numeric settings (unit, step, limits) live in `frontend/src/fields.js` and are drawn with `this._num(scope, key, value)`; rarely used rows go into a fold with `this._more(id, title, rows, scope, keys)`; `this._grp(group, title, …)` names the rail position explicitly.
 - Hub: `hub.py` with `hub_presence.py` (presence, calendar), `hub_sleep.py` (sleep times), `hub_season.py` (heating season, forecast) and `hub_notify.py` (notifications)
 - `websocket_api.py` (card API), `device_trigger.py` (device triggers), `insights.py` (report, health)
 - PDF report: `report_data.py` (periods, comparisons, findings – no HA), `report_pdf.py` (drawing with fpdf2), `reports.py` (storage, schedule, push/email, download view)
