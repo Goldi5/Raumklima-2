@@ -1,3 +1,7 @@
+## 0.62.39b1 – 2026-11-12
+
+- **Übergabedokument** `docs/HANDOFF.md`: Projektaufbau, Zugänge (Repo, Produktiv-HA per REST/WebSocket, HA-Gast, Test-Container, Vault), Arbeitsweise, Versionsschema und die wiederkehrenden Fallen — damit auch ein anderer Agent ohne Vorwissen weiterarbeiten kann. Keine Verhaltensänderung.
+
 ## 0.62.38b1 – 2026-11-12
 
 - **Arbeitsplätze als Zonen** (Einstellungen → Anwesenheit): Zonen eintragen, in denen gearbeitet wird — wer dort länger als X Minuten ist (Standard 5), gilt **sofort** als weg: keine 30-Minuten-Wartezeit, kein Vorheizen. Gedacht für kurze Arbeitswege (2 km), bei denen die Ortung sonst „kommt gleich zurück“ annimmt.
