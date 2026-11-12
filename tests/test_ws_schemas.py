@@ -67,3 +67,18 @@ def test_raumkalibrierung_ist_schaltbar() -> None:
     assert "CONF_CALIBRATION_MODE" in match.group(1), "ROOM_CHANGES nimmt die Kalibrierart nicht an"
     frontend = "\n".join(p.read_text(encoding="utf-8") for p in sorted((FRONTEND / "cards").rglob("settings*.js")) + sorted((FRONTEND / "cards" / "settings").glob("*.js")))
     assert '_segs(scope, "calibration_mode"' in frontend, "Karte bietet den Schalter nicht an"
+
+
+def test_zeitplan_grenze_passt_zur_karte() -> None:
+    """Die Karte bietet „Zeitfenster hinzufügen“ ohne Obergrenze an.
+
+    Anlass: Seit 0.62.44b1 lässt die Karte mehr als 6 Zeitfenster zu, das Schema nahm aber
+    weiter nur 6 an – das 7. Fenster wurde beim Sichern abgelehnt und verschwand wieder.
+    """
+    src = (BACKEND / "const.py").read_text(encoding="utf-8")
+    match = re.search(r"^SCHEDULE_MAX: Final = (\d+)", src, re.M)
+    assert match, "SCHEDULE_MAX nicht gefunden – Muster geändert?"
+    assert int(match.group(1)) >= 20, "Zeitplan-Grenze zu klein für die Karte"
+    bind = (FRONTEND / "cards" / "settings" / "bind.js").read_text(encoding="utf-8")
+    block = bind[bind.index("[data-schedadd]"):][:400]
+    assert "length >=" not in block, "Karte begrenzt Zeitfenster wieder – Schema-Grenze anpassen"

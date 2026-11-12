@@ -73,7 +73,7 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
   hinzufügen* bietet „Raum in einer bestehenden Wohnung" oder „Neue Wohnung" (Name, Bewohner, Zone,
   Empfänger). Jede Wohnung hat eigene Räume und ein eigenes Dashboard; Karten richten sich nach dem
   Dashboard, auf dem sie liegen – eine Wohnung zeigt also nicht die Räume der anderen.
-- **Zeitplan je Raum:** im Reiter *Einstellungen* → Raum → **Zeitplan** (bis zu sechs Zeitfenster mit
+- **Zeitplan je Raum:** im Reiter *Einstellungen* → Raum → **Zeitplan** (bis zu 30 Zeitfenster mit
   Wochentagen, Von/Bis und Zieltemperatur).
 - **Reihenfolge der Räume:** nach **Stockwerk → Bereich → Name**; Räume ohne Stockwerk stehen am Ende.
   Anders sortieren: in der Dashboard-Konfiguration `strategy: {type: custom:raumklima, sort: area}` (nach

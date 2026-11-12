@@ -144,7 +144,7 @@ Changes are saved after a short pause and applied by the room right away (only c
 ## Schedule & boost
 
 **Fixed heating times** are set per room in the settings: *Settings → room → **Schedule → Add time window***.
-A time window has weekdays (no selection = every day), from/to and a target temperature; up to six windows per
+A time window has weekdays (no selection = every day), from/to and a target temperature; up to 30 windows per
 room, including across midnight (e.g. 22:00–06:00). If two windows overlap, the lower one wins. Example: “living
 room daily 7–9 pm 22 °C, otherwise 20 °C” – set the desired temperature to 20 °C and add a window 7–9 pm at 22 °C.
 

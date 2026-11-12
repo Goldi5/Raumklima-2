@@ -70,7 +70,7 @@ As above, without step 4 – recipients, presence and heating season apply to al
 - **Second home via the integration:** *Settings → Devices & Services → Raumklima → Add integration* offers
   "room in an existing home" or "new home" (name, residents, zone, recipients). Each home has its own rooms
   and dashboard; cards follow the dashboard they sit on, so one home does not list the other's rooms.
-- **Schedule per room:** in the *Settings* tab → room → **Schedule** (up to six time windows with
+- **Schedule per room:** in the *Settings* tab → room → **Schedule** (up to 30 time windows with
   weekdays, from/to and target temperature).
 - **Room order:** **floor → area → name**; rooms without a floor come last. To change it, add
   `sort: area` (by area) or `sort: name` (by name) to the dashboard config

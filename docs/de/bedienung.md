@@ -140,7 +140,7 @@ Hinter jeder Einstellung steht ein **„?“** – antippen klappt eine kurze Er
 
 **Feste Heizzeiten** stellst du je Raum in den Einstellungen ein: *Einstellungen → Raum → **Zeitplan →
 Zeitfenster hinzufügen***. Ein Zeitfenster hat Wochentage (keine Auswahl = jeden Tag), Von/Bis und eine
-Zieltemperatur; bis zu sechs Fenster je Raum, auch über Mitternacht (z. B. 22:00–06:00). Überlappen sich zwei
+Zieltemperatur; bis zu 30 Fenster je Raum, auch über Mitternacht (z. B. 22:00–06:00). Überlappen sich zwei
 Fenster, gilt das untere. Beispiel: „Wohnzimmer täglich 19–21 Uhr 22 °C, sonst 20 °C“ – dafür das
 Wunschtemperatur-Feld auf 20 °C und ein Fenster 19–21 Uhr mit 22 °C anlegen.
 
