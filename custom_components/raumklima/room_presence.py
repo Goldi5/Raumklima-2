@@ -37,6 +37,7 @@ class PresenceMixin:
     _presence_timer: Callable[[], None] | None = None
     _presence_unsub: Callable[[], None] | None = None
     _occupied: bool | None = None
+    _occupied_since: datetime | None = None
     _empty_since: datetime | None = None
     _started_at: datetime | None = None  # Startzeitpunkt dieses Prozesses (für Melder-Zustände)
     _seen_on: set[str] = set()  # Melder-Arten, die seit dem Start schon „an" gemeldet haben
@@ -88,6 +89,11 @@ class PresenceMixin:
         """True/False – None ohne Melder oder wenn keiner erreichbar ist."""
         return self._occupied
 
+    @property
+    def occupied_since(self) -> datetime | None:
+        """Seit wann der Raum als besetzt gilt (None, wenn nicht besetzt)."""
+        return self._occupied_since
+
     def _boot_time(self) -> datetime:
         if self._started_at is None:
             self._started_at = dt_util.utcnow()
@@ -116,11 +122,16 @@ class PresenceMixin:
             self._presence_timer = None
         if not self.presence_sensors:
             self._occupied, self._empty_since = None, None
+            self._occupied_since = None
             return
         now = dt_util.utcnow()
         readings = self.presence_readings()
         was = self._occupied
         self._occupied, self._empty_since = occupancy(readings, now)
+        if self._occupied and was is not True:
+            self._occupied_since = now
+        elif not self._occupied:
+            self._occupied_since = None
         # Nächster interessanter Zeitpunkt: Nachlauf vorbei bzw. Absenk-Wartezeit vorbei
         wake: datetime | None = None
         off = [r for r in readings if r.on is False]
@@ -130,6 +141,12 @@ class PresenceMixin:
             due = self._empty_since + timedelta(minutes=self.room_eco_after)
             if due > now:
                 wake = due
+        if self._occupied and self._occupied_since is not None and getattr(self, "presence_target", 0) > 0:
+            delay = getattr(self, "presence_delay_min", 0.0)
+            if delay > 0:
+                due = self._occupied_since + timedelta(minutes=delay)
+                if due > now and (wake is None or due < wake):
+                    wake = due
         if wake is not None:
             self._presence_timer = self._schedule(max(1.0, (wake - now).total_seconds() + 1), self.update_presence)
         eco = self.room_eco_applies()

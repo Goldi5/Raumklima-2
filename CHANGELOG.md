@@ -1,3 +1,7 @@
+## 0.62.42b1 – 2026-11-12
+
+- **Anwesenheits-Temperatur mit Wartezeit**: In *Einstellungen → Raum → Temperatur* gibt es neben „Bei Anwesenheit“ jetzt „… erst nach“ (0–120 min). Der Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt; 0 = sofort. Fällt der Melder länger als der Nachlauf aus, beginnt die Zeit neu.
+
 ## 0.62.41b1 – 2026-11-12
 
 - **Telegram in der Ruhezeit**: Meldungen kamen nachts nur aufs iPhone, nicht nach Telegram (Issue #45). Ursache: Telegram ist seit HA 2026.11 eine notify-Entität; der Aufruf `send_message` darf dort kein `data` enthalten. Raumklima schickt `data` (Push-Optionen) jetzt nur noch an Dienste (Companion App), nicht mehr an Entitäten.

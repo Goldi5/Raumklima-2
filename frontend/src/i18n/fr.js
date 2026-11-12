@@ -931,6 +931,8 @@ export const FR = {
   "0 °C = aus; sonst gilt der Zeitplan": "0 °C = désactivé ; sinon la plage horaire s’applique",
   "Anwesend · {v}°": "Présence · {v}°",
   "Bei Anwesenheit": "En cas de présence",
+  "… erst nach": "seulement après",
+  "Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt": "le capteur doit voir quelqu’un pendant ce temps avant que la température de présence s’applique",
   "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung": "Interrupteur HA qui active aussi le télétravail – comme l’interrupteur, sans contrôle de présence",
   "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "Interrupteur HA qui active aussi le mode nuit – l’interrupteur interne reste",
   "Homeoffice über Entität": "Télétravail via entité",

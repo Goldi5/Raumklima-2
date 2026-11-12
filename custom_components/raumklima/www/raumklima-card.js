@@ -1,4 +1,4 @@
-/* Raumklima 0.62.41b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.42b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -930,6 +930,8 @@
     "0 °C = aus; sonst gilt der Zeitplan": "0 °C = off; otherwise the schedule applies",
     "Anwesend · {v}°": "Occupied · {v}°",
     "Bei Anwesenheit": "When someone is present",
+    "… erst nach": "only after",
+    "Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt": "the sensor must see someone for this long before the presence temperature applies",
     "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung": "HA switch that also turns home office on – works like the switch, without the presence check",
     "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "HA switch that also turns on night mode – the built-in switch stays",
     "Homeoffice über Entität": "Home office via entity",
@@ -1875,6 +1877,8 @@
     "0 °C = aus; sonst gilt der Zeitplan": "0 °C = désactivé ; sinon la plage horaire s’applique",
     "Anwesend · {v}°": "Présence · {v}°",
     "Bei Anwesenheit": "En cas de présence",
+    "… erst nach": "seulement après",
+    "Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt": "le capteur doit voir quelqu’un pendant ce temps avant que la température de présence s’applique",
     "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung": "Interrupteur HA qui active aussi le télétravail – comme l’interrupteur, sans contrôle de présence",
     "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "Interrupteur HA qui active aussi le mode nuit – l’interrupteur interne reste",
     "Homeoffice über Entität": "Télétravail via entité",
@@ -1931,7 +1935,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.41b1";
+  var RK_VERSION = "0.62.42b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4080,6 +4084,11 @@
       "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",
       "Température vers laquelle la pièce chauffe tant qu’un capteur de présence voit quelqu’un — p. ex. bureau 19 °C, 21 °C en cas de présence. 0 °C désactive la règle ; la plage horaire ou l’abaissement reprend."
     ],
+    "… erst nach": [
+      "Der Melder muss so viele Minuten jemanden sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Damit beendet kurzes Vorbeigehen nicht sofort die Absenkung.",
+      "The sensor must see someone for this many minutes before the presence temperature applies. 0 = immediately. A short walk-by will not end the setback right away.",
+      "Le capteur doit voir quelqu’un pendant ce nombre de minutes avant que la température de présence s’applique. 0 = immédiat. Un passage bref ne met pas fin tout de suite à l’abaissement."
+    ],
     "Homeoffice nur wenn jemand da": [
       "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",
       "From the calendar, home office only applies when presence tracking sees someone at home — an event alone is not enough, you may be at the office. The “Home office” switch is pressed on purpose and heats without presence tracking. Turn this off if the calendar should decide alone.",
@@ -5491,11 +5500,15 @@
           })(),
           (() => {
             const pt = Number(this._roomOpt(r, "presence_target") || 0);
-            return this._row(
-              "Bei Anwesenheit",
-              editable ? this._optStepper(scope, "presence_target", pt, " °C", 0.5, 0, 30) : this._v(pt ? `${pt} °C` : t("aus")),
-              pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")
-            );
+            const pd = Number(this._roomOpt(r, "presence_delay_min") || 0);
+            return [
+              this._row(
+                "Bei Anwesenheit",
+                editable ? this._optStepper(scope, "presence_target", pt, " °C", 0.5, 0, 30) : this._v(pt ? `${pt} °C` : t("aus")),
+                pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")
+              ),
+              pt ? this._row("… erst nach", editable ? this._optStepper(scope, "presence_delay_min", pd, " min", 1, 0, 120) : this._v(`${pd} min`), t("Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt")) : ""
+            ].join("");
           })(),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"
         ),

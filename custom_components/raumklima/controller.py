@@ -75,6 +75,7 @@ from .const import (
     CONF_PREHEAT_MODE,
     CONF_PREHEAT_NOT_BEFORE,
     CONF_PRESENCE,
+    CONF_PRESENCE_DELAY,
     CONF_PRESENCE_KIND,
     CONF_PRESENCE_OFF,
     CONF_PRESENCE_TARGET,
@@ -1175,6 +1176,22 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         except (TypeError, ValueError):
             return 0.0
 
+    @property
+    def presence_delay_min(self) -> float:
+        """Wartezeit, bis die Anwesenheits-Temperatur gilt (0 = sofort)."""
+        try:
+            return float(self.config.get(CONF_PRESENCE_DELAY) or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    def _presence_ready(self, now: datetime) -> bool:
+        """Ist die Anwesenheits-Temperatur nach der Wartezeit freigegeben?"""
+        delay = self.presence_delay_min
+        if delay <= 0:
+            return True
+        since = self.occupied_since
+        return since is not None and (now - since) >= timedelta(minutes=delay)
+
     def _preheat_allowed(self, start: datetime, now: datetime) -> bool:
         """Darf jetzt vorgeheizt werden? (Issue #10: nicht mitten in der Nacht)
 
@@ -1255,6 +1272,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.presence_target > 0
             and self.occupied is True
             and not hub.vacation
+            and self._presence_ready(now)
         ):
             return True, min(self.presence_target, self.trv_max), REASON_PRESENCE
         # Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert

@@ -221,3 +221,26 @@ async def test_arbeitsplatz_zone_hebt_wartezeit_auf(hass: HomeAssistant, setup, 
     hub._evaluate_presence()
     assert hub.stage == "away_short"
     assert hub.persons["person.a"]["approaching"] is False
+
+
+async def test_anwesenheit_erst_nach_wartezeit(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Die Anwesenheits-Temperatur greift erst, wenn der Melder die Wartezeit gesehen hat."""
+    _radar(hass, True)
+    _hub, room = await _setup(
+        hass,
+        room_type="living",
+        presence_sensors=[RADAR],
+        presence_target=21.0,
+        presence_delay_min=5,
+    )
+    c = room.runtime_data
+    c.target_temp = 19.0
+
+    assert c.occupied is True
+    assert c.plan()[2] != "presence", "ohne Wartezeit noch kein Anwesenheits-Ziel"
+
+    await _later(hass, freezer, 6)
+    on, target, reason = c.plan()
+    assert reason == "presence"
+    assert target == 21.0
+    assert trv.setpoint == 21.0

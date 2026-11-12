@@ -262,6 +262,11 @@ export const HELP = {
     "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",
     "Température vers laquelle la pièce chauffe tant qu’un capteur de présence voit quelqu’un — p. ex. bureau 19 °C, 21 °C en cas de présence. 0 °C désactive la règle ; la plage horaire ou l’abaissement reprend.",
   ],
+  "… erst nach": [
+    "Der Melder muss so viele Minuten jemanden sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Damit beendet kurzes Vorbeigehen nicht sofort die Absenkung.",
+    "The sensor must see someone for this many minutes before the presence temperature applies. 0 = immediately. A short walk-by will not end the setback right away.",
+    "Le capteur doit voir quelqu’un pendant ce nombre de minutes avant que la température de présence s’applique. 0 = immédiat. Un passage bref ne met pas fin tout de suite à l’abaissement.",
+  ],
   "Homeoffice nur wenn jemand da": [
     "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",
     "From the calendar, home office only applies when presence tracking sees someone at home — an event alone is not enough, you may be at the office. The “Home office” switch is pressed on purpose and heats without presence tracking. Turn this off if the calendar should decide alone.",

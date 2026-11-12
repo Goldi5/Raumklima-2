@@ -931,6 +931,8 @@ export const EN = {
   "0 °C = aus; sonst gilt der Zeitplan": "0 °C = off; otherwise the schedule applies",
   "Anwesend · {v}°": "Occupied · {v}°",
   "Bei Anwesenheit": "When someone is present",
+  "… erst nach": "only after",
+  "Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt": "the sensor must see someone for this long before the presence temperature applies",
   "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung": "HA switch that also turns home office on – works like the switch, without the presence check",
   "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt": "HA switch that also turns on night mode – the built-in switch stays",
   "Homeoffice über Entität": "Home office via entity",
