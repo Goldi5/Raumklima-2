@@ -98,5 +98,9 @@ async def test_vorheizen_mit_fremdem_zeitplan(hass: HomeAssistant, setup, trv: F
     ctrl.config["schedule_from"] = other.entry.entry_id
     ctrl.heatup.episodes = [{"rate": 1.0, "outdoor": 5.0, "minutes": 60, "rise": 1.0}] * 3
 
-    on, target, reason = ctrl.plan()
+    try:
+        on, target, reason = ctrl.plan()
+    finally:
+        # Attrappe sofort wieder entfernen: die Zentrale ruft sonst im nächsten Takt Methoden an ihr auf
+        domain_data(hass)["rooms"].pop(other.entry.entry_id, None)
     assert (on, target, reason) == (True, 26.0, "schedule_preheat")
