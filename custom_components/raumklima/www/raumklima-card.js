@@ -2244,6 +2244,7 @@
     background: transparent; color: var(--primary-text-color); }
   /* HH:MM-Felder: der Browser würde <input type="time"> je nach Betriebssystem mit AM/PM zeichnen */
   .inp.hm, .sched input.tm { width: 76px; text-align: center; font-variant-numeric: tabular-nums; }
+  .sched .timebtn { min-height:0; width:76px; padding:5px 8px; border-radius:8px; text-align:center; }
   .sched .temp { min-width:58px; text-align:right; font-variant-numeric: tabular-nums; }
   .sched .del { all:unset; cursor:pointer; padding:3px 7px; border-radius:8px; color: var(--rk-cold); }
   .sched .add { all:unset; cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-top:8px; padding:7px 14px; border-radius:10px;
@@ -2439,7 +2440,7 @@
            box-shadow:0 18px 50px rgba(0,0,0,.28); }
   .tpickhead { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .tpickbody { display:flex; align-items:center; justify-content:center; gap:6px; }
-  .twheel { height:120px; overflow-y:auto; scroll-snap-type:y mandatory; padding:40px 0; width:74px;
+  .twheel { box-sizing:border-box; height:120px; overflow-y:auto; scroll-snap-type:y mandatory; padding:40px 0; width:74px;
             text-align:center; scrollbar-width:none; }
   .twheel::-webkit-scrollbar { display:none; }
   .twheel button { display:block; width:100%; height:40px; scroll-snap-align:center; border:0; background:none;
@@ -5310,8 +5311,8 @@
       const btn = [0, 1, 2, 3, 4, 5, 6].map((d) => `<button class="d ${on(d) ? "on" : ""}" data-schedday="${id}|${i}|${d}" title="${esc(schedDayName(d))}">${esc(schedDayName(d))}</button>`).join("");
       return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      ${this._tmBtn("sched:" + id + "|" + i + "|start", w.start, ro, t("von"))}
+      ${this._tmBtn("sched:" + id + "|" + i + "|end", w.end, ro, t("bis"))}
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
       <div class="stepper mv"><button data-schedmove="${id}|${i}|-1" title="${t("nach oben")}" aria-label="${t("nach oben")}" ${i === 0 ? "disabled" : ""}>▲</button><button data-schedmove="${id}|${i}|1" title="${t("nach unten")}" aria-label="${t("nach unten")}" ${i === this._schedLen(id) - 1 ? "disabled" : ""}>▼</button></div>
@@ -5427,8 +5428,8 @@
       const btn = [0, 1, 2, 3, 4, 5, 6].map((d) => `<button class="d ${on(d) ? "on" : ""}" data-airday="${id}|${i}|${d}" title="${esc(schedDayName(d))}">${esc(schedDayName(d))}</button>`).join("");
       return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.start}" data-airtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-airtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      ${this._tmBtn("air:" + id + "|" + i + "|start", w.start, ro, t("von"))}
+      ${this._tmBtn("air:" + id + "|" + i + "|end", w.end, ro, t("bis"))}
       ${ro ? "" : `<button class="del" data-airdel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
     },
@@ -5486,6 +5487,25 @@
       rows.push(this._more("airing-more", "Weitere Einstellungen", moreRows.join(""), r, ["airing_min_minutes", "long_airing_minutes", "long_airing_remind", "airing_occupied_only"]));
       return this._grp("air", "Lüften ohne Erinnerung", "mdi:weather-windy-variant", "air", rows.join(""), "span");
     },
+    // Uhrzeit eines Zeitfensters: Knopf öffnet den Zeitwähler (Viertelstunden, freie Eingabe möglich)
+    _tmBtn(key, val, ro, label) {
+      const v = String(val || "").slice(0, 5);
+      return `<button class="tm timebtn" data-timeopen="${esc(key)}" data-val="${esc(v)}" ${ro ? "disabled" : ""} aria-label="${esc(label)}" title="${esc(label)}">${esc(v || "–:–")}</button>`;
+    },
+    // Gewählte Uhrzeit in ein Zeitplan- oder Lüftfenster übernehmen ("sched:<raum>|<i>|start").
+    _setWinTime(key, v) {
+      const [kind, rest] = [key.slice(0, key.indexOf(":")), key.slice(key.indexOf(":") + 1)];
+      const [id, i, which] = rest.split("|");
+      if (which !== "start" && which !== "end") return false;
+      const list = kind === "sched" ? this._schedList(id, this._schedSeed(id) || []) : kind === "air" ? this._airList(id, []) : null;
+      const w = list && list[parseInt(i, 10)];
+      if (!w) return false;
+      w[which] = v;
+      if (kind === "sched") this._pushSched(id);
+      else this._pushAir(id);
+      this._render();
+      return true;
+    },
     // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.
     _timePop() {
       const hh = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
@@ -5511,19 +5531,39 @@
       const [hRaw, mRaw] = String(val || "07:00").split(":");
       const h = Math.max(0, Math.min(23, parseInt(hRaw, 10) || 0));
       const m = Math.max(0, Math.min(3, Math.round((parseInt(mRaw, 10) || 0) / 15)));
-      this._tp = { key, h, m };
+      const exact = /^\d{1,2}:\d{2}$/.test(String(val || "")) ? `${String(h).padStart(2, "0")}:${String(Math.max(0, Math.min(59, parseInt(mRaw, 10) || 0))).padStart(2, "0")}` : null;
+      this._tp = { key, h, m, open: true, text: exact || void 0 };
       pop.querySelector("[data-twh]").scrollTop = h * 40;
       pop.querySelector("[data-twmn]").scrollTop = m * 40;
-      pop.querySelector("[data-tin]").value = `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
+      pop.querySelector("[data-tin]").value = exact || `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
+      this._timeMark(pop);
+    },
+    _timeMark(pop) {
+      pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
+      pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
+    },
+    // Nach einem Neuzeichnen (z. B. Speichern im Hintergrund) den offenen Zeitwähler wieder zeigen
+    _reopenTime() {
+      const tp = this._tp;
+      if (!tp || !tp.open) return;
+      const pop = this.shadowRoot.querySelector("[data-tpick]");
+      if (!pop) return;
+      pop.hidden = false;
+      pop.querySelector("[data-twh]").scrollTop = tp.h * 40;
+      pop.querySelector("[data-twmn]").scrollTop = tp.m * 40;
+      pop.querySelector("[data-tin]").value = tp.text || `${String(tp.h).padStart(2, "0")}:${String(tp.m * 15).padStart(2, "0")}`;
+      this._timeMark(pop);
     },
     _timeSync(pop) {
       if (!this._tp) return;
       const h = Math.round(pop.querySelector("[data-twh]").scrollTop / 40);
       const m = Math.round(pop.querySelector("[data-twmn]").scrollTop / 40);
-      this._tp.h = Math.max(0, Math.min(23, h));
-      this._tp.m = Math.max(0, Math.min(3, m));
-      pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
-      pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
+      const nh = Math.max(0, Math.min(23, h)), nm = Math.max(0, Math.min(3, m));
+      if (this._tp.text && nh === this._tp.h && nm === this._tp.m) return;
+      this._tp.text = void 0;
+      this._tp.h = nh;
+      this._tp.m = nm;
+      this._timeMark(pop);
       pop.querySelector("[data-tin]").value = `${String(this._tp.h).padStart(2, "0")}:${String(this._tp.m * 15).padStart(2, "0")}`;
     }
   };
@@ -6366,20 +6406,6 @@
         w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
         this._pushAir(id);
       });
-      on("change", "[data-airtime]", (el) => () => {
-        const [id, i, which] = String(el.dataset.airtime).split("|");
-        const w = this._airList(id, [])[parseInt(i, 10)];
-        if (!w) return;
-        const v = rkTimeValue(el.value);
-        if (!v) {
-          this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
-          el.value = w[which] || "";
-          return;
-        }
-        el.value = v;
-        w[which] = v;
-        this._pushAir(id);
-      });
       on("click", "[data-schedadd]", (el) => () => {
         const id = el.dataset.schedadd;
         const list = this._schedList(id, this._schedSeed(id) || []);
@@ -6411,20 +6437,6 @@
         if (!w) return;
         const day = parseInt(d, 10);
         w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
-        this._pushSched(id);
-      });
-      on("change", "[data-schedtime]", (el) => () => {
-        const [id, i, which] = sp(el.dataset.schedtime);
-        const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
-        if (!w) return;
-        const v = rkTimeValue(el.value);
-        if (!v) {
-          this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
-          el.value = w[which] || "";
-          return;
-        }
-        el.value = v;
-        w[which] = v;
         this._pushSched(id);
       });
       on("click", "[data-schedmove]", (el) => () => {
@@ -6551,8 +6563,15 @@
           clearTimeout(tid);
           tid = setTimeout(() => this._timeSync(tpop), 90);
         }));
+        tpop.querySelectorAll("[data-th], [data-tm]").forEach((b) => b.addEventListener("click", () => {
+          const wheel = b.parentElement;
+          const i = Number(b.dataset.th ?? b.dataset.tm);
+          if (wheel.scrollTo) wheel.scrollTo({ top: i * 40, behavior: "smooth" });
+          else wheel.scrollTop = i * 40;
+        }));
         tpop.querySelector("[data-tclose]").addEventListener("click", () => {
           tpop.hidden = true;
+          if (this._tp) this._tp.open = false;
         });
         tpop.querySelector("[data-tok]").addEventListener("click", () => {
           const v = rkTimeValue(tpop.querySelector("[data-tin]").value);
@@ -6562,14 +6581,25 @@
           }
           const key = this._tp && this._tp.key;
           tpop.hidden = true;
-          if (key) this._setHub({ [key]: v + ":00" }, 200);
+          if (this._tp) this._tp.open = false;
+          if (!key) return;
+          if (/^(sched|air):/.test(key)) this._setWinTime(key, v);
+          else this._setHub({ [key]: v + ":00" }, 200);
         });
         tpop.querySelector("[data-tin]").addEventListener("input", (ev) => {
+          if (this._tp) this._tp.text = ev.target.value;
           const v = rkTimeValue(ev.target.value);
           if (!v) return;
           const [h, m] = v.split(":");
-          tpop.querySelector("[data-twh]").scrollTop = (parseInt(h, 10) || 0) * 40;
-          tpop.querySelector("[data-twmn]").scrollTop = Math.round((parseInt(m, 10) || 0) / 15) * 40;
+          const hh = Math.max(0, Math.min(23, parseInt(h, 10) || 0));
+          const mm = Math.max(0, Math.min(3, Math.round((parseInt(m, 10) || 0) / 15)));
+          if (this._tp) {
+            this._tp.h = hh;
+            this._tp.m = mm;
+            this._tp.text = ev.target.value;
+          }
+          tpop.querySelector("[data-twh]").scrollTop = hh * 40;
+          tpop.querySelector("[data-twmn]").scrollTop = mm * 40;
         });
       }
       on("change", "[data-time]", (el) => () => {
@@ -7227,6 +7257,7 @@
         ${this._timePop()}
       </ha-card>`);
       this._bind();
+      this._reopenTime();
       this._filter();
       this._decFetch();
     }

@@ -145,7 +145,7 @@ Les modifications sont enregistrées après une courte pause et appliquées par 
 
 **Des heures de chauffe fixes** se règlent par pièce dans les réglages : *Réglages → pièce → **Planning →
 Ajouter une plage horaire***. Une plage horaire a des jours de la semaine (aucun choix = tous les jours), de/à
-et une température cible ; jusqu’à 30 plages par pièce, y compris au-delà de minuit (p. ex. 22:00–06:00). Si
+et une température cible ; jusqu’à 30 plages par pièce (toucher une heure ouvre le sélecteur au quart d’heure ; saisir des minutes exactes comme 06:50 en dessous), y compris au-delà de minuit (p. ex. 22:00–06:00). Si
 deux plages se chevauchent, la plus basse s’applique. Exemple : « salon tous les jours 19–21 h 22 °C, sinon
 20 °C » – réglez la température souhaitée sur 20 °C et ajoutez une plage 19–21 h à 22 °C.
 

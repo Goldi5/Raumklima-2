@@ -25,3 +25,20 @@ test("rkTimeValue akzeptiert Punkt und Leerzeichen als Trenner", () => {
   assert.equal(rkTimeValue("7.05"), "07:05");
   assert.equal(rkTimeValue("7 05"), "07:05");
 });
+
+import { readFileSync } from "node:fs";
+import { settingsSource } from "./settings-source.mjs";
+
+test("Zeitfenster öffnen den Viertelstunden-Wähler statt eines Textfelds", () => {
+  const src = settingsSource();
+  assert.ok(src.includes('this._tmBtn("sched:'), "Zeitplan nutzt den Zeitwähler nicht");
+  assert.ok(src.includes('this._tmBtn("air:'), "Lüftfenster nutzen den Zeitwähler nicht");
+  assert.ok(!/data-(sched|air)time=/.test(src), "altes Textfeld noch da");
+  assert.ok(src.includes("_setWinTime(key, v)"), "Übernehmen schreibt nicht ins Zeitfenster");
+});
+
+test("Zeitwähler-Räder erreichen 23 Uhr und :45 (border-box)", () => {
+  // Ohne border-box zählte das Polster zur Höhe: die Räder ließen sich nur bis 21 Uhr bzw. :15 drehen.
+  const css = readFileSync(new URL("../src/styles.js", import.meta.url), "utf8");
+  assert.match(css, /\.twheel \{ box-sizing:border-box;/);
+});

@@ -67,8 +67,8 @@ export const ScheduleMethods = {
       .join("");
     return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.start}" data-schedtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-schedtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      ${this._tmBtn("sched:" + id + "|" + i + "|start", w.start, ro, t("von"))}
+      ${this._tmBtn("sched:" + id + "|" + i + "|end", w.end, ro, t("bis"))}
       <span class="v temp">${fmt(w.temperature)} °C</span>
       ${ro ? "" : `<div class="stepper"><button data-schedtemp="${id}|${i}" data-d="-1" aria-label="${t("weniger")}">−</button><button data-schedtemp="${id}|${i}" data-d="1" aria-label="${t("mehr")}">+</button></div>
       <div class="stepper mv"><button data-schedmove="${id}|${i}|-1" title="${t("nach oben")}" aria-label="${t("nach oben")}" ${i === 0 ? "disabled" : ""}>▲</button><button data-schedmove="${id}|${i}|1" title="${t("nach unten")}" aria-label="${t("nach unten")}" ${i === this._schedLen(id) - 1 ? "disabled" : ""}>▼</button></div>
@@ -204,8 +204,8 @@ export const ScheduleMethods = {
       .join("");
     return `<div class="sched">
       <div class="days">${btn}</div>
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.start}" data-airtime="${id}|${i}|start" ${ro ? "disabled" : ""} aria-label="${t("von")}">
-      <input class="tm inp" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${w.end}" data-airtime="${id}|${i}|end" ${ro ? "disabled" : ""} aria-label="${t("bis")}">
+      ${this._tmBtn("air:" + id + "|" + i + "|start", w.start, ro, t("von"))}
+      ${this._tmBtn("air:" + id + "|" + i + "|end", w.end, ro, t("bis"))}
       ${ro ? "" : `<button class="del" data-airdel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
   },
@@ -269,6 +269,26 @@ export const ScheduleMethods = {
     return this._grp("air", "Lüften ohne Erinnerung", "mdi:weather-windy-variant", "air", rows.join(""), "span");
   },
 
+  // Uhrzeit eines Zeitfensters: Knopf öffnet den Zeitwähler (Viertelstunden, freie Eingabe möglich)
+  _tmBtn(key, val, ro, label) {
+    const v = String(val || "").slice(0, 5);
+    return `<button class="tm timebtn" data-timeopen="${esc(key)}" data-val="${esc(v)}" ${ro ? "disabled" : ""} aria-label="${esc(label)}" title="${esc(label)}">${esc(v || "–:–")}</button>`;
+  },
+
+  // Gewählte Uhrzeit in ein Zeitplan- oder Lüftfenster übernehmen ("sched:<raum>|<i>|start").
+  _setWinTime(key, v) {
+    const [kind, rest] = [key.slice(0, key.indexOf(":")), key.slice(key.indexOf(":") + 1)];
+    const [id, i, which] = rest.split("|");
+    if (which !== "start" && which !== "end") return false;
+    const list = kind === "sched" ? this._schedList(id, this._schedSeed(id) || []) : kind === "air" ? this._airList(id, []) : null;
+    const w = list && list[parseInt(i, 10)];
+    if (!w) return false;
+    w[which] = v;
+    if (kind === "sched") this._pushSched(id); else this._pushAir(id);
+    this._render();
+    return true;
+  },
+
   // iOS-artiger Zeitwähler: Stunden- und Viertelstunden-Rad zum Durchscrollen.
   _timePop() {
     const hh = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
@@ -295,20 +315,43 @@ export const ScheduleMethods = {
     const [hRaw, mRaw] = String(val || "07:00").split(":");
     const h = Math.max(0, Math.min(23, parseInt(hRaw, 10) || 0));
     const m = Math.max(0, Math.min(3, Math.round((parseInt(mRaw, 10) || 0) / 15)));
-    this._tp = { key, h, m };
+    // Genaue Minuten (z. B. 06:50) im Feld zeigen – die Räder stehen auf der nächsten Viertelstunde
+    const exact = /^\d{1,2}:\d{2}$/.test(String(val || "")) ? `${String(h).padStart(2, "0")}:${String(Math.max(0, Math.min(59, parseInt(mRaw, 10) || 0))).padStart(2, "0")}` : null;
+    this._tp = { key, h, m, open: true, text: exact || undefined };
     pop.querySelector("[data-twh]").scrollTop = h * 40;
     pop.querySelector("[data-twmn]").scrollTop = m * 40;
-    pop.querySelector("[data-tin]").value = `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
+    pop.querySelector("[data-tin]").value = exact || `${String(h).padStart(2, "0")}:${String(m * 15).padStart(2, "0")}`;
+    this._timeMark(pop);
+  },
+
+  _timeMark(pop) {
+    pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
+    pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
+  },
+
+  // Nach einem Neuzeichnen (z. B. Speichern im Hintergrund) den offenen Zeitwähler wieder zeigen
+  _reopenTime() {
+    const tp = this._tp;
+    if (!tp || !tp.open) return;
+    const pop = this.shadowRoot.querySelector("[data-tpick]");
+    if (!pop) return;
+    pop.hidden = false;
+    pop.querySelector("[data-twh]").scrollTop = tp.h * 40;
+    pop.querySelector("[data-twmn]").scrollTop = tp.m * 40;
+    pop.querySelector("[data-tin]").value = tp.text || `${String(tp.h).padStart(2, "0")}:${String(tp.m * 15).padStart(2, "0")}`;
+    this._timeMark(pop);
   },
 
   _timeSync(pop) {
     if (!this._tp) return;
     const h = Math.round(pop.querySelector("[data-twh]").scrollTop / 40);
     const m = Math.round(pop.querySelector("[data-twmn]").scrollTop / 40);
-    this._tp.h = Math.max(0, Math.min(23, h));
-    this._tp.m = Math.max(0, Math.min(3, m));
-    pop.querySelectorAll("[data-th]").forEach((b) => b.classList.toggle("on", Number(b.dataset.th) === this._tp.h));
-    pop.querySelectorAll("[data-tm]").forEach((b) => b.classList.toggle("on", Number(b.dataset.tm) === this._tp.m));
+    const nh = Math.max(0, Math.min(23, h)), nm = Math.max(0, Math.min(3, m));
+    if (this._tp.text && nh === this._tp.h && nm === this._tp.m) return; // Räder nur nachgerückt – genaue Eingabe behalten
+    this._tp.text = undefined;
+    this._tp.h = nh;
+    this._tp.m = nm;
+    this._timeMark(pop);
     pop.querySelector("[data-tin]").value = `${String(this._tp.h).padStart(2, "0")}:${String(this._tp.m * 15).padStart(2, "0")}`;
   },
 };

@@ -333,6 +333,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         ${this._timePop()}
       </ha-card>`);
     this._bind();
+    this._reopenTime();
     this._filter();
     this._decFetch();
   }

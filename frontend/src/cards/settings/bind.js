@@ -207,20 +207,6 @@ export const BindMethods = {
       w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
       this._pushAir(id);
     });
-    on("change", "[data-airtime]", (el) => () => {
-      const [id, i, which] = String(el.dataset.airtime).split("|");
-      const w = this._airList(id, [])[parseInt(i, 10)];
-      if (!w) return;
-      const v = rkTimeValue(el.value);
-      if (!v) {
-        this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
-        el.value = w[which] || "";
-        return;
-      }
-      el.value = v;
-      w[which] = v;
-      this._pushAir(id);
-    });
     on("click", "[data-schedadd]", (el) => () => {
       const id = el.dataset.schedadd;
       const list = this._schedList(id, this._schedSeed(id) || []);
@@ -252,20 +238,6 @@ export const BindMethods = {
       if (!w) return;
       const day = parseInt(d, 10);
       w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
-      this._pushSched(id);
-    });
-    on("change", "[data-schedtime]", (el) => () => {
-      const [id, i, which] = sp(el.dataset.schedtime);
-      const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
-      if (!w) return;
-      const v = rkTimeValue(el.value);
-      if (!v) {
-        this._flash(t("Bitte Uhrzeit als HH:MM eingeben"));
-        el.value = w[which] || "";
-        return;
-      }
-      el.value = v;
-      w[which] = v;
       this._pushSched(id);
     });
     on("click", "[data-schedmove]", (el) => () => {
@@ -367,20 +339,34 @@ export const BindMethods = {
         clearTimeout(tid);
         tid = setTimeout(() => this._timeSync(tpop), 90);
       }));
-      tpop.querySelector("[data-tclose]").addEventListener("click", () => { tpop.hidden = true; });
+      // Antippen einer Zahl im Rad: dorthin drehen (sonst ginge nur Wischen)
+      tpop.querySelectorAll("[data-th], [data-tm]").forEach((b) => b.addEventListener("click", () => {
+        const wheel = b.parentElement;
+        const i = Number(b.dataset.th ?? b.dataset.tm);
+        if (wheel.scrollTo) wheel.scrollTo({ top: i * 40, behavior: "smooth" }); else wheel.scrollTop = i * 40;
+      }));
+      tpop.querySelector("[data-tclose]").addEventListener("click", () => { tpop.hidden = true; if (this._tp) this._tp.open = false; });
       tpop.querySelector("[data-tok]").addEventListener("click", () => {
         const v = rkTimeValue(tpop.querySelector("[data-tin]").value);
         if (!v) { this._flash(t("Bitte Uhrzeit als HH:MM eingeben")); return; }
         const key = this._tp && this._tp.key;
         tpop.hidden = true;
-        if (key) this._setHub({ [key]: v + ":00" }, 200);
+        if (this._tp) this._tp.open = false;
+        if (!key) return;
+        if (/^(sched|air):/.test(key)) this._setWinTime(key, v);
+        else this._setHub({ [key]: v + ":00" }, 200);
       });
       tpop.querySelector("[data-tin]").addEventListener("input", (ev) => {
+        if (this._tp) this._tp.text = ev.target.value;
         const v = rkTimeValue(ev.target.value);
         if (!v) return;
         const [h, m] = v.split(":");
-        tpop.querySelector("[data-twh]").scrollTop = (parseInt(h, 10) || 0) * 40;
-        tpop.querySelector("[data-twmn]").scrollTop = Math.round((parseInt(m, 10) || 0) / 15) * 40;
+        const hh = Math.max(0, Math.min(23, parseInt(h, 10) || 0));
+        const mm = Math.max(0, Math.min(3, Math.round((parseInt(m, 10) || 0) / 15)));
+        // Räder nachführen, ohne dass sie die genaue Eingabe (z. B. 22:50) wieder auf 22:45 runden
+        if (this._tp) { this._tp.h = hh; this._tp.m = mm; this._tp.text = ev.target.value; }
+        tpop.querySelector("[data-twh]").scrollTop = hh * 40;
+        tpop.querySelector("[data-twmn]").scrollTop = mm * 40;
       });
     }
     on("change", "[data-time]", (el) => () => {

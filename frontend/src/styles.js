@@ -177,6 +177,7 @@ export const SETTINGS_STYLES = `
     background: transparent; color: var(--primary-text-color); }
   /* HH:MM-Felder: der Browser würde <input type="time"> je nach Betriebssystem mit AM/PM zeichnen */
   .inp.hm, .sched input.tm { width: 76px; text-align: center; font-variant-numeric: tabular-nums; }
+  .sched .timebtn { min-height:0; width:76px; padding:5px 8px; border-radius:8px; text-align:center; }
   .sched .temp { min-width:58px; text-align:right; font-variant-numeric: tabular-nums; }
   .sched .del { all:unset; cursor:pointer; padding:3px 7px; border-radius:8px; color: var(--rk-cold); }
   .sched .add { all:unset; cursor:pointer; display:inline-flex; gap:6px; align-items:center; margin-top:8px; padding:7px 14px; border-radius:10px;
@@ -372,7 +373,7 @@ export const SETTINGS_STYLES = `
            box-shadow:0 18px 50px rgba(0,0,0,.28); }
   .tpickhead { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .tpickbody { display:flex; align-items:center; justify-content:center; gap:6px; }
-  .twheel { height:120px; overflow-y:auto; scroll-snap-type:y mandatory; padding:40px 0; width:74px;
+  .twheel { box-sizing:border-box; height:120px; overflow-y:auto; scroll-snap-type:y mandatory; padding:40px 0; width:74px;
             text-align:center; scrollbar-width:none; }
   .twheel::-webkit-scrollbar { display:none; }
   .twheel button { display:block; width:100%; height:40px; scroll-snap-align:center; border:0; background:none;
