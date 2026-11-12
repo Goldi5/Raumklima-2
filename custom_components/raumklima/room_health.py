@@ -376,7 +376,11 @@ class HealthMixin:
             # gehört gemeldet.
             check_trv_mode(
                 trv_state.state if trv_state else None,
-                (trv_state.attributes or {}).get("preset_mode") if trv_state else None,
+                # Tado: Presets „home/away/auto“ sind die Anwesenheitssteuerung (Geofencing), kein
+                # Wochenplan – ob Tado seinen Zeitplan fährt, zeigt dort nur der HVAC-Modus „auto“.
+                None
+                if trv_state is None or "default_overlay_type" in (trv_state.attributes or {})
+                else (trv_state.attributes or {}).get("preset_mode"),
                 device_preset=self.target_via == "comfort_temperature",
                 derived_preset=self._preset_is_derived(),
             )

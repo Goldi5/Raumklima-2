@@ -458,6 +458,16 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Preset am Thermostat „{new}“ – stelle „{back}“ wieder her", "Thermostat preset “{new}” – restoring “{back}”", "Préréglage du thermostat « {new} » – rétablissement de « {back} »"),
     ("Preset-Wechsel laden am Gerät alte Werte, das ist kein Wunsch", "preset changes load old values on the device, this is not a request", "un changement de préréglage charge d’anciennes valeurs, ce n’est pas une demande"),
     ("Am Thermostat gedreht: {t}", "Turned at the thermostat: {t}", "Réglé sur le thermostat : {t}"),
+    (
+        "Thermostat folgt seinem eigenen Zeitplan ({t}) – zurückgestellt",
+        "Thermostat follows its own schedule ({t}) – set back",
+        "Le thermostat suit son propre programme ({t}) – rétabli",
+    ),
+    (
+        "Gerät steht auf „Auto“; das ist kein Drehen am Thermostat",
+        "Device is on “Auto”; this is not a turn at the thermostat",
+        "L’appareil est sur « Auto » ; ce n’est pas un réglage manuel",
+    ),
     ("Thermostat bleibt bei „{p}“ – wird übernommen", "Thermostat stays on “{p}” – accepted", "Le thermostat reste sur « {p} » – accepté"),
     (
         "es ist {n}× in 10 min von selbst darauf gesprungen; „{p}“ regelt genauso auf den Sollwert, also kein Hin und Her mehr",

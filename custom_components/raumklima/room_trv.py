@@ -46,6 +46,7 @@ from .decision_log import (
     CAT_MANUAL,
     fmt_temp,
 )
+from .health import TRV_SCHEDULE_MODES
 from .logic import (
     calc_offset,
     choose_on_preset,
@@ -175,9 +176,35 @@ class TrvMixin:
         interval = float(getattr(self, "trv_expected_interval", 0) or 0)
         return (dt_util.utcnow() - at).total_seconds() < max(OWN_WRITE_GRACE, 2 * interval)
 
+    def _device_own_program(self, state: State | None) -> bool:
+        """Fährt das Gerät gerade seinen eingebauten Zeitplan (HVAC „auto“), obwohl Raumklima regeln soll?
+
+        Nicht, wenn der Raum bewusst auf „Auto“ steht (Karten-Modus) oder wenn Raumklima selbst über
+        ``comfort_temperature`` schreibt (TRV602Z – dort heißt der Regelmodus „auto“), und nur bei
+        Geräten, die einen „heat“-Modus haben, auf den sich zurückstellen lässt.
+        """
+        if state is None or self.hvac_auto or self.target_via == "comfort_temperature":
+            return False
+        if str(state.state).lower() not in TRV_SCHEDULE_MODES:
+            return False
+        return "heat" in (state.attributes.get("hvac_modes") or [])
+
     def _detect_manual_change(self, old: State, new: State) -> None:
         """Änderungen direkt am TRV erkennen (nicht von uns gesendet)."""
         if self.sync.jobs or self.paused or self._apply_lock.locked():
+            return
+        if self._device_own_program(new):
+            # Das Gerät ist in seinen eingebauten Zeitplan zurückgefallen (Tado: manuelle Einstellung
+            # „bis zum nächsten Zeitblock“ abgelaufen). Der Sollwert kommt dann aus dem Geräteplan,
+            # nicht von einer Hand am Thermostat – nicht als Wunsch übernehmen, sondern zurückstellen.
+            new_t = to_float(new.attributes.get(ATTR_TEMPERATURE))
+            if not self._device_own_program(old) or new_t != to_float(old.attributes.get(ATTR_TEMPERATURE)):
+                self.log(
+                    CAT_DEVICE,
+                    tr("Thermostat folgt seinem eigenen Zeitplan ({t}) – zurückgestellt", t=fmt_temp(new_t) if new_t is not None else "–"),
+                    tr("Gerät steht auf „Auto“; das ist kein Drehen am Thermostat"),
+                )
+            self.hass.async_create_task(self._apply())
             return
         if self._own_write_recent() and not self.hvac_on:
             # Gerät reagiert auf unseren eigenen Befehl (off → heat beim Sollwertschreiben):

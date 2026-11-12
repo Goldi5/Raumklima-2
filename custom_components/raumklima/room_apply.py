@@ -186,6 +186,7 @@ class ApplyMixin:
     async def _send_off(self, method: str) -> None:
         """Ausschalten – je nach Art: Preset „off“, HVAC „off“ oder Minimaltemperatur."""
         self.sync.cancel("setpoint")
+        self.sync.cancel("hvac")
         if method == OFF_PRESET:
             current = self._trv_attr("preset_mode")
             if current and current != "off":
@@ -239,11 +240,23 @@ class ApplyMixin:
                 "mode",
                 f"HVAC '{hvac}'",
                 lambda: self._call_climate("set_hvac_mode", hvac_mode=hvac),
+                # „auto“ zählt nicht als eingeschaltet, wenn das Gerät dann seinen eigenen Zeitplan
+                # fährt (Tado nach Ablauf der manuellen Einstellung) – sonst bliebe es dabei.
                 lambda: self.trv_available()
-                and getattr(self._trv_state(), "state", "off") != "off",
+                and getattr(self._trv_state(), "state", "off") != "off"
+                and not self._device_own_program(self._trv_state()),
             )
         else:
             self.sync.cancel("mode")
+        if method != OFF_HVAC and self._device_own_program(self._trv_state()):
+            # Geräte, die über Preset/Mindesttemperatur geschaltet werden, aber auf HVAC „auto“
+            # (eigener Wochenplan) stehen: auf „heat“ holen, sonst überschreibt der Plan den Sollwert.
+            await self.sync.request(
+                "hvac",
+                "HVAC 'heat'",
+                lambda: self._call_climate("set_hvac_mode", hvac_mode="heat"),
+                lambda: self.trv_available() and not self._device_own_program(self._trv_state()),
+            )
 
     async def _send_setpoint(self, from_measurement: bool) -> bool:
         """Einschalten, Teil 2: Sollwert senden. False, wenn es nichts zu senden gab."""

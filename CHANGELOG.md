@@ -1,5 +1,17 @@
 ## Unreleased
 
+## 0.62.46rc5 – 2026-11-12
+
+### Behoben
+- **Tado: Wochenplan des Geräts wurde zur Wunschtemperatur.** Tado führt eine von Raumklima gesetzte
+  Temperatur als „manuelle Einstellung“; läuft sie ab (z. B. „bis zum nächsten Zeitblock“), springt Tado
+  auf HVAC „auto“ und den Wert aus seinem eigenen Plan. Raumklima hielt das für „Am Thermostat gedreht“
+  und übernahm z. B. 17,1 °C als neuen Wunsch. Jetzt: Steht ein Thermostat mit „heat“-Modus auf „auto“
+  (eigener Wochenplan), wird nichts übernommen, sondern zurückgestellt – Protokoll: „Thermostat folgt
+  seinem eigenen Zeitplan (…) – zurückgestellt“. Wer am Tado dreht, bleibt ein Handeingriff.
+- **„Thermostat arbeitet nach eigenem Zeitplan“ bei Tado falsch gemeldet:** Die Tado-Presets
+  „home/away/auto“ sind die Anwesenheitssteuerung, kein Zeitplan. Gemeldet wird bei Tado nur noch HVAC „auto“.
+
 ## 0.62.46rc4 – 2026-11-12
 
 ### Verbessert
