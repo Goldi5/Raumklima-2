@@ -228,6 +228,17 @@ How to set it up:
 
 The room card then shows **“Someone in the room”** or **“Room empty for 25 min”**. When someone comes in, it heats back to the desired temperature right away.
 
+### Warmer while someone is in the room
+
+Example office: nobody there → 18.5 °C, someone at the desk → 21 °C.
+
+1. Set the **desired temperature** (Room → Temperature) to the value for the **empty** room, e.g. 18.5 °C.
+2. Room → **Presence → Presence sensors:** add the sensor, then tap **Turn on** under **When occupied** and choose the temperature, e.g. 21 °C.
+3. **… when occupied for:** someone must be in the room this long (default 5 min, 0–30). Walking through does not count.
+4. **… back after:** this long without occupancy, then the previous temperature applies again (default 5 min). Step out for less and you come back to a warm room.
+
+Only **mmWave sensors** count – a motion sensor also sees the cat. Under *More settings* you can turn on “… also motion sensors”; then set “back after” to about 20 min. With the presence temperature, *Lower empty room → Automatic* does not lower in addition – the desired temperature already is the value for the empty room. The top of the group shows what applies right now: “someone there for 3 min – 21 °C from 5 min” or “heating to 21 °C”.
+
 :::tip
 A sensor in the living room also stops Raumklima from wrongly thinking “everyone is away” – e.g. when a phone is off or a visitor is home alone. During vacation the sensors don't count, so the cat won't end your vacation.
 :::

@@ -28,8 +28,9 @@ export const RK_NUM = {
   mold_cap: { unit: " K", step: 0.5, min: 0, max: 6, dec: 1 },
   window_open_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
   window_close_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
-  presence_target: { unit: " °C", step: 0.5, min: 0, max: 30, dec: 1 },
-  presence_delay_min: { unit: " min", step: 1, min: 0, max: 120, dec: 0 },
+  presence_target: { unit: " °C", step: 0.5, min: 5, max: 30, dec: 1 },
+  presence_delay_min: { unit: " min", step: 1, min: 0, max: 30, dec: 0 },
+  presence_release_min: { unit: " min", step: 1, min: 1, max: 30, dec: 0 },
   room_eco_after: { unit: " min", step: 5, min: 5, max: 240, dec: 0 },
   room_eco_drop: { unit: " °C", step: 0.5, min: 0.5, max: 4, dec: 1 },
 };

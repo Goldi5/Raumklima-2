@@ -22,6 +22,7 @@ const RK_IMPLICIT = {
   airing_min_minutes: 0, long_airing_minutes: 20, long_airing_remind: 90, airing_occupied_only: true,
   home_office_from: "08:00", home_office_to: "17:00", home_office_check: true, home_sensors: "mmwave", work_zone_minutes: 5,
   vacation_km: 0, vacation_hours: 12, night_level: "long", report_metric: "auto", storm_gust_kmh: 70, storm_rain_mm: 8,
+  presence_delay_min: 5, presence_release_min: 5, presence_pir: false, presence_kind: "auto", room_eco: "auto",
   solar_gain: false, presence_off: false, learn_shift: false, frost_night: false,
 };
 const RK_LAYOUT_COLORS = ["#1eb6a6", "#34a86e", "#e8982e", "#e2643c", "#7c6adc", "#3c8cdc", "#c94f8a", "#7a8288"];
@@ -1497,30 +1498,68 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const list = this._roomOpt(r, "presence_sensors") ?? Object.keys(kinds);
     const all = (this._cfg && this._cfg.choices && this._cfg.choices.presence) || [];
     const info = Object.fromEntries(all.map((x) => [x.id, x]));
-    const kindOf = (e) => kinds[e] || (info[e] && info[e].kind) || "pir";
+    const pk = this._roomOpt(r, "presence_kind") ?? s.presence_kind ?? "auto";
+    const kindOf = (e) => (pk === "mmwave" || pk === "pir" ? pk : kinds[e] || (info[e] && info[e].kind) || "pir");
     const badge = (k) => `<b class="kb">${k === "mmwave" ? "mmWave" : "PIR"}</b>`;
     const chips = list.map((e) => { const on = this._st(e) && this._st(e).state === "on"; return `<span class="chip2" style="--c:${on ? "var(--rk-ok)" : "var(--rk-off)"}"><i></i>${esc((info[e] && info[e].name) || this._name(e))} ${badge(kindOf(e))}${editable ? ` <button class="mini x" data-presrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`; }).join("");
     const avail = all.filter((x) => !list.includes(x.id));
+    const addRow = editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "";
+    if (!list.length) {
+      return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
+        this._row("Melder", this._v("keine", true), "Melder hinzufügen – dann kann der Raum bei Anwesenheit wärmer werden"),
+        addRow,
+      ].join(""));
+    }
     const eco = this._roomOpt(r, "room_eco") ?? s.room_eco ?? "auto";
     const after = this._roomOpt(r, "room_eco_after") ?? s.room_eco_after ?? 30;
     const drop = this._roomOpt(r, "room_eco_drop") ?? s.room_eco_drop ?? 1.5;
-    const pk = this._roomOpt(r, "presence_kind") ?? s.presence_kind ?? "auto";
-    const state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? (a.room_eco ? t("leer – abgesenkt") : t("leer")) : t("unbekannt");
     const pt = Number(this._roomOpt(r, "presence_target") || 0);
-    const pd = Number(this._roomOpt(r, "presence_delay_min") || 0);
-    return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
-      list.length ? `<div class="status"><span class="chip" style="--tone:${a.occupied ? "var(--rk-ok)" : "var(--rk-off)"}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon>${state}</span></div>` : "",
-      this._row("Melder", `<div class="chips">${chips || this._v("keine", true)}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
-      list.length ? this._row("Bei Anwesenheit", editable ? this._num(scope, "presence_target", pt) : this._v(pt ? `${pt} °C` : t("aus")),
-        pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")) : "",
-      pt ? this._row("… erst nach", editable ? this._num(scope, "presence_delay_min", pd) : this._v(`${pd} min`), t("Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt")) : "",
-      editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "",
-      list.length ? this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung") : "",
-      list.length ? this._row("Leeren Raum absenken", editable ? this._segs(scope, "room_eco", RK_NIGHT, eco) : this._v(RK_NIGHT[eco]),
-        eco === "auto" ? (s.room_eco_enabled ? "Automatisch: ja (mmWave, passender Raumtyp)" : "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave") : "") : "",
-      list.length && (eco === "on" || (eco === "auto" && s.room_eco_enabled)) ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
-      list.length && (eco === "on" || (eco === "auto" && s.room_eco_enabled)) ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : "",
-    ].join(""));
+    const pd = Number(this._roomOpt(r, "presence_delay_min") ?? 5);
+    const pr = Number(this._roomOpt(r, "presence_release_min") ?? 5);
+    const pir = !!this._roomOpt(r, "presence_pir");
+    const wish = Number(this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature ?? 20);
+    const counting = list.filter((e) => kindOf(e) === "mmwave" || pir);
+    const hasPir = list.some((e) => kindOf(e) === "pir");
+
+    // Zustand: belegt / leer – und was die Anwesenheits-Temperatur gerade macht
+    const since = a.presence_since ? Math.max(0, Math.floor((Date.now() - Date.parse(a.presence_since)) / 60000)) : null;
+    let state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? (a.room_eco ? t("leer – abgesenkt") : t("leer")) : t("unbekannt");
+    let tone = a.occupied ? "var(--rk-ok)" : "var(--rk-off)";
+    if (pt && a.presence_heat) {
+      state = t("heizt auf {t} – jemand im Raum", { t: `${fmt(pt)} °C` });
+      tone = "var(--rk-heat)";
+    } else if (pt && since != null) {
+      state = t("jemand da seit {m} min – ab {d} min {t}", { m: since, d: pd, t: `${fmt(pt)} °C` });
+    }
+    const warn = [];
+    if (pt && !counting.length) warn.push(t("Nur Bewegungsmelder (PIR) gewählt – für die Anwesenheits-Temperatur unten „auch Bewegungsmelder“ einschalten oder einen mmWave-Melder hinzufügen."));
+    if (pt && pt <= wish) warn.push(t("„Bei Anwesenheit“ liegt nicht über der Wunschtemperatur ({w}) – dann ändert sich nichts. Die Wunschtemperatur ist der Wert, wenn niemand im Raum ist.", { w: `${fmt(wish)} °C` }));
+
+    const ptCtl = !editable
+      ? this._v(pt ? `${fmt(pt)} °C` : t("aus"), !pt)
+      : pt
+        ? `<span class="inline">${this._num(scope, "presence_target", pt)} <button class="mini x" data-setopt="${scope}" data-key="presence_target" data-v="0" title="${t("ausschalten")}">${t("aus")}</button></span>`
+        : `<button class="btn" data-setopt="${scope}" data-key="presence_target" data-v="${Math.min(30, wish + 2)}" style="--c:var(--rk-heat)"><ha-icon icon="mdi:account-arrow-up-outline"></ha-icon>${t("Einschalten ({t})", { t: `${fmt(Math.min(30, wish + 2))} °C` })}</button>`;
+    const rows = [
+      `<div class="status"><span class="chip" style="--tone:${tone}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon>${state}</span></div>`,
+      ...warn.map((w) => `<div class="hint warn">${w}</div>`),
+      this._row("Melder", `<div class="chips">${chips}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
+      addRow,
+      this._row("Bei Anwesenheit", ptCtl,
+        pt ? t("so warm, solange jemand im Raum ist – danach wieder die Temperatur von vorher") : t("aus – der Raum heizt nach Wunsch und Zeitplan")),
+      pt ? this._row("… wenn belegt seit", editable ? this._num(scope, "presence_delay_min", pd) : this._v(`${pd} min`), t("so lange muss jemand im Raum sein – kurz Durchgehen zählt nicht (0 = sofort)")) : "",
+      pt ? this._row("… zurück nach", editable ? this._num(scope, "presence_release_min", pr) : this._v(`${pr} min`), t("so lange ohne Belegung, dann gilt wieder die Temperatur von vorher – kurz rausgehen unterbricht nicht")) : "",
+    ];
+    const more = [
+      this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung"),
+      pt && hasPir ? this._row("… auch Bewegungsmelder", editable ? this._optToggle(scope, "presence_pir", pir) : this._v(pir ? t("ja") : t("nein")), t("PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min")) : "",
+      this._row("Leeren Raum absenken", editable ? this._segs(scope, "room_eco", RK_NIGHT, eco) : this._v(RK_NIGHT[eco]),
+        eco === "auto" ? (pt ? t("Automatisch: nein – „Bei Anwesenheit“ ist eingestellt, die Wunschtemperatur ist schon der Wert für den leeren Raum") : s.room_eco_enabled ? "Automatisch: ja (mmWave, passender Raumtyp)" : "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave") : ""),
+      eco === "on" || (eco === "auto" && s.room_eco_enabled) ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
+      eco === "on" || (eco === "auto" && s.room_eco_enabled) ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : "",
+    ];
+    rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
+    return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
   }
 
   _lightGroup(r, id, editable) {
@@ -1969,6 +2008,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       v = Math.min(max, Math.max(min, v));
       apply(el.dataset.opt, { [el.dataset.key]: v });
     }));
+    $("[data-setopt]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.setopt, { [el.dataset.key]: parseFloat(el.dataset.v) })));
     $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
     // Wert antippen und direkt tippen (statt nur +/- zu drücken)
     $(".stepper span").forEach((span) => span.addEventListener("click", () => {

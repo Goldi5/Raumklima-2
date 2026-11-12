@@ -1,3 +1,34 @@
+## Unreleased
+
+Release Candidate: fasst die Beta-Reihe seit 0.62.31 zusammen (Heizquellen, Einstellungen aufgeräumt,
+Regelkette, siehe die Einträge darunter). Wenn hier nichts mehr auftaucht, wird daraus die stabile Version.
+
+### Anwesenheits-Temperatur überarbeitet
+- **So wie man es erwartet:** Melder im Raum, *Bei Anwesenheit* z. B. 21 °C. Ist der Raum **5 min belegt**
+  („… wenn belegt seit“, 0–30 min), wird auf 21 °C geheizt; nach **5 min ohne Belegung** („… zurück nach“,
+  neu) gilt wieder die Temperatur von vorher – Wunsch, Zeitplan oder Absenkung. Kurz rausgehen unterbricht
+  nicht, und die Wartezeit beginnt danach nicht von vorn. Vorher hing das Ende an der festen Nachlaufzeit
+  für „Raum leer“ (3 min mmWave, 20 min PIR).
+- **Nur mmWave-Melder zählen** – ein Bewegungsmelder (PIR) sieht auch Haustiere. Einschaltbar unter
+  *Weitere Einstellungen → … auch Bewegungsmelder*.
+- **„Leeren Raum absenken → Automatisch“ ist mit Anwesenheits-Temperatur aus.** Vorher senkte es nach dem
+  Verlassen zusätzlich 1,5 °C unter den Wunsch – statt zum Wert von vorher zurückzukehren. *Ja* geht weiter.
+- **Einstellungen:** *Einschalten*-Knopf (Wunsch + 2 °C) statt eines Steppers ab 0 °C, *aus*-Knopf daneben.
+  Oben steht, was gerade gilt („jemand da seit 3 min – ab 5 min 21 °C“, „heizt auf 21 °C“). Warnung, wenn
+  der Wert nicht über dem Wunsch liegt (dann ändert sich nichts) oder nur PIR-Melder eingetragen sind.
+- Wartezeit-Standard ist jetzt **5 min** (vorher 0) für Räume, in denen sie nie eingestellt wurde.
+
+### Behoben
+- **„Heizt“, obwohl das Ventil auf 0 % steht** (Bosch über die SHC-Zentrale, Issue #34): Meldet das Gerät
+  Heizen, die Ventilstellung aber unter 5 %, gilt der Raum jetzt als „im Leerlauf“.
+- **Protokoll:** Für Anwesenheit, Zeitplan, Vorheizen, Boost, Homeoffice, Überwachung und Gerät-Auto stand
+  als Grund nur das interne Wort (z. B. „presence“). Jetzt ein lesbarer Satz; ein Test prüft, dass jeder
+  Grund einen hat.
+
+### Intern
+- Release-Ablauf: Versionen mit **rcN** erscheinen als Vorabversion **mit** Handbuch-PDFs (Betas ohne).
+  Vorher wäre ein RC als stabile Version veröffentlicht worden.
+
 ## 0.62.45b1 – 2026-11-12
 
 ### Einstellungen aufgeräumt

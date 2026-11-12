@@ -228,6 +228,17 @@ Comment le configurer :
 
 La carte de pièce affiche alors **« Quelqu’un dans la pièce »** ou **« Pièce vide depuis 25 min »**. Quand quelqu’un entre, elle chauffe immédiatement à nouveau jusqu’à la température souhaitée.
 
+### Plus chaud tant que quelqu’un est dans la pièce
+
+Exemple bureau : personne → 18,5 °C, quelqu’un au bureau → 21 °C.
+
+1. Réglez la **température souhaitée** (Pièce → Température) sur la valeur pour la pièce **vide**, p. ex. 18,5 °C.
+2. Pièce → **Présence → Détecteurs de présence :** ajoutez le capteur, puis sous **En présence** touchez **Activer** et choisissez la température, p. ex. 21 °C.
+3. **… si occupé depuis :** quelqu’un doit être dans la pièce aussi longtemps (5 min par défaut, 0–30). Un simple passage ne compte pas.
+4. **… retour après :** sans occupation pendant ce temps, la température d’avant s’applique de nouveau (5 min par défaut). Une sortie plus courte ne change rien.
+
+Seuls les **capteurs mmWave** comptent – un détecteur de mouvement voit aussi le chat. Sous *Autres réglages*, « … aussi détecteurs de mouvement » peut être activé ; réglez alors « retour après » plutôt sur 20 min. Avec la température de présence, *Abaisser une pièce vide → Automatique* n’abaisse pas en plus – la température souhaitée est déjà la valeur pour la pièce vide. En haut du groupe s’affiche ce qui s’applique : « quelqu’un là depuis 3 min – 21 °C dès 5 min » ou « chauffe à 21 °C ».
+
 :::tip
 Un détecteur dans le salon empêche aussi Raumklima de penser à tort que « tout le monde est absent » – par ex. quand un téléphone est éteint ou qu’un visiteur est seul à la maison. Pendant les vacances, les détecteurs ne comptent pas, pour que le chat ne mette pas fin à vos vacances.
 :::

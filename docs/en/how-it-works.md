@@ -122,6 +122,8 @@ The kind is detected from the device class (`occupancy`/`presence` = mmWave, `mo
 
 **Lower empty room:** if the room has been empty for an adjustable time (default 30 min), it heats by an adjustable amount less (default 1.5 °C) – never below “briefly away” and mould protection. When someone comes in, it goes straight back to the desired temperature. *Automatic* means: only in living room, kitchen and rarely used rooms and only with an mmWave sensor. Bedrooms, children's rooms and bathrooms stay warm unless you turn it on explicitly. Radiators are slow – short absences save little, hence the waiting time.
 
+**When occupied:** with a temperature set there, the room heats as soon as an mmWave sensor has seen it occupied for “… when occupied for” (default 5 min), and returns to the previous value – desired, schedule or setback – after “… back after” (default 5 min) without occupancy. Short gaps do not interrupt. PIR counts only on request. “Lower empty room → Automatic” is then off.
+
 **Light signal:** if a room is empty according to its sensors, its lights don't blink.
 
 ## Priority

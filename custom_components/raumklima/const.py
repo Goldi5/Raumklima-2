@@ -158,6 +158,8 @@ CONF_NIGHT_ENTITY: Final = "night_entity"  # HA-Schalter, der die Nachtruhe scha
 CONF_HOME_OFFICE_ENTITY: Final = "home_office_entity"  # HA-Schalter, der Homeoffice schaltet
 CONF_PRESENCE_TARGET: Final = "presence_target"  # °C, solange jemand im Raum ist (0 = aus)
 CONF_PRESENCE_DELAY: Final = "presence_delay_min"  # Wartezeit, bis die Anwesenheits-Temperatur gilt
+CONF_PRESENCE_RELEASE: Final = "presence_release_min"  # so lange ohne Belegung, dann wieder der Wert von vorher
+CONF_PRESENCE_PIR: Final = "presence_pir"  # Bewegungsmelder (PIR) zählen für die Anwesenheits-Temperatur
 CONF_CALENDAR: Final = "calendar_entity"  # Termine wie „Urlaub“ / „Homeoffice“
 CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
@@ -366,7 +368,9 @@ DEFAULTS: Final = {
     CONF_PRESENCE_TARGET: 0.0,
     CONF_HEAT_SOURCES: [],
     CONF_BOOST_SOURCES: "selected",
-    CONF_PRESENCE_DELAY: 0.0,
+    CONF_PRESENCE_DELAY: 5.0,
+    CONF_PRESENCE_RELEASE: 5.0,
+    CONF_PRESENCE_PIR: False,
     CONF_AIRING_OCCUPIED_ONLY: True,
 }
 

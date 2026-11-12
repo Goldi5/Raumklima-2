@@ -278,14 +278,24 @@ export const HELP = {
     "Thermostats ou climatiseurs qui fonctionnent avec la pièce. Seules les sources choisies dans la plage horaire sont pilotées ; « sans intervention » reste totalement en paix.",
   ],
   "Bei Anwesenheit": [
-    "Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, bei Anwesenheit 21 °C. 0 °C schaltet die Regel aus; danach gilt wieder Zeitplan bzw. Absenkung.",
-    "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",
-    "Température vers laquelle la pièce chauffe tant qu’un capteur de présence voit quelqu’un — p. ex. bureau 19 °C, 21 °C en cas de présence. 0 °C désactive la règle ; la plage horaire ou l’abaissement reprend.",
+    "Temperatur, solange jemand im Raum ist – z. B. Arbeitszimmer: Wunschtemperatur 18,5 °C (niemand da), bei Anwesenheit 21 °C. Ist der Raum „… wenn belegt seit“ belegt, wird geheizt; nach „… zurück nach“ ohne Belegung gilt wieder der Wert von vorher (Wunsch, Zeitplan oder Absenkung). Es zählen nur mmWave-Melder, außer „auch Bewegungsmelder“ ist an. „aus“ schaltet die Regel ab.",
+    "Temperature while someone is in the room – e.g. office: desired 18.5 °C (nobody there), 21 °C when occupied. Once the room has been occupied for “… when occupied for”, it heats; after “… back after” without occupancy the previous value applies again (desired, schedule or setback). Only mmWave sensors count unless “also motion sensors” is on. “off” disables the rule.",
+    "Température tant que quelqu’un est dans la pièce – p. ex. bureau : consigne 18,5 °C (personne), 21 °C en présence. Dès que la pièce est occupée depuis « … si occupé depuis », elle chauffe ; après « … retour après » sans occupation, la valeur d’avant s’applique de nouveau (consigne, programme ou abaissement). Seuls les capteurs mmWave comptent, sauf si « aussi détecteurs de mouvement » est activé. « désactivé » coupe la règle.",
   ],
-  "… erst nach": [
-    "Der Melder muss so viele Minuten jemanden sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Damit beendet kurzes Vorbeigehen nicht sofort die Absenkung.",
-    "The sensor must see someone for this many minutes before the presence temperature applies. 0 = immediately. A short walk-by will not end the setback right away.",
-    "Le capteur doit voir quelqu’un pendant ce nombre de minutes avant que la température de présence s’applique. 0 = immédiat. Un passage bref ne met pas fin tout de suite à l’abaissement.",
+  "… wenn belegt seit": [
+    "So viele Minuten muss der Melder jemanden im Raum sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Standard 5 min – wer nur kurz durchgeht, löst nichts aus.",
+    "The sensor must see someone in the room for this many minutes before the presence temperature applies. 0 = immediately. Default 5 min – walking through briefly triggers nothing.",
+    "Le capteur doit voir quelqu’un dans la pièce pendant ce nombre de minutes avant que la température de présence s’applique. 0 = immédiat. Par défaut 5 min – un simple passage ne déclenche rien.",
+  ],
+  "… zurück nach": [
+    "Sieht der Melder so viele Minuten niemanden mehr, gilt wieder die Temperatur von vorher (Wunsch, Zeitplan oder Absenkung). Wer kürzer rausgeht, kommt in den warmen Raum zurück – die Wartezeit beginnt dann nicht neu. Standard 5 min; mit einem Bewegungsmelder (PIR) eher 20 min.",
+    "Once the sensor has seen nobody for this many minutes, the previous temperature applies again (desired, schedule or setback). Leave for a shorter time and you come back to a warm room – the waiting time does not start over. Default 5 min; with a motion sensor (PIR) rather 20 min.",
+    "Si le capteur ne voit plus personne pendant ce nombre de minutes, la température d’avant s’applique de nouveau (souhaitée, programme ou abaissement). Une sortie plus courte ne change rien – l’attente ne recommence pas. Par défaut 5 min ; avec un détecteur de mouvement (PIR), plutôt 20 min.",
+  ],
+  "… auch Bewegungsmelder": [
+    "Normalerweise zählen für die Anwesenheits-Temperatur nur mmWave-Melder (Radar): Ein Bewegungsmelder (PIR) sieht auch Haustiere und erkennt Stillsitzende nach ein paar Minuten nicht mehr. Einschalten, wenn im Raum nur ein PIR hängt und keine Tiere stören.",
+    "Normally only mmWave (radar) sensors count for the presence temperature: a motion sensor (PIR) also sees pets and stops seeing people who sit still after a few minutes. Turn on if the room only has a PIR and no pets interfere.",
+    "Normalement, seuls les capteurs mmWave (radar) comptent pour la température de présence : un détecteur de mouvement (PIR) voit aussi les animaux et ne voit plus une personne immobile après quelques minutes. À activer si la pièce n’a qu’un PIR et pas d’animaux.",
   ],
   "Homeoffice nur wenn jemand da": [
     "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",

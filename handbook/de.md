@@ -229,6 +229,17 @@ So richtest du es ein:
 
 Die Raumkarte zeigt dann **„Jemand im Raum“** oder **„Raum leer seit 25 min“**. Kommt jemand herein, wird sofort wieder auf die Wunschtemperatur geheizt.
 
+### Wärmer, solange jemand im Raum ist
+
+Beispiel Arbeitszimmer: Niemand drin → 18,5 °C, jemand am Schreibtisch → 21 °C.
+
+1. **Wunschtemperatur** (Raum → Temperatur) auf den Wert für den **leeren** Raum stellen, z. B. 18,5 °C.
+2. Raum → **Anwesenheit → Präsenzmelder:** Melder hinzufügen, dann bei **Bei Anwesenheit** auf **Einschalten** tippen und die Temperatur wählen, z. B. 21 °C.
+3. **… wenn belegt seit:** so lange muss jemand im Raum sein (Standard 5 min, 0–30). Kurz Durchgehen zählt nicht.
+4. **… zurück nach:** so lange ohne Belegung, dann gilt wieder die Temperatur von vorher (Standard 5 min). Wer kürzer rausgeht, kommt in den warmen Raum zurück.
+
+Es zählen nur **mmWave-Melder** – ein Bewegungsmelder sieht auch die Katze. Unter *Weitere Einstellungen* lässt sich „… auch Bewegungsmelder“ einschalten; dann „zurück nach“ eher auf 20 min stellen. Mit der Anwesenheits-Temperatur senkt *Leeren Raum absenken → Automatisch* nicht zusätzlich ab – der Wunsch ist ja schon der Wert für den leeren Raum. Oben in der Gruppe steht, was gerade gilt: „jemand da seit 3 min – ab 5 min 21 °C“ oder „heizt auf 21 °C“.
+
 :::tip
 Ein Melder im Wohnzimmer verhindert auch, dass Raumklima fälschlich „alle weg“ denkt – etwa wenn ein Handy aus ist oder Besuch allein da ist. Im Urlaub zählen die Melder nicht, die Katze beendet also nicht den Urlaub.
 :::

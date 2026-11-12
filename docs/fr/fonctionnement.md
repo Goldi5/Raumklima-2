@@ -122,6 +122,8 @@ Le type est détecté à partir de la classe d'appareil (`occupancy`/`presence` 
 
 **Abaisser une pièce vide :** si la pièce est vide depuis une durée réglable (30 min par défaut), elle chauffe d'une valeur réglable de moins (1,5 °C par défaut) – jamais en dessous de « brève absence » ni de la protection contre les moisissures. Quand quelqu'un entre, elle revient directement à la température souhaitée. *Automatique* signifie : uniquement dans la pièce à vivre, la cuisine et les pièces rarement utilisées, et uniquement avec un détecteur mmWave. Les chambres, les chambres d'enfants et les salles de bain restent chaudes sauf si vous l'activez explicitement. Les radiateurs sont lents – les absences courtes économisent peu, d'où le temps d'attente.
 
+**En présence :** avec une température réglée, la pièce chauffe dès qu’un capteur mmWave la voit occupée depuis « … si occupé depuis » (5 min par défaut), et revient à la valeur d’avant – consigne, programme ou abaissement – après « … retour après » (5 min par défaut) sans occupation. De courtes interruptions ne comptent pas. Le PIR ne compte que sur demande. « Abaisser une pièce vide → Automatique » est alors désactivé.
+
 **Signal lumineux :** si une pièce est vide selon ses détecteurs, ses lumières ne clignotent pas.
 
 ## Priorité

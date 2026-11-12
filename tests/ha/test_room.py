@@ -1610,3 +1610,20 @@ async def test_schonfrist_verschluckt_keinen_echten_handeingriff(
 
     assert ctrl.hvac_on is False, "bei heizendem Raum wird die Meldung übernommen"
     assert ctrl.off_source is not None
+
+
+async def test_geschlossenes_ventil_heizt_nicht(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Gerät meldet „heizt“, das Ventil steht aber auf 0 % (Bosch über SHC, Issue #34) → Leerlauf."""
+    trv.attrs["hvac_action"] = "heating"
+    trv.attrs["valve_position"] = 0
+    trv.push()
+    await hass.async_block_till_done()
+    await advance(hass, 1)
+    assert hass.states.get("climate.bad").attributes.get("hvac_action") == "idle"
+    assert hass.states.get("climate.bad").attributes.get("status") != "heating"
+
+    trv.attrs["valve_position"] = 40
+    trv.push()
+    await hass.async_block_till_done()
+    await advance(hass, 1)
+    assert hass.states.get("climate.bad").attributes.get("hvac_action") == "heating"

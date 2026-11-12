@@ -125,6 +125,8 @@ Die Art wird aus der Geräteklasse erkannt (`occupancy`/`presence` = mmWave, `mo
 
 **Leeren Raum absenken:** Ist der Raum eine einstellbare Zeit leer (Standard 30 min), heizt er um einen einstellbaren Wert weniger (Standard 1,5 °C) – nie unter „kurz weg“ und den Schimmelschutz. Kommt jemand herein, geht es sofort zurück auf den Wunsch. *Automatisch* heißt: nur in Wohnraum, Küche und selten genutzten Räumen und nur mit mmWave-Melder. Schlaf-, Kinderzimmer und Bad bleiben warm, außer du schaltest es ausdrücklich ein. Heizkörper reagieren träge – bei kurzen Abwesenheiten spart das wenig, darum die Wartezeit.
 
+**Bei Anwesenheit:** Mit einer Temperatur dort heizt der Raum, sobald ein mmWave-Melder ihn „… wenn belegt seit“ (Standard 5 min) belegt sieht, und kehrt nach „… zurück nach“ (Standard 5 min) ohne Belegung zum Wert von vorher zurück – Wunsch, Zeitplan oder Absenkung. Kurze Aussetzer unterbrechen nicht. PIR zählt nur auf Wunsch. „Leeren Raum absenken → Automatisch“ ist dann aus.
+
 **Lichtsignal:** Ist ein Raum laut Melder leer, blinken seine Lampen nicht.
 
 ## Vorrang

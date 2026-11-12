@@ -76,6 +76,8 @@ from .const import (
     CONF_PRESENCE,
     CONF_PRESENCE_DELAY,
     CONF_PRESENCE_KIND,
+    CONF_PRESENCE_PIR,
+    CONF_PRESENCE_RELEASE,
     CONF_PRESENCE_TARGET,
     CONF_QUIET_MODE,
     CONF_QUIET_SETBACK,
@@ -284,6 +286,8 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_PREHEAT_LEAD): vol.All(vol.Coerce(int), vol.Range(0, 360)),
         vol.Optional(CONF_PRESENCE_TARGET): vol.All(vol.Coerce(float), vol.Range(0, 30)),
         vol.Optional(CONF_PRESENCE_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 120)),
+        vol.Optional(CONF_PRESENCE_RELEASE): vol.All(vol.Coerce(float), vol.Range(1, 120)),
+        vol.Optional(CONF_PRESENCE_PIR): bool,
         vol.Optional(CONF_HEAT_SOURCES): vol.All(
             [
                 vol.Schema(

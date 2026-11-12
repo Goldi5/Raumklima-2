@@ -244,3 +244,51 @@ async def test_anwesenheit_erst_nach_wartezeit(hass: HomeAssistant, trv: FakeTrv
     assert reason == "presence"
     assert target == 21.0
     assert trv.setpoint == 21.0
+
+
+async def test_anwesenheit_ablauf_wie_gewuenscht(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Melder im Raum, 21 °C bei Anwesenheit: nach 5 min belegt heizen, nach 5 min ohne Belegung zurück."""
+    _radar(hass, False)
+    _hub, room = await _setup(hass, room_type="office", presence_sensors=[RADAR], presence_target=21.0)
+    c = room.runtime_data
+    c.target_temp = 18.5
+    await _later(hass, freezer, 1)
+    assert trv.setpoint == 18.5
+    assert c.room_eco_enabled() is False, "mit Anwesenheits-Temperatur senkt „Automatisch“ nicht zusätzlich ab"
+
+    _radar(hass, True)
+    await hass.async_block_till_done()
+    await _later(hass, freezer, 4)
+    assert c.plan()[2] != "presence", "erst nach 5 min (Standard)"
+    await _later(hass, freezer, 2)
+    assert c.plan()[1:] == (21.0, "presence")
+    assert trv.setpoint == 21.0
+    assert hass.states.get("climate.bad").attributes["presence_heat"] is True
+
+    _radar(hass, False)  # Raum verlassen
+    await hass.async_block_till_done()
+    await _later(hass, freezer, 4)
+    assert trv.setpoint == 21.0, "kurz raus: bleibt"
+    _radar(hass, True)  # wieder da, bevor 5 min um sind
+    await hass.async_block_till_done()
+    assert c.plan()[1:] == (21.0, "presence"), "kein neues Warten nach kurzer Pause"
+
+    _radar(hass, False)
+    await hass.async_block_till_done()
+    await _later(hass, freezer, 6)
+    assert c.plan()[1:] == (18.5, "normal"), "nach 5 min ohne Belegung wieder der Wert von vorher"
+    assert trv.setpoint == 18.5
+
+
+async def test_anwesenheit_pir_nur_wenn_gewaehlt(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Ein Bewegungsmelder (auch ein Haustier) heizt nicht hoch – außer „auch PIR“ ist an."""
+    _pir(hass, True)
+    _hub, room = await _setup(hass, room_type="office", presence_sensors=[PIR], presence_target=21.0, presence_delay_min=0)
+    c = room.runtime_data
+    c.target_temp = 18.5
+    await _later(hass, freezer, 1)
+    assert c.plan()[2] != "presence"
+
+    c.apply_live_options({"presence_pir": True})
+    await hass.async_block_till_done()
+    assert c.plan()[1:] == (21.0, "presence")

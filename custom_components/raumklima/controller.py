@@ -81,6 +81,8 @@ from .const import (
     CONF_PRESENCE_DELAY,
     CONF_PRESENCE_KIND,
     CONF_PRESENCE_OFF,
+    CONF_PRESENCE_PIR,
+    CONF_PRESENCE_RELEASE,
     CONF_PRESENCE_TARGET,
     CONF_QUIET_MODE,
     CONF_QUIET_SETBACK,
@@ -772,7 +774,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                     tr("Wunschtemperatur übernommen"),
                     tr("neuer Sollwert {t} aus den Einstellungen", t=fmt_temp(new_wish)),
                 )
-        if changed.keys() & {CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP}:
+        if changed.keys() & {
+            CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP,
+            CONF_PRESENCE_TARGET, CONF_PRESENCE_DELAY, CONF_PRESENCE_RELEASE, CONF_PRESENCE_PIR,
+        }:
             self.track_presence()
             self.update_presence()
         if self.virtual_open_at is not None and not self.virtual_enabled():
@@ -1222,30 +1227,6 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self._save()
         self.check_moisture_source(now)
 
-    @property
-    def presence_target(self) -> float:
-        """Temperatur, solange ein Melder jemanden im Raum sieht (0 = aus)."""
-        try:
-            return float(self.config.get(CONF_PRESENCE_TARGET) or 0.0)
-        except (TypeError, ValueError):
-            return 0.0
-
-    @property
-    def presence_delay_min(self) -> float:
-        """Wartezeit, bis die Anwesenheits-Temperatur gilt (0 = sofort)."""
-        try:
-            return float(self.config.get(CONF_PRESENCE_DELAY) or 0.0)
-        except (TypeError, ValueError):
-            return 0.0
-
-    def _presence_ready(self, now: datetime) -> bool:
-        """Ist die Anwesenheits-Temperatur nach der Wartezeit freigegeben?"""
-        delay = self.presence_delay_min
-        if delay <= 0:
-            return True
-        since = self.occupied_since
-        return since is not None and (now - since) >= timedelta(minutes=delay)
-
     def _preheat_allowed(self, start: datetime, now: datetime) -> bool:
         """Darf jetzt vorgeheizt werden? (Issue #10: nicht mitten in der Nacht)
 
@@ -1357,12 +1338,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
     def _rule_presence(self, ctx: _PlanContext) -> PlanResult:
         """Jemand im Raum: auf die Anwesenheits-Temperatur heizen (z. B. Arbeitszimmer 19 → 21)."""
-        if (
-            self.presence_target > 0
-            and self.occupied is True
-            and not ctx.hub.vacation
-            and self._presence_ready(ctx.now)
-        ):
+        if self.presence_heat_active and not ctx.hub.vacation:
             return True, min(self.presence_target, self.trv_max), REASON_PRESENCE
         return None
 
@@ -1532,12 +1508,22 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         if not self.hvac_on or self.paused or not self.peek_plan()[0]:
             return HVACAction.OFF
         action = self._trv_attr("hvac_action")
+        # Die gemeldete Ventilstellung ist das direkteste Signal. Manche Geräte (z. B. Bosch über
+        # die SHC-Zentrale) melden „heizt“, solange der Modus Heizen ist – auch bei geschlossenem
+        # Ventil (Issue #34). Steht das Ventil nachweislich zu, heizt der Raum nicht.
+        valve = self.valve_position
+        if valve is None:
+            valve = self._trv_attr("valve_position")
+        try:
+            if valve is not None and float(valve) < VALVE_HEATING_MIN:
+                return HVACAction.IDLE
+        except (TypeError, ValueError):
+            pass
         if action == HVACAction.HEATING or self._trv_attr("running_state") == "heat":
             return HVACAction.HEATING
         # Manche Geräte (z. B. Homematic IP) lassen hvac_action auf "idle", obwohl das Ventil regelt.
         # Dann entscheidet die Ventilstellung – zusammen mit Soll/Ist, damit "offen, aber Ziel erreicht"
         # nicht als Heizen gilt.
-        valve = self._trv_attr("valve_position")
         try:
             valve_open = valve is not None and float(valve) >= VALVE_HEATING_MIN
         except (TypeError, ValueError):
@@ -2248,6 +2234,16 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 "Raum seit {m} min leer (Präsenzmelder) – {d} weniger (Wunsch {t})",
                 m=f"{self.room_eco_after:.0f}", d=fmt_temp(self.room_eco_drop), t=fmt_temp(self.target_temp),
             ),
+            REASON_PRESENCE: tr(
+                "jemand im Raum (Präsenzmelder) – {t}, zurück nach {m} min ohne Belegung",
+                t=fmt_temp(self.presence_target), m=f"{self.presence_release_min:.0f}",
+            ),
+            REASON_SCHEDULE: tr("Zeitplan – {t}", t=fmt_temp(target)),
+            REASON_SCHEDULE_PREHEAT: tr("Vorheizen für das nächste Zeitfenster – {t}", t=fmt_temp(target)),
+            REASON_BOOST: tr("Boost – {t}", t=fmt_temp(target)),
+            REASON_HOME_OFFICE: tr("Homeoffice – Wunschtemperatur {t}", t=fmt_temp(target)),
+            REASON_MONITOR: tr("nur Messen, kein Thermostat"),
+            REASON_DEVICE_AUTO: tr("Gerät im Auto-Modus – fährt sein eigenes Programm"),
             REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
             REASON_SLEEP: tr("Ruhezeit – Schlafraum abgesenkt auf {t}", t=fmt_temp(self.setback_long)),
             REASON_SCHEDULE_FALLBACK: tr(

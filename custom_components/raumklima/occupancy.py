@@ -27,6 +27,8 @@ HOLD = {KIND_MMWAVE: timedelta(minutes=3), KIND_PIR: timedelta(minutes=20)}
 HOME_RECENT = {KIND_MMWAVE: timedelta(minutes=5), KIND_PIR: timedelta(minutes=15)}
 
 ROOM_ECO_AFTER = 30.0  # min leer, bevor abgesenkt wird
+PRESENCE_DELAY = 5.0  # min belegt, bevor die Anwesenheits-Temperatur gilt
+PRESENCE_RELEASE = 5.0  # min ohne Belegung, bevor wieder der Wert von vorher gilt
 ROOM_ECO_DROP = 1.5  # °C
 # Bei „Automatisch“ nur in diesen Raumtypen – und nur mit mmWave-Melder
 ROOM_ECO_AUTO_TYPES = ("living", "kitchen", "office", "guest", "hallway", "gym", "rarely_used")
@@ -107,3 +109,48 @@ def room_eco_enabled(mode: str | None, room_type: str | None, kinds: Iterable[st
 def room_eco_target(target: float, drop: float, floor: float) -> float:
     """Zieltemperatur für den leeren Raum: Wunsch minus Absenkung, nie unter die Untergrenze."""
     return max(target - drop, min(floor, target))
+
+
+def presence_heat(
+    readings: Iterable[Reading],
+    now: datetime,
+    since: datetime | None,
+    delay: timedelta,
+    release: timedelta,
+    kinds: tuple[str, ...] = (KIND_MMWAVE,),
+) -> tuple[bool, datetime | None, datetime | None]:
+    """Anwesenheits-Temperatur: (gilt?, belegt seit, nächster Prüfzeitpunkt).
+
+    Gilt, sobald ein Melder der gewählten Arten **länger als ``delay``** ununterbrochen jemanden
+    sieht, und endet erst, wenn **``release`` lang niemand** mehr gesehen wurde. Kurze Aussetzer
+    (jemand holt Kaffee, der Radar blinzelt) unterbrechen also nicht. Unabhängig von der Nachlaufzeit
+    für „Raum leer" – die beiden Zeiten stellt man getrennt ein.
+
+    PIR zählt standardmäßig nicht: ein Bewegungsmelder sieht auch Haustiere und nach ein paar
+    Minuten Stillsitzen niemanden mehr. ``since`` ist der gemerkte Beginn der Belegung
+    (``None`` = gerade keine).
+    """
+    mine = [r for r in readings if r.kind in kinds]
+    usable = [r for r in mine if r.on is not None]
+    if not usable:
+        # Melder gerade nicht erreichbar (Neustart, Funkpause): Zustand höchstens ``release`` halten
+        if since is None or not mine:
+            return False, None, None
+        gone = max(r.changed for r in mine)
+        if now - gone >= release:
+            return False, None, None
+        return now - since >= delay, since, gone + release
+    if any(r.on for r in usable):
+        if since is None:
+            since = min(r.changed for r in usable if r.on)
+            since = min(since, now)
+    else:
+        last = max(r.changed for r in usable)
+        if since is None or now - last >= release:
+            return False, None, None
+    active = now - since >= delay
+    if not active:
+        return False, since, since + delay
+    if any(r.on for r in usable):
+        return True, since, None
+    return True, since, max(r.changed for r in usable) + release

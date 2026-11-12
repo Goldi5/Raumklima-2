@@ -7,6 +7,7 @@ from custom_components.raumklima.occupancy import (
     KIND_PIR,
     Reading,
     occupancy,
+    presence_heat,
     recently_seen,
     room_eco_enabled,
     room_eco_target,
@@ -67,3 +68,50 @@ def test_room_eco_target_floor():
     assert room_eco_target(21.0, 1.5, 18.0) == 19.5
     assert room_eco_target(19.0, 1.5, 18.5) == 18.5
     assert room_eco_target(17.0, 1.5, 18.0) == 17.0  # nie über den Wunsch
+
+
+# ---------------------------------------------------------------- Anwesenheits-Temperatur
+
+D, R = timedelta(minutes=5), timedelta(minutes=5)
+
+
+def test_anwesenheit_erst_nach_wartezeit_dann_bis_freigabe():
+    now = ago(0)
+    on = [Reading(KIND_MMWAVE, True, ago(3))]
+    active, since, wake = presence_heat(on, now, None, D, R)
+    assert not active and since == ago(3) and wake == ago(3) + D  # erst 3 min da
+    active, since, wake = presence_heat(on, ago(-3), since, D, R)
+    assert active and wake is None  # 6 min da: gilt
+    off = [Reading(KIND_MMWAVE, False, ago(-4))]
+    active, since2, wake = presence_heat(off, ago(-6), since, D, R)
+    assert active and since2 == since and wake == ago(-4) + R  # 2 min leer: gilt weiter
+    active, since3, wake = presence_heat(off, ago(-9), since, D, R)
+    assert not active and since3 is None  # 5 min leer: vorbei
+
+
+def test_kurzer_aussetzer_unterbricht_nicht():
+    since = ago(20)
+    flicker = [Reading(KIND_MMWAVE, False, ago(1))]
+    assert presence_heat(flicker, ago(0), since, D, R)[0] is True
+    back = [Reading(KIND_MMWAVE, True, ago(0))]
+    active, s, _w = presence_heat(back, ago(0), since, D, R)
+    assert active and s == since
+
+
+def test_pir_zaehlt_nur_wenn_gewaehlt():
+    pir = [Reading(KIND_PIR, True, ago(30))]
+    assert presence_heat(pir, ago(0), None, D, R) == (False, None, None)
+    assert presence_heat(pir, ago(0), None, D, R, kinds=(KIND_MMWAVE, KIND_PIR))[0] is True
+
+
+def test_melder_kurz_weg_haelt_hoechstens_freigabezeit():
+    since = ago(30)
+    gone = [Reading(KIND_MMWAVE, None, ago(2))]
+    active, s, wake = presence_heat(gone, ago(0), since, D, R)
+    assert active and s == since and wake == ago(2) + R
+    assert presence_heat([Reading(KIND_MMWAVE, None, ago(6))], ago(0), since, D, R) == (False, None, None)
+
+
+def test_sofort_bei_wartezeit_null():
+    on = [Reading(KIND_MMWAVE, True, ago(0))]
+    assert presence_heat(on, ago(0), None, timedelta(0), R)[0] is True

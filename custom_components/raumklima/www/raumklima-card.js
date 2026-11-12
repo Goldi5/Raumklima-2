@@ -972,7 +972,24 @@
     "Technik": "Technical",
     "vom Standard abweichend": "differs from default",
     "Profi-Ansicht": "Expert view",
-    "Alle selten gebrauchten Einstellungen dauerhaft aufklappen": "Keep all rarely used settings expanded"
+    "Alle selten gebrauchten Einstellungen dauerhaft aufklappen": "Keep all rarely used settings expanded",
+    "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung": "Automatic: motion = PIR, presence/occupancy = mmWave. For “room empty”: 3 min (mmWave) or 20 min (PIR) without a report",
+    "Automatisch: nein – „Bei Anwesenheit“ ist eingestellt, die Wunschtemperatur ist schon der Wert für den leeren Raum": "Automatic: no – “When occupied” is set, the desired temperature already is the value for the empty room",
+    "Einschalten ({t})": "Turn on ({t})",
+    "Melder hinzufügen – dann kann der Raum bei Anwesenheit wärmer werden": "Add a sensor – then the room can get warmer while someone is in it",
+    "Nur Bewegungsmelder (PIR) gewählt – für die Anwesenheits-Temperatur unten „auch Bewegungsmelder“ einschalten oder einen mmWave-Melder hinzufügen.": "Only motion sensors (PIR) selected – for the presence temperature turn on “also motion sensors” below or add an mmWave sensor.",
+    "PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min": "PIR also sees pets and nobody after a few minutes of sitting still – then set “back after” to about 20 min",
+    "aus – der Raum heizt nach Wunsch und Zeitplan": "off – the room heats by desired temperature and schedule",
+    "ausschalten": "turn off",
+    "heizt auf {t} – jemand im Raum": "heating to {t} – someone in the room",
+    "jemand da seit {m} min – ab {d} min {t}": "someone there for {m} min – {t} from {d} min",
+    "so lange muss jemand im Raum sein – kurz Durchgehen zählt nicht (0 = sofort)": "someone must be in the room this long – walking through does not count (0 = immediately)",
+    "so lange ohne Belegung, dann gilt wieder die Temperatur von vorher – kurz rausgehen unterbricht nicht": "this long without occupancy, then the previous temperature applies again – stepping out briefly does not interrupt",
+    "so warm, solange jemand im Raum ist – danach wieder die Temperatur von vorher": "this warm while someone is in the room – then the previous temperature again",
+    "„Bei Anwesenheit“ liegt nicht über der Wunschtemperatur ({w}) – dann ändert sich nichts. Die Wunschtemperatur ist der Wert, wenn niemand im Raum ist.": "“When occupied” is not above the desired temperature ({w}) – then nothing changes. The desired temperature is the value when nobody is in the room.",
+    "… auch Bewegungsmelder": "… also motion sensors",
+    "… wenn belegt seit": "… when occupied for",
+    "… zurück nach": "… back after"
   };
 
   // src/i18n/fr.js
@@ -1947,7 +1964,24 @@
     "Technik": "Technique",
     "vom Standard abweichend": "différent de la valeur par défaut",
     "Profi-Ansicht": "Vue expert",
-    "Alle selten gebrauchten Einstellungen dauerhaft aufklappen": "Garder dépliés tous les réglages rarement utilisés"
+    "Alle selten gebrauchten Einstellungen dauerhaft aufklappen": "Garder dépliés tous les réglages rarement utilisés",
+    "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung": "Automatique : mouvement = PIR, présence/occupation = mmWave. Pour « pièce vide » : 3 min (mmWave) ou 20 min (PIR) sans signal",
+    "Automatisch: nein – „Bei Anwesenheit“ ist eingestellt, die Wunschtemperatur ist schon der Wert für den leeren Raum": "Automatique : non – « En présence » est réglé, la température souhaitée est déjà la valeur pour la pièce vide",
+    "Einschalten ({t})": "Activer ({t})",
+    "Melder hinzufügen – dann kann der Raum bei Anwesenheit wärmer werden": "Ajouter un capteur – la pièce peut alors chauffer davantage quand quelqu’un s’y trouve",
+    "Nur Bewegungsmelder (PIR) gewählt – für die Anwesenheits-Temperatur unten „auch Bewegungsmelder“ einschalten oder einen mmWave-Melder hinzufügen.": "Seuls des détecteurs de mouvement (PIR) sont choisis – pour la température de présence, activez « aussi détecteurs de mouvement » ci-dessous ou ajoutez un capteur mmWave.",
+    "PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min": "Un PIR voit aussi les animaux et plus personne après quelques minutes d’immobilité – réglez alors « retour après » plutôt sur 20 min",
+    "aus – der Raum heizt nach Wunsch und Zeitplan": "désactivé – la pièce chauffe selon la consigne et le programme",
+    "ausschalten": "désactiver",
+    "heizt auf {t} – jemand im Raum": "chauffe à {t} – quelqu’un dans la pièce",
+    "jemand da seit {m} min – ab {d} min {t}": "quelqu’un là depuis {m} min – {t} dès {d} min",
+    "so lange muss jemand im Raum sein – kurz Durchgehen zählt nicht (0 = sofort)": "quelqu’un doit être dans la pièce aussi longtemps – un simple passage ne compte pas (0 = immédiat)",
+    "so lange ohne Belegung, dann gilt wieder die Temperatur von vorher – kurz rausgehen unterbricht nicht": "sans occupation pendant ce temps, la température d’avant s’applique de nouveau – sortir brièvement n’interrompt pas",
+    "so warm, solange jemand im Raum ist – danach wieder die Temperatur von vorher": "cette température tant que quelqu’un est dans la pièce – ensuite celle d’avant",
+    "„Bei Anwesenheit“ liegt nicht über der Wunschtemperatur ({w}) – dann ändert sich nichts. Die Wunschtemperatur ist der Wert, wenn niemand im Raum ist.": "« En présence » n’est pas au-dessus de la température souhaitée ({w}) – rien ne change alors. La température souhaitée est la valeur quand personne n’est dans la pièce.",
+    "… auch Bewegungsmelder": "… aussi détecteurs de mouvement",
+    "… wenn belegt seit": "… si occupé depuis",
+    "… zurück nach": "… retour après"
   };
 
   // src/i18n.js
@@ -2713,7 +2747,7 @@
   .mstep > b { flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:.75rem; }
   .mstep.ok { background: color-mix(in srgb, var(--rk-ok) 10%, transparent); } .mstep.ok > b { background: var(--rk-ok); }
   .mstep.bad { background: color-mix(in srgb, var(--rk-cold, #e5484d) 10%, transparent); } .mstep.bad > b { background: var(--rk-cold, #e5484d); }
-  .hint.okmsg { color: var(--rk-ok); font-weight:600; } .hint.errmsg { color: var(--rk-cold, #e5484d); font-weight:600; }
+  .hint.warn { color: var(--rk-warn); font-weight:600; } .hint.okmsg { color: var(--rk-ok); font-weight:600; } .hint.errmsg { color: var(--rk-cold, #e5484d); font-weight:600; }
   .helpbox { margin:-4px 0 10px; padding:10px 12px; border-radius:12px; font-size:.88rem; line-height:1.45; color: var(--primary-text-color);
     background: color-mix(in srgb, var(--g, var(--rk-air)) 10%, var(--card-background-color, #fff)); border-left:3px solid var(--g, var(--rk-air)); }
   .row .l small { display:block; color:var(--secondary-text-color); font-size:.84rem; margin-top:1px; }
@@ -4161,14 +4195,24 @@
       "Thermostats ou climatiseurs qui fonctionnent avec la pièce. Seules les sources choisies dans la plage horaire sont pilotées ; « sans intervention » reste totalement en paix."
     ],
     "Bei Anwesenheit": [
-      "Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, bei Anwesenheit 21 °C. 0 °C schaltet die Regel aus; danach gilt wieder Zeitplan bzw. Absenkung.",
-      "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",
-      "Température vers laquelle la pièce chauffe tant qu’un capteur de présence voit quelqu’un — p. ex. bureau 19 °C, 21 °C en cas de présence. 0 °C désactive la règle ; la plage horaire ou l’abaissement reprend."
+      "Temperatur, solange jemand im Raum ist – z. B. Arbeitszimmer: Wunschtemperatur 18,5 °C (niemand da), bei Anwesenheit 21 °C. Ist der Raum „… wenn belegt seit“ belegt, wird geheizt; nach „… zurück nach“ ohne Belegung gilt wieder der Wert von vorher (Wunsch, Zeitplan oder Absenkung). Es zählen nur mmWave-Melder, außer „auch Bewegungsmelder“ ist an. „aus“ schaltet die Regel ab.",
+      "Temperature while someone is in the room – e.g. office: desired 18.5 °C (nobody there), 21 °C when occupied. Once the room has been occupied for “… when occupied for”, it heats; after “… back after” without occupancy the previous value applies again (desired, schedule or setback). Only mmWave sensors count unless “also motion sensors” is on. “off” disables the rule.",
+      "Température tant que quelqu’un est dans la pièce – p. ex. bureau : consigne 18,5 °C (personne), 21 °C en présence. Dès que la pièce est occupée depuis « … si occupé depuis », elle chauffe ; après « … retour après » sans occupation, la valeur d’avant s’applique de nouveau (consigne, programme ou abaissement). Seuls les capteurs mmWave comptent, sauf si « aussi détecteurs de mouvement » est activé. « désactivé » coupe la règle."
     ],
-    "… erst nach": [
-      "Der Melder muss so viele Minuten jemanden sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Damit beendet kurzes Vorbeigehen nicht sofort die Absenkung.",
-      "The sensor must see someone for this many minutes before the presence temperature applies. 0 = immediately. A short walk-by will not end the setback right away.",
-      "Le capteur doit voir quelqu’un pendant ce nombre de minutes avant que la température de présence s’applique. 0 = immédiat. Un passage bref ne met pas fin tout de suite à l’abaissement."
+    "… wenn belegt seit": [
+      "So viele Minuten muss der Melder jemanden im Raum sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Standard 5 min – wer nur kurz durchgeht, löst nichts aus.",
+      "The sensor must see someone in the room for this many minutes before the presence temperature applies. 0 = immediately. Default 5 min – walking through briefly triggers nothing.",
+      "Le capteur doit voir quelqu’un dans la pièce pendant ce nombre de minutes avant que la température de présence s’applique. 0 = immédiat. Par défaut 5 min – un simple passage ne déclenche rien."
+    ],
+    "… zurück nach": [
+      "Sieht der Melder so viele Minuten niemanden mehr, gilt wieder die Temperatur von vorher (Wunsch, Zeitplan oder Absenkung). Wer kürzer rausgeht, kommt in den warmen Raum zurück – die Wartezeit beginnt dann nicht neu. Standard 5 min; mit einem Bewegungsmelder (PIR) eher 20 min.",
+      "Once the sensor has seen nobody for this many minutes, the previous temperature applies again (desired, schedule or setback). Leave for a shorter time and you come back to a warm room – the waiting time does not start over. Default 5 min; with a motion sensor (PIR) rather 20 min.",
+      "Si le capteur ne voit plus personne pendant ce nombre de minutes, la température d’avant s’applique de nouveau (souhaitée, programme ou abaissement). Une sortie plus courte ne change rien – l’attente ne recommence pas. Par défaut 5 min ; avec un détecteur de mouvement (PIR), plutôt 20 min."
+    ],
+    "… auch Bewegungsmelder": [
+      "Normalerweise zählen für die Anwesenheits-Temperatur nur mmWave-Melder (Radar): Ein Bewegungsmelder (PIR) sieht auch Haustiere und erkennt Stillsitzende nach ein paar Minuten nicht mehr. Einschalten, wenn im Raum nur ein PIR hängt und keine Tiere stören.",
+      "Normally only mmWave (radar) sensors count for the presence temperature: a motion sensor (PIR) also sees pets and stops seeing people who sit still after a few minutes. Turn on if the room only has a PIR and no pets interfere.",
+      "Normalement, seuls les capteurs mmWave (radar) comptent pour la température de présence : un détecteur de mouvement (PIR) voit aussi les animaux et ne voit plus une personne immobile après quelques minutes. À activer si la pièce n’a qu’un PIR et pas d’animaux."
     ],
     "Homeoffice nur wenn jemand da": [
       "Aus dem Kalender gilt Homeoffice nur, wenn die Ortung jemanden zu Hause sieht — ein Termin allein reicht nicht, man kann ja im Büro sitzen. Der Schalter „Homeoffice“ wird bewusst gedrückt und heizt auch ohne Ortung. Ausschalten, wenn der Kalender allein entscheiden soll.",
@@ -4455,8 +4499,9 @@
     mold_cap: { unit: " K", step: 0.5, min: 0, max: 6, dec: 1 },
     window_open_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
     window_close_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
-    presence_target: { unit: " °C", step: 0.5, min: 0, max: 30, dec: 1 },
-    presence_delay_min: { unit: " min", step: 1, min: 0, max: 120, dec: 0 },
+    presence_target: { unit: " °C", step: 0.5, min: 5, max: 30, dec: 1 },
+    presence_delay_min: { unit: " min", step: 1, min: 0, max: 30, dec: 0 },
+    presence_release_min: { unit: " min", step: 1, min: 1, max: 30, dec: 0 },
     room_eco_after: { unit: " min", step: 5, min: 5, max: 240, dec: 0 },
     room_eco_drop: { unit: " °C", step: 0.5, min: 0.5, max: 4, dec: 1 }
   };
@@ -4503,6 +4548,11 @@
     report_metric: "auto",
     storm_gust_kmh: 70,
     storm_rain_mm: 8,
+    presence_delay_min: 5,
+    presence_release_min: 5,
+    presence_pir: false,
+    presence_kind: "auto",
+    room_eco: "auto",
     solar_gain: false,
     presence_off: false,
     learn_shift: false,
@@ -5940,39 +5990,70 @@
       const list = this._roomOpt(r, "presence_sensors") ?? Object.keys(kinds);
       const all = this._cfg && this._cfg.choices && this._cfg.choices.presence || [];
       const info = Object.fromEntries(all.map((x) => [x.id, x]));
-      const kindOf = (e) => kinds[e] || info[e] && info[e].kind || "pir";
+      const pk = this._roomOpt(r, "presence_kind") ?? s.presence_kind ?? "auto";
+      const kindOf = (e) => pk === "mmwave" || pk === "pir" ? pk : kinds[e] || info[e] && info[e].kind || "pir";
       const badge = (k) => `<b class="kb">${k === "mmwave" ? "mmWave" : "PIR"}</b>`;
       const chips = list.map((e) => {
         const on = this._st(e) && this._st(e).state === "on";
         return `<span class="chip2" style="--c:${on ? "var(--rk-ok)" : "var(--rk-off)"}"><i></i>${esc(info[e] && info[e].name || this._name(e))} ${badge(kindOf(e))}${editable ? ` <button class="mini x" data-presrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`;
       }).join("");
       const avail = all.filter((x) => !list.includes(x.id));
+      const addRow = editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "";
+      if (!list.length) {
+        return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
+          this._row("Melder", this._v("keine", true), "Melder hinzufügen – dann kann der Raum bei Anwesenheit wärmer werden"),
+          addRow
+        ].join(""));
+      }
       const eco = this._roomOpt(r, "room_eco") ?? s.room_eco ?? "auto";
       const after = this._roomOpt(r, "room_eco_after") ?? s.room_eco_after ?? 30;
       const drop = this._roomOpt(r, "room_eco_drop") ?? s.room_eco_drop ?? 1.5;
-      const pk = this._roomOpt(r, "presence_kind") ?? s.presence_kind ?? "auto";
-      const state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt");
       const pt = Number(this._roomOpt(r, "presence_target") || 0);
-      const pd = Number(this._roomOpt(r, "presence_delay_min") || 0);
-      return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
-        list.length ? `<div class="status"><span class="chip" style="--tone:${a.occupied ? "var(--rk-ok)" : "var(--rk-off)"}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon>${state}</span></div>` : "",
-        this._row("Melder", `<div class="chips">${chips || this._v("keine", true)}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
-        list.length ? this._row(
+      const pd = Number(this._roomOpt(r, "presence_delay_min") ?? 5);
+      const pr = Number(this._roomOpt(r, "presence_release_min") ?? 5);
+      const pir = !!this._roomOpt(r, "presence_pir");
+      const wish = Number(this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature ?? 20);
+      const counting = list.filter((e) => kindOf(e) === "mmwave" || pir);
+      const hasPir = list.some((e) => kindOf(e) === "pir");
+      const since = a.presence_since ? Math.max(0, Math.floor((Date.now() - Date.parse(a.presence_since)) / 6e4)) : null;
+      let state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt");
+      let tone = a.occupied ? "var(--rk-ok)" : "var(--rk-off)";
+      if (pt && a.presence_heat) {
+        state = t("heizt auf {t} – jemand im Raum", { t: `${fmt(pt)} °C` });
+        tone = "var(--rk-heat)";
+      } else if (pt && since != null) {
+        state = t("jemand da seit {m} min – ab {d} min {t}", { m: since, d: pd, t: `${fmt(pt)} °C` });
+      }
+      const warn = [];
+      if (pt && !counting.length) warn.push(t("Nur Bewegungsmelder (PIR) gewählt – für die Anwesenheits-Temperatur unten „auch Bewegungsmelder“ einschalten oder einen mmWave-Melder hinzufügen."));
+      if (pt && pt <= wish) warn.push(t("„Bei Anwesenheit“ liegt nicht über der Wunschtemperatur ({w}) – dann ändert sich nichts. Die Wunschtemperatur ist der Wert, wenn niemand im Raum ist.", { w: `${fmt(wish)} °C` }));
+      const ptCtl = !editable ? this._v(pt ? `${fmt(pt)} °C` : t("aus"), !pt) : pt ? `<span class="inline">${this._num(scope, "presence_target", pt)} <button class="mini x" data-setopt="${scope}" data-key="presence_target" data-v="0" title="${t("ausschalten")}">${t("aus")}</button></span>` : `<button class="btn" data-setopt="${scope}" data-key="presence_target" data-v="${Math.min(30, wish + 2)}" style="--c:var(--rk-heat)"><ha-icon icon="mdi:account-arrow-up-outline"></ha-icon>${t("Einschalten ({t})", { t: `${fmt(Math.min(30, wish + 2))} °C` })}</button>`;
+      const rows = [
+        `<div class="status"><span class="chip" style="--tone:${tone}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon>${state}</span></div>`,
+        ...warn.map((w) => `<div class="hint warn">${w}</div>`),
+        this._row("Melder", `<div class="chips">${chips}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
+        addRow,
+        this._row(
           "Bei Anwesenheit",
-          editable ? this._num(scope, "presence_target", pt) : this._v(pt ? `${pt} °C` : t("aus")),
-          pt ? t("so warm, solange ein Melder jemanden im Raum sieht") : t("0 °C = aus; sonst gilt der Zeitplan")
-        ) : "",
-        pt ? this._row("… erst nach", editable ? this._num(scope, "presence_delay_min", pd) : this._v(`${pd} min`), t("Melder muss so lange jemanden sehen, bevor die Anwesenheits-Temperatur gilt")) : "",
-        editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "",
-        list.length ? this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Leer nach 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung") : "",
-        list.length ? this._row(
+          ptCtl,
+          pt ? t("so warm, solange jemand im Raum ist – danach wieder die Temperatur von vorher") : t("aus – der Raum heizt nach Wunsch und Zeitplan")
+        ),
+        pt ? this._row("… wenn belegt seit", editable ? this._num(scope, "presence_delay_min", pd) : this._v(`${pd} min`), t("so lange muss jemand im Raum sein – kurz Durchgehen zählt nicht (0 = sofort)")) : "",
+        pt ? this._row("… zurück nach", editable ? this._num(scope, "presence_release_min", pr) : this._v(`${pr} min`), t("so lange ohne Belegung, dann gilt wieder die Temperatur von vorher – kurz rausgehen unterbricht nicht")) : ""
+      ];
+      const more = [
+        this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung"),
+        pt && hasPir ? this._row("… auch Bewegungsmelder", editable ? this._optToggle(scope, "presence_pir", pir) : this._v(pir ? t("ja") : t("nein")), t("PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min")) : "",
+        this._row(
           "Leeren Raum absenken",
           editable ? this._segs(scope, "room_eco", RK_NIGHT, eco) : this._v(RK_NIGHT[eco]),
-          eco === "auto" ? s.room_eco_enabled ? "Automatisch: ja (mmWave, passender Raumtyp)" : "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave" : ""
-        ) : "",
-        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
-        list.length && (eco === "on" || eco === "auto" && s.room_eco_enabled) ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
-      ].join(""));
+          eco === "auto" ? pt ? t("Automatisch: nein – „Bei Anwesenheit“ ist eingestellt, die Wunschtemperatur ist schon der Wert für den leeren Raum") : s.room_eco_enabled ? "Automatisch: ja (mmWave, passender Raumtyp)" : "Automatisch: nein – nur Wohnraum, Küche, selten genutzt und nur mit mmWave" : ""
+        ),
+        eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
+        eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
+      ];
+      rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
+      return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
     }
     _lightGroup(r, id, editable) {
       const s = r.attrs.settings || {};
@@ -6407,6 +6488,7 @@
         v = Math.min(max, Math.max(min, v));
         apply(el.dataset.opt, { [el.dataset.key]: v });
       }));
+      $("[data-setopt]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.setopt, { [el.dataset.key]: parseFloat(el.dataset.v) })));
       $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
       $(".stepper span").forEach((span) => span.addEventListener("click", () => {
         const box = span.closest(".stepper");
