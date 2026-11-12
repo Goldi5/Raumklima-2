@@ -1,5 +1,16 @@
 ## Unreleased
 
+## 0.62.46rc4 – 2026-11-12
+
+### Verbessert
+- **Zeitfenster: Uhrzeit per Zeitwähler.** Antippen von „von“/„bis“ (Zeitplan und Lüftfenster) öffnet das
+  Stunden- und Viertelstunden-Rad wie bei den übrigen Uhrzeiten; Zahlen im Rad lassen sich auch antippen.
+  Genaue Minuten (z. B. 06:50) unten im Feld eintippen.
+
+### Behoben
+- **Zeitwähler-Räder:** ließen sich nur bis 21 Uhr bzw. :15 drehen (Polster zählte zur Höhe). Eine von Hand
+  eingetippte Uhrzeit wie 22:50 wurde beim Nachführen der Räder auf 22:45 gerundet.
+
 ## 0.62.46rc3 – 2026-11-12
 
 ### Behoben
