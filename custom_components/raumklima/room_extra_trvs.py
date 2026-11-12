@@ -339,3 +339,65 @@ class ExtraTrv:
 
     def stop(self) -> None:
         self.sync.cancel_all()
+
+
+class AcSource:
+    """Klimaanlage als Heizquelle: an/aus + Sollwert, kein Ventil, keine Presets."""
+
+    def __init__(self, controller: RaumklimaController, cfg: dict[str, Any]) -> None:
+        self.c = controller
+        self.hass = controller.hass
+        self.entity_id = str(cfg["entity"])
+        self.name = str(cfg.get("name") or self.entity_id)
+        self.offset = float(cfg.get("offset") or 0.0)
+
+    @property
+    def state(self) -> State | None:
+        return self.hass.states.get(self.entity_id)
+
+    def available(self) -> bool:
+        st = self.state
+        return st is not None and is_valid(st.state)
+
+    def tracked(self) -> list[str]:
+        return [self.entity_id]
+
+    async def apply(self, on: bool, target: float) -> None:
+        """AC schalten und Sollwert setzen (komplett, ohne Ventil-Logik)."""
+        st = self.state
+        if st is None:
+            return
+        low = to_float(st.attributes.get("min_temp")) or 16.0
+        high = to_float(st.attributes.get("max_temp")) or 30.0
+        step = to_float(st.attributes.get("target_temp_step")) or 0.5
+        value = clamp(round_device(target + self.offset, step), low, high)
+        try:
+            if not on:
+                if st.state != "off":
+                    await self.hass.services.async_call(
+                        "climate", "set_hvac_mode",
+                        {"entity_id": self.entity_id, "hvac_mode": "off"}, blocking=True,
+                    )
+                return
+            if st.state == "off":
+                await self.hass.services.async_call(
+                    "climate", "set_hvac_mode",
+                    {"entity_id": self.entity_id, "hvac_mode": "heat"}, blocking=True,
+                )
+            await self.hass.services.async_call(
+                "climate", "set_temperature",
+                {"entity_id": self.entity_id, "temperature": value}, blocking=True,
+            )
+        except Exception as err:  # noqa: BLE001 – eine Quelle darf die anderen nicht aufhalten
+            _LOGGER.warning("%s: Klimaanlage %s: %s", self.c.name, self.entity_id, err)
+
+    def summary(self) -> dict[str, Any]:
+        st = self.state
+        return {
+            "entity_id": self.entity_id,
+            "name": self.name,
+            "type": "ac",
+            "available": self.available(),
+            "temperature": to_float(st.attributes.get("current_temperature")) if st else None,
+            "setpoint": to_float(st.attributes.get("temperature")) if st else None,
+        }

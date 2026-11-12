@@ -1,3 +1,11 @@
+## 0.62.44b1 – 2026-11-12
+
+- **Heizquellen je Raum**: Thermostate und Klimaanlagen als Quellen mit Name, Typ, festem Offset, Auslöser-Entität und „unangetastet“. Die Auswahl steht unter *Raum → Heizquellen*.
+- **Quellen je Zeitfenster**: Im Zeitplan lässt sich pro Fenster wählen, welche Quellen laufen; nicht gewählte werden ausgeschaltet. „Unangetastet“ bleibt ganz in Ruhe.
+- **Boost-Ziel**: „Boost für“ = im Zeitplan gewählt / alle Quellen / nur die priorisierte.
+- **Klimaanlagen**: an/aus + Sollwert (Kühlen folgt später).
+- **Zeitplan**: mehr als 6 Zeitfenster pro Raum möglich.
+
 ## 0.62.43b1 – 2026-11-12
 
 - **Anwesenheits-Temperatur in die Anwesenheits-Gruppe verschoben**: „Bei Anwesenheit“ und „… erst nach“ stehen jetzt unter *Raum → Präsenzmelder* statt unter *Temperatur*. Keine Verhaltensänderung.

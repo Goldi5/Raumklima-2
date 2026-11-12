@@ -1,7 +1,24 @@
-/* Raumklima 0.62.43b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.44b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
+    "Boost für": "Boost for",
+    "Heizquellen": "Heat sources",
+    "Klimaanlage": "Air conditioner",
+    "Quelle hinzufügen": "Add source",
+    "Quellen": "Sources",
+    "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats or air conditioners that run with the room",
+    "Weitere Quellen": "Other sources",
+    "alle Quellen": "all sources",
+    "alle Quellen – antippen schließt eine aus": "all sources – tap to exclude one",
+    "fest für diese Quelle – z. B. +0,5 K, damit sie früher anläuft": "fixed for this source – e.g. +0.5 K so it starts earlier",
+    "führt den Raum; die anderen Quellen folgen der Auswahl": "leads the room; the other sources follow the selection",
+    "im Zeitplan gewählt": "selected in the schedule",
+    "nur die gewählten Quellen": "only the selected sources",
+    "nur die priorisierte": "only the prioritized one",
+    "unangetastet": "untouched",
+    "welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus": "which sources the boost drives – the others stay off during that time",
+    "… Offset": "… offset",
     "auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "also called “balancing”: the device has no offset, so Raumklima shifts the setpoint by the difference between sensor and thermostat",
     "Lüfthinweise von": "Air hints from",
     "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Please air, close the window and air exchanged only within this time – silent at night; room cooling down, frost and device faults still report",
@@ -949,6 +966,23 @@
 
   // src/i18n/fr.js
   var FR = {
+    "Boost für": "Boost pour",
+    "Heizquellen": "Sources de chaleur",
+    "Klimaanlage": "Climatiseur",
+    "Quelle hinzufügen": "Ajouter une source",
+    "Quellen": "Sources",
+    "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats ou climatiseurs qui fonctionnent avec la pièce",
+    "Weitere Quellen": "Autres sources",
+    "alle Quellen": "toutes les sources",
+    "alle Quellen – antippen schließt eine aus": "toutes les sources – toucher pour en exclure une",
+    "fest für diese Quelle – z. B. +0,5 K, damit sie früher anläuft": "fixe pour cette source – p. ex. +0,5 K pour qu’elle démarre plus tôt",
+    "führt den Raum; die anderen Quellen folgen der Auswahl": "dirige la pièce ; les autres sources suivent la sélection",
+    "im Zeitplan gewählt": "choisi dans la plage horaire",
+    "nur die gewählten Quellen": "uniquement les sources choisies",
+    "nur die priorisierte": "uniquement la source prioritaire",
+    "unangetastet": "sans intervention",
+    "welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus": "quelles sources le boost pilote – les autres restent éteintes pendant ce temps",
+    "… Offset": "… offset",
     "auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "aussi appelé « équilibrage » : l’appareil n’a pas d’offset, Raumklima décale donc la consigne de l’écart entre capteur et thermostat",
     "Lüfthinweise von": "Conseils d’aération à partir de",
     "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Aérer, fermer la fenêtre et air renouvelé uniquement pendant cette plage – silencieux la nuit ; refroidissement, gel et pannes d’appareil continuent d’alerter",
@@ -1935,7 +1969,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.43b1";
+  var RK_VERSION = "0.62.44b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4079,6 +4113,26 @@
       "An existing HA switch also turns home office on — like the built-in switch, so without the presence check. Meant for wall buttons or a dashboard tile.",
       "Un interrupteur HA existant active aussi le télétravail — comme l’interrupteur intégré, donc sans contrôle de présence. Prévoir pour boutons muraux ou une tuile du tableau de bord."
     ],
+    "Quellen": [
+      "Welche Heizquellen in diesem Zeitfenster laufen. Ohne Auswahl: alle. Antippen schließt eine aus – sie wird dann ausgeschaltet, nicht nur stummgeschaltet.",
+      "Which heat sources run in this schedule window. Without a selection: all. Tapping one excludes it — it is switched off, not just muted.",
+      "Quelles sources de chaleur fonctionnent pendant cette plage horaire. Sans sélection : toutes. Toucher une source l’exclut — elle est éteinte, pas seulement silencieuse."
+    ],
+    "Haupt-Thermostat": [
+      "Das Thermostat, das den Raum führt. Die anderen Quellen folgen der Auswahl im Zeitplan und bekommen denselben Sollwert (plus ihren Offset).",
+      "The thermostat that leads the room. The other sources follow the schedule selection and get the same target (plus their offset).",
+      "Le thermostat qui dirige la pièce. Les autres sources suivent la sélection de la plage horaire et reçoivent la même consigne (plus leur offset)."
+    ],
+    "… Offset": [
+      "Fester Zuschlag nur für diese Quelle – z. B. +0,5 K, damit sie früher anläuft. Der Raumfühler bleibt der Haupt-Thermostat.",
+      "Fixed offset for this source only — e.g. +0.5 K so it starts earlier. The room sensor stays with the main thermostat.",
+      "Décalage fixe pour cette source uniquement — p. ex. +0,5 K pour qu’elle démarre plus tôt. Le capteur de la pièce reste au thermostat principal."
+    ],
+    "Weitere Quellen": [
+      "Thermostate oder Klimaanlagen, die mit dem Raum laufen. Nur die im Zeitfenster gewählten werden angesteuert; „unangetastet“ bleibt ganz in Ruhe.",
+      "Thermostats or air conditioners that run with the room. Only the ones selected in the schedule window are driven; “untouched” is left completely alone.",
+      "Thermostats ou climatiseurs qui fonctionnent avec la pièce. Seules les sources choisies dans la plage horaire sont pilotées ; « sans intervention » reste totalement en paix."
+    ],
     "Bei Anwesenheit": [
       "Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, bei Anwesenheit 21 °C. 0 °C schaltet die Regel aus; danach gilt wieder Zeitplan bzw. Absenkung.",
       "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",
@@ -5248,7 +5302,8 @@
           days: [...w.days || []],
           start: w.start || "19:00",
           end: w.end || "21:00",
-          temperature: Number(w.temperature ?? 22)
+          temperature: Number(w.temperature ?? 22),
+          sources: [...w.sources || []]
         }));
       }
       return this._sched[id];
@@ -5270,7 +5325,8 @@
         days: [...w.days || []].sort((a, b) => a - b),
         start: w.start,
         end: w.end,
-        temperature: w.temperature
+        temperature: w.temperature,
+        sources: [...w.sources || []].sort()
       }));
       this._setRoom(id, { schedules: list }, 700);
     }
@@ -5287,6 +5343,20 @@
       <div class="stepper mv"><button data-schedmove="${id}|${i}|-1" title="${t("nach oben")}" aria-label="${t("nach oben")}" ${i === 0 ? "disabled" : ""}>▲</button><button data-schedmove="${id}|${i}|1" title="${t("nach unten")}" aria-label="${t("nach unten")}" ${i === this._schedLen(id) - 1 ? "disabled" : ""}>▼</button></div>
       <button class="del" data-scheddel="${id}|${i}" title="${t("entfernen")}" aria-label="${t("entfernen")}"><ha-icon icon="mdi:close"></ha-icon></button>`}
     </div>`;
+    }
+    _schedSourcesRow(id, w, i, ro) {
+      const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
+      const sources = room && room.attrs.heat_sources || [];
+      if (!sources.length) return "";
+      const chosen = w.sources || [];
+      const all = chosen.length === 0;
+      const chips = sources.map((src) => {
+        const on = all || chosen.includes(src.id);
+        const off = src.untouched ? " off" : "";
+        const dis = ro || src.untouched ? " disabled" : "";
+        return `<button class="chip2 ${on ? "" : "off"}${off}" data-schedsrc="${id}|${i}|${esc(src.id)}" title="${esc(src.entity)}"${dis}><i></i>${esc(src.name)}</button>`;
+      }).join("");
+      return this._row("Quellen", `<div class="chips">${chips}</div>`, all ? t("alle Quellen – antippen schließt eine aus") : t("nur die gewählten Quellen"));
     }
     _scheduleGroup(r, id, editable) {
       this._roomRefs = this._roomRefs || {};
@@ -5319,6 +5389,17 @@
           t("so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn")
         ),
         this._row(
+          "Boost für",
+          editable ? this._select(scope, "boost_sources", [
+            { id: "selected", name: t("im Zeitplan gewählt") },
+            { id: "all", name: t("alle Quellen") },
+            { id: "first", name: t("nur die priorisierte") }
+          ], this._roomOpt(r, "boost_sources") ?? "selected") : this._v(
+            { selected: t("im Zeitplan gewählt"), all: t("alle Quellen"), first: t("nur die priorisierte") }[this._roomOpt(r, "boost_sources") ?? "selected"]
+          ),
+          t("welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus")
+        ),
+        this._row(
           "Zeitplan überschreiben",
           editable ? this._optStepper(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120, " min", 15, 0, 480) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
           t("so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus")
@@ -5332,12 +5413,15 @@
       if (!list.length) {
         rows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
       } else {
-        list.forEach((w, i) => rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days)))));
+        list.forEach((w, i) => {
+          rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days))));
+          rows.push(this._schedSourcesRow(id, w, i, ro));
+        });
       }
       if (!ro && list.length && !shared) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><button class="add" data-schedsort="${id}"><ha-icon icon="mdi:sort-clock-ascending-outline"></ha-icon>${t("nach Uhrzeit sortieren")}</button><span class="hint">${t("Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere")}</span></div></div>`);
       }
-      if (!ro && list.length < 6 && !shared) {
+      if (!ro && !shared) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
       }
       return this._grp("Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
@@ -5528,6 +5612,7 @@
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : "")
       ].join(""))}
+      ${a.monitor ? "" : this._sourceGroup(r, id, editable)}
       ${this._grp("Fenster", "mdi:window-open-variant", "ok", [
         mon ? "" : this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
         mon ? "" : this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
@@ -5669,6 +5754,53 @@
           <select class="sel" data-sel="hub" data-key="report_email" ${dis}><option value="${active ? "raumklima" : ""}">${t("– nein, Zugangsdaten oben –")}</option>${[.../* @__PURE__ */ new Set([...mailServices, ...viaService ? [cur] : []])].map((n) => `<option value="${esc(n)}" ${n === cur ? "selected" : ""}>${esc(rkPretty(n))}</option>`).join("")}</select></label>` : ""}
         <div class="hint">${t("Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.")}</div>
       </div></details>`;
+    }
+    _srcList(id) {
+      const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
+      const cur = room && (this._roomOpt(room, "heat_sources") ?? (room.attrs.settings || {}).heat_sources) || [];
+      return cur.map((x) => ({ ...x }));
+    }
+    _sourceGroup(r, id, editable) {
+      const s = r.attrs.settings || {};
+      const scope = `room:${id}`;
+      const sources = (r.attrs.heat_sources || []).filter((x) => x.id !== "main");
+      const all = this._cfg && this._cfg.choices && this._cfg.choices.climate || [];
+      const sigs = this._cfg && this._cfg.choices && this._cfg.choices.signals || [];
+      const list = (this._roomOpt(r, "heat_sources") ?? s.heat_sources ?? []).map((x) => ({ ...x }));
+      const used = new Set(sources.map((x) => x.entity));
+      const avail = all.filter((x) => !used.has(x.id));
+      const rows = [
+        this._row("Haupt-Thermostat", this._v(esc(this._name(s.trv || "")), true), t("führt den Raum; die anderen Quellen folgen der Auswahl"))
+      ];
+      list.forEach((src, idx) => {
+        const trigOpts = [{ id: "", name: t("– keiner –") }, ...sigs];
+        const off = src.untouched ? "" : " off";
+        rows.push(this._row(
+          esc(src.name || src.entity),
+          `<div class="chips">
+          <select class="sel" data-srcfield="${id}|${idx}|type">
+            <option value="trv"${src.type !== "ac" ? " selected" : ""}>${t("Thermostat")}</option>
+            <option value="ac"${src.type === "ac" ? " selected" : ""}>${t("Klimaanlage")}</option>
+          </select>
+          <select class="sel" data-srcfield="${id}|${idx}|trigger">
+            ${trigOpts.map((o) => `<option value="${esc(o.id)}"${(src.trigger || "") === o.id ? " selected" : ""}>${esc(o.name)}</option>`).join("")}
+          </select>
+          <button class="chip2${off}" data-srcuntouched="${id}|${idx}"><i></i>${t("unangetastet")}</button>
+          <button class="mini x" data-srcdel="${id}|${idx}" title="${t("entfernen")}">✕</button>
+        </div>`,
+          `${esc(src.entity)} · ${t("Offset")} ${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K`
+        ));
+        rows.push(this._row(
+          "… Offset",
+          editable ? `<div class="stepper"><button data-srcstep="${id}|${idx}|-0.5" aria-label="${t("weniger")}">−</button><span class="v">${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K</span><button data-srcstep="${id}|${idx}|0.5" aria-label="${t("mehr")}">+</button></div>` : this._v(`${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K`),
+          t("fest für diese Quelle – z. B. +0,5 K, damit sie früher anläuft")
+        ));
+      });
+      if (!list.length) rows.push(this._row("Weitere Quellen", this._v(t("keine"), true), t("Thermostate oder Klimaanlagen, die mit dem Raum laufen")));
+      if (editable && avail.length) {
+        rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><select class="sel" id="addSrc-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-srcadd="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Quelle hinzufügen")}</button></div></div>`);
+      }
+      return this._grp("Heizquellen", "mdi:radiator", "heat", rows.join(""), "span");
     }
     _presenceGroup(r, id, editable) {
       const a = r.attrs, s = a.settings || {};
@@ -6245,10 +6377,21 @@
       $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
         const id = el.dataset.schedadd;
         const list = this._schedList(id, this._schedSeed(id) || []);
-        if (list.length >= 6) return;
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
         const base = room ? this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22 : 22;
-        list.push({ days: [], start: "19:00", end: "21:00", temperature: Math.round(base * 2) / 2 });
+        list.push({ days: [], start: "19:00", end: "21:00", temperature: Math.round(base * 2) / 2, sources: [] });
+        this._pushSched(id);
+      }));
+      $("[data-schedsrc]").forEach((el) => el.addEventListener("click", () => {
+        const [id, i, sid] = sp(el.dataset.schedsrc);
+        const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
+        if (!w) return;
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
+        const sources = (room && room.attrs.heat_sources || []).filter((x) => !x.untouched);
+        const ids = sources.map((x) => x.id);
+        const chosen = w.sources && w.sources.length ? [...w.sources] : [...ids];
+        w.sources = chosen.includes(sid) ? chosen.filter((x) => x !== sid) : [...chosen, sid];
+        if (w.sources.length === ids.length) w.sources = [];
         this._pushSched(id);
       }));
       $("[data-scheddel]").forEach((el) => el.addEventListener("click", () => {
@@ -6305,6 +6448,49 @@
         const v = Math.round((w.temperature + 0.5 * parseInt(el.dataset.d, 10)) * 2) / 2;
         w.temperature = Math.min(30, Math.max(5, v));
         this._pushSched(id);
+      }));
+      $("[data-srcfield]").forEach((el) => el.addEventListener("change", () => {
+        const [id, idx, field] = el.dataset.srcfield.split("|");
+        const list = this._srcList(id);
+        const item = list[parseInt(idx, 10)];
+        if (!item) return;
+        item[field] = el.value;
+        this._setRoom(id, { heat_sources: list }, 700);
+      }));
+      $("[data-srcstep]").forEach((el) => el.addEventListener("click", () => {
+        const [id, idx, delta] = el.dataset.srcstep.split("|");
+        const list = this._srcList(id);
+        const item = list[parseInt(idx, 10)];
+        if (!item) return;
+        item.offset = Math.max(-5, Math.min(5, Math.round(((Number(item.offset) || 0) + Number(delta)) * 2) / 2));
+        this._setRoom(id, { heat_sources: list }, 700);
+      }));
+      $("[data-srcuntouched]").forEach((el) => el.addEventListener("click", () => {
+        const [id, idx] = el.dataset.srcuntouched.split("|");
+        const list = this._srcList(id);
+        const item = list[parseInt(idx, 10)];
+        if (!item) return;
+        item.untouched = !item.untouched;
+        this._setRoom(id, { heat_sources: list }, 700);
+      }));
+      $("[data-srcdel]").forEach((el) => el.addEventListener("click", () => {
+        const [id, idx] = el.dataset.srcdel.split("|");
+        const list = this._srcList(id);
+        list.splice(parseInt(idx, 10), 1);
+        this._setRoom(id, { heat_sources: list }, 700);
+      }));
+      $("[data-srcadd]").forEach((el) => el.addEventListener("click", () => {
+        const id = el.dataset.srcadd;
+        const sel = document.getElementById(`addSrc-${id}`);
+        const entity = sel ? sel.value : "";
+        if (!entity) return;
+        const st = this._st(entity);
+        const modes = st && st.attributes && st.attributes.hvac_modes || [];
+        const type = modes.includes("cool") || modes.includes("fan_only") ? "ac" : "trv";
+        const choice = (this._cfg && this._cfg.choices && this._cfg.choices.climate || []).find((x) => x.id === entity) || {};
+        const list = this._srcList(id);
+        list.push({ id: `src${Date.now()}`, entity, name: choice.name || this._name(entity), type, offset: 0, trigger: "", untouched: false });
+        this._setRoom(id, { heat_sources: list }, 700);
       }));
       $("[data-seg]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val })));
       $("[data-sel]").forEach((el) => el.addEventListener("change", () => {

@@ -14,6 +14,7 @@ import voluptuous as vol
 from .const import (
     BOOST_MINUTES_MAX,
     BOOST_MINUTES_MIN,
+    BOOST_SOURCE_MODES,
     BOOST_TEMP_MAX,
     BOOST_TEMP_MIN,
     BUILDING_TYPES,
@@ -24,6 +25,7 @@ from .const import (
     CONF_AIRING_WINDOWS,
     CONF_AWAY_DELAY,
     CONF_BOOST_MINUTES,
+    CONF_BOOST_SOURCES,
     CONF_BOOST_TEMP,
     CONF_BUILDING,
     CONF_CALENDAR,
@@ -37,6 +39,7 @@ from .const import (
     CONF_FROST_FLOOR,
     CONF_FROST_NIGHT,
     CONF_GUESTS_ROOMS,
+    CONF_HEAT_SOURCES,
     CONF_HEATING_LIMIT,
     CONF_HOME,
     CONF_HOME_OFFICE_CHECK,
@@ -281,6 +284,23 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_PREHEAT_LEAD): vol.All(vol.Coerce(int), vol.Range(0, 360)),
         vol.Optional(CONF_PRESENCE_TARGET): vol.All(vol.Coerce(float), vol.Range(0, 30)),
         vol.Optional(CONF_PRESENCE_DELAY): vol.All(vol.Coerce(float), vol.Range(0, 120)),
+        vol.Optional(CONF_HEAT_SOURCES): vol.All(
+            [
+                vol.Schema(
+                    {
+                        vol.Required("entity"): vol.Match(r"^climate\."),
+                        vol.Optional("id"): str,
+                        vol.Optional("name"): str,
+                        vol.Optional("type"): vol.In(("trv", "ac")),
+                        vol.Optional("offset"): vol.All(vol.Coerce(float), vol.Range(-5, 5)),
+                        vol.Optional("trigger"): str,
+                        vol.Optional("untouched"): bool,
+                    }
+                )
+            ],
+            vol.Length(max=10),
+        ),
+        vol.Optional(CONF_BOOST_SOURCES): vol.In(BOOST_SOURCE_MODES),
         vol.Optional(CONF_PREHEAT_NOT_BEFORE): vol.Match(r"^\d{1,2}:\d{2}$"),
         vol.Optional(CONF_MOLD_CAP): vol.All(vol.Coerce(float), vol.Range(0, 6)),
         vol.Optional(CONF_SCHEDULE_FALLBACK): vol.In(SCHEDULE_FALLBACKS),
@@ -309,6 +329,7 @@ ROOM_CHANGES = vol.Schema(
                         vol.Optional("days", default=[]): [
                             vol.All(vol.Coerce(int), vol.Range(0, 6))
                         ],
+                        vol.Optional("sources", default=[]): [str],
                     }
                 ],
                 vol.Length(max=SCHEDULE_MAX),
@@ -418,6 +439,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "persons": ents("person"),
         "zones": ents("zone"),
         "weather": ents("weather"),
+        "climate": ents("climate"),
         "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
         "lights": ents("light"),

@@ -257,6 +257,26 @@ export const HELP = {
     "An existing HA switch also turns home office on — like the built-in switch, so without the presence check. Meant for wall buttons or a dashboard tile.",
     "Un interrupteur HA existant active aussi le télétravail — comme l’interrupteur intégré, donc sans contrôle de présence. Prévoir pour boutons muraux ou une tuile du tableau de bord.",
   ],
+  "Quellen": [
+    "Welche Heizquellen in diesem Zeitfenster laufen. Ohne Auswahl: alle. Antippen schließt eine aus – sie wird dann ausgeschaltet, nicht nur stummgeschaltet.",
+    "Which heat sources run in this schedule window. Without a selection: all. Tapping one excludes it — it is switched off, not just muted.",
+    "Quelles sources de chaleur fonctionnent pendant cette plage horaire. Sans sélection : toutes. Toucher une source l’exclut — elle est éteinte, pas seulement silencieuse.",
+  ],
+  "Haupt-Thermostat": [
+    "Das Thermostat, das den Raum führt. Die anderen Quellen folgen der Auswahl im Zeitplan und bekommen denselben Sollwert (plus ihren Offset).",
+    "The thermostat that leads the room. The other sources follow the schedule selection and get the same target (plus their offset).",
+    "Le thermostat qui dirige la pièce. Les autres sources suivent la sélection de la plage horaire et reçoivent la même consigne (plus leur offset).",
+  ],
+  "… Offset": [
+    "Fester Zuschlag nur für diese Quelle – z. B. +0,5 K, damit sie früher anläuft. Der Raumfühler bleibt der Haupt-Thermostat.",
+    "Fixed offset for this source only — e.g. +0.5 K so it starts earlier. The room sensor stays with the main thermostat.",
+    "Décalage fixe pour cette source uniquement — p. ex. +0,5 K pour qu’elle démarre plus tôt. Le capteur de la pièce reste au thermostat principal.",
+  ],
+  "Weitere Quellen": [
+    "Thermostate oder Klimaanlagen, die mit dem Raum laufen. Nur die im Zeitfenster gewählten werden angesteuert; „unangetastet“ bleibt ganz in Ruhe.",
+    "Thermostats or air conditioners that run with the room. Only the ones selected in the schedule window are driven; “untouched” is left completely alone.",
+    "Thermostats ou climatiseurs qui fonctionnent avec la pièce. Seules les sources choisies dans la plage horaire sont pilotées ; « sans intervention » reste totalement en paix.",
+  ],
   "Bei Anwesenheit": [
     "Temperatur, auf die der Raum geht, solange ein Präsenzmelder jemanden im Raum sieht — z. B. Arbeitszimmer 19 °C, bei Anwesenheit 21 °C. 0 °C schaltet die Regel aus; danach gilt wieder Zeitplan bzw. Absenkung.",
     "Temperature the room heats to while a presence sensor sees someone in it — e.g. office 19 °C, 21 °C when present. 0 °C turns the rule off; the schedule or setback applies again.",

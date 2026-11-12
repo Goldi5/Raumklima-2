@@ -41,6 +41,9 @@ PM25_LIMIT: Final = 35.0
 PM25_DONE: Final = 15.0
 CONF_WINDOWS: Final = "window_sensors"
 CONF_EXTRA_TRVS: Final = "extra_trvs"  # weitere Thermostate im selben Raum (laufen mit dem Haupt-Thermostat mit)
+CONF_HEAT_SOURCES: Final = "heat_sources"  # Heizquellen: {id, entity, name, type: trv|ac, offset, trigger, untouched}
+CONF_BOOST_SOURCES: Final = "boost_sources"  # Boost: selected / all / first
+BOOST_SOURCE_MODES: Final = ("selected", "all", "first")
 CONF_CALIBRATION_MODE: Final = "calibration_mode"
 CONF_CALIBRATION_ENTITY: Final = "calibration_entity"
 CONF_OFF_METHOD: Final = "off_method"
@@ -361,6 +364,8 @@ DEFAULTS: Final = {
     CONF_FAST_POLL: False,
     CONF_OVERRIDE_MINUTES: 120,
     CONF_PRESENCE_TARGET: 0.0,
+    CONF_HEAT_SOURCES: [],
+    CONF_BOOST_SOURCES: "selected",
     CONF_PRESENCE_DELAY: 0.0,
     CONF_AIRING_OCCUPIED_ONLY: True,
 }

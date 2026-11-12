@@ -590,6 +590,32 @@ def schedule_target(schedules: list[dict[str, Any]] | None, local: datetime) -> 
     return target
 
 
+def schedule_window(schedules: list[dict[str, Any]] | None, local: datetime) -> dict[str, Any] | None:
+    """Das gerade laufende Zeitfenster (inkl. Quellen-Auswahl) oder None.
+
+    Wie ``schedule_target``, aber das Fenster selbst – damit die Regelung weiß, welche
+    Heizquellen in diesem Fenster aktiv sein sollen. Überlappungen: das spätere gewinnt.
+    """
+    if not schedules:
+        return None
+    weekday = local.weekday()
+    found: dict[str, Any] | None = None
+    for item in schedules:
+        if not isinstance(item, dict):
+            continue
+        days = item.get("days") or []
+        if days and weekday not in days:
+            continue
+        try:
+            inside = in_time_window(local, str(item.get("start") or ""), str(item.get("end") or ""))
+        except (TypeError, ValueError):
+            continue
+        if not inside or item.get("temperature") is None:
+            continue
+        found = item
+    return found
+
+
 def next_schedule_window(
     schedules: list[dict[str, Any]] | None, local: datetime, horizon_minutes: int = 24 * 60
 ) -> tuple[datetime, float] | None:

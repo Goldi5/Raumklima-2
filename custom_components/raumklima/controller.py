@@ -44,6 +44,7 @@ from .const import (
     CONF_AIRING_OCCUPIED_ONLY,
     CONF_AIRING_WINDOWS,
     CONF_BOOST_MINUTES,
+    CONF_BOOST_SOURCES,
     CONF_BOOST_TEMP,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
@@ -53,6 +54,7 @@ from .const import (
     CONF_EXTRA_TRVS,
     CONF_FAST_POLL,
     CONF_FOLLOW_TRV,
+    CONF_HEAT_SOURCES,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_LEARN_AIRING,
@@ -171,10 +173,11 @@ from .planning import (
     round_up_half,
     saturation_pressure,
     schedule_target,
+    schedule_window,
     setback_defaults,
     setback_target,
 )
-from .room_extra_trvs import ExtraTrv
+from .room_extra_trvs import AcSource, ExtraTrv
 from .room_health import HealthMixin
 from .room_lights import LightSignal
 from .room_presence import PresenceMixin
@@ -402,7 +405,12 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         # Kurve für die Diagnose-Datei (4-Minuten-Raster, zusätzlich bei Änderungen).
         self.series = RoomSeries()
         self.lights = LightSignal(self)
+        self.source_cfg = self._source_config()
+        self._extra_ids = [s["entity"] for s in self.source_cfg if s["type"] == "trv"]
         self.extra_trvs = [ExtraTrv(self, e) for e in self._extra_ids]
+        self.ac_sources = [AcSource(self, s) for s in self.source_cfg if s["type"] == "ac"]
+        self._extra_by_id = {x.entity_id: x for x in self.extra_trvs}
+        self._ac_by_id = {x.entity_id: x for x in self.ac_sources}
         self._rf: dict[str, Any] = {"day": "", "sent": 0, "retries": 0}
         self.sync = SyncManager(
             schedule=self._schedule,
@@ -476,7 +484,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             extra.discover()
         self._batteries = self._find_batteries()
 
-        tracked = [self.trv, self.temp_sensor, *self.windows, *(e for x in self.extra_trvs for e in x.tracked())]
+        tracked = [self.trv, self.temp_sensor, *self.windows, *(e for x in self.extra_trvs for e in x.tracked()), *(e for x in self.ac_sources for e in x.tracked())]
         if self.humidity_sensor:
             tracked.append(self.humidity_sensor)
         if self.co2_sensor:
@@ -661,6 +669,12 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             "room_eco_after": self.room_eco_after,
             "room_eco_drop": self.room_eco_drop,
             "extra_trvs": [x.summary() for x in self.extra_trvs],
+            "ac_sources": [x.summary() for x in self.ac_sources],
+            "heat_sources": [
+                {k: src.get(k) for k in ("id", "entity", "name", "type", "offset", "trigger", "untouched")}
+                for src in self.all_sources
+            ],
+            "boost_sources": self.config.get(CONF_BOOST_SOURCES) or "selected",
             "signal_lights": self.lights.lights,
             "light_signals": self.lights.signals,
             "virtual_active": self.virtual_enabled(),
@@ -1769,7 +1783,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         """Alle zwei Minuten beim Gerät nachfragen (nur wenn der Raum es verlangt)."""
         if not self.config.get(CONF_FAST_POLL):
             return
-        ids = [self.trv] + [t.entity_id for t in self.extra_trvs if getattr(t, "entity_id", None)]
+        ids = [self.trv] + [t.entity_id for t in self.extra_trvs if getattr(t, "entity_id", None)] + [t.entity_id for t in self.ac_sources if getattr(t, "entity_id", None)]
         if not ids:
             return
         self.hass.async_create_task(
@@ -1850,6 +1864,82 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         finally:
             self._bosch_manual_pending = False
 
+    def _source_config(self) -> list[dict[str, Any]]:
+        """Heizquellen (TRV/AC) mit Metadaten; ohne Konfiguration aus den Zusatz-Thermostaten."""
+        raw = self.config.get(CONF_HEAT_SOURCES)
+        out: list[dict[str, Any]] = []
+        if isinstance(raw, list) and raw:
+            for i, item in enumerate(raw):
+                if not isinstance(item, dict):
+                    continue
+                eid = str(item.get("entity") or "").strip()
+                if not eid or eid == self.trv:
+                    continue
+                out.append({
+                    "id": str(item.get("id") or f"src{i + 1}"),
+                    "entity": eid,
+                    "name": str(item.get("name") or eid),
+                    "type": str(item.get("type") or "trv"),
+                    "offset": to_float(item.get("offset")) or 0.0,
+                    "trigger": str(item.get("trigger") or ""),
+                    "untouched": bool(item.get("untouched")),
+                })
+            return out
+        return [
+            {"id": f"extra:{e}", "entity": e, "name": e, "type": "trv", "offset": 0.0, "trigger": "", "untouched": False}
+            for e in self._extra_ids
+        ]
+
+    @property
+    def all_sources(self) -> list[dict[str, Any]]:
+        """Haupt-Thermostat + alle weiteren Quellen."""
+        main = {"id": "main", "entity": self.trv, "name": self.name, "type": "trv", "offset": 0.0, "trigger": "", "untouched": False}
+        return [main, *self.source_cfg]
+
+    def _active_window(self) -> dict[str, Any] | None:
+        return schedule_window(self.schedules, dt_util.now())
+
+    def _selected_ids(self) -> set[str]:
+        """Quellen, die im laufenden Fenster (oder außerhalb) aktiv sind."""
+        every = {s["id"] for s in self.all_sources if not s["untouched"]}
+        win = self._active_window()
+        if win is None:
+            return every
+        chosen = {str(x) for x in (win.get("sources") or [])}
+        return chosen or every
+
+    def _boost_ids(self) -> set[str]:
+        """Quellen, die während eines Boosts laufen (selected / all / first)."""
+        mode = str(self.config.get(CONF_BOOST_SOURCES) or "selected")
+        if mode == "all":
+            return {s["id"] for s in self.all_sources if not s["untouched"]}
+        chosen = self._selected_ids()
+        if mode == "first":
+            first = next((s["id"] for s in self.all_sources if s["id"] in chosen), None)
+            return {first} if first else set()
+        return chosen
+
+    def _source_on(self, src: dict[str, Any], want_on: bool, boosting: bool) -> bool | None:
+        """Soll die Quelle laufen? None = unangetastet (keine Befehle)."""
+        if src["untouched"]:
+            return None
+        if not want_on:
+            return False
+        if boosting:
+            return src["id"] in self._boost_ids()
+        trigger = src.get("trigger")
+        if trigger:
+            st = self.hass.states.get(trigger)
+            if st is not None and st.state == "on":
+                return True
+        return src["id"] in self._selected_ids()
+
+    def _extra_for(self, entity_id: str) -> ExtraTrv | None:
+        return self._extra_by_id.get(entity_id)
+
+    def _ac_for(self, entity_id: str) -> AcSource | None:
+        return self._ac_by_id.get(entity_id)
+
     async def _apply(self, from_measurement: bool = False) -> None:
         """Soll-Zustand berechnen und ans TRV senden (mit Prüfung)."""
         async with self._apply_lock:
@@ -1878,8 +1968,10 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             want_on = self.hvac_on and not self.paused and plan_on
             if reason == REASON_VALVE_CARE and self.hvac_on:
                 want_on = True
+            boosting = reason == REASON_BOOST
+            main_on = self._source_on(self.all_sources[0], want_on, boosting)
 
-            if not want_on:
+            if not main_on:
                 self.sync.cancel("setpoint")
                 if method == OFF_PRESET:
                     current = self._trv_attr("preset_mode")
@@ -1912,7 +2004,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                         self._write_off_setpoint,
                         lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
                     )
-                await self._apply_extras(False, method)
+                await self._apply_extras(want_on, method, _target, boosting)
                 return
 
             # --- an: zuerst Modus, dann Sollwert
@@ -1964,18 +2056,25 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 lambda: self._write_setpoint(setpoint),
                 lambda: self._setpoint_matches(setpoint),
             )
-            await self._apply_extras(True, method)
+            await self._apply_extras(want_on, method, _target, boosting)
 
-    async def _apply_extras(self, want_on: bool, method: str) -> None:
-        """Weitere Thermostate im Raum auf denselben Stand bringen."""
-        if not self.extra_trvs:
-            return
-        target = self.effective_target
-        for extra in self.extra_trvs:
+    async def _apply_extras(self, want_on: bool, method: str, target: float, boosting: bool) -> None:
+        """Weitere Heizquellen je Auswahl schalten (TRV oder Klimaanlage)."""
+        for src in self.source_cfg:
+            on = self._source_on(src, want_on, boosting)
+            if on is None:
+                continue
             try:
-                await extra.apply(want_on, method, target)
-            except Exception as err:  # noqa: BLE001 – ein Heizkörper darf die anderen nicht aufhalten
-                _LOGGER.warning("%s: weiteres Thermostat %s: %s", self.name, extra.entity_id, err)
+                if src["type"] == "ac":
+                    ac = self._ac_for(src["entity"])
+                    if ac is not None:
+                        await ac.apply(on, target)
+                else:
+                    extra = self._extra_for(src["entity"])
+                    if extra is not None:
+                        await extra.apply(on, method, target + float(src["offset"]))
+            except Exception as err:  # noqa: BLE001 – eine Quelle darf die anderen nicht aufhalten
+                _LOGGER.warning("%s: Heizquelle %s: %s", self.name, src["entity"], err)
 
     def peek_plan(self) -> tuple[bool, float, str]:
         """Wie ``plan()``, aber ohne den Von-Hand-Vorrang zu verbrauchen (für die Anzeige)."""

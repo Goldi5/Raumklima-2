@@ -1,6 +1,23 @@
 // Englische Texte der Karten. Schlüssel = deutscher Text (siehe i18n.js).
 // Neue Texte: node test/extract.mjs listet alle Schlüssel, npm test meldet fehlende.
 export const EN = {
+  "Boost für": "Boost for",
+  "Heizquellen": "Heat sources",
+  "Klimaanlage": "Air conditioner",
+  "Quelle hinzufügen": "Add source",
+  "Quellen": "Sources",
+  "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats or air conditioners that run with the room",
+  "Weitere Quellen": "Other sources",
+  "alle Quellen": "all sources",
+  "alle Quellen – antippen schließt eine aus": "all sources – tap to exclude one",
+  "fest für diese Quelle – z. B. +0,5 K, damit sie früher anläuft": "fixed for this source – e.g. +0.5 K so it starts earlier",
+  "führt den Raum; die anderen Quellen folgen der Auswahl": "leads the room; the other sources follow the selection",
+  "im Zeitplan gewählt": "selected in the schedule",
+  "nur die gewählten Quellen": "only the selected sources",
+  "nur die priorisierte": "only the prioritized one",
+  "unangetastet": "untouched",
+  "welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus": "which sources the boost drives – the others stay off during that time",
+  "… Offset": "… offset",
   "auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "also called “balancing”: the device has no offset, so Raumklima shifts the setpoint by the difference between sensor and thermostat",
   "Lüfthinweise von": "Air hints from",
   "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Please air, close the window and air exchanged only within this time – silent at night; room cooling down, frost and device faults still report",

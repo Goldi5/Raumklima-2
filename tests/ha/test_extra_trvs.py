@@ -83,3 +83,40 @@ async def test_extra_unavailable_is_reported_and_sync_combined(hass: HomeAssista
 async def test_main_trv_not_duplicated(hass: HomeAssistant, trv: FakeTrv, trv2: FakeTrv, sensors) -> None:
     _hub, room = await _setup(hass, extra_trvs=[TRV2, "climate.trv_bad"])
     assert [x.entity_id for x in room.runtime_data.extra_trvs] == [TRV2]
+
+
+async def test_window_selects_only_the_chosen_source(hass: HomeAssistant, trv: FakeTrv, trv2: FakeTrv, sensors) -> None:
+    """Ein Zeitfenster kann die Quellen wählen: Haupt aus, Zusatz an."""
+    _hub, room = await _setup(
+        hass,
+        extra_trvs=[TRV2],
+        schedules=[{"days": [], "start": "00:00", "end": "23:59", "temperature": 21, "sources": [f"extra:{TRV2}"]}],
+    )
+    c = room.runtime_data
+    await hass.async_block_till_done()
+    assert trv.is_off
+    assert trv2.setpoint == 21.0
+    assert c.settings_summary()["heat_sources"][1]["id"] == f"extra:{TRV2}"
+
+
+async def test_untouched_source_gets_no_commands(hass: HomeAssistant, trv: FakeTrv, trv2: FakeTrv, sensors) -> None:
+    """„Unangetastet“: Raumklima schreibt nichts an die Quelle."""
+    _hub, room = await _setup(
+        hass,
+        extra_trvs=[TRV2],
+        heat_sources=[{"id": f"extra:{TRV2}", "entity": TRV2, "type": "trv", "untouched": True}],
+    )
+    await hass.async_block_till_done()
+    assert trv2.setpoint == 16.0
+
+
+async def test_source_offset_is_added(hass: HomeAssistant, trv: FakeTrv, trv2: FakeTrv, sensors) -> None:
+    """Fester Offset pro Quelle: +1 K auf den Zielwert."""
+    _hub, room = await _setup(
+        hass,
+        extra_trvs=[TRV2],
+        heat_sources=[{"id": f"extra:{TRV2}", "entity": TRV2, "type": "trv", "offset": 1.0}],
+    )
+    c = room.runtime_data
+    await hass.async_block_till_done()
+    assert trv2.setpoint == pytest.approx(c.target_temp + 1.0, abs=0.5)

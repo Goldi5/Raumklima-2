@@ -1,6 +1,23 @@
 // Textes français des cartes. Clé = texte allemand (voir i18n.js).
 // Traduction initiale – corrections bienvenues via une issue GitHub.
 export const FR = {
+  "Boost für": "Boost pour",
+  "Heizquellen": "Sources de chaleur",
+  "Klimaanlage": "Climatiseur",
+  "Quelle hinzufügen": "Ajouter une source",
+  "Quellen": "Sources",
+  "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats ou climatiseurs qui fonctionnent avec la pièce",
+  "Weitere Quellen": "Autres sources",
+  "alle Quellen": "toutes les sources",
+  "alle Quellen – antippen schließt eine aus": "toutes les sources – toucher pour en exclure une",
+  "fest für diese Quelle – z. B. +0,5 K, damit sie früher anläuft": "fixe pour cette source – p. ex. +0,5 K pour qu’elle démarre plus tôt",
+  "führt den Raum; die anderen Quellen folgen der Auswahl": "dirige la pièce ; les autres sources suivent la sélection",
+  "im Zeitplan gewählt": "choisi dans la plage horaire",
+  "nur die gewählten Quellen": "uniquement les sources choisies",
+  "nur die priorisierte": "uniquement la source prioritaire",
+  "unangetastet": "sans intervention",
+  "welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus": "quelles sources le boost pilote – les autres restent éteintes pendant ce temps",
+  "… Offset": "… offset",
   "auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat": "aussi appelé « équilibrage » : l’appareil n’a pas d’offset, Raumklima décale donc la consigne de l’écart entre capteur et thermostat",
   "Lüfthinweise von": "Conseils d’aération à partir de",
   "Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter": "Aérer, fermer la fenêtre et air renouvelé uniquement pendant cette plage – silencieux la nuit ; refroidissement, gel et pannes d’appareil continuent d’alerter",
