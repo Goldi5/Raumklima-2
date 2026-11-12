@@ -1,5 +1,12 @@
 ## Unreleased
 
+## 0.62.46rc3 – 2026-11-12
+
+### Behoben
+- **Zeitplan: das 7. Zeitfenster verschwand wieder.** Die Karte lässt seit 0.62.44b1 mehr als 6 Fenster zu,
+  die Integration nahm beim Sichern aber weiter nur 6 an – das 7. wurde abgelehnt und beim Neuladen
+  verworfen. Jetzt bis zu 30 Fenster je Raum; ein Test prüft, dass Karte und Integration zusammenpassen.
+
 ## 0.62.46rc2 – 2026-11-12
 
 Zweiter Release Candidate: drei neue Funktionen rund um Anwesenheit und Diagnose, dazu ein großer

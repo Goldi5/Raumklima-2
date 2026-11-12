@@ -1,4 +1,4 @@
-/* Raumklima 0.62.46rc2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.46rc3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -2067,7 +2067,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.46rc2";
+  var RK_VERSION = "0.62.46rc3";
 
   // src/styles.js
   var STYLES = `
