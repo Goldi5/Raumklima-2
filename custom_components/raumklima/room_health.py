@@ -44,6 +44,7 @@ from .logic import (
 )
 from .msg import dec, tr
 from .stats import RoomSample
+from .valve_finder import ValveFinder
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -64,159 +65,13 @@ OUTAGE_MIN_SECONDS = 300.0
 
 
 
-def _entity_stem(entity_id: str) -> str:
-    """Namensstamm einer Entität: ``climate.danfoss_ally_buro_mike`` → ``danfoss_ally_buro_mike``."""
-    obj = str(entity_id or "").split(".", 1)[-1]
-    for suffix in ("_thermostat", "_trv", "_valve", "_climate", "_heizkorper", "_heizkoerper"):
-        if obj.endswith(suffix):
-            obj = obj[: -len(suffix)]
-    return obj
-
-
-def _common_prefix(a: str, b: str) -> int:
-    n = 0
-    for x, y in zip(a, b, strict=False):
-        if x != y:
-            break
-        n += 1
-    return n
-
-
-def _name_related(candidate: str, target: str) -> bool:
-    """Gehören zwei Gerätenamen zusammen? („Danfoss Ally Büro" vs. „Danfoss Ally Büro Valve")"""
-    a = (candidate or "").strip().lower()
-    b = (target or "").strip().lower()
-    if not a or not b:
-        return False
-    return a == b or a.startswith(b) or b.startswith(a)
-
-
 class HealthMixin:
     """Gesundheits- und Diagnose-Teil des Raum-Controllers."""
 
     def _find_valve_sensor(self) -> str | None:
-        """Ventilstellung passend zum Thermostat finden.
-
-        Nicht jedes Gerät nennt sie „position": Danfoss Ally liefert ``…_valve_opening``,
-        Homematic ``…_valve_position``, Bosch ``…_valve_tappet`` (Issue #15). Deshalb über
-        den Prozentwert und die Bezeichnung suchen, nicht über einen festen Namen.
-
-        Gesucht wird in dieser Reihenfolge: gleiches Gerät, gleicher Bereich, gleicher
-        Gerätename (Danfoss Ally legt den Sensor auf ein *eigenes* Gerät), und zuletzt der
-        einzige Ventilsensor im System. Ist die Zuordnung mehrdeutig, wird bewusst nichts
-        gewählt – lieber keine Anzeige als die Ventilstellung eines fremden Raums.
-        """
-        registry = er.async_get(self.hass)
-        devices = dr.async_get(self.hass)
-        trv_entry = registry.async_get(self.trv)
-        if trv_entry is None:
-            return None
-        # „position" allein ist zu unscharf: Rollladenaktoren heißen genauso
-        # (Issue #11 – ein Rollladen-Positionssensor wurde als Ventil angezeigt).
-        strong = ("valve", "ventil", "öffnung", "oeffnung", "opening", "tappet")
-        weak = ("position",)
-        heating_devices = {
-            e.device_id for e in registry.entities.values() if e.domain == "climate" and e.device_id
-        }
-
-        def usable(entry) -> bool:
-            if entry.domain != "sensor" or entry.disabled_by:
-                return False
-            state = self.hass.states.get(entry.entity_id)
-            unit = str((state.attributes.get("unit_of_measurement") if state else "") or "")
-            if "%" not in unit:
-                return False  # Batterie, RSSI, Ventilhub-Historie usw. aussortieren
-            hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
-            if any(k in hay for k in strong):
-                return True
-            # „position" nur bei einem Gerät, das auch ein Thermostat ist
-            return any(k in hay for k in weak) and entry.device_id in heating_devices
-
-        def pick(entries) -> str | None:
-            for entry in entries:
-                if usable(entry):
-                    return entry.entity_id
-            return None
-
-        def area_of(entry) -> str | None:
-            """Bereich steht meist am Gerät, nicht an der Entität."""
-            if entry.area_id:
-                return entry.area_id
-            dev = devices.async_get(entry.device_id) if entry.device_id else None
-            return dev.area_id if dev else None
-
-        trv_area = area_of(trv_entry)
-
-        def same_area(entry) -> bool:
-            """Gehört der Sensor zum selben Raum? Unbekannter Bereich zählt als „vielleicht“."""
-            area = area_of(entry)
-            return not trv_area or area in (None, trv_area)
-
-        def same_known_area(entry) -> bool:
-            """Streng: nur ein **bekannter**, gleicher Bereich zählt.
-
-            Nötig für die Namens-Heuristik: ein Sensor ohne Bereich aus einer anderen Wohnung
-            („Haus A Küche“) passte sonst auf den Raum „Haus A“ in einer anderen Wohnung – dessen
-            Bericht zeigte dann fremde Ventilwerte.
-            """
-            return bool(trv_area) and area_of(entry) == trv_area
-
-        if trv_entry.device_id:
-            hit = pick(er.async_entries_for_device(registry, trv_entry.device_id))
-            if hit:
-                return hit
-        # Gleicher Namensstamm in der entity_id: der stärkste Hinweis überhaupt
-        # (climate.danfoss_ally_buro_mike ↔ sensor.danfoss_ally_buro_mike_valve_opening).
-        stem = _entity_stem(self.trv)
-        if len(stem) >= 4:
-            related = [
-                e
-                for e in registry.entities.values()
-                if (other := _entity_stem(e.entity_id))
-                and other != stem
-                and (other.startswith(stem) or stem.startswith(other))
-                # Namensgleichheit allein reicht nicht: nur bei bekanntem, gleichem Bereich
-                and same_known_area(e)
-            ]
-            # der längste gemeinsame Namensanfang gewinnt (bei mehreren Kandidaten)
-            related.sort(key=lambda e: -_common_prefix(_entity_stem(e.entity_id), stem))
-            hit = pick(related)
-            if hit:
-                return hit
-
-        device = devices.async_get(trv_entry.device_id) if trv_entry.device_id else None
-        trv_name = ((device.name_by_user or device.name) if device else "") or ""
-
-        # Heizkörper-Thermostate im Raum zuerst: dort sitzt das Ventil
-        for extra in getattr(self, "extra_trvs", []):
-            extra_entry = registry.async_get(getattr(extra, "entity_id", ""))
-            if extra_entry is not None and extra_entry.device_id:
-                hit = pick(er.async_entries_for_device(registry, extra_entry.device_id))
-                if hit:
-                    return hit
-
-        trv_area = area_of(trv_entry)
-        if trv_area:
-            hit = pick([e for e in registry.entities.values() if area_of(e) == trv_area])
-            if hit:
-                return hit
-
-        def name_of(entry) -> str:
-            dev = devices.async_get(entry.device_id) if entry.device_id else None
-            return ((dev.name_by_user or dev.name) if dev else "") or ""
-
-        if trv_name:
-            same = [
-                e
-                for e in registry.entities.values()
-                if e.device_id and _name_related(name_of(e), trv_name) and same_known_area(e)
-            ]
-            hit = pick(same)
-            if hit:
-                return hit
-
-        loose = [e.entity_id for e in registry.entities.values() if usable(e) and same_area(e)]
-        return loose[0] if len(loose) == 1 else None
+        """Ventilstellung passend zum Thermostat finden (Suchschritte: valve_finder.STEPS)."""
+        extras = [getattr(extra, "entity_id", "") for extra in getattr(self, "extra_trvs", [])]
+        return ValveFinder(self.hass, self.trv, extras).find()
 
     @property
     def battery_low(self) -> dict[str, Any] | None:

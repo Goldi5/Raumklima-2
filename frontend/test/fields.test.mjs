@@ -8,18 +8,8 @@ import { readFileSync } from "node:fs";
 import { RK_NUM } from "../src/fields.js";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
-const ws = read("../../custom_components/raumklima/websocket_api.py");
-const konst = read("../../custom_components/raumklima/const.py");
 const settings = settingsSource();
-
-const names = Object.fromEntries([...konst.matchAll(/^(CONF_\w+): Final = "(\w+)"/gm)].map((m) => [m[1], m[2]]));
-const numbers = Object.fromEntries([...konst.matchAll(/^(\w+): Final = ([\d.]+)\s*(?:#.*)?$/gm)].map((m) => [m[1], parseFloat(m[2])]));
-const backend = {};
-for (const m of ws.matchAll(/vol\.Optional\((CONF_\w+|"\w+")\): vol\.All\([^\n]*?vol\.Range\(([^)]*)\)/g)) {
-  const key = names[m[1]] || m[1].replaceAll('"', "");
-  const [lo, hi] = m[2].split(",").map((x) => x.trim()).map((x) => (x in numbers ? numbers[x] : parseFloat(x)));
-  backend[key] = [lo, hi];
-}
+// Grenzen gegen das Backend prüft tests/test_fields.py (fields.py ist die gemeinsame Quelle).
 
 test("jedes Feld: Schritt > 0, Minimum < Maximum, Nachkommastellen passen zum Schritt", () => {
   for (const [key, f] of Object.entries(RK_NUM)) {
@@ -29,18 +19,6 @@ test("jedes Feld: Schritt > 0, Minimum < Maximum, Nachkommastellen passen zum Sc
     if (!Number.isInteger(f.step)) assert.ok(f.dec >= 1, `${key}: Schritt ${f.step}, aber keine Nachkommastelle – der Wert würde gerundet angezeigt`);
     assert.equal(typeof f.unit, "string");
   }
-});
-
-test("Grenzen der Karte liegen innerhalb der Grenzen des Backends", () => {
-  let checked = 0;
-  for (const [key, f] of Object.entries(RK_NUM)) {
-    const b = backend[key];
-    if (!b) continue; // z. B. Wunschtemperatur: eigener Weg über die Climate-Entität
-    assert.ok(Number.isFinite(b[0]) && Number.isFinite(b[1]), `${key}: Backend-Grenzen nicht lesbar`);
-    assert.ok(f.min >= b[0] && f.max <= b[1], `${key}: Karte ${f.min}…${f.max}, Backend ${b[0]}…${b[1]}`);
-    checked += 1;
-  }
-  assert.ok(checked >= 25, `nur ${checked} Felder gegen das Backend geprüft`);
 });
 
 test("die Karte nennt Grenzen nicht mehr von Hand", () => {

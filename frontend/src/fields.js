@@ -1,6 +1,5 @@
-// Zahl-Einstellungen der Karte: Einheit, Schrittweite, Grenzen und Nachkommastellen – einmal, an einer Stelle.
-// Die Grenzen müssen innerhalb dessen liegen, was das Backend annimmt (websocket_api.py);
-// test/fields.test.mjs prüft das bei jedem Lauf.
+// ERZEUGT aus custom_components/raumklima/fields.py – nicht von Hand ändern
+// (python scripts/gen_fields.py). Einheit, Schrittweite, Grenzen und Nachkommastellen der Karte.
 export const RK_NUM = {
   away_delay: { unit: " min", step: 5, min: 0, max: 240, dec: 0 },
   long_away_hours: { unit: " h", step: 1, min: 2, max: 168, dec: 0 },

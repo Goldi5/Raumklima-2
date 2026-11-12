@@ -61,9 +61,9 @@ def test_raumkalibrierung_ist_schaltbar() -> None:
     ``calibration_mode`` über ``raumklima/room/update`` – fehlt der Schlüssel im Schema,
     antwortet Home Assistant mit „extra keys not allowed" und die Auswahl springt zurück.
     """
-    src = (BACKEND / "websocket_api.py").read_text(encoding="utf-8")
+    src = (BACKEND / "ws_common.py").read_text(encoding="utf-8")
     match = re.search(r"ROOM_CHANGES = vol\.Schema\((.+?)\n\)\n", src, re.S)
     assert match, "ROOM_CHANGES nicht gefunden – Muster geändert?"
     assert "CONF_CALIBRATION_MODE" in match.group(1), "ROOM_CHANGES nimmt die Kalibrierart nicht an"
-    frontend = (FRONTEND / "cards" / "settings.js").read_text(encoding="utf-8")
+    frontend = "\n".join(p.read_text(encoding="utf-8") for p in sorted((FRONTEND / "cards").rglob("settings*.js")) + sorted((FRONTEND / "cards" / "settings").glob("*.js")))
     assert '_segs(scope, "calibration_mode"' in frontend, "Karte bietet den Schalter nicht an"
