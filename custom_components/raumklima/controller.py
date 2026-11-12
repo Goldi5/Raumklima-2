@@ -9,7 +9,6 @@ from __future__ import annotations
 import asyncio
 from collections import deque
 from collections.abc import Callable
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 import logging
 from typing import Any
@@ -41,87 +40,36 @@ from .const import (
     CAL_OFFSET,
     CAL_TARGET,
     CALIBRATION_INTERVAL,
-    CONF_AIRING_MIN_MINUTES,
-    CONF_AIRING_OCCUPIED_ONLY,
-    CONF_AIRING_WINDOWS,
     CONF_BOOST_MINUTES,
-    CONF_BOOST_SOURCES,
     CONF_BOOST_TEMP,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
-    CONF_CO2_LIMIT,
     CONF_CO2_SENSOR,
     CONF_COMFORT_TEMP,
     CONF_EXTRA_TRVS,
     CONF_FAST_POLL,
-    CONF_FOLLOW_TRV,
-    CONF_HEAT_SOURCES,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
-    CONF_LEARN_AIRING,
-    CONF_LIGHT_SIGNALS,
-    CONF_LIGHTS,
-    CONF_LONG_AIRING,
-    CONF_LONG_AIRING_REMIND,
-    CONF_LOOK_DARK,
-    CONF_MOLD_CAP,
-    CONF_MOLD_MODE,
     CONF_NAME,
-    CONF_NIGHT_AIRING,
-    CONF_NOTIFY,
-    CONF_NOTIFY_CAP,
-    CONF_OFF_METHOD,
-    CONF_ON_PRESET,
     CONF_OVERRIDE_MINUTES,
     CONF_PM25_SENSOR,
-    CONF_PREHEAT_LEAD,
-    CONF_PREHEAT_MODE,
-    CONF_PREHEAT_NOT_BEFORE,
-    CONF_PRESENCE,
-    CONF_PRESENCE_DELAY,
-    CONF_PRESENCE_KIND,
-    CONF_PRESENCE_OFF,
-    CONF_PRESENCE_PIR,
-    CONF_PRESENCE_RELEASE,
-    CONF_PRESENCE_TARGET,
-    CONF_QUIET_MODE,
-    CONF_QUIET_SETBACK,
-    CONF_ROOM_ECO,
-    CONF_ROOM_ECO_AFTER,
-    CONF_ROOM_ECO_DROP,
-    CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
-    CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULE_FROM,
     CONF_SCHEDULES,
-    CONF_SENSOR_STALE_MINUTES,
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
-    CONF_SOLAR,
-    CONF_SOLAR_FACADE,
     CONF_SYNC_MAX_RETRIES,
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
     CONF_TRV,
-    CONF_TRV_INTERVAL,
-    CONF_VIRTUAL_WINDOW,
-    CONF_WALL,
     CONF_WEATHER,
-    CONF_WINDOW_CLOSE_DELAY,
-    CONF_WINDOW_OPEN_DELAY,
     CONF_WINDOWS,
     DEFAULTS,
     DOMAIN,
     EVENT_RAUMKLIMA,
-    KIND_MOISTURE,
     MAX_SENSOR_JUMP,
-    MOLD_CAP_MAX,
-    OFF_HVAC,
-    OFF_MIN_TEMP,
-    OFF_PRESET,
     OFF_SOURCE_TRV,
     OFF_SOURCE_USER,
-    PREHEAT_MARGIN_MINUTES,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
     SLOW_RETRY_INTERVAL,
@@ -137,21 +85,18 @@ from .const import (
     STATUS_TRV,
     STATUS_WINDOW,
     VALVE_HEATING_MIN,
-    WALL_FRSI,
 )
 from .decision_log import (
     CAT_DEVICE,
     CAT_MANUAL,
     CAT_NOTIFY,
-    CAT_SETTINGS,
-    CAT_TARGET,
     fmt_temp,
 )
 from .health import (
     HistoryPoint,
 )
 from .heatup import HeatupTracker
-from .hub import RaumklimaHub, _change_text
+from .hub import RaumklimaHub
 from .logic import (
     any_open,
     clamp,
@@ -159,188 +104,45 @@ from .logic import (
     is_valid,
     plausible_reading,
     to_float,
-    values_match,
     window_open_state,
 )
-from .msg import N_, tr
-from .occupancy import room_eco_target
+from .msg import tr
 from .planning import (
     AWAY_STAGES,
-    NIGHT_ROOM_TYPES,
-    SOLAR_REDUCTION,
-    STAGE_AWAY_LONG,
-    STAGE_AWAY_SHORT,
     MoldGuard,
-    frost_night_setback,
     next_schedule_window,
-    round_up_half,
-    saturation_pressure,
     schedule_target,
-    schedule_window,
     setback_defaults,
-    setback_target,
+)
+from .room_apply import ApplyMixin
+from .room_const import (
+    REASON_SEASON,
+    STORAGE_VERSION,
+    VALVE_CARE,
 )
 from .room_extra_trvs import AcSource, ExtraTrv
 from .room_health import HealthMixin
 from .room_lights import LightSignal
+from .room_mold import MoldMixin
+from .room_plan import PlanMixin
 from .room_presence import PresenceMixin
-from .room_trv import HEAT_PRESETS, MANUAL_OVERRIDE, TrvMixin
+from .room_settings import SettingsMixin
+from .room_store import StoreMixin
+from .room_trv import MANUAL_OVERRIDE, TrvMixin
 from .room_windows import WindowMixin
 from .series import RoomSeries
-from .shared import domain_data, get_hub, iso, parse_dt
+from .shared import domain_data, get_hub
 from .sync import SyncManager
 from .usage_profile import UsageProfile
 from .vent_manager import VentilationManager
 from .ventilation import MIN_USEFUL_TARGET, comfort_temperature
 
 _LOGGER = logging.getLogger(__name__)
-STORAGE_VERSION = 1
-VALVE_CARE = timedelta(minutes=3)
-
-TRV_OUTAGE_SECONDS = 60  # kürzere Aussetzer gelten nicht als Ausfall
-REASON_NORMAL = "normal"
-REASON_MONITOR = "monitor"
-REASON_MANUAL = "manual"
-# Feuchtequelle: ab diesem Zuwachs (hPa) in 6 h gilt die Feuchte als „entsteht im Raum"
-MESSAGE_MOISTURE_DRY = (
-    N_("💧 {room}: Feuchte steigt – lüften statt heizen"),
-    N_(
-        "In {hours} h von {from} auf {to} %. Draußen ist die Luft trockener: einmal kräftig "
-        "stoßlüften bringt mehr als höher heizen."
-    ),
-)
-MESSAGE_MOISTURE_DAMP = (
-    N_("🧺 {room}: Feuchtequelle im Raum"),
-    N_(
-        "In {hours} h von {from} auf {to} %. Lüften hilft gerade nicht – die Außenluft ist "
-        "feuchter. Wäsche, Duschen oder viele Personen im Raum?"
-    ),
-)
-# Ab wie vielen Stunden kritischer Wandfeuchte (in 24 h) der Schutz anhebt
-MOLD_MIN_HOURS = 2.0
-# Deckel über dem Wunsch: tagsüber 2,5 K, nachts 1,5 K (dann lüftet niemand)
-MOLD_CAP_DEFAULT = 2.5
-MOLD_CAP_NIGHT = 1.5
-MOISTURE_RISE = 1.2
-MOISTURE_COOLDOWN = timedelta(hours=12)
-REASON_SEASON = "season"
-REASON_FROST = "frost"
-REASON_VALVE_CARE = "valve_care"
-REASON_SOLAR = "solar"
-REASON_EMPTY = "room_empty"
-REASON_SCHEDULE = "schedule"
-REASON_BOOST = "boost"
-REASON_SCHEDULE_PREHEAT = "schedule_preheat"
-REASON_SLEEP = "sleep"
-REASON_MOLD = "mold"
-REASON_SCHEDULE_FALLBACK = "schedule_fallback"
-REASON_HOME_OFFICE = "home_office"
-REASON_PRESENCE = "presence"
-REASON_DEVICE_AUTO = "device_auto"
-# Schimmelschutz-Stufen (Raum-Einstellung)
-MOLD_STRICT = "strict"
-MOLD_WISH = "wish"
-MOLD_OFF = "off"
-# Zeitplan: Wert außerhalb der Fenster
-SCHEDULE_FALLBACK_WISH = "wish"
-SCHEDULE_FALLBACK_SHORT = "short"
-SCHEDULE_FALLBACK_LONG = "long"
-SCHEDULE_FALLBACK_FROST = "frost"
-# Bei diesen Gründen greift der Schimmelschutz nicht ein (bewusste Aktion oder Heizung ohnehin aus)
-PlanResult = tuple[bool, float, str] | None
-
-# Rangfolge der Regelkette: die erste Regel mit Ergebnis gewinnt (siehe ``_plan_rules``).
-# Danach gilt der Wunsch; der Schimmelschutz hebt jedes Ergebnis als Boden an (``_mold_floor``).
-PLAN_RULES: tuple[str, ...] = (
-    "_rule_monitor",
-    "_rule_device_auto",
-    "_rule_valve_care",
-    "_rule_no_hub",
-    "_rule_season",
-    "_rule_boost",
-    "_rule_presence",
-    "_rule_home_office",
-    "_rule_away",
-    "_rule_expire_manual",
-    "_rule_schedule",
-    "_rule_night",
-    "_rule_preheat",
-    "_rule_schedule_fallback",
-    "_rule_empty_room",
-    "_rule_solar",
-)
 
 
-@dataclass
-class _PlanContext:
-    """Was alle Regeln eines Durchlaufs gemeinsam sehen."""
-
-    now: datetime  # UTC
-    local_now: datetime
-    hub: Any
-    manual_until: datetime | None = None
-
-    @property
-    def manual_active(self) -> bool:
-        """Läuft gerade eine Handverstellung?"""
-        return bool(self.manual_until and self.now < self.manual_until)
 
 
-MOLD_EXEMPT = frozenset(
-    {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD}
-)
-# Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
-LIVE_OPTIONS = frozenset(
-    {
-        CONF_PRESENCE_TARGET,
-        CONF_PRESENCE_DELAY,
-        CONF_PRESENCE_RELEASE,
-        CONF_PRESENCE_PIR,
-        CONF_COMFORT_TEMP,
-        CONF_SETBACK_SHORT,
-        CONF_SETBACK_LONG,
-        CONF_WINDOW_OPEN_DELAY,
-        CONF_WINDOW_CLOSE_DELAY,
-        CONF_NIGHT_AIRING,
-        CONF_VIRTUAL_WINDOW,
-        CONF_HOME,
-        CONF_SOLAR,
-        CONF_SOLAR_FACADE,
-        CONF_LIGHTS,
-        CONF_LIGHT_SIGNALS,
-        CONF_PRESENCE,
-        CONF_PRESENCE_KIND,
-        CONF_ROOM_ECO,
-        CONF_ROOM_ECO_AFTER,
-        CONF_ROOM_ECO_DROP,
-        CONF_SCHEDULES,
-        CONF_BOOST_TEMP,
-        CONF_BOOST_MINUTES,
-        CONF_OVERRIDE_MINUTES,
-        CONF_AIRING_OCCUPIED_ONLY,
-        CONF_FAST_POLL,
-        CONF_LONG_AIRING,
-        CONF_LONG_AIRING_REMIND,
-        CONF_AIRING_WINDOWS,
-        CONF_LEARN_AIRING,
-        CONF_AIRING_MIN_MINUTES,
-        CONF_TRV_INTERVAL,
-        CONF_CO2_LIMIT,
-        CONF_NOTIFY_CAP,
-        CONF_MOLD_CAP,
-        CONF_MOLD_MODE,
-        CONF_PREHEAT_LEAD,
-        CONF_PREHEAT_MODE,
-        CONF_PREHEAT_NOT_BEFORE,
-        CONF_QUIET_MODE,
-        CONF_ROOM_PERSONS,
-        CONF_WALL,
-        CONF_SCHEDULE_FALLBACK,
-    }
-)
-
-
-class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
+class RaumklimaController(StoreMixin, PlanMixin, MoldMixin, ApplyMixin, SettingsMixin, WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     """Steuert genau einen Raum."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -490,29 +292,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         """Gespeicherten Zustand laden, Listener registrieren, abgleichen."""
         stored = await self._store.async_load()
         if stored:
-            self.target_temp = float(stored.get("target_temp", self.target_temp))
-            self.hvac_on = bool(stored.get("hvac_on", self.hvac_on))
-            self.hvac_auto = bool(stored.get("hvac_auto", self.hvac_auto))
-            self.off_source = stored.get("off_source") or (None if self.hvac_on else OFF_SOURCE_USER)
-            self.boost_until = parse_dt(stored.get("boost_until"))
-            self.boost_open = bool(stored.get("boost_open") or False)
-            self.boost_temperature = stored.get("boost_temperature")
-            self.window_logic = bool(stored.get("window_logic", self.window_logic))
-            self.trv_on_preset = stored.get("trv_on_preset")
-            self.preset_learned = stored.get("preset_learned")
-            if stored.get("shift") is not None:
-                self.shift = float(stored.get("shift") or 0.0)
-            self.heatup.load(stored.get("heatup"))
-            self.mold_guard.load(stored.get("mold_vapour"))
-            if isinstance(stored.get("rf"), dict):
-                self._rf = stored["rf"]
-            for seconds in stored.get("outage_durations") or []:
-                try:
-                    self._outage_durations.append(float(seconds))
-                except (TypeError, ValueError):
-                    continue
-            self.airing.load(stored.get("airing_profile"))
-            self.usage.load(stored.get("usage_profile"))
+            self._load_stored(stored)
         elif self.trv_available():
             # Erster Start: Wunschtemperatur statt Zufallswert am TRV (Eco-Speicher, 5 °C …)
             self.target_temp = self.comfort_temp
@@ -523,8 +303,9 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 self.trv_on_preset = preset
             self._save()
 
-        self.vent.load((stored or {}).get("vent"))
-        self.series.load((stored or {}).get("series"))
+        if not stored:
+            self.vent.load(None)
+            self.series.load(None)
         self.valve_sensor = self._find_valve_sensor()
         for extra in self.extra_trvs:
             extra.discover()
@@ -606,29 +387,6 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.vent.async_stop()
         await self._store.async_save(self._stored_data())
 
-    def _stored_data(self) -> dict[str, Any]:
-        return {
-            "target_temp": self.target_temp,
-            "hvac_on": self.hvac_on,
-            "hvac_auto": self.hvac_auto,
-            "off_source": self.off_source,
-            "boost_until": iso(self.boost_until),
-            "boost_open": self.boost_open,
-            "boost_temperature": self.boost_temperature,
-            "window_logic": self.window_logic,
-            "trv_on_preset": self.trv_on_preset,
-            "preset_learned": self.preset_learned,
-            "shift": self.shift,
-            "vent": self.vent.export() if self.vent else None,
-            "series": self.series.export(),
-            "heatup": self.heatup.dump(),
-            "mold_vapour": self.mold_guard.dump(),
-            "rf": self._rf,
-            "airing_profile": self.airing.export(),
-            "usage_profile": self.usage.export(),
-            "outage_durations": list(self._outage_durations),
-        }
-
     # ---------------------------------------------------------------- Gewohntes Lüften
     def record_airing(self, when: datetime, minutes: float) -> None:
         """Einen abgeschlossenen Lüftvorgang für das Lernen merken."""
@@ -663,145 +421,6 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     @callback
     def notify_listeners(self) -> None:
         self._notify()
-
-    @callback
-    def settings_summary(self) -> dict[str, Any]:
-        """Was eingestellt ist – für die Einstellungs-Karte."""
-        cfg = self.config
-        vent = self.vent
-        hub = self.hub
-        entry = self.hass.config_entries.async_get_entry(self.entry.entry_id) or self.entry
-        own = {**(entry.data or {}), **(entry.options or {})}
-        # Struktur (Raumtyp, erkannte Abgleichart) ist keine Einstellung – nicht mitzählen.
-        skip = {CONF_ROOM_TYPE, CONF_CALIBRATION_MODE}
-        changed = sorted(k for k, v in DEFAULTS.items() if k in own and own.get(k) != v and k not in skip)
-        for key in (CONF_SCHEDULES, CONF_PRESENCE, CONF_LIGHTS, CONF_SOLAR_FACADE):
-            if own.get(key):
-                changed.append(key)
-        return {
-            "entry_id": self.entry.entry_id,
-            "mold_mode": self.config.get(CONF_MOLD_MODE),
-            "airing_min_minutes": self.config.get(CONF_AIRING_MIN_MINUTES),
-            "schedule_fallback": self.config.get(CONF_SCHEDULE_FALLBACK),
-            "changed": changed,
-            "trv": self.trv,
-            "valve_reported": self.valve_position is not None,
-            "valve_own": self.valve_own,
-            "room_type": vent.room_type if vent else cfg.get(CONF_ROOM_TYPE),
-            "weather_entity": vent.weather if vent else cfg.get(CONF_WEATHER),
-            "notify_targets": vent.notify_targets if vent else [],
-            "tts_targets": vent.tts_targets if vent else [],
-            "quiet_start": vent.quiet_start if vent else None,
-            "quiet_end": vent.quiet_end if vent else None,
-            "repeat_minutes": vent.repeat_minutes if vent else None,
-            "max_drop": vent.max_drop if vent else None,
-            "hub": bool(hub),
-            "look_dark": hub.opt(CONF_LOOK_DARK) if hub is not None else "auto",
-            "comfort_temperature": cfg.get(CONF_COMFORT_TEMP),
-            "setback_short": self.setback_short,
-            "setback_long": self.setback_long,
-            "night_airing": self.night_mode,
-            "virtual_window": self.virtual_mode,
-            "solar_gain": bool(self.config.get(CONF_SOLAR)),
-            "solar_facade": self.config.get(CONF_SOLAR_FACADE) or "",
-            "schedules": self.schedules,
-            "schedule_from": self.config.get(CONF_SCHEDULE_FROM) or "",
-            "boost_temperature": cfg.get(CONF_BOOST_TEMP),
-            "boost_minutes": cfg.get(CONF_BOOST_MINUTES),
-            "presence_sensors": self.sensor_kinds(),
-            "presence_kind": self.config.get(CONF_PRESENCE_KIND) or "auto",
-            "room_eco": self.room_eco_mode,
-            "room_eco_enabled": self.room_eco_enabled(),
-            "room_eco_after": self.room_eco_after,
-            "room_eco_drop": self.room_eco_drop,
-            "extra_trvs": [x.summary() for x in self.extra_trvs],
-            "ac_sources": [x.summary() for x in self.ac_sources],
-            "heat_sources": [
-                {k: src.get(k) for k in ("id", "entity", "name", "type", "offset", "trigger", "untouched")}
-                for src in self.all_sources
-            ],
-            "boost_sources": self.config.get(CONF_BOOST_SOURCES) or "selected",
-            "signal_lights": self.lights.lights,
-            "light_signals": self.lights.signals,
-            "virtual_active": self.virtual_enabled(),
-            "heatup": {
-                "episodes": len(self.heatup.episodes),
-                "rate": self.heatup.rate(self.hub.outdoor_temp() if self.hub else None),
-                "minutes_2k": self.heatup.minutes_needed(2.0, self.hub.outdoor_temp() if self.hub else None),
-            },
-            "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
-            "co2_sensor": self.co2_sensor,
-            "pm25_sensor": self.pm25_sensor,
-            "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),
-            "windows": self.windows,
-            "comfort_configured": cfg.get(CONF_COMFORT_TEMP) not in (None, "", 0),
-            "window_open_delay": cfg.get(CONF_WINDOW_OPEN_DELAY),
-            "window_close_delay": cfg.get(CONF_WINDOW_CLOSE_DELAY),
-            "calibration_mode": cfg.get(CONF_CALIBRATION_MODE),
-            "calibration_entity": cfg.get(CONF_CALIBRATION_ENTITY),
-            "on_preset": cfg.get(CONF_ON_PRESET),
-            "off_method": cfg.get(CONF_OFF_METHOD),
-            "follow_trv": cfg.get(CONF_FOLLOW_TRV),
-            "notify_on_failure": cfg.get(CONF_NOTIFY),
-            "sensor_stale_minutes": cfg.get(CONF_SENSOR_STALE_MINUTES),
-            "sync_verify_delay": cfg.get(CONF_SYNC_VERIFY_DELAY),
-            "sync_max_retries": cfg.get(CONF_SYNC_MAX_RETRIES),
-        }
-
-    def apply_live_options(self, changes: dict[str, Any]) -> bool:
-        """Einstellungen aus der Karte übernehmen, ohne den Raum neu zu laden.
-
-        False, wenn eine Änderung einen Neustart braucht (z. B. Raumtyp mit eigenen Standardwerten).
-        """
-        if not self._started or not set(changes) <= LIVE_OPTIONS:
-            return False
-        changed = {k: v for k, v in changes.items() if self.config.get(k) != v}
-        if not changed:
-            return True
-        old_hub = self.hub
-        old_values = {k: self.config.get(k) for k in changed}
-        # self.config ist dasselbe Objekt, das auch der Lüftungsassistent nutzt
-        self.config.update(changed)
-        self.log(
-            CAT_SETTINGS,
-            tr("Einstellungen geändert"),
-            ", ".join(_change_text(k, old_values[k], v) for k, v in changed.items()),
-        )
-        # Wunschtemperatur aus den Einstellungen muss den laufenden Sollwert nachziehen –
-        # sonst heizt der Raum weiter auf den alten Wert, bis er neu geladen wird (Issue #22).
-        if changed.keys() & {CONF_COMFORT_TEMP, CONF_ROOM_TYPE}:
-            new_wish = self.comfort_temp
-            if new_wish != self.target_temp:
-                self.target_temp = new_wish
-                self.log(
-                    CAT_SETTINGS,
-                    tr("Wunschtemperatur übernommen"),
-                    tr("neuer Sollwert {t} aus den Einstellungen", t=fmt_temp(new_wish)),
-                )
-        if changed.keys() & {
-            CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP,
-            CONF_PRESENCE_TARGET, CONF_PRESENCE_DELAY, CONF_PRESENCE_RELEASE, CONF_PRESENCE_PIR,
-        }:
-            self.track_presence()
-            self.update_presence()
-        if self.virtual_open_at is not None and not self.virtual_enabled():
-            self._close_virtual("off")
-        new_hub = self.hub
-        if new_hub is not old_hub:
-            for hub in (old_hub, new_hub):
-                if hub is not None:
-                    hub.notify_entities()
-        self._notify()
-        self.hass.async_create_task(self._apply())
-        return True
-
-    @staticmethod
-    def _fmt_opt(value: Any) -> str:
-        if value is None or value == "":
-            return tr("Standard")
-        if isinstance(value, float):
-            return fmt_temp(value) if value < 40 else f"{value:.0f}"
-        return str(value)
 
     def fire_event(self, kind: str, data: dict[str, Any]) -> None:
         """Ereignis für eigene Automationen (raumklima_event)."""
@@ -852,18 +471,6 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
 
 
 
-
-    async def _write_off_setpoint(self) -> None:
-        """Abschalt-Sollwert schreiben – Gerätegrenze erst hier lesen (Issue #37).
-
-        Solange das Gerät seine Mindesttemperatur nicht meldet, gibt es keinen sinnvollen Wert:
-        der frühere Rückfall (5,0 °C) stand dann dauerhaft „unbestätigt" im Sync und löste nach
-        fünf Runden eine dringende Meldung aus, obwohl nichts zu tun war.
-        """
-        low = to_float(self._trv_attr("min_temp"))
-        if low is None:
-            raise RuntimeError("Mindesttemperatur des Geräts noch unbekannt")
-        await self._write_setpoint(low)
 
     def _update_shift(self) -> None:
         """Abweichung zwischen Thermostat- und Raumfühler nachführen und dauerhaft merken.
@@ -1045,442 +652,6 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     def setback_long(self) -> float:
         value = to_float(self.config.get(CONF_SETBACK_LONG))
         return value if value is not None else setback_defaults(self.config.get(CONF_ROOM_TYPE))[1]
-
-    def plan(self) -> tuple[bool, float, str]:
-        """(heizen?, Zieltemperatur, Grund) – Regelkette mit Schimmelschutz als Boden.
-
-        Die Doku sagt zu, dass der Schimmelschutz vorrangig bleibt („Der Zeitplan setzt nur den
-        Sollwert: Fenster, Frost, Schimmel, Heizpause und Abwesenheit bleiben vorrangig“). Deshalb
-        gilt er als Nachbedingung für *jeden* Zweig, der unter dem Feuchte-Boden liegen würde –
-        auch Zeitplan und Ruhezeit, die ihn vorher nicht geprüft haben.
-        """
-        on, target, reason = self._plan_rules()
-        return self._mold_floor(on, target, reason)
-
-    def _mold_floor(self, on: bool, target: float, reason: str) -> tuple[bool, float, str]:
-        """Schimmelschutz als Boden – Stufe je Raum (streng / nur bis Wunsch / aus).
-
-        Drei Bremsen verhindern, dass die Rechnung ins Absurde läuft:
-
-        * offenes Fenster: kein Boden (Heizen gegen ein offenes Fenster ist Verschwendung)
-        * Stundenbudget: nur wenn die Wandfläche über längere Zeit über 80 % lag
-        * Deckel: höchstens Wunsch + 2,5 K (nachts 1,5 K), weil Heizen kein Feuchteproblem löst
-        """
-        mode = self.config.get(CONF_MOLD_MODE) or MOLD_STRICT
-        window_open = bool(self.paused or self.window_paused)
-        if mode == MOLD_OFF or not on or reason in MOLD_EXEMPT or not self.humidity_capable or window_open:
-            self._mold_raw = None  # Schutz greift nicht: Hysterese zurücksetzen
-            self._mold_capped = False
-            return on, target, reason
-        hub = self.hub
-        if hub is None:
-            return on, target, reason
-        mold = self.mold_min(hub)
-        if mold is None:
-            self._mold_raw = None
-            self._mold_capped = False
-            return on, target, reason
-
-        # Stundenbudget: kurze Spitzen (Kochen, Duschen) heizen wir nicht weg.
-        budget = self.mold_guard.surface_rh_hours(dt_util.utcnow())
-        if budget < MOLD_MIN_HOURS:
-            self._mold_capped = False
-            return on, target, reason
-
-        if mode == MOLD_WISH:
-            mold = min(mold, self.target_temp)  # nur bis zum Wunsch anheben
-
-        cap = self.mold_cap
-        if self.hub is not None and self.hub.quiet_now():
-            cap = min(cap, MOLD_CAP_NIGHT)
-        limit = round_up_half(self.target_temp + cap)
-        capped = mold > limit + 0.05
-        mold = min(mold, limit)
-        self._mold_capped = capped
-        if target >= mold - 0.05:
-            return on, target, reason
-        return True, min(mold, self.trv_max), REASON_MOLD
-
-    @property
-    def mold_cap(self) -> float:
-        """Wie weit der Feuchte-Boden den Wunsch höchstens anheben darf (K)."""
-        try:
-            value = float(self.config.get(CONF_MOLD_CAP, MOLD_CAP_DEFAULT))
-        except (TypeError, ValueError):
-            value = MOLD_CAP_DEFAULT
-        return max(0.0, min(MOLD_CAP_MAX, value))
-
-    @property
-    def mold_capped(self) -> bool:
-        """Hat der Deckel begrenzt? Dann ist Lüften die Antwort, nicht Heizen."""
-        return bool(getattr(self, "_mold_capped", False))
-
-    @property
-    def mold_risk_hours(self) -> float:
-        """Stunden der letzten 24 h mit kritischer Wandfeuchte."""
-        return self.mold_guard.surface_rh_hours(dt_util.utcnow())
-
-    def surface_humidity(self) -> float | None:
-        """Relative Feuchte an der kältesten Wandstelle in Prozent."""
-        hub = self.hub
-        temp = self.current_temperature
-        rh = self.current_humidity
-        if hub is None or temp is None or rh is None or rh <= 0:
-            return None
-        outdoor = hub.outdoor_temp()
-        if outdoor is None:
-            return None
-        vapour = rh / 100.0 * saturation_pressure(temp)
-        surface_temp = outdoor + self.room_frsi * (temp - outdoor)
-        saturation = saturation_pressure(surface_temp)
-        if saturation <= 0:
-            return None
-        return round(100.0 * vapour / saturation, 1)
-
-    @property
-    def room_frsi(self) -> float:
-        """Temperaturfaktor der kältesten Wandstelle – Raum vor Wohnung.
-
-        Eine Außenecke (0,62) wird deutlich kälter als eine Innenwand (0,82) und braucht
-        deshalb mehr Schutz; ein innenliegendes Bad praktisch keinen.
-        """
-        wall = str(self.config.get(CONF_WALL) or "auto")
-        if wall in WALL_FRSI:
-            return WALL_FRSI[wall]
-        hub = self.hub
-        return hub.frsi if hub is not None else 0.70
-
-    def mold_min(self, hub: RaumklimaHub) -> float | None:
-        """Feuchte-Mindesttemperatur aus dem 24-h-Mittel (siehe ``MoldGuard``)."""
-        return self.mold_guard.floor(
-            dt_util.utcnow(), self.current_temperature, self.current_humidity, hub.outdoor_temp(), self.room_frsi
-        )
-
-    def _count_rf(self, attempts: int) -> None:
-        """Funkbefehl zählen – je Tag, mit Wiederholungen (Batterie-Diagnose)."""
-        today = dt_util.now().date().isoformat()
-        if self._rf.get("day") != today:
-            self._rf = {"day": today, "sent": 0, "retries": 0}
-        self._rf["sent"] = int(self._rf.get("sent") or 0) + 1
-        if attempts > 1:
-            self._rf["retries"] = int(self._rf.get("retries") or 0) + 1
-        self._save()
-
-    @property
-    def rf_today(self) -> dict[str, int]:
-        """Funkbefehle heute: gesamt und davon Wiederholungen."""
-        today = dt_util.now().date().isoformat()
-        if self._rf.get("day") != today:
-            return {"sent": 0, "retries": 0}
-        return {"sent": int(self._rf.get("sent") or 0), "retries": int(self._rf.get("retries") or 0)}
-
-    @property
-    def mold_rh(self) -> float | None:
-        """Mittlere relative Feuchte der letzten 24 h (Grundlage des Feuchte-Bodens)."""
-        return self.mold_guard.mean_rh(dt_util.utcnow())
-
-    def check_moisture_source(self, now: datetime) -> None:
-        """Steigt die Feuchte im Raum, obwohl geheizt wird? Dann liegt die Ursache im Zimmer."""
-        if self.monitor or not self.humidity_capable or self.paused or self.window_logic and self.window_paused:
-            return
-        sent = getattr(self, "_moisture_sent", None)
-        if sent is not None and now - sent < MOISTURE_COOLDOWN:
-            return
-        delta = self.mold_guard.trend(now)
-        change = self.mold_guard.rh_change(now)
-        if delta is None or change is None or delta < MOISTURE_RISE:
-            return
-        hub = self.hub
-        if hub is None:
-            return
-        start, end, hours = change
-        vent = self.vent
-        dries = vent.dries if vent is not None else True
-        title_key, body_key = MESSAGE_MOISTURE_DRY if dries else MESSAGE_MOISTURE_DAMP
-        fields = {
-            "room": self.name,
-            "hours": f"{hours:.0f}",
-            "from": f"{start:.0f}",
-            "to": f"{end:.0f}",
-        }
-        title = tr(title_key, **fields)
-        body = tr(body_key, **fields)
-        self._moisture_sent = now
-        self.log(CAT_SETTINGS, title, body)
-        hub.notify(
-            KIND_MOISTURE,
-            title,
-            body,
-            data={"tag": f"{self.entry.entry_id}_moisture", "group": "raumklima"},
-            speak=False,
-            room=self,
-        )
-
-    def record_mold_sample(self, now: datetime) -> None:
-        """Jede Minute aus der Statistik: Feuchte für das 24-h-Mittel merken."""
-        # Bei offenem Fenster nicht mitschreiben: die Lüftzeit würde das 24-h-Mittel
-        # verwässern und den Boden nach dem Schließen unnötig hoch halten.
-        if (
-            self.humidity_sensor
-            and not self.paused
-            and not self.window_paused
-            and self.mold_guard.add(
-                now, self.current_temperature, self.current_humidity, self.surface_humidity()
-            )
-        ):
-            self._save()
-        self.check_moisture_source(now)
-
-    def _preheat_allowed(self, start: datetime, now: datetime) -> bool:
-        """Darf jetzt vorgeheizt werden? (Issue #10: nicht mitten in der Nacht)
-
-        ``auto``  – so früh, wie die gelernte Aufheizzeit es verlangt (bisheriges Verhalten)
-        ``lead``  – höchstens X Minuten vor dem Zeitfenster
-        ``clock`` – frühestens ab der eingestellten Uhrzeit
-        ``off``   – gar nicht; geheizt wird erst zum Beginn des Zeitfensters
-        """
-        mode = str(self.config.get(CONF_PREHEAT_MODE) or "auto")
-        if mode == "off":
-            return False
-        if mode == "lead":
-            lead = max(0, int(self.config.get(CONF_PREHEAT_LEAD) or 90))
-            return now >= start - timedelta(minutes=lead)
-        if mode == "clock":
-            hhmm = str(self.config.get(CONF_PREHEAT_NOT_BEFORE) or "05:00")
-            hour, _sep, minute = hhmm.partition(":")
-            try:
-                allowed = now.replace(hour=int(hour), minute=int(minute or 0), second=0, microsecond=0)
-            except (TypeError, ValueError):
-                return True
-            return now >= allowed
-        return True
-
-    def _night_setback_applies(self, hub: Any) -> bool:
-        """Gilt die Nachtabsenkung für diesen Raum?
-
-        Reihenfolge: Raum-Option (auto/on/off) vor Raumtyp, ausdrücklicher Schalter
-        „Nachtruhe" vor der Uhrzeit. ``auto`` heißt wie bisher: nur Schlafzimmer und
-        selten genutzte Räume, und nur mit der Wohnungs-Option „Ruhezeit senkt ab".
-        """
-        mode = str(self.config.get(CONF_QUIET_MODE) or "auto")
-        if mode == "off" or not hub.night_setback_now():
-            return False
-        if mode == "on":
-            return True
-        if getattr(hub, "night_manual", False):
-            return True
-        if not hub.opt(CONF_QUIET_SETBACK):
-            return False
-        return self.config.get(CONF_ROOM_TYPE) in NIGHT_ROOM_TYPES
-
-    def _plan_rules(self) -> tuple[bool, float, str]:
-        """Regelkette ohne Nachbedingung (siehe ``plan()``).
-
-        Die Reihenfolge in ``PLAN_RULES`` *ist* die Rangfolge: die erste Regel, die ein Ergebnis
-        liefert, gewinnt. Jede Regel steht für sich und gibt ``None`` zurück, wenn sie nicht greift.
-        """
-        ctx = _PlanContext(now=dt_util.utcnow(), local_now=dt_util.now(), hub=self.hub)
-        for name in PLAN_RULES:
-            result = getattr(self, name)(ctx)
-            if result is not None:
-                return result
-        return True, self.target_temp, REASON_NORMAL
-
-    def _rule_monitor(self, ctx: _PlanContext) -> PlanResult:
-        """Überwachungsraum ohne Thermostat: nie heizen."""
-        if self.monitor:
-            return False, self.target_temp, REASON_MONITOR
-        return None
-
-    def _rule_device_auto(self, ctx: _PlanContext) -> PlanResult:
-        """HVAC-Modus Auto: das Gerät fährt sein eigenes Programm."""
-        if self.hvac_auto:
-            return False, self.target_temp, REASON_DEVICE_AUTO
-        return None
-
-    def _rule_valve_care(self, ctx: _PlanContext) -> PlanResult:
-        """Sommerpflege: Ventil kurz ganz öffnen."""
-        if self._valve_care_until and ctx.now < self._valve_care_until:
-            return True, self.trv_max, REASON_VALVE_CARE
-        return None
-
-    def _rule_no_hub(self, ctx: _PlanContext) -> PlanResult:
-        """Ohne Zentrale gilt schlicht der Wunsch."""
-        if ctx.hub is None:
-            return True, self.target_temp, REASON_NORMAL
-        return None
-
-    def _rule_season(self, ctx: _PlanContext) -> PlanResult:
-        """Heizpause – mit Sicherung: fällt der Raum unter den Frostboden, heizt er trotzdem."""
-        hub = ctx.hub
-        if hub.heating_allowed:
-            self._frost_active = False
-            return None
-        floor = hub.frost_floor
-        cur = self.current_temperature
-        if self._frost_active and (cur is None or cur >= floor + 1):
-            if not self._peeking:
-                self._frost_active = False
-        elif not self._frost_active and cur is not None and cur < floor and not self._peeking:
-            self._frost_active = True
-        if self._frost_active:
-            return True, min(floor + 1, self.trv_max), REASON_FROST
-        return False, self.target_temp, REASON_SEASON
-
-    def _rule_boost(self, ctx: _PlanContext) -> PlanResult:
-        """Boost: bewusste Nutzeraktion – schlägt die Absenkung bei Abwesenheit."""
-        if not (self.boost_open or self.boost_until is not None):
-            return None
-        if self.boost_open or ctx.now < self.boost_until:
-            boost = self.boost_temperature if self.boost_temperature is not None else self.target_temp
-            return True, min(boost, self.trv_max), REASON_BOOST
-        if not self._peeking:
-            self.boost_until = None
-            self.boost_temperature = None
-            self._save()
-        return None
-
-    def _rule_presence(self, ctx: _PlanContext) -> PlanResult:
-        """Jemand im Raum: auf die Anwesenheits-Temperatur heizen (z. B. Arbeitszimmer 19 → 21)."""
-        if self.presence_heat_active and not ctx.hub.vacation:
-            return True, min(self.presence_target, self.trv_max), REASON_PRESENCE
-        return None
-
-    def _rule_home_office(self, ctx: _PlanContext) -> PlanResult:
-        """Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert."""
-        hub = ctx.hub
-        if not hub.vacation and hub.home_office_applies(self.entry.entry_id):
-            return True, min(self.target_temp, self.trv_max), REASON_HOME_OFFICE
-        return None
-
-    def _rule_away(self, ctx: _PlanContext) -> PlanResult:
-        """Niemand zu Hause: Absenkung „kurz weg" / „länger weg" (mit Schimmelschutz und Frostnacht)."""
-        hub = ctx.hub
-        stage = hub.stage_for_room(self.entry.entry_id)
-        if stage not in AWAY_STAGES:
-            return None
-        if self._manual_until and ctx.now < self._manual_until:
-            return True, self.target_temp, REASON_MANUAL
-        mold = None
-        if self.humidity_capable and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
-            mold = self.mold_min(hub)
-        target = setback_target(
-            self.target_temp, stage, self.setback_short, self.setback_long, mold
-        )
-        frost = hub.frost_night
-        if not self._peeking:
-            self.frost_night_low = frost if target < self.target_temp else None
-        if frost is not None and target < self.target_temp:
-            target = min(self.target_temp, max(target, frost_night_setback(target, self.target_temp)))
-        if target < self.target_temp:
-            return True, target, stage
-        # Nichts zu senken (Wunsch liegt schon auf dem Absenkwert, z. B. Sportzimmer 18,0 °C):
-        # trotzdem als „abgesenkt" melden – außer ein Zeitplanfenster gilt gerade.
-        if schedule_target(self.schedules, ctx.local_now) is None:
-            return True, target, stage
-        return None
-
-    def _rule_expire_manual(self, ctx: _PlanContext) -> PlanResult:
-        """Kein Ergebnis – räumt nur auf: abgelaufene Handverstellung verwerfen.
-
-        Nur *abgelaufene* Handverstellungen verwerfen – eine laufende muss bleiben, sonst wäre
-        sie nach dem ersten plan()-Aufruf schon weg (Zeitplan-Pause).
-        """
-        ctx.manual_until = self._manual_until
-        if not self._peeking:
-            if ctx.manual_until is not None and ctx.manual_until <= ctx.now:
-                ctx.manual_until = None
-                self._manual_until = None
-                self._save()
-            self.frost_night_low = None
-        return None
-
-    def _rule_schedule(self, ctx: _PlanContext) -> PlanResult:
-        """Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne."""
-        sched = schedule_target(self.schedules, ctx.local_now)
-        if sched is None:
-            return None
-        if ctx.manual_active and not values_match(self.target_temp, sched, 0.05):
-            # Von Hand gestellt: der Zeitplan pausiert bis override_minutes abgelaufen sind
-            return True, min(self.target_temp, self.trv_max), REASON_MANUAL
-        return True, min(sched, self.trv_max), REASON_SCHEDULE
-
-    def _rule_night(self, ctx: _PlanContext) -> PlanResult:
-        """Ruhezeit: Schlafräume werden abgesenkt, auch wenn jemand zu Hause ist.
-
-        Nach einer Nachtschicht wird tagsüber geschlafen. Der Regler am Thermostat gilt weiter.
-        """
-        if not self._night_setback_applies(ctx.hub):
-            return None
-        if ctx.manual_active:
-            return True, self.target_temp, REASON_MANUAL
-        return True, ctx.hub.night_target(self), REASON_SLEEP
-
-    def _rule_preheat(self, ctx: _PlanContext) -> PlanResult:
-        """Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit."""
-        nxt = next_schedule_window(self.schedules, ctx.local_now)
-        cur = self.current_temperature
-        if nxt is None or cur is None or not self._preheat_allowed(nxt[0], ctx.local_now):
-            return None
-        start, want = nxt
-        need = self.heatup.minutes_needed(want - cur, ctx.hub.outdoor_temp())
-        if need is not None and ctx.local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:
-            return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
-        return None
-
-    def _rule_schedule_fallback(self, ctx: _PlanContext) -> PlanResult:
-        """Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt."""
-        fb = self.config.get(CONF_SCHEDULE_FALLBACK) or SCHEDULE_FALLBACK_WISH
-        if not self.schedules or fb == SCHEDULE_FALLBACK_WISH:
-            return None
-        outside = {
-            SCHEDULE_FALLBACK_SHORT: self.setback_short,
-            SCHEDULE_FALLBACK_LONG: self.setback_long,
-            SCHEDULE_FALLBACK_FROST: ctx.hub.frost_floor,
-        }.get(fb)
-        if outside is not None and outside < self.target_temp - 0.05:
-            return True, min(outside, self.trv_max), REASON_SCHEDULE_FALLBACK
-        return None
-
-    def _rule_empty_room(self, ctx: _PlanContext) -> PlanResult:
-        """Leerer Raum (Präsenzmelder): etwas kühler. „Anwesenheit aus" schaltet das ab (Issue #10)."""
-        hub = ctx.hub
-        if not self.room_eco_applies() or hub.opt(CONF_PRESENCE_OFF):
-            return None
-        floor = self.setback_short
-        if self.humidity_capable:
-            mold = self.mold_min(hub)
-            if mold is not None:
-                floor = max(floor, mold)
-        target = room_eco_target(self.target_temp, self.room_eco_drop, floor)
-        if target < self.target_temp:
-            return True, target, REASON_EMPTY
-        return None
-
-    def _rule_solar(self, ctx: _PlanContext) -> PlanResult:
-        """Sonnenseite: bei erwarteter Sonne etwas weniger – sie heizt mit."""
-        if self._solar_applies(ctx.hub):
-            return True, self.target_temp - SOLAR_REDUCTION, REASON_SOLAR
-        return None
-
-    def _solar_applies(self, hub: RaumklimaHub) -> bool:
-        """Sonnen-Raum: bei erwarteter Sonne 1 °C weniger – einmal an, bis die Sonne weg ist (keine Schwingung)."""
-        if not self.config.get(CONF_SOLAR) or not hub.sun_expected(self.config.get(CONF_SOLAR_FACADE)):
-            if not self._peeking:
-                self._solar_active = False
-            return False
-        if not self._solar_active:
-            cur = self.current_temperature
-            active = cur is not None and cur >= self.target_temp - 0.5
-            if not self._peeking:
-                self._solar_active = active
-            return active
-        return True
-
-    @property
-    def effective_target(self) -> float:
-        """Geltendes Ziel zum Anzeigen – ohne Zustand zu verbrauchen (Boost-Ablauf, Hysterese)."""
-        return self.peek_plan()[1]
 
     @callback
     def on_hub_change(self) -> None:
@@ -1948,327 +1119,6 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             self.hass.async_create_task(self._apply(from_measurement=True))
             return
         self.hass.async_create_task(self.async_calibrate())
-
-
-
-
-
-
-
-    async def _ensure_bosch_manual(self) -> None:
-        """Bosch (und kompatible): internes Zeitprogramm deaktivieren.
-
-        Setzt operating_mode auf 'manual', damit externe Setpoints nicht vom
-        Geraete-eigenen Zeitplan ueberschrieben werden (Better Thermostat 1.8.0+).
-        """
-        try:
-            await self._call_climate("set_preset_mode", preset_mode="manual")
-            _LOGGER.info("%s: Bosch operating_mode auf 'manual' gesetzt", self.name)
-        except Exception as exc:  # noqa: BLE001
-            _LOGGER.debug("%s: operating_mode 'manual' nicht unterstuetzt: %s", self.name, exc)
-        finally:
-            self._bosch_manual_pending = False
-
-    def _source_config(self) -> list[dict[str, Any]]:
-        """Heizquellen (TRV/AC) mit Metadaten; ohne Konfiguration aus den Zusatz-Thermostaten."""
-        raw = self.config.get(CONF_HEAT_SOURCES)
-        out: list[dict[str, Any]] = []
-        if isinstance(raw, list) and raw:
-            for i, item in enumerate(raw):
-                if not isinstance(item, dict):
-                    continue
-                eid = str(item.get("entity") or "").strip()
-                if not eid or eid == self.trv:
-                    continue
-                out.append({
-                    "id": str(item.get("id") or f"src{i + 1}"),
-                    "entity": eid,
-                    "name": str(item.get("name") or eid),
-                    "type": str(item.get("type") or "trv"),
-                    "offset": to_float(item.get("offset")) or 0.0,
-                    "trigger": str(item.get("trigger") or ""),
-                    "untouched": bool(item.get("untouched")),
-                })
-            return out
-        return [
-            {"id": f"extra:{e}", "entity": e, "name": e, "type": "trv", "offset": 0.0, "trigger": "", "untouched": False}
-            for e in self._extra_ids
-        ]
-
-    @property
-    def all_sources(self) -> list[dict[str, Any]]:
-        """Haupt-Thermostat + alle weiteren Quellen."""
-        main = {"id": "main", "entity": self.trv, "name": self.name, "type": "trv", "offset": 0.0, "trigger": "", "untouched": False}
-        return [main, *self.source_cfg]
-
-    def _active_window(self) -> dict[str, Any] | None:
-        return schedule_window(self.schedules, dt_util.now())
-
-    def _selected_ids(self) -> set[str]:
-        """Quellen, die im laufenden Fenster (oder außerhalb) aktiv sind."""
-        every = {s["id"] for s in self.all_sources if not s["untouched"]}
-        win = self._active_window()
-        if win is None:
-            return every
-        chosen = {str(x) for x in (win.get("sources") or [])}
-        return chosen or every
-
-    def _boost_ids(self) -> set[str]:
-        """Quellen, die während eines Boosts laufen (selected / all / first)."""
-        mode = str(self.config.get(CONF_BOOST_SOURCES) or "selected")
-        if mode == "all":
-            return {s["id"] for s in self.all_sources if not s["untouched"]}
-        chosen = self._selected_ids()
-        if mode == "first":
-            first = next((s["id"] for s in self.all_sources if s["id"] in chosen), None)
-            return {first} if first else set()
-        return chosen
-
-    def _source_on(self, src: dict[str, Any], want_on: bool, boosting: bool) -> bool | None:
-        """Soll die Quelle laufen? None = unangetastet (keine Befehle)."""
-        if src["untouched"]:
-            return None
-        if not want_on:
-            return False
-        if boosting:
-            return src["id"] in self._boost_ids()
-        trigger = src.get("trigger")
-        if trigger:
-            st = self.hass.states.get(trigger)
-            if st is not None and st.state == "on":
-                return True
-        return src["id"] in self._selected_ids()
-
-    def _extra_for(self, entity_id: str) -> ExtraTrv | None:
-        return self._extra_by_id.get(entity_id)
-
-    def _ac_for(self, entity_id: str) -> AcSource | None:
-        return self._ac_by_id.get(entity_id)
-
-    async def _apply(self, from_measurement: bool = False) -> None:
-        """Soll-Zustand berechnen und ans TRV senden (mit Prüfung)."""
-        async with self._apply_lock:
-            if not self._started:
-                return  # Raum wird gerade entladen/neu geladen – nichts mehr senden
-            if self.monitor:
-                return  # Überwachungsraum: nichts zu regeln, nichts zu senden
-            if self.hvac_auto:
-                return  # Gerät fährt sein eigenes Programm – nicht dazwischenfunken
-            if getattr(self, "_manual_candidate", None) is not None:
-                # Gerät hat gerade einen neuen Sollwert gemeldet – erst die Standzeit abwarten,
-                # sonst überschreiben wir den Handeingriff mit dem alten Ziel.
-                return
-            if self.throttled_until and dt_util.utcnow() < self.throttled_until:
-                return  # Bremse aktiv – zu viele Befehle in kurzer Zeit
-            method = self._off_method()
-            plan_on, _target, reason = self.plan()
-            self._log_plan(plan_on, _target, reason)
-            if _LOGGER.isEnabledFor(logging.DEBUG):
-                shadow = self.valve_shadow()
-                _LOGGER.debug(
-                    "%s: Ventil-Schatten berechnet %s %%, Gerät %s %% (Ziel %s, Ist %s)",
-                    self.name, shadow["calc_pct"], shadow["device_pct"],
-                    shadow["target_c"], shadow["current_c"],
-                )
-            want_on = self.hvac_on and not self.paused and plan_on
-            if reason == REASON_VALVE_CARE and self.hvac_on:
-                want_on = True
-            boosting = reason == REASON_BOOST
-            main_on = self._source_on(self.all_sources[0], want_on, boosting)
-
-            if not main_on:
-                self.sync.cancel("setpoint")
-                if method == OFF_PRESET:
-                    current = self._trv_attr("preset_mode")
-                    if current and current != "off":
-                        self.trv_on_preset = current
-                        self._save()
-                    await self.sync.request(
-                        "mode",
-                        "Preset 'off'",
-                        lambda: self._call_climate("set_preset_mode", preset_mode="off"),
-                        lambda: self._is_trv_off(self._trv_state(), OFF_PRESET),
-                    )
-                elif method == OFF_HVAC:
-                    await self.sync.request(
-                        "mode",
-                        "HVAC 'off'",
-                        lambda: self._call_climate("set_hvac_mode", hvac_mode="off"),
-                        lambda: self._is_trv_off(self._trv_state(), OFF_HVAC),
-                    )
-                else:
-                    # Die Gerätegrenze erst beim Senden lesen: beim Start ist `min_temp` kurz
-                    # unbekannt, und der Rückfallwert (5,0 °C) wurde früher als Ziel eingefroren
-                    # und nie bestätigt (Issue #37). Ist der Wert noch nicht da, scheitert der
-                    # Versuch ohne Schreibbefehl und wird – ohne Versuchsbudget zu kosten –
-                    # wiederholt, sobald das Gerät antwortet.
-                    low = to_float(self._trv_attr("min_temp"))
-                    await self.sync.request(
-                        "mode",
-                        tr("Minimaltemperatur {t}", t=fmt_temp(low)) if low is not None else tr("Minimaltemperatur"),
-                        self._write_off_setpoint,
-                        lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
-                    )
-                await self._apply_extras(want_on, method, _target, boosting)
-                return
-
-            # --- an: zuerst Modus, dann Sollwert
-            if method == OFF_PRESET:
-                preset = "comfort" if self.target_via == "comfort_temperature" else self._on_preset()
-                current = self._trv_attr("preset_mode")
-                if current in HEAT_PRESETS and current != "none" or (current == "none" and preset == "none"):
-                    self.sync.cancel("mode")  # regelt schon auf den Sollwert – Preset nicht umstellen
-                elif preset:
-                    await self.sync.request(
-                        "mode",
-                        f"Preset '{preset}'",
-                        lambda: self._call_climate("set_preset_mode", preset_mode=preset),
-                        lambda: self._trv_attr("preset_mode") in HEAT_PRESETS,
-                    )
-            elif method == OFF_HVAC:
-                modes = [m for m in (self._trv_attr("hvac_modes") or []) if m != "off"]
-                hvac = "heat" if "heat" in modes else (modes[0] if modes else "heat")
-                await self.sync.request(
-                    "mode",
-                    f"HVAC '{hvac}'",
-                    lambda: self._call_climate("set_hvac_mode", hvac_mode=hvac),
-                    lambda: self.trv_available()
-                    and getattr(self._trv_state(), "state", "off") != "off",
-                )
-            else:
-                self.sync.cancel("mode")
-
-            setpoint = self._desired_setpoint()
-            if from_measurement:
-                # Bei Kalibrierart "target" nur bei echter Änderung senden
-                if self._last_target_setpoint is not None and abs(
-                    setpoint - self._last_target_setpoint
-                ) < 0.5:
-                    return
-                if not self._cal_interval_passed():
-                    return
-            if self.target_via == "comfort_temperature" and getattr(self.sync, "verify_delay", 20) < 120:
-                # Batteriegeräte melden selten – nicht nach 5 Minuten „nicht bestätigt" rufen.
-                self.sync.verify_delay = 120
-            if self.sync.is_pending("mode"):
-                await asyncio.sleep(2)  # Tuya braucht kurz nach Preset-Wechsel
-            self._last_target_setpoint = setpoint
-            if self.cal_mode == CAL_TARGET:
-                self._last_cal_send = dt_util.utcnow()
-            await self.sync.request(
-                "setpoint",
-                tr("Sollwert {t}", t=fmt_temp(setpoint)),
-                lambda: self._write_setpoint(setpoint),
-                lambda: self._setpoint_matches(setpoint),
-            )
-            await self._apply_extras(want_on, method, _target, boosting)
-
-    async def _apply_extras(self, want_on: bool, method: str, target: float, boosting: bool) -> None:
-        """Weitere Heizquellen je Auswahl schalten (TRV oder Klimaanlage)."""
-        for src in self.source_cfg:
-            on = self._source_on(src, want_on, boosting)
-            if on is None:
-                continue
-            try:
-                if src["type"] == "ac":
-                    ac = self._ac_for(src["entity"])
-                    if ac is not None:
-                        await ac.apply(on, target)
-                else:
-                    extra = self._extra_for(src["entity"])
-                    if extra is not None:
-                        await extra.apply(on, method, target + float(src["offset"]))
-            except Exception as err:  # noqa: BLE001 – eine Quelle darf die anderen nicht aufhalten
-                _LOGGER.warning("%s: Heizquelle %s: %s", self.name, src["entity"], err)
-
-    def peek_plan(self) -> tuple[bool, float, str]:
-        """Wie ``plan()``, aber ohne den Von-Hand-Vorrang zu verbrauchen (für die Anzeige)."""
-        self._peeking = True
-        try:
-            return self.plan()
-        finally:
-            self._peeking = False
-
-    @property
-    def trv_report_interval(self) -> float | None:
-        """Abstand, in dem das Thermostat von sich aus meldet (Sekunden, Median)."""
-        if len(self._trv_reports) < 3:
-            return None
-        deltas = [
-            (b - a).total_seconds()
-            for a, b in zip(self._trv_reports, list(self._trv_reports)[1:], strict=False)
-        ]
-        deltas = [d for d in deltas if 0 < d <= 7200]
-        if len(deltas) < 2:
-            return None
-        deltas.sort()
-        return deltas[len(deltas) // 2]
-
-    @property
-    def applied_target(self) -> float:
-        """Was gerade gilt: berechnetes Ziel (Zeitplan, Boost, Absenkung), sonst der Wunsch."""
-        on, target, _reason = self.peek_plan()
-        return target if on else self.target_temp
-
-    @property
-    def sync_state(self) -> str:
-        """Übertragung über alle Thermostate: failed > pending > ok."""
-        states = [self.sync.state, *(x.sync.state for x in self.extra_trvs)]
-        for s in ("failed", "pending"):
-            if s in states:
-                return s
-        return "ok"
-
-    # ================================================================ Protokoll
-    def _log_plan(self, on: bool, target: float, reason: str) -> None:
-        """Zieländerungen mit Begründung protokollieren (nur bei Änderung)."""
-        key = (on, round(target, 1), reason)
-        if key == self._last_plan:
-            return
-        first = self._last_plan is None
-        self._last_plan = key
-        hub = self.hub
-        why = {
-            REASON_NORMAL: tr("Wunschtemperatur {t}", t=fmt_temp(self.target_temp)),
-            REASON_MANUAL: tr("von Hand wärmer gestellt – Absenkung 3 h ausgesetzt"),
-            REASON_SEASON: tr("Heizpause (mild draußen)"),
-            REASON_FROST: tr("Heizpause, aber unter der Sicherung {t}", t=fmt_temp(hub.frost_floor if hub else None)),
-            REASON_VALVE_CARE: tr("Sommerpflege: Ventil kurz öffnen"),
-            REASON_EMPTY: tr(
-                "Raum seit {m} min leer (Präsenzmelder) – {d} weniger (Wunsch {t})",
-                m=f"{self.room_eco_after:.0f}", d=fmt_temp(self.room_eco_drop), t=fmt_temp(self.target_temp),
-            ),
-            REASON_PRESENCE: tr(
-                "jemand im Raum (Präsenzmelder) – {t}, zurück nach {m} min ohne Belegung",
-                t=fmt_temp(self.presence_target), m=f"{self.presence_release_min:.0f}",
-            ),
-            REASON_SCHEDULE: tr("Zeitplan – {t}", t=fmt_temp(target)),
-            REASON_SCHEDULE_PREHEAT: tr("Vorheizen für das nächste Zeitfenster – {t}", t=fmt_temp(target)),
-            REASON_BOOST: tr("Boost – {t}", t=fmt_temp(target)),
-            REASON_HOME_OFFICE: tr("Homeoffice – Wunschtemperatur {t}", t=fmt_temp(target)),
-            REASON_MONITOR: tr("nur Messen, kein Thermostat"),
-            REASON_DEVICE_AUTO: tr("Gerät im Auto-Modus – fährt sein eigenes Programm"),
-            REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
-            REASON_SLEEP: tr("Ruhezeit – Schlafraum abgesenkt auf {t}", t=fmt_temp(self.setback_long)),
-            REASON_SCHEDULE_FALLBACK: tr(
-                "außerhalb der Zeitfenster – {t}", t=fmt_temp(target)
-            ),
-            REASON_MOLD: tr(
-                "Schimmelschutz – mindestens {t} nötig (Feuchte {h} %)",
-                t=fmt_temp(target), h=f"{self.current_humidity or 0:.0f}",
-            ),
-            STAGE_AWAY_SHORT: tr("alle weg – Absenkung „kurz weg“ {t}", t=fmt_temp(self.setback_short)),
-            STAGE_AWAY_LONG: tr("länger weg – Absenkung {t}", t=fmt_temp(self.setback_long)),
-        }.get(reason, reason)
-        if self.frost_night_low is not None and reason in AWAY_STAGES:
-            why += tr(", Frostnacht ({t} erwartet): nur halb so tief abgesenkt", t=fmt_temp(self.frost_night_low))
-        elif reason == STAGE_AWAY_LONG and target > self.setback_long:
-            why += tr(", Schimmelschutz hält {t} (Feuchte {h} %)", t=fmt_temp(target), h=f"{self.current_humidity or 0:.0f}")
-        msg = tr("Ziel {t}", t=fmt_temp(target)) if on else tr("Heizung aus")
-        self.log(CAT_TARGET, (tr("Start: ") if first else "") + msg, why, target=target, reason=reason)
-
-
-
 
 
 

@@ -7,7 +7,7 @@ from datetime import timedelta
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from custom_components.raumklima.controller import PLAN_RULES
+from custom_components.raumklima.room_const import PLAN_RULES
 from custom_components.raumklima.shared import domain_data
 
 from .conftest import FakeTrv
