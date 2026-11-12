@@ -560,7 +560,16 @@ def _sparkline(pdf: _Pdf, x: float, y: float, w: float, h: float, values: list[f
 
 
 def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
-    """PDF-Bytes aus den Zahlen von report_data.build()."""
+    """PDF-Bytes aus den Zahlen von report_data.build() – eine Funktion je Seite."""
+    pdf = _page_overview(data, home, created)
+    _page_rooms(pdf, data)
+    _page_humidity(pdf, data)
+    _page_devices(pdf, data)
+    return bytes(pdf.output())
+
+
+def _page_overview(data: dict[str, Any], home: str, created: datetime) -> _Pdf:
+    """Seite 1: Kopf mit Note, Kennzahlen, Vergleich mit Vorzeitraum/Vorjahr, Verlaufsdiagramm."""
     lang = data["lang"]
     tx = L[lang]
     start, end = date.fromisoformat(data["start"]), date.fromisoformat(data["end"])
@@ -682,8 +691,15 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
         pdf.add_page()
     pdf.heading(tx["chart_season" if data["kind"] == "season" else "chart"])
     pdf.chart(points, labels)
+    return pdf
 
-    # ================================================================ Seite 2
+
+def _page_rooms(pdf: _Pdf, data: dict[str, Any]) -> None:
+    """Seite 2: Räume im Vergleich, Rangliste, Werktag/Wochenende."""
+    lang = data["lang"]
+    tx = L[lang]
+    cur = data["current"]
+    full = pdf.w - 30
     pdf.add_page()
     pdf.heading(tx["rooms"])
     trends = data.get("trends") or {}
@@ -743,7 +759,14 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
         ]
         pdf.table([tx["metric"], tx["wd"], tx["we"]], rows, [full * 0.5, full * 0.25, full * 0.25])
 
-    # ================================================================ Seite 3
+
+def _page_humidity(pdf: _Pdf, data: dict[str, Any]) -> None:
+    """Seite 3: Feuchte-Ampel, Licht-/Lüftsignale, Wärmebild."""
+    lang = data["lang"]
+    tx = L[lang]
+    cur = data["current"]
+    full = pdf.w - 30
+    names = [n for n, r in sorted(cur["rooms"].items()) if r["hours"]]
     pdf.add_page()
     pdf.heading(tx["humidity"])
     hum = data.get("humidity") or {}
@@ -825,7 +848,12 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
         pdf.set_text_color(*GREY)
         pdf.multi_cell(0, 5, clean(tx["heatmap_none"]))
 
-    # ================================================================ Seite 4
+
+def _page_devices(pdf: _Pdf, data: dict[str, Any]) -> None:
+    """Seite 4: Anwesenheit, Aufheizzeiten, Funk und Batterien, Höhepunkte, Tipps und Befunde."""
+    lang = data["lang"]
+    tx = L[lang]
+    full = pdf.w - 30
     pdf.add_page()
     pres = data.get("presence") or {}
     pdf.heading(tx["presence"])
@@ -930,4 +958,3 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
     pdf.set_font("Helvetica", "I", 7.5)
     pdf.set_text_color(*GREY)
     pdf.multi_cell(0, 4, clean(tx["notes"]))
-    return bytes(pdf.output())
