@@ -1,5 +1,7 @@
 ## Unreleased
 
+## 0.62.46rc1 – 2026-11-12
+
 Release Candidate: fasst die Beta-Reihe seit 0.62.31 zusammen (Heizquellen, Einstellungen aufgeräumt,
 Regelkette, siehe die Einträge darunter). Wenn hier nichts mehr auftaucht, wird daraus die stabile Version.
 
