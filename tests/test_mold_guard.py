@@ -74,3 +74,17 @@ def test_ohne_werte_kein_boden() -> None:
     assert g.floor(T0, None, None, 5.0) is None
     assert g.floor(T0, 20.0, 50, None) is None
     assert g.floor(T0, 20.0, 40, 18.0) is None  # draußen warm
+
+
+def test_stundenbudget_verteilt_luecken_nicht() -> None:
+    """Nach 8 h ohne Messung (Fenster offen) zählt 1 h feuchte Wand als 1 h – nicht mehr."""
+    g = MoldGuard()
+    now = T0
+    for _ in range(12):  # 1 h über der Grenze
+        g.add(now, 18.0, 70, 85.0)
+        now += timedelta(minutes=5)
+    now += timedelta(hours=8)  # Lücke: Fenster offen, keine Messwerte
+    for _ in range(36):  # 3 h unkritisch
+        g.add(now, 18.0, 50, 60.0)
+        now += timedelta(minutes=5)
+    assert 0.9 <= g.surface_rh_hours(now) <= 1.2

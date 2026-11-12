@@ -592,7 +592,7 @@ async def test_quiet_time_needs_bedroom_and_setting(hass: HomeAssistant, setup, 
 
 
 async def test_quiet_mode_per_room(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
-    """Raum-Option „Nachtabsendung": immer / nie schlägt den Raumtyp."""
+    """Raum-Option „Nachtabsenkung": immer / nie schlägt den Raumtyp."""
     from datetime import timedelta
 
     from homeassistant.util import dt as dt_util

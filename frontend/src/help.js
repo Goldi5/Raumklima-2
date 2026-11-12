@@ -248,7 +248,7 @@ export const HELP = {
     "Interrupteur pour les jours de télétravail. Pendant la plage définie, les pièces choisies chauffent à la consigne et la plage horaire est suspendue — ensuite elle reprend. Un rendez-vous contenant « télétravail » active la même chose automatiquement.",
   ],
   "Nachtruhe über Entität": [
-    "Ein vorhandener HA-Schalter (input_boolean, switch) schaltet die Nachtruhe mit. An = Nachtabsendung gilt, aus = normaler Zeitplan. Der eingebaute Schalter bleibt zusätzlich nutzbar.",
+    "Ein vorhandener HA-Schalter (input_boolean, switch) schaltet die Nachtruhe mit. An = Nachtabsenkung gilt, aus = normaler Zeitplan. Der eingebaute Schalter bleibt zusätzlich nutzbar.",
     "An existing HA switch (input_boolean, switch) also turns night mode on. On = night setback applies, off = normal schedule. The built-in switch keeps working too.",
     "Un interrupteur HA existant (input_boolean, switch) active aussi le mode nuit. Activé = l’abaissement nocturne s’applique, désactivé = plage horaire normale. L’interrupteur intégré reste utilisable.",
   ],
@@ -332,13 +332,13 @@ export const HELP = {
     "The room is only kept warm while one of these people is home – meant for children’s and guest rooms. Without a selection the room applies to all residents.",
     "La pièce n’est chauffée que si l’une de ces personnes est présente – prévu pour les chambres d’enfants et d’amis. Sans sélection, la pièce concerne tous les habitants.",
   ],
-  "Nachtabsendung": [
+  "Nachtabsenkung": [
     "Ob dieser Raum während der Ruhezeit abgesenkt wird. „Automatisch“ nimmt nur Schlafzimmer und selten genutzte Räume, „Immer“ auch Wohnräume, „Nie“ keinen.",
     "Whether this room is set back during quiet hours. “Automatic” covers bedrooms and rarely used rooms, “Always” also living rooms, “Never” none.",
     "Si cette pièce est abaissée pendant les heures calmes. « Automatique » ne concerne que les chambres et pièces peu utilisées, « Toujours » aussi les séjours, « Jamais » aucune.",
   ],
   "Absenkwert nachts": [
-    "Auf welche Temperatur die Nachtabsendung geht: kurz weg, länger weg oder Frostschutz. Gilt für die Ruhezeit und für den Schalter „Nachtruhe“.",
+    "Auf welche Temperatur die Nachtabsenkung geht: kurz weg, länger weg oder Frostschutz. Gilt für die Ruhezeit und für den Schalter „Nachtruhe“.",
     "Which temperature the night setback uses: short away, longer away or frost protection. Applies to quiet hours and to the “Night mode” switch.",
     "Température utilisée pour la réduction nocturne : absence courte, absence prolongée ou hors gel. Vaut pour les heures calmes et l'interrupteur « Mode nuit ».",
   ],

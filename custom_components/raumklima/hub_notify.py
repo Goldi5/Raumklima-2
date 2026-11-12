@@ -59,7 +59,7 @@ class NotifyMixin:
         return in_time_window(now, times["quiet_start"], times["quiet_end"])
 
     def night_setback_now(self) -> bool:
-        """Gilt die Nachtabsendung gerade? (Schalter „Nachtruhe“ oder Ruhezeit).
+        """Gilt die Nachtabsenkung gerade? (Schalter „Nachtruhe“ oder Ruhezeit).
 
         Getrennt von ``quiet_now()``: der Schalter soll die Heizung absenken, aber keine
         Benachrichtigungen stumm schalten.
@@ -69,7 +69,7 @@ class NotifyMixin:
         return self.quiet_now()
 
     def night_target(self, room: Any) -> float:
-        """Ziel der Nachtabsendung: kurz weg, länger weg oder Frostschutz."""
+        """Ziel der Nachtabsenkung: kurz weg, länger weg oder Frostschutz."""
         level = self.opt(CONF_NIGHT_LEVEL) or "long"
         if level == "short":
             return room.setback_short

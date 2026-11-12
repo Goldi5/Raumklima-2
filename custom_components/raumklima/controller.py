@@ -1231,7 +1231,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
         return True
 
     def _night_setback_applies(self, hub: Any) -> bool:
-        """Gilt die Nachtabsendung für diesen Raum?
+        """Gilt die Nachtabsenkung für diesen Raum?
 
         Reihenfolge: Raum-Option (auto/on/off) vor Raumtyp, ausdrücklicher Schalter
         „Nachtruhe" vor der Uhrzeit. ``auto`` heißt wie bisher: nur Schlafzimmer und
@@ -1337,7 +1337,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
                 return True, self.target_temp, REASON_MANUAL
             return True, hub.night_target(self), REASON_SLEEP
         # Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit
-        nxt = next_schedule_window(self.config.get(CONF_SCHEDULES), local_now)
+        nxt = next_schedule_window(self.schedules, local_now)
         cur = self.current_temperature
         if nxt is not None and cur is not None and self._preheat_allowed(nxt[0], local_now):
             start, want = nxt
@@ -1572,7 +1572,7 @@ class RaumklimaController(WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
             return
         if mode == "next":
             local_now = dt_util.now()
-            nxt = next_schedule_window(self.config.get(CONF_SCHEDULES), local_now)
+            nxt = next_schedule_window(self.schedules, local_now)
             if nxt is None:
                 await self._set_boost(120)
                 return

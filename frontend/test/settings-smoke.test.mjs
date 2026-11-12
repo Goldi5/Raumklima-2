@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 // Rauchtest für die Einstellungen-Karte: Sie muss ohne Browser HTML liefern.
 // Der DOM-Ersatz gibt bei querySelectorAll eine Liste zurück (wie im Browser) –
 // so fliegt auf, wenn ein einzelnes Element über $() geholt wird: `$("#x").addEventListener`
@@ -119,4 +120,45 @@ test("Einstellungen-Karte rendert", () => {
   const html = card.shadowRoot.innerHTML;
   assert.ok(html.length > 2000, "HTML zu kurz");
   assert.match(html, /Allgemein|Erste Schritte/);
+});
+
+const fixture = JSON.parse(readFileSync(new URL("./fixture.json", import.meta.url), "utf8"));
+
+function renderRoom() {
+  const fhass = { ...hass, states: fixture.states, entities: fixture.entities, config: {} };
+  setLang(fhass);
+  const card = new RaumklimaSettingsCard();
+  card.setConfig({ type: "custom:raumklima-settings-card" });
+  card._hass = fhass;
+  card._cfg = structuredClone(fixture.ws["raumklima/config"]);
+  card._rooms = rkRooms(fhass, "", null);
+  card._tab = card._rooms[0].id;
+  card._render();
+  return card.shadowRoot.innerHTML;
+}
+
+test("Raum-Einstellungen: jeder Stepper hat Schritt > 0 und Minimum < Maximum", () => {
+  const html = renderRoom();
+  const steppers = [...html.matchAll(/data-key="([a-z_0-9]+)" data-step="([^"]*)" data-min="([^"]*)" data-max="([^"]*)"/g)];
+  assert.ok(steppers.length > 6, "zu wenige Stepper gefunden");
+  for (const [, key, step, min, max] of steppers) {
+    assert.ok(parseFloat(step) > 0, `${key}: Schritt ${step}`);
+    assert.ok(parseFloat(min) < parseFloat(max), `${key}: ${min} … ${max}`);
+  }
+  const cap = steppers.find((s) => s[1] === "mold_cap");
+  assert.deepEqual(cap.slice(2), ["0.5", "0", "6"]);
+});
+
+test("Raum-Einstellungen: keine Zeile steckt im Kleingedruckten einer anderen", () => {
+  const html = renderRoom();
+  assert.doesNotMatch(html, /<small>(?:(?!<\/small>)[\s\S])*class="row"/);
+  assert.match(html, /Nachtabsenkung/);
+  assert.doesNotMatch(html, /Nachtabsendung/);
+});
+
+test("Boost-Zeilen stehen zusammen", () => {
+  const html = renderRoom();
+  const pos = ["Wärmer für kurze Zeit (Boost)", "Boost für", "Dauer des Boosts", "Zeitplan überschreiben"].map((x) => html.indexOf(x));
+  assert.ok(pos.every((p) => p > 0), "Zeile fehlt");
+  assert.deepEqual([...pos].sort((a, b) => a - b), pos);
 });

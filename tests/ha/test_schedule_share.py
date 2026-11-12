@@ -73,3 +73,30 @@ async def test_geteilter_zeitplan_ohne_eigene_fenster(
     ctrl.config["schedule_from"] = other.entry.entry_id
 
     assert ctrl.schedules == SCHED
+
+
+async def test_vorheizen_mit_fremdem_zeitplan(hass: HomeAssistant, setup, trv: FakeTrv, monkeypatch, freezer) -> None:
+    """Auch mit „Zeitplan von" wird vor dem Fenster des anderen Raums vorgeheizt."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    freezer.move_to("2026-06-15 12:00:00+00:00")
+    hub_entry, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = hub_entry.runtime_data
+    start = (dt_util.now() + timedelta(minutes=60)).strftime("%H:%M")
+    other = SimpleNamespace(
+        entry=SimpleNamespace(entry_id="buero-entry"),
+        config={"schedules": [{"days": [], "start": start, "end": "23:59", "temperature": 26.0}]},
+        name="Büro",
+        hub=hub,
+    )
+    domain_data(hass)["rooms"][other.entry.entry_id] = other
+    monkeypatch.setattr(type(ctrl), "hub", property(lambda self: hub))
+    ctrl.config["schedules"] = []
+    ctrl.config["schedule_from"] = other.entry.entry_id
+    ctrl.heatup.episodes = [{"rate": 1.0, "outdoor": 5.0, "minutes": 60, "rise": 1.0}] * 3
+
+    on, target, reason = ctrl.plan()
+    assert (on, target, reason) == (True, 26.0, "schedule_preheat")

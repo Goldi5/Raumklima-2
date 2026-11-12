@@ -87,7 +87,7 @@ CONF_VACATION_HOURS: Final = "vacation_hours"  # … und erst nach so vielen Stu
 CONF_ROOM_PERSONS: Final = "room_persons"  # person.*, die diesen Raum nutzen (leer = alle)
 CONF_QUIET_MODE: Final = "quiet_mode"  # je Raum: auto (nach Raumtyp) / on / off
 QUIET_MODES: Final = ("auto", "on", "off")
-CONF_NIGHT_LEVEL: Final = "night_level"  # Ziel der Nachtabsendung: short / long / frost
+CONF_NIGHT_LEVEL: Final = "night_level"  # Ziel der Nachtabsenkung: short / long / frost
 NIGHT_LEVELS: Final = ("short", "long", "frost")
 CONF_REPEAT_MINUTES: Final = "repeat_minutes"
 CONF_LONG_AIRING: Final = "long_airing_minutes"  # ab so vielen Minuten Dauerlüftung still

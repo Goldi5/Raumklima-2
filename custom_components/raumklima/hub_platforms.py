@@ -203,7 +203,7 @@ class NightSwitch(HubEntity, SwitchEntity):
 
 
 class NightLevelSelect(HubEntity, SelectEntity):
-    """Ziel der Nachtabsendung: kurz weg, länger weg oder Frostschutz."""
+    """Ziel der Nachtabsenkung: kurz weg, länger weg oder Frostschutz."""
 
     _attr_translation_key = "night_level"
     _attr_options = list(NIGHT_LEVELS)

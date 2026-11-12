@@ -224,12 +224,16 @@ class MoldGuard:
         window = [(t, surf) for t, _v, _rh, surf in self.samples if t >= cutoff and surf > 0]
         if len(window) < 3:
             return 0.0
-        step = (window[-1][0] - window[0][0]).total_seconds()
-        if step <= 0:
-            return 0.0
-        step /= max(1, len(window) - 1)
-        hours = sum(step for _t, surf in window if surf > limit) / 3600
-        return round(hours, 1)
+        # Jeder Messwert zählt für die Zeit bis zum nächsten – aber höchstens zwei Messabstände.
+        # Bei offenem Fenster wird nicht gemessen; solche Lücken dürfen nicht auf die übrigen
+        # Werte verteilt werden (sonst zählt nach einer Nacht mit offenem Fenster jede Stunde 1,5-fach).
+        cap = 2 * MOLD_SAMPLE_EVERY.total_seconds()
+        seconds = 0.0
+        for i, (t, surf) in enumerate(window):
+            nxt = window[i + 1][0] if i + 1 < len(window) else t + MOLD_SAMPLE_EVERY
+            if surf > limit:
+                seconds += min(max((nxt - t).total_seconds(), 0.0), cap)
+        return round(seconds / 3600, 1)
 
     def rh_change(self, now: datetime, hours: float = 6.0) -> tuple[float, float, float] | None:
         """Relative Feuchte am Anfang und Ende des Zeitraums – für den Meldungstext."""
