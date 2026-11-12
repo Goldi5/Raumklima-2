@@ -6402,19 +6402,40 @@
         crumb.innerHTML = parts.map((x, i) => i === parts.length - 1 ? `<b>${esc(x)}</b>` : `${esc(x)} <span>›</span>`).join(" ");
       }
     }
+    // Ein Listener je Ereignistyp an der Schatten-Wurzel. Er läuft vom Ziel nach außen (wie das
+    // normale Aufsteigen eines Ereignisses) und ruft jeden passenden Handler; stopPropagation() im
+    // Handler beendet den Lauf wie gewohnt. Neu gezeichnete Teile brauchen so kein neues Anbinden.
+    _delegate() {
+      if (this._delegating) return;
+      this._delegating = true;
+      for (const type of ["click", "change", "input"]) {
+        this.shadowRoot.addEventListener(type, (ev) => {
+          for (let node = ev.target; node && node !== this.shadowRoot; node = node.parentNode) {
+            if (node.nodeType !== 1) continue;
+            for (const h of this._handlers || []) {
+              if (h.type === type && node.matches(h.sel)) h.make(node)(ev);
+            }
+            if (ev.cancelBubble) break;
+          }
+        });
+      }
+    }
     _bind() {
+      this._handlers = [];
+      const on = (type, sel, make) => this._handlers.push({ type, sel, make });
+      this._delegate();
       const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
       const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
-      $("[data-tab]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-tab]", (el) => () => {
         this._tab = el.dataset.tab;
         this._sig = null;
         this._render();
-      }));
-      $(".railbtn").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", ".railbtn", (el) => () => {
         this._group = el.dataset.g;
         this._filter();
-      }));
-      $("[data-lmove]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-lmove]", (el) => () => {
         const L = this._layout;
         const list = this._layoutList().map((r) => r.id);
         const i = list.indexOf(el.dataset.lmove);
@@ -6425,33 +6446,33 @@
         this._layoutSave();
         this._sig = null;
         this._filter();
-      }));
-      $("[data-lsize]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-lsize]", (el) => () => {
         const L = this._layout;
         this._layout = { ...L, size: { ...L.size || {}, [el.dataset.lsize]: el.dataset.v } };
         this._layoutSave();
         this._sig = null;
         this._render();
-      }));
-      $("[data-lcolor]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-lcolor]", (el) => () => {
         const L = this._layout;
         this._layout = { ...L, color: { ...L.color || {}, [el.dataset.lcolor]: el.dataset.v } };
         this._layoutSave();
         this._sig = null;
         this._render();
-      }));
-      $("[data-lsave]").forEach((el) => el.addEventListener("click", () => this._layoutSave()));
-      $("[data-resetroom]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-lsave]", (el) => () => this._layoutSave());
+      on("click", "[data-resetroom]", (el) => () => {
         if (!window.confirm(t("Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten."))) return;
         ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom }).then(() => this._flash(t("Auf Standard zurückgesetzt"))).catch(() => {
         });
-      }));
-      $("details.more > summary").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "details.more > summary", (el) => () => {
         const d = el.parentElement;
         this._moreOpen.set(d.dataset.more, !d.open);
         d.dataset.open = d.open ? "0" : "1";
-      }));
-      $("[data-pro]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-pro]", (el) => () => {
         this._pro = !this._pro;
         this._moreOpen.clear();
         try {
@@ -6459,15 +6480,15 @@
         } catch (e) {
         }
         this._render();
-      }));
+      });
       const search = this.shadowRoot.querySelector("#rks");
       if (search) search.addEventListener("input", () => {
         this._search = search.value;
         this._filter();
       });
-      $("[data-tgl]").forEach((el) => el.addEventListener("click", () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl })));
-      $("[data-press]").forEach((el) => el.addEventListener("click", () => this._hass.callService("button", "press", { entity_id: el.dataset.press })));
-      $("[data-num]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-tgl]", (el) => () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl }));
+      on("click", "[data-press]", (el) => () => this._hass.callService("button", "press", { entity_id: el.dataset.press }));
+      on("click", "[data-num]", (el) => () => {
         const s = this._st(el.dataset.num);
         if (!s) return;
         const step = parseFloat(s.attributes.step) || 1;
@@ -6476,21 +6497,21 @@
         if (!isNaN(min)) v = Math.max(min, v);
         if (!isNaN(max)) v = Math.min(max, v);
         this._hass.callService("number", "set_value", { entity_id: el.dataset.num, value: v });
-      }));
+      });
       const apply = (scope, changes) => {
         if (scope === "hub") this._setHub(changes);
         else this._setRoom(scope.slice(5), changes);
       };
-      $("[data-opt]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-opt]", (el) => () => {
         const step = parseFloat(el.dataset.step), min = parseFloat(el.dataset.min), max = parseFloat(el.dataset.max);
         const cur = parseFloat(el.dataset.val);
         let v = Math.round(((isNaN(cur) ? min : cur) + step * parseInt(el.dataset.d, 10)) * 100) / 100;
         v = Math.min(max, Math.max(min, v));
         apply(el.dataset.opt, { [el.dataset.key]: v });
-      }));
-      $("[data-setopt]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.setopt, { [el.dataset.key]: parseFloat(el.dataset.v) })));
-      $("[data-optbool]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" })));
-      $(".stepper span").forEach((span) => span.addEventListener("click", () => {
+      });
+      on("click", "[data-setopt]", (el) => () => apply(el.dataset.setopt, { [el.dataset.key]: parseFloat(el.dataset.v) }));
+      on("click", "[data-optbool]", (el) => () => apply(el.dataset.optbool, { [el.dataset.key]: el.dataset.val !== "1" }));
+      on("click", ".stepper span", (span) => () => {
         const box = span.closest(".stepper");
         const btn = box && box.querySelector("button");
         if (!box || !btn || !this._admin || box.classList.contains("ro") || span.querySelector("input")) return;
@@ -6543,15 +6564,15 @@
             finish(false);
           }
         });
-      }));
+      });
       const sp = (v) => String(v).split("|");
-      $("[data-roomperson]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-roomperson]", (el) => () => {
         const entry = el.dataset.entry;
         const cur = roomList(entry, "room_persons", []);
         const next = cur.includes(el.dataset.roomperson) ? cur.filter((x) => x !== el.dataset.roomperson) : [...cur, el.dataset.roomperson];
         this._setRoom(entry, { room_persons: next }, 300);
-      }));
-      $("[data-guestroom]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-guestroom]", (el) => () => {
         const rid = el.dataset.guestroom;
         const cur = [...this._hubOpt("guests_rooms") || []];
         const next = cur.includes(rid) ? cur.filter((x) => x !== rid) : [...cur, rid];
@@ -6559,8 +6580,8 @@
         this._local["hub:guests_rooms"] = next;
         this._setHub({ guests_rooms: next }, 300);
         this._flash(t("Gespeichert"));
-      }));
-      $("[data-workzone]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-workzone]", (el) => () => {
         const zid = el.dataset.workzone;
         const cur = [...this._hubOpt("work_zones") || []];
         const next = cur.includes(zid) ? cur.filter((x) => x !== zid) : [...cur, zid];
@@ -6568,8 +6589,8 @@
         this._local["hub:work_zones"] = next;
         this._setHub({ work_zones: next }, 300);
         this._flash(t("Gespeichert"));
-      }));
-      $("[data-horoom]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-horoom]", (el) => () => {
         const rid = el.dataset.horoom;
         const cur = [...this._hubOpt("home_office_rooms") || []];
         const next = cur.includes(rid) ? cur.filter((x) => x !== rid) : [...cur, rid];
@@ -6577,28 +6598,28 @@
         this._local["hub:home_office_rooms"] = next;
         this._setHub({ home_office_rooms: next }, 300);
         this._flash(t("Gespeichert"));
-      }));
-      $("[data-airadd]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-airadd]", (el) => () => {
         const id = el.dataset.airadd;
         const list = this._airList(id, []);
         if (list.length >= 6) return;
         list.push({ days: [], start: "04:45", end: "06:30" });
         this._pushAir(id);
-      }));
-      $("[data-airdel]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-airdel]", (el) => () => {
         const [id, i] = String(el.dataset.airdel).split("|");
         this._airList(id, []).splice(parseInt(i, 10), 1);
         this._pushAir(id);
-      }));
-      $("[data-airday]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-airday]", (el) => () => {
         const [id, i, d] = String(el.dataset.airday).split("|");
         const w = this._airList(id, [])[parseInt(i, 10)];
         if (!w) return;
         const day = parseInt(d, 10);
         w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
         this._pushAir(id);
-      }));
-      $("[data-airtime]").forEach((el) => el.addEventListener("change", () => {
+      });
+      on("change", "[data-airtime]", (el) => () => {
         const [id, i, which] = String(el.dataset.airtime).split("|");
         const w = this._airList(id, [])[parseInt(i, 10)];
         if (!w) return;
@@ -6611,16 +6632,16 @@
         el.value = v;
         w[which] = v;
         this._pushAir(id);
-      }));
-      $("[data-schedadd]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-schedadd]", (el) => () => {
         const id = el.dataset.schedadd;
         const list = this._schedList(id, this._schedSeed(id) || []);
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
         const base = room ? this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22 : 22;
         list.push({ days: [], start: "19:00", end: "21:00", temperature: Math.round(base * 2) / 2, sources: [] });
         this._pushSched(id);
-      }));
-      $("[data-schedsrc]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-schedsrc]", (el) => () => {
         const [id, i, sid] = sp(el.dataset.schedsrc);
         const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
         if (!w) return;
@@ -6631,21 +6652,21 @@
         w.sources = chosen.includes(sid) ? chosen.filter((x) => x !== sid) : [...chosen, sid];
         if (w.sources.length === ids.length) w.sources = [];
         this._pushSched(id);
-      }));
-      $("[data-scheddel]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-scheddel]", (el) => () => {
         const [id, i] = sp(el.dataset.scheddel);
         this._schedList(id, this._schedSeed(id) || []).splice(parseInt(i, 10), 1);
         this._pushSched(id);
-      }));
-      $("[data-schedday]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-schedday]", (el) => () => {
         const [id, i, d] = sp(el.dataset.schedday);
         const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
         if (!w) return;
         const day = parseInt(d, 10);
         w.days = w.days.includes(day) ? w.days.filter((x) => x !== day) : [...w.days, day].sort((a, b) => a - b);
         this._pushSched(id);
-      }));
-      $("[data-schedtime]").forEach((el) => el.addEventListener("change", () => {
+      });
+      on("change", "[data-schedtime]", (el) => () => {
         const [id, i, which] = sp(el.dataset.schedtime);
         const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
         if (!w) return;
@@ -6658,8 +6679,8 @@
         el.value = v;
         w[which] = v;
         this._pushSched(id);
-      }));
-      $("[data-schedmove]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-schedmove]", (el) => () => {
         const [id, i, dir] = sp(el.dataset.schedmove);
         const list = this._schedList(id, this._schedSeed(id) || []);
         const a = parseInt(i, 10);
@@ -6667,8 +6688,8 @@
         if (a < 0 || b < 0 || a >= list.length || b >= list.length) return;
         [list[a], list[b]] = [list[b], list[a]];
         this._pushSched(id);
-      }));
-      $("[data-schedsort]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-schedsort]", (el) => async () => {
         const id = el.dataset.schedsort;
         const list = this._schedList(id, this._schedSeed(id) || []);
         list.sort((x, y) => {
@@ -6678,46 +6699,46 @@
         });
         this._flash(t("Zeitfenster nach Uhrzeit sortiert"));
         this._pushSched(id);
-      }));
-      $("[data-schedtemp]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-schedtemp]", (el) => () => {
         const [id, i] = sp(el.dataset.schedtemp);
         const w = this._schedList(id, this._schedSeed(id) || [])[parseInt(i, 10)];
         if (!w) return;
         const v = Math.round((w.temperature + 0.5 * parseInt(el.dataset.d, 10)) * 2) / 2;
         w.temperature = Math.min(30, Math.max(5, v));
         this._pushSched(id);
-      }));
-      $("[data-srcfield]").forEach((el) => el.addEventListener("change", () => {
+      });
+      on("change", "[data-srcfield]", (el) => () => {
         const [id, idx, field] = el.dataset.srcfield.split("|");
         const list = this._srcList(id);
         const item = list[parseInt(idx, 10)];
         if (!item) return;
         item[field] = el.value;
         this._setRoom(id, { heat_sources: list }, 700);
-      }));
-      $("[data-srcstep]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-srcstep]", (el) => () => {
         const [id, idx, delta] = el.dataset.srcstep.split("|");
         const list = this._srcList(id);
         const item = list[parseInt(idx, 10)];
         if (!item) return;
         item.offset = Math.max(-5, Math.min(5, Math.round(((Number(item.offset) || 0) + Number(delta)) * 2) / 2));
         this._setRoom(id, { heat_sources: list }, 700);
-      }));
-      $("[data-srcuntouched]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-srcuntouched]", (el) => () => {
         const [id, idx] = el.dataset.srcuntouched.split("|");
         const list = this._srcList(id);
         const item = list[parseInt(idx, 10)];
         if (!item) return;
         item.untouched = !item.untouched;
         this._setRoom(id, { heat_sources: list }, 700);
-      }));
-      $("[data-srcdel]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-srcdel]", (el) => () => {
         const [id, idx] = el.dataset.srcdel.split("|");
         const list = this._srcList(id);
         list.splice(parseInt(idx, 10), 1);
         this._setRoom(id, { heat_sources: list }, 700);
-      }));
-      $("[data-srcadd]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-srcadd]", (el) => () => {
         const id = el.dataset.srcadd;
         const sel = document.getElementById(`addSrc-${id}`);
         const entity = sel ? sel.value : "";
@@ -6729,13 +6750,13 @@
         const list = this._srcList(id);
         list.push({ id: `src${Date.now()}`, entity, name: choice.name || this._name(entity), type, offset: 0, trigger: "", untouched: false });
         this._setRoom(id, { heat_sources: list }, 700);
-      }));
-      $("[data-seg]").forEach((el) => el.addEventListener("click", () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val })));
-      $("[data-sel]").forEach((el) => el.addEventListener("change", () => {
+      });
+      on("click", "[data-seg]", (el) => () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val }));
+      on("change", "[data-sel]", (el) => () => {
         el.blur();
         apply(el.dataset.sel, { [el.dataset.key]: el.value || null });
-      }));
-      $("[data-md]").forEach((el) => el.addEventListener("change", () => {
+      });
+      on("change", "[data-md]", (el) => () => {
         const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
         if (iso) {
           this._setHub({ [el.dataset.md]: `${iso[2]}-${iso[3]}` }, 200);
@@ -6748,29 +6769,29 @@
         }
         const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
         this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
-      }));
-      $("[data-ltab]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-ltab]", (el) => () => {
         if (this._tab === "general") this._ltabHub = el.dataset.ltab;
         else this._ltabRoom = el.dataset.ltab;
         this._dec = {};
         this._render();
-      }));
-      $("[data-drange]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-drange]", (el) => () => {
         this._decRange = Number(el.dataset.drange);
         this._dec = {};
         this._render();
-      }));
-      $("[data-dcat]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-dcat]", (el) => () => {
         this._decCat = el.dataset.dcat;
         this._dec = {};
         this._render();
-      }));
-      $("[data-droom]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-droom]", (el) => () => {
         this._decRoom = el.dataset.droom;
         this._dec = {};
         this._render();
-      }));
-      $("[data-timeopen]").forEach((el) => el.addEventListener("click", () => this._openTime(el.dataset.timeopen, el.dataset.val)));
+      });
+      on("click", "[data-timeopen]", (el) => () => this._openTime(el.dataset.timeopen, el.dataset.val));
       const tpop = this.shadowRoot.querySelector("[data-tpick]");
       if (tpop) {
         let tid = 0;
@@ -6799,7 +6820,7 @@
           tpop.querySelector("[data-twmn]").scrollTop = Math.round((parseInt(m, 10) || 0) / 15) * 40;
         });
       }
-      $("[data-time]").forEach((el) => el.addEventListener("change", () => {
+      on("change", "[data-time]", (el) => () => {
         const key = el.dataset.time;
         const v = rkTimeValue(el.value);
         if (!v) {
@@ -6809,39 +6830,39 @@
         }
         el.value = v;
         this._setHub({ [key]: v + ":00" }, 200);
-      }));
-      $("[data-person]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-person]", (el) => () => {
         const list = [...this._hubOpt("residents") || []];
         const i = list.indexOf(el.dataset.person);
         if (i >= 0) list.splice(i, 1);
         else list.push(el.dataset.person);
         this._setHub({ residents: list });
-      }));
-      $("[data-home]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-home]", (el) => () => {
         this._home = el.dataset.home;
         this._tab = "general";
         this._local = {};
         this._sig = null;
         this._load();
-      }));
-      $("[data-hubnum]").forEach((el) => el.addEventListener("change", () => {
+      });
+      on("change", "[data-hubnum]", (el) => () => {
         const v = el.value.trim() === "" ? null : Math.max(0, Math.min(2e4, parseFloat(el.value.replace(",", "."))));
         this._setHub({ [el.dataset.hubnum]: Number.isNaN(v) ? null : v }, 200);
-      }));
-      $("[data-hubtext]").forEach((el) => el.addEventListener("change", () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200)));
-      $("[data-geohass]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("change", "[data-hubtext]", (el) => () => this._setHub({ [el.dataset.hubtext]: el.value.trim() }, 200));
+      on("click", "[data-geohass]", (el) => () => {
         const c = this._hass.config || {};
         this._setHub({ latitude: c.latitude, longitude: c.longitude }, 200);
-      }));
-      $("[data-geoclear]").forEach((el) => el.addEventListener("click", () => this._setHub({ latitude: null, longitude: null }, 200)));
-      $("[data-hubgeo]").forEach((el) => el.addEventListener("change", () => {
+      });
+      on("click", "[data-geoclear]", (el) => () => this._setHub({ latitude: null, longitude: null }, 200));
+      on("change", "[data-hubgeo]", (el) => () => {
         const key = el.dataset.hubgeo;
         const limit = key === "latitude" ? 90 : 180;
         const raw = el.value.trim().replace(",", ".");
         const v = raw === "" ? null : Math.max(-limit, Math.min(limit, parseFloat(raw)));
         this._setHub({ [key]: Number.isNaN(v) ? null : v }, 200);
-      }));
-      $("[data-mkdash]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-mkdash]", (el) => async () => {
         const p = el.dataset.mkdash;
         const made = await this._ensureDashboard(p, this._hubOpt("name") || p, this._cfg.hub.entry_id);
         this._flash(made ? t("Dashboard „{d}“ angelegt", { d: made }) : t("Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen"));
@@ -6850,8 +6871,8 @@
         } else {
           this._render();
         }
-      }));
-      $("[data-newhome]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-newhome]", (el) => async () => {
         const inp = this.shadowRoot.getElementById("newHome");
         const name = inp && inp.value.trim();
         if (!name) {
@@ -6869,7 +6890,7 @@
         } catch (e) {
           this._flash(t("Fehler: {e}", { e: e.message || e }));
         }
-      }));
+      });
       const roomList = (entry, key, fallback) => {
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
         const s = room && room.attrs.settings || {};
@@ -6879,10 +6900,10 @@
       if (mailbox) mailbox.addEventListener("toggle", () => {
         this._mailOpen = mailbox.open;
       });
-      $("[data-mail]").forEach((el) => el.addEventListener("input", () => {
+      on("input", "[data-mail]", (el) => () => {
         this._mailForm = { ...this._mailForm || {}, [el.dataset.mail]: el.value };
-      }));
-      $("[data-mailprov]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-mailprov]", (el) => () => {
         const p = RK_MAIL_PROVIDERS[el.dataset.mailprov];
         this.shadowRoot.querySelectorAll("[data-mailprov]").forEach((b) => b.classList.toggle("on", b === el));
         if (!p) return;
@@ -6892,11 +6913,11 @@
           if (inp) inp.value = v;
         }
         this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b.dataset.mailsec === p[2]));
-      }));
-      $("[data-mailsec]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-mailsec]", (el) => () => {
         this._mailForm = { ...this._mailForm || {}, mail_security: el.dataset.mailsec };
         this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b === el));
-      }));
+      });
       const mailSettings = () => {
         const f = { ...this._mailForm || {} };
         const out = {};
@@ -6906,7 +6927,7 @@
         }
         return out;
       };
-      $("[data-mailtoggle]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-mailtoggle]", (el) => () => {
         if (this._hubOpt("report_email")) {
           this._setHub({ report_email: null }, 200);
           return;
@@ -6919,8 +6940,8 @@
         this._mailMsg = ["", t("Bitte erst unten die Zugangsdaten eintragen und speichern.")];
         this._sig = null;
         this._render();
-      }));
-      $("[data-mailcheck]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-mailcheck]", (el) => async () => {
         el.disabled = true;
         this._mailSteps = null;
         this._mailMsg = ["", t("Prüfe Zugang …")];
@@ -6935,8 +6956,8 @@
         }
         this._sig = null;
         this._render();
-      }));
-      $("[data-mailsave]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-mailsave]", (el) => async () => {
         this._mailSteps = null;
         const f = { ...this._mailForm || {} };
         const changes = { report_email: "raumklima" };
@@ -6958,66 +6979,66 @@
           this._mailMsg = ["errmsg", t("Fehler: {e}", { e: e.message || e })];
         }
         await this._load();
-      }));
-      $("[data-help]").forEach((el) => el.addEventListener("click", (ev) => {
+      });
+      on("click", "[data-help]", (el) => (ev) => {
         ev.stopPropagation();
         const k = el.dataset.help;
         if (this._helpOpen.has(k)) this._helpOpen.delete(k);
         else this._helpOpen.add(k);
         this._sig = null;
         this._render();
-      }));
-      $("[data-rpdf]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-rpdf]", (el) => () => {
         const list = [...this._hubOpt("report_pdf") ?? ["week", "month", "season"]];
         const i = list.indexOf(el.dataset.rpdf);
         if (i >= 0) list.splice(i, 1);
         else list.push(el.dataset.rpdf);
         this._setHub({ report_pdf: list });
-      }));
-      $("[data-pdftest]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-pdftest]", (el) => async () => {
         el.disabled = true;
         const r = await ws({ type: "raumklima/report/pdf/create", kind: "week", send: true, ...this._homeMsg() });
         el.disabled = false;
         if (r) this._flash(t("Bericht gesendet: {f}", { f: r.file }));
-      }));
-      $("[data-presrm]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-presrm]", (el) => () => {
         this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
-      }));
-      $("[data-presadd]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-presadd]", (el) => () => {
         const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
         if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
-      }));
+      });
       const roomPres = (entry) => {
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
         const local = room && this._roomOpt(room, "presence_sensors");
         return [...local ?? Object.keys((room && room.attrs.settings || {}).presence_sensors || {})];
       };
-      $("[data-lightrm]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-lightrm]", (el) => () => {
         this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
-      }));
-      $("[data-lightadd]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-lightadd]", (el) => () => {
         const sel = this.shadowRoot.getElementById(`addLight-${el.dataset.lightadd}`);
         if (sel && sel.value) this._setRoom(el.dataset.lightadd, { signal_lights: [...roomList(el.dataset.lightadd, "signal_lights", []), sel.value] }, 200);
-      }));
-      $("[data-lsig]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-lsig]", (el) => () => {
         const list = roomList(el.dataset.entry, "light_signals", ["open", "close"]);
         const i = list.indexOf(el.dataset.lsig);
         if (i >= 0) list.splice(i, 1);
         else list.push(el.dataset.lsig);
         this._setRoom(el.dataset.entry, { light_signals: list }, 600);
-      }));
-      $("[data-lighttest]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-lighttest]", (el) => async () => {
         const r = await ws({ type: "raumklima/room/light_test", entry_id: el.dataset.lighttest });
         if (r) this._flash("Lampen blinken blau");
-      }));
-      $("[data-sigrm]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-sigrm]", (el) => () => {
         this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });
-      }));
-      $("[data-sigadd]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-sigadd]", (el) => () => {
         const sel = this.shadowRoot.getElementById("addSig");
         if (sel && sel.value) this._setHub({ sleep_signals: [...this._hubOpt("sleep_signals") || [], sel.value] });
-      }));
-      $("[data-kind]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-kind]", (el) => () => {
         const key = el.dataset.ch === "tts" ? "tts" : "recipients";
         const table = JSON.parse(JSON.stringify(this._hubOpt(key) || {}));
         const list = table[el.dataset.target] || [];
@@ -7026,70 +7047,70 @@
         else list.push(el.dataset.kind);
         table[el.dataset.target] = list;
         this._setHub({ [key]: table });
-      }));
-      $("[data-remove]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-remove]", (el) => () => {
         const key = el.dataset.ch === "tts" ? "tts" : "recipients";
         const table = JSON.parse(JSON.stringify(this._hubOpt(key) || {}));
         delete table[el.dataset.remove];
         this._setHub({ [key]: table }, 100);
-      }));
-      $("[data-add]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-add]", (el) => () => {
         const sel = this.shadowRoot.getElementById("addTarget");
         if (!sel || !sel.value) return;
         const key = el.dataset.add === "tts" ? "tts" : "recipients";
         const table = JSON.parse(JSON.stringify(this._hubOpt(key) || {}));
         table[sel.value] = el.dataset.add === "tts" ? ["too_cold"] : [...RK_DEFAULT_PUSH];
         this._setHub({ [key]: table }, 100);
-      }));
-      $("[data-test]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-test]", (el) => async () => {
         const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test, ...this._homeMsg() });
         if (r) this._flash(t("Testnachricht an {n} gesendet", { n: rkPretty(el.dataset.test) }));
-      }));
-      $("[data-diag]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-diag]", (el) => () => {
         this._trace("click", { what: "diagnose" });
         this._downloadDiagnostics();
-      }));
-      $("[data-backup]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-backup]", (el) => () => {
         this._trace("click", { what: "sichern" });
         this._backupExport();
-      }));
+      });
       const restoreInput = this.shadowRoot.getElementById("rkrestore");
-      $("[data-restore]").forEach((el) => el.addEventListener("click", () => restoreInput?.click()));
+      on("click", "[data-restore]", (el) => () => restoreInput?.click());
       if (restoreInput) restoreInput.addEventListener("change", async () => {
         const file = restoreInput.files && restoreInput.files[0];
         if (file) await this._backupImport(file);
         restoreInput.value = "";
       });
-      $("[data-bug]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-bug]", (el) => () => {
         this._trace("click", { what: "bug" });
         this._openBugReport();
-      }));
+      });
       $("[data-sheet-close]").forEach(
         (el) => el.addEventListener("click", (ev) => {
           if (ev.target !== el || el.classList.contains("sheet")) return;
           this._closeSheet();
         })
       );
-      $("[data-sheet-copy]").forEach((el) => el.addEventListener("click", () => {
+      on("click", "[data-sheet-copy]", (el) => () => {
         this._trace("sheet:copy");
         this._sheetCopy();
-      }));
-      $("[data-sheet-share]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-sheet-share]", (el) => () => {
         this._trace("sheet:share", { share: Boolean(navigator.share) });
         this._sheetShare();
-      }));
-      $("[data-sheet-save]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-sheet-save]", (el) => () => {
         this._trace("sheet:save");
         this._sheetSave();
-      }));
-      $("[data-action]").forEach((el) => el.addEventListener("click", async () => {
+      });
+      on("click", "[data-action]", (el) => async () => {
         await ws({ type: "raumklima/hub/action", action: el.dataset.action, ...this._homeMsg() });
         this._load();
-      }));
-      $("[data-nav]").forEach((el) => el.addEventListener("click", () => {
+      });
+      on("click", "[data-nav]", (el) => () => {
         history.pushState(null, "", el.dataset.nav);
         window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
-      }));
+      });
     }
   };
 
