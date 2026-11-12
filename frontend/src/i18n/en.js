@@ -967,4 +967,11 @@ export const EN = {
   "Berichte": "Reports",
   "Nacht & Ruhezeit": "Night & quiet time",
   "Grenze unter Lüften & Feuchte": "threshold under Airing & humidity",
+  "Weitere Einstellungen": "More settings",
+  "Homeoffice & Kalender": "Home office & calendar",
+  "Dashboard, Standort, weitere Wohnung": "Dashboard, location, another home",
+  "Technik": "Technical",
+  "vom Standard abweichend": "differs from default",
+  "Profi-Ansicht": "Expert view",
+  "Alle selten gebrauchten Einstellungen dauerhaft aufklappen": "Keep all rarely used settings expanded",
 };

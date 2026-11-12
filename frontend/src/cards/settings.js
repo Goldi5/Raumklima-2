@@ -15,6 +15,15 @@ const RK_GROUP_META = {
   layout: { label: "Darstellung", icon: "mdi:view-dashboard-outline" },
   advanced: { label: "Erweitert", icon: "mdi:cog-outline" },
 };
+// Standardwerte, die das Backend nicht als Option führt (leer = dieser Wert)
+const RK_IMPLICIT = {
+  preheat_mode: "auto", quiet_mode: "auto", mold_cap: 2.5, wall: "auto", night_airing: "auto", virtual_window: "auto",
+  co2_limit: 1000, trv_interval: 0, fast_poll: false, schedule_fallback: "wish", override_minutes: 120, boost_sources: "selected",
+  airing_min_minutes: 0, long_airing_minutes: 20, long_airing_remind: 90, airing_occupied_only: true,
+  home_office_from: "08:00", home_office_to: "17:00", home_office_check: true, home_sensors: "mmwave", work_zone_minutes: 5,
+  vacation_km: 0, vacation_hours: 12, night_level: "long", report_metric: "auto", storm_gust_kmh: 70, storm_rain_mm: 8,
+  solar_gain: false, presence_off: false, learn_shift: false, frost_night: false,
+};
 const RK_LAYOUT_COLORS = ["#1eb6a6", "#34a86e", "#e8982e", "#e2643c", "#7c6adc", "#3c8cdc", "#c94f8a", "#7a8288"];
 const RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "night", "notify", "reports", "learn", "layout", "advanced"];
 import { HELP } from "../help.js";
@@ -490,8 +499,35 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const rowCount = (rows.match(/class="row"/g) || []).length;
     const ctlCount = (rows.match(/class="tgl/g) || []).length + (rows.match(/class="segs"/g) || []).length;
     const pairable = rowCount >= 4 && rowCount % 2 === 0 && ctlCount >= rowCount
-      && !/tblwrap|class="people"|roomrow|whyrow|mailprov|stepper|numedit/.test(rows);
+      && !/tblwrap|class="people"|roomrow|whyrow|mailprov|stepper|numedit|<details/.test(rows);
     return `<div class="grp ${cls}${pairable ? " pair" : ""}" data-g="${g}" style="--g:${toneVar(tone)}"><div class="gh"><div class="ic"><ha-icon icon="${icon}"></ha-icon></div><b>${t(title)}</b>${extra}</div><div class="rws">${rows}</div></div>`;
+  }
+  // Wert weicht vom Standard ab? (dann klappt der Aufklapper von selbst auf)
+  _changed(scope, keys) {
+    const hub = scope === "hub";
+    const cfg = this._cfg || {};
+    const defs = hub ? (cfg.hub && cfg.hub.defaults) : cfg.room_defaults;
+    return (keys || []).some((k) => {
+      const v = hub ? this._hubOpt(k) : this._roomOpt(scope, k);
+      if (v === undefined || v === null || v === "") return false;
+      const d = defs && k in defs ? defs[k] : RK_IMPLICIT[k];
+      if (d === undefined) {
+        if (!defs) return false; // altes Backend ohne Standardwerte: nichts raten
+        return Array.isArray(v) ? v.length > 0 : typeof v === "object" ? Object.keys(v).length > 0 : !!v;
+      }
+      return JSON.stringify(v) !== JSON.stringify(d);
+    });
+  }
+  // Selten gebrauchte Zeilen einklappen. Offen, wenn Profi-Ansicht an ist, der Nutzer es geöffnet hat
+  // oder ein Wert darin vom Standard abweicht – nichts Geändertes bleibt versteckt.
+  _more(id, title, rows, scope, keys = []) {
+    if (!rows || !/class="row"|class="addrow"/.test(rows)) return rows || "";
+    const key = `${id}:${scope === "hub" ? "hub" : this._tab}`;
+    const n = (rows.match(/class="row"/g) || []).length;
+    const changed = this._changed(scope, keys);
+    const user = this._moreOpen ? this._moreOpen.get(key) : undefined;
+    const open = this._pro || (user !== undefined ? user : changed);
+    return `<details class="adv more" data-more="${key}" data-open="${open ? 1 : 0}"${open ? " open" : ""}><summary>${t(title)}<span class="cnt">${n}</span>${changed ? `<span class="chg" title="${t("vom Standard abweichend")}"></span>` : ""}</summary>${rows}</details>`;
   }
   _stepper(attrs, value, unit, dec) {
     const ro = !this._admin;
@@ -546,43 +582,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
     }).join("");
     const presRows = [
       `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
-      this._row("Anwesenheit aus", this._optToggle(H, "presence_off", !!this._hubOpt("presence_off")),
-        "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist"),
       this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
       this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
       this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
-      this._row("Arbeitsplätze", `<div class="chips">${(ch.zones || []).map((z) => {
-        const chosen = (this._hubOpt("work_zones") || []).includes(z.id);
-        return `<button class="chip2 ${chosen ? "" : "off"}" data-workzone="${z.id}" title="${esc(z.name)}"><i></i>${esc(z.name)}</button>`;
-      }).join("")}</div>`, "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück"),
-      this._row("… gilt nach", this._optStepper(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5, " min", 1, 0, 120), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
-      this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
-      this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
-      this._row("Urlaub automatisch ab", this._optStepper(H, "vacation_km", this._hubOpt("vacation_km") ?? 0, " km", 10, 0, 1000), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
-      this._row("… nach", this._optStepper(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12, " h", 1, 1, 96), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
-      this._row("Präsenzmelder zählen", this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
-        (st.sensed && st.sensed.length) ? t("gerade jemand in: {r}", { r: esc(st.sensed.join(", ")) }) : "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie"),
       this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
       this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
-      this._row(
-        "Gäste gelten für",
-        `<div class="chips">${this._orderedRooms()
-          .map((r) => {
-            // Kennung ist die Raum-Entry-ID (danach fragt die Zentrale), Name der Anzeigename
-            const rid = ((r.attrs && r.attrs.settings) || {}).entry_id || r.id;
-            const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
-            return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
-          })
-          .join("")}</div>`,
-        (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
-      ),
       this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
-      this._row("Nachtruhe über Entität", this._select(H, "night_entity", ch.signals || [], this._hubOpt("night_entity"), "– keiner –"),
-        "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt"),
-      this._row("Homeoffice über Entität", this._select(H, "home_office_entity", ch.signals || [], this._hubOpt("home_office_entity"), "– keiner –"),
-        "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung"),
-      this._row("Homeoffice nur wenn jemand da", this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
-        "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"),
+      this._more("pres-ho", "Homeoffice & Kalender", [
       (() => {
         const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: `${String(h).padStart(2, "0")}:00` }));
         const from = this._hubOpt("home_office_from") || "08:00";
@@ -599,10 +605,42 @@ export class RaumklimaSettingsCard extends HTMLElement {
           .join("")}</div>`,
         (this._hubOpt("home_office_rooms") || []).length ? t("nur diese Räume werden auf Wunsch geheizt") : t("keine Auswahl = alle Räume mit Thermostat")
       ),
+      this._row("Homeoffice nur wenn jemand da", this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
+        "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"),
+      this._row("Homeoffice über Entität", this._select(H, "home_office_entity", ch.signals || [], this._hubOpt("home_office_entity"), "– keiner –"),
+        "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung"),
       this._row("Kalender", this._select(H, "calendar_entity", ch.calendars || [], this._hubOpt("calendar_entity"), "– keiner –"),
         st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"),
       this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
       this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : "",
+      ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity"]),
+      this._more("pres-more", "Weitere Einstellungen", [
+      this._row("Anwesenheit aus", this._optToggle(H, "presence_off", !!this._hubOpt("presence_off")),
+        "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist"),
+      this._row(
+        "Gäste gelten für",
+        `<div class="chips">${this._orderedRooms()
+          .map((r) => {
+            // Kennung ist die Raum-Entry-ID (danach fragt die Zentrale), Name der Anzeigename
+            const rid = ((r.attrs && r.attrs.settings) || {}).entry_id || r.id;
+            const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
+            return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
+          })
+          .join("")}</div>`,
+        (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
+      ),
+      this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
+      this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
+      this._row("Urlaub automatisch ab", this._optStepper(H, "vacation_km", this._hubOpt("vacation_km") ?? 0, " km", 10, 0, 1000), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
+      this._row("… nach", this._optStepper(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12, " h", 1, 1, 96), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
+      this._row("Arbeitsplätze", `<div class="chips">${(ch.zones || []).map((z) => {
+        const chosen = (this._hubOpt("work_zones") || []).includes(z.id);
+        return `<button class="chip2 ${chosen ? "" : "off"}" data-workzone="${z.id}" title="${esc(z.name)}"><i></i>${esc(z.name)}</button>`;
+      }).join("")}</div>`, "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück"),
+      this._row("… gilt nach", this._optStepper(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5, " min", 1, 0, 120), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
+      this._row("Präsenzmelder zählen", this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
+        (st.sensed && st.sensed.length) ? t("gerade jemand in: {r}", { r: esc(st.sensed.join(", ")) }) : "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie"),
+      ].join(""), "hub", ["presence_off", "guests_rooms", "long_away_hours", "preheat_km", "vacation_km", "vacation_hours", "work_zones", "work_zone_minutes", "home_sensors"]),
     ].join("");
 
     // --- Heizsaison
@@ -613,15 +651,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
         <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Ø 24 h {p} · Vorhersage {f}", { p: st.mean_past == null ? t("sammelt noch") : fmt(st.mean_past) + "°", f: st.mean_forecast == null ? "–" : fmt(st.mean_forecast) + "°" })}</span></div>`,
       this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
       this._row("Heizgrenze", this._optStepper(H, "heating_limit", this._hubOpt("heating_limit"), " °C", 0.5, 5, 25, 1), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
+      this._row("Heute heizen", st.heat_today_until
+        ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>`
+        : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage"),
+      this._more("seas-more", "Weitere Einstellungen", [
       this._row("Heizsaison", `<span class="v"><input class="inp short" type="date" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" type="date" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Kalender antippen – Tag und Monat zählen, das Jahr ist egal"),
       this._row("Außentemperatur von", this._select(H, "outdoor_temp_entity", ch.outdoor || [], this._hubOpt("outdoor_temp_entity"), "Wetterdienst"), "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst"),
       this._row("Kälteeinbruch unter", this._optStepper(H, "cold_snap_temp", this._hubOpt("cold_snap_temp"), " °C", 0.5, 0, 20, 1), "3 Tage darunter → heizt auch außerhalb der Saison"),
       this._row("Sicherung", this._optStepper(H, "frost_floor", this._hubOpt("frost_floor"), " °C", 0.5, 5, 20, 1), "fällt ein Raum darunter, heizt er immer"),
       this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
       this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen"),
-      this._row("Heute heizen", st.heat_today_until
-        ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>`
-        : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage"),
+      ].join(""), "hub", ["season_start", "season_end", "outdoor_temp_entity", "cold_snap_temp", "frost_floor", "frost_night", "valve_care"]),
     ].join("");
 
     // --- Schlafenszeiten
@@ -653,18 +693,22 @@ export class RaumklimaSettingsCard extends HTMLElement {
       `<div class="status"><span class="chip" style="--tone:${sl.quiet_now ? "var(--rk-eco)" : "var(--rk-ok)"}"><ha-icon icon="${sl.quiet_now ? "mdi:sleep" : "mdi:white-balance-sunny"}"></ha-icon>${sl.quiet_now ? t("Ruhezeit gerade aktiv") : t("Keine Ruhezeit")}</span>${sl.asleep ? `<span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-off-outline"></ha-icon>${t("Licht aus – alle schlafen")}</span>` : ""}</div>`,
       this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
       this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
+      this._row("Ruhezeit senkt ab", this._optToggle(H, "quiet_setback", !!this._hubOpt("quiet_setback")), "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist"),
+      lrn("weekday", "Werktags"),
+      lrn("weekend", "Wochenende"),
+      this._more("night-more", "Weitere Einstellungen", [
+      this._row("Absenkwert nachts", this._select(H, "night_level", [{ id: "short", name: t("Kurz weg") }, { id: "long", name: t("Länger weg") }, { id: "frost", name: t("Frostschutz") }], this._hubOpt("night_level") || "long"), "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsenkung“ ein- oder ausgeschlossen"),
+      this._row("Nachtruhe über Entität", this._select(H, "night_entity", ch.signals || [], this._hubOpt("night_entity"), "– keiner –"),
+        "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt"),
       this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
       this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
       this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
       this._row("Schichtdienst", this._optToggle(H, "learn_shift", !!this._hubOpt("learn_shift")), "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht"),
-      this._row("Ruhezeit senkt ab", this._optToggle(H, "quiet_setback", !!this._hubOpt("quiet_setback")), "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist"),
-      this._row("Absenkwert nachts", this._select(H, "night_level", [{ id: "short", name: t("Kurz weg") }, { id: "long", name: t("Länger weg") }, { id: "frost", name: t("Frostschutz") }], this._hubOpt("night_level") || "long"), "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsenkung“ ein- oder ausgeschlossen"),
       this._row("Feiertage", this._select(H, "holiday_state", ch.states || [], this._hubOpt("holiday_state") || "", "– keine –"), (sl.tonight && sl.tonight.holiday) ? t("morgen: {h} – Ruhezeit wie am Wochenende", { h: esc(sl.tonight.holiday) }) : "Nacht vor einem Feiertag gilt wie Wochenende"),
       this._row("Schlaf-Signale", `<div class="chips">${sigChips || this._v("keine", true)}</div>`, "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden"),
       this._admin && sigAvail.length ? `<div class="addrow"><select class="sel" id="addSig">${sigAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-sigadd style="--c:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Signal hinzufügen")}</button></div>` : "",
-      lrn("weekday", "Werktags"),
-      lrn("weekend", "Wochenende"),
       `<div class="hint">${t("Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.")}</div>`,
+      ].join(""), "hub", ["night_level", "night_entity", "night_start", "night_end", "night_alarm_temp", "learn_times", "learn_shift", "holiday_state", "sleep_signals"]),
     ].join("");
 
     // --- Wohnung
@@ -675,6 +719,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
       `<div class="hint">${t("Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.", { f: frsi })}</div>`,
       this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
+      this._more("home-more", "Dashboard, Standort, weitere Wohnung", [
       (() => {
         const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
         const dp = dh.dashboard || "";
@@ -697,7 +742,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         const zlat = zst && zst.attributes ? zst.attributes.latitude : null;
         const zlon = zst && zst.attributes ? zst.attributes.longitude : null;
         const own = lat != null || lon != null;
-        return `<details class="adv"${own ? " open" : ""}><summary>${t("Erweitert: Standort der Wohnung")}</summary>${this._row("Standort der Wohnung",
+        return this._row("Standort der Wohnung",
           `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}> ${this._admin ? `<button class="mini" data-geohass title="${t("Werte von Home Assistant übernehmen")}">${t("von HA")}</button>${own ? `<button class="mini x" data-geoclear title="${t("leeren – dann gilt Home Assistant")}">✕</button>` : ""}` : ""}</span>`,
           t("Leer lassen = es gilt der Standort aus der Zone dieser Wohnung ({zone}{zl}). Ist keine Zone gesetzt, gilt der Standort von Home Assistant ({lat} / {lon}). Nur eintragen, wenn die Wohnung woanders liegt – daraus rechnet Raumklima den Sonnenstand; „von HA“ übernimmt die HA-Werte zum Anpassen.", {
             zone: zn || t("keine Zone gesetzt"),
@@ -705,14 +750,22 @@ export class RaumklimaSettingsCard extends HTMLElement {
             lat: haLat,
             lon: haLon,
           }),
-        )}</details>`;
+        );
       })(),
       this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
       `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`,
+      ].join(""), "hub", ["dashboard", "latitude", "longitude"]),
     ].join("");
 
     // --- Gebäude
     const reportRows = [
+      this._row("PDF-Berichte", `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => { const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k); return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`; }).join("")}</div>`,
+        "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
+      this._row("PDF per E-Mail", `<button class="tgl ${this._hubOpt("report_email") ? "on" : ""}" data-mailtoggle ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
+        this._hubOpt("report_email") ? "die PDF kommt als Anhang an die Empfänger unten" : "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail"),
+      this._mailSetup(ch.mail || []),
+      this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
+      this._more("rep-more", "Weitere Einstellungen", [
       this._row(
         "Wärmemenge im Bericht",
         this._select(H, "report_metric", [
@@ -723,13 +776,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
         ], this._hubOpt("report_metric") || "auto"),
         "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)"
       ),
-      this._row("PDF-Berichte", `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => { const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k); return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`; }).join("")}</div>`,
-        "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"),
-      this._row("PDF per E-Mail", `<button class="tgl ${this._hubOpt("report_email") ? "on" : ""}" data-mailtoggle ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-        this._hubOpt("report_email") ? "die PDF kommt als Anhang an die Empfänger unten" : "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail"),
-      this._mailSetup(ch.mail || []),
-      this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
       this._row("Heizkosten pro Jahr", `<span class="v"><input type="number" class="inp" min="0" max="20000" step="50" data-hubnum="annual_cost" value="${this._hubOpt("annual_cost") ?? ""}" placeholder="${t("z. B. 1400")}" ${this._admin ? "" : "disabled"} style="width:110px"> €</span>`, "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)"),
+      ].join(""), "hub", ["report_metric", "annual_cost"]),
     ].join("");
 
     // --- Empfänger
@@ -755,12 +803,18 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
     // --- Allgemein Benachrichtigung
     const notiRows = [
+      this._row(
+        "Lüfthinweise von",
+        `<span class="v">${tf("vent_from", this._hubOpt("vent_from") || "08:00:00")} – ${tf("vent_to", this._hubOpt("vent_to") || "21:00:00")}</span>`,
+        t("Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter")
+      ),
       this._row("Nur an anwesende Personen", this._optToggle(H, "notify_present_only", this._hubOpt("notify_present_only") ?? true), t("Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle")),
       this._row(
         "Sturm- und Regenwarnung",
         this._optToggle(H, "storm_warning", this._hubOpt("storm_warning") ?? true),
         t("warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit")
       ),
+      this._more("noti-more", "Weitere Einstellungen", [
       this._row(
         "… Böen ab",
         this._optStepper(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70, " km/h", 10, 30, 200, 0),
@@ -771,13 +825,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._optStepper(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8, " mm/h", 1, 1, 50, 0),
         t("ab dieser Regenmenge gilt es als Starkregen")
       ),
-      this._row(
-        "Lüfthinweise von",
-        `<span class="v">${tf("vent_from", this._hubOpt("vent_from") || "08:00:00")} – ${tf("vent_to", this._hubOpt("vent_to") || "21:00:00")}</span>`,
-        t("Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter")
-      ),
       this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
       this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
+      ].join(""), "hub", ["storm_gust_kmh", "storm_rain_mm", "repeat_minutes", "notify_on_failure"]),
     ].join("");
 
     // --- Tabelle
@@ -985,7 +1035,20 @@ export class RaumklimaSettingsCard extends HTMLElement {
         : t("Zeitfenster einmal pflegen und für mehrere Räume nutzen")
     );
     const fallback = this._roomOpt(r, "schedule_fallback") ?? s.schedule_fallback ?? "wish";
-    const rows = [
+    const rows = [];
+    const boostRows = [
+      this._row(
+        "Wärmer für kurze Zeit (Boost)",
+        editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),
+        t("so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn")
+      ),
+      this._row(
+        "Dauer des Boosts",
+        editable ? this._optStepper(scope, "boost_minutes", boostMin, " min", 5, 5, 240) : this._v(`${boostMin} min`),
+        t("danach gilt wieder Zeitplan bzw. Automatik")
+      ),
+    ];
+    const moreRows = [
       shareRow,
       this._row(
         "Außerhalb der Zeitfenster",
@@ -999,9 +1062,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
               : t("zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert")
       ),
       this._row(
-        "Wärmer für kurze Zeit (Boost)",
-        editable ? this._optStepper(scope, "boost_temperature", boostTemp, " K", 0.5, 0.5, 5, 1) : this._v(`${fmt(boostTemp, 1)} K`),
-        t("so viel wärmer als die Wunschtemperatur – der Knopf „Wärmer“ am Raum startet ihn")
+        "Zeitplan überschreiben",
+        editable ? this._optStepper(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120, " min", 15, 0, 480) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
+        t("so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus")
       ),
       this._row(
         "Boost für",
@@ -1013,16 +1076,6 @@ export class RaumklimaSettingsCard extends HTMLElement {
           ({ selected: t("im Zeitplan gewählt"), all: t("alle Quellen"), first: t("nur die priorisierte") })[this._roomOpt(r, "boost_sources") ?? "selected"]
         ),
         t("welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus")
-      ),
-      this._row(
-        "Dauer des Boosts",
-        editable ? this._optStepper(scope, "boost_minutes", boostMin, " min", 5, 5, 240) : this._v(`${boostMin} min`),
-        t("danach gilt wieder Zeitplan bzw. Automatik")
-      ),
-      this._row(
-        "Zeitplan überschreiben",
-        editable ? this._optStepper(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120, " min", 15, 0, 480) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
-        t("so lange gilt deine Handverstellung (HA oder Alexa), danach wieder der Zeitplan – 0 schaltet es aus")
       ),
     ];
     if (!list.length) {
@@ -1039,6 +1092,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     if (!ro && !shared) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
     }
+    rows.push(...boostRows);
+    rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
     return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
   }
 
@@ -1083,7 +1138,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const learned = Number(s.airing_learned || 0);
     const list = this._airList(id, this._roomOpt(r, "airing_windows") ?? s.airing_windows ?? []);
     const presEff = this._roomOpt(r, "presence_sensors") ?? Object.keys(s.presence_sensors || {});
-    const rows = [
+    const rows = [];
+    const learnRows = [
+      this._row(
+        "Gewohntes Lüften erkennen",
+        editable ? this._optToggle(scope, "learn_airing", !!learn) : this._v(learn ? t("an") : t("aus")),
+        learned ? t("erkannt: {n}× im gleichen Zeitraster (4 Wochen)", { n: learned }) : t("lernt, wann du regelmäßig länger lüftest – dort dann keine Erinnerungen")
+      ),
+    ];
+    const moreRows = [
       this._row(
         "Mindestdauer Lüften",
         editable
@@ -1108,11 +1171,6 @@ export class RaumklimaSettingsCard extends HTMLElement {
         editable ? this._optToggle(scope, "airing_occupied_only", this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true) : this._v((this._roomOpt(r, "airing_occupied_only") ?? s.airing_occupied_only ?? true) ? t("an") : t("aus")),
         t("kein „bitte lüften“ in leeren Räumen – nur mit Präsenzmelder möglich")
       )] : []),
-      this._row(
-        "Gewohntes Lüften erkennen",
-        editable ? this._optToggle(scope, "learn_airing", !!learn) : this._v(learn ? t("an") : t("aus")),
-        learned ? t("erkannt: {n}× im gleichen Zeitraster (4 Wochen)", { n: learned }) : t("lernt, wann du regelmäßig länger lüftest – dort dann keine Erinnerungen")
-      ),
     ];
     if (!list.length) {
       rows.push(this._row("Lüftfenster", this._v("keine – es wird normal erinnert", true), t("z. B. Training morgens: in dieser Zeit keine Hinweise")));
@@ -1122,6 +1180,8 @@ export class RaumklimaSettingsCard extends HTMLElement {
     if (!ro && list.length < 6) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-airadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
     }
+    rows.push(...learnRows);
+    rows.push(this._more("airing-more", "Weitere Einstellungen", moreRows.join(""), r, ["airing_min_minutes", "long_airing_minutes", "long_airing_remind", "airing_occupied_only"]));
     return this._grp("air", "Lüften ohne Erinnerung", "mdi:weather-windy-variant", "air", rows.join(""), "span");
   }
 
@@ -1159,18 +1219,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
         this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–"),
           t("jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben")),
         ((this._cfg && this._cfg.homes) || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
-        this._row("Sonnenseite", editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
-          a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit")),
-        (() => {
-          const fac = this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "";
-          return `<details class="adv"${fac ? " open" : ""}><summary>${t("Erweitert: Sonneneintrag")}</summary>${this._row("Sonne kommt aus",
-            editable ? this._select(scope, "solar_facade", RK_FACADES(), fac) : this._v(rkFacadeName(fac)),
-            t("Richtung, in die die Fenster dieses Raums zeigen – vereinfacht, freie Sicht vorausgesetzt. Haus, Baum, Balkon oder ein tiefes Gewände davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage). Bei zwei Fensterseiten: die mit der größeren Glasfläche."),
-          )}</details>`;
-        })(),
         this._row("Absenkung „kurz weg“", editable ? this._optStepper(scope, "setback_short", sbShort, " °C", 0.5, 10, 24, 1) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
+        this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
         this._row("Aufheizen", this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: (s.heatup && s.heatup.episodes) || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"),
+        this._more("temp-more", "Weitere Einstellungen", [
         (() => {
           const pm = this._roomOpt(r, "preheat_mode") ?? "auto";
           const rows = [this._row("Vorheizen", editable ? this._segs(scope, "preheat_mode", RK_PREHEAT, pm) : this._v(RK_PREHEAT[pm] || "–"),
@@ -1186,11 +1239,19 @@ export class RaumklimaSettingsCard extends HTMLElement {
           }
           return rows.join("");
         })(),
-        this._row("Absenkung „länger weg“", editable ? this._optStepper(scope, "setback_long", sbLong, " °C", 0.5, 8, 22, 1) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
         (() => {
           const qm = this._roomOpt(r, "quiet_mode") ?? "auto";
           return this._row("Nachtabsenkung", editable ? this._segs(scope, "quiet_mode", RK_QUIET, qm) : this._v(RK_QUIET[qm] || "–"),
             qm === "off" ? t("wird nachts nicht abgesenkt") : qm === "on" ? t("wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist") : t("wie bisher: nur Schlafzimmer und selten genutzte Räume"));
+        })(),
+        this._row("Sonnenseite", editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
+          a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit")),
+        (() => {
+          const fac = this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "";
+          return this._row("Sonne kommt aus",
+            editable ? this._select(scope, "solar_facade", RK_FACADES(), fac) : this._v(rkFacadeName(fac)),
+            t("Richtung, in die die Fenster dieses Raums zeigen – vereinfacht, freie Sicht vorausgesetzt. Haus, Baum, Balkon oder ein tiefes Gewände davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage). Bei zwei Fensterseiten: die mit der größeren Glasfläche."),
+          );
         })(),
         (() => {
           const persons = ((this._cfg && this._cfg.choices && this._cfg.choices.persons) || []);
@@ -1200,14 +1261,16 @@ export class RaumklimaSettingsCard extends HTMLElement {
             `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
             cur.length ? t("nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern"));
         })(),
+        ].join(""), r, ["preheat_mode", "quiet_mode", "solar_gain", "solar_facade", "room_persons"]),
       ].join(""))}
       ${mon ? "" : this._scheduleGroup(r, id, editable)}
       ${this._grp("air", "Lüften & Feuchte", "mdi:water-percent", "air", [
         sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
-        this._row("Max. Abkühlung beim Lüften", this._numStepper(sib.max_drop, " °C", 1)),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : ""),
+        this._more("air-more", "Weitere Einstellungen", [
+        this._row("Max. Abkühlung beim Lüften", this._numStepper(sib.max_drop, " °C", 1)),
         s.co2_sensor ? this._row(
           "CO₂-Grenze",
           editable
@@ -1220,6 +1283,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
             : this._v(`${this._roomOpt(r, "co2_limit") ?? 1000} ppm`),
           t("1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer")
         ) : "",
+        ].join(""), r, ["co2_limit"]),
       ].join(""))}
       ${mon ? "" : this._grp("air", "Schimmelschutz", "mdi:shield-home-outline", "ok", [
         this._row(
@@ -1231,6 +1295,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
               ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt")
               : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden"),
         ),
+        this._more("mold-more", "Weitere Einstellungen", [
         moldMode !== "off"
           ? this._row(
               "Höchstens anheben um",
@@ -1256,17 +1321,20 @@ export class RaumklimaSettingsCard extends HTMLElement {
             : this._v(RK_WALL[this._roomOpt(r, "wall") ?? "auto"]),
           t("bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand"),
         ),
+        ].join(""), r, ["mold_cap", "wall"]),
       ].join(""))}
       ${a.monitor ? "" : this._sourceGroup(r, id, editable)}
       ${this._grp("air", "Fenster", "mdi:window-open-variant", "ok", [
         mon ? "" : this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
+        this._row("Kontakte", `<div class="chips">${contacts}</div>`),
+        this._more("win-more", "Weitere Einstellungen", [
         mon ? "" : this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
         mon ? "" : this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
         this._row("Schlafen bei offenem Fenster", editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),
           nightMode === "auto" ? (["bedroom", "rarely_used"].includes(roomType) ? "Automatisch: ja, weil Schlafraum" : "Automatisch: nein, kein Schlafraum") : "abends geöffnet = Nachtlüften: keine Lüft-Hinweise, Heizung wartet"),
-        this._row("Kontakte", `<div class="chips">${contacts}</div>`),
         mon ? "" : this._row("Offenes Fenster an Temperatursturz erkennen", editable ? this._segs(scope, "virtual_window", RK_NIGHT, virtMode) : this._v(RK_NIGHT[virtMode] || "–"),
           (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? (s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig") : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")),
+        ].join(""), r, ["window_open_delay", "window_close_delay", "night_airing", "virtual_window"]),
       ].join(""))}
       ${this._airingGroup(r, id, editable)}
       ${this._presenceGroup(r, id, editable)}
@@ -1291,6 +1359,12 @@ export class RaumklimaSettingsCard extends HTMLElement {
       ${this._grp("heating", mon ? "Fühler & Sensoren" : "Thermostat & Fühler", mon ? "mdi:thermometer-lines" : "mdi:radiator", "off", [
         mon ? "" : this._row("Thermostat", this._v(esc(this._name(s.trv))), [((s.extra_trvs || []).length ? "Haupt-Thermostat" : ""), s.valve_reported === false ? t("meldet keine Ventilöffnung") : ""].filter(Boolean).join(" · ")),
         !mon && (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}${x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
+        this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
+        this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
+        this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
+        this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
+        mon ? "" : this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, t("prüft nach {s} s · bis zu {n} Wiederholungen", { s: s.sync_verify_delay ?? "–", n: s.sync_max_retries ?? "–" })),
+        this._more("dev-more", "Technik", [
         mon ? "" : this._row(
           "Schnellere Abfrage",
           editable ? this._optToggle(scope, "fast_poll", !!(this._roomOpt(r, "fast_poll") ?? s.fast_poll)) : this._v(this._roomOpt(r, "fast_poll") ?? s.fast_poll ? t("an") : t("aus")),
@@ -1314,10 +1388,6 @@ export class RaumklimaSettingsCard extends HTMLElement {
             : this._v(this._roomOpt(r, "trv_interval") || t("automatisch")),
           t("wie lange das Gerät schweigen darf, ohne als ausgefallen zu gelten – automatisch lernt es aus den Funkpausen (FRITZ!DECT braucht ~15 Minuten)")
         ),
-        this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
-        this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
-        this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
-        this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         mon ? "" : this._row("Kalibrierung", editable
           ? this._segs(scope, "calibration_mode", s.calibration_entity
               ? RK_CAL
@@ -1329,7 +1399,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
         mon ? "" : this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
         mon ? "" : this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
         mon ? "" : this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? t("ja") : t("nein"))),
-        mon ? "" : this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, t("prüft nach {s} s · bis zu {n} Wiederholungen", { s: s.sync_verify_delay ?? "–", n: s.sync_max_retries ?? "–" })),
+        ].join(""), r, ["fast_poll", "trv_interval"]),
       ].join(""), "span cols")}
     </div>
     <div class="foot">
@@ -1733,6 +1803,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
   // ---------------------------------------------------------------- Rendern
   _render() {
     if (!this._hass || !this._rooms) return;
+    if (this._pro === undefined) {
+      try { this._pro = localStorage.getItem("raumklima-settings-pro") === "1"; } catch (e) { this._pro = false; }
+    }
+    this._moreOpen = this._moreOpen || new Map();
     if (this._renderSoon()) return;
     const rooms = this._orderedRooms();
     if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
@@ -1751,7 +1825,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
           <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
-          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
         <div class="tabs">${tabs}</div>
         <div class="crumb" id="rkc"></div>
@@ -1794,6 +1868,10 @@ export class RaumklimaSettingsCard extends HTMLElement {
       const vis = q ? hit : g === active;
       el.style.display = vis ? "" : "none";
       if (vis) shown += 1;
+    });
+    // Suche klappt Aufklapper mit Treffer auf; ohne Suche gilt wieder der gemerkte Zustand.
+    root.querySelectorAll("details.more").forEach((d) => {
+      d.open = q ? d.textContent.toLowerCase().includes(q) : d.dataset.open === "1";
     });
     // Ist nur eine Gruppe sichtbar, soll sie die volle Breite nutzen (sonst klafft rechts eine Lücke).
     const visible = secs.filter((el) => el.style.display !== "none");
@@ -1856,6 +1934,17 @@ export class RaumklimaSettingsCard extends HTMLElement {
       ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom })
         .then(() => this._flash(t("Auf Standard zurückgesetzt")))
         .catch(() => {});
+    }));
+    $("details.more > summary").forEach((el) => el.addEventListener("click", () => {
+      const d = el.parentElement;
+      this._moreOpen.set(d.dataset.more, !d.open); // der Klick schaltet gleich um
+      d.dataset.open = d.open ? "0" : "1";
+    }));
+    $("[data-pro]").forEach((el) => el.addEventListener("click", () => {
+      this._pro = !this._pro;
+      this._moreOpen.clear();
+      try { localStorage.setItem("raumklima-settings-pro", this._pro ? "1" : "0"); } catch (e) { /* privat */ }
+      this._render();
     }));
     const search = this.shadowRoot.querySelector("#rks");
     if (search) search.addEventListener("input", () => { this._search = search.value; this._filter(); });

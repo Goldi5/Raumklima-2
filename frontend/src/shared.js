@@ -703,6 +703,11 @@ export const SETTINGS_STYLES = `
   details.adv > summary::-webkit-details-marker { display: none; }
   details.adv > summary::before { content: "▸"; font-size: .8rem; }
   details.adv[open] > summary::before { content: "▾"; }
+  details.more > summary .cnt { margin-left: 2px; padding: 1px 7px; border-radius: 999px; font-size: .72rem; font-weight: 600;
+    background: color-mix(in srgb, var(--primary-text-color) 9%, transparent); color: var(--secondary-text-color); }
+  details.more > summary .chg { width: 7px; height: 7px; border-radius: 50%; background: var(--rk-heat); }
+  details.more[open] { padding-bottom: 6px; }
+  .btn.on { background: color-mix(in srgb, var(--c, var(--rk-eco)) 30%, transparent); }
   .sched { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .sched .days { display:flex; gap:4px; }
   .sched .d { all:unset; cursor:pointer; width:32px; height:27px; line-height:27px; border-radius:8px; text-align:center; font-size:.78rem; font-weight:600;

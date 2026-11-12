@@ -967,4 +967,11 @@ export const FR = {
   "Berichte": "Rapports",
   "Nacht & Ruhezeit": "Nuit et heures calmes",
   "Grenze unter Lüften & Feuchte": "seuil sous Aération et humidité",
+  "Weitere Einstellungen": "Autres réglages",
+  "Homeoffice & Kalender": "Télétravail et calendrier",
+  "Dashboard, Standort, weitere Wohnung": "Tableau de bord, emplacement, autre logement",
+  "Technik": "Technique",
+  "vom Standard abweichend": "différent de la valeur par défaut",
+  "Profi-Ansicht": "Vue expert",
+  "Alle selten gebrauchten Einstellungen dauerhaft aufklappen": "Garder dépliés tous les réglages rarement utilisés",
 };

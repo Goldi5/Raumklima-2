@@ -19,6 +19,8 @@ for (const f of files) {
   for (const m of code.matchAll(new RegExp(String.raw`(?<![\w$.])t\(\s*` + STR, "g"))) add(m[1]);
   // Hilfsfunktionen, die selbst übersetzen: erster Text
   for (const m of code.matchAll(new RegExp(String.raw`this\._(?:row|v|flash|tile)\(\s*` + STR, "g"))) add(m[1]);
+  // _more(id, titel, …): Titel des Aufklappers
+  for (const m of code.matchAll(new RegExp(String.raw`this\._more\(\s*"[a-z-]+",\s*` + STR, "g"))) add(m[1]);
   // _grp(gruppe, titel, …): das erste Argument ist der Platz in der Leiste, übersetzt wird der Titel
   for (const m of code.matchAll(new RegExp(String.raw`this\._grp\(\s*"[a-z]+",\s*` + STR, "g"))) add(m[1]);
   // _row(…, "Untertitel") am Ende, _select(…, "– leer –")

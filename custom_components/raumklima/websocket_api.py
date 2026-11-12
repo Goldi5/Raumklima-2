@@ -499,11 +499,14 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
                         "mail_password_set": bool(hub.entry.options.get("mail_password")),
                     },
                     "state": hub.summary(),
+                    # Standardwerte: die Karte klappt „Weitere Einstellungen" nur auf, wenn etwas abweicht
+                    "defaults": HUB_DEFAULTS,
                 }
                 if hub
                 else None
             ),
             "rooms": rooms,
+            "room_defaults": DEFAULTS,
             "homes": [
                 {"entry_id": h.entry.entry_id, "name": h.name, "default": h.is_default, "dashboard": h.dashboard,
                  "rooms": list(h.rooms)}
