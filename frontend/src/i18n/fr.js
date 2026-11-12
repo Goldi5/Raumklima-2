@@ -963,4 +963,8 @@ export const FR = {
   "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones de travail – ceux qui y sont ne reviennent pas de sitôt",
   "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "présent aussi longtemps, la maison compte alors comme vide immédiatement (pas de préchauffage, pas d’attente)",
   "… gilt nach": "… compte après",
+  "Nacht": "Nuit",
+  "Berichte": "Rapports",
+  "Nacht & Ruhezeit": "Nuit et heures calmes",
+  "Grenze unter Lüften & Feuchte": "seuil sous Aération et humidité",
 };

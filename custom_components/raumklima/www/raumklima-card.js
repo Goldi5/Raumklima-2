@@ -961,7 +961,11 @@
     "Arbeitsplätze": "Workplaces",
     "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones where people work – whoever is there will not come back soon",
     "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "there for this long, then the home counts as empty right away (no preheating, no waiting time)",
-    "… gilt nach": "… counts after"
+    "… gilt nach": "… counts after",
+    "Nacht": "Night",
+    "Berichte": "Reports",
+    "Nacht & Ruhezeit": "Night & quiet time",
+    "Grenze unter Lüften & Feuchte": "threshold under Airing & humidity"
   };
 
   // src/i18n/fr.js
@@ -1925,7 +1929,11 @@
     "Arbeitsplätze": "Lieux de travail",
     "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones de travail – ceux qui y sont ne reviennent pas de sitôt",
     "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "présent aussi longtemps, la maison compte alors comme vide immédiatement (pas de préchauffage, pas d’attente)",
-    "… gilt nach": "… compte après"
+    "… gilt nach": "… compte après",
+    "Nacht": "Nuit",
+    "Berichte": "Rapports",
+    "Nacht & Ruhezeit": "Nuit et heures calmes",
+    "Grenze unter Lüften & Feuchte": "seuil sous Aération et humidité"
   };
 
   // src/i18n.js
@@ -4401,43 +4409,21 @@
   };
 
   // src/cards/settings.js
-  var RK_GROUP_OF = {
-    "Wohnung": "home",
-    "Alle Räume auf einen Blick": "home",
-    "Heizsaison & Heizgrenze": "heating",
-    "Gesundheit der Heizung": "heating",
-    "Anwesenheit & Absenkung": "presence",
-    "Schlafenszeiten": "presence",
-    "Gebäude & Schimmelschutz": "presence",
-    "Wer bekommt was": "notify",
-    "Benachrichtigungen allgemein": "notify",
-    "Temperatur": "room",
-    "Überwachung": "room",
-    "Zeitplan": "heating",
-    "Thermostat & Fühler": "heating",
-    "Fühler & Sensoren": "air",
-    "Gesundheit": "heating",
-    "Lüften & Feuchte": "air",
-    "Fenster": "air",
-    "Lichtsignal": "air",
-    "Präsenzmelder": "presence",
-    "Benachrichtigungen": "notify",
-    "Darstellung": "layout",
-    "Lernen & Warum": "learn"
-  };
   var RK_GROUP_META = {
     home: { label: "Wohnung", icon: "mdi:home-outline" },
     room: { label: "Raum", icon: "mdi:door-open" },
     heating: { label: "Heizung", icon: "mdi:radiator" },
     air: { label: "Lüften", icon: "mdi:weather-windy" },
     presence: { label: "Anwesenheit", icon: "mdi:account-multiple-outline" },
+    night: { label: "Nacht", icon: "mdi:weather-night" },
     notify: { label: "Benachrichtigungen", icon: "mdi:bell-outline" },
+    reports: { label: "Berichte", icon: "mdi:file-chart-outline" },
     learn: { label: "Lernen", icon: "mdi:chart-line" },
     layout: { label: "Darstellung", icon: "mdi:view-dashboard-outline" },
     advanced: { label: "Erweitert", icon: "mdi:cog-outline" }
   };
   var RK_LAYOUT_COLORS = ["#1eb6a6", "#34a86e", "#e8982e", "#e2643c", "#7c6adc", "#3c8cdc", "#c94f8a", "#7a8288"];
-  var RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "notify", "learn", "layout", "advanced"];
+  var RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "night", "notify", "reports", "learn", "layout", "advanced"];
   var RK_FACADES = () => [
     { id: "", name: t("egal – nur Vorhersage") },
     { id: "N", name: t("Nord") },
@@ -4900,8 +4886,7 @@
     _v(text, mute) {
       return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`;
     }
-    _grp(title, icon, tone, rows, cls = "", extra = "") {
-      const g = RK_GROUP_OF[title] || "advanced";
+    _grp(g, title, icon, tone, rows, cls = "", extra = "") {
       const rowCount = (rows.match(/class="row"/g) || []).length;
       const ctlCount = (rows.match(/class="tgl/g) || []).length + (rows.match(/class="segs"/g) || []).length;
       const pairable = rowCount >= 4 && rowCount % 2 === 0 && ctlCount >= rowCount && !/tblwrap|class="people"|roomrow|whyrow|mailprov|stepper|numedit/.test(rows);
@@ -5065,8 +5050,14 @@
         ].filter(Boolean).join("");
         return this._row(t(label), `<div class="chips">${chips}</div>`, "");
       };
+      const hm = (v) => String(v || "").slice(0, 5);
+      const tf = (key, val) => `<button class="timebtn" data-timeopen="${key}" data-val="${hm(val)}" ${this._admin ? "" : "disabled"}>${hm(val) || "–:–"}</button>`;
       const sleepRows = [
         `<div class="status"><span class="chip" style="--tone:${sl.quiet_now ? "var(--rk-eco)" : "var(--rk-ok)"}"><ha-icon icon="${sl.quiet_now ? "mdi:sleep" : "mdi:white-balance-sunny"}"></ha-icon>${sl.quiet_now ? t("Ruhezeit gerade aktiv") : t("Keine Ruhezeit")}</span>${sl.asleep ? `<span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-off-outline"></ha-icon>${t("Licht aus – alle schlafen")}</span>` : ""}</div>`,
+        this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+        this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
+        this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
+        this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
         this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
         this._row("Schichtdienst", this._optToggle(H, "learn_shift", !!this._hubOpt("learn_shift")), "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht"),
         this._row("Ruhezeit senkt ab", this._optToggle(H, "quiet_setback", !!this._hubOpt("quiet_setback")), "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist"),
@@ -5078,9 +5069,13 @@
         lrn("weekend", "Wochenende"),
         `<div class="hint">${t("Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.")}</div>`
       ].join("");
+      const frsi = fmt({ unrenovated: 0.6, renovated: 0.7, new: 0.8 }[this._hubOpt("building_type")] || 0.7, 2);
       const homes = this._cfg.homes || [];
       const homeRows = [
         this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Ferienwohnung")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
+        this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
+        `<div class="hint">${t("Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.", { f: frsi })}</div>`,
+        this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
         (() => {
           const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
           const dp = dh.dashboard || "";
@@ -5115,61 +5110,7 @@
         this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
         `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`
       ].join("");
-      const frsi = fmt({ unrenovated: 0.6, renovated: 0.7, new: 0.8 }[this._hubOpt("building_type")] || 0.7, 2);
-      const buildRows = [
-        this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
-        this._row("Heizkosten pro Jahr", `<span class="v"><input type="number" class="inp" min="0" max="20000" step="50" data-hubnum="annual_cost" value="${this._hubOpt("annual_cost") ?? ""}" placeholder="${t("z. B. 1400")}" ${this._admin ? "" : "disabled"} style="width:110px"> €</span>`, "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)"),
-        `<div class="hint">${t("Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.", { f: frsi })}</div>`
-      ].join("");
-      const push = this._hubOpt("recipients") || {};
-      const tts = this._hubOpt("tts") || {};
-      const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
-      const kinds = this._cfg.kinds || Object.keys(RK_KINDS);
-      const card = (target, list, channel, i) => {
-        const ks = kinds.filter((k) => k !== "live" || channel === "push" && target.startsWith("notify.mobile_app_"));
-        const chips = ks.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
-        return `<div class="row"><div class="l">
-        <span class="rn" style="--c:${palette[i % palette.length]}"><i></i>${esc(rkPretty(target))}</span>
-        <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small></div>
-        <div class="chips">${chips}${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div></div>`;
-      };
-      const cards = [...Object.entries(push).map(([tg, l], i) => card(tg, l || [], "push", i)), ...Object.entries(tts).map(([tg, l], i) => card(tg, l || [], "tts", i + 3))].join("") || `<div class="hint">${t("Noch kein Empfänger – unten hinzufügen.")}</div>`;
-      const avail = (ch.notify || []).filter((tg) => !(tg in push) && !(tg in tts));
-      const addRow = this._admin && avail.length ? `<div class="addrow">
-        <select class="sel" id="addTarget">${avail.map((tg) => `<option value="${esc(tg)}">${esc(rkPretty(tg))} (${esc(tg)})</option>`).join("")}</select>
-        <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
-        <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
-      const hm = (v) => String(v || "").slice(0, 5);
-      const tf = (key, val) => `<button class="timebtn" data-timeopen="${key}" data-val="${hm(val)}" ${this._admin ? "" : "disabled"}>${hm(val) || "–:–"}</button>`;
-      const notiRows = [
-        this._row("Nur an anwesende Personen", this._optToggle(H, "notify_present_only", this._hubOpt("notify_present_only") ?? true), t("Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle")),
-        this._row(
-          "Sturm- und Regenwarnung",
-          this._optToggle(H, "storm_warning", this._hubOpt("storm_warning") ?? true),
-          t("warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit")
-        ),
-        this._row(
-          "… Böen ab",
-          this._optStepper(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70, " km/h", 10, 30, 200, 0),
-          t("ab dieser Böenstärke gilt es als Sturm")
-        ),
-        this._row(
-          "… Regen ab",
-          this._optStepper(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8, " mm/h", 1, 1, 50, 0),
-          t("ab dieser Regenmenge gilt es als Starkregen")
-        ),
-        this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
-        this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
-        this._row(
-          "Lüfthinweise von",
-          `<span class="v">${tf("vent_from", this._hubOpt("vent_from") || "08:00:00")} – ${tf("vent_to", this._hubOpt("vent_to") || "21:00:00")}</span>`,
-          t("Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter")
-        ),
-        this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
-        this._row("… leise warnen unter", this._optStepper(H, "night_alarm_temp", this._hubOpt("night_alarm_temp"), " °C", 0.5, 5, 20, 1), "einmal pro Nacht"),
-        this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
-        this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
-        this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
+      const reportRows = [
         this._row(
           "Wärmemenge im Bericht",
           this._select(H, "report_metric", [
@@ -5194,7 +5135,51 @@
           this._hubOpt("report_email") ? "die PDF kommt als Anhang an die Empfänger unten" : "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail"
         ),
         this._mailSetup(ch.mail || []),
-        this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : ""
+        this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
+        this._row("Heizkosten pro Jahr", `<span class="v"><input type="number" class="inp" min="0" max="20000" step="50" data-hubnum="annual_cost" value="${this._hubOpt("annual_cost") ?? ""}" placeholder="${t("z. B. 1400")}" ${this._admin ? "" : "disabled"} style="width:110px"> €</span>`, "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)")
+      ].join("");
+      const push = this._hubOpt("recipients") || {};
+      const tts = this._hubOpt("tts") || {};
+      const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
+      const kinds = this._cfg.kinds || Object.keys(RK_KINDS);
+      const card = (target, list, channel, i) => {
+        const ks = kinds.filter((k) => k !== "live" || channel === "push" && target.startsWith("notify.mobile_app_"));
+        const chips = ks.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
+        return `<div class="row"><div class="l">
+        <span class="rn" style="--c:${palette[i % palette.length]}"><i></i>${esc(rkPretty(target))}</span>
+        <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small></div>
+        <div class="chips">${chips}${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div></div>`;
+      };
+      const cards = [...Object.entries(push).map(([tg, l], i) => card(tg, l || [], "push", i)), ...Object.entries(tts).map(([tg, l], i) => card(tg, l || [], "tts", i + 3))].join("") || `<div class="hint">${t("Noch kein Empfänger – unten hinzufügen.")}</div>`;
+      const avail = (ch.notify || []).filter((tg) => !(tg in push) && !(tg in tts));
+      const addRow = this._admin && avail.length ? `<div class="addrow">
+        <select class="sel" id="addTarget">${avail.map((tg) => `<option value="${esc(tg)}">${esc(rkPretty(tg))} (${esc(tg)})</option>`).join("")}</select>
+        <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
+        <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
+      const notiRows = [
+        this._row("Nur an anwesende Personen", this._optToggle(H, "notify_present_only", this._hubOpt("notify_present_only") ?? true), t("Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle")),
+        this._row(
+          "Sturm- und Regenwarnung",
+          this._optToggle(H, "storm_warning", this._hubOpt("storm_warning") ?? true),
+          t("warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit")
+        ),
+        this._row(
+          "… Böen ab",
+          this._optStepper(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70, " km/h", 10, 30, 200, 0),
+          t("ab dieser Böenstärke gilt es als Sturm")
+        ),
+        this._row(
+          "… Regen ab",
+          this._optStepper(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8, " mm/h", 1, 1, 50, 0),
+          t("ab dieser Regenmenge gilt es als Starkregen")
+        ),
+        this._row(
+          "Lüfthinweise von",
+          `<span class="v">${tf("vent_from", this._hubOpt("vent_from") || "08:00:00")} – ${tf("vent_to", this._hubOpt("vent_to") || "21:00:00")}</span>`,
+          t("Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter")
+        ),
+        this._row("Erinnern alle", this._optStepper(H, "repeat_minutes", this._hubOpt("repeat_minutes"), " min", 1, 1, 60), "solange das Problem besteht"),
+        this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure")))
       ].join("");
       const yes = (b) => b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`;
       const rowsT = this._orderedRooms().map((r) => {
@@ -5218,16 +5203,16 @@
       const healthTone = issues.some((i) => i.severity === "alert") ? "cold" : bad ? "warn" : "ok";
       const healthExtra = `<span class="chip" style="--tone:${toneVar(healthTone)}">${bad ? t("{n} offen", { n: bad }) : "ok"}</span>`;
       return `<div class="groups">
-      ${this._grp("Gesundheit der Heizung", "mdi:heart-pulse", healthTone, rkIssueList(issues, true, this._config.strip_prefix) + `<div class="hint">${t("Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.")}</div>`, "span", healthExtra)}
-      ${this._grp("Erste Schritte", "mdi:check-decagram-outline", "ok", this._checkRows(st, ch), "span")}
-      ${this._grp("Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows)}
-      ${this._grp("Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
-      ${this._grp("Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span")}
-      ${this._grp("Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows)}
-      ${this._grp("Schlafenszeiten", "mdi:sleep", "eco", sleepRows, "span")}
-      ${this._grp("Gebäude & Schimmelschutz", "mdi:home-city-outline", "ok", buildRows)}
-      ${this._grp("Wohnung", "mdi:home-switch-outline", "air", homeRows)}
-      ${this._grp("Alle Räume auf einen Blick", "mdi:table", "off", `<div class="roomgrid">${rowsT}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
+      ${this._grp("home", "Erste Schritte", "mdi:check-decagram-outline", "ok", this._checkRows(st, ch), "span")}
+      ${this._grp("heating", "Gesundheit der Heizung", "mdi:heart-pulse", healthTone, rkIssueList(issues, true, this._config.strip_prefix) + `<div class="hint">${t("Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.")}</div>`, "span", healthExtra)}
+      ${this._grp("presence", "Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows)}
+      ${this._grp("heating", "Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
+      ${this._grp("notify", "Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span")}
+      ${this._grp("notify", "Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows)}
+      ${this._grp("night", "Nacht & Ruhezeit", "mdi:sleep", "eco", sleepRows, "span")}
+      ${this._grp("reports", "Berichte", "mdi:file-chart-outline", "heat", reportRows)}
+      ${this._grp("home", "Wohnung", "mdi:home-switch-outline", "air", homeRows)}
+      ${this._grp("home", "Alle Räume auf einen Blick", "mdi:table", "off", `<div class="roomgrid">${rowsT}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
       ${this._learnHub(st)}
       ${this._layoutGroup()}
     </div>`;
@@ -5262,7 +5247,7 @@
     }
     _layoutGroup() {
       if (!this._layout) {
-        return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", this._row("Reihenfolge", this._v("lädt …", true)));
+        return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", this._row("Reihenfolge", this._v("lädt …", true)));
       }
       const L = this._layout;
       const list = this._layoutList();
@@ -5282,7 +5267,7 @@
       const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
       const look = this._row(t("Dunkler Look"), this._segs("hub", "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Räume und Karten dieser Wohnung"));
-      return this._grp("Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);
+      return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);
     }
     // ---------------------------------------------------------------- Raum
     // ---------------------------------------------------------------- Zeitpläne
@@ -5424,7 +5409,7 @@
       if (!ro && !shared) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
       }
-      return this._grp("Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
+      return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
     }
     // ---------------------------------------------------------------- Lüften ohne Erinnerung
     _airList(id, stored) {
@@ -5500,7 +5485,7 @@
       if (!ro && list.length < 6) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-airadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
       }
-      return this._grp("Lüften ohne Erinnerung", "mdi:weather-windy-variant", "air", rows.join(""), "span");
+      return this._grp("air", "Lüften ohne Erinnerung", "mdi:weather-windy-variant", "air", rows.join(""), "span");
     }
     _room(r) {
       const a = r.attrs, s = a.settings || {}, sib = r.sib;
@@ -5529,22 +5514,17 @@
       const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : null;
       const rIssues = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).filter((i) => i.entry_id === id);
       return `<div class="groups">
-      ${rIssues.length ? this._grp("Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : ""}
-      ${a.monitor ? this._grp("Überwachung", "mdi:eye-outline", "eco", [
+      ${rIssues.length ? this._grp("heating", "Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : ""}
+      ${a.monitor ? this._grp("room", "Überwachung", "mdi:eye-outline", "eco", [
         this._row("Kein Thermostat", this._v("nur Messen und Hinweise", true), "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.")
       ].join(""), "span") : ""}
-      ${a.monitor ? "" : this._grp("Temperatur", "mdi:thermometer", "heat", [
+      ${a.monitor ? "" : this._grp("room", "Temperatur", "mdi:thermometer", "heat", [
         plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
         this._row("Wunschtemperatur", editable ? this._optStepper(scope, "comfort_temperature", comfort, " °C", 0.5, 12, 26, 1) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
         this._row(
           "Raumtyp",
           editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–"),
           t("jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben")
-        ),
-        this._row(
-          "Bauart",
-          editable ? this._select(scope, "wall", Object.entries(RK_WALL).map(([k, v]) => ({ id: k, name: v })), this._roomOpt(r, "wall") ?? "auto") : this._v(RK_WALL[this._roomOpt(r, "wall") ?? "auto"]),
-          t("bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand")
         ),
         (this._cfg && this._cfg.homes || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row(
@@ -5605,24 +5585,30 @@
         })()
       ].join(""))}
       ${mon ? "" : this._scheduleGroup(r, id, editable)}
-      ${this._grp("Lüften & Feuchte", "mdi:water-percent", "air", [
+      ${this._grp("air", "Lüften & Feuchte", "mdi:water-percent", "air", [
         sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
         this._row("Max. Abkühlung beim Lüften", this._numStepper(sib.max_drop, " °C", 1)),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
-        this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : "")
+        this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : ""),
+        s.co2_sensor ? this._row(
+          "CO₂-Grenze",
+          editable ? this._select(
+            scope,
+            "co2_limit",
+            [800, 1e3, 1200, 1500].map((v) => ({ id: String(v), name: `${v} ppm` })),
+            String(this._roomOpt(r, "co2_limit") ?? 1e3)
+          ) : this._v(`${this._roomOpt(r, "co2_limit") ?? 1e3} ppm`),
+          t("1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer")
+        ) : ""
       ].join(""))}
-      ${a.monitor ? "" : this._sourceGroup(r, id, editable)}
-      ${this._grp("Fenster", "mdi:window-open-variant", "ok", [
-        mon ? "" : this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
-        mon ? "" : this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
-        mon ? "" : this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
-        mon ? "" : this._row(
+      ${mon ? "" : this._grp("air", "Schimmelschutz", "mdi:shield-home-outline", "ok", [
+        this._row(
           "Schimmelschutz",
           editable ? this._segs(scope, "mold_mode", RK_MOLD, moldMode) : this._v(RK_MOLD[moldMode] || "–"),
           moldMode === "strict" ? t("hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter") : moldMode === "wish" ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt") : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden")
         ),
-        !mon && moldMode !== "off" ? this._row(
+        moldMode !== "off" ? this._row(
           "Höchstens anheben um",
           editable ? this._optStepper(
             scope,
@@ -5636,6 +5622,17 @@
           ) : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)} K`),
           t("Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)")
         ) : "",
+        this._row(
+          "Bauart",
+          editable ? this._select(scope, "wall", Object.entries(RK_WALL).map(([k, v]) => ({ id: k, name: v })), this._roomOpt(r, "wall") ?? "auto") : this._v(RK_WALL[this._roomOpt(r, "wall") ?? "auto"]),
+          t("bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand")
+        )
+      ].join(""))}
+      ${a.monitor ? "" : this._sourceGroup(r, id, editable)}
+      ${this._grp("air", "Fenster", "mdi:window-open-variant", "ok", [
+        mon ? "" : this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
+        mon ? "" : this._row("Pause nach", editable ? this._optStepper(scope, "window_open_delay", wOpen, " s", 5, 0, 600) : this._v(`${wOpen ?? "–"} s`)),
+        mon ? "" : this._row("Weiter nach", editable ? this._optStepper(scope, "window_close_delay", wClose, " s", 5, 0, 600) : this._v(`${wClose ?? "–"} s`)),
         this._row(
           "Schlafen bei offenem Fenster",
           editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),
@@ -5652,7 +5649,7 @@
       ${this._presenceGroup(r, id, editable)}
       ${this._learnRoom(r)}
       ${this._lightGroup(r, id, editable)}
-      ${this._grp("Benachrichtigungen", "mdi:bell-outline", "warn", [
+      ${this._grp("notify", "Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
         this._row(
           "Höchstens je Tag",
@@ -5666,7 +5663,7 @@
         ),
         this._row("Empfänger", push.length ? `<div class="chips">${push.map((tg) => `<span class="chip2"><i></i>${esc(rkPretty(tg))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was")
       ].join(""))}
-      ${this._grp(mon ? "Fühler & Sensoren" : "Thermostat & Fühler", mon ? "mdi:thermometer-lines" : "mdi:radiator", "off", [
+      ${this._grp("heating", mon ? "Fühler & Sensoren" : "Thermostat & Fühler", mon ? "mdi:thermometer-lines" : "mdi:radiator", "off", [
         mon ? "" : this._row("Thermostat", this._v(esc(this._name(s.trv))), [(s.extra_trvs || []).length ? "Haupt-Thermostat" : "", s.valve_reported === false ? t("meldet keine Ventilöffnung") : ""].filter(Boolean).join(" · ")),
         !mon && (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}${x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
         mon ? "" : this._row(
@@ -5692,17 +5689,7 @@
         ),
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
-        this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("ab der Grenze unten: Bitte lüften") : ""),
-        this._row(
-          "CO₂-Grenze",
-          editable ? this._select(
-            scope,
-            "co2_limit",
-            [800, 1e3, 1200, 1500].map((v) => ({ id: String(v), name: `${v} ppm` })),
-            String(this._roomOpt(r, "co2_limit") ?? 1e3)
-          ) : this._v(`${this._roomOpt(r, "co2_limit") ?? 1e3} ppm`),
-          t("1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer")
-        ),
+        this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         mon ? "" : this._row(
           "Kalibrierung",
@@ -5800,7 +5787,7 @@
       if (editable && avail.length) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><select class="sel" id="addSrc-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-srcadd="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Quelle hinzufügen")}</button></div></div>`);
       }
-      return this._grp("Heizquellen", "mdi:radiator", "heat", rows.join(""), "span");
+      return this._grp("heating", "Heizquellen", "mdi:radiator", "heat", rows.join(""), "span");
     }
     _presenceGroup(r, id, editable) {
       const a = r.attrs, s = a.settings || {};
@@ -5823,7 +5810,7 @@
       const state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt");
       const pt = Number(this._roomOpt(r, "presence_target") || 0);
       const pd = Number(this._roomOpt(r, "presence_delay_min") || 0);
-      return this._grp("Präsenzmelder", "mdi:motion-sensor", "ok", [
+      return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
         list.length ? `<div class="status"><span class="chip" style="--tone:${a.occupied ? "var(--rk-ok)" : "var(--rk-off)"}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon>${state}</span></div>` : "",
         this._row("Melder", `<div class="chips">${chips || this._v("keine", true)}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
         list.length ? this._row(
@@ -5852,7 +5839,7 @@
       const chips = lights.map((e) => `<span class="chip2" style="--c:var(--rk-air)"><i></i>${esc(names[e] || this._name(e))}${editable ? ` <button class="mini x" data-lightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`).join("");
       const avail = all.filter((x) => !lights.includes(x.id));
       const sigChips = Object.entries(RK_LIGHT_SIGNALS).map(([k, [c, l]]) => `<button class="chip2 ${sigs.includes(k) ? "" : "off"}" style="--c:${c}" data-lsig="${k}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${l}</button>`).join("");
-      return this._grp("Lichtsignal", "mdi:lightbulb-on-outline", "air", [
+      return this._grp("notify", "Lichtsignal", "mdi:lightbulb-on-outline", "air", [
         this._row("Lampen", `<div class="chips">${chips || this._v("keine", true)}</div>`, "blinken 3× in der Farbe des Hinweises, danach wie vorher"),
         editable && avail.length ? `<div class="addrow"><select class="sel" id="addLight-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-lightadd="${id}" style="--c:var(--rk-air)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Lampe hinzufügen")}</button></div>` : "",
         this._row("Blinken bei", `<div class="chips">${sigChips}</div>`, "Blau = lüften · Orange = schließen · Grün = fertig · Rot = Problem"),
@@ -5870,7 +5857,7 @@
     _learnHub(st) {
       const tab = this._ltabHub || "sleep";
       const body = tab === "sleep" ? this._sleepRows(st) : tab === "decisions" ? this._decisions(null) : this._howRows("home");
-      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["sleep", "decisions", "how"]) + body);
+      return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["sleep", "decisions", "how"]) + body);
     }
     _sleepRows(st) {
       const sl = st && st.sleep || {};
@@ -5958,7 +5945,7 @@
         )
       ].join("");
       const body = tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
-      return this._grp(t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["overview", "decisions", "how"]) + body);
+      return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["overview", "decisions", "how"]) + body);
     }
     _howRows(scope) {
       const rows = scope === "room" ? [

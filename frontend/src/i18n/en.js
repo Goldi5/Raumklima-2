@@ -963,4 +963,8 @@ export const EN = {
   "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones where people work – whoever is there will not come back soon",
   "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "there for this long, then the home counts as empty right away (no preheating, no waiting time)",
   "… gilt nach": "… counts after",
+  "Nacht": "Night",
+  "Berichte": "Reports",
+  "Nacht & Ruhezeit": "Night & quiet time",
+  "Grenze unter Lüften & Feuchte": "threshold under Airing & humidity",
 };
