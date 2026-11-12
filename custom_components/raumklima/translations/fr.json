@@ -237,13 +237,18 @@
           "away_delay": "Abaisser le chauffage après",
           "long_away_hours": "« Absent longtemps » après",
           "preheat_km": "Préchauffer à moins de",
-          "building_type": "Type de bâtiment"
+          "building_type": "Type de bâtiment",
+          "work_zones": "Lieux de travail (zones)",
+          "work_zone_minutes": "… compte après"
         },
         "data_description": {
-          "residents": "Compte dès qu’un de leurs téléphones est dans la zone. Les sauts impossibles (p. ex. VPN) et les positions imprécises sont ignorés.",
+          "residents": "Compte dès qu’un de leurs téléphones est dans la zone. **Uniquement des appareils qui quittent la maison** – un Mac/iPad fixe à la maison empêche la détection.",
           "away_delay": "Pour qu’une courte course ne déclenche rien.",
-          "preheat_km": "Si quelqu’un approche à moins de cette distance, le chauffage démarre plus tôt. 0 = désactivé."
-        }
+          "preheat_km": "Si quelqu’un approche à moins de cette distance, le chauffage démarre plus tôt. 0 = désactivé.",
+          "work_zones": "Zones où l’on travaille – ceux qui y sont ne reviennent pas de sitôt (pas de préchauffage, pas d’attente).",
+          "work_zone_minutes": "Nombre de minutes sur le lieu de travail avant que cela s’applique."
+        },
+        "description": "**Important : n’associez que des appareils qui quittent réellement le logement.**\n\nUn Mac mini, un iPad ou une télévision qui reste à la maison signale « home » en permanence – la personne n’est alors jamais considérée comme absente et l’abaissement ne s’applique pas. Les téléphones et montres avec localisation conviennent ; tout ce qui reste fixe dans la maison n’appartient pas à la personne."
       },
       "season": {
         "title": "Saison de chauffage",

@@ -1,4 +1,4 @@
-/* Raumklima 0.62.37b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.38b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -938,7 +938,11 @@
     "… Homeoffice / zu Hause": "… home office / at home",
     "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "comma-separated, free choice; an event with this word turns home office on and lowers nothing",
     "Automatik am Gerät": "Automatic on the device",
-    "Automatik": "Automatic"
+    "Automatik": "Automatic",
+    "Arbeitsplätze": "Workplaces",
+    "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones where people work – whoever is there will not come back soon",
+    "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "there for this long, then the home counts as empty right away (no preheating, no waiting time)",
+    "… gilt nach": "… counts after"
   };
 
   // src/i18n/fr.js
@@ -1879,7 +1883,11 @@
     "… Homeoffice / zu Hause": "… télétravail / à la maison",
     "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "séparés par des virgules, choix libre ; un rendez-vous avec ce mot active le télétravail et n’abaisse rien",
     "Automatik am Gerät": "Automatique sur l’appareil",
-    "Automatik": "Automatique"
+    "Automatik": "Automatique",
+    "Arbeitsplätze": "Lieux de travail",
+    "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones de travail – ceux qui y sont ne reviennent pas de sitôt",
+    "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "présent aussi longtemps, la maison compte alors comme vide immédiatement (pas de préchauffage, pas d’attente)",
+    "… gilt nach": "… compte après"
   };
 
   // src/i18n.js
@@ -1923,7 +1931,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.37b1";
+  var RK_VERSION = "0.62.38b1";
 
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
@@ -4042,6 +4050,16 @@
       "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
       "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent."
     ],
+    "Arbeitsplätze": [
+      "Zonen, die als Arbeitsplatz gelten (z. B. die Schule oder das Büro). Wer dort ist, gilt sofort als weg: kein Vorheizen, keine Wartezeit – auch wenn der Arbeitsplatz nur zwei Kilometer entfernt ist.",
+      "Zones that count as a workplace (e.g. school or office). Whoever is there counts as away right away: no preheating, no waiting time – even if the workplace is only two kilometres away.",
+      "Zones considérées comme lieu de travail (p. ex. école ou bureau). Celui qui s’y trouve compte immédiatement comme absent : pas de préchauffage, pas d’attente – même à deux kilomètres seulement."
+    ],
+    "… gilt nach": [
+      "So viele Minuten muss jemand am Arbeitsplatz sein, bevor das gilt – ein kurzer Halt auf dem Weg löst nichts aus.",
+      "How many minutes someone must be at the workplace before this applies – a short stop on the way changes nothing.",
+      "Nombre de minutes nécessaires sur le lieu de travail avant que cela s’applique – un bref arrêt en chemin ne change rien."
+    ],
     "Homeoffice": [
       "Schalter für Tage, an denen du zu Hause arbeitest. Im eingestellten Fenster heizen die gewählten Räume auf Wunschtemperatur, der Zeitplan ist so lange ausgesetzt — danach läuft er weiter. Ein Kalendertermin mit „Homeoffice“ schaltet dasselbe automatisch.",
       "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",
@@ -4884,6 +4902,11 @@
         this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
         this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
         this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
+        this._row("Arbeitsplätze", `<div class="chips">${(ch.zones || []).map((z) => {
+          const chosen = (this._hubOpt("work_zones") || []).includes(z.id);
+          return `<button class="chip2 ${chosen ? "" : "off"}" data-workzone="${z.id}" title="${esc(z.name)}"><i></i>${esc(z.name)}</button>`;
+        }).join("")}</div>`, "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück"),
+        this._row("… gilt nach", this._optStepper(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5, " min", 1, 0, 120), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
         this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
         this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
         this._row("Urlaub automatisch ab", this._optStepper(H, "vacation_km", this._hubOpt("vacation_km") ?? 0, " km", 10, 0, 1e3), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
@@ -6156,6 +6179,15 @@
         this._local = this._local || {};
         this._local["hub:guests_rooms"] = next;
         this._setHub({ guests_rooms: next }, 300);
+        this._flash(t("Gespeichert"));
+      }));
+      $("[data-workzone]").forEach((el) => el.addEventListener("click", () => {
+        const zid = el.dataset.workzone;
+        const cur = [...this._hubOpt("work_zones") || []];
+        const next = cur.includes(zid) ? cur.filter((x) => x !== zid) : [...cur, zid];
+        this._local = this._local || {};
+        this._local["hub:work_zones"] = next;
+        this._setHub({ work_zones: next }, 300);
         this._flash(t("Gespeichert"));
       }));
       $("[data-horoom]").forEach((el) => el.addEventListener("click", () => {

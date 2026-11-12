@@ -133,6 +133,8 @@ CONF_AWAY_DELAY: Final = "away_delay"  # min
 CONF_LONG_AWAY_HOURS: Final = "long_away_hours"  # h
 CONF_LATITUDE: Final = "latitude"  # je Wohnung: Koordinaten für den Sonnenstand
 CONF_LONGITUDE: Final = "longitude"
+CONF_WORK_ZONES: Final = "work_zones"  # zone.* die als Arbeitsplatz gelten
+CONF_WORK_ZONE_MINUTES: Final = "work_zone_minutes"  # min dort, bevor „definitiv weg“ gilt
 CONF_PREHEAT_KM: Final = "preheat_km"
 CONF_BUILDING: Final = "building_type"  # unrenovated / renovated / new
 CONF_SEASON_MODE: Final = "season_mode"
@@ -273,6 +275,8 @@ HUB_DEFAULTS: Final = {
     CONF_LATITUDE: None,
     CONF_LONGITUDE: None,
     CONF_PREHEAT_KM: 10,
+    CONF_WORK_ZONES: [],
+    CONF_WORK_ZONE_MINUTES: 5,
     CONF_BUILDING: "renovated",
     CONF_SEASON_MODE: "auto",
     CONF_SEASON_START: "10-01",

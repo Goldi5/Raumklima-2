@@ -75,6 +75,27 @@ def check_battery(levels: dict[str, float]) -> list[Issue]:
     return issues
 
 
+def check_presence_residents(missing: list[str]) -> Issue | None:
+    """Eingetragene Bewohner, deren Entität es nicht mehr gibt.
+
+    Dann kann keine Anwesenheit erkannt werden – die Wohnung gilt dauerhaft als leer
+    (oder, bei stehen gebliebenem Zeitstempel, als bewohnt), und niemand merkt es.
+    """
+    if not missing:
+        return None
+    return Issue(
+        "presence_person_missing",
+        SEV_WARN,
+        tr("Bewohner ohne Entität"),
+        tr(
+            "Für die Anwesenheit ist {names} eingetragen, diese Entität gibt es nicht mehr "
+            "(umbenannt oder gelöscht). Bitte unter Einstellungen → Anwesenheit die richtige "
+            "Person wählen – sonst wird nie jemand als zu Hause erkannt.",
+            names=", ".join(missing),
+        ),
+    )
+
+
 def check_trv_mode(
     mode: str | None,
     preset: str | None,

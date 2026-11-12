@@ -237,13 +237,18 @@
           "away_delay": "Absenken erst nach",
           "long_away_hours": "„Länger weg“ ab",
           "preheat_km": "Vorheizen ab Entfernung",
-          "building_type": "Bauart"
+          "building_type": "Bauart",
+          "work_zones": "Arbeitsplätze (Zonen)",
+          "work_zone_minutes": "… gilt nach"
         },
         "data_description": {
-          "residents": "Zählt, sobald irgendeins ihrer Handys in der Zone ist. Unmögliche Sprünge (z. B. durch VPN) und ungenaue Ortungen werden ignoriert.",
+          "residents": "Zählt, sobald eines ihrer Handys in der Zone ist. **Nur Geräte, die das Haus verlassen** – ein fester Mac/iPad zu Hause verhindert die Erkennung.",
           "away_delay": "Damit ein kurzer Einkauf nichts auslöst.",
-          "preheat_km": "Nähert sich jemand und ist näher als das, wird schon vorgeheizt. 0 = aus."
-        }
+          "preheat_km": "Nähert sich jemand und ist näher als das, wird schon vorgeheizt. 0 = aus.",
+          "work_zones": "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück (kein Vorheizen, keine Wartezeit).",
+          "work_zone_minutes": "So viele Minuten am Arbeitsplatz, bevor das gilt."
+        },
+        "description": "**Wichtig: Nur Geräte zuordnen, die die Wohnung wirklich verlassen.**\n\nEin Mac mini, ein iPad oder ein Fernseher, der zu Hause steht, meldet dauerhaft „home“ – die Person gilt dann nie als abwesend und die Absenkung greift nicht. Handys und Uhren mit Ortung sind richtig; alles, was fest im Haus steht, gehört nicht zur Person."
       },
       "season": {
         "title": "Heizsaison",

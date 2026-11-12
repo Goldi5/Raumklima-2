@@ -159,6 +159,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self._seen: dict[str, datetime] = {}
         self._history: dict[str, deque[tuple[datetime, float]]] = {}
         self._was_present: bool | None = None
+        self._work_since: dict[str, Any] = {}
         self._blind_logged: datetime | None = None
         self._preheat_until: datetime | None = None
         self._preheat_by: str | None = None

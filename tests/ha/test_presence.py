@@ -178,3 +178,46 @@ async def test_guests_only_for_selected_rooms(hass: HomeAssistant, setup) -> Non
     # Auswahl ohne diesen Raum: für ihn zählt die Abwesenheit weiter
     hub.config = {**hub.config, "guests_rooms": ["01ANDERERRAUM"]}
     assert hub.stage_for_room(room.entry_id) != "guests"
+
+
+async def test_arbeitsplatz_zone_hebt_wartezeit_auf(hass: HomeAssistant, setup, freezer) -> None:
+    """Wer an einem Arbeitsplatz steht, ist sofort weg – ohne Wartezeit und ohne Vorheizen."""
+    from custom_components.raumklima.const import (
+        CONF_AWAY_DELAY,
+        CONF_RESIDENTS,
+        CONF_WORK_ZONE_MINUTES,
+        CONF_WORK_ZONES,
+        CONF_ZONE,
+    )
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 09:00:00+00:00")
+    hub = get_hub(hass, None)
+    hass.states.async_set("zone.home", "1", {"latitude": 51.0, "longitude": 7.0, "radius": 34})
+    hass.states.async_set("zone.schule", "0", {"friendly_name": "Schule", "latitude": 51.02, "longitude": 7.02, "radius": 60})
+    hass.states.async_set("device_tracker.handy", "Schule", {"latitude": 51.02, "longitude": 7.02})
+    hass.states.async_set("person.a", "Schule", {"device_trackers": ["device_tracker.handy"]})
+    await hass.async_block_till_done()
+
+    hub.config[CONF_RESIDENTS] = ["person.a"]
+    hub.config[CONF_ZONE] = "zone.home"
+    hub.config[CONF_AWAY_DELAY] = 30
+    hub.config[CONF_WORK_ZONES] = []
+    hub.config[CONF_WORK_ZONE_MINUTES] = 5
+    hub.last_present = dt_util.utcnow() - timedelta(minutes=1)
+
+    # ohne Arbeitsplatz-Zone: 30 Minuten Wartezeit
+    hub._evaluate_presence()
+    assert hub.stage == "home"
+
+    # Zone eingetragen, aber erst seit 0 Minuten dort → noch keine Wirkung
+    hub.config[CONF_WORK_ZONES] = ["zone.schule"]
+    hub._work_since.clear()
+    hub._evaluate_presence()
+    assert hub.stage == "home"
+
+    # seit 10 Minuten dort → sofort „kurz weg“
+    hub._work_since["person.a"] = dt_util.utcnow() - timedelta(minutes=10)
+    hub._evaluate_presence()
+    assert hub.stage == "away_short"
+    assert hub.persons["person.a"]["approaching"] is False

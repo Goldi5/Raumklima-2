@@ -8,6 +8,16 @@ from __future__ import annotations
 
 _ROWS: list[tuple[str, str, str]] = [
     (
+        "Bewohner ohne Entität",
+        "Resident without an entity",
+        "Habitant sans entité",
+    ),
+    (
+        "Für die Anwesenheit ist {names} eingetragen, diese Entität gibt es nicht mehr (umbenannt oder gelöscht). Bitte unter Einstellungen → Anwesenheit die richtige Person wählen – sonst wird nie jemand als zu Hause erkannt.",
+        "Presence is set to {names}, but that entity no longer exists (renamed or deleted). Choose the right person under Settings → Presence – otherwise nobody is ever detected as home.",
+        "La présence est réglée sur {names}, mais cette entité n’existe plus (renommée ou supprimée). Choisissez la bonne personne sous Réglages → Présence – sinon personne n’est jamais détecté comme présent.",
+    ),
+    (
         "Automatik am Gerät",
         "Automatic on the device",
         "Automatique sur l’appareil",

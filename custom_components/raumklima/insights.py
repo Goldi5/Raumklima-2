@@ -15,13 +15,14 @@ from homeassistant.util import dt as dt_util
 from .const import (
     CONF_RECIPIENTS,
     CONF_REPORT_METRIC,
+    CONF_RESIDENTS,
     CONF_TTS,
     DOMAIN,
     KIND_HEALTH,
     KIND_REPORT,
     REPORT_METRIC_DEFAULT,
 )
-from .health import SEV_INFO, Issue, check_connection, check_notify_targets
+from .health import SEV_INFO, Issue, check_connection, check_notify_targets, check_presence_residents
 from .msg import tr
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
@@ -200,6 +201,11 @@ class Insights:
         targets = check_notify_targets(missing)
         if targets:
             hub_issues.append(targets)
+        # Bewohner, deren Entität es nicht mehr gibt: Anwesenheit wäre blind
+        gone = [p for p in (self.hub.opt(CONF_RESIDENTS) or []) if self.hass.states.get(p) is None]
+        residents_missing = check_presence_residents(gone)
+        if residents_missing:
+            hub_issues.append(residents_missing)
         if {i.code for i in hub_issues} != {i.code for i in self.issues.get("hub", [])}:
             changed = True
         self.issues["hub"] = hub_issues

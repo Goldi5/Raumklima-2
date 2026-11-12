@@ -940,4 +940,8 @@ export const EN = {
   "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "comma-separated, free choice; an event with this word turns home office on and lowers nothing",
   "Automatik am Gerät": "Automatic on the device",
   "Automatik": "Automatic",
+  "Arbeitsplätze": "Workplaces",
+  "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones where people work – whoever is there will not come back soon",
+  "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "there for this long, then the home counts as empty right away (no preheating, no waiting time)",
+  "… gilt nach": "… counts after",
 };

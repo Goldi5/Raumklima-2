@@ -277,6 +277,9 @@ class SignalTracker:
         if self.asleep or self.all_off_since is None:
             if self.asleep and not in_window(local, self._bed_window()) and not in_window(local, self._wake_window()):
                 self.asleep = False  # Mittag: Nacht ist sicher vorbei
+                # Ohne das würde dieselbe Nacht im Zwischenfenster (03:30–04:30) bei jedem
+                # Tick erneut erkannt und protokolliert.
+                self.all_off_since = None
             return None
         if local - self.all_off_since < timedelta(minutes=SIGNAL_OFF_MINUTES):
             return None

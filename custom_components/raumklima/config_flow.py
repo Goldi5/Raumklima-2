@@ -92,6 +92,8 @@ from .const import (
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
     CONF_WINDOWS,
+    CONF_WORK_ZONE_MINUTES,
+    CONF_WORK_ZONES,
     CONF_ZONE,
     DEFAULT_PUSH_KINDS,
     DEFAULT_TTS_KINDS,
@@ -454,6 +456,10 @@ def _hub_presence_schema(cur: dict[str, Any]) -> vol.Schema:
             vol.Required(CONF_AWAY_DELAY, default=cur[CONF_AWAY_DELAY]): _number(0, 240, 5, "min"),
             vol.Required(CONF_LONG_AWAY_HOURS, default=cur[CONF_LONG_AWAY_HOURS]): _number(2, 168, 1, "h"),
             vol.Required(CONF_PREHEAT_KM, default=cur[CONF_PREHEAT_KM]): _number(0, 200, 1, "km"),
+            vol.Optional(CONF_WORK_ZONES, description=_suggest(cur.get(CONF_WORK_ZONES))): EntitySelector(
+                EntitySelectorConfig(domain="zone", multiple=True)
+            ),
+            vol.Required(CONF_WORK_ZONE_MINUTES, default=cur.get(CONF_WORK_ZONE_MINUTES, 5)): _number(0, 120, 1, "min"),
             vol.Required(CONF_BUILDING, default=cur[CONF_BUILDING]): _select(BUILDING_TYPES, CONF_BUILDING),
         }
     )

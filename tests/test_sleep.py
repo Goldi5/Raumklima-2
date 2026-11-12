@@ -130,3 +130,24 @@ def test_signal_tracker_shift_detects_daytime_sleep():
     assert st.tick(d + timedelta(minutes=21)) == BED
     assert st.asleep
 
+
+
+def test_zwischenfenster_erkennt_die_nacht_nicht_neu() -> None:
+    """03:30–04:30: dieselbe Nacht darf nicht bei jedem Tick erneut erkannt werden."""
+    from datetime import datetime, timedelta
+
+    st = SignalTracker()
+    evening = datetime(2026, 11, 11, 22, 0)
+    assert st.update(False, evening) is None
+    # 20 Minuten später ist es „Bettzeit“
+    assert st.tick(evening + timedelta(minutes=21)) == BED
+    assert st.asleep is True
+
+    # Zwischenfenster: 03:45 – außerhalb Bett- und Aufsteh-Fenster
+    gap = datetime(2026, 11, 12, 3, 45)
+    assert st.tick(gap) is None
+    assert st.asleep is False
+    assert st.all_off_since is None, "sonst wird dieselbe Nacht gleich wieder erkannt"
+
+    # nächster Tick im Zwischenfenster bleibt still
+    assert st.tick(gap + timedelta(minutes=2)) is None

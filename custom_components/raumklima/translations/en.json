@@ -237,13 +237,18 @@
           "away_delay": "Lower heating after",
           "long_away_hours": "'Away longer' after",
           "preheat_km": "Preheat within",
-          "building_type": "Building type"
+          "building_type": "Building type",
+          "work_zones": "Workplaces (zones)",
+          "work_zone_minutes": "… counts after"
         },
         "data_description": {
-          "residents": "Counts as soon as any of their phones is in the zone. Impossible jumps (e.g. VPN) and inaccurate fixes are ignored.",
+          "residents": "Counts as soon as one of their phones is in the zone. **Only devices that leave the home** – a stationary Mac/iPad at home prevents detection.",
           "away_delay": "So a short errand doesn't trigger anything.",
-          "preheat_km": "If someone approaches within this distance, heating starts early. 0 = off."
-        }
+          "preheat_km": "If someone approaches within this distance, heating starts early. 0 = off.",
+          "work_zones": "Zones where people work – whoever is there will not come back soon (no preheating, no waiting time).",
+          "work_zone_minutes": "How many minutes at the workplace before this applies."
+        },
+        "description": "**Important: only assign devices that actually leave the home.**\n\nA Mac mini, iPad or TV that stays at home permanently reports “home” – the person then never counts as away and the setback never applies. Phones and watches with tracking are right; anything fixed inside the house does not belong to the person."
       },
       "season": {
         "title": "Heating season",

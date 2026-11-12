@@ -1,3 +1,10 @@
+## 0.62.38b1 – 2026-11-12
+
+- **Arbeitsplätze als Zonen** (Einstellungen → Anwesenheit): Zonen eintragen, in denen gearbeitet wird — wer dort länger als X Minuten ist (Standard 5), gilt **sofort** als weg: keine 30-Minuten-Wartezeit, kein Vorheizen. Gedacht für kurze Arbeitswege (2 km), bei denen die Ortung sonst „kommt gleich zurück“ annimmt.
+- **Warnung im Einrichtungsdialog**: Nur Geräte zuordnen, die das Haus wirklich verlassen. Ein Mac mini, iPad oder Fernseher, der zu Hause steht, meldet dauerhaft „home“ — die Person gilt dann nie als abwesend.
+- **Neuer Befund „Bewohner ohne Entität“**: Ist eine eingetragene Person umbenannt oder gelöscht, meldet die Integration das jetzt (statt still die Anwesenheit zu verlieren).
+- **Schlaf-Erkennung** protokolliert dieselbe Nacht nicht mehr jede Minute neu: Im Zwischenfenster zwischen Bett- und Aufsteh-Zeit (03:30–04:30) wurde „Schlafenszeit erkannt“ bei jedem Tick wiederholt.
+
 ## 0.62.37b1 – 2026-11-11
 
 - **Dritter Modus „Automatik“** an der Raum-Entität: Heat / Auto / Aus. „Auto“ heißt: Raumklima pausiert für diesen Raum und das Thermostat fährt sein eigenes Wochenprogramm (Preset `auto`/`schedule` wird gesetzt) — es wird kein Sollwert mehr geschrieben. Zurück auf „Heat“ übernimmt Raumklima wieder, ohne Neustart.

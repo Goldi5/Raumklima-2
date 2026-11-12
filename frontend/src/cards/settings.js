@@ -574,6 +574,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
       this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
       this._row("Absenken nach", this._optStepper(H, "away_delay", this._hubOpt("away_delay"), " min", 5, 0, 240), "damit kurze Wege nichts auslösen"),
+      this._row("Arbeitsplätze", `<div class="chips">${(ch.zones || []).map((z) => {
+        const chosen = (this._hubOpt("work_zones") || []).includes(z.id);
+        return `<button class="chip2 ${chosen ? "" : "off"}" data-workzone="${z.id}" title="${esc(z.name)}"><i></i>${esc(z.name)}</button>`;
+      }).join("")}</div>`, "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück"),
+      this._row("… gilt nach", this._optStepper(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5, " min", 1, 0, 120), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
       this._row("„Länger weg“ ab", this._optStepper(H, "long_away_hours", this._hubOpt("long_away_hours"), " h", 1, 2, 168)),
       this._row("Vorheizen ab", this._optStepper(H, "preheat_km", this._hubOpt("preheat_km"), " km", 1, 0, 200), "wenn sich jemand nähert"),
       this._row("Urlaub automatisch ab", this._optStepper(H, "vacation_km", this._hubOpt("vacation_km") ?? 0, " km", 10, 0, 1000), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
@@ -1879,6 +1884,15 @@ export class RaumklimaSettingsCard extends HTMLElement {
       this._local = this._local || {};
       this._local["hub:guests_rooms"] = next;
       this._setHub({ guests_rooms: next }, 300);
+      this._flash(t("Gespeichert"));
+    }));
+    $("[data-workzone]").forEach((el) => el.addEventListener("click", () => {
+      const zid = el.dataset.workzone;
+      const cur = [...(this._hubOpt("work_zones") || [])];
+      const next = cur.includes(zid) ? cur.filter((x) => x !== zid) : [...cur, zid];
+      this._local = this._local || {};
+      this._local["hub:work_zones"] = next;
+      this._setHub({ work_zones: next }, 300);
       this._flash(t("Gespeichert"));
     }));
     $("[data-horoom]").forEach((el) => el.addEventListener("click", () => {

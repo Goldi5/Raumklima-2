@@ -23,6 +23,8 @@ from .const import (
     CONF_ROOM_PERSONS,
     CONF_VACATION_HOURS,
     CONF_VACATION_KM,
+    CONF_WORK_ZONE_MINUTES,
+    CONF_WORK_ZONES,
     KIND_PRESENCE,
 )
 from .decision_log import (
@@ -99,6 +101,39 @@ class PresenceMixin:
             return None
         return lat, lon, radius
 
+    def _trackers_for(self, person: str) -> list[str]:
+        """Handys/Geräte einer Person – auch wenn direkt ein Tracker eingetragen ist."""
+        state = self.hass.states.get(person)
+        if state is not None and not person.startswith("person."):
+            return [person]
+        return list((state.attributes.get("device_trackers") if state else None) or [])
+
+    def _work_zone_hold(self, person: str, now: datetime) -> bool:
+        """Ist die Person seit genug Minuten an einem eingetragenen Arbeitsplatz?
+
+        Dann kommt sie so schnell nicht zurück: kein Vorheizen, keine Wartezeit.
+        """
+        zones = list(self.opt(CONF_WORK_ZONES) or [])
+        if not zones:
+            return False
+        names = set()
+        for zone in zones:
+            state = self.hass.states.get(zone)
+            if state is not None:
+                names.add(str(state.attributes.get("friendly_name") or state.name or ""))
+        names.discard("")
+        if not names:
+            return False
+        inside = any(
+            (st := self.hass.states.get(tracker)) is not None and st.state in names
+            for tracker in self._trackers_for(person)
+        )
+        if not inside:
+            self._work_since.pop(person, None)
+            return False
+        since = self._work_since.setdefault(person, now)
+        return (now - since) >= timedelta(minutes=float(self.opt(CONF_WORK_ZONE_MINUTES) or 0))
+
     def _person_status(self, person: str, geo: tuple[float, float, float], now: datetime) -> dict[str, Any]:
         """Ist eine Person da? Zählt, sobald irgendeins ihrer Handys in der Zone ist."""
         state = self.hass.states.get(person)
@@ -172,6 +207,11 @@ class PresenceMixin:
             # Präsenzmelder: jemand ist zu Hause, auch ohne Handy (nicht im Urlaub – Katze, Blumengießer)
             self.sensed = [] if (self.vacation or cal == CAL_AWAY) else self.sensed_rooms()
             anyone = phones or bool(self.sensed)
+            # Arbeitsplatz: dort ist niemand „auf dem Weg nach Hause“
+            at_work = [p for p in self.persons if self._work_zone_hold(p, now)]
+            for p in at_work:
+                self.persons[p]["approaching"] = False
+                self.persons[p]["eta_min"] = None
             self._auto_vacation(anyone, now)
             if anyone:
                 if self._was_present is False and self.vacation and phones:
@@ -225,7 +265,8 @@ class PresenceMixin:
                     configured=True,
                     anyone_present=anyone,
                     minutes_since_present=minutes,
-                    away_delay_min=float(self.opt(CONF_AWAY_DELAY)),
+                    # Am Arbeitsplatz wartet niemand auf eine Rückkehr: sofort „weg“
+                    away_delay_min=0.0 if (at_work and not anyone) else float(self.opt(CONF_AWAY_DELAY)),
                     long_away_hours=float(self.opt(CONF_LONG_AWAY_HOURS)),
                     vacation=self.vacation or cal == CAL_AWAY,
                     guests=self.guests or cal == CAL_HOME,

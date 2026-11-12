@@ -232,6 +232,16 @@ export const HELP = {
     "Times when no airing hints are sent – for example during morning training. Control keeps running, only the reminders stay quiet.",
     "Plages sans rappels d'aération – par exemple pendant l'entraînement du matin. La régulation continue, seuls les rappels se taisent.",
   ],
+  "Arbeitsplätze": [
+    "Zonen, die als Arbeitsplatz gelten (z. B. die Schule oder das Büro). Wer dort ist, gilt sofort als weg: kein Vorheizen, keine Wartezeit – auch wenn der Arbeitsplatz nur zwei Kilometer entfernt ist.",
+    "Zones that count as a workplace (e.g. school or office). Whoever is there counts as away right away: no preheating, no waiting time – even if the workplace is only two kilometres away.",
+    "Zones considérées comme lieu de travail (p. ex. école ou bureau). Celui qui s’y trouve compte immédiatement comme absent : pas de préchauffage, pas d’attente – même à deux kilomètres seulement.",
+  ],
+  "… gilt nach": [
+    "So viele Minuten muss jemand am Arbeitsplatz sein, bevor das gilt – ein kurzer Halt auf dem Weg löst nichts aus.",
+    "How many minutes someone must be at the workplace before this applies – a short stop on the way changes nothing.",
+    "Nombre de minutes nécessaires sur le lieu de travail avant que cela s’applique – un bref arrêt en chemin ne change rien.",
+  ],
   "Homeoffice": [
     "Schalter für Tage, an denen du zu Hause arbeitest. Im eingestellten Fenster heizen die gewählten Räume auf Wunschtemperatur, der Zeitplan ist so lange ausgesetzt — danach läuft er weiter. Ein Kalendertermin mit „Homeoffice“ schaltet dasselbe automatisch.",
     "Switch for days you work from home. During the set window the selected rooms heat to the wish temperature and the schedule is paused — afterwards it runs again. A calendar event containing “home office” switches the same on automatically.",

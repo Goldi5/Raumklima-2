@@ -940,4 +940,8 @@ export const FR = {
   "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab": "séparés par des virgules, choix libre ; un rendez-vous avec ce mot active le télétravail et n’abaisse rien",
   "Automatik am Gerät": "Automatique sur l’appareil",
   "Automatik": "Automatique",
+  "Arbeitsplätze": "Lieux de travail",
+  "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück": "zones de travail – ceux qui y sont ne reviennent pas de sitôt",
+  "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)": "présent aussi longtemps, la maison compte alors comme vide immédiatement (pas de préchauffage, pas d’attente)",
+  "… gilt nach": "… compte après",
 };
