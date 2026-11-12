@@ -126,6 +126,7 @@ from .room_lights import LightSignal
 from .room_mold import MoldMixin
 from .room_plan import PlanMixin
 from .room_presence import PresenceMixin
+from .room_radio import RadioMixin
 from .room_settings import SettingsMixin
 from .room_store import StoreMixin
 from .room_trv import MANUAL_OVERRIDE, TrvMixin
@@ -142,7 +143,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 
-class RaumklimaController(StoreMixin, PlanMixin, MoldMixin, ApplyMixin, SettingsMixin, WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
+class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMixin, SettingsMixin, WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     """Steuert genau einen Raum."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -259,7 +260,8 @@ class RaumklimaController(StoreMixin, PlanMixin, MoldMixin, ApplyMixin, Settings
         self.ac_sources = [AcSource(self, s) for s in self.source_cfg if s["type"] == "ac"]
         self._extra_by_id = {x.entity_id: x for x in self.extra_trvs}
         self._ac_by_id = {x.entity_id: x for x in self.ac_sources}
-        self._rf: dict[str, Any] = {"day": "", "sent": 0, "retries": 0}
+        self._rf: dict[str, Any] = {"day": "", "sent": 0, "retries": 0, "hist": {}}
+        self._battery_hist: dict[str, dict[str, float]] = {}  # Batterie-Entität → {Datum: %}
         self.sync = SyncManager(
             schedule=self._schedule,
             run_task=lambda coro: hass.async_create_task(coro),
@@ -403,7 +405,7 @@ class RaumklimaController(StoreMixin, PlanMixin, MoldMixin, ApplyMixin, Settings
 
     @property
     def usage_summary(self) -> dict[str, Any]:
-        return self.usage.summary() if self.presence_sensors else {}
+        return self.usage.summary() if self.presence_inputs else {}
 
     def airing_learned(self, when: datetime) -> bool:
         return self.airing.learned(when)

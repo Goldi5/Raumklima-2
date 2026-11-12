@@ -36,6 +36,7 @@ class StoreMixin:
             "airing_profile": self.airing.export(),
             "usage_profile": self.usage.export(),
             "outage_durations": list(self._outage_durations),
+            "battery_hist": self._battery_hist,
         }
 
     def _load_stored(self, stored: dict[str, Any]) -> None:
@@ -63,5 +64,11 @@ class StoreMixin:
                 continue
         self.airing.load(stored.get("airing_profile"))
         self.usage.load(stored.get("usage_profile"))
+        if isinstance(stored.get("battery_hist"), dict):
+            self._battery_hist = {
+                k: {d: float(v) for d, v in (series or {}).items() if isinstance(v, int | float)}
+                for k, series in stored["battery_hist"].items()
+                if isinstance(series, dict)
+            }
         self.vent.load(stored.get("vent"))
         self.series.load(stored.get("series"))

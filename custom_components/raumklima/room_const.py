@@ -32,6 +32,8 @@ from .const import (
     CONF_PRESENCE,
     CONF_PRESENCE_DELAY,
     CONF_PRESENCE_KIND,
+    CONF_PRESENCE_LEARN,
+    CONF_PRESENCE_LIGHTS,
     CONF_PRESENCE_PIR,
     CONF_PRESENCE_RELEASE,
     CONF_PRESENCE_TARGET,
@@ -91,6 +93,7 @@ REASON_EMPTY = "room_empty"
 REASON_SCHEDULE = "schedule"
 REASON_BOOST = "boost"
 REASON_SCHEDULE_PREHEAT = "schedule_preheat"
+REASON_PRESENCE_PREHEAT = "presence_preheat"
 REASON_SLEEP = "sleep"
 REASON_MOLD = "mold"
 REASON_SCHEDULE_FALLBACK = "schedule_fallback"
@@ -125,10 +128,33 @@ PLAN_RULES: tuple[str, ...] = (
     "_rule_schedule",
     "_rule_night",
     "_rule_preheat",
+    "_rule_presence_preheat",
     "_rule_schedule_fallback",
     "_rule_empty_room",
     "_rule_solar",
 )
+
+
+# Lesbare Namen der Regeln für „Warum heizt der Raum (nicht)?“ (Reihenfolge = PLAN_RULES)
+RULE_LABELS: dict[str, str] = {
+    "_rule_monitor": "Nur Messen (kein Thermostat)",
+    "_rule_device_auto": "Gerät im Auto-Modus",
+    "_rule_valve_care": "Ventilpflege",
+    "_rule_no_hub": "Ohne Wohnung",
+    "_rule_season": "Heizsaison / Frostschutz",
+    "_rule_boost": "Boost",
+    "_rule_presence": "Jemand im Raum (Präsenzmelder)",
+    "_rule_home_office": "Homeoffice",
+    "_rule_away": "Niemand zu Hause (Absenkung)",
+    "_rule_expire_manual": "Von Hand gestellt",
+    "_rule_schedule": "Zeitplan",
+    "_rule_night": "Ruhezeit (Schlafraum)",
+    "_rule_preheat": "Vorheizen für den Zeitplan",
+    "_rule_presence_preheat": "Vorwärmen nach gelernten Zeiten",
+    "_rule_schedule_fallback": "Außerhalb der Zeitfenster",
+    "_rule_empty_room": "Leerer Raum",
+    "_rule_solar": "Sonne erwartet",
+}
 
 
 @dataclass
@@ -152,6 +178,8 @@ MOLD_EXEMPT = frozenset(
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
     {
+        CONF_PRESENCE_LEARN,
+        CONF_PRESENCE_LIGHTS,
         CONF_PRESENCE_TARGET,
         CONF_PRESENCE_DELAY,
         CONF_PRESENCE_RELEASE,

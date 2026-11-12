@@ -146,24 +146,6 @@ class MoldMixin:
             dt_util.utcnow(), self.current_temperature, self.current_humidity, hub.outdoor_temp(), self.room_frsi
         )
 
-    def _count_rf(self, attempts: int) -> None:
-        """Funkbefehl zählen – je Tag, mit Wiederholungen (Batterie-Diagnose)."""
-        today = dt_util.now().date().isoformat()
-        if self._rf.get("day") != today:
-            self._rf = {"day": today, "sent": 0, "retries": 0}
-        self._rf["sent"] = int(self._rf.get("sent") or 0) + 1
-        if attempts > 1:
-            self._rf["retries"] = int(self._rf.get("retries") or 0) + 1
-        self._save()
-
-    @property
-    def rf_today(self) -> dict[str, int]:
-        """Funkbefehle heute: gesamt und davon Wiederholungen."""
-        today = dt_util.now().date().isoformat()
-        if self._rf.get("day") != today:
-            return {"sent": 0, "retries": 0}
-        return {"sent": int(self._rf.get("sent") or 0), "retries": int(self._rf.get("retries") or 0)}
-
     @property
     def mold_rh(self) -> float | None:
         """Mittlere relative Feuchte der letzten 24 h (Grundlage des Feuchte-Bodens)."""

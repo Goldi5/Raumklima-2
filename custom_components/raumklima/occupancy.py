@@ -20,9 +20,10 @@ from datetime import datetime, timedelta
 
 KIND_MMWAVE = "mmwave"
 KIND_PIR = "pir"
+KIND_LIGHT = "light"  # Lampe an = jemand im Raum (nur für den Raum, nie für „jemand zu Hause“)
 
 # Nachlaufzeit: so lange nach der letzten Meldung gilt der Raum noch als besetzt
-HOLD = {KIND_MMWAVE: timedelta(minutes=3), KIND_PIR: timedelta(minutes=20)}
+HOLD = {KIND_MMWAVE: timedelta(minutes=3), KIND_PIR: timedelta(minutes=20), KIND_LIGHT: timedelta(minutes=2)}
 # „Jemand zu Hause“: Meldung in den letzten … Minuten
 HOME_RECENT = {KIND_MMWAVE: timedelta(minutes=5), KIND_PIR: timedelta(minutes=15)}
 

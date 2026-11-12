@@ -15,6 +15,7 @@ from .const import (
     CONF_PREHEAT_LEAD,
     CONF_PREHEAT_MODE,
     CONF_PREHEAT_NOT_BEFORE,
+    CONF_PRESENCE_LEARN,
     CONF_PRESENCE_OFF,
     CONF_QUIET_MODE,
     CONF_QUIET_SETBACK,
@@ -23,6 +24,8 @@ from .const import (
     CONF_SOLAR,
     CONF_SOLAR_FACADE,
     PREHEAT_MARGIN_MINUTES,
+    PRESENCE_PREHEAT_DEFAULT,
+    PRESENCE_PREHEAT_GRACE,
 )
 from .decision_log import (
     CAT_TARGET,
@@ -59,6 +62,7 @@ from .room_const import (
     REASON_MONITOR,
     REASON_NORMAL,
     REASON_PRESENCE,
+    REASON_PRESENCE_PREHEAT,
     REASON_SCHEDULE,
     REASON_SCHEDULE_FALLBACK,
     REASON_SCHEDULE_PREHEAT,
@@ -66,6 +70,7 @@ from .room_const import (
     REASON_SLEEP,
     REASON_SOLAR,
     REASON_VALVE_CARE,
+    RULE_LABELS,
     SCHEDULE_FALLBACK_FROST,
     SCHEDULE_FALLBACK_LONG,
     SCHEDULE_FALLBACK_SHORT,
@@ -288,6 +293,31 @@ class PlanMixin:
             return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
         return None
 
+    def _rule_presence_preheat(self, ctx: _PlanContext) -> PlanResult:
+        """Vorwärmen vor einer gelernten Belegungszeit (Präsenzmelder + „Bei Anwesenheit“).
+
+        Ist der Raum z. B. Mo–Fr ab 08:00 typischerweise belegt, wird so früh auf die
+        Anwesenheits-Temperatur geheizt, dass es um 08:00 warm ist. Kommt bis 30 min nach dem
+        gelernten Beginn niemand, gilt wieder der Wert von vorher – kein Heizen für ein leeres Zimmer.
+        """
+        target = self.presence_target
+        if target <= 0 or not self.config.get(CONF_PRESENCE_LEARN, True) or ctx.hub.vacation:
+            return None
+        block = self.usage.next_block(ctx.local_now)
+        cur = self.current_temperature
+        if block is None or cur is None:
+            return None
+        start = block[0]
+        if ctx.local_now >= start:
+            if ctx.local_now - start <= timedelta(minutes=PRESENCE_PREHEAT_GRACE):
+                return True, min(target, self.trv_max), REASON_PRESENCE_PREHEAT
+            return None
+        need = self.heatup.minutes_needed(target - cur, ctx.hub.outdoor_temp())
+        lead = PRESENCE_PREHEAT_DEFAULT if need is None else need + PREHEAT_MARGIN_MINUTES
+        if ctx.local_now + timedelta(minutes=lead) >= start:
+            return True, min(target, self.trv_max), REASON_PRESENCE_PREHEAT
+        return None
+
     def _rule_schedule_fallback(self, ctx: _PlanContext) -> PlanResult:
         """Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt."""
         fb = self.config.get(CONF_SCHEDULE_FALLBACK) or SCHEDULE_FALLBACK_WISH
@@ -342,6 +372,90 @@ class PlanMixin:
         """Geltendes Ziel zum Anzeigen – ohne Zustand zu verbrauchen (Boost-Ablauf, Hysterese)."""
         return self.peek_plan()[1]
 
+    def explain(self) -> dict[str, Any]:
+        """„Warum heizt der Raum (nicht)?“ – Voraussetzungen und jede Regel der Rangfolge.
+
+        Läuft wie ``peek_plan`` ohne Nebenwirkung. Je Regel: ``wins`` (bestimmt das Ziel),
+        ``later`` (würde greifen, ist aber nachrangig) oder ``no`` (greift gerade nicht).
+        """
+        self._peeking = True
+        try:
+            ctx = _PlanContext(now=dt_util.utcnow(), local_now=dt_util.now(), hub=self.hub)
+            rules: list[dict[str, Any]] = []
+            winner = None
+            for name in PLAN_RULES:
+                if name == "_rule_no_hub" and ctx.hub is not None:
+                    continue  # hat eine Wohnung – die Regel ist nur ein Rückfall
+                if ctx.hub is None and winner is not None:
+                    break  # ohne Wohnung können die folgenden Regeln nicht gefragt werden
+                result = getattr(self, name)(ctx)
+                if name == "_rule_expire_manual":
+                    if ctx.manual_active:
+                        rules.append({"rule": name, "label": tr(RULE_LABELS[name]), "state": "info",
+                                      "text": tr("bis {t}", t=dt_util.as_local(ctx.manual_until).strftime("%H:%M"))})
+                    continue
+                state = "no" if result is None else ("later" if winner else "wins")
+                entry: dict[str, Any] = {"rule": name, "label": tr(RULE_LABELS.get(name, name)), "state": state}
+                if result is not None:
+                    entry["target"] = result[1]
+                    entry["on"] = result[0]
+                    winner = winner or (name, result)
+                rules.append(entry)
+            on, target, reason = self.plan()
+        finally:
+            self._peeking = False
+        hub = self.hub
+        cur = self.current_temperature
+        valve = self.valve_position
+        checks = [
+            self._check(hub is None or hub.heating_allowed, tr("Heizsaison"),
+                        tr("an") if hub is None or hub.heating_allowed else tr("Heizpause – die Heizung bleibt aus")),
+            self._check(self.hvac_on, tr("Thermostat eingeschaltet"), tr("ja") if self.hvac_on else tr("aus (von Hand oder in Home Assistant)")),
+            self._check(not self.window_open, tr("Fenster"), tr("zu") if not self.window_open else tr("offen – Heizung pausiert")),
+            self._check(self.trv_available() if not self.monitor else True, tr("Thermostat erreichbar"),
+                        tr("ja") if self.monitor or self.trv_available() else tr("nicht erreichbar (Funk, Batterie, Zigbee2MQTT)")),
+            self._check(self.sync_state != "failed", tr("Befehle bestätigt"),
+                        {"ok": tr("ja"), "pending": tr("wartet auf Bestätigung"), "failed": tr("nicht bestätigt – Gerät übernimmt den Sollwert nicht")}.get(self.sync_state, self.sync_state)),
+            self._check(self.sensor_ok, tr("Raumfühler"), fmt_temp(cur) if self.sensor_ok else tr("liefert keine Werte – Notbetrieb mit Thermostat-Fühler")),
+        ]
+        heating = self.hvac_action == "heating"
+        if not on or not self.hvac_on or self.paused:
+            verdict = tr("Heizt nicht – {why}", why=self._verdict_reason(on, reason))
+        elif cur is not None and cur >= target - 0.1:
+            verdict = tr("Ziel {t} erreicht – Ventil regelt nur nach", t=fmt_temp(target))
+        elif heating:
+            verdict = tr("Heizt auf {t}", t=fmt_temp(target))
+        else:
+            verdict = tr("Soll heizen auf {t}, das Thermostat meldet aber kein Heizen", t=fmt_temp(target))
+        return {
+            "verdict": verdict,
+            "heating": heating,
+            "target": target,
+            "reason": reason,
+            "current": cur,
+            "valve": valve,
+            "checks": checks,
+            "rules": rules,
+            "mold_raised": reason == REASON_MOLD,
+        }
+
+    @staticmethod
+    def _check(ok: bool, label: str, text: str) -> dict[str, Any]:
+        return {"ok": bool(ok), "label": label, "text": text}
+
+    def _verdict_reason(self, on: bool, reason: str) -> str:
+        if self.window_open:
+            return tr("Fenster offen")
+        if not self.hvac_on:
+            return tr("Thermostat ausgeschaltet")
+        if reason == REASON_SEASON:
+            return tr("Heizpause")
+        if reason == REASON_MONITOR:
+            return tr("nur Messen")
+        if reason == REASON_DEVICE_AUTO:
+            return tr("Gerät fährt sein eigenes Programm")
+        return tr("Regel „{r}“", r=reason)
+
     def peek_plan(self) -> tuple[bool, float, str]:
         """Wie ``plan()``, aber ohne den Von-Hand-Vorrang zu verbrauchen (für die Anzeige)."""
         self._peeking = True
@@ -375,6 +489,7 @@ class PlanMixin:
             ),
             REASON_SCHEDULE: tr("Zeitplan – {t}", t=fmt_temp(target)),
             REASON_SCHEDULE_PREHEAT: tr("Vorheizen für das nächste Zeitfenster – {t}", t=fmt_temp(target)),
+            REASON_PRESENCE_PREHEAT: tr("Vorwärmen – der Raum ist um diese Zeit meist belegt – {t}", t=fmt_temp(target)),
             REASON_BOOST: tr("Boost – {t}", t=fmt_temp(target)),
             REASON_HOME_OFFICE: tr("Homeoffice – Wunschtemperatur {t}", t=fmt_temp(target)),
             REASON_MONITOR: tr("nur Messen, kein Thermostat"),

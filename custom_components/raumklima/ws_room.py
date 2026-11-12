@@ -181,3 +181,14 @@ def ws_light_test(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
         connection.send_error(msg["id"], "no_lights", tr("Keine Lampe gewählt"))
         return
     connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/room/why", vol.Required("entry_id"): str})
+@callback
+def ws_room_why(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """„Warum heizt der Raum (nicht)?“ – Voraussetzungen und Regelkette (nur lesen)."""
+    room = domain_data(hass)["rooms"].get(msg["entry_id"])
+    if room is None:
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
+        return
+    connection.send_result(msg["id"], room.explain())

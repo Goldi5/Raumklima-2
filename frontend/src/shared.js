@@ -178,6 +178,7 @@ export function planTag(a) {
     mold: "Schimmel",
     schedule: "Zeitplan",
     schedule_preheat: "Vorheizen",
+    presence_preheat: "Vorwärmen",
     home_office: "Homeoffice",
     presence: "Anwesend",
     device_auto: "Automatik",
@@ -212,6 +213,7 @@ export function planText(a, off, compact = false) {
     if (r === "schedule") return t("Zeitplan · {v}°", { v: fmt(tgt) });
     if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
     if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
+    if (r === "presence_preheat") return t("Vorwärmen · {v}°", { v: fmt(tgt) });
     if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
     if (r === "presence") return t("Anwesend · {v}°", { v: fmt(tgt) });
     if (r === "device_auto") return t("Automatik am Gerät");
@@ -250,6 +252,7 @@ export function planText(a, off, compact = false) {
   if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+  if (r === "presence_preheat" && a.effective_target != null) return t("Vorwärmen – der Raum ist um diese Zeit meist belegt · <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "schedule_preheat" && a.effective_target != null) return t("Vorheizen für Zeitplan · <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "sleep" && a.effective_target != null) return t("Ruhezeit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
   if (r === "mold" && a.effective_target != null) return t("Schimmelschutz · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });

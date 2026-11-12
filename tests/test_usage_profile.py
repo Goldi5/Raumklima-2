@@ -1,6 +1,6 @@
 """Nutzungsprofil: Zählwerte, typische Fenster, lesbarer Vorschlag."""
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from rk.usage_profile import UsageProfile, days_label, describe
 
@@ -63,16 +63,48 @@ def test_speichern_und_laden() -> None:
     prof = _profile((9, 0), (9, 15), (9, 30), days=3)
     data = prof.export()
     other = UsageProfile()
-    other.load(data)
+    other.load(data, today=(MONDAY + timedelta(days=15)).date())
     assert other.counts == prof.counts
     assert other.summary()["text"]
 
 
 def test_kaputte_werte_werden_ignoriert() -> None:
     prof = UsageProfile()
-    prof.load({"counts": {"quatsch": 5, "9:5": 1, "1:99": 1, "1:4": 7}})
-    assert prof.counts == {"1:4": 7}
+    prof.load({"counts": {"quatsch": 5, "9:5": 1, "1:99": 1, "1:4": 7}}, today=MONDAY.date())
+    assert prof.counts == {"1:4": 4}  # höchstens 4 gleiche Wochentage in vier Wochen
 
 
 def test_summary_ohne_daten() -> None:
     assert UsageProfile().summary() == {"days_seen": 0, "windows": [], "text": ""}
+
+
+def test_vergisst_nach_vier_wochen() -> None:
+    """Früher stiegen die Zähler nur – eine alte Gewohnheit galt für immer als typisch."""
+    prof = _profile((8, 0), days=3)
+    assert prof.typical_slots() == {0: [32]}
+    later = MONDAY + timedelta(days=7 * 6)  # sechs Wochen später, Raum nicht mehr genutzt
+    prof.mark(later, False)
+    assert prof.typical_slots() == {}
+
+
+def test_alte_zaehler_laufen_aus() -> None:
+    prof = UsageProfile()
+    prof.load({"counts": {"0:32": 9}}, today=date(2026, 11, 12))
+    assert prof.typical_slots() == {0: [32]}
+    prof.mark(datetime(2026, 12, 20, 8, 0), False)  # gut fünf Wochen später
+    assert prof.counts == {}
+
+
+def test_naechster_block() -> None:
+    prof = _profile((8, 0), (8, 15), (8, 30), (8, 45), days=3)  # Mo 08:00–09:00
+    next_monday = MONDAY + timedelta(days=21)
+    sunday_evening = next_monday - timedelta(hours=14)  # So 18:00
+    assert prof.next_block(sunday_evening) == (next_monday.replace(hour=8, minute=0), next_monday.replace(hour=9, minute=0))
+    inside = next_monday.replace(hour=8, minute=20)
+    assert prof.next_block(inside)[0] == next_monday.replace(hour=8, minute=0)  # laufender Block
+    assert prof.next_block(next_monday.replace(hour=9, minute=5)) is None  # vorbei, nächster erst in 7 Tagen
+
+
+def test_kurze_bloecke_zaehlen_nicht() -> None:
+    prof = _profile((8, 0), (8, 15), days=3)  # nur 30 min
+    assert prof.next_block(MONDAY + timedelta(days=20)) is None

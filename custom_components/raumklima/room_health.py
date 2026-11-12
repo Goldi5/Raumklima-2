@@ -288,6 +288,7 @@ class HealthMixin:
 
     def record_history(self, now: datetime) -> None:
         self.record_mold_sample(now)
+        self.record_battery(dt_util.as_local(now))
         on, target, _reason = self.plan()
         hub = self.hub
         regulating = on and self.hvac_on and not self.paused and self.trv_available() and self.sensor_ok
@@ -326,6 +327,7 @@ class HealthMixin:
             if value is not None:
                 levels[name] = value
         issues += check_battery(levels)
+        issues += self.radio_issues()
         if self.monitor:
             # Überwachungsraum: nur Fühler, Batterien und Fenster – nichts am Thermostat
             issues += [

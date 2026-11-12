@@ -10,7 +10,7 @@ export const LearnMethods = {
   // Gelernte Schlafzeiten (Wohnungsebene) – gehört zum Lernen, nicht zu den Einstellrädern.
   // ---------------------------------------------------------------- Lernen (Unterreiter)
   _learnTabs(active, keys) {
-    const names = { overview: "Übersicht", sleep: "Schlafen & Anwesenheit", decisions: "Entscheidungen", how: "So rechnet es" };
+    const names = { why: "Warum (nicht)?", overview: "Übersicht", sleep: "Schlafen & Anwesenheit", decisions: "Entscheidungen", how: "So rechnet es" };
     return `<div class="ltabs">${keys.map((k) => `<button class="ltab ${k === active ? "on" : ""}" data-ltab="${k}">${t(names[k])}</button>`).join("")}</div>`;
   },
 
@@ -88,7 +88,7 @@ export const LearnMethods = {
   _learnRoom(r) {
     const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
     if (!id || a.monitor) return "";
-    const tab = this._ltabRoom || "overview";
+    const tab = this._ltabRoom || "why";
     const eps = Number(h.episodes || 0);
     const sure = eps >= 6 ? [t("belastbar"), "ok"] : eps >= 3 ? [t("brauchbar"), "warn"] : [t("noch unsicher"), "off"];
     const overview = [
@@ -105,8 +105,47 @@ export const LearnMethods = {
         t("Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an")
       ),
     ].join("");
-    const body = tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
-    return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["overview", "decisions", "how"]) + body);
+    const body = tab === "why" ? this._whyRows(id) : tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
+    return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["why", "overview", "decisions", "how"]) + body);
+  },
+
+  // „Warum heizt der Raum (nicht)?“ – fragt die Integration (raumklima/room/why), nichts wird verändert
+  _whyRows(id) {
+    this._why = this._why || {};
+    const res = this._why[id];
+    if (!res || res.loading) {
+      if (!res) {
+        this._why[id] = { loading: true };
+        Promise.resolve().then(() => this._whyFetch(id));
+      }
+      return `<div class="hint">${t("prüft …")}</div>`;
+    }
+    if (res.error) return `<div class="hint warn">${esc(res.error)}</div>`;
+    if (!res.verdict) return `<div class="hint warn">${t("Keine Antwort – bitte Raumklima aktualisieren und neu starten.")}</div>`;
+    const icon = (ok) => `<ha-icon icon="${ok ? "mdi:check-circle" : "mdi:alert-circle"}" style="color:var(${ok ? "--rk-ok" : "--rk-warn"})"></ha-icon>`;
+    const state = { wins: [t("bestimmt das Ziel"), "heat"], later: [t("würde greifen – nachrangig"), "eco"], no: [t("greift nicht"), "off"], info: [t("Hinweis"), "warn"] };
+    const checks = res.checks.map((c) => this._row(`${icon(c.ok)} ${esc(c.label)}`, this._v(c.text, !c.ok))).join("");
+    const rules = res.rules.map((r) => {
+      const [label, tone] = state[r.state] || ["", "off"];
+      const val = r.target != null && r.state !== "no" ? ` · ${r.on ? `${fmt(r.target)} °C` : t("aus")}` : r.text ? ` · ${esc(r.text)}` : "";
+      return `<div class="whyrule ${r.state}"><span class="chip2" style="--c:var(--rk-${tone})"><i></i>${label}</span> <b>${esc(r.label)}</b>${val}</div>`;
+    }).join("");
+    return `<div class="status"><span class="chip" style="--tone:var(${res.heating ? "--rk-heat" : "--rk-off"})"><ha-icon icon="${res.heating ? "mdi:fire" : "mdi:fire-off"}"></ha-icon>${esc(res.verdict)}</span>
+      <button class="btn" data-whyrefresh="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:refresh"></ha-icon>${t("Neu prüfen")}</button></div>
+      ${res.mold_raised ? `<div class="hint warn">${t("Der Schimmelschutz hebt das Ziel gerade an (Feuchte).")}</div>` : ""}
+      <div class="sub">${t("Voraussetzungen")}</div>${checks}
+      ${res.valve != null ? this._row(t("Ventil"), this._v(`${fmt(res.valve, 0)} %`)) : ""}
+      <div class="sub">${t("Regeln – die erste, die greift, bestimmt das Ziel")}</div><div class="whyrules">${rules}</div>`;
+  },
+
+  async _whyFetch(id) {
+    try {
+      this._why[id] = await this._hass.callWS({ type: "raumklima/room/why", entry_id: id });
+    } catch (e) {
+      this._why[id] = { error: t("Fehler: {e}", { e: e.message || e }) };
+    }
+    this._sig = null;
+    this._render();
   },
 
   _howRows(scope) {

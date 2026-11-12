@@ -70,6 +70,8 @@ from .const import (
     CONF_PRESENCE,
     CONF_PRESENCE_DELAY,
     CONF_PRESENCE_KIND,
+    CONF_PRESENCE_LEARN,
+    CONF_PRESENCE_LIGHTS,
     CONF_PRESENCE_PIR,
     CONF_PRESENCE_RELEASE,
     CONF_PRESENCE_TARGET,
@@ -285,6 +287,8 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_PRESENCE_DELAY): num_schema("presence_delay_min"),
         vol.Optional(CONF_PRESENCE_RELEASE): num_schema("presence_release_min"),
         vol.Optional(CONF_PRESENCE_PIR): bool,
+        vol.Optional(CONF_PRESENCE_LEARN): bool,
+        vol.Optional(CONF_PRESENCE_LIGHTS): vol.All(cv.ensure_list, [cv.entity_id], vol.Length(max=12)),
         vol.Optional(CONF_HEAT_SOURCES): vol.All(
             [
                 vol.Schema(

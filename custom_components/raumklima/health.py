@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from .msg import sdec, tr
 
@@ -377,5 +377,70 @@ def check_notify_targets(missing: list[str]) -> Issue | None:
             "Diese Empfänger gibt es nicht mehr: {names}. Unter Einstellungen → Wer bekommt was neu wählen – "
             "sonst kommen keine Hinweise an.",
             names=", ".join(missing),
+        ),
+    )
+
+
+# ------------------------------------------------------------ Batterie-Prognose und Funkverkehr
+RADIO_BUSY_PER_DAY = 150  # mehr Funkbefehle je Tag (Mittel 7 Tage) gelten als auffällig
+BATTERY_FORECAST_DAYS = 30  # Hinweis, wenn eine Batterie voraussichtlich früher leer ist
+BATTERY_EMPTY = 10  # % gilt als „leer“ für die Prognose
+BATTERY_MIN_SPAN = 7  # Tage Verlauf, bevor geschätzt wird
+BATTERY_MIN_DROP = 3  # % Abfall im Verlauf, sonst ist die Schätzung Rauschen
+
+
+def battery_days_left(history: dict[str, float]) -> float | None:
+    """Tage bis zur leeren Batterie aus dem Tagesverlauf (Datum → %), Gerade durch alle Punkte."""
+    points = sorted((date.fromisoformat(d), v) for d, v in history.items() if v is not None)
+    if len(points) < 3 or (points[-1][0] - points[0][0]).days < BATTERY_MIN_SPAN:
+        return None
+    if points[0][1] - points[-1][1] < BATTERY_MIN_DROP:
+        return None  # kaum Abfall: hält noch lange (oder gerade gewechselt)
+    xs = [(d - points[0][0]).days for d, _ in points]
+    ys = [v for _, v in points]
+    mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+    sxx = sum((x - mx) ** 2 for x in xs)
+    if sxx == 0:
+        return None
+    slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True)) / sxx  # % je Tag
+    if slope >= 0:
+        return None
+    return max(0.0, (ys[-1] - BATTERY_EMPTY) / -slope)
+
+
+def radio_per_day(history: dict[str, int], today: date, days: int = 7) -> float | None:
+    """Mittlere Funkbefehle je Tag über die letzten ``days`` abgeschlossenen Tage."""
+    values = [n for d, n in history.items() if 0 < (today - date.fromisoformat(d)).days <= days]
+    return sum(values) / len(values) if len(values) >= 3 else None
+
+
+def check_battery_forecast(name: str, days_left: float | None, per_day: float | None) -> Issue | None:
+    """Batterie hält voraussichtlich nicht mehr lange – mit Hinweis, wenn viel gefunkt wird."""
+    if days_left is None or days_left >= BATTERY_FORECAST_DAYS:
+        return None
+    why = (
+        tr(" Das Thermostat funkt auffällig viel ({n} Befehle am Tag) – das kostet Batterie.", n=f"{per_day:.0f}")
+        if per_day is not None and per_day >= RADIO_BUSY_PER_DAY
+        else ""
+    )
+    return Issue(
+        f"battery_forecast:{name}",
+        SEV_WARN,
+        tr("Batterie bald leer"),
+        tr("{name}: reicht voraussichtlich noch etwa {d} Tage.", name=name, d=f"{days_left:.0f}") + why,
+    )
+
+
+def check_radio_busy(per_day: float | None) -> Issue | None:
+    """Sehr viele Funkbefehle je Tag – meist ein Gegeneinander (Automation, Gerätezeitplan) oder Abgleich."""
+    if per_day is None or per_day < RADIO_BUSY_PER_DAY:
+        return None
+    return Issue(
+        "radio_busy",
+        SEV_WARN,
+        tr("Thermostat funkt auffällig viel"),
+        tr(
+            "Im Mittel {n} Befehle am Tag – das leert die Batterie schnell. Oft steckt eine andere Automation, ein Zeitplan am Gerät oder ein zu feiner Abgleich dahinter.",
+            n=f"{per_day:.0f}",
         ),
     )

@@ -177,6 +177,9 @@ export const RoomMethods = {
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         mon ? "" : this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, t("prüft nach {s} s · bis zu {n} Wiederholungen", { s: s.sync_verify_delay ?? "–", n: s.sync_max_retries ?? "–" })),
+        ...(s.battery_forecast || []).map((b) => this._row(t("Batterie: {n}", { n: b.name }),
+          this._v(b.days_left == null ? t("Prognose ab 7 Tagen Verlauf") : t("hält noch etwa {d} Tage", { d: b.days_left }), b.days_left == null || b.days_left < 30),
+          s.rf_per_day != null ? t("{n} Funkbefehle am Tag (Mittel 7 Tage)", { n: s.rf_per_day }) : "")),
         this._more("dev-more", "Technik", [
         mon ? "" : this._row(
           "Schnellere Abfrage",
@@ -297,7 +300,14 @@ export const RoomMethods = {
     const pr = Number(this._roomOpt(r, "presence_release_min") ?? 5);
     const pir = !!this._roomOpt(r, "presence_pir");
     const wish = Number(this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature ?? 20);
-    const counting = list.filter((e) => kindOf(e) === "mmwave" || pir);
+    const lights = this._roomOpt(r, "presence_lights") ?? [];
+    const learn = this._roomOpt(r, "presence_learn") ?? true;
+    const allLights = (this._cfg && this._cfg.choices && this._cfg.choices.lights) || [];
+    const lightName = (e) => (allLights.find((x) => x.id === e) || {}).name || this._name(e);
+    const lightChips = lights.map((e) => { const on = this._st(e) && this._st(e).state === "on"; return `<span class="chip2" style="--c:${on ? "var(--rk-warn)" : "var(--rk-off)"}"><i></i>${esc(lightName(e))}${editable ? ` <button class="mini x" data-plightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`; }).join("");
+    const lightAvail = allLights.filter((x) => !lights.includes(x.id));
+    const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe hinzufügen")}</button></div>` : "";
+    const counting = [...list.filter((e) => kindOf(e) === "mmwave" || pir), ...lights];
     const hasPir = list.some((e) => kindOf(e) === "pir");
 
     // Zustand: belegt / leer – und was die Anwesenheits-Temperatur gerade macht
@@ -328,8 +338,13 @@ export const RoomMethods = {
         pt ? t("so warm, solange jemand im Raum ist – danach wieder die Temperatur von vorher") : t("aus – der Raum heizt nach Wunsch und Zeitplan")),
       pt ? this._row("… wenn belegt seit", editable ? this._num(scope, "presence_delay_min", pd) : this._v(`${pd} min`), t("so lange muss jemand im Raum sein – kurz Durchgehen zählt nicht (0 = sofort)")) : "",
       pt ? this._row("… zurück nach", editable ? this._num(scope, "presence_release_min", pr) : this._v(`${pr} min`), t("so lange ohne Belegung, dann gilt wieder die Temperatur von vorher – kurz rausgehen unterbricht nicht")) : "",
+      pt ? this._row("Vorwärmen nach gelernten Zeiten", editable ? this._optToggle(scope, "presence_learn", learn) : this._v(learn ? t("ja") : t("nein")),
+        a.usage ? t("meist belegt: {u} – so früh vorwärmen, dass es dann warm ist; kommt 30 min niemand, gilt wieder der Wert von vorher", { u: a.usage })
+          : t("lernt noch: ein Zeitraum gilt als typisch, wenn der Raum an 3 der letzten 4 gleichen Wochentage belegt war")) : "",
     ];
     const more = [
+      this._row("Lampen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eine eingeschaltete Lampe (z. B. Schreibtischlampe) heißt: jemand ist im Raum – zählt nur für diesen Raum, nie für „jemand zu Hause“"),
+      lightAdd,
       this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung"),
       pt && hasPir ? this._row("… auch Bewegungsmelder", editable ? this._optToggle(scope, "presence_pir", pir) : this._v(pir ? t("ja") : t("nein")), t("PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min")) : "",
       this._row("Leeren Raum absenken", editable ? this._segs(scope, "room_eco", RK_NIGHT, eco) : this._v(RK_NIGHT[eco]),
@@ -337,7 +352,7 @@ export const RoomMethods = {
       eco === "on" || (eco === "auto" && s.room_eco_enabled) ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
       eco === "on" || (eco === "auto" && s.room_eco_enabled) ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : "",
     ];
-    rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
+    rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_lights", "presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
     return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
   },
 

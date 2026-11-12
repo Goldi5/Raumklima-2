@@ -160,6 +160,10 @@ CONF_PRESENCE_TARGET: Final = "presence_target"  # °C, solange jemand im Raum i
 CONF_PRESENCE_DELAY: Final = "presence_delay_min"  # Wartezeit, bis die Anwesenheits-Temperatur gilt
 CONF_PRESENCE_RELEASE: Final = "presence_release_min"  # so lange ohne Belegung, dann wieder der Wert von vorher
 CONF_PRESENCE_PIR: Final = "presence_pir"  # Bewegungsmelder (PIR) zählen für die Anwesenheits-Temperatur
+CONF_PRESENCE_LEARN: Final = "presence_learn"  # vor gelernten Belegungszeiten vorwärmen
+CONF_PRESENCE_LIGHTS: Final = "presence_lights"  # Lampen, deren „an“ als Anwesenheit im Raum zählt
+PRESENCE_PREHEAT_GRACE: Final = 30  # min: so lange nach dem gelernten Beginn wird auf jemanden gewartet
+PRESENCE_PREHEAT_DEFAULT: Final = 30  # min Vorlauf, solange die Aufheizzeit noch nicht gelernt ist
 CONF_CALENDAR: Final = "calendar_entity"  # Termine wie „Urlaub“ / „Homeoffice“
 CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
@@ -371,6 +375,8 @@ DEFAULTS: Final = {
     CONF_PRESENCE_DELAY: 5.0,
     CONF_PRESENCE_RELEASE: 5.0,
     CONF_PRESENCE_PIR: False,
+    CONF_PRESENCE_LEARN: True,
+    CONF_PRESENCE_LIGHTS: [],
     CONF_AIRING_OCCUPIED_ONLY: True,
 }
 

@@ -30,6 +30,8 @@ from .const import (
     CONF_PRESENCE,
     CONF_PRESENCE_DELAY,
     CONF_PRESENCE_KIND,
+    CONF_PRESENCE_LEARN,
+    CONF_PRESENCE_LIGHTS,
     CONF_PRESENCE_PIR,
     CONF_PRESENCE_RELEASE,
     CONF_PRESENCE_TARGET,
@@ -127,6 +129,8 @@ class SettingsMixin:
             "signal_lights": self.lights.lights,
             "light_signals": self.lights.signals,
             "virtual_active": self.virtual_enabled(),
+            "battery_forecast": self.battery_forecast(),
+            "rf_per_day": None if self.rf_per_day is None else round(self.rf_per_day),
             "heatup": {
                 "episodes": len(self.heatup.episodes),
                 "rate": self.heatup.rate(self.hub.outdoor_temp() if self.hub else None),
@@ -183,6 +187,7 @@ class SettingsMixin:
                 )
         if changed.keys() & {
             CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP,
+            CONF_PRESENCE_LIGHTS, CONF_PRESENCE_LEARN,
             CONF_PRESENCE_TARGET, CONF_PRESENCE_DELAY, CONF_PRESENCE_RELEASE, CONF_PRESENCE_PIR,
         }:
             self.track_presence()

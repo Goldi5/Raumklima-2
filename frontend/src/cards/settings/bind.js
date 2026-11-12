@@ -355,6 +355,7 @@ export const BindMethods = {
       if (this._tab === "general") this._ltabHub = el.dataset.ltab; else this._ltabRoom = el.dataset.ltab;
       this._dec = {}; this._render();
     });
+    on("click", "[data-whyrefresh]", (el) => () => { this._why = this._why || {}; delete this._why[el.dataset.whyrefresh]; this._render(); });
     on("click", "[data-drange]", (el) => () => { this._decRange = Number(el.dataset.drange); this._dec = {}; this._render(); });
     on("click", "[data-dcat]", (el) => () => { this._decCat = el.dataset.dcat; this._dec = {}; this._render(); });
     on("click", "[data-droom]", (el) => () => { this._decRoom = el.dataset.droom; this._dec = {}; this._render(); });
@@ -535,6 +536,18 @@ export const BindMethods = {
     on("click", "[data-presadd]", (el) => () => {
       const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
       if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
+    });
+    const roomLights = (entry) => {
+      const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+      const local = room ? this._roomOpt(room, "presence_lights") : null;
+      return [...(local || [])];
+    };
+    on("click", "[data-plightadd]", (el) => () => {
+      const sel = this.shadowRoot.getElementById(`addPLight-${el.dataset.plightadd}`);
+      if (sel && sel.value) this._setRoom(el.dataset.plightadd, { presence_lights: [...roomLights(el.dataset.plightadd), sel.value] }, 200);
+    });
+    on("click", "[data-plightrm]", (el) => () => {
+      this._setRoom(el.dataset.entry, { presence_lights: roomLights(el.dataset.entry).filter((e) => e !== el.dataset.plightrm) }, 200);
     });
     const roomPres = (entry) => {
       const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);

@@ -138,6 +138,10 @@ export const HISTORY_STYLES = `
 `;
 
 export const SETTINGS_STYLES = `
+  .sub { font-weight:600; font-size:.82rem; margin:12px 0 4px; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing:.03em; }
+  .whyrules { display:flex; flex-direction:column; gap:5px; }
+  .whyrule { display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:.9rem; }
+  .whyrule.no { opacity:.55; }
   /* Dialog für Sichern/Diagnose/Fehler: echte Knöpfe statt Popup und Blob-Download
      direkt nach einem await – nur so akzeptieren iPad-Safari und die HA-App das. */
   .sheetwrap { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .55); backdrop-filter: blur(2px);

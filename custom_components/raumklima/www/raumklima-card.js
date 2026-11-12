@@ -989,7 +989,28 @@
     "„Bei Anwesenheit“ liegt nicht über der Wunschtemperatur ({w}) – dann ändert sich nichts. Die Wunschtemperatur ist der Wert, wenn niemand im Raum ist.": "“When occupied” is not above the desired temperature ({w}) – then nothing changes. The desired temperature is the value when nobody is in the room.",
     "… auch Bewegungsmelder": "… also motion sensors",
     "… wenn belegt seit": "… when occupied for",
-    "… zurück nach": "… back after"
+    "… zurück nach": "… back after",
+    "Batterie: {n}": "Battery: {n}",
+    "Der Schimmelschutz hebt das Ziel gerade an (Feuchte).": "Mould protection is raising the target right now (humidity).",
+    "Lampen zählen als Anwesenheit": "Lamps count as presence",
+    "Neu prüfen": "Check again",
+    "Prognose ab 7 Tagen Verlauf": "forecast after 7 days of history",
+    "Regeln – die erste, die greift, bestimmt das Ziel": "Rules – the first one that applies sets the target",
+    "Voraussetzungen": "Requirements",
+    "Vorwärmen nach gelernten Zeiten": "Warm up by learned times",
+    "Vorwärmen · {v}°": "Warming up · {v}°",
+    "Vorwärmen – der Raum ist um diese Zeit meist belegt · <b>{v} °C</b>": "Warming up – the room is usually occupied at this time · <b>{v} °C</b>",
+    "bestimmt das Ziel": "sets the target",
+    "eine eingeschaltete Lampe (z. B. Schreibtischlampe) heißt: jemand ist im Raum – zählt nur für diesen Raum, nie für „jemand zu Hause“": "a lamp that is on (e.g. desk lamp) means someone is in the room – counts only for this room, never for “someone home”",
+    "greift nicht": "does not apply",
+    "hält noch etwa {d} Tage": "lasts about {d} more days",
+    "lernt noch: ein Zeitraum gilt als typisch, wenn der Raum an 3 der letzten 4 gleichen Wochentage belegt war": "still learning: a time counts as typical when the room was occupied on 3 of the last 4 same weekdays",
+    "meist belegt: {u} – so früh vorwärmen, dass es dann warm ist; kommt 30 min niemand, gilt wieder der Wert von vorher": "usually occupied: {u} – warms up early enough to be warm then; if nobody comes within 30 min, the previous value applies again",
+    "prüft …": "checking …",
+    "würde greifen – nachrangig": "would apply – lower priority",
+    "{n} Funkbefehle am Tag (Mittel 7 Tage)": "{n} radio commands a day (7-day average)",
+    "Warum (nicht)?": "Why (not)?",
+    "Keine Antwort – bitte Raumklima aktualisieren und neu starten.": "No answer – please update Raumklima and restart."
   };
 
   // src/i18n/fr.js
@@ -1981,7 +2002,28 @@
     "„Bei Anwesenheit“ liegt nicht über der Wunschtemperatur ({w}) – dann ändert sich nichts. Die Wunschtemperatur ist der Wert, wenn niemand im Raum ist.": "« En présence » n’est pas au-dessus de la température souhaitée ({w}) – rien ne change alors. La température souhaitée est la valeur quand personne n’est dans la pièce.",
     "… auch Bewegungsmelder": "… aussi détecteurs de mouvement",
     "… wenn belegt seit": "… si occupé depuis",
-    "… zurück nach": "… retour après"
+    "… zurück nach": "… retour après",
+    "Batterie: {n}": "Pile : {n}",
+    "Der Schimmelschutz hebt das Ziel gerade an (Feuchte).": "La protection contre les moisissures relève la consigne en ce moment (humidité).",
+    "Lampen zählen als Anwesenheit": "Les lampes comptent comme présence",
+    "Neu prüfen": "Vérifier à nouveau",
+    "Prognose ab 7 Tagen Verlauf": "prévision après 7 jours d’historique",
+    "Regeln – die erste, die greift, bestimmt das Ziel": "Règles – la première qui s’applique fixe la consigne",
+    "Voraussetzungen": "Conditions",
+    "Vorwärmen nach gelernten Zeiten": "Préchauffer selon les horaires appris",
+    "Vorwärmen · {v}°": "Préchauffage · {v}°",
+    "Vorwärmen – der Raum ist um diese Zeit meist belegt · <b>{v} °C</b>": "Préchauffage – la pièce est généralement occupée à cette heure · <b>{v} °C</b>",
+    "bestimmt das Ziel": "fixe la consigne",
+    "eine eingeschaltete Lampe (z. B. Schreibtischlampe) heißt: jemand ist im Raum – zählt nur für diesen Raum, nie für „jemand zu Hause“": "une lampe allumée (p. ex. lampe de bureau) signifie que quelqu’un est dans la pièce – compte seulement pour cette pièce, jamais pour « quelqu’un à la maison »",
+    "greift nicht": "ne s’applique pas",
+    "hält noch etwa {d} Tage": "tient encore environ {d} jours",
+    "lernt noch: ein Zeitraum gilt als typisch, wenn der Raum an 3 der letzten 4 gleichen Wochentage belegt war": "apprend encore : un créneau est typique si la pièce était occupée 3 des 4 derniers mêmes jours de semaine",
+    "meist belegt: {u} – so früh vorwärmen, dass es dann warm ist; kommt 30 min niemand, gilt wieder der Wert von vorher": "généralement occupée : {u} – préchauffe assez tôt pour qu’il fasse chaud ; si personne ne vient dans les 30 min, la valeur d’avant s’applique de nouveau",
+    "prüft …": "vérification …",
+    "würde greifen – nachrangig": "s’appliquerait – priorité inférieure",
+    "{n} Funkbefehle am Tag (Mittel 7 Tage)": "{n} commandes radio par jour (moyenne 7 jours)",
+    "Warum (nicht)?": "Pourquoi (pas) ?",
+    "Keine Antwort – bitte Raumklima aktualisieren und neu starten.": "Pas de réponse – veuillez mettre à jour Raumklima et redémarrer."
   };
 
   // src/i18n.js
@@ -2163,6 +2205,10 @@
   .tleg i { width:14px; height:10px; border-radius:3px; background: var(--c); }
 `;
   var SETTINGS_STYLES = `
+  .sub { font-weight:600; font-size:.82rem; margin:12px 0 4px; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing:.03em; }
+  .whyrules { display:flex; flex-direction:column; gap:5px; }
+  .whyrule { display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:.9rem; }
+  .whyrule.no { opacity:.55; }
   /* Dialog für Sichern/Diagnose/Fehler: echte Knöpfe statt Popup und Blob-Download
      direkt nach einem await – nur so akzeptieren iPad-Safari und die HA-App das. */
   .sheetwrap { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .55); backdrop-filter: blur(2px);
@@ -2703,6 +2749,7 @@
       mold: "Schimmel",
       schedule: "Zeitplan",
       schedule_preheat: "Vorheizen",
+      presence_preheat: "Vorwärmen",
       home_office: "Homeoffice",
       presence: "Anwesend",
       device_auto: "Automatik",
@@ -2733,6 +2780,7 @@
       if (r === "schedule") return t("Zeitplan · {v}°", { v: fmt(tgt) });
       if (r === "boost") return t("Boost · {v}°", { v: fmt(tgt) });
       if (r === "schedule_preheat") return t("Vorheizen · {v}°", { v: fmt(tgt) });
+      if (r === "presence_preheat") return t("Vorwärmen · {v}°", { v: fmt(tgt) });
       if (r === "home_office") return t("Homeoffice · {v}°", { v: fmt(tgt) });
       if (r === "presence") return t("Anwesend · {v}°", { v: fmt(tgt) });
       if (r === "device_auto") return t("Automatik am Gerät");
@@ -2770,6 +2818,7 @@
     if (r === "room_empty" && a.effective_target != null) return t("Raum leer · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "schedule" && a.effective_target != null) return t("Zeitplan · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "boost" && a.effective_target != null) return t("Boost · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
+    if (r === "presence_preheat" && a.effective_target != null) return t("Vorwärmen – der Raum ist um diese Zeit meist belegt · <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "schedule_preheat" && a.effective_target != null) return t("Vorheizen für Zeitplan · <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "sleep" && a.effective_target != null) return t("Ruhezeit · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
     if (r === "mold" && a.effective_target != null) return t("Schimmelschutz · Ziel <b>{v} °C</b>", { v: fmt(a.effective_target) });
@@ -4200,6 +4249,16 @@
       "Temperatur, solange jemand im Raum ist – z. B. Arbeitszimmer: Wunschtemperatur 18,5 °C (niemand da), bei Anwesenheit 21 °C. Ist der Raum „… wenn belegt seit“ belegt, wird geheizt; nach „… zurück nach“ ohne Belegung gilt wieder der Wert von vorher (Wunsch, Zeitplan oder Absenkung). Es zählen nur mmWave-Melder, außer „auch Bewegungsmelder“ ist an. „aus“ schaltet die Regel ab.",
       "Temperature while someone is in the room – e.g. office: desired 18.5 °C (nobody there), 21 °C when occupied. Once the room has been occupied for “… when occupied for”, it heats; after “… back after” without occupancy the previous value applies again (desired, schedule or setback). Only mmWave sensors count unless “also motion sensors” is on. “off” disables the rule.",
       "Température tant que quelqu’un est dans la pièce – p. ex. bureau : consigne 18,5 °C (personne), 21 °C en présence. Dès que la pièce est occupée depuis « … si occupé depuis », elle chauffe ; après « … retour après » sans occupation, la valeur d’avant s’applique de nouveau (consigne, programme ou abaissement). Seuls les capteurs mmWave comptent, sauf si « aussi détecteurs de mouvement » est activé. « désactivé » coupe la règle."
+    ],
+    "Vorwärmen nach gelernten Zeiten": [
+      "Raumklima merkt sich, wann der Raum belegt ist (je Wochentag und Viertelstunde, nur die letzten vier Wochen). War er an 3 der letzten 4 gleichen Wochentage zur selben Zeit belegt, gilt das als üblich – dann wird so früh auf „Bei Anwesenheit“ vorgewärmt, dass es zu Beginn warm ist. Kommt 30 Minuten nach dem üblichen Beginn niemand, gilt wieder der Wert von vorher. Nicht im Urlaub und nicht, wenn alle weg sind.",
+      "Raumklima remembers when the room is occupied (per weekday and quarter hour, only the last four weeks). If it was occupied at the same time on 3 of the last 4 same weekdays, that counts as usual – then it warms up to “When occupied” early enough to be warm at the start. If nobody comes within 30 minutes of the usual start, the previous value applies again. Not during vacation and not when everyone is away.",
+      "Raumklima retient quand la pièce est occupée (par jour de semaine et quart d’heure, seulement les quatre dernières semaines). Si elle était occupée à la même heure 3 des 4 derniers mêmes jours de semaine, c’est considéré comme habituel – elle préchauffe alors à « En présence » assez tôt pour qu’il fasse chaud au début. Si personne ne vient dans les 30 minutes, la valeur d’avant s’applique de nouveau. Pas en vacances ni quand tout le monde est absent."
+    ],
+    "Lampen zählen als Anwesenheit": [
+      "Eine eingeschaltete Lampe zählt wie ein Melder: jemand ist im Raum. Gut für Räume ohne mmWave-Melder oder als Ergänzung (Schreibtischlampe im Arbeitszimmer). Ist die Lampe aus, gilt der Raum nach 2 Minuten als leer – außer ein Melder sieht noch jemanden. Lampen zählen nur für diesen Raum, nie für „jemand zu Hause“.",
+      "A lamp that is on counts like a sensor: someone is in the room. Good for rooms without an mmWave sensor or as an addition (desk lamp in the office). Once the lamp is off, the room counts as empty after 2 minutes – unless a sensor still sees someone. Lamps only count for this room, never for “someone home”.",
+      "Une lampe allumée compte comme un capteur : quelqu’un est dans la pièce. Utile pour les pièces sans capteur mmWave ou en complément (lampe de bureau). Une fois la lampe éteinte, la pièce est vide après 2 minutes – sauf si un capteur voit encore quelqu’un. Les lampes ne comptent que pour cette pièce, jamais pour « quelqu’un à la maison »."
     ],
     "… wenn belegt seit": [
       "So viele Minuten muss der Melder jemanden im Raum sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Standard 5 min – wer nur kurz durchgeht, löst nichts aus.",
@@ -5654,6 +5713,11 @@
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
         mon ? "" : this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, t("prüft nach {s} s · bis zu {n} Wiederholungen", { s: s.sync_verify_delay ?? "–", n: s.sync_max_retries ?? "–" })),
+        ...(s.battery_forecast || []).map((b) => this._row(
+          t("Batterie: {n}", { n: b.name }),
+          this._v(b.days_left == null ? t("Prognose ab 7 Tagen Verlauf") : t("hält noch etwa {d} Tage", { d: b.days_left }), b.days_left == null || b.days_left < 30),
+          s.rf_per_day != null ? t("{n} Funkbefehle am Tag (Mittel 7 Tage)", { n: s.rf_per_day }) : ""
+        )),
         this._more("dev-more", "Technik", [
           mon ? "" : this._row(
             "Schnellere Abfrage",
@@ -5770,7 +5834,17 @@
       const pr = Number(this._roomOpt(r, "presence_release_min") ?? 5);
       const pir = !!this._roomOpt(r, "presence_pir");
       const wish = Number(this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature ?? 20);
-      const counting = list.filter((e) => kindOf(e) === "mmwave" || pir);
+      const lights = this._roomOpt(r, "presence_lights") ?? [];
+      const learn = this._roomOpt(r, "presence_learn") ?? true;
+      const allLights = this._cfg && this._cfg.choices && this._cfg.choices.lights || [];
+      const lightName = (e) => (allLights.find((x) => x.id === e) || {}).name || this._name(e);
+      const lightChips = lights.map((e) => {
+        const on = this._st(e) && this._st(e).state === "on";
+        return `<span class="chip2" style="--c:${on ? "var(--rk-warn)" : "var(--rk-off)"}"><i></i>${esc(lightName(e))}${editable ? ` <button class="mini x" data-plightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`;
+      }).join("");
+      const lightAvail = allLights.filter((x) => !lights.includes(x.id));
+      const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe hinzufügen")}</button></div>` : "";
+      const counting = [...list.filter((e) => kindOf(e) === "mmwave" || pir), ...lights];
       const hasPir = list.some((e) => kindOf(e) === "pir");
       const since = a.presence_since ? Math.max(0, Math.floor((Date.now() - Date.parse(a.presence_since)) / 6e4)) : null;
       let state = a.occupied === true ? t("jemand im Raum") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt");
@@ -5796,9 +5870,16 @@
           pt ? t("so warm, solange jemand im Raum ist – danach wieder die Temperatur von vorher") : t("aus – der Raum heizt nach Wunsch und Zeitplan")
         ),
         pt ? this._row("… wenn belegt seit", editable ? this._num(scope, "presence_delay_min", pd) : this._v(`${pd} min`), t("so lange muss jemand im Raum sein – kurz Durchgehen zählt nicht (0 = sofort)")) : "",
-        pt ? this._row("… zurück nach", editable ? this._num(scope, "presence_release_min", pr) : this._v(`${pr} min`), t("so lange ohne Belegung, dann gilt wieder die Temperatur von vorher – kurz rausgehen unterbricht nicht")) : ""
+        pt ? this._row("… zurück nach", editable ? this._num(scope, "presence_release_min", pr) : this._v(`${pr} min`), t("so lange ohne Belegung, dann gilt wieder die Temperatur von vorher – kurz rausgehen unterbricht nicht")) : "",
+        pt ? this._row(
+          "Vorwärmen nach gelernten Zeiten",
+          editable ? this._optToggle(scope, "presence_learn", learn) : this._v(learn ? t("ja") : t("nein")),
+          a.usage ? t("meist belegt: {u} – so früh vorwärmen, dass es dann warm ist; kommt 30 min niemand, gilt wieder der Wert von vorher", { u: a.usage }) : t("lernt noch: ein Zeitraum gilt als typisch, wenn der Raum an 3 der letzten 4 gleichen Wochentage belegt war")
+        ) : ""
       ];
       const more = [
+        this._row("Lampen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eine eingeschaltete Lampe (z. B. Schreibtischlampe) heißt: jemand ist im Raum – zählt nur für diesen Raum, nie für „jemand zu Hause“"),
+        lightAdd,
         this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung"),
         pt && hasPir ? this._row("… auch Bewegungsmelder", editable ? this._optToggle(scope, "presence_pir", pir) : this._v(pir ? t("ja") : t("nein")), t("PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min")) : "",
         this._row(
@@ -5809,7 +5890,7 @@
         eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
         eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
       ];
-      rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
+      rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_lights", "presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
       return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
     },
     _lightGroup(r, id, editable) {
@@ -5851,7 +5932,7 @@
     // Gelernte Schlafzeiten (Wohnungsebene) – gehört zum Lernen, nicht zu den Einstellrädern.
     // ---------------------------------------------------------------- Lernen (Unterreiter)
     _learnTabs(active, keys) {
-      const names = { overview: "Übersicht", sleep: "Schlafen & Anwesenheit", decisions: "Entscheidungen", how: "So rechnet es" };
+      const names = { why: "Warum (nicht)?", overview: "Übersicht", sleep: "Schlafen & Anwesenheit", decisions: "Entscheidungen", how: "So rechnet es" };
       return `<div class="ltabs">${keys.map((k) => `<button class="ltab ${k === active ? "on" : ""}" data-ltab="${k}">${t(names[k])}</button>`).join("")}</div>`;
     },
     // Wohnungsebene: Schlafzeiten, Anwesenheitsprofil, Entscheidungen, Erklärung
@@ -5919,7 +6000,7 @@
     _learnRoom(r) {
       const a = r.attrs, s = a.settings || {}, h = s.heatup || {}, id = s.entry_id;
       if (!id || a.monitor) return "";
-      const tab = this._ltabRoom || "overview";
+      const tab = this._ltabRoom || "why";
       const eps = Number(h.episodes || 0);
       const sure = eps >= 6 ? [t("belastbar"), "ok"] : eps >= 3 ? [t("brauchbar"), "warn"] : [t("noch unsicher"), "off"];
       const overview = [
@@ -5945,8 +6026,45 @@
           t("Vorschlag aus der Belegung je Wochentag; ein Zeitfenster legst du selbst an")
         )
       ].join("");
-      const body = tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
-      return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["overview", "decisions", "how"]) + body);
+      const body = tab === "why" ? this._whyRows(id) : tab === "overview" ? overview : tab === "decisions" ? this._decisions(id) : this._howRows("room");
+      return this._grp("learn", t("Lernen & Warum"), "mdi:chart-line", "eco", this._learnTabs(tab, ["why", "overview", "decisions", "how"]) + body);
+    },
+    // „Warum heizt der Raum (nicht)?“ – fragt die Integration (raumklima/room/why), nichts wird verändert
+    _whyRows(id) {
+      this._why = this._why || {};
+      const res = this._why[id];
+      if (!res || res.loading) {
+        if (!res) {
+          this._why[id] = { loading: true };
+          Promise.resolve().then(() => this._whyFetch(id));
+        }
+        return `<div class="hint">${t("prüft …")}</div>`;
+      }
+      if (res.error) return `<div class="hint warn">${esc(res.error)}</div>`;
+      if (!res.verdict) return `<div class="hint warn">${t("Keine Antwort – bitte Raumklima aktualisieren und neu starten.")}</div>`;
+      const icon = (ok) => `<ha-icon icon="${ok ? "mdi:check-circle" : "mdi:alert-circle"}" style="color:var(${ok ? "--rk-ok" : "--rk-warn"})"></ha-icon>`;
+      const state = { wins: [t("bestimmt das Ziel"), "heat"], later: [t("würde greifen – nachrangig"), "eco"], no: [t("greift nicht"), "off"], info: [t("Hinweis"), "warn"] };
+      const checks = res.checks.map((c) => this._row(`${icon(c.ok)} ${esc(c.label)}`, this._v(c.text, !c.ok))).join("");
+      const rules = res.rules.map((r) => {
+        const [label, tone] = state[r.state] || ["", "off"];
+        const val = r.target != null && r.state !== "no" ? ` · ${r.on ? `${fmt(r.target)} °C` : t("aus")}` : r.text ? ` · ${esc(r.text)}` : "";
+        return `<div class="whyrule ${r.state}"><span class="chip2" style="--c:var(--rk-${tone})"><i></i>${label}</span> <b>${esc(r.label)}</b>${val}</div>`;
+      }).join("");
+      return `<div class="status"><span class="chip" style="--tone:var(${res.heating ? "--rk-heat" : "--rk-off"})"><ha-icon icon="${res.heating ? "mdi:fire" : "mdi:fire-off"}"></ha-icon>${esc(res.verdict)}</span>
+      <button class="btn" data-whyrefresh="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:refresh"></ha-icon>${t("Neu prüfen")}</button></div>
+      ${res.mold_raised ? `<div class="hint warn">${t("Der Schimmelschutz hebt das Ziel gerade an (Feuchte).")}</div>` : ""}
+      <div class="sub">${t("Voraussetzungen")}</div>${checks}
+      ${res.valve != null ? this._row(t("Ventil"), this._v(`${fmt(res.valve, 0)} %`)) : ""}
+      <div class="sub">${t("Regeln – die erste, die greift, bestimmt das Ziel")}</div><div class="whyrules">${rules}</div>`;
+    },
+    async _whyFetch(id) {
+      try {
+        this._why[id] = await this._hass.callWS({ type: "raumklima/room/why", entry_id: id });
+      } catch (e) {
+        this._why[id] = { error: t("Fehler: {e}", { e: e.message || e }) };
+      }
+      this._sig = null;
+      this._render();
     },
     _howRows(scope) {
       const rows = scope === "room" ? [
@@ -6405,6 +6523,11 @@
         this._dec = {};
         this._render();
       });
+      on("click", "[data-whyrefresh]", (el) => () => {
+        this._why = this._why || {};
+        delete this._why[el.dataset.whyrefresh];
+        this._render();
+      });
       on("click", "[data-drange]", (el) => () => {
         this._decRange = Number(el.dataset.drange);
         this._dec = {};
@@ -6636,6 +6759,18 @@
       on("click", "[data-presadd]", (el) => () => {
         const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
         if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
+      });
+      const roomLights = (entry) => {
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+        const local = room ? this._roomOpt(room, "presence_lights") : null;
+        return [...local || []];
+      };
+      on("click", "[data-plightadd]", (el) => () => {
+        const sel = this.shadowRoot.getElementById(`addPLight-${el.dataset.plightadd}`);
+        if (sel && sel.value) this._setRoom(el.dataset.plightadd, { presence_lights: [...roomLights(el.dataset.plightadd), sel.value] }, 200);
+      });
+      on("click", "[data-plightrm]", (el) => () => {
+        this._setRoom(el.dataset.entry, { presence_lights: roomLights(el.dataset.entry).filter((e) => e !== el.dataset.plightrm) }, 200);
       });
       const roomPres = (entry) => {
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);

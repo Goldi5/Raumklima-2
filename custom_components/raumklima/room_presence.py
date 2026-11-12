@@ -14,6 +14,7 @@ from .const import (
     CONF_PRESENCE,
     CONF_PRESENCE_DELAY,
     CONF_PRESENCE_KIND,
+    CONF_PRESENCE_LIGHTS,
     CONF_PRESENCE_PIR,
     CONF_PRESENCE_RELEASE,
     CONF_PRESENCE_TARGET,
@@ -25,6 +26,7 @@ from .const import (
 from .logic import to_float
 from .occupancy import (
     HOLD,
+    KIND_LIGHT,
     KIND_MMWAVE,
     KIND_PIR,
     PRESENCE_DELAY,
@@ -58,6 +60,16 @@ class PresenceMixin:
     @property
     def presence_sensors(self) -> list[str]:
         return [e for e in (self.config.get(CONF_PRESENCE) or []) if isinstance(e, str)]
+
+    @property
+    def presence_lights(self) -> list[str]:
+        """Lampen, deren „an“ als Anwesenheit im Raum zählt (z. B. Schreibtischlampe)."""
+        return [e for e in (self.config.get(CONF_PRESENCE_LIGHTS) or []) if isinstance(e, str)]
+
+    @property
+    def presence_inputs(self) -> list[str]:
+        """Alles, was Belegung meldet: Melder und Lampen."""
+        return [*self.presence_sensors, *self.presence_lights]
 
     def sensor_kinds(self) -> dict[str, str]:
         override = self.config.get(CONF_PRESENCE_KIND)
@@ -110,7 +122,8 @@ class PresenceMixin:
     @property
     def presence_kinds(self) -> tuple[str, ...]:
         """Welche Melder-Arten für die Anwesenheits-Temperatur zählen (PIR nur auf Wunsch)."""
-        return (KIND_MMWAVE, KIND_PIR) if self.config.get(CONF_PRESENCE_PIR) else (KIND_MMWAVE,)
+        kinds = (KIND_MMWAVE, KIND_PIR) if self.config.get(CONF_PRESENCE_PIR) else (KIND_MMWAVE,)
+        return (*kinds, KIND_LIGHT) if self.presence_lights else kinds
 
     @property
     def presence_heat_active(self) -> bool:
@@ -127,6 +140,10 @@ class PresenceMixin:
                 readings.append(Reading(kind, None, st.last_changed if st is not None else dt_util.utcnow()))
             else:
                 readings.append(Reading(kind, st.state == "on", st.last_changed, st.last_updated))
+        for entity_id in self.presence_lights:
+            st = self.hass.states.get(entity_id)
+            if st is not None and st.state in ("on", "off"):
+                readings.append(Reading(KIND_LIGHT, st.state == "on", st.last_changed, st.last_updated))
         return readings
 
     @property
@@ -165,7 +182,7 @@ class PresenceMixin:
         if self._presence_timer:
             self._presence_timer()
             self._presence_timer = None
-        if not self.presence_sensors:
+        if not self.presence_inputs:
             self._occupied, self._empty_since = None, None
             self._occupied_since = None
             self._ph_active, self._ph_since = False, None
@@ -220,9 +237,9 @@ class PresenceMixin:
         if self._presence_unsub:
             self._presence_unsub()
             self._presence_unsub = None
-        if self.presence_sensors:
+        if self.presence_inputs:
             self._presence_unsub = async_track_state_change_event(
-                self.hass, self.presence_sensors, callback(lambda _event: self.update_presence())
+                self.hass, self.presence_inputs, callback(lambda _event: self.update_presence())
             )
 
     def stop_presence(self) -> None:
@@ -234,7 +251,7 @@ class PresenceMixin:
             self._presence_timer = None
 
     def presence_attributes(self) -> dict[str, Any]:
-        if not self.presence_sensors:
+        if not self.presence_inputs:
             return {}
         return {
             "occupied": self._occupied,
