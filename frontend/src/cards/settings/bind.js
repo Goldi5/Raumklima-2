@@ -300,7 +300,7 @@ export const BindMethods = {
     });
     on("click", "[data-srcadd]", (el) => () => {
       const id = el.dataset.srcadd;
-      const sel = document.getElementById(`addSrc-${id}`);
+      const sel = this.shadowRoot.getElementById(`addSrc-${id}`);
       const entity = sel ? sel.value : "";
       if (!entity) return;
       const st = this._st(entity);

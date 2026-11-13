@@ -1,4 +1,4 @@
-/* Raumklima 0.62.46 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.47b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -2077,7 +2077,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.46";
+  var RK_VERSION = "0.62.47b1";
 
   // src/styles.js
   var STYLES = `
@@ -6546,7 +6546,7 @@
       });
       on("click", "[data-srcadd]", (el) => () => {
         const id = el.dataset.srcadd;
-        const sel = document.getElementById(`addSrc-${id}`);
+        const sel = this.shadowRoot.getElementById(`addSrc-${id}`);
         const entity = sel ? sel.value : "";
         if (!entity) return;
         const st = this._st(entity);

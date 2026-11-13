@@ -1,3 +1,8 @@
+## 0.62.47b1 – 2026-11-13
+
+### Behoben
+- **„Quelle hinzufügen“ reagierte nicht:** Der Knopf suchte das Auswahlfeld mit `document.getElementById` außerhalb des Karten-Schatten-DOMs. Jetzt wird es über `this.shadowRoot` gefunden und die Quelle angelegt.
+
 ## 0.62.46 – 2026-11-13
 
 Stabile Version. Fasst die Beta-Reihe seit 0.62.31 und die Release Candidates 0.62.46rc1–rc10 zusammen.
