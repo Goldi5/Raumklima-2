@@ -170,6 +170,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self._calendar_fetched = None  # letzter get_events-Abruf (datetime)
         self._calendar_fetch_pending = False
         self._calendar_last_events: list[dict[str, Any]] = []
+        self._calendar_upcoming: list[dict[str, Any]] = []
         # Heizsaison
         self.season = SeasonState()
         self.decision = "heating"

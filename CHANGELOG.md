@@ -1,3 +1,9 @@
+## 0.62.46rc10 – 2026-11-13
+
+### Neu
+- **Kalender in der Karte:** In der Übersicht erscheint eine Zeile mit dem aktuellen und dem nächsten Termin; in *Einstellungen → Anwesenheit & Absenkung* die Liste „Kalender – jetzt“ und „Kalender – als Nächstes“ (die nächsten 5 Termine) inkl. Markierung Homeoffice/Urlaub/kein Einfluss.
+- Backend: `calendar.get_events` jetzt 7 Tage; `calendar.upcoming` in Diagnose und WebSocket.
+
 ## 0.62.46rc9 – 2026-11-13
 
 ### Behoben

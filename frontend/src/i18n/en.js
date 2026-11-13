@@ -1,6 +1,11 @@
 // Englische Texte der Karten. Schlüssel = deutscher Text (siehe i18n.js).
 // Neue Texte: node test/extract.mjs listet alle Schlüssel, npm test meldet fehlende.
 export const EN = {
+  "Kalender – jetzt": "Calendar – now",
+  "Kalender – als Nächstes": "Calendar – next",
+  "kein Einfluss": "no effect",
+  "kein Termin": "no event",
+  "Als Nächstes": "Next",
   "Boost für": "Boost for",
   "Heizquellen": "Heat sources",
   "Klimaanlage": "Air conditioner",

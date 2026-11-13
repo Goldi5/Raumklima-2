@@ -441,6 +441,7 @@ class PresenceMixin:
             "message": state.attributes.get("message") if state is not None else None,
             "fetched": self._calendar_fetched.isoformat() if self._calendar_fetched else None,
             "events": list(self._calendar_last_events),
+            "upcoming": list(self._calendar_upcoming),
         }
 
     def _apply_calendar(self, mode: str | None, summary: str | None, source: str | None) -> bool:
@@ -480,8 +481,8 @@ class PresenceMixin:
             if not configured:
                 return
             now = dt_util.now()
-            start = now - timedelta(hours=12)
-            end = now + timedelta(hours=12)
+            start = now - timedelta(hours=1)
+            end = now + timedelta(days=7)
             entities: list[str] = []
             if self.hass.states.get(configured) is not None:
                 entities.append(configured)
@@ -494,6 +495,7 @@ class PresenceMixin:
             found_summary: str | None = None
             found_source: str | None = None
             active: list[dict[str, Any]] = []
+            all_events: list[dict[str, Any]] = []
             errors = 0
             for entity_id in entities:
                 events = await self._calendar_events(entity_id, start, end)
@@ -501,25 +503,32 @@ class PresenceMixin:
                     errors += 1
                     continue
                 for event in events:
-                    if not self._event_active(event, now):
-                        continue
                     summary = event.get("summary")
-                    active.append({
+                    item = {
                         "summary": summary,
                         "start": event.get("start"),
                         "end": event.get("end"),
                         "source": entity_id,
-                    })
-                    if found_mode is None:
-                        mode = calendar_mode(True, summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME))
-                        if mode:
-                            found_mode, found_summary, found_source = mode, summary, entity_id
+                        "all_day": len(str(event.get("start") or "")) <= 10,
+                        "mode": calendar_mode(True, summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME)),
+                    }
+                    all_events.append(item)
+                    if not self._event_active(event, now):
+                        continue
+                    active.append(item)
+                    if found_mode is None and item["mode"]:
+                        found_mode, found_summary, found_source = item["mode"], summary, entity_id
             if not entities or errors == len(entities):
                 # Fallback: Zustands-Message (falls get_events nicht verfügbar ist)
                 found_mode, found_summary = self.calendar_event()
                 found_source = self.calendar_source
                 active = []
+                all_events = []
             self._calendar_last_events = active
+            self._calendar_upcoming = sorted(
+                (e for e in all_events if not any(a is e for a in active) and str(e.get("start") or "") > now.isoformat()),
+                key=lambda e: str(e.get("start") or ""),
+            )[:10]
             if self._apply_calendar(found_mode, found_summary, found_source):
                 self._evaluate_presence()
         finally:

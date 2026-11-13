@@ -66,6 +66,20 @@ export const GeneralMethods = {
       this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
       this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : "",
       ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity"]),
+      ...(() => {
+        const cal = st.calendar;
+        if (!cal) return [];
+        const cur = (cal.events || [])[0];
+        const up = cal.upcoming || [];
+        const when = (e) => e && e.all_day
+          ? esc(String(e.start || "").slice(0, 10))
+          : esc(String(e && e.start || "").slice(11, 16));
+        const label = (e) => e && e.mode === "home" ? t("Homeoffice") : e && e.mode === "away" ? t("Urlaub") : t("kein Einfluss");
+        return [
+          this._row(t("Kalender – jetzt"), this._v(cur ? `${esc(cur.summary)} · ${when(cur)} · ${label(cur)}` : t("kein Termin"), !cur), ""),
+          ...up.slice(0, 5).map((e) => this._row(t("Kalender – als Nächstes"), this._v(`${esc(e.summary)} · ${when(e)} · ${label(e)}`, true), "")),
+        ];
+      })(),
       this._more("pres-more", "Weitere Einstellungen", [
       this._row("Anwesenheit aus", this._optToggle(H, "presence_off", !!this._hubOpt("presence_off")),
         "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist"),

@@ -1719,6 +1719,7 @@ async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setu
         return {eid: {"events": [
             {"summary": "Test HA", "start": "2026-06-15T00:00:00+00:00", "end": "2026-06-15T23:59:00+00:00"},
             {"summary": "Goldschmidt", "start": "2026-06-15", "end": "2026-06-16"},
+            {"summary": "Morgen Termin", "start": "2026-11-16", "end": "2026-11-17"},
         ] if eid == "calendar.main" else []}}
 
     hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
@@ -1728,3 +1729,4 @@ async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setu
     assert hub.calendar_source == "calendar.main"
     assert hub.home_office_active is True
     assert any(e.get("summary") == "Goldschmidt" for e in hub.calendar_debug()["events"])
+    assert any(e.get("summary") == "Morgen Termin" for e in hub.calendar_debug()["upcoming"])

@@ -1,6 +1,11 @@
 // Textes français des cartes. Clé = texte allemand (voir i18n.js).
 // Traduction initiale – corrections bienvenues via une issue GitHub.
 export const FR = {
+  "Kalender – jetzt": "Calendrier – maintenant",
+  "Kalender – als Nächstes": "Calendrier – suivant",
+  "kein Einfluss": "sans effet",
+  "kein Termin": "aucun rendez-vous",
+  "Als Nächstes": "Suivant",
   "Boost für": "Boost pour",
   "Heizquellen": "Sources de chaleur",
   "Klimaanlage": "Climatiseur",

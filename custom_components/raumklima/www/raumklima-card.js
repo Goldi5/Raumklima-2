@@ -1,7 +1,12 @@
-/* Raumklima 0.62.46rc9 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.46rc10 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
+    "Kalender – jetzt": "Calendar – now",
+    "Kalender – als Nächstes": "Calendar – next",
+    "kein Einfluss": "no effect",
+    "kein Termin": "no event",
+    "Als Nächstes": "Next",
     "Boost für": "Boost for",
     "Heizquellen": "Heat sources",
     "Klimaanlage": "Air conditioner",
@@ -1015,6 +1020,11 @@
 
   // src/i18n/fr.js
   var FR = {
+    "Kalender – jetzt": "Calendrier – maintenant",
+    "Kalender – als Nächstes": "Calendrier – suivant",
+    "kein Einfluss": "sans effet",
+    "kein Termin": "aucun rendez-vous",
+    "Als Nächstes": "Suivant",
     "Boost für": "Boost pour",
     "Heizquellen": "Sources de chaleur",
     "Klimaanlage": "Climatiseur",
@@ -2067,7 +2077,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.46rc9";
+  var RK_VERSION = "0.62.46rc10";
 
   // src/styles.js
   var STYLES = `
@@ -3560,6 +3570,11 @@
       const pres = presSt ? PRESENCE[presSt.state] : null;
       const seas = seasSt ? SEASON[seasSt.state] : null;
       const here = presSt ? Object.values(presSt.attributes.persons || {}).filter((p) => p.present).map((p) => p.name) : [];
+      const cal = this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.calendar || null;
+      const calCur = cal && (cal.events || [])[0];
+      const calNext = cal && (cal.upcoming || [])[0];
+      const calWhen = (e) => e && e.all_day ? String(e.start || "").slice(0, 10) : String(e && e.start || "").slice(11, 16);
+      const calLine = calCur || calNext ? `<div class="cal" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 0;font-size:.8rem;color:var(--secondary-text-color)">${calCur ? `<span class="chip">📅 ${esc(calCur.summary)} · ${calWhen(calCur)}</span>` : ""}${calNext ? `<span class="next" style="opacity:.8">${t("Als Nächstes")}: ${esc(calNext.summary)} · ${calWhen(calNext)}</span>` : ""}</div>` : "";
       const row = (r) => {
         const a = r.attributes;
         const mon = a.monitor === true;
@@ -3649,6 +3664,7 @@
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
         ${hoActive ? `<span class="chip" data-more="${hubIds.home_office}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-city"></ha-icon>${t("Homeoffice")}</span>` : ""}
       </div>
+      ${calLine}
       <div class="rooms">${rows.map(row).join("")}</div>
     </ha-card>`;
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
@@ -4935,6 +4951,18 @@
           this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
           this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : ""
         ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity"]),
+        ...(() => {
+          const cal = st.calendar;
+          if (!cal) return [];
+          const cur = (cal.events || [])[0];
+          const up = cal.upcoming || [];
+          const when = (e) => e && e.all_day ? esc(String(e.start || "").slice(0, 10)) : esc(String(e && e.start || "").slice(11, 16));
+          const label = (e) => e && e.mode === "home" ? t("Homeoffice") : e && e.mode === "away" ? t("Urlaub") : t("kein Einfluss");
+          return [
+            this._row(t("Kalender – jetzt"), this._v(cur ? `${esc(cur.summary)} · ${when(cur)} · ${label(cur)}` : t("kein Termin"), !cur), ""),
+            ...up.slice(0, 5).map((e) => this._row(t("Kalender – als Nächstes"), this._v(`${esc(e.summary)} · ${when(e)} · ${label(e)}`, true), ""))
+          ];
+        })(),
         this._more("pres-more", "Weitere Einstellungen", [
           this._row(
             "Anwesenheit aus",

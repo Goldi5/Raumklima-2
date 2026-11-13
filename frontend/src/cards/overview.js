@@ -111,6 +111,13 @@ export class RaumklimaOverviewCard extends HTMLElement {
     const pres = presSt ? PRESENCE[presSt.state] : null;
     const seas = seasSt ? SEASON[seasSt.state] : null;
     const here = presSt ? Object.values(presSt.attributes.persons || {}).filter((p) => p.present).map((p) => p.name) : [];
+    const cal = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.calendar) || null;
+    const calCur = cal && (cal.events || [])[0];
+    const calNext = cal && (cal.upcoming || [])[0];
+    const calWhen = (e) => (e && e.all_day ? String(e.start || "").slice(0, 10) : String((e && e.start) || "").slice(11, 16));
+    const calLine = calCur || calNext
+      ? `<div class="cal" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 0;font-size:.8rem;color:var(--secondary-text-color)">${calCur ? `<span class="chip">📅 ${esc(calCur.summary)} · ${calWhen(calCur)}</span>` : ""}${calNext ? `<span class="next" style="opacity:.8">${t("Als Nächstes")}: ${esc(calNext.summary)} · ${calWhen(calNext)}</span>` : ""}</div>`
+      : "";
 
     const row = (r) => {
       const a = r.attributes;
@@ -224,6 +231,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
         ${hoActive ? `<span class="chip" data-more="${hubIds.home_office}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-city"></ha-icon>${t("Homeoffice")}</span>` : ""}
       </div>
+      ${calLine}
       <div class="rooms">${rows.map(row).join("")}</div>
     </ha-card>`;
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) =>
