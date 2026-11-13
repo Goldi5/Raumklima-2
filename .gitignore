@@ -7,3 +7,6 @@ node_modules/
 # nur lokal (interne Infrastruktur, Hilfsskripte)
 apply_fe.py
 scripts/preview_deploy.sh
+
+# Lokale Git-/gh-Daten (nie ins Repo)
+.local/
