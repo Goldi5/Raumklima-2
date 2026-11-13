@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
@@ -462,10 +462,16 @@ async def test_homeoffice_findet_termin_in_anderem_kalender(hass: HomeAssistant,
     hub.config[CONF_HOME_OFFICE_TO] = "23:59"
     hub.config[CONF_HOME_OFFICE_CHECK] = False
     hass.states.async_set("calendar.main", "off", {"message": ""})
-    hass.states.async_set("calendar.birthdays", "off", {"message": "Goldschmidt"})
-    await hass.async_block_till_done()
+    hass.states.async_set("calendar.birthdays", "on", {"message": "Goldschmidt"})
 
-    hub._check_calendar()
+    async def _events(call):
+        eid = call.data["entity_id"]
+        if eid == "calendar.birthdays":
+            return {eid: {"events": [{"summary": "Goldschmidt", "start": "2026-06-15", "end": "2026-06-16"}]}}
+        return {eid: {"events": []}}
+
+    hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
+    await hub.async_check_calendar()
     assert hub.calendar_mode == "home"
     assert hub.calendar_source == "calendar.birthdays"
     assert hub.home_office_active is True
@@ -490,9 +496,13 @@ async def test_homeoffice_freier_termin_im_eingestellten_kalender(hass: HomeAssi
     hub.config[CONF_HOME_OFFICE_TO] = "23:59"
     hub.config[CONF_HOME_OFFICE_CHECK] = False
     hass.states.async_set("calendar.main", "off", {"message": "Goldschmidt"})
-    await hass.async_block_till_done()
 
-    hub._check_calendar()
+    async def _events(call):
+        eid = call.data["entity_id"]
+        return {eid: {"events": [{"summary": "Goldschmidt", "start": "2026-06-15", "end": "2026-06-16"}] if eid == "calendar.main" else []}}
+
+    hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
+    await hub.async_check_calendar()
     assert hub.calendar_mode == "home"
     assert hub.calendar_source == "calendar.main"
     assert hub.home_office_active is True
@@ -1682,3 +1692,39 @@ async def test_geschlossenes_ventil_heizt_nicht(hass: HomeAssistant, setup, trv:
     await hass.async_block_till_done()
     await advance(hass, 1)
     assert hass.states.get("climate.bad").attributes.get("hvac_action") == "heating"
+
+
+async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Ganztags-Treffer zählt auch, wenn ein anderer Termin die message stellt."""
+    from custom_components.raumklima.const import (
+        CONF_CALENDAR,
+        CONF_CALENDAR_HOME,
+        CONF_HOME_OFFICE_CHECK,
+        CONF_HOME_OFFICE_FROM,
+        CONF_HOME_OFFICE_TO,
+    )
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 10:00:00+00:00")
+    hub = get_hub(hass, None)
+    hub.config[CONF_CALENDAR] = "calendar.main"
+    hub.config[CONF_CALENDAR_HOME] = "Goldschmidt"
+    hub.config[CONF_HOME_OFFICE_FROM] = "00:00"
+    hub.config[CONF_HOME_OFFICE_TO] = "23:59"
+    hub.config[CONF_HOME_OFFICE_CHECK] = False
+    hass.states.async_set("calendar.main", "on", {"message": "Test HA"})
+
+    async def _events(call):
+        eid = call.data["entity_id"]
+        return {eid: {"events": [
+            {"summary": "Test HA", "start": "2026-06-15T00:00:00+00:00", "end": "2026-06-15T23:59:00+00:00"},
+            {"summary": "Goldschmidt", "start": "2026-06-15", "end": "2026-06-16"},
+        ] if eid == "calendar.main" else []}}
+
+    hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
+    await hub.async_check_calendar()
+
+    assert hub.calendar_mode == "home"
+    assert hub.calendar_source == "calendar.main"
+    assert hub.home_office_active is True
+    assert any(e.get("summary") == "Goldschmidt" for e in hub.calendar_debug()["events"])

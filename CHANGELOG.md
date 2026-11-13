@@ -1,3 +1,10 @@
+## 0.62.46rc9 – 2026-11-13
+
+### Behoben
+- **Homeoffice bei überlappenden Terminen:** Raumklima fragt jetzt per `calendar.get_events` alle laufenden Termine im Zeitfenster ab und prüft jeden Text – nicht mehr nur die eine `message` der Kalender-Entität. Damit zählt „Goldschmidt“ auch, wenn gleichzeitig „Test HA“ läuft oder der Termin ganztägig ist.
+- **Diagnose:** Der Kalenderblock zeigt die erkannten laufenden Termine (`events`) und den Abrufzeitpunkt (`fetched`).
+- Kalenderänderungen verwerfen den 60-Sekunden-Cache und lesen sofort neu.
+
 ## 0.62.46rc8 – 2026-11-12
 
 ### Verbessert

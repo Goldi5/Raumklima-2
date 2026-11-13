@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections import deque
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -61,6 +62,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 PREHEAT_HOLD = timedelta(minutes=90)
+CALENDAR_REFRESH = timedelta(seconds=60)
 
 STAGE_TEXT = {
     STAGE_HOME: N_("jemand da"),
@@ -75,7 +77,11 @@ class PresenceMixin:
     """Anwesenheits-Teil der Zentrale."""
 
     @callback
-    def _on_tracker_change(self, _event: Event[EventStateChangedData]) -> None:
+    def _on_tracker_change(self, event: Event[EventStateChangedData]) -> None:
+        # Kalender-Termin geändert: Cache verwerfen, damit sofort neu gelesen wird.
+        if event.data.get("entity_id") == self.opt(CONF_CALENDAR):
+            self._calendar_fetched = None
+            self._calendar_fetch_pending = False
         self._evaluate_presence()
 
     @callback
@@ -192,7 +198,8 @@ class PresenceMixin:
         }
 
     def _evaluate_presence(self, initial: bool = False) -> None:
-        cal = self._check_calendar()
+        self._maybe_refresh_calendar()
+        cal = self.calendar_mode
         now = dt_util.utcnow()
         geo = self._zone_geo()
         # Harter Schalter: keine Auswertung, keine Absenkung, kein Vorheizen (Issue #10)
@@ -432,11 +439,13 @@ class PresenceMixin:
             "configured": configured,
             "state": state.state if state is not None else None,
             "message": state.attributes.get("message") if state is not None else None,
+            "fetched": self._calendar_fetched.isoformat() if self._calendar_fetched else None,
+            "events": list(self._calendar_last_events),
         }
 
-    def _check_calendar(self) -> str | None:
-        """Kalender lesen und Wechsel protokollieren."""
-        mode, summary = self.calendar_event()
+    def _apply_calendar(self, mode: str | None, summary: str | None, source: str | None) -> bool:
+        """Kalendermodus setzen und Wechsel protokollieren. True = geändert."""
+        changed = (mode, summary, source) != (self.calendar_mode, self.calendar_summary, self.calendar_source)
         if mode != self.calendar_mode:
             if mode == CAL_AWAY:
                 self.log.add(CAT_PRESENCE, tr("Kalender: „{s}“ – wie Urlaub", s=summary), tr("Termin läuft; Absenkung „länger weg“, sobald niemand da ist"))
@@ -444,9 +453,128 @@ class PresenceMixin:
                 self.log.add(CAT_PRESENCE, tr("Kalender: „{s}“ – jemand bleibt zu Hause", s=summary), tr("Termin läuft; es wird nicht abgesenkt"))
             else:
                 self.log.add(CAT_PRESENCE, tr("Kalender: Termin vorbei"), tr("Anwesenheit wieder nach Ortung"))
-            self.calendar_mode = mode
-            self.calendar_summary = summary
-        return mode
+        self.calendar_mode = mode
+        self.calendar_summary = summary
+        self.calendar_source = source
+        return changed
+
+    def _maybe_refresh_calendar(self) -> None:
+        """Get_events höchstens einmal pro Minute im Hintergrund abfragen."""
+        if not self.opt(CONF_CALENDAR) or self._calendar_fetch_pending:
+            return
+        if self._calendar_fetched is not None and dt_util.utcnow() - self._calendar_fetched < CALENDAR_REFRESH:
+            return
+        self._calendar_fetch_pending = True
+        self.hass.async_create_task(self.async_check_calendar())
+
+    async def async_check_calendar(self) -> None:
+        """Alle laufenden Termine prüfen – auch überlappende und ganztägige.
+
+        Der Zustand einer Kalender-Entität liefert nur **eine** `message`. Bei
+        überlappenden Terminen (z. B. Ganztags „Goldschmidt“ + „Test HA“) geht der
+        Homeoffice-Termin sonst unter. Deshalb werden die Termine über
+        ``calendar.get_events`` im Zeitfenster abgefragt und einzeln geprüft.
+        """
+        try:
+            configured = self.opt(CONF_CALENDAR)
+            if not configured:
+                return
+            now = dt_util.now()
+            start = now - timedelta(hours=12)
+            end = now + timedelta(hours=12)
+            entities: list[str] = []
+            if self.hass.states.get(configured) is not None:
+                entities.append(configured)
+            for st in self.hass.states.async_all("calendar"):
+                if st.entity_id == configured:
+                    continue
+                if st.state == "on" or st.attributes.get("message"):
+                    entities.append(st.entity_id)
+            found_mode: str | None = None
+            found_summary: str | None = None
+            found_source: str | None = None
+            active: list[dict[str, Any]] = []
+            errors = 0
+            for entity_id in entities:
+                events = await self._calendar_events(entity_id, start, end)
+                if events is None:
+                    errors += 1
+                    continue
+                for event in events:
+                    if not self._event_active(event, now):
+                        continue
+                    summary = event.get("summary")
+                    active.append({
+                        "summary": summary,
+                        "start": event.get("start"),
+                        "end": event.get("end"),
+                        "source": entity_id,
+                    })
+                    if found_mode is None:
+                        mode = calendar_mode(True, summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME))
+                        if mode:
+                            found_mode, found_summary, found_source = mode, summary, entity_id
+            if not entities or errors == len(entities):
+                # Fallback: Zustands-Message (falls get_events nicht verfügbar ist)
+                found_mode, found_summary = self.calendar_event()
+                found_source = self.calendar_source
+                active = []
+            self._calendar_last_events = active
+            if self._apply_calendar(found_mode, found_summary, found_source):
+                self._evaluate_presence()
+        finally:
+            self._calendar_fetched = dt_util.utcnow()
+            self._calendar_fetch_pending = False
+
+    async def _calendar_events(self, entity_id: str, start: datetime, end: datetime) -> list[dict[str, Any]] | None:
+        """Termine einer Kalender-Entität im Zeitfenster holen (None = Fehler)."""
+        try:
+            response = await asyncio.wait_for(
+                self.hass.services.async_call(
+                    "calendar",
+                    "get_events",
+                    {
+                        "entity_id": entity_id,
+                        "start_date_time": start.isoformat(),
+                        "end_date_time": end.isoformat(),
+                    },
+                    blocking=True,
+                    return_response=True,
+                ),
+                timeout=10,
+            )
+        except Exception as err:  # noqa: BLE001 – Kalender darf die Regelung nicht aufhalten
+            _LOGGER.debug("Kalender %s: get_events fehlgeschlagen: %s", entity_id, err)
+            return None
+        if not isinstance(response, dict):
+            return []
+        data = response.get(entity_id)
+        if isinstance(data, dict):
+            events = data.get("events")
+        else:
+            events = response.get("events")
+        return events if isinstance(events, list) else []
+
+    @staticmethod
+    def _event_active(event: dict[str, Any], now: datetime) -> bool:
+        """Läuft der Termin gerade? (Ganztags-Termine haben nur ein Datum.)"""
+        start, end = event.get("start"), event.get("end")
+        if not start or not end:
+            return False
+        s, e = str(start), str(end)
+        try:
+            if len(s) <= 10 and len(e) <= 10:
+                return date.fromisoformat(s[:10]) <= now.date() < date.fromisoformat(e[:10])
+            sdt, edt = dt_util.parse_datetime(s), dt_util.parse_datetime(e)
+            if sdt is None or edt is None:
+                return False
+            if sdt.tzinfo is None:
+                sdt = sdt.replace(tzinfo=now.tzinfo)
+            if edt.tzinfo is None:
+                edt = edt.replace(tzinfo=now.tzinfo)
+            return sdt <= now < edt
+        except (TypeError, ValueError):
+            return False
 
     def _presence_why(self, stage: str) -> str:
         parts = []
