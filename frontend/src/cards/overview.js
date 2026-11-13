@@ -106,6 +106,8 @@ export class RaumklimaOverviewCard extends HTMLElement {
     const hubIds = rkHub(this._hass, curHome);
     const presSt = hubIds.presence ? this._hass.states[hubIds.presence] : null;
     const seasSt = hubIds.heating_mode ? this._hass.states[hubIds.heating_mode] : null;
+    const hoSt = hubIds.home_office ? this._hass.states[hubIds.home_office] : null;
+    const hoActive = !!(hoSt && (hoSt.state === "on" || hoSt.attributes.active_now));
     const pres = presSt ? PRESENCE[presSt.state] : null;
     const seas = seasSt ? SEASON[seasSt.state] : null;
     const here = presSt ? Object.values(presSt.attributes.persons || {}).filter((p) => p.present).map((p) => p.name) : [];
@@ -220,6 +222,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
         <span class="chip" style="--tone:${toneVar(allSync ? "ok" : "warn")}"><ha-icon icon="mdi:sync"></ha-icon>${allSync ? t("synchron") : t("sendet …")}</span>
         ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
+        ${hoActive ? `<span class="chip" data-more="${hubIds.home_office}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-city"></ha-icon>${t("Homeoffice")}</span>` : ""}
       </div>
       <div class="rooms">${rows.map(row).join("")}</div>
     </ha-card>`;

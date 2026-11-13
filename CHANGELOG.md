@@ -1,3 +1,8 @@
+## 0.62.46rc6 – 2026-11-12
+
+### Neu
+- **Homeoffice auf der Übersicht:** Oben in der Karte erscheint ein Chip „Homeoffice“, sobald der Modus aktiv ist (Schalter oder Kalender). Tippen öffnet den Schalter.
+
 ## Unreleased
 
 ## 0.62.46rc5 – 2026-11-12
