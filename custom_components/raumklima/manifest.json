@@ -17,5 +17,5 @@
   "requirements": [
     "fpdf2==2.8.9"
   ],
-  "version": "0.62.46rc7"
+  "version": "0.62.46rc8"
 }

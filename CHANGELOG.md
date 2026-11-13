@@ -1,3 +1,9 @@
+## 0.62.46rc8 – 2026-11-12
+
+### Verbessert
+- **Zeitplan einklappen:** Ab 4 Zeitfenstern werden die Fenster in einem aufklappbaren Block „Zeitfenster (N)“ zusammengefasst – die Einstellungen darunter sind wieder ohne Endlos-Scrollen erreichbar.
+- **Homeoffice-Fenster in 15-Minuten-Schritten:** Von/Bis lassen sich jetzt in 15-Minuten-Schritten wählen (00:00–23:45) statt nur in vollen Stunden.
+
 ## 0.62.46rc7 – 2026-11-12
 
 ### Behoben

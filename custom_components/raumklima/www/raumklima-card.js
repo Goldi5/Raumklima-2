@@ -1,4 +1,4 @@
-/* Raumklima 0.62.46rc7 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.46rc8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -2067,7 +2067,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.46rc7";
+  var RK_VERSION = "0.62.46rc8";
 
   // src/styles.js
   var STYLES = `
@@ -2235,6 +2235,12 @@
   details.more > summary .chg { width: 7px; height: 7px; border-radius: 50%; background: var(--rk-heat); }
   details.more[open] { padding-bottom: 6px; }
   .btn.on { background: color-mix(in srgb, var(--c, var(--rk-eco)) 30%, transparent); }
+  details.sched-collapse { border:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent); border-radius:10px; padding:2px 9px; margin:2px 0; }
+  details.sched-collapse > summary { cursor:pointer; padding:8px 2px; font-weight:600; font-size:.86rem; color:var(--secondary-text-color); }
+  details.sched-collapse > summary::-webkit-details-marker { display:none; }
+  details.sched-collapse > summary::before { content:"▸"; font-size:.8rem; margin-right:4px; }
+  details.sched-collapse[open] > summary::before { content:"▾"; }
+  details.sched-collapse[open] > summary { margin-bottom:4px; }
   .sched { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .sched .days { display:flex; gap:4px; }
   .sched .d { all:unset; cursor:pointer; width:32px; height:27px; line-height:27px; border-radius:8px; text-align:center; font-size:.78rem; font-weight:600;
@@ -4889,7 +4895,11 @@
         this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
         this._more("pres-ho", "Homeoffice & Kalender", [
           (() => {
-            const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: `${String(h).padStart(2, "0")}:00` }));
+            const items = Array.from({ length: 96 }, (_x, q) => {
+              const h = Math.floor(q / 4), m = q % 4 * 15;
+              const id = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+              return { id, name: id };
+            });
             const from = this._hubOpt("home_office_from") || "08:00";
             const to = this._hubOpt("home_office_to") || "17:00";
             return this._row(
@@ -5391,13 +5401,19 @@
           t("welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus")
         )
       ];
+      const windowRows = [];
       if (!list.length) {
-        rows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
+        windowRows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
       } else {
         list.forEach((w, i) => {
-          rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days))));
-          rows.push(this._schedSourcesRow(id, w, i, ro));
+          windowRows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days))));
+          windowRows.push(this._schedSourcesRow(id, w, i, ro));
         });
+      }
+      if (list.length > 3) {
+        rows.push(`<details class="sched-collapse"><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
+      } else {
+        rows.push(...windowRows);
       }
       if (!ro && list.length && !shared) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><button class="add" data-schedsort="${id}"><ha-icon icon="mdi:sort-clock-ascending-outline"></ha-icon>${t("nach Uhrzeit sortieren")}</button><span class="hint">${t("Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere")}</span></div></div>`);

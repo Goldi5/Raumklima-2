@@ -38,7 +38,11 @@ export const GeneralMethods = {
       this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
       this._more("pres-ho", "Homeoffice & Kalender", [
       (() => {
-        const items = Array.from({ length: 24 }, (_x, h) => ({ id: `${String(h).padStart(2, "0")}:00`, name: `${String(h).padStart(2, "0")}:00` }));
+        const items = Array.from({ length: 96 }, (_x, q) => {
+          const h = Math.floor(q / 4), m = (q % 4) * 15;
+          const id = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+          return { id, name: id };
+        });
         const from = this._hubOpt("home_office_from") || "08:00";
         const to = this._hubOpt("home_office_to") || "17:00";
         return this._row("Homeoffice-Fenster", `<span class="inline">${this._select(H, "home_office_from", items, from)} – ${this._select(H, "home_office_to", items, to)}</span>`,

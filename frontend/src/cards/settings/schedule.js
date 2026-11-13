@@ -159,13 +159,19 @@ export const ScheduleMethods = {
         t("welche Quellen der Boost ansteuert – die anderen bleiben in diesem Moment aus")
       ),
     ];
+    const windowRows = [];
     if (!list.length) {
-      rows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
+      windowRows.push(this._row("Zeitfenster", this._v("keine – die Automatik regelt wie gewohnt", true), t("z. B. abends 19–21 Uhr wärmer")));
     } else {
       list.forEach((w, i) => {
-        rows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days))));
-        rows.push(this._schedSourcesRow(id, w, i, ro));
+        windowRows.push(this._row(t("Zeitfenster {n}", { n: i + 1 }), this._schedWin(id, w, i, ro), esc(schedDaysLabel(w.days))));
+        windowRows.push(this._schedSourcesRow(id, w, i, ro));
       });
+    }
+    if (list.length > 3) {
+      rows.push(`<details class="sched-collapse"><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
+    } else {
+      rows.push(...windowRows);
     }
     if (!ro && list.length && !shared) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><button class="add" data-schedsort="${id}"><ha-icon icon="mdi:sort-clock-ascending-outline"></ha-icon>${t("nach Uhrzeit sortieren")}</button><span class="hint">${t("Reihenfolge zählt nur, wenn sich Fenster überschneiden – dann gewinnt das untere")}</span></div></div>`);

@@ -168,6 +168,12 @@ export const SETTINGS_STYLES = `
   details.more > summary .chg { width: 7px; height: 7px; border-radius: 50%; background: var(--rk-heat); }
   details.more[open] { padding-bottom: 6px; }
   .btn.on { background: color-mix(in srgb, var(--c, var(--rk-eco)) 30%, transparent); }
+  details.sched-collapse { border:1px solid color-mix(in srgb, var(--primary-text-color) 12%, transparent); border-radius:10px; padding:2px 9px; margin:2px 0; }
+  details.sched-collapse > summary { cursor:pointer; padding:8px 2px; font-weight:600; font-size:.86rem; color:var(--secondary-text-color); }
+  details.sched-collapse > summary::-webkit-details-marker { display:none; }
+  details.sched-collapse > summary::before { content:"▸"; font-size:.8rem; margin-right:4px; }
+  details.sched-collapse[open] > summary::before { content:"▾"; }
+  details.sched-collapse[open] > summary { margin-bottom:4px; }
   .sched { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .sched .days { display:flex; gap:4px; }
   .sched .d { all:unset; cursor:pointer; width:32px; height:27px; line-height:27px; border-radius:8px; text-align:center; font-size:.78rem; font-weight:600;
