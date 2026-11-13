@@ -56,6 +56,12 @@ Stand: Version 0.62.22
       eindeutig findet. Eine selbst gesetzte Zuordnung bleibt unangetastet; Thermostate kann man für Assist
       zusätzlich ausblenden, wenn sie doppelt antworten.
 
+## 🧭 Einstellungen 2.0 (eigene 1.0-Linie)
+
+- [ ] **Einstellungen 2.0** – Bereiche, Raum-Unterseiten und Vererbung;
+      eigene `1.0.0b`-Linie auf `next`, getrennt von 0.62.x. Plan:
+      [docs/de/einstellungen-2.md](docs/de/einstellungen-2.md).
+
 ## 🧠 Größere Vorhaben
 
 - [ ] **Lernendes Wärmemodell pro Raum** – lernt Wärmeverlust, Heizleistung und Sonneneinfluss jedes Raums
