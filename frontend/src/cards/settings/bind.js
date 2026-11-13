@@ -26,6 +26,14 @@ export const BindMethods = {
     }
   },
 
+  // Auswahl neben einem Hinzufügen-Knopf: relativ suchen (nicht über eine ID) und den
+  // Fokus lösen, damit _renderSoon das Neuzeichnen nicht bis zum Verlassen des Feldes zurückhält.
+  _addSelect(el) {
+    const sel = (el.closest(".addrow") || el.parentElement || el).querySelector("select");
+    if (sel) sel.blur();
+    return sel;
+  },
+
   _bind() {
     // Alle Klicks/Änderungen laufen über einen Verteiler an der Wurzel (siehe _delegate):
     // on(typ, selektor, (el) => handler) – handler bekommt das Ereignis wie bei addEventListener.
@@ -73,6 +81,11 @@ export const BindMethods = {
       const d = el.parentElement;
       this._moreOpen.set(d.dataset.more, !d.open); // der Klick schaltet gleich um
       d.dataset.open = d.open ? "0" : "1";
+    });
+    on("click", "details.sched-collapse > summary", (el) => () => {
+      const d = el.parentElement;
+      this._schedOpen = this._schedOpen || new Map();
+      this._schedOpen.set(d.dataset.schedcollapse, !d.open); // der Klick schaltet gleich um
     });
     on("click", "[data-pro]", (el) => () => {
       this._pro = !this._pro;
@@ -300,9 +313,9 @@ export const BindMethods = {
     });
     on("click", "[data-srcadd]", (el) => () => {
       const id = el.dataset.srcadd;
-      const sel = this.shadowRoot.getElementById(`addSrc-${id}`);
+      const sel = this._addSelect(el);
       const entity = sel ? sel.value : "";
-      if (!entity) return;
+      if (!entity) { this._flash(t("Bitte zuerst eine Quelle auswählen")); return; }
       const st = this._st(entity);
       const modes = (st && st.attributes && st.attributes.hvac_modes) || [];
       const type = modes.includes("cool") || modes.includes("fan_only") ? "ac" : "trv";
@@ -314,6 +327,7 @@ export const BindMethods = {
     on("click", "[data-seg]", (el) => () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val }));
     // nach der Auswahl Fokus lösen, sonst wartet die Karte mit dem Aktualisieren (Schutz beim Tippen)
     on("change", "[data-sel]", (el) => () => { el.blur(); apply(el.dataset.sel, { [el.dataset.key]: el.value || null }); });
+    on("change", ".addrow select", (el) => () => el.blur());
     on("change", "[data-md]", (el) => () => {
       const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
       if (iso) { this._setHub({ [el.dataset.md]: `${iso[2]}-${iso[3]}` }, 200); return; }
@@ -520,7 +534,7 @@ export const BindMethods = {
       this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
     });
     on("click", "[data-presadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
     });
     const roomLights = (entry) => {
@@ -529,7 +543,7 @@ export const BindMethods = {
       return [...(local || [])];
     };
     on("click", "[data-plightadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById(`addPLight-${el.dataset.plightadd}`);
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setRoom(el.dataset.plightadd, { presence_lights: [...roomLights(el.dataset.plightadd), sel.value] }, 200);
     });
     on("click", "[data-plightrm]", (el) => () => {
@@ -544,7 +558,7 @@ export const BindMethods = {
       this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
     });
     on("click", "[data-lightadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById(`addLight-${el.dataset.lightadd}`);
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setRoom(el.dataset.lightadd, { signal_lights: [...roomList(el.dataset.lightadd, "signal_lights", []), sel.value] }, 200);
     });
     on("click", "[data-lsig]", (el) => () => {
@@ -561,7 +575,7 @@ export const BindMethods = {
       this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });
     });
     on("click", "[data-sigadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById("addSig");
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setHub({ sleep_signals: [...(this._hubOpt("sleep_signals") || []), sel.value] });
     });
     on("click", "[data-kind]", (el) => () => {

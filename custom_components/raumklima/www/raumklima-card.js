@@ -1,4 +1,4 @@
-/* Raumklima 0.62.47 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.48b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -11,6 +11,7 @@
     "Heizquellen": "Heat sources",
     "Klimaanlage": "Air conditioner",
     "Quelle hinzufügen": "Add source",
+    "Bitte zuerst eine Quelle auswählen": "Please select a source first",
     "Quellen": "Sources",
     "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats or air conditioners that run with the room",
     "Weitere Quellen": "Other sources",
@@ -1029,6 +1030,7 @@
     "Heizquellen": "Sources de chaleur",
     "Klimaanlage": "Climatiseur",
     "Quelle hinzufügen": "Ajouter une source",
+    "Bitte zuerst eine Quelle auswählen": "Veuillez d’abord choisir une source",
     "Quellen": "Sources",
     "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats ou climatiseurs qui fonctionnent avec la pièce",
     "Weitere Quellen": "Autres sources",
@@ -2077,7 +2079,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.47";
+  var RK_VERSION = "0.62.48b1";
 
   // src/styles.js
   var STYLES = `
@@ -5439,7 +5441,8 @@
         });
       }
       if (list.length > 3) {
-        rows.push(`<details class="sched-collapse"><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
+        const opened = !!(this._schedOpen && this._schedOpen.get(id));
+        rows.push(`<details class="sched-collapse" data-schedcollapse="${esc(id)}"${opened ? " open" : ""}><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
       } else {
         rows.push(...windowRows);
       }
@@ -6254,6 +6257,13 @@
         });
       }
     },
+    // Auswahl neben einem Hinzufügen-Knopf: relativ suchen (nicht über eine ID) und den
+    // Fokus lösen, damit _renderSoon das Neuzeichnen nicht bis zum Verlassen des Feldes zurückhält.
+    _addSelect(el) {
+      const sel = (el.closest(".addrow") || el.parentElement || el).querySelector("select");
+      if (sel) sel.blur();
+      return sel;
+    },
     _bind() {
       this._handlers = [];
       const on = (type, sel, make) => this._handlers.push({ type, sel, make });
@@ -6305,6 +6315,11 @@
         const d = el.parentElement;
         this._moreOpen.set(d.dataset.more, !d.open);
         d.dataset.open = d.open ? "0" : "1";
+      });
+      on("click", "details.sched-collapse > summary", (el) => () => {
+        const d = el.parentElement;
+        this._schedOpen = this._schedOpen || /* @__PURE__ */ new Map();
+        this._schedOpen.set(d.dataset.schedcollapse, !d.open);
       });
       on("click", "[data-pro]", (el) => () => {
         this._pro = !this._pro;
@@ -6546,9 +6561,12 @@
       });
       on("click", "[data-srcadd]", (el) => () => {
         const id = el.dataset.srcadd;
-        const sel = this.shadowRoot.getElementById(`addSrc-${id}`);
+        const sel = this._addSelect(el);
         const entity = sel ? sel.value : "";
-        if (!entity) return;
+        if (!entity) {
+          this._flash(t("Bitte zuerst eine Quelle auswählen"));
+          return;
+        }
         const st = this._st(entity);
         const modes = st && st.attributes && st.attributes.hvac_modes || [];
         const type = modes.includes("cool") || modes.includes("fan_only") ? "ac" : "trv";
@@ -6562,6 +6580,7 @@
         el.blur();
         apply(el.dataset.sel, { [el.dataset.key]: el.value || null });
       });
+      on("change", ".addrow select", (el) => () => el.blur());
       on("change", "[data-md]", (el) => () => {
         const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
         if (iso) {
@@ -6834,7 +6853,7 @@
         this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
       });
       on("click", "[data-presadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
       });
       const roomLights = (entry) => {
@@ -6843,7 +6862,7 @@
         return [...local || []];
       };
       on("click", "[data-plightadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById(`addPLight-${el.dataset.plightadd}`);
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.plightadd, { presence_lights: [...roomLights(el.dataset.plightadd), sel.value] }, 200);
       });
       on("click", "[data-plightrm]", (el) => () => {
@@ -6858,7 +6877,7 @@
         this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
       });
       on("click", "[data-lightadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById(`addLight-${el.dataset.lightadd}`);
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.lightadd, { signal_lights: [...roomList(el.dataset.lightadd, "signal_lights", []), sel.value] }, 200);
       });
       on("click", "[data-lsig]", (el) => () => {
@@ -6876,7 +6895,7 @@
         this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });
       });
       on("click", "[data-sigadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById("addSig");
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setHub({ sleep_signals: [...this._hubOpt("sleep_signals") || [], sel.value] });
       });
       on("click", "[data-kind]", (el) => () => {
@@ -7270,6 +7289,7 @@
         }
       }
       this._moreOpen = this._moreOpen || /* @__PURE__ */ new Map();
+      this._schedOpen = this._schedOpen || /* @__PURE__ */ new Map();
       if (this._renderSoon()) return;
       const rooms = this._orderedRooms();
       if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";

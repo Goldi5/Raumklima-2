@@ -10,6 +10,7 @@ export const FR = {
   "Heizquellen": "Sources de chaleur",
   "Klimaanlage": "Climatiseur",
   "Quelle hinzufügen": "Ajouter une source",
+  "Bitte zuerst eine Quelle auswählen": "Veuillez d’abord choisir une source",
   "Quellen": "Sources",
   "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats ou climatiseurs qui fonctionnent avec la pièce",
   "Weitere Quellen": "Autres sources",

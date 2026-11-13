@@ -169,7 +169,10 @@ export const ScheduleMethods = {
       });
     }
     if (list.length > 3) {
-      rows.push(`<details class="sched-collapse"><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
+      // Aufklappzustand über das Neuzeichnen retten: sonst klappt die Liste bei jeder
+      // Änderung eines Feldes wieder zu, obwohl man gerade darin arbeitet.
+      const opened = !!(this._schedOpen && this._schedOpen.get(id));
+      rows.push(`<details class="sched-collapse" data-schedcollapse="${esc(id)}"${opened ? " open" : ""}><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
     } else {
       rows.push(...windowRows);
     }

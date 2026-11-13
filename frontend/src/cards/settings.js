@@ -296,6 +296,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       try { this._pro = localStorage.getItem("raumklima-settings-pro") === "1"; } catch (e) { this._pro = false; }
     }
     this._moreOpen = this._moreOpen || new Map();
+    this._schedOpen = this._schedOpen || new Map();
     if (this._renderSoon()) return;
     const rooms = this._orderedRooms();
     if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";

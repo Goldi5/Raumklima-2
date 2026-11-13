@@ -61,6 +61,7 @@ globalThis.CustomEvent = class {
 };
 
 const { RaumklimaSettingsCard } = await import("../src/cards/settings.js");
+const { BindMethods } = await import("../src/cards/settings/bind.js");
 const { setLang, rkRooms } = await import("../src/shared.js");
 
 const config = {
@@ -124,7 +125,7 @@ test("Einstellungen-Karte rendert", () => {
 
 const fixture = JSON.parse(readFileSync(new URL("./fixture.json", import.meta.url), "utf8"));
 
-function renderRoom(change = () => {}, general = false) {
+function makeRoom(change = () => {}, general = false) {
   const fhass = { ...hass, states: fixture.states, entities: fixture.entities, config: {} };
   setLang(fhass);
   const card = new RaumklimaSettingsCard();
@@ -138,8 +139,30 @@ function renderRoom(change = () => {}, general = false) {
   card._tab = general ? "general" : card._rooms[0].id;
   change(card);
   card._render();
-  return card.shadowRoot.innerHTML;
+  return card;
 }
+
+function renderRoom(change = () => {}, general = false) {
+  return makeRoom(change, general).shadowRoot.innerHTML;
+}
+
+test("Zeitplan: aufgeklappte Zeitfenster bleiben beim Neuzeichnen offen", () => {
+  const card = makeRoom((c) => {
+    c._cfg.rooms[0].options.schedules = [
+      { days: [], start: "06:00", end: "08:00", temperature: 21 },
+      { days: [], start: "12:00", end: "14:00", temperature: 20 },
+      { days: [], start: "17:00", end: "19:00", temperature: 22 },
+      { days: [], start: "21:00", end: "23:00", temperature: 19 },
+    ];
+  });
+  assert.match(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]*>/);
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]* open/);
+  card._schedOpen.set(card._rooms[0].attrs.settings.entry_id, true);
+  card._render();
+  assert.match(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]* open/);
+  card._render();
+  assert.match(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]* open/);
+});
 
 test("Raum-Einstellungen: jeder Stepper hat Schritt > 0 und Minimum < Maximum", () => {
   const html = renderRoom();
@@ -206,4 +229,33 @@ test("Jede Einstellung bleibt vorhanden (nichts ging beim Umsortieren verloren)"
     "Wärmemenge im Bericht", "Heizkosten pro Jahr", "Lüfthinweise von", "Sturm- und Regenwarnung", "… Böen ab", "Erinnern alle", "Fehler auch in der HA-Glocke"]) {
     assert.ok(general.includes(`>${label}`), `Allgemein: „${label}" fehlt`);
   }
+});
+
+test("Quelle hinzufügen: liest die Auswahl neben dem Knopf und löst den Fokus", () => {
+  let saved = null;
+  let blurred = false;
+  const select = { value: "climate.ac", blur() { blurred = true; } };
+  const row = { querySelector: (sel) => (sel === "select" ? select : null) };
+  const button = { dataset: { srcadd: "room1" }, closest: (sel) => (sel === ".addrow" ? row : null) };
+  const card = {
+    shadowRoot: { querySelectorAll: () => [], querySelector: () => null, getElementById: () => null, addEventListener() {} },
+    _handlers: [],
+    _delegate() {},
+    _addSelect: BindMethods._addSelect,
+    _hass: { callWS: async () => ({}) },
+    _cfg: { choices: { climate: [{ id: "climate.ac", name: "Klima" }] } },
+    _flash() { throw new Error("kein Fehler erwartet"); },
+    _st: () => ({ attributes: { hvac_modes: ["heat", "cool"] } }),
+    _name: () => "Klima",
+    _srcList: () => [],
+    _setRoom(id, changes, delay) { saved = { id, changes, delay }; },
+  };
+  BindMethods._bind.call(card);
+  const handler = card._handlers.find((h) => h.type === "click" && h.sel === "[data-srcadd]");
+  handler.make(button)();
+  assert.equal(blurred, true, "Auswahl muss den Fokus abgeben");
+  assert.equal(saved.id, "room1");
+  assert.equal(saved.changes.heat_sources[0].entity, "climate.ac");
+  assert.equal(saved.changes.heat_sources[0].type, "ac");
+  assert.equal(saved.delay, 700);
 });

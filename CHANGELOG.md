@@ -1,3 +1,10 @@
+## 0.62.48b1 – 2026-11-13
+
+### Behoben
+- **„Quelle hinzufügen“ reagierte nicht:** Die Auswahl wird jetzt direkt neben dem Knopf gesucht (nicht über eine ID im Schatten-DOM) und der Fokus wird gelöst, damit die Karte sofort neu zeichnet. Gilt auch für **Melder, Lampe und Signal hinzufügen**; ohne Auswahl erscheint ein Hinweis.
+- **Zeitfenster klappten beim Bearbeiten zu:** Der Aufklappzustand der Zeitfenster bleibt jetzt über das Neuzeichnen erhalten.
+- **Alte Karte nach dem Update:** Alle vorhandenen Lovelace-Ressourcen werden auf die aktuelle Karten-URL aktualisiert. Eine stehen gebliebene alte URL konnte dazu führen, dass der Browser weiterhin die alte Karte lud.
+
 ## 0.62.47 – 2026-11-13
 
 Stabile Version (Ausnahme: direkt nach der Beta 0.62.47b1, ohne Release Candidate).
