@@ -143,7 +143,7 @@ in diesem Zeitraum; neue Funktionen docken danach an das neue Gerüst an.
 - Beta-/Rollback-Strategie und Branch `next` anlegen.
 
 **Abnahme:** Jede Zeile hat genau einen Zielort; keine offenen Fragen zur
-Zuordnung.
+Zuordnung. Ergebnis: [`einstellungen-2-landkarte.md`](einstellungen-2-landkarte.md).
 
 ### Phase 1 – Navigationsgerüst (ca. 2–3 Tage)
 
