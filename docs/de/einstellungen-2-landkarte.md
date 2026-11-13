@@ -84,24 +84,18 @@ Diese Paare sind **keine Duplikate**, müssen aber im neuen UI klar als
 | Wetter | Wetterquelle, Außentemperatur | Sonnenseite/Fassade | Behalten; global = Quelle, Raum = Wirkung |
 | Zeitplan | — | Zeitfenster, „Zeitplan von“ | Behalten; Teilen bleibt pro Raum |
 
-## 7. Offene Punkte für Phase 0
+## 7. Offene Punkte & Entscheidungen
 
-1. **Raum-Unterseiten erweitert:** „Meldungen“ und „Geräte & Sensoren“ sind
-   nötig, sonst haben Raum-Benachrichtigungen, Fühler und Technik keinen Ort.
-2. **Boost:** gehört fachlich eher zu „Regelung“ oder „Heizquellen“ als zum
-   Zeitplan; Entscheidung vor Phase 3.
-3. **Vorheizen:** gehört es zu „Regelung“ (Raumverhalten) oder „Zeitplan“
-   (Start vor dem Fenster)? Empfehlung: Regelung, mit Link zum Zeitplan.
-4. **Raum-Wohnung:** Die Zuordnung „Wohnung“ liegt heute unter Temperatur;
-   im neuen UI besser in „Übersicht“.
-5. **Globales Lernen:** eigener Bereich oder Unterbereich von „Wohnungen“?
-   Empfehlung: „Wohnungen → Lernen“, damit die Hauptnavigation klein bleibt.
-6. **„Alle Räume auf einen Blick“:** redundant zur neuen Raumliste; prüfen,
-   ob die Gruppe entfällt oder als Statusübersicht bleibt.
-7. **Erste Schritte:** als Startseite der Einstellungen oder unter „Wohnungen“?
-   Empfehlung: Startseite, mit Link in „Wohnungen“.
-8. **„Erweitert“:** existiert heute nur als Rail-Eintrag ohne eigene Gruppe;
-   im neuen UI unter „System & Diagnose“ als eingeklappter Bereich.
+| Punkt | Entscheidung |
+|---|---|
+| Raum-Unterseiten | **Meldungen** und **Geräte & Sensoren** kommen dazu. |
+| Boost | Temperatur, Dauer und „Zeitplan überschreiben“ bleiben im **Zeitplan**; „Boost für“ (Quellenauswahl) wandert zu **Heizquellen**. |
+| Vorheizen | Gehört zu **Regelung**, mit Link zum Zeitplan. |
+| Raum-Wohnung | Zuordnung wandert von „Temperatur“ nach **Übersicht**. |
+| Globales Lernen | **Wohnungen → Lernen**; pro Raum bleibt „Lernen & Verlauf“. |
+| „Alle Räume auf einen Blick“ | Entfällt; die neue **Raumliste** ersetzt die Gruppe. |
+| Erste Schritte | Wird **Startseite** der Einstellungen, mit Link unter „Wohnungen“. |
+| „Erweitert“ | Unter **System & Diagnose**, standardmäßig eingeklappt. |
 
 ## 8. Ergebnis Phase 0
 
