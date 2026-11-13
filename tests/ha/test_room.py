@@ -443,6 +443,61 @@ async def test_homeoffice_kalender_nur_mit_anwesenheit(hass: HomeAssistant, setu
     hub.set_home_office(False)
 
 
+async def test_homeoffice_findet_termin_in_anderem_kalender(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Der Homeoffice-Termin darf auch in einem anderen Kalender liegen (z. B. Geburtstage)."""
+    from custom_components.raumklima.const import (
+        CONF_CALENDAR,
+        CONF_CALENDAR_HOME,
+        CONF_HOME_OFFICE_CHECK,
+        CONF_HOME_OFFICE_FROM,
+        CONF_HOME_OFFICE_TO,
+    )
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 10:00:00+00:00")
+    hub = get_hub(hass, None)
+    hub.config[CONF_CALENDAR] = "calendar.main"
+    hub.config[CONF_CALENDAR_HOME] = "Goldschmidt"
+    hub.config[CONF_HOME_OFFICE_FROM] = "00:00"
+    hub.config[CONF_HOME_OFFICE_TO] = "23:59"
+    hub.config[CONF_HOME_OFFICE_CHECK] = False
+    hass.states.async_set("calendar.main", "off", {"message": ""})
+    hass.states.async_set("calendar.birthdays", "off", {"message": "Goldschmidt"})
+    await hass.async_block_till_done()
+
+    hub._check_calendar()
+    assert hub.calendar_mode == "home"
+    assert hub.calendar_source == "calendar.birthdays"
+    assert hub.home_office_active is True
+
+
+async def test_homeoffice_freier_termin_im_eingestellten_kalender(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Ein freier/ganztägiger Termin (HA: off, aber mit message) zählt im eingestellten Kalender."""
+    from custom_components.raumklima.const import (
+        CONF_CALENDAR,
+        CONF_CALENDAR_HOME,
+        CONF_HOME_OFFICE_CHECK,
+        CONF_HOME_OFFICE_FROM,
+        CONF_HOME_OFFICE_TO,
+    )
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 10:00:00+00:00")
+    hub = get_hub(hass, None)
+    hub.config[CONF_CALENDAR] = "calendar.main"
+    hub.config[CONF_CALENDAR_HOME] = "Goldschmidt"
+    hub.config[CONF_HOME_OFFICE_FROM] = "00:00"
+    hub.config[CONF_HOME_OFFICE_TO] = "23:59"
+    hub.config[CONF_HOME_OFFICE_CHECK] = False
+    hass.states.async_set("calendar.main", "off", {"message": "Goldschmidt"})
+    await hass.async_block_till_done()
+
+    hub._check_calendar()
+    assert hub.calendar_mode == "home"
+    assert hub.calendar_source == "calendar.main"
+    assert hub.home_office_active is True
+
+
 async def test_nacht_und_homeoffice_ueber_entitaet(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
     """Ein vorhandener HA-Schalter schaltet Nachtruhe und Homeoffice mit."""
     from custom_components.raumklima.const import (

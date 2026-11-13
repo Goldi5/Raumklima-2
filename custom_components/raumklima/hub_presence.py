@@ -392,14 +392,47 @@ class PresenceMixin:
         return max(needs) if needs else None
 
     def calendar_event(self) -> tuple[str | None, str | None]:
-        """(Modus, Termin) des laufenden Kalendertermins: „away“ wie Urlaub, „home“ wie Gäste."""
-        entity = self.opt(CONF_CALENDAR)
-        state = self.hass.states.get(entity) if entity else None
-        if state is None:
-            return None, None
-        summary = state.attributes.get("message")
-        mode = calendar_mode(state.state == "on", summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME))
-        return mode, summary
+        """(Modus, Termin) des laufenden Kalendertermins: „away“ wie Urlaub, „home“ wie Gäste.
+
+        Geprüft wird zuerst der eingestellte Kalender, dann die übrigen Kalender –
+        damit ein Termin auch dann zählt, wenn er in einem anderen Kalender liegt
+        (z. B. Geburtstage). Ein „freier“/ganztägiger Termin im eingestellten Kalender
+        zählt ebenfalls, auch wenn HA ihn als ``off`` meldet.
+        """
+        configured = self.opt(CONF_CALENDAR)
+        candidates: list[tuple[str, Any]] = []
+        if configured:
+            state = self.hass.states.get(configured)
+            if state is not None:
+                candidates.append((configured, state))
+        for state in self.hass.states.async_all("calendar"):
+            if state.entity_id != configured:
+                candidates.append((state.entity_id, state))
+        for entity_id, state in candidates:
+            summary = state.attributes.get("message")
+            if not summary:
+                continue
+            # HA meldet freie/ganztägige Termine als „off“, liefert aber die message.
+            active = state.state == "on" or (state.state == "off" and bool(summary))
+            mode = calendar_mode(active, summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME))
+            if mode:
+                self.calendar_source = entity_id
+                return mode, summary
+        self.calendar_source = None
+        return None, None
+
+    def calendar_debug(self) -> dict[str, Any]:
+        """Rohzustand des eingestellten Kalenders für die Diagnose."""
+        configured = self.opt(CONF_CALENDAR)
+        state = self.hass.states.get(configured) if configured else None
+        return {
+            "mode": self.calendar_mode,
+            "summary": self.calendar_summary,
+            "source": self.calendar_source,
+            "configured": configured,
+            "state": state.state if state is not None else None,
+            "message": state.attributes.get("message") if state is not None else None,
+        }
 
     def _check_calendar(self) -> str | None:
         """Kalender lesen und Wechsel protokollieren."""

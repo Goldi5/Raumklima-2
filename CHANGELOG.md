@@ -1,3 +1,9 @@
+## 0.62.46rc7 – 2026-11-12
+
+### Behoben
+- **Homeoffice-Termin in einem anderen Kalender / freier Termin:** Raumklima prüft jetzt neben dem eingestellten Kalender auch die übrigen Kalender auf einen laufenden Termin mit den Homeoffice-/Urlaubswörtern. Ein freier/ganztägiger Termin im eingestellten Kalender zählt ebenfalls, auch wenn Home Assistant ihn als `off` meldet.
+- **Diagnose:** Der Kalenderblock zeigt jetzt Rohzustand (`state`, `message`), die Quelle (`source`) und den eingestellten Kalender – damit ist sichtbar, welcher Kalender den Termin liefert.
+
 ## 0.62.46rc6 – 2026-11-12
 
 ### Neu

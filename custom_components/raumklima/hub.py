@@ -166,6 +166,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self._preheat_reason: str | None = None
         self.calendar_mode: str | None = None  # laufender Termin: away / home
         self.calendar_summary: str | None = None
+        self.calendar_source: str | None = None  # Kalender-Entität, die den Termin liefert
         # Heizsaison
         self.season = SeasonState()
         self.decision = "heating"
@@ -534,7 +535,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             "presence_configured": self.presence_configured,
             "presence_profile": self.presence_profile.summary(),
             "presence_tip": self.presence_profile.typical(),
-            "calendar": {"mode": self.calendar_mode, "summary": self.calendar_summary} if self.opt(CONF_CALENDAR) else None,
+            "calendar": self.calendar_debug() if self.opt(CONF_CALENDAR) else None,
             "decision": self.decision,
             "heating_allowed": self.heating_allowed,
             "in_season": self.in_season,
