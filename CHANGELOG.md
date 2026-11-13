@@ -1,3 +1,16 @@
+## 0.62.46 – 2026-11-13
+
+Stabile Version. Fasst die Beta-Reihe seit 0.62.31 und die Release Candidates 0.62.46rc1–rc10 zusammen.
+
+### Neu (Auswahl)
+- **Heizquellen je Raum** (Thermostat/Klimaanlage), Auswahl je Zeitfenster, Boost-Ziel, bis zu 30 Zeitfenster
+- **Anwesenheits-Temperatur** mit Wartezeit, Nachtabsenkung, Nachtruhe über Entität, Homeoffice über Kalender/Entität
+- **Kalender:** aktuelle und kommende Termine in Übersicht und Einstellungen; Homeoffice erkennt überlappende/ganztägige Termine
+- **Einstellungen aufgeräumt**, Zeitplan einklappbar, 15-Minuten-Auswahl
+- **Warum-Seite**, gelernte Belegung, Lampen als Anwesenheit, Batterie-Prognose
+
+Details: Einträge 0.62.31–0.62.46rc10.
+
 ## 0.62.46rc10 – 2026-11-13
 
 ### Neu
@@ -27,8 +40,6 @@
 
 ### Neu
 - **Homeoffice auf der Übersicht:** Oben in der Karte erscheint ein Chip „Homeoffice“, sobald der Modus aktiv ist (Schalter oder Kalender). Tippen öffnet den Schalter.
-
-## Unreleased
 
 ## 0.62.46rc5 – 2026-11-12
 
