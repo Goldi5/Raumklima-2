@@ -137,6 +137,10 @@ class ShadingMixin:
             self._set_shading_state(state, reason, sun)
             return
 
+        if target == "close" and self._shading_window_open():
+            # Nie vor ein offenes Fenster / eine offene Balkontür fahren (Aussperren)
+            self._set_shading_state(STATE_OPEN, "window_open", sun)
+            return
         failed = 0
         for entity_id in self.covers:
             if target == "open" and entity_id not in self._shading_closed:
@@ -163,8 +167,21 @@ class ShadingMixin:
             return "close", "sun"
         return "open", "cool"
 
+    def _shading_window_open(self) -> bool:
+        """Ist ein Fenster/eine Tür des Raums gerade offen (Rohzustand, ohne Verzögerung)?"""
+        for entity_id in self.windows:
+            state = self.hass.states.get(entity_id)
+            if state is not None and state.state == "on":
+                return True
+        return False
+
     def _shading_hot(self) -> bool | None:
-        """Ist es warm genug, dass die Sonne den Raum überhitzt?"""
+        """Ist es warm genug, dass die Sonne den Raum überhitzt?
+
+        Mit Hysterese: Ist schon wegen Sonne zu, öffnet es erst 1 K (draußen 2 K) unter den
+        Grenzen wieder – sonst kühlte der geschlossene Laden den Raum, er öffnete, der Raum
+        heizte sich auf, er schloss … alle 5 Minuten.
+        """
         temp = self.current_temperature
         hub = self.hub
         outdoor = hub.outdoor_temp() if hub is not None else None
@@ -172,6 +189,9 @@ class ShadingMixin:
             return None
         min_temp = to_float(self.config.get(CONF_SHADING_MIN_TEMP))
         outdoor_min = to_float(self.config.get(CONF_SHADING_OUTDOOR_MIN))
+        if self._shading_state == STATE_CLOSED and self._shading_reason == "sun":
+            min_temp = None if min_temp is None else min_temp - 1.0
+            outdoor_min = None if outdoor_min is None else outdoor_min - 2.0
         return bool(
             (temp is not None and min_temp is not None and temp >= min_temp)
             or (outdoor is not None and outdoor_min is not None and outdoor >= outdoor_min)
@@ -204,6 +224,13 @@ class ShadingMixin:
         close = target == "close"
         target_pos = self.shading_close_position if close else 100
         position = self._cover_position(entity_id)
+        if position is None and state.state in (("closed", "closing") if close else ("open", "opening")):
+            # Rollladen ohne Positionsangabe: schon dort – nicht alle 5 Minuten erneut fahren
+            if close:
+                self._shading_closed.add(entity_id)
+            else:
+                self._shading_closed.discard(entity_id)
+            return True
         if position is not None and abs(position - target_pos) <= 5:
             if close:
                 self._shading_closed.add(entity_id)
@@ -272,7 +299,7 @@ class ShadingMixin:
         self.log(
             CAT_MANUAL,
             tr("Verschattung von Hand"),
-            tr("Automatik pausiert für {m} min", m=minutes) if minutes else tr("Automatik bleibt aus"),
+            tr("Automatik pausiert für {m} min", m=minutes) if minutes else tr("keine Pause eingestellt – Automatik fährt beim nächsten Durchlauf wieder"),
         )
         if minutes:
             self._shading_manual_until = now + timedelta(minutes=minutes)

@@ -21,6 +21,7 @@ from .const import (
     CONF_OFFSET_MIN_INTERVAL,
     CONF_OFFSET_THRESHOLD,
     CONF_ON_PRESET,
+    CONF_SOLAR_FACADE,
     CONF_TARGET_VIA,
     DOMAIN,
     KIND_HEALTH,
@@ -412,13 +413,49 @@ class TrvMixin:
             auto_value=ON_PRESET_AUTO,
         )
 
+    def _prestop_amount(self, target: float) -> float:
+        """Vor-Stopp gegen Überschwingen durch Sonne – nur beim Aufheizen, mit Hysterese.
+
+        Früher galt er immer, sobald der Raum ``Ziel − pre_stop`` erreichte: Der Raum blieb dann
+        dauerhaft bis zu 0,5 K unter dem Wunsch, und der Sollwert sprang bei jedem Messwert an
+        dieser Grenze hin und her. Jetzt rastet er nur während einer Aufheiz-Phase bei erwarteter
+        Sonne ein und löst sich, wenn das Ziel erreicht ist, der Raum deutlich fällt oder sich
+        das Ziel ändert.
+        """
+        latch = getattr(self, "_prestop_latch", None)
+        cur = self.current_temperature
+        if latch is not None:
+            amount, latched_for = latch
+            if cur is None or abs(latched_for - target) > 0.05 or cur >= target or cur < target - amount - 0.3:
+                self._prestop_latch = None
+                return 0.0
+            return amount
+        if cur is None:
+            return 0.0
+        # „Scharf“ nur, wenn der Raum für dieses Ziel deutlich darunter lag (= echte Aufheiz-Phase)
+        armed = getattr(self, "_prestop_armed", None)
+        if cur <= target - 1.0:
+            self._prestop_armed = armed = target
+        if armed is None or abs(armed - target) > 0.05:
+            self._prestop_armed = None
+            return 0.0
+        amount = self.heatup.pre_stop()
+        if not amount or cur < target - amount:
+            return 0.0
+        hub = self.hub
+        if hub is None or not hub.sun_expected(self.config.get(CONF_SOLAR_FACADE) or None):
+            return 0.0
+        self._prestop_latch = (amount, target)
+        self._prestop_armed = None  # eine Aufheiz-Phase, ein Vor-Stopp
+        return amount
+
     def _desired_setpoint(self) -> float:
         self._update_shift()  # Abgleich vor dem Rechnen auffrischen
         target = self.effective_target
         if self.floor_mode:
             return clamp(self.floor_setpoint(target), self.trv_min, self.trv_max)
-        pre_stop = self.heatup.pre_stop()
-        if pre_stop and self.current_temperature is not None and self.current_temperature >= target - pre_stop:
+        pre_stop = self._prestop_amount(target)
+        if pre_stop:
             target = max(self.trv_min, target - pre_stop)
         if self.cal_mode == CAL_TARGET:
             # Gelernten Abgleich immer anwenden – nicht nur, wenn gerade ein Messwert eintrifft.

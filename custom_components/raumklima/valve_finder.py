@@ -27,6 +27,8 @@ STRONG_KEYWORDS: dict[str, str] = {
 }
 # „position" allein ist zu unscharf: Rollladenaktoren heißen genauso (Issue #11) – zählt nur an
 # einem Gerät, das auch ein Thermostat ist.
+# Stellglieder, die nach Ventil klingen, aber nicht die Öffnung setzen
+ACTUATOR_EXCLUDE = ("closing", "schliess", "schließ", "calibration", "kalibrier", "offset")
 WEAK_KEYWORDS: dict[str, str] = {
     "position": "nur an einem Gerät mit Thermostat",
 }
@@ -123,6 +125,8 @@ class ValveFinder:
         if entry.domain != "number" or entry.disabled_by:
             return False
         hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
+        if any(k in hay for k in ACTUATOR_EXCLUDE):
+            return False  # z. B. Sonoff TRVZB valve_closing_degree – das ist nicht die Öffnung
         if any(k in hay for k in STRONG_KEYWORDS):
             return True
         return "position" in hay and entry.device_id in self._heating_devices
@@ -134,10 +138,13 @@ class ValveFinder:
         return None
 
     def pick_actuator(self, entries: Iterable[er.RegistryEntry]) -> str | None:
-        for entry in entries:
-            if self.usable_actuator(entry):
+        """Bevorzugt ausdrücklich „Öffnung“ (…_valve_opening_degree), sonst das erste passende."""
+        usable = [e for e in entries if self.usable_actuator(e)]
+        for entry in usable:
+            hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
+            if any(k in hay for k in ("opening", "öffnung", "oeffnung")):
                 return entry.entity_id
-        return None
+        return usable[0].entity_id if usable else None
 
     def area_of(self, entry: er.RegistryEntry) -> str | None:
         """Bereich steht meist am Gerät, nicht an der Entität."""

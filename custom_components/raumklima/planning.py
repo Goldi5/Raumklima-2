@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from itertools import pairwise
 import math
+import re
 from statistics import median
 from typing import Any
 
@@ -760,11 +761,21 @@ def calendar_mode(active: bool, summary: str | None, away_words: str | None, hom
     if not active or not summary:
         return None
     text = summary.lower()
-    if any(w in text for w in _words(away_words)):
+    if any(_word_in(w, text) for w in _words(away_words)):
         return CAL_AWAY
-    if any(w in text for w in _words(home_words)):
+    if any(_word_in(w, text) for w in _words(home_words)):
         return CAL_HOME
     return None
+
+
+def _word_in(word: str, text: str) -> bool:
+    """Schlagwort als eigenes Wort oder als Ende eines zusammengesetzten Worts.
+
+    „Reise“ trifft „Reise“, „Dienstreise“, „Geschäftsreise“ – aber nicht „Preise“ (nur ein
+    Buchstabe davor) und nicht „Reisepass“ (Wort geht weiter). Früher reichte jeder Wortteil.
+    """
+    pattern = r"(?:(?<!\w)|(?<=\w\w\w))" + re.escape(word) + r"(?!\w)"
+    return re.search(pattern, text) is not None
 
 
 # ------------------------------------------------------------------ Wettervorhersage

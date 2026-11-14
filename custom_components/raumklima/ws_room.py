@@ -6,12 +6,13 @@ from types import MappingProxyType
 from typing import Any
 
 from homeassistant.components import websocket_api
-from homeassistant.config_entries import ConfigEntry, ConfigEntryState
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 import voluptuous as vol
 
 from .const import (
     CONF_CALIBRATION_MODE,
+    CONF_CO2_SENSOR,
     CONF_COMFORT_TEMP,
     CONF_ENTRY_TYPE,
     CONF_EXTRA_TRVS,
@@ -31,7 +32,6 @@ from .const import (
     CONF_TEMP_SENSOR,
     CONF_TRV,
     CONF_WINDOWS,
-    CONF_CO2_SENSOR,
     DEFAULTS,
     DOMAIN,
     ENTRY_HUB,

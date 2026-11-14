@@ -35,17 +35,58 @@ async def test_raum_frostschutz_heizt_unter_5_grad(hass: HomeAssistant, trv: Fak
     """Jeder Raum hat einen eigenen Frostschutz wie das Gerät – Standard 5 °C."""
     from custom_components.raumklima.shared import domain_data
 
-    _hub, room = await _setup(hass)
+    # Heizpause mit niedriger Wohnungs-Sicherung: nur der Raum-Frostschutz darf greifen.
+    _hub, room = await _setup(hass, season_mode="pause", frost_floor=3)
     ctrl = domain_data(hass)["rooms"][room.entry_id]
     assert ctrl.frost_temp == 5.0
-    # In kleinen Schritten, sonst verwirft der Ausreißer-Schutz den Sprung von 19 auf 4 °C.
-    for value in (16.1, 13.2, 10.3, 7.4, 4.5):
-        hass.states.async_set(SENSOR, str(value), {"device_class": "temperature", "unit_of_measurement": "°C"})
-        await hass.async_block_till_done()
+    await _cool_down(hass)
     on, target, reason = ctrl.plan()
     assert on is True
     assert target == 5.0
     assert reason == "frost"
+
+
+async def _cool_down(hass: HomeAssistant, values=(16.1, 13.2, 10.3, 7.4, 4.5)) -> None:
+    # In kleinen Schritten, sonst verwirft der Ausreißer-Schutz den Sprung von 19 auf 4 °C.
+    for value in values:
+        hass.states.async_set(SENSOR, str(value), {"device_class": "temperature", "unit_of_measurement": "°C"})
+        await hass.async_block_till_done()
+
+
+async def test_raum_frostschutz_ist_untergrenze_kein_deckel(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Unter 5 °C gilt ein höherer Wunsch weiter – der Frostschutz verdrängt ihn nicht."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = await _setup(hass)
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.target_temp = 21.0
+    await _cool_down(hass)
+    on, target, reason = ctrl.plan()
+    assert on is True
+    assert target == 21.0
+    assert reason != "frost"
+
+
+async def test_raum_frostschutz_hysterese(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = await _setup(hass, season_mode="pause", frost_floor=3)
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    await _cool_down(hass)
+    assert ctrl.plan()[2] == "frost"
+    await _cool_down(hass, (5.2,))
+    assert ctrl.plan()[2] == "frost", "an der Grenze nicht sofort wieder aus"
+    await _cool_down(hass, (5.6,))
+    assert ctrl.plan()[2] != "frost"
+
+
+async def test_nacht_frostschutz_bleibt_wohnungs_sicherung(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """„Frostschutz“ in der Nachtabsenkung hieß bis 1.1 die Sicherung der Wohnung (16 °C)."""
+    from custom_components.raumklima.shared import domain_data
+
+    hub, room = await _setup(hass, frost_floor=16, night_level="frost")
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.hub.night_target(ctrl) == 16.0
 
 
 async def test_switch_to_always_via_options(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:

@@ -1324,6 +1324,7 @@ export const EN = {
   "keine Rollläden gewählt": "no blinds selected",
   "keine Sonne erwartet": "no sun expected",
   "keine Temperaturdaten": "no temperature data",
+  "Fenster/Tür offen – fährt nicht zu": "Window/door open – not closing",
   "keine – unter „Geräte & Technik ändern“ wählen": "none – select under “Change devices & technology”",
   "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "closed after sunset, open again in the morning – protects against heat loss and light",
   "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "only these blinds or shutters are moved – window contacts stay separate",

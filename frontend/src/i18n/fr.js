@@ -1324,6 +1324,7 @@ export const FR = {
   "keine Rollläden gewählt": "aucun volet sélectionné",
   "keine Sonne erwartet": "aucun soleil prévu",
   "keine Temperaturdaten": "aucune donnée de température",
+  "Fenster/Tür offen – fährt nicht zu": "Fenêtre/porte ouverte – ne ferme pas",
   "keine – unter „Geräte & Technik ändern“ wählen": "aucun – à sélectionner sous « Modifier appareils et technique »",
   "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "fermé après le coucher du soleil, rouvert le matin – protège contre les pertes de chaleur et la lumière",
   "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "seuls ces volets roulants ou stores sont commandés – les contacts de fenêtre restent séparés",

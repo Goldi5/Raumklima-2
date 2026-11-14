@@ -434,13 +434,16 @@ class AcSource:
                     self._last_change = now
                     self._on_since = None
                 return
-            if not self._is_on():
+            if st.state != "heat":
+                # auch aus „cool“: sonst kühlte die Anlage nach dem Kühlen auf den Heiz-Sollwert
+                was_on = self._is_on()
                 await self.hass.services.async_call(
                     "climate", "set_hvac_mode",
                     {"entity_id": self.entity_id, "hvac_mode": "heat"}, blocking=True,
                 )
                 self._last_change = now
-                self._on_since = now
+                if not was_on:
+                    self._on_since = now
             await self.hass.services.async_call(
                 "climate", "set_temperature",
                 {"entity_id": self.entity_id, "temperature": value}, blocking=True,

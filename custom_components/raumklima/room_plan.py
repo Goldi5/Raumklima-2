@@ -86,6 +86,9 @@ from .room_const import (
 _LOGGER = logging.getLogger(f"{__package__}.controller")  # gleicher Logger-Name wie bisher
 
 
+COOL_HYSTERESIS = 1.0  # K unter der Kühlgrenze, bis das Kühlen endet
+
+
 class PlanMixin:
     """Regelkette: welches Ziel gilt gerade, und warum (siehe PLAN_RULES)."""
 
@@ -98,7 +101,33 @@ class PlanMixin:
         auch Zeitplan und Ruhezeit, die ihn vorher nicht geprüft haben.
         """
         on, target, reason = self._plan_rules()
-        return self._mold_floor(on, target, reason)
+        on, target, reason = self._mold_floor(on, target, reason)
+        return self._frost_floor(on, target, reason)
+
+    def _frost_floor(self, on: bool, target: float, reason: str) -> tuple[bool, float, str]:
+        """Absoluter Frostschutz des Raums als Untergrenze (Standard 5 °C).
+
+        Eine Untergrenze, keine eigene Regel: Liegt der Raum darunter, wird mindestens auf den
+        Frostschutz geheizt – ein höherer Wunsch, Boost oder Zeitplan gilt aber weiter (eine
+        Regel vorn in der Kette hätte sie bis 5 °C verdrängt). Halbes Kelvin Hysterese, damit
+        es an der Grenze nicht taktet.
+        """
+        if self.monitor or self.hvac_auto:
+            return on, target, reason
+        cur = self.current_temperature
+        limit = self.frost_temp
+        active = bool(getattr(self, "_room_frost_active", False))
+        if cur is None or active and cur >= limit + 0.5:
+            active = False
+        elif not active and cur < limit:
+            active = True
+        if not self._peeking:
+            self._room_frost_active = active
+        if not active:
+            return on, target, reason
+        if on and target >= limit:
+            return on, target, reason
+        return True, min(limit, self.trv_max), REASON_FROST
 
     def _preheat_allowed(self, start: datetime, now: datetime) -> bool:
         """Darf jetzt vorgeheizt werden? (Issue #10: nicht mitten in der Nacht)
@@ -179,6 +208,10 @@ class PlanMixin:
             return None
         if self.monitor or self.hvac_auto:
             return None
+        # Raum ausgeschaltet oder Fenster offen: nicht kühlen (sonst lief die Anlage gegen das Fenster)
+        if not self.hvac_on or self.paused or self.window_paused:
+            self._set_cool_active(False)
+            return None
         if self.boost_open or (self.boost_until and ctx.now < self.boost_until):
             return None
         ready = [
@@ -189,29 +222,27 @@ class PlanMixin:
             return None
         current = self.current_temperature
         limit = float(self.config.get(CONF_COOL_SETPOINT) or 26.0)
-        if current is None or current <= limit:
+        # Hysterese: ab über der Grenze kühlen, erst 1 K darunter wieder freigeben – die Anlage
+        # hält die Grenze selbst; ohne Hysterese ging sie bei 25,9 °C aus und bei 26,1 °C an.
+        active = bool(getattr(self, "_cool_active", False))
+        if current is None or active and current <= limit - COOL_HYSTERESIS:
+            active = False
+        elif not active and current > limit:
+            active = True
+        self._set_cool_active(active)
+        if not active:
             return None
         return False, limit, REASON_COOL
+
+    def _set_cool_active(self, active: bool) -> None:
+        if not self._peeking:
+            self._cool_active = active
 
     def _rule_no_hub(self, ctx: _PlanContext) -> PlanResult:
         """Ohne Zentrale gilt schlicht der Wunsch."""
         if ctx.hub is None:
             return True, self.target_temp, REASON_NORMAL
         return None
-
-    def _rule_frost(self, ctx: _PlanContext) -> PlanResult:
-        """Absoluter Frostschutz: unter dem Raumwert wird immer geheizt.
-
-        Das ist die Geräte-Sicherung (standardmäßig 5 °C), unabhängig von Zeitplan,
-        Abwesenheit oder Heizpause. Die globale Sicherung der Wohnung bleibt davon
-        getrennt und kann höher liegen.
-        """
-        if self.monitor or self.hvac_auto:
-            return None
-        current = self.current_temperature
-        if current is None or current >= self.frost_temp:
-            return None
-        return True, min(self.frost_temp, self.trv_max), REASON_FROST
 
     def _rule_season(self, ctx: _PlanContext) -> PlanResult:
         """Heizpause – mit Sicherung: fällt der Raum unter den Frostboden, heizt er trotzdem."""
@@ -370,7 +401,9 @@ class PlanMixin:
         outside = {
             SCHEDULE_FALLBACK_SHORT: self.setback_short,
             SCHEDULE_FALLBACK_LONG: self.setback_long,
-            SCHEDULE_FALLBACK_FROST: self.frost_temp,
+            # „Frostschutz“ außerhalb der Fenster hieß bis 1.1 die Sicherung der Wohnung
+            # (Standard 16 °C) – der neue Raumwert (5 °C) darf das nicht still absenken.
+            SCHEDULE_FALLBACK_FROST: max(self.frost_temp, ctx.hub.frost_floor),
         }.get(fb)
         if outside is not None and outside < self.target_temp - 0.05:
             return True, min(outside, self.trv_max), REASON_SCHEDULE_FALLBACK
@@ -516,12 +549,11 @@ class PlanMixin:
             return
         first = self._last_plan is None
         self._last_plan = key
-        hub = self.hub
         why = {
             REASON_NORMAL: tr("Wunschtemperatur {t}", t=fmt_temp(self.target_temp)),
             REASON_MANUAL: tr("von Hand wärmer gestellt – Absenkung 3 h ausgesetzt"),
             REASON_SEASON: tr("Heizpause (mild draußen)"),
-            REASON_FROST: tr("Frostschutz – unter {t}", t=fmt_temp(target)),
+            REASON_FROST: tr("Frostschutz – heizt auf {t}", t=fmt_temp(target)),
             REASON_VALVE_CARE: tr("Sommerpflege: Ventil kurz öffnen"),
             REASON_EMPTY: tr(
                 "Raum seit {m} min leer (Präsenzmelder) – {d} weniger (Wunsch {t})",

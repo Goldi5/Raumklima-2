@@ -293,6 +293,11 @@ def test_calendar_mode() -> None:
     assert calendar_mode(True, "Homeoffice", CAL_AWAY_WORDS, CAL_HOME_WORDS) == CAL_HOME
     assert calendar_mode(True, "Zahnarzt", CAL_AWAY_WORDS, CAL_HOME_WORDS) is None
     assert calendar_mode(False, "Urlaub", CAL_AWAY_WORDS, CAL_HOME_WORDS) is None
+    # Wortgrenzen: „Preise“/„Reisepass“ sind keine Reise, „Dienstreise“ schon
+    assert calendar_mode(True, "Preise vergleichen", "Reise", "") is None
+    assert calendar_mode(True, "Reisepass abholen", "Reise", "") is None
+    assert calendar_mode(True, "Dienstreise Hamburg", "Reise", "") == CAL_AWAY
+    assert calendar_mode(True, "Strip-Kurs", "trip", "") is None
     assert calendar_mode(True, "Kur", "kur", "") == CAL_AWAY
 
 

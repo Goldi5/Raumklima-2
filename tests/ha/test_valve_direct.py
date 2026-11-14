@@ -74,3 +74,28 @@ async def test_valve_summary_reports_direct_state(hass: HomeAssistant, trv, sens
     assert summary["actuator"] == NUM
     assert summary["direct"] is True
     assert summary["opening"] == 100.0
+
+
+async def test_sonoff_closing_degree_ist_kein_stellglied(hass: HomeAssistant, trv, sensors) -> None:
+    """TRVZB hat opening_degree *und* closing_degree – nur die Öffnung ist das Stellglied."""
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    _room, ctrl = await _setup_room(hass, **{CONF_VALVE_CONTROL: "on"})
+    devs, regs = dr.async_get(hass), er.async_get(hass)
+    dev = devs.async_get_or_create(config_entry_id=_room.entry_id, identifiers={("demo", "trvzb")})
+    regs.async_get_or_create("climate", "demo", "z1", suggested_object_id="trvzb", device_id=dev.id)
+    hass.states.async_set("climate.trvzb", "heat")
+    # closing zuerst anlegen: früher gewann die Reihenfolge in der Registry
+    regs.async_get_or_create("number", "demo", "z2", suggested_object_id="trvzb_valve_closing_degree", device_id=dev.id)
+    regs.async_get_or_create("number", "demo", "z3", suggested_object_id="trvzb_valve_opening_degree", device_id=dev.id)
+    ctrl.trv = "climate.trvzb"
+    assert ctrl._find_valve_actuator() == "number.trvzb_valve_opening_degree"
+
+
+async def test_kleine_ventilaenderung_wird_nicht_gefunkt(hass: HomeAssistant, trv, sensors) -> None:
+    _room, ctrl = await _setup_room(hass, **{CONF_VALVE_CONTROL: "on"})
+    hass.states.async_set(NUM, "40", {"min": 0, "max": 100, "step": 1, "unit_of_measurement": "%"})
+    ctrl.valve_actuator = NUM
+    with patch("homeassistant.core.ServiceRegistry.async_call", new=AsyncMock()) as call:
+        await ctrl._send_valve(43.0)
+    assert not [c for c in call.await_args_list if c.args[:2] == ("number", "set_value")]

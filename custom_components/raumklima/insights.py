@@ -14,20 +14,20 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_ENERGY_BASE,
+    CONF_ENERGY_CHEAP_PRICE,
     CONF_ENERGY_EFFICIENCY,
     CONF_ENERGY_ENABLED,
+    CONF_ENERGY_EXTRA_FEE,
     CONF_ENERGY_FACTOR,
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_METER,
+    CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_PRICE,
     CONF_ENERGY_PRICE_BASIS,
-    CONF_ENERGY_VAT,
-    CONF_ENERGY_EXTRA_FEE,
     CONF_ENERGY_SOURCE,
-    CONF_ENERGY_CHEAP_PRICE,
-    CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_TARIFF,
     CONF_ENERGY_TARIFF_DYNAMIC,
+    CONF_ENERGY_VAT,
     CONF_PV_ENTITY,
     CONF_PV_SELF_USE,
     CONF_RECIPIENTS,
@@ -357,7 +357,7 @@ class Insights:
                     split = pv_split(pv_kwh, cfg.get("pv_self_use"))
                     if split:
                         cfg.update(split)
-        except Exception:  # noqa: BLE001 - Recorder fehlt oder Statistik noch nicht bereit
+        except Exception:
             _LOGGER.debug("Energie-Statistik für den Bericht nicht verfügbar", exc_info=True)
         return {"energy": cfg}
 

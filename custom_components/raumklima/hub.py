@@ -23,8 +23,8 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    CONF_BUILDING,
     CONF_AC_COP,
+    CONF_BUILDING,
     CONF_CALENDAR,
     CONF_ENERGY_CHEAP_PRICE,
     CONF_ENERGY_PREHEAT_CHEAP,

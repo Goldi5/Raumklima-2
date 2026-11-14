@@ -7,16 +7,16 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from .const import (
+    CONF_AC_HEAT,
+    CONF_AC_MIN_OFF,
+    CONF_AC_MIN_ON,
     CONF_AIRING_MIN_MINUTES,
     CONF_AIRING_OCCUPIED_ONLY,
     CONF_AIRING_WINDOWS,
     CONF_BOOST_MINUTES,
-    CONF_AC_HEAT,
     CONF_BOOST_TEMP,
     CONF_CO2_LIMIT,
     CONF_COMFORT_TEMP,
-    CONF_AC_MIN_OFF,
-    CONF_AC_MIN_ON,
     CONF_COOL_SETPOINT,
     CONF_COOLING,
     CONF_FAST_POLL,
@@ -144,7 +144,6 @@ PLAN_RULES: tuple[str, ...] = (
     "_rule_valve_care",
     "_rule_cool",
     "_rule_no_hub",
-    "_rule_frost",
     "_rule_season",
     "_rule_boost",
     "_rule_presence",
@@ -165,7 +164,6 @@ PLAN_RULES: tuple[str, ...] = (
 RULE_LABELS: dict[str, str] = {
     "_rule_monitor": N_("Nur Messen (kein Thermostat)"),
     "_rule_device_auto": N_("Gerät im Auto-Modus"),
-    "_rule_frost": N_("Frostschutz"),
     "_rule_valve_care": N_("Ventilpflege"),
     "_rule_no_hub": N_("Ohne Wohnung"),
     "_rule_season": N_("Heizsaison / Frostschutz"),

@@ -115,7 +115,6 @@ from .planning import (
     AWAY_STAGES,
     MoldGuard,
     next_schedule_window,
-    schedule_target,
     setback_defaults,
 )
 from .room_apply import ApplyMixin
@@ -990,9 +989,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         elif entity_id == self.trv:
             self._trv_reports.append(dt_util.utcnow())
             self._on_trv(old, new)
-        elif entity_id == self.cal_entity:
-            self.sync.check_all()
-        elif entity_id == self.valve_actuator:
+        elif entity_id == self.cal_entity or entity_id == self.valve_actuator:
             self.sync.check_all()
         else:
             for extra in self.extra_trvs:

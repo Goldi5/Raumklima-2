@@ -74,7 +74,8 @@ class NotifyMixin:
         if level == "short":
             return room.setback_short
         if level == "frost":
-            return room.frost_temp
+            # wie bis 1.1: Sicherung der Wohnung (Standard 16 °C), nie unter dem Raum-Frostschutz
+            return max(room.frost_temp, self.frost_floor)
         return room.setback_long
 
     def set_night_manual(self, on: bool) -> None:

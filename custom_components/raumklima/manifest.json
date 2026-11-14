@@ -1,6 +1,9 @@
 {
   "domain": "raumklima",
   "name": "Raumklima",
+  "after_dependencies": [
+    "recorder"
+  ],
   "codeowners": [
     "@Goldi5"
   ],

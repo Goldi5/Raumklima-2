@@ -1322,6 +1322,7 @@
     "keine Rollläden gewählt": "no blinds selected",
     "keine Sonne erwartet": "no sun expected",
     "keine Temperaturdaten": "no temperature data",
+    "Fenster/Tür offen – fährt nicht zu": "Window/door open – not closing",
     "keine – unter „Geräte & Technik ändern“ wählen": "none – select under “Change devices & technology”",
     "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "closed after sunset, open again in the morning – protects against heat loss and light",
     "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "only these blinds or shutters are moved – window contacts stay separate",
@@ -2666,6 +2667,7 @@
     "keine Rollläden gewählt": "aucun volet sélectionné",
     "keine Sonne erwartet": "aucun soleil prévu",
     "keine Temperaturdaten": "aucune donnée de température",
+    "Fenster/Tür offen – fährt nicht zu": "Fenêtre/porte ouverte – ne ferme pas",
     "keine – unter „Geräte & Technik ändern“ wählen": "aucun – à sélectionner sous « Modifier appareils et technique »",
     "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "fermé après le coucher du soleil, rouvert le matin – protège contre les pertes de chaleur et la lumière",
     "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "seuls ces volets roulants ou stores sont commandés – les contacts de fenêtre restent séparés",
@@ -7217,7 +7219,8 @@
           sun: t("Sonne auf der Fassade"),
           no_sun: t("keine Sonne erwartet"),
           cool: t("zu kühl für Schatten"),
-          no_data: t("keine Temperaturdaten")
+          no_data: t("keine Temperaturdaten"),
+          window_open: t("Fenster/Tür offen – fährt nicht zu")
         };
         const status = [states[shade.state] || "–", reasons[shade.reason] || ""].filter(Boolean).join(" · ");
         return this._grp("shade", "Verschattung", "mdi:blinds", "ok", [
