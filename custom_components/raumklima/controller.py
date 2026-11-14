@@ -214,6 +214,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._solar_active = False
         self.frost_night_low: float | None = None
         self._manual_until: datetime | None = None
+        self._manual_return_target: float | None = None
         self._valve_care_until: datetime | None = None
         self._started = False
         # Gesundheitscheck
@@ -746,6 +747,11 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
     # ================================================================ Bedienung
     async def async_resume_manual(self) -> None:
         """Handverstellung beenden: Zeitplan/Automatik sofort wieder übernehmen."""
+        if self._manual_return_target is not None:
+            self.target_temp = clamp(
+                float(self._manual_return_target), self.trv_min, self.trv_max
+            )
+            self._manual_return_target = None
         self._manual_until = None
         self._manual_candidate = None
         self._save()
@@ -759,6 +765,10 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         now = dt_util.utcnow()
         changed = new != self.target_temp
         if changed:
+            # Erster Handeingriff merkt den vorherigen Wunsch – „Wunschtemperatur fortsetzen“
+            # stellt ihn wieder her. Bei weiteren Änderungen bleibt der erste Wert erhalten.
+            if self._manual_return_target is None:
+                self._manual_return_target = self.target_temp
             if override:
                 # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
                 self._manual_until = now + MANUAL_OVERRIDE

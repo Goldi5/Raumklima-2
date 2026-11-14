@@ -1,3 +1,8 @@
+## 0.62.50b2 – 2026-11-14
+
+### Behoben
+- **Handverstellung stellt den vorherigen Wunsch wieder her:** „Wunschtemperatur fortsetzen“ setzt jetzt den Zielwert vor der Handänderung zurück, nicht nur den Override. Damit landet Raum Finja nach dem Test wieder bei 18 °C statt bei 19,5 °C.
+
 ## 0.62.50b1 – 2026-11-14
 
 ### Behoben

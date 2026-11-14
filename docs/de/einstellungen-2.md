@@ -1,7 +1,7 @@
 # Einstellungen 2.0 – Umsetzungsplan
 
 **Stand:** 2026-11-13  
-**Basis:** 0.62.x (aktuell 0.62.50b1)
+**Basis:** 0.62.x (aktuell 0.62.50b2)
 **Zielversion:** 1.0.0  
 **Entwicklungslinie:** `1.0.0b1` auf dem Branch `next`
 

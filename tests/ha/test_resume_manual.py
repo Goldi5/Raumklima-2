@@ -39,8 +39,11 @@ async def test_manual_change_without_schedule_sets_override(hass: HomeAssistant,
     await hass.async_block_till_done()
     ctrl = domain_data(hass)["rooms"][room.entry_id]
     ctrl.config[CONF_OVERRIDE_MINUTES] = 120
+    ctrl.target_temp = 18.0
     await ctrl.async_set_target(21.0)
     assert ctrl.manual_until is not None
+    assert ctrl._manual_return_target == 18.0
     await ctrl.async_resume_manual()
     assert ctrl.manual_until is None
-    assert ctrl.target_temp == 21.0
+    assert ctrl.target_temp == 18.0
+    assert ctrl._manual_return_target is None
