@@ -444,6 +444,18 @@ sont enregistrés – l'année n'a pas d'importance.
 
 <!-- include: ../docs/fr/commande-vocale.md -->
 
+## Nouveau en 1.1
+
+- **Tableau de bord :** « Pièces » est la première vue ; énergie et apprentissage sont dans l’onglet « Énergie et apprentissage ».
+- **Ombrage :** les volets bougent au soleil et la nuit – automatique, conseil seulement ou arrêt.
+- **Plancher chauffant :** régulation propre, lente, avec départ/retour et alerte de débit.
+- **Modèle d’apprentissage 2.0 :** apprend la vitesse de montée, la perte de chaleur et l’apport solaire ; s’arrête plus tôt avant la consigne.
+- **Commande directe de vanne :** pour les thermostats avec actionneur `number`, p. ex. SONOFF TRVZB.
+- **Climatisation :** refroidit et chauffe avec des consignes séparées et une protection anti-cycle ; source la moins chère selon COP/prix du gaz.
+- **Demande de chaleur :** le capteur `sensor.raumklima_allgemein_warmeanforderung` agrège toutes les pièces.
+- **Tarifs dynamiques/PV :** limite de prix, préchauffage si bon marché, surplus PV.
+- **Commande manuelle :** bouton « Reprendre le programme » ou « Reprendre la température souhaitée » sur la carte de pièce.
+
 # Questions fréquentes
 
 <!-- include: ../docs/fr/faq.md -->

@@ -24,8 +24,15 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_BUILDING,
+    CONF_AC_COP,
     CONF_CALENDAR,
+    CONF_ENERGY_CHEAP_PRICE,
+    CONF_ENERGY_PREHEAT_CHEAP,
+    CONF_ENERGY_PRICE,
+    CONF_ENERGY_TARIFF,
+    CONF_ENERGY_TARIFF_DYNAMIC,
     CONF_FROST_FLOOR,
+    CONF_GAS_PRICE,
     CONF_HOME_OFFICE_CHECK,
     CONF_HOME_OFFICE_ENTITY,
     CONF_HOME_OFFICE_FROM,
@@ -35,6 +42,10 @@ from .const import (
     CONF_RESIDENTS,
     CONF_ZONE,
     DOMAIN,
+    HEAT_DEMAND_MIN,
+    HEAT_FLOW_BASE,
+    HEAT_FLOW_MAX,
+    HEAT_FLOW_PER_K,
     HUB_DEFAULTS,
     HUB_UNIQUE_ID,
 )
@@ -526,6 +537,76 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
 
 
 
+    # ------------------------------------------------------------ Energie
+    def energy_price_now(self) -> float:
+        """Aktuellen Arbeitspreis in €/kWh lesen (Tarif-Sensor oder fester Preis)."""
+        entity = self.opt(CONF_ENERGY_TARIFF)
+        state = self.hass.states.get(entity) if entity else None
+        if state is not None:
+            try:
+                value = float(state.state)
+            except (TypeError, ValueError):
+                value = 0.0
+            if value > 0:
+                unit = str(state.attributes.get("unit_of_measurement") or "").lower().replace("³", "3")
+                if "ct" in unit or "cent" in unit:
+                    value /= 100
+                elif "/mwh" in unit:
+                    value /= 1000
+                elif "/m3" in unit or "/m^3" in unit:
+                    value /= float(self.opt("energy_factor") or 10.0)
+                return round(value, 4)
+        return float(self.opt(CONF_ENERGY_PRICE) or 0)
+
+    def energy_cheap_now(self) -> bool:
+        """Ist der Strom gerade günstig genug für Vorheizen?"""
+        if not self.opt(CONF_ENERGY_PREHEAT_CHEAP):
+            return False
+        price = self.energy_price_now()
+        cheap = float(self.opt(CONF_ENERGY_CHEAP_PRICE) or 0)
+        return price > 0 and cheap > 0 and price <= cheap
+
+    def ac_heat_cheaper(self) -> bool:
+        """Klimaanlage als Wärmepumpe günstiger als Gas? (COP und Gaspreis nötig)"""
+        gas = float(self.opt(CONF_GAS_PRICE) or 0)
+        cop = float(self.opt(CONF_AC_COP) or 0)
+        electric = self.energy_price_now()
+        return gas > 0 and cop > 0 and electric > 0 and (electric / cop) < gas
+
+    # ------------------------------------------------------------ Wärmeanforderung
+    def heat_summary(self) -> dict[str, Any]:
+        """Summe über alle Räume: braucht die Anlage Wärme, und welcher Vorlauf passt?"""
+        rooms: list[dict[str, Any]] = []
+        sum_deficit = 0.0
+        for ctrl in self.rooms.values():
+            if ctrl.monitor:
+                continue
+            cur = ctrl.current_temperature
+            target = ctrl.effective_target
+            on = bool(ctrl.hvac_on and not ctrl.paused and not ctrl.window_open and ctrl.peek_plan()[0])
+            deficit = max(0.0, target - cur) if cur is not None else 0.0
+            if not on or deficit < HEAT_DEMAND_MIN:
+                continue
+            sum_deficit += deficit
+            rooms.append({
+                "entry_id": ctrl.entry.entry_id,
+                "name": ctrl.name,
+                "current": round(cur, 1),
+                "target": round(target, 1),
+                "deficit": round(deficit, 1),
+            })
+        flow = HEAT_FLOW_BASE + sum_deficit * HEAT_FLOW_PER_K
+        flow = round(max(HEAT_FLOW_BASE, min(HEAT_FLOW_MAX, flow)), 1)
+        return {
+            "active": bool(rooms),
+            "rooms_heating": len(rooms),
+            "rooms": rooms,
+            "sum_deficit": round(sum_deficit, 1),
+            "flow_target": flow if rooms else None,
+            "base": HEAT_FLOW_BASE,
+            "max": HEAT_FLOW_MAX,
+        }
+
     # ------------------------------------------------------------ Anzeige
     def summary(self) -> dict[str, Any]:
         return {
@@ -551,6 +632,14 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             "frsi": self.frsi,
             "issues": self.insights.all_issues(),
             "sleep": self.sleep_summary(),
+            "heat": self.heat_summary(),
+            "energy": {
+                "price": self.energy_price_now(),
+                "cheap": self.energy_cheap_now(),
+                "dynamic": bool(self.opt(CONF_ENERGY_TARIFF_DYNAMIC)),
+                "preheat_cheap": bool(self.opt(CONF_ENERGY_PREHEAT_CHEAP)),
+                "ac_heat_cheaper": self.ac_heat_cheaper(),
+            },
         }
 
 

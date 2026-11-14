@@ -195,7 +195,27 @@ class PresenceMixin:
             "distance_km": round(distance, 1) if distance is not None else None,
             "approaching": approaching(list(hist), now) if distance is not None else False,
             "eta_min": eta_minutes(list(hist), now) if distance is not None and not present else None,
+            "place": self._person_place(state),
         }
+
+    def _person_place(self, state: Any) -> str:
+        """Wo ist die Person? Zonenname, „home", „away" oder „unknown" – für die Chips."""
+        if state is None:
+            return "unknown"
+        for zone_id in state.attributes.get("in_zones") or []:
+            if zone_id == "zone.home":
+                continue
+            zone = self.hass.states.get(zone_id)
+            if zone is not None:
+                return str(zone.attributes.get("friendly_name") or zone.name)
+        raw = str(state.state)
+        if raw == "home":
+            return "home"
+        if raw == "not_home":
+            return "away"
+        if raw in ("unknown", "unavailable", ""):
+            return "unknown"
+        return raw
 
     def _evaluate_presence(self, initial: bool = False) -> None:
         self._maybe_refresh_calendar()

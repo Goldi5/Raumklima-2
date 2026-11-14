@@ -13,6 +13,20 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_ENERGY_BASE,
+    CONF_ENERGY_EFFICIENCY,
+    CONF_ENERGY_ENABLED,
+    CONF_ENERGY_FACTOR,
+    CONF_ENERGY_HEAT_ENTITY,
+    CONF_ENERGY_METER,
+    CONF_ENERGY_PRICE,
+    CONF_ENERGY_SOURCE,
+    CONF_ENERGY_CHEAP_PRICE,
+    CONF_ENERGY_PREHEAT_CHEAP,
+    CONF_ENERGY_TARIFF,
+    CONF_ENERGY_TARIFF_DYNAMIC,
+    CONF_PV_ENTITY,
+    CONF_PV_SELF_USE,
     CONF_RECIPIENTS,
     CONF_REPORT_METRIC,
     CONF_RESIDENTS,
@@ -24,6 +38,7 @@ from .const import (
 )
 from .health import SEV_INFO, Issue, check_connection, check_notify_targets, check_presence_residents
 from .msg import tr
+from .report_extra import energy_kwh, money, pv_split
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
 if TYPE_CHECKING:
@@ -241,10 +256,151 @@ class Insights:
         current = set(self.hub.rooms) if self.hub is not None else set(self.data["rooms"])
         return {short[eid]: days for eid, days in self.data["rooms"].items() if eid in current}
 
+    def energy_config(self) -> dict[str, Any]:
+        """Energie-Einstellungen der Wohnung – ohne Messwerte, für die Anzeige und den Bericht."""
+        if self.hub is None:
+            return {"enabled": False}
+        meter = self.hub.opt(CONF_ENERGY_METER)
+        state = self.hass.states.get(meter) if meter else None
+        attrs = state.attributes if state is not None else {}
+        source = str(self.hub.opt(CONF_ENERGY_SOURCE) or "auto")
+        if source == "auto":
+            source = "gas" if attrs.get("device_class") == "gas" else "electric"
+        return {
+            "enabled": bool(self.hub.opt(CONF_ENERGY_ENABLED)),
+            "source": source,
+            "meter": meter,
+            "meter_unit": attrs.get("unit_of_measurement"),
+            "tariff": self.hub.opt(CONF_ENERGY_TARIFF),
+            "tariff_dynamic": bool(self.hub.opt(CONF_ENERGY_TARIFF_DYNAMIC)),
+            "cheap_price": float(self.hub.opt(CONF_ENERGY_CHEAP_PRICE) or 0),
+            "preheat_cheap": bool(self.hub.opt(CONF_ENERGY_PREHEAT_CHEAP)),
+            "price": float(self.hub.opt(CONF_ENERGY_PRICE) or 0),
+            "base": float(self.hub.opt(CONF_ENERGY_BASE) or 0),
+            "factor": float(self.hub.opt(CONF_ENERGY_FACTOR) or 10.0),
+            "heat_entity": self.hub.opt(CONF_ENERGY_HEAT_ENTITY),
+            "efficiency": float(self.hub.opt(CONF_ENERGY_EFFICIENCY) or 0),
+            "pv_entity": self.hub.opt(CONF_PV_ENTITY),
+            "pv_self_use": float(self.hub.opt(CONF_PV_SELF_USE) or 0),
+        }
+
+    async def async_energy_summary(self, days: int = 30) -> dict[str, Any]:
+        """Energie für das Dashboard: Zeitraum, Zählerwerte und Euro-Schätzung."""
+        today = dt_util.now().date()
+        days = max(1, min(int(days), 365))
+        start = today - timedelta(days=days - 1)
+        cfg = (await self.async_energy_extras(start, today))["energy"]
+        cfg["days"] = days
+        cur = summarize(self.rooms_by_name(), self.data["home"], start, today)
+        annual = self.hub.opt("annual_cost") if self.hub is not None else None
+        cost = money(cur, annual, cfg)
+        if cost is None and cfg.get("kwh") and cfg.get("price"):
+            kwh = float(cfg["kwh"])
+            price = float(cfg["price"])
+            offset = 0.0
+            if cfg.get("source") in ("electric", "heatpump") and cfg.get("pv_kwh"):
+                share = max(0.0, min(100.0, float(cfg.get("pv_self_use") or 0))) / 100
+                offset = max(0.0, float(cfg["pv_kwh"])) * share
+            period = max(0.0, kwh - offset) * price + max(0.0, float(cfg.get("base") or 0)) * days / 30.44
+            if period > 0:
+                cost = {
+                    "period_cost": round(period, 2),
+                    "annual": round(period * 365 / days, 2),
+                    "basis": "meter",
+                    "source": cfg.get("source"),
+                    "kwh": round(kwh, 1),
+                }
+        return {
+            "start": start.isoformat(),
+            "end": today.isoformat(),
+            "days": days,
+            "energy": cfg,
+            "money": cost,
+        }
+
+    async def async_energy_extras(self, start: date, end: date) -> dict[str, Any]:
+        """Zählerstände für den Berichtszeitraum holen – nur wenn Energie-Erfassung an ist."""
+        cfg = self.energy_config()
+        if not cfg["enabled"] or not cfg["meter"]:
+            return {"energy": cfg}
+        cfg["days"] = (end - start).days + 1
+        try:
+            value = await self._stat_change(cfg["meter"], start, end)
+            if value is not None:
+                cfg["meter_value"] = value
+                cfg["kwh"] = energy_kwh(value, cfg["meter_unit"], cfg["factor"])
+                if (cfg["meter_unit"] or "").strip().lower().replace("³", "3") in ("m3", "m^3"):
+                    cfg["m3"] = value
+                cfg["price"] = self._tariff_price(cfg["tariff"], cfg["price"], cfg["factor"])
+            if cfg["heat_entity"]:
+                heat = await self._stat_change(cfg["heat_entity"], start, end)
+                if heat is not None:
+                    cfg["heat_kwh"] = energy_kwh(heat, self._unit_of(cfg["heat_entity"]), 1.0)
+            if cfg["pv_entity"]:
+                pv = await self._stat_change(cfg["pv_entity"], start, end)
+                if pv is not None:
+                    pv_kwh = energy_kwh(pv, self._unit_of(cfg["pv_entity"]), 1.0)
+                    cfg["pv_kwh"] = pv_kwh
+                    split = pv_split(pv_kwh, cfg.get("pv_self_use"))
+                    if split:
+                        cfg.update(split)
+        except Exception:  # noqa: BLE001 - Recorder fehlt oder Statistik noch nicht bereit
+            _LOGGER.debug("Energie-Statistik für den Bericht nicht verfügbar", exc_info=True)
+        return {"energy": cfg}
+
+    def _unit_of(self, entity_id: str) -> str | None:
+        state = self.hass.states.get(entity_id)
+        return state.attributes.get("unit_of_measurement") if state is not None else None
+
+    async def _stat_change(self, entity_id: str, start: date, end: date) -> float | None:
+        """Summierte Änderung einer Zähler-Entität im Zeitraum [start, end]."""
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        first = dt_util.as_utc(dt_util.start_of_local_day(start))
+        last = dt_util.as_utc(dt_util.start_of_local_day(end + timedelta(days=1)))
+        result = await get_instance(self.hass).async_add_executor_job(
+            statistics_during_period,
+            self.hass,
+            first,
+            last,
+            {entity_id},
+            "hour",
+            None,
+            {"change"},
+        )
+        rows = result.get(entity_id) or []
+        total = sum(float(row.get("change") or 0) for row in rows)
+        return total if rows else None
+
+    def _tariff_price(self, entity_id: str | None, fallback: float, factor: float) -> float:
+        """Tarif-Entität lesen und auf €/kWh normalisieren (ct und €/MWh kommen vor)."""
+        state = self.hass.states.get(entity_id) if entity_id else None
+        if state is None:
+            return fallback
+        try:
+            value = float(state.state)
+        except (TypeError, ValueError):
+            return fallback
+        unit = str(state.attributes.get("unit_of_measurement") or "").lower().replace("³", "3")
+        if "ct" in unit or "cent" in unit:
+            value /= 100
+        elif "/mwh" in unit:
+            value /= 1000
+        elif "/m3" in unit or "/m^3" in unit:
+            value /= factor or 10.0
+        return value if value > 0 else fallback
+
     def report_extras(self) -> dict[str, Any]:
         """Live-Werte für den PDF-Bericht: Raumtypen, Aufheizzeiten, Batterien, Heizkosten."""
         short = self.short_names()
-        extras: dict[str, Any] = {"room_types": {}, "heatup": {}, "batteries": {}, "annual_cost": self.hub.opt("annual_cost")}
+        extras: dict[str, Any] = {
+            "room_types": {},
+            "heatup": {},
+            "batteries": {},
+            "annual_cost": self.hub.opt("annual_cost"),
+            "energy": self.energy_config(),
+        }
         outdoor = self.hub.outdoor_temp()
         for eid, room in self.hub.rooms.items():
             name = short.get(eid, room.name)

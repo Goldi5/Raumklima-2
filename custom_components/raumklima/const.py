@@ -99,7 +99,14 @@ CONF_AIRING_MIN_MINUTES: Final = "airing_min_minutes"  # Mindestdauer Lüften (0
 # Feuchteproblem – ohne Deckel fordert die Rechnung in kalten Nächten 24–25 °C.
 CONF_MOLD_CAP: Final = "mold_cap"
 MOLD_CAP_MAX: Final = 6.0
-CONF_MOLD_MODE: Final = "mold_mode"  # Schimmelschutz: strict / wish / off
+CONF_MOLD_MODE: Final = "mold_mode"
+CONF_COOLING: Final = "cooling"
+CONF_COOL_SETPOINT: Final = "cool_setpoint"  # ab dieser Temperatur kühlt die Klimaanlage
+CONF_AC_MIN_ON: Final = "ac_min_on"  # Mindestlaufzeit der Klimaanlage in Minuten
+CONF_AC_MIN_OFF: Final = "ac_min_off"  # Mindestpause der Klimaanlage in Minuten
+CONF_AC_HEAT: Final = "ac_heat"  # Klimaanlage auch zum Heizen nutzen
+CONF_AC_COP: Final = "ac_cop"  # Jahresarbeitszahl der Klimaanlage als Wärmepumpe
+CONF_GAS_PRICE: Final = "gas_price"  # Gaspreis in €/kWh für den Quellenvergleich
 CONF_SCHEDULE_FALLBACK: Final = "schedule_fallback"  # außerhalb der Zeitfenster: wish/short/long/frost
 MOLD_MODES: Final = ("strict", "wish", "off")
 SCHEDULE_FALLBACKS: Final = ("wish", "short", "long", "frost")
@@ -171,6 +178,30 @@ CONF_FROST_NIGHT: Final = "frost_night"  # in Frostnächten weniger absenken
 CONF_SOLAR: Final = "solar_gain"  # pro Raum: Sonne heizt mit
 CONF_SOLAR_FACADE: Final = "solar_facade"  # pro Raum: Fassade für den Sonnenabzug ("" = nur Vorhersage)
 SOLAR_FACADE_OPTIONS: Final = ["", "N", "NO", "O", "SO", "S", "SW", "W", "NW"]
+# Verschattung: Rollläden/Jalousien fahren bei Sonne herunter, nachts zu oder morgens auf.
+CONF_SHADING_COVERS: Final = "shading_covers"
+CONF_SHADING_MODE: Final = "shading_mode"  # off / advise / auto
+CONF_SHADING_POSITION: Final = "shading_position"  # % geschlossen
+CONF_SHADING_MIN_TEMP: Final = "shading_min_temp"  # °C Raumtemperatur, ab der geschlossen wird
+CONF_SHADING_OUTDOOR_MIN: Final = "shading_outdoor_min"  # °C außen, ab der geschlossen wird
+CONF_SHADING_NIGHT: Final = "shading_night"  # nachts schließen
+CONF_SHADING_MANUAL_MINUTES: Final = "shading_manual_minutes"  # Handbedienung pausiert Automatik
+SHADING_MODES: Final = ("off", "advise", "auto")
+SHADING_INTERVAL: Final = 300  # s
+SHADING_SETTLE_SECONDS: Final = 90  # s, in denen eine Fahrt nicht als Handbedienung gilt
+# Fußbodenheizung: eigene Charakteristik statt TRV-Logik, optional Vor-/Rücklauf.
+CONF_FLOOR_HEATING: Final = "floor_heating"
+CONF_FLOOR_SUPPLY: Final = "floor_supply"
+CONF_FLOOR_RETURN: Final = "floor_return"
+CONF_FLOOR_MAX_TEMP: Final = "floor_max_temp"
+CONF_FLOOR_MIN_TEMP: Final = "floor_min_temp"
+CONF_FLOOR_BAND: Final = "floor_band"
+CONF_FLOOR_CYCLE_MIN: Final = "floor_cycle_min"
+CONF_FLOOR_LEAD_MIN: Final = "floor_lead_min"
+CONF_FLOOR_FLOW_MIN: Final = "floor_flow_min"
+# Ventilsteuerung: Stellglied (number) direkt fahren statt nur Sollwert am Thermostat.
+CONF_VALVE_CONTROL: Final = "valve_control"  # off / auto / on
+VALVE_CONTROL_MODES: Final = ("off", "auto", "on")
 CONF_LIGHTS: Final = "signal_lights"  # pro Raum: Lampen, die Lüft-Hinweise anzeigen
 CONF_LIGHT_SIGNALS: Final = "light_signals"  # welche Hinweise blinken
 LIGHT_SIGNALS: Final = ["open", "close", "done", "problem"]
@@ -312,7 +343,25 @@ HUB_DEFAULTS: Final = {
     CONF_HOME_SENSORS: "mmwave",
     "report_pdf": ["week", "month", "season"],
     "report_email": None,
+    "smtp_notify": None,
+    "room_templates": [],
     "annual_cost": None,  # Heizkosten pro Jahr (€) laut Abrechnung – nur für die Euro-Schätzung
+    "energy_enabled": False,
+    "energy_source": "auto",
+    "energy_meter": None,
+    "energy_tariff": None,
+    "energy_tariff_dynamic": False,
+    "energy_cheap_price": 0.20,
+    "energy_preheat_cheap": False,
+    "energy_base": 0.0,
+    "energy_price": 0.3,
+    "energy_factor": 10.0,
+    "energy_heat_entity": None,
+    "energy_efficiency": 0.0,
+    "ac_cop": 3.0,
+    "gas_price": 0.10,
+    "pv_entity": None,
+    "pv_self_use": 0,
     "kinds_version": 2,
 }
 
@@ -358,6 +407,11 @@ DEFAULTS: Final = {
     CONF_LEARN_AIRING: True,
     CONF_AIRING_MIN_MINUTES: 0,
     CONF_MOLD_MODE: "strict",
+    CONF_COOLING: False,
+    CONF_AC_MIN_ON: 10,
+    CONF_AC_MIN_OFF: 10,
+    CONF_AC_HEAT: False,
+    CONF_COOL_SETPOINT: 26.0,
     CONF_QUIET_MODE: "auto",
     CONF_PREHEAT_MODE: "auto",
     CONF_PREHEAT_LEAD: 90,
@@ -378,6 +432,22 @@ DEFAULTS: Final = {
     CONF_PRESENCE_LEARN: True,
     CONF_PRESENCE_LIGHTS: [],
     CONF_AIRING_OCCUPIED_ONLY: True,
+    CONF_SHADING_MODE: "off",
+    CONF_SHADING_POSITION: 20,
+    CONF_SHADING_MIN_TEMP: 22.0,
+    CONF_SHADING_OUTDOOR_MIN: 18.0,
+    CONF_SHADING_NIGHT: False,
+    CONF_SHADING_MANUAL_MINUTES: 120,
+    CONF_FLOOR_HEATING: False,
+    CONF_FLOOR_SUPPLY: "",
+    CONF_FLOOR_RETURN: "",
+    CONF_FLOOR_MAX_TEMP: 27.0,
+    CONF_FLOOR_MIN_TEMP: 18.0,
+    CONF_FLOOR_BAND: 1.0,
+    CONF_FLOOR_CYCLE_MIN: 30,
+    CONF_FLOOR_LEAD_MIN: 60,
+    CONF_FLOOR_FLOW_MIN: 5.0,
+    CONF_VALVE_CONTROL: "off",
 }
 
 # Feste Grenzen
@@ -422,7 +492,23 @@ NOTIFY_CAP_OPTIONS = [0, 2, 3, 5, 10]
 NOTIFY_CAP_DEFAULT: Final = 3
 NOTIFY_CAPPED_KINDS: Final = (KIND_VENT_OPEN, KIND_WINDOW_AWAY)
 
+CONF_SMTP_NOTIFY: Final = "smtp_notify"
 CONF_REPORT_METRIC: Final = "report_metric"
+CONF_ENERGY_ENABLED: Final = "energy_enabled"
+CONF_ENERGY_METER: Final = "energy_meter"
+CONF_ENERGY_TARIFF: Final = "energy_tariff"
+CONF_ENERGY_TARIFF_DYNAMIC: Final = "energy_tariff_dynamic"
+CONF_ENERGY_CHEAP_PRICE: Final = "energy_cheap_price"
+CONF_ENERGY_PREHEAT_CHEAP: Final = "energy_preheat_cheap"
+CONF_ENERGY_BASE: Final = "energy_base"
+CONF_ENERGY_PRICE: Final = "energy_price"
+CONF_PV_ENTITY: Final = "pv_entity"
+CONF_ENERGY_SOURCE: Final = "energy_source"
+CONF_ENERGY_FACTOR: Final = "energy_factor"
+CONF_ENERGY_HEAT_ENTITY: Final = "energy_heat_entity"
+CONF_ENERGY_EFFICIENCY: Final = "energy_efficiency"
+CONF_PV_SELF_USE: Final = "pv_self_use"
+ENERGY_SOURCES: Final = ("auto", "electric", "gas", "heatpump", "district")
 REPORT_METRICS: Final = ["auto", "valve", "deficit", "hours"]  # auto = Ventil, sonst Gradstunden
 REPORT_METRIC_DEFAULT: Final = "auto"
 ON_PRESET_AUTO: Final = "auto_detect"
@@ -440,6 +526,10 @@ STATUS_TRV: Final = "trv_unavailable"
 STATUS_MONITOR: Final = "monitor"
 # Ab dieser Ventilöffnung gilt der Raum als heizend, auch wenn das Gerät hvac_action: idle meldet (HmIP).
 VALVE_HEATING_MIN: Final = 5.0
+HEAT_FLOW_BASE: Final = 35.0  # °C Vorlauf ohne Anforderung
+HEAT_FLOW_MAX: Final = 55.0  # °C Obergrenze der Anforderung
+HEAT_FLOW_PER_K: Final = 5.0  # °C Vorlauf je K summarischer Raumlücke
+HEAT_DEMAND_MIN: Final = 0.2  # K, ab wann ein Raum als fordernd zählt
 STATUS_SEASON: Final = "season_off"
 STATUS_SETBACK: Final = "setback"
 STATUS_NIGHT: Final = "night_airing"

@@ -20,6 +20,9 @@
           "temperature_sensor": "Externer Temperaturfühler",
           "humidity_sensor": "Luftfeuchte-Sensor (optional)",
           "window_sensors": "Fenster-/Türkontakte (optional)",
+          "shading_covers": "Rollläden/Jalousien (optional)",
+          "floor_supply": "Vorlauffühler (optional)",
+          "floor_return": "Rücklauffühler (optional)",
           "co2_sensor": "CO₂-Sensor (optional)",
           "extra_trvs": "Weitere Thermostate im Raum (optional)"
         },
@@ -27,6 +30,9 @@
           "trv": "Das echte Thermostat am Heizkörper.",
           "temperature_sensor": "Danach wird geregelt – nicht nach dem Sensor am Heizkörper.",
           "window_sensors": "Ist einer offen, wird die Heizung pausiert.",
+          "shading_covers": "Werden bei Sonne und nachts gefahren, wenn die Verschattung im Raum eingeschaltet ist.",
+          "floor_supply": "Temperatur im Heizkreis der Fußbodenheizung – nur Anzeige und Durchfluss-Prüfung.",
+          "floor_return": "Rücklauf der Fußbodenheizung – nur Anzeige und Durchfluss-Prüfung.",
           "co2_sensor": "Ab 1000 ppm bittet der Lüftungsassistent ums Lüften.",
           "extra_trvs": "Für Räume mit mehreren Heizkörpern: Diese Thermostate bekommen dieselben Befehle wie das Haupt-Thermostat – jedes mit eigener Prüfung und eigenem Korrekturwert."
         }
@@ -111,7 +117,10 @@
           "temperature_sensor": "Temperaturfühler",
           "humidity_sensor": "Feuchtefühler (optional)",
           "co2_sensor": "CO₂-Fühler (optional)",
-          "window_sensors": "Fenster-/Türkontakte (optional)"
+          "window_sensors": "Fenster-/Türkontakte (optional)",
+          "shading_covers": "Rollläden/Jalousien (optional)",
+          "floor_supply": "Vorlauffühler (optional)",
+          "floor_return": "Rücklauffühler (optional)"
         }
       }
     },
@@ -134,6 +143,9 @@
           "temperature_sensor": "Externer Temperaturfühler",
           "humidity_sensor": "Luftfeuchte-Sensor (optional)",
           "window_sensors": "Fenster-/Türkontakte (optional)",
+          "shading_covers": "Rollläden/Jalousien (optional)",
+          "floor_supply": "Vorlauffühler (optional)",
+          "floor_return": "Rücklauffühler (optional)",
           "co2_sensor": "CO₂-Sensor (optional)",
           "extra_trvs": "Weitere Thermostate im Raum (optional)",
           "thermostat": "Heizkörperthermostat (TRV)"
@@ -142,6 +154,9 @@
           "trv": "Das echte Thermostat am Heizkörper.",
           "temperature_sensor": "Danach wird geregelt – nicht nach dem Sensor am Heizkörper.",
           "window_sensors": "Ist einer offen, wird die Heizung pausiert.",
+          "shading_covers": "Werden bei Sonne und nachts gefahren, wenn die Verschattung im Raum eingeschaltet ist.",
+          "floor_supply": "Temperatur im Heizkreis der Fußbodenheizung – nur Anzeige und Durchfluss-Prüfung.",
+          "floor_return": "Rücklauf der Fußbodenheizung – nur Anzeige und Durchfluss-Prüfung.",
           "co2_sensor": "Ab 1000 ppm bittet der Lüftungsassistent ums Lüften.",
           "extra_trvs": "Für Räume mit mehreren Heizkörpern: Diese Thermostate bekommen dieselben Befehle wie das Haupt-Thermostat – jedes mit eigener Prüfung und eigenem Korrekturwert.",
           "thermostat": "Heizkörperthermostat (TRV) – leer lassen, um weiter nur zu überwachen"
@@ -410,6 +425,13 @@
       },
       "outdoor_mean": {
         "name": "Außen-Tagesmittel"
+      },
+      "heat_demand": {
+        "name": "Wärmeanforderung",
+        "state": {
+          "heat": "Wärme",
+          "idle": "Bereit"
+        }
       },
       "health": {
         "name": "Gesundheit"

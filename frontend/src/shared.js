@@ -539,7 +539,8 @@ export function rkIssueList(issues, withRoom, prefix) {
   const order = { alert: 0, warn: 1, info: 2 };
   return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
     const sv = RK_SEV[i.severity] || RK_SEV.info;
-    return `<div class="issue" style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? (i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room) : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
+    const jump = i.entry_id ? ` data-goto-room="${esc(i.entry_id)}" role="button" tabindex="0" title="${t("zum Raum springen")}"` : "";
+    return `<div class="issue"${jump} style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? (i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room) : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
   }).join("")}</div>`;
 }
 

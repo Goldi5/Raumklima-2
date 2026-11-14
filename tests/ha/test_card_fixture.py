@@ -56,6 +56,7 @@ async def test_card_fixture(hass: HomeAssistant, setup, hass_ws_client, trv: Fak
         "ws": {
             "raumklima/config": await ws({"type": "raumklima/config"}),
             "raumklima/report": await ws({"type": "raumklima/report"}),
+            "raumklima/energy": await ws({"type": "raumklima/energy"}),
             "raumklima/log": await ws({"type": "raumklima/log", "limit": 300}),
         },
     }

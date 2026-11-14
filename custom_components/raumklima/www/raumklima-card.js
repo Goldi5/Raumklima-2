@@ -1,4 +1,4 @@
-/* Raumklima 0.62.47 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.1.0b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -7,10 +7,143 @@
     "kein Einfluss": "no effect",
     "kein Termin": "no event",
     "Als Nächstes": "Next",
+    "Übersicht": "Overview",
+    "Regelung": "Control",
+    "Fenster & Lüften": "Windows & ventilation",
+    "Präsenz": "Presence",
+    "Geräte & Sensoren": "Devices & sensors",
+    "Meldungen": "Messages",
+    "Lernen & Verlauf": "Learning & history",
+    "Schnellzugriff": "Quick access",
+    "Abweichungen": "Deviations",
+    "Ziel": "Target",
+    "gemessen im Raum": "measured in the room",
+    "was die Automatik gerade anstrebt": "what the automation is currently aiming for",
+    "{n} angelegt": "{n} configured",
+    "{n} Quellen": "{n} sources",
+    "alle zu": "all closed",
+    "{n} offen": "{n} open",
+    "{n} Warnungen": "{n} warnings",
+    "{h} % Feuchte": "{h} % humidity",
+    "unter „Regelung“ und den anderen Unterseiten änderbar": "editable under “Control” and the other subpages",
+    "Herkunft": "Origin",
+    "Gerät": "Device",
+    "Für alle Räume übernehmen": "Apply to all rooms",
+    "Keine sicheren Werte zum Übernehmen": "No safe values to apply",
+    "Keine weiteren Räume": "No other rooms",
+    "{n} sichere Werte auf {m} Räume übernehmen?": "Apply {n} safe values to {m} rooms?",
+    "{n} Räume übernommen": "{n} rooms updated",
+    "Standard": "Default",
+    "Einstellungen durchsuchen …": "Search settings …",
+    "Einstellungen durchsuchen": "Search settings",
+    "Suche": "Search",
+    "öffnen": "open",
+    "dorthin springen": "jump there",
+    "zum Raum springen": "jump to room",
+    "Einstellungen → Wohnung": "Settings → Home",
+    "Raum kopieren": "Copy room",
+    "Zielraum": "Target room",
+    "Zielraum wählen. Kopiert werden nur sichere Werte – keine Entitäten, Zeitpläne oder Raumzuordnung.": "Choose a target room. Only safe values are copied – no entities, schedules or room assignment.",
+    "Kein weiterer Raum in dieser Wohnung.": "No other room in this home.",
+    "Keine sicheren Werte zum Kopieren": "No safe values to copy",
+    "Raum kopiert": "Room copied",
+    "Schnell-Override": "Quick override",
+    "2 Stunden": "2 hours",
+    "4 Stunden": "4 hours",
+    "8 Stunden": "8 hours",
+    "Party": "Party",
+    "aktiv bis {t}": "active until {t}",
+    "Schnell-Override gesetzt": "Quick override set",
+    "wärmt kurzzeitig über den Zeitplan hinaus": "heats briefly beyond the schedule",
+    "Selbsttest": "Self-test",
+    "Prüft Wohnung, Räume, Thermostate, Fühler und Erreichbarkeit": "Checks home, rooms, thermostats, sensors and availability",
+    "Die Prüfung ist nur lesend. Bei Fehlern steht der betroffene Raum oder die Entität dabei.": "The check is read-only. Errors name the affected room or entity.",
+    "Keine Prüfungen": "No checks",
+    "Wohnung eingerichtet": "Home set up",
+    "Räume vorhanden": "Rooms present",
+    "Thermostat je Raum": "Thermostat per room",
+    "Entitäten erreichbar": "Entities reachable",
+    "Vorlagen": "Templates",
+    "Name der Vorlage": "Template name",
+    "Aus diesem Raum speichern": "Save from this room",
+    "Vorlage gespeichert": "Template saved",
+    "Vorlage angewendet": "Template applied",
+    "Vorlage gelöscht": "Template deleted",
+    "Vorlage „{n}“ löschen?": "Delete template “{n}”?",
+    "Name fehlt": "Name missing",
+    "löschen": "delete",
+    "Wärmebilanz": "Heat balance",
+    "Aufheizen +2 K": "Heat-up +2 K",
+    "lernt noch": "still learning",
+    "schnelle Einordnung – keine neue Regel": "quick orientation – no new rule",
+    "Kühlen": "Cooling",
+    "Kühlgrenze": "Cooling limit",
+    "Klimaanlage zum Heizen": "Use AC for heating",
+    "gerade aktiv – günstiger als Gas": "active now – cheaper than gas",
+    "nutzt die Klimaanlage nur, wenn COP und Gaspreis günstiger sind": "uses the AC only when COP and gas price make it cheaper",
+    "COP": "COP",
+    "Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert": "seasonal performance factor of the AC as a heat pump – 3 is a typical value",
+    "Gaspreis": "Gas price",
+    "€/kWh – nur für den Vergleich „Klimaanlage oder Gas“": "€/kWh – only for the “AC or gas” comparison",
+    "Mindestlaufzeit": "Minimum run time",
+    "Mindestpause": "Minimum pause",
+    "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "the air conditioner stays on at least this long – prevents cycling",
+    "so lange bleibt sie nach dem Ausgehen mindestens aus": "it stays off at least this long after switching off",
+    "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen": "Air conditioning cools when the room is above the cooling limit – only with an AC source in heat sources",
+    "oberhalb dieser Temperatur kühlt die Klimaanlage": "above this temperature the air conditioning cools",
+    "Kühlen": "Cooling",
+    "Kühlgrenze": "Cooling limit",
+    "Energie & Lernen": "Energy & learning",
+    "Energie-Erfassung": "Energy tracking",
+    "dynamisch": "dynamic",
+    "{n} kWh Überschuss": "{n} kWh surplus",
+    "PV-Überschuss": "PV surplus",
+    "startet bis zu 60 min vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt": "starts up to 60 min before a schedule window when the current price is below the limit",
+    "Dynamischer Tarif": "Dynamic tariff",
+    "der Tarif-Sensor liefert einen wechselnden Preis – die Karte zeigt ihn; die Kostenschätzung nutzt den aktuellen Wert": "the tariff sensor provides a changing price – the card shows it; the cost estimate uses the current value",
+    "Preisgrenze": "Price limit",
+    "bis zu diesem Preis gilt Strom als günstig": "electricity counts as cheap up to this price",
+    "Bei günstigem Strom vorheizen": "Preheat on cheap electricity",
+    "startet bis zu 60 min vor einem Zeitfenster, wenn der aktuellen Preis unter der Grenze liegt": "starts up to 60 min before a schedule window when the current price is below the limit",
+    "Energiequelle": "Energy source",
+    "Gas-Umrechnung": "Gas conversion",
+    "Jahresarbeitszahl": "Seasonal COP",
+    "PV-Eigenverbrauch": "PV self-consumption",
+    "Wärmemenge": "Heat output",
+    "Preis pro kWh in € – gilt, wenn kein Tarif-Sensor gewählt ist": "Price per kWh in € – used when no tariff sensor is selected",
+    "kWh je m³ – Brennwert × Zustandszahl; 10 ist ein typischer Näherungswert": "kWh per m³ – calorific value × correction factor; 10 is a typical approximation",
+    "optionaler Wärmezähler der Wärmepumpe – sonst zählt nur der Strom": "optional heat meter for the heat pump – otherwise only electricity is counted",
+    "optional: Wärme je kWh Strom (JAZ); 0 = unbekannt": "optional: heat per kWh electricity (COP); 0 = unknown",
+    "Anteil des PV-Ertrags, der den Verbrauch deckt – nur bei Gesamtverbrauchszähler": "share of PV yield covering consumption – only with a total-consumption meter",
+    "bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird": "determines how the meter is converted and which tariff is expected",
+    "Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet": "electricity, gas or heat meter – evaluated for the PDF report",
+    "Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis": "energy-price sensor in €/kWh, ct/kWh or €/m³ – optional, otherwise the fixed price applies",
+    "PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe": "PV generation in kWh – optional, only for self-consumption with electricity and heat pumps",
+    "Gas": "Gas",
+    "Wärmepumpe": "Heat pump",
+    "Fernwärme": "District heating",
+    "Strom": "Electricity",
+    "Zuhause": "Home",
+    "unterwegs": "Away",
+    "Zähler": "Meter",
+    "Tarif": "Tariff",
+    "PV-Ertrag": "PV yield",
+    "Grundpreis": "Base fee",
+    "Arbeitspreis": "Energy price",
+    "Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht": "Analyse meters, tariffs and PV yield – prerequisite for the euro estimate in the report",
+    "Strom- oder Gaszähler – liefert den Verbrauch für die Schätzung": "Electricity or gas meter – provides consumption for the estimate",
+    "Arbeitspreis und Grundgebühr – optional, sonst nur kWh": "Energy price and base fee – optional, otherwise kWh only",
+    "PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung": "PV yield or feed-in – for self-consumption estimate",
+    "monatliche Grundgebühr in €": "monthly base fee in €",
+    "Preis pro kWh in €": "price per kWh in €",
+    "Präsenzstatus": "Presence status",
+    "belegt": "occupied",
+    "aus Meldern und Lampen; Anwesenheits-Temperatur gilt, solange jemand im Raum ist": "from sensors and lamps; presence temperature applies while someone is in the room",
     "Boost für": "Boost for",
     "Heizquellen": "Heat sources",
     "Klimaanlage": "Air conditioner",
     "Quelle hinzufügen": "Add source",
+    "Bitte zuerst eine Quelle auswählen": "Please select a source first",
     "Quellen": "Sources",
     "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats or air conditioners that run with the room",
     "Weitere Quellen": "Other sources",
@@ -93,6 +226,8 @@
     "keine – die Automatik regelt wie gewohnt": "none – the automation works as usual",
     "danach gilt wieder Zeitplan bzw. Automatik": "afterwards the schedule or the automation applies again",
     "Zeitplan · Ziel <b>{v} °C</b>": "Schedule · target <b>{v} °C</b>",
+    "Zeitplan fortsetzen": "Resume schedule",
+    "Wunschtemperatur fortsetzen": "Resume desired temperature",
     "Zeitplan": "Schedule",
     "Zeitfenster {n}": "Time window {n}",
     "Zeitfenster hinzufügen": "Add time window",
@@ -464,7 +599,6 @@
     "{n} Räume": "{n} rooms",
     "{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.": "{n} homes: {list}. Each has its own residents, zone, recipients, heating season and log; assign rooms in the room under “Home”.",
     "{n} heizen": "{n} heating",
-    "{n} offen": "{n} open",
     "{n} Räume aus": "{n} rooms off",
     "{n}/4 Nächte": "{n}/4 nights",
     "{n}× vorgeheizt": "preheated {n}×",
@@ -550,6 +684,9 @@
     "Anbieter": "Provider",
     "Anderer Anbieter": "Other provider",
     "Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.": "The password is only stored in Home Assistant and never shown. Tip: for Gmail, create a separate password for Raumklima under myaccount.google.com → Security → App passwords.",
+    "SMTP-Bericht": "SMTP report",
+    "versendet den PDF-Bericht über Home Assistants SMTP-Integration statt über den eigenen Mail-Client": "sends the PDF report via Home Assistant’s SMTP integration instead of the built-in mail client",
+    "– HA-SMTP wählen –": "– select HA SMTP –",
     "E-Mail einrichten": "Set up email",
     "Raumklima (direkt hier einrichten)": "Raumklima (set up right here)",
     "Sende Test-Mail …": "Sending test email …",
@@ -874,6 +1011,9 @@
     "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "To report a problem: load the file and attach it to the issue. It contains values, entities and the last log lines, but no credentials.",
     "Wärmemenge im Bericht": "Heat delivered in the report",
     "Ventilstellung": "Valve position",
+    "Ventilsteuerung": "Valve control",
+    "direkt über {e}": "directly via {e}",
+    "Sollwert am Thermostat – kein Ventilstellglied gefunden": "setpoint on the thermostat – no valve actuator found",
     "Gradstunden": "Degree-hours",
     "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)": "automatic = valve position if every thermostat reports it – otherwise degree-hours below target (measured, not estimated)",
     "{v} K·h unter Ziel": "{v} K·h below target",
@@ -1015,7 +1155,128 @@
     "würde greifen – nachrangig": "would apply – lower priority",
     "{n} Funkbefehle am Tag (Mittel 7 Tage)": "{n} radio commands a day (7-day average)",
     "Warum (nicht)?": "Why (not)?",
-    "Keine Antwort – bitte Raumklima aktualisieren und neu starten.": "No answer – please update Raumklima and restart."
+    "Keine Antwort – bitte Raumklima aktualisieren und neu starten.": "No answer – please update Raumklima and restart.",
+    "Klassische Ansicht": "Classic view",
+    "Neue Ansicht": "New view",
+    "Noch keine Räume eingerichtet.": "No rooms set up yet.",
+    "Zwischen neuer Bereichsnavigation und klassischer Ansicht wechseln": "Switch between the new section navigation and the classic view",
+    "Wohnungen": "Homes",
+    "Personen & Anwesenheit": "People & presence",
+    "Heizung & Energie": "Heating & energy",
+    "System & Diagnose": "System & diagnostics",
+    "Energie & Tarife": "Energy & tariffs",
+    "Wetter": "Weather",
+    "Kommt in einer späteren Beta: Zähler, Tarife und PV-Ertrag.": "Coming in a later beta: meters, tariffs and PV yield.",
+    "Kommt in einer späteren Beta: eigene Wetterquelle und Vorhersage je Wohnung.": "Coming in a later beta: your own weather source and forecast per home.",
+    "Erweitert": "Advanced",
+    "Kommt in einer späteren Beta: technische Einstellungen und Diagnosewerkzeuge.": "Coming in a later beta: technical settings and diagnostic tools.",
+    "Energie-Erfassung ist aus. In den Einstellungen unter „Heizung & Energie“ aktivieren.": "Energy tracking is off. Enable it in Settings under “Heating & Energy”.",
+    "Noch kein Zähler gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas- oder Wärmezähler auswählen.": "No meter selected yet. Choose an electricity, gas or heat meter in Settings under “Heating & Energy”.",
+    "Quelle": "Source",
+    "fester Preis": "fixed price",
+    "Verbrauch": "Consumption",
+    "Kosten": "Cost",
+    "Jahr": "Year",
+    "PV": "PV",
+    "Basis: {b}": "Basis: {b}",
+    "noch keine Schätzung": "no estimate yet",
+    "Schätzung": "Estimate",
+    "Energie nicht verfügbar: {e}": "Energy unavailable: {e}",
+    "Lade Energie …": "Loading energy …",
+    "Energie": "Energy",
+    "Letzte {n} Tage": "Last {n} days",
+    "Zähler, Tarif und Kosten": "Meter, tariff and costs",
+    "{n} Tage": "{n} days",
+    "{n} % Eigenverbrauch": "{n}% self-use",
+    "Lernen": "Learning",
+    "Was Raumklima aus deinen Daten gelernt hat": "What Raumklima has learned from your data",
+    "Aufheizraten": "Heat-up rates",
+    "Abkühlung": "cooling",
+    "Wärmemodell": "Thermal model",
+    "Räume mit Wärmeverlust": "rooms with heat loss",
+    "Räume mit Daten": "rooms with data",
+    " Tage": " days",
+    "Profil vollständig": "profile complete",
+    "Profil wächst": "profile growing",
+    "gelernte Vorgänge": "learned events",
+    "Schlaf": "Sleep",
+    "typische Nacht": "typical night",
+    "{n} Aufheizvorgänge": "{n} heat-up runs",
+    "+2 K in {n} min": "+2 K in {n} min",
+    "Noch zu wenig Daten": "Not enough data yet",
+    "Nutzung": "Usage",
+    "{n} Tage mit Belegung": "{n} days with occupancy",
+    "Kein Präsenzprofil": "No presence profile",
+    "{n} Vorgänge": "{n} events",
+    "typisch": "typical",
+    "Noch kein Lüftmuster": "No airing pattern yet",
+    "Wochentags": "Weekdays",
+    "Lernen ist lesend: Raumklima zeigt hier nur, was es aus den letzten Wochen gelernt hat.": "Learning is read-only: Raumklima only shows what it has learned from recent weeks.",
+    "Raumklima – Energie": "Raumklima – Energy",
+    "Zähler, Tarif und Kosten im Zeitraum": "Meter, tariff and costs for the period",
+    "Alles hier ist simuliert – ohne Home-Assistant-Entitäten und ohne persönliche Daten.": "Everything here is simulated – no Home Assistant entities and no personal data.",
+    "Büro": "Office",
+    "Demo": "Demo",
+    "Demo-Daten": "demo data",
+    "Fenster auf": "Open window",
+    "Fenster zu": "Close window",
+    "Innen {v} °C": "Indoor {v} °C",
+    "Raumklima": "Raumklima",
+    "Raumklima – Demo": "Raumklima – Demo",
+    "Simulierte Räume ohne Hardware": "Simulated rooms without hardware",
+    "Soll {v} °C": "Setpoint {v} °C",
+    "Wohnzimmer": "Living room",
+    "in 45 min": "in 45 min",
+    "{v} % Feuchte": "{v} % humidity",
+    "Raumklima – Lernen": "Raumklima – Learning",
+    "0 % = ganz zu, 100 % = ganz offen – Rollläden ohne Positionsfahrt schließen ganz": "0 % = fully closed, 100 % = fully open – blinds without position control close completely",
+    "Empfehlung: schließen": "Recommendation: close",
+    "Empfehlung: öffnen": "Recommendation: open",
+    "Gerät antwortet nicht": "Device is not responding",
+    "Handbedienung pausiert": "Manual control pauses automation",
+    "Handbedienung – pausiert": "Manual control – paused",
+    "Nacht vorbei": "Night is over",
+    "Nachts schließen": "Close at night",
+    "Nur empfehlen": "Advise only",
+    "Rollläden": "Blinds",
+    "Rollläden bleiben, wie sie sind": "Blinds stay as they are",
+    "Schließen ab innen": "Close from indoor",
+    "Schließposition": "Closed position",
+    "Sonne auf der Fassade": "Sun on the facade",
+    "Verschattung": "Shading",
+    "ab dieser Außentemperatur wird es auch ohne warmen Raum zu warm": "from this outdoor temperature it gets too warm even without a warm room",
+    "ab dieser Raumtemperatur hält die Sonne den Raum warm – dann Schatten": "from this room temperature the sun keeps the room warm – then shade",
+    "die Karte empfiehlt, fährt aber nicht selbst": "the card recommends but does not move them itself",
+    "fährt bei Sonne und nachts – Handbedienung pausiert die Automatik": "moves in sun and at night – manual control pauses the automation",
+    "Sollwert am Gerät": "Setpoint on the device",
+    "Fußbodenheizung": "Underfloor heating",
+    "eigene Regelcharakteristik: träge, mit Vor-/Rücklauf und größerem Band": "own control characteristic: slow, with flow/return and a wider band",
+    "Durchfluss in Ordnung": "Flow is fine",
+    "Vor-/Rücklauf nicht verbunden": "Flow/return sensors not connected",
+    "Spreizung zu klein – Pumpe/Abgleich prüfen": "Spread too small – check pump/balancing",
+    "durch die Fußboden-Charakteristik begrenzt und im Takt nachgezogen": "limited by the underfloor characteristic and adjusted on the cycle",
+    "Max. Vorlauf": "Max. flow temperature",
+    "harte Obergrenze – schützt Boden und Heizkreis": "hard upper limit – protects floor and heating circuit",
+    "Min. Raumtemperatur": "Min. room temperature",
+    "darunter heizt die Fußbodenheizung nicht": "the underfloor heating does not heat below this",
+    "Regelband": "Control band",
+    "innerhalb des Bandes bleibt der Sollwert stehen – gegen Überschwingen": "within the band the setpoint stays put – prevents overshoot",
+    "Mindest-Taktzeit": "Minimum cycle time",
+    "so oft darf der Sollwert höchstens nachgezogen werden": "the setpoint is adjusted at most this often",
+    "Vorlauf vor Zeitfenster": "Lead before schedule window",
+    "früher starten, damit der träge Boden zum Fenster warm ist": "start earlier so the slow floor is warm when the window starts",
+    "Durchfluss-Grenze": "Flow limit",
+    "Vorlauf minus Rücklauf unter diesem Wert: Durchfluss prüfen": "flow minus return below this value: check the flow",
+    "geschlossen": "closed",
+    "keine Rollläden gewählt": "no blinds selected",
+    "keine Sonne erwartet": "no sun expected",
+    "keine Temperaturdaten": "no temperature data",
+    "keine – unter „Geräte & Technik ändern“ wählen": "none – select under “Change devices & technology”",
+    "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "closed after sunset, open again in the morning – protects against heat loss and light",
+    "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "only these blinds or shutters are moved – window contacts stay separate",
+    "oder ab außen": "or from outdoor",
+    "so lange bleibt die Automatik aus, wenn jemand selbst am Rollladen zieht – 0 = sofort wieder automatisch": "automation stays off this long when someone moves a blind manually – 0 = automatic again immediately",
+    "zu kühl für Schatten": "too cool for shade"
   };
 
   // src/i18n/fr.js
@@ -1025,10 +1286,143 @@
     "kein Einfluss": "sans effet",
     "kein Termin": "aucun rendez-vous",
     "Als Nächstes": "Suivant",
+    "Übersicht": "Vue d’ensemble",
+    "Regelung": "Régulation",
+    "Fenster & Lüften": "Fenêtres & aération",
+    "Präsenz": "Présence",
+    "Geräte & Sensoren": "Appareils & capteurs",
+    "Meldungen": "Messages",
+    "Lernen & Verlauf": "Apprentissage & historique",
+    "Schnellzugriff": "Accès rapide",
+    "Abweichungen": "Écarts",
+    "Ziel": "Consigne",
+    "gemessen im Raum": "mesuré dans la pièce",
+    "was die Automatik gerade anstrebt": "ce que l’automatisation vise actuellement",
+    "{n} angelegt": "{n} configuré(s)",
+    "{n} Quellen": "{n} sources",
+    "alle zu": "toutes fermées",
+    "{n} offen": "{n} ouvertes",
+    "{n} Warnungen": "{n} avertissements",
+    "{h} % Feuchte": "{h} % d’humidité",
+    "unter „Regelung“ und den anderen Unterseiten änderbar": "modifiable sous « Régulation » et les autres sous-pages",
+    "Herkunft": "Origine",
+    "Gerät": "Appareil",
+    "Für alle Räume übernehmen": "Appliquer à toutes les pièces",
+    "Keine sicheren Werte zum Übernehmen": "Aucune valeur sûre à appliquer",
+    "Keine weiteren Räume": "Aucune autre pièce",
+    "{n} sichere Werte auf {m} Räume übernehmen?": "Appliquer {n} valeurs sûres à {m} pièces ?",
+    "{n} Räume übernommen": "{n} pièces mises à jour",
+    "Standard": "Standard",
+    "Einstellungen durchsuchen …": "Rechercher dans les réglages …",
+    "Einstellungen durchsuchen": "Rechercher dans les réglages",
+    "Suche": "Recherche",
+    "öffnen": "ouvrir",
+    "dorthin springen": "y accéder",
+    "zum Raum springen": "aller à la pièce",
+    "Einstellungen → Wohnung": "Réglages → Logement",
+    "Raum kopieren": "Copier la pièce",
+    "Zielraum": "Pièce cible",
+    "Zielraum wählen. Kopiert werden nur sichere Werte – keine Entitäten, Zeitpläne oder Raumzuordnung.": "Choisir une pièce cible. Seules les valeurs sûres sont copiées – ni entités, ni plannings, ni affectation de pièce.",
+    "Kein weiterer Raum in dieser Wohnung.": "Aucune autre pièce dans ce logement.",
+    "Keine sicheren Werte zum Kopieren": "Aucune valeur sûre à copier",
+    "Raum kopiert": "Pièce copiée",
+    "Schnell-Override": "Override rapide",
+    "2 Stunden": "2 heures",
+    "4 Stunden": "4 heures",
+    "8 Stunden": "8 heures",
+    "Party": "Fête",
+    "aktiv bis {t}": "actif jusqu’à {t}",
+    "Schnell-Override gesetzt": "Override rapide défini",
+    "wärmt kurzzeitig über den Zeitplan hinaus": "chauffe brièvement au-delà du planning",
+    "Selbsttest": "Auto-test",
+    "Prüft Wohnung, Räume, Thermostate, Fühler und Erreichbarkeit": "Vérifie logement, pièces, thermostats, capteurs et disponibilité",
+    "Die Prüfung ist nur lesend. Bei Fehlern steht der betroffene Raum oder die Entität dabei.": "La vérification est en lecture seule. En cas d’erreur, la pièce ou l’entité concernée est indiquée.",
+    "Keine Prüfungen": "Aucune vérification",
+    "Wohnung eingerichtet": "Logement configuré",
+    "Räume vorhanden": "Pièces présentes",
+    "Thermostat je Raum": "Thermostat par pièce",
+    "Entitäten erreichbar": "Entités joignables",
+    "Vorlagen": "Modèles",
+    "Name der Vorlage": "Nom du modèle",
+    "Aus diesem Raum speichern": "Enregistrer depuis cette pièce",
+    "Vorlage gespeichert": "Modèle enregistré",
+    "Vorlage angewendet": "Modèle appliqué",
+    "Vorlage gelöscht": "Modèle supprimé",
+    "Vorlage „{n}“ löschen?": "Supprimer le modèle « {n} » ?",
+    "Name fehlt": "Nom manquant",
+    "löschen": "supprimer",
+    "Wärmebilanz": "Bilan thermique",
+    "Aufheizen +2 K": "Montée +2 K",
+    "lernt noch": "apprentissage en cours",
+    "schnelle Einordnung – keine neue Regel": "orientation rapide – aucune nouvelle règle",
+    "Kühlen": "Refroidissement",
+    "Kühlgrenze": "Limite de refroidissement",
+    "Klimaanlage zum Heizen": "Utiliser la climatisation pour chauffer",
+    "gerade aktiv – günstiger als Gas": "active – moins cher que le gaz",
+    "nutzt die Klimaanlage nur, wenn COP und Gaspreis günstiger sind": "n’utilise la climatisation que si le COP et le prix du gaz sont plus avantageux",
+    "COP": "COP",
+    "Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert": "coefficient de performance annuel de la climatisation comme pompe à chaleur – 3 est une valeur typique",
+    "Gaspreis": "Prix du gaz",
+    "€/kWh – nur für den Vergleich „Klimaanlage oder Gas“": "€/kWh – seulement pour la comparaison « climatisation ou gaz »",
+    "Mindestlaufzeit": "Durée de marche minimale",
+    "Mindestpause": "Pause minimale",
+    "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "la climatisation reste allumée au moins ce temps – évite les cycles courts",
+    "so lange bleibt sie nach dem Ausgehen mindestens aus": "elle reste éteinte au moins ce temps après l’arrêt",
+    "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen": "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement – uniquement avec une source AC dans les sources de chaleur",
+    "oberhalb dieser Temperatur kühlt die Klimaanlage": "au-delà de cette température, la climatisation refroidit",
+    "Kühlen": "Refroidissement",
+    "Kühlgrenze": "Limite de refroidissement",
+    "Energie & Lernen": "Énergie et apprentissage",
+    "Energie-Erfassung": "Suivi énergétique",
+    "dynamisch": "dynamique",
+    "{n} kWh Überschuss": "{n} kWh de surplus",
+    "PV-Überschuss": "Surplus PV",
+    "startet bis zu 60 min vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt": "démarre jusqu’à 60 min avant une plage horaire si le prix actuel est sous la limite",
+    "Dynamischer Tarif": "Tarif dynamique",
+    "der Tarif-Sensor liefert einen wechselnden Preis – die Karte zeigt ihn; die Kostenschätzung nutzt den aktuellen Wert": "le capteur de tarif fournit un prix variable – la carte l’affiche ; l’estimation des coûts utilise la valeur actuelle",
+    "Preisgrenze": "Limite de prix",
+    "bis zu diesem Preis gilt Strom als günstig": "l’électricité est considérée comme bon marché jusqu’à ce prix",
+    "Bei günstigem Strom vorheizen": "Préchauffer en cas d’électricité bon marché",
+    "startet bis zu 60 min vor einem Zeitfenster, wenn der aktuellen Preis unter der Grenze liegt": "démarre jusqu’à 60 min avant une plage horaire si le prix actuel est sous la limite",
+    "Energiequelle": "Source d’énergie",
+    "Gas-Umrechnung": "Conversion du gaz",
+    "Jahresarbeitszahl": "COP saisonnier",
+    "PV-Eigenverbrauch": "Autoconsommation PV",
+    "Wärmemenge": "Chaleur produite",
+    "Preis pro kWh in € – gilt, wenn kein Tarif-Sensor gewählt ist": "Prix par kWh en € – utilisé si aucun capteur de tarif n’est sélectionné",
+    "kWh je m³ – Brennwert × Zustandszahl; 10 ist ein typischer Näherungswert": "kWh par m³ – pouvoir calorifique × facteur de correction ; 10 est une approximation typique",
+    "optionaler Wärmezähler der Wärmepumpe – sonst zählt nur der Strom": "compteur de chaleur optionnel de la pompe à chaleur – sinon seul l’électricité est compté",
+    "optional: Wärme je kWh Strom (JAZ); 0 = unbekannt": "optionnel : chaleur par kWh d’électricité (COP) ; 0 = inconnu",
+    "Anteil des PV-Ertrags, der den Verbrauch deckt – nur bei Gesamtverbrauchszähler": "part du rendement PV couvrant la consommation – uniquement avec un compteur de consommation totale",
+    "bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird": "détermine la conversion du compteur et le tarif attendu",
+    "Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet": "compteur d’électricité, de gaz ou de chaleur – évalué pour le rapport PDF",
+    "Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis": "capteur de prix en €/kWh, ct/kWh ou €/m³ – optionnel, sinon le prix fixe s’applique",
+    "PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe": "production PV en kWh – optionnel, uniquement pour l’autoconsommation avec électricité et pompe à chaleur",
+    "Gas": "Gaz",
+    "Wärmepumpe": "Pompe à chaleur",
+    "Fernwärme": "Chauffage urbain",
+    "Strom": "Électricité",
+    "Zuhause": "À la maison",
+    "unterwegs": "En déplacement",
+    "Zähler": "Compteur",
+    "Tarif": "Tarif",
+    "PV-Ertrag": "Rendement PV",
+    "Grundpreis": "Frais fixes",
+    "Arbeitspreis": "Prix de l’énergie",
+    "Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht": "Analyser compteurs, tarifs et rendement PV – prérequis pour l’estimation en euros dans le rapport",
+    "Strom- oder Gaszähler – liefert den Verbrauch für die Schätzung": "Compteur électrique ou gaz – fournit la consommation pour l’estimation",
+    "Arbeitspreis und Grundgebühr – optional, sonst nur kWh": "Prix de l’énergie et frais fixes – optionnel, sinon kWh uniquement",
+    "PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung": "Rendement PV ou injection – pour l’estimation de l’autoconsommation",
+    "monatliche Grundgebühr in €": "frais fixes mensuels en €",
+    "Preis pro kWh in €": "prix par kWh en €",
+    "Präsenzstatus": "Statut de présence",
+    "belegt": "occupé",
+    "aus Meldern und Lampen; Anwesenheits-Temperatur gilt, solange jemand im Raum ist": "d’après les capteurs et les lampes ; la température de présence s’applique tant que quelqu’un est dans la pièce",
     "Boost für": "Boost pour",
     "Heizquellen": "Sources de chaleur",
     "Klimaanlage": "Climatiseur",
     "Quelle hinzufügen": "Ajouter une source",
+    "Bitte zuerst eine Quelle auswählen": "Veuillez d’abord choisir une source",
     "Quellen": "Sources",
     "Thermostate oder Klimaanlagen, die mit dem Raum laufen": "Thermostats ou climatiseurs qui fonctionnent avec la pièce",
     "Weitere Quellen": "Autres sources",
@@ -1111,6 +1505,8 @@
     "keine – die Automatik regelt wie gewohnt": "aucune – la régulation fonctionne comme d’habitude",
     "danach gilt wieder Zeitplan bzw. Automatik": "ensuite, le planning ou la régulation s’applique de nouveau",
     "Zeitplan · Ziel <b>{v} °C</b>": "Planning · cible <b>{v} °C</b>",
+    "Zeitplan fortsetzen": "Reprendre le programme",
+    "Wunschtemperatur fortsetzen": "Reprendre la température souhaitée",
     "Zeitplan": "Planning",
     "Zeitfenster {n}": "Plage horaire {n}",
     "Zeitfenster hinzufügen": "Ajouter une plage horaire",
@@ -1482,7 +1878,6 @@
     "{n} Räume": "{n} pièces",
     "{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.": "{n} logements : {list}. Chacun a ses propres habitants, zone, destinataires, saison de chauffage et journal ; une pièce s’attribue dans la pièce sous « Logement ».",
     "{n} heizen": "{n} chauffent",
-    "{n} offen": "{n} ouvertes",
     "{n} Räume aus": "{n} pièces à l’arrêt",
     "{n}/4 Nächte": "{n}/4 nuits",
     "{n}× vorgeheizt": "préchauffé {n}×",
@@ -1568,6 +1963,9 @@
     "Anbieter": "Fournisseur",
     "Anderer Anbieter": "Autre fournisseur",
     "Das Passwort wird nur in Home Assistant gespeichert und nie angezeigt. Tipp: Für Gmail unter myaccount.google.com → Sicherheit → App-Passwörter ein eigenes Passwort für Raumklima erstellen.": "Le mot de passe est enregistré uniquement dans Home Assistant et n’est jamais affiché. Astuce : pour Gmail, créez un mot de passe dédié à Raumklima sous myaccount.google.com → Sécurité → Mots de passe d’application.",
+    "SMTP-Bericht": "Rapport SMTP",
+    "versendet den PDF-Bericht über Home Assistants SMTP-Integration statt über den eigenen Mail-Client": "envoie le rapport PDF via l’intégration SMTP de Home Assistant au lieu du client mail intégré",
+    "– HA-SMTP wählen –": "– choisir SMTP HA –",
     "E-Mail einrichten": "Configurer l’e-mail",
     "Raumklima (direkt hier einrichten)": "Raumklima (configurer ici)",
     "Sende Test-Mail …": "Envoi de l’e-mail de test …",
@@ -1892,6 +2290,9 @@
     "Zum Melden eines Fehlers: die Datei laden und an das Issue anhängen. Sie enthält Werte, Entitäten und die letzten Protokollzeilen, aber keine Zugangsdaten.": "Pour signaler un problème : chargez le fichier et joignez-le au ticket. Il contient des valeurs, des entités et les dernières lignes de journal, sans identifiants.",
     "Wärmemenge im Bericht": "Chaleur fournie dans le rapport",
     "Ventilstellung": "Position de vanne",
+    "Ventilsteuerung": "Commande de vanne",
+    "direkt über {e}": "directement via {e}",
+    "Sollwert am Thermostat – kein Ventilstellglied gefunden": "consigne sur le thermostat – aucun actionneur de vanne trouvé",
     "Gradstunden": "Degrés-heures",
     "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)": "automatique = position de vanne si chaque thermostat la transmet – sinon degrés-heures sous la cible (mesuré, pas estimé)",
     "{v} K·h unter Ziel": "{v} K·h sous la cible",
@@ -2033,7 +2434,128 @@
     "würde greifen – nachrangig": "s’appliquerait – priorité inférieure",
     "{n} Funkbefehle am Tag (Mittel 7 Tage)": "{n} commandes radio par jour (moyenne 7 jours)",
     "Warum (nicht)?": "Pourquoi (pas) ?",
-    "Keine Antwort – bitte Raumklima aktualisieren und neu starten.": "Pas de réponse – veuillez mettre à jour Raumklima et redémarrer."
+    "Keine Antwort – bitte Raumklima aktualisieren und neu starten.": "Pas de réponse – veuillez mettre à jour Raumklima et redémarrer.",
+    "Klassische Ansicht": "Vue classique",
+    "Neue Ansicht": "Nouvelle vue",
+    "Noch keine Räume eingerichtet.": "Aucune pièce configurée pour le moment.",
+    "Zwischen neuer Bereichsnavigation und klassischer Ansicht wechseln": "Basculer entre la nouvelle navigation par sections et la vue classique",
+    "Wohnungen": "Logements",
+    "Personen & Anwesenheit": "Personnes et présence",
+    "Heizung & Energie": "Chauffage et énergie",
+    "System & Diagnose": "Système et diagnostic",
+    "Energie & Tarife": "Énergie et tarifs",
+    "Wetter": "Météo",
+    "Kommt in einer späteren Beta: Zähler, Tarife und PV-Ertrag.": "Bientôt dans une bêta ultérieure : compteurs, tarifs et production photovoltaïque.",
+    "Kommt in einer späteren Beta: eigene Wetterquelle und Vorhersage je Wohnung.": "Bientôt dans une bêta ultérieure : source météo propre et prévisions par logement.",
+    "Erweitert": "Avancé",
+    "Kommt in einer späteren Beta: technische Einstellungen und Diagnosewerkzeuge.": "Bientôt dans une bêta ultérieure : réglages techniques et outils de diagnostic.",
+    "Energie-Erfassung ist aus. In den Einstellungen unter „Heizung & Energie“ aktivieren.": "Le suivi de l’énergie est désactivé. Activez-le dans les réglages sous « Chauffage & énergie ».",
+    "Noch kein Zähler gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas- oder Wärmezähler auswählen.": "Aucun compteur sélectionné. Choisissez un compteur d’électricité, de gaz ou de chaleur dans les réglages sous « Chauffage & énergie ».",
+    "Quelle": "Source",
+    "fester Preis": "prix fixe",
+    "Verbrauch": "Consommation",
+    "Kosten": "Coût",
+    "Jahr": "Année",
+    "PV": "PV",
+    "Basis: {b}": "Base : {b}",
+    "noch keine Schätzung": "pas encore d’estimation",
+    "Schätzung": "Estimation",
+    "Energie nicht verfügbar: {e}": "Énergie indisponible : {e}",
+    "Lade Energie …": "Chargement de l’énergie…",
+    "Energie": "Énergie",
+    "Letzte {n} Tage": "{n} derniers jours",
+    "Zähler, Tarif und Kosten": "Compteur, tarif et coûts",
+    "{n} Tage": "{n} jours",
+    "{n} % Eigenverbrauch": "{n} % autoconsommation",
+    "Lernen": "Apprentissage",
+    "Was Raumklima aus deinen Daten gelernt hat": "Ce que Raumklima a appris de vos données",
+    "Aufheizraten": "Vitesses de montée",
+    "Abkühlung": "refroidissement",
+    "Wärmemodell": "Modèle thermique",
+    "Räume mit Wärmeverlust": "pièces avec perte de chaleur",
+    "Räume mit Daten": "pièces avec données",
+    " Tage": " jours",
+    "Profil vollständig": "profil complet",
+    "Profil wächst": "profil en croissance",
+    "gelernte Vorgänge": "événements appris",
+    "Schlaf": "Sommeil",
+    "typische Nacht": "nuit typique",
+    "{n} Aufheizvorgänge": "{n} montées en chauffe",
+    "+2 K in {n} min": "+2 K en {n} min",
+    "Noch zu wenig Daten": "Pas encore assez de données",
+    "Nutzung": "Utilisation",
+    "{n} Tage mit Belegung": "{n} jours d’occupation",
+    "Kein Präsenzprofil": "Pas de profil de présence",
+    "{n} Vorgänge": "{n} événements",
+    "typisch": "typique",
+    "Noch kein Lüftmuster": "Pas encore de profil d’aération",
+    "Wochentags": "En semaine",
+    "Lernen ist lesend: Raumklima zeigt hier nur, was es aus den letzten Wochen gelernt hat.": "L’apprentissage est en lecture seule : Raumklima affiche uniquement ce qu’il a appris ces dernières semaines.",
+    "Raumklima – Energie": "Raumklima – Énergie",
+    "Zähler, Tarif und Kosten im Zeitraum": "Compteur, tarif et coûts sur la période",
+    "Alles hier ist simuliert – ohne Home-Assistant-Entitäten und ohne persönliche Daten.": "Tout ici est simulé – sans entités Home Assistant et sans données personnelles.",
+    "Büro": "Bureau",
+    "Demo": "Démo",
+    "Demo-Daten": "données de démo",
+    "Fenster auf": "Ouvrir la fenêtre",
+    "Fenster zu": "Fermer la fenêtre",
+    "Innen {v} °C": "Intérieur {v} °C",
+    "Raumklima": "Raumklima",
+    "Raumklima – Demo": "Raumklima – Démo",
+    "Simulierte Räume ohne Hardware": "Pièces simulées sans matériel",
+    "Soll {v} °C": "Consigne {v} °C",
+    "Wohnzimmer": "Séjour",
+    "in 45 min": "en 45 min",
+    "{v} % Feuchte": "{v} % d’humidité",
+    "Raumklima – Lernen": "Raumklima – Apprentissage",
+    "0 % = ganz zu, 100 % = ganz offen – Rollläden ohne Positionsfahrt schließen ganz": "0 % = complètement fermé, 100 % = complètement ouvert – les volets sans positionnement se ferment complètement",
+    "Empfehlung: schließen": "Recommandation : fermer",
+    "Empfehlung: öffnen": "Recommandation : ouvrir",
+    "Gerät antwortet nicht": "L’appareil ne répond pas",
+    "Handbedienung pausiert": "La commande manuelle met l’automatisme en pause",
+    "Handbedienung – pausiert": "Commande manuelle – en pause",
+    "Nacht vorbei": "La nuit est terminée",
+    "Nachts schließen": "Fermer la nuit",
+    "Nur empfehlen": "Conseiller seulement",
+    "Rollläden": "Volets roulants",
+    "Rollläden bleiben, wie sie sind": "Les volets restent tels quels",
+    "Schließen ab innen": "Fermer à partir de l’intérieur",
+    "Schließposition": "Position de fermeture",
+    "Sonne auf der Fassade": "Soleil sur la façade",
+    "Verschattung": "Ombrage",
+    "ab dieser Außentemperatur wird es auch ohne warmen Raum zu warm": "à partir de cette température extérieure, il fait trop chaud même sans pièce chaude",
+    "ab dieser Raumtemperatur hält die Sonne den Raum warm – dann Schatten": "à partir de cette température ambiante, le soleil maintient la pièce au chaud – alors de l’ombre",
+    "die Karte empfiehlt, fährt aber nicht selbst": "la carte recommande mais ne les commande pas",
+    "fährt bei Sonne und nachts – Handbedienung pausiert die Automatik": "se ferme au soleil et la nuit – la commande manuelle met l’automatisme en pause",
+    "Sollwert am Gerät": "Consigne sur l’appareil",
+    "Fußbodenheizung": "Plancher chauffant",
+    "eigene Regelcharakteristik: träge, mit Vor-/Rücklauf und größerem Band": "caractéristique de régulation propre : lente, avec départ/retour et une plage plus large",
+    "Durchfluss in Ordnung": "Débit correct",
+    "Vor-/Rücklauf nicht verbunden": "Capteurs de départ/retour non connectés",
+    "Spreizung zu klein – Pumpe/Abgleich prüfen": "Écart trop faible – vérifier la pompe/l’équilibrage",
+    "durch die Fußboden-Charakteristik begrenzt und im Takt nachgezogen": "limité par la caractéristique du plancher chauffant et ajusté au cycle",
+    "Max. Vorlauf": "Départ max.",
+    "harte Obergrenze – schützt Boden und Heizkreis": "limite haute stricte – protège le sol et le circuit de chauffage",
+    "Min. Raumtemperatur": "Température ambiante min.",
+    "darunter heizt die Fußbodenheizung nicht": "le plancher chauffant ne chauffe pas en dessous",
+    "Regelband": "Plage de régulation",
+    "innerhalb des Bandes bleibt der Sollwert stehen – gegen Überschwingen": "dans la plage, la consigne reste stable – évite les dépassements",
+    "Mindest-Taktzeit": "Temps de cycle minimal",
+    "so oft darf der Sollwert höchstens nachgezogen werden": "la consigne est ajustée au plus souvent à cette fréquence",
+    "Vorlauf vor Zeitfenster": "Avance avant la plage horaire",
+    "früher starten, damit der träge Boden zum Fenster warm ist": "démarrer plus tôt pour que le sol lent soit chaud au début de la plage",
+    "Durchfluss-Grenze": "Limite de débit",
+    "Vorlauf minus Rücklauf unter diesem Wert: Durchfluss prüfen": "départ moins retour sous cette valeur : vérifier le débit",
+    "geschlossen": "fermé",
+    "keine Rollläden gewählt": "aucun volet sélectionné",
+    "keine Sonne erwartet": "aucun soleil prévu",
+    "keine Temperaturdaten": "aucune donnée de température",
+    "keine – unter „Geräte & Technik ändern“ wählen": "aucun – à sélectionner sous « Modifier appareils et technique »",
+    "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "fermé après le coucher du soleil, rouvert le matin – protège contre les pertes de chaleur et la lumière",
+    "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "seuls ces volets roulants ou stores sont commandés – les contacts de fenêtre restent séparés",
+    "oder ab außen": "ou à partir de l’extérieur",
+    "so lange bleibt die Automatik aus, wenn jemand selbst am Rollladen zieht – 0 = sofort wieder automatisch": "l’automatisme reste désactivé aussi longtemps après une commande manuelle – 0 = de nouveau automatique immédiatement",
+    "zu kühl für Schatten": "trop frais pour de l’ombre"
   };
 
   // src/i18n.js
@@ -2077,7 +2599,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.47";
+  var RK_VERSION = "1.1.0b1";
 
   // src/styles.js
   var STYLES = `
@@ -2228,6 +2750,7 @@
     box-shadow: 0 24px 70px rgba(0, 0, 0, .45); }
   .stitle { font-weight: 700; font-size: 1.05rem; }
   .sintro { font-size: .85rem; line-height: 1.35; color: var(--secondary-text-color); }
+  .sheet .mf .sel { width:100%; }
   .stext { flex: 1 1 auto; min-height: 160px; width: 100%; resize: vertical; padding: 10px; border-radius: 10px;
     border: 1px solid color-mix(in srgb, var(--primary-text-color) 18%, transparent);
     background: var(--secondary-background-color, #f5f5f5); color: var(--primary-text-color);
@@ -2273,6 +2796,12 @@
   .tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin:14px -4px 4px; padding:2px 4px 6px; }
   .tabs::-webkit-scrollbar { display:none; }
   .tabs.homes { margin-bottom:0; } .tabs.homes .tab { font-size:1.02rem; }
+  .tabs.roomsub { margin:6px -4px 2px; }
+  .tabs.roomsub .tab { padding:8px 14px; font-size:.88rem; }
+  .searching .roomsub, .searching .resetbar { display:none; }
+  .issue[data-goto-room] { cursor:pointer; }
+  .issue[data-goto-room]:focus-visible { outline:2px solid var(--rk-air); outline-offset:2px; }
+  button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid var(--rk-air); outline-offset:2px; }
   .tab { all:unset; cursor:pointer; white-space:nowrap; padding:10px 18px; border-radius:999px; font-size:.98rem; font-weight:600; color:var(--secondary-text-color);
     background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); display:inline-flex; align-items:center; gap:6px; }
   .tab ha-icon { --mdc-icon-size:16px; }
@@ -2307,6 +2836,10 @@
   .railbtn ha-icon { --mdc-icon-size:16px; }
   .railbtn.on { background: color-mix(in srgb, var(--rk-heat) 16%, transparent); color:var(--primary-text-color); }
   .railbtn.empty { display:none; }
+  .rail.sects { margin-top:14px; padding-bottom:8px; border-bottom:1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent); }
+  .rail.sects .railbtn { font-size:.95rem; padding:9px 16px; }
+  .roomlist { margin-top:14px; }
+  .roomlist > .hint { margin-top:10px; }
   .nosearch { padding:24px 8px; text-align:center; color:var(--secondary-text-color); font-size:.95rem; }
   /* Ein Dokument: alle Gruppen untereinander als Abschnitte, keine Einzelkarten. */
   .groups { display:block; margin-top:10px; }
@@ -2333,6 +2866,11 @@
   .row .l { font-size:.98rem; color:var(--primary-text-color); min-width:0; }
   .row .l small { display:block; margin-top:2px; font-size:.8rem; line-height:1.3; color:var(--secondary-text-color); }
   .row .lbl { display:inline-flex; align-items:center; gap:6px; }
+  .src { font-size:.66rem; font-weight:650; line-height:1.2; padding:1px 5px; border-radius:999px;
+    color:var(--secondary-text-color); background:color-mix(in srgb, var(--primary-text-color) 7%, transparent); white-space:nowrap; }
+  .src-room { color:var(--rk-heat); background:color-mix(in srgb, var(--rk-heat) 14%, transparent); }
+  .src-device { color:var(--rk-air); background:color-mix(in srgb, var(--rk-air) 14%, transparent); }
+  .src-home { color:var(--rk-eco); background:color-mix(in srgb, var(--rk-eco) 14%, transparent); }
   .row .stepper:not(.ro) span { cursor:pointer; border-radius:8px; padding:2px 6px; margin:0 2px; }
   .row .stepper:not(.ro) span:hover { background: color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
   .stepper input.numedit { width:70px; text-align:center; font:inherit; padding:3px 4px; border-radius:8px;
@@ -2488,6 +3026,8 @@
   .rtile .rsub { font-size:.8rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
   .rtile .rflags { display:flex; gap:8px; margin-top:4px; color:var(--secondary-text-color); }
   .rtile .rflags ha-icon { --mdc-icon-size:17px; }
+  .rtile .rchg { font-size:.68rem; font-weight:650; line-height:1.3; padding:1px 6px; border-radius:999px;
+    color:var(--primary-text-color); background:color-mix(in srgb, var(--rk-heat) 18%, transparent); }
   .whyrow .wl small { display:block; margin-top:2px; font-size:.8rem; color:var(--secondary-text-color); line-height:1.35; }
   .msgs { display:grid; gap:10px; }
   .msg { display:grid; grid-template-columns: 40px 1fr auto; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background: var(--ha-card-background, var(--card-background-color)); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
@@ -2516,6 +3056,46 @@
   .btn.primary ha-icon { color: inherit; }
   .hint { font-size:.9rem; color:var(--secondary-text-color); margin-top:12px; line-height:1.45; }
   .toast { position:sticky; bottom:8px; margin-top:12px; padding:10px 14px; border-radius:14px; font-size:.9rem; font-weight:600; background: var(--rk-eco); color: #fff; width:max-content; max-width:100%; }
+`;
+  var DASH_STYLES = `
+  .dashcard { --tone: var(--rk-warn); }
+  .dhead { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .dhead .grow { flex:1 1 180px; min-width:0; }
+  .dtitle { display:flex; align-items:center; gap:8px; font-weight:650; font-size:1.05rem; }
+  .dtitle ha-icon { --mdc-icon-size:22px; color:var(--tone); }
+  .dsub { font-size:.8rem; color:var(--secondary-text-color); margin-top:2px; }
+  .dseg { display:flex; gap:4px; flex-wrap:wrap; }
+  .dseg button { all:unset; cursor:pointer; padding:5px 10px; border-radius:999px; font-size:.78rem; font-weight:600;
+    color:var(--secondary-text-color); background:color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
+  .dseg button.on { background:color-mix(in srgb, var(--tone) 18%, transparent); color:var(--tone); }
+  .dtiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:8px; margin-top:12px; }
+  .dtile { border-radius:16px; padding:10px 12px; background:color-mix(in srgb, var(--primary-text-color) 5%, transparent); min-width:0; }
+  .dtile .k { display:flex; align-items:center; gap:4px; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--secondary-text-color); }
+  .dtile .k ha-icon { --mdc-icon-size:14px; }
+  .dtile .n { margin-top:3px; font-size:1.35rem; font-weight:600; line-height:1.15; font-variant-numeric:tabular-nums; color:var(--primary-text-color); }
+  .dtile .n small { margin-left:4px; font-size:.72rem; font-weight:500; color:var(--secondary-text-color); }
+  .dtile .d { margin-top:3px; font-size:.76rem; color:var(--secondary-text-color); }
+  .drows { display:grid; gap:6px; margin-top:12px; }
+  .drow { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:8px 10px; border-radius:12px;
+    background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); font-size:.86rem; }
+  .drow .l { display:flex; align-items:center; gap:6px; color:var(--secondary-text-color); min-width:0; }
+  .drow .l ha-icon { --mdc-icon-size:15px; flex:none; }
+  .drow .v { font-weight:600; text-align:right; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+  .dempty { display:flex; align-items:flex-start; gap:9px; margin-top:12px; padding:12px 14px; border-radius:14px;
+    background:color-mix(in srgb, var(--rk-warn) 10%, transparent); color:var(--secondary-text-color); font-size:.9rem; line-height:1.35; }
+  .dempty ha-icon { --mdc-icon-size:20px; color:var(--rk-warn); flex:none; }
+  .dlrow { padding:10px 12px; border-radius:14px; background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); }
+  .dlrow .ltop { display:flex; align-items:center; gap:8px; min-width:0; }
+  .dlrow .ltop .name { flex:1 1 auto; font-weight:600; font-size:.92rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dlrow .ltop .pct { font-size:.76rem; font-weight:600; color:var(--tone); }
+  .dlrow .meta { margin-top:5px; font-size:.82rem; color:var(--secondary-text-color); line-height:1.35; }
+  .dlrow .tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+  .dlrow .tag { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:999px; font-size:.72rem;
+    color:var(--secondary-text-color); background:color-mix(in srgb, var(--primary-text-color) 6%, transparent); }
+  .dlrow .tag ha-icon { --mdc-icon-size:13px; }
+  .dbar { height:6px; border-radius:6px; background:color-mix(in srgb, var(--tone) 16%, transparent); overflow:hidden; margin-top:7px; }
+  .dbar > i { display:block; height:100%; background:var(--tone); border-radius:6px; }
+  .dnote { margin-top:9px; font-size:.78rem; color:var(--secondary-text-color); }
 `;
   var REPORT_STYLES = `
   .pdfmk { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
@@ -3073,7 +3653,8 @@
     const order = { alert: 0, warn: 1, info: 2 };
     return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
       const sv = RK_SEV[i.severity] || RK_SEV.info;
-      return `<div class="issue" style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
+      const jump = i.entry_id ? ` data-goto-room="${esc(i.entry_id)}" role="button" tabindex="0" title="${t("zum Raum springen")}"` : "";
+      return `<div class="issue"${jump} style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
     }).join("")}</div>`;
   }
   function rkPretty(target) {
@@ -3228,6 +3809,18 @@
           ${active ? chip("off", null, t("Beenden")) : ""}
         </div>
       </div>`;
+    }
+    async _resume() {
+      const st = this._hass && this._hass.states[this._config.entity];
+      const entry = st && st.attributes && st.attributes.room;
+      if (!entry) return;
+      try {
+        await this._hass.connection.sendMessagePromise({ type: "raumklima/room/resume", entry_id: entry });
+        this._pending = null;
+        this._render();
+      } catch (e) {
+        console.error("raumklima resume:", e);
+      }
     }
     async _boost(mode, minutes) {
       const st = this._hass.states[this._config.entity];
@@ -3420,6 +4013,7 @@
         ${devLine}
         ${this._boostOpen ? this._boostSheet(a) : ""}
         <div class="actions">
+          ${!mon && a.override_until && Date.parse(a.override_until) > Date.now() ? `<button class="pill" data-resume style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-check-outline"></ha-icon>${(a.settings && a.settings.schedules || []).length ? t("Zeitplan fortsetzen") : t("Wunschtemperatur fortsetzen")}</button>` : ""}
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
           ${mon ? "" : `<span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>`}
@@ -3429,6 +4023,11 @@
       const p = this.shadowRoot.querySelector("[data-power]");
       if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
       this.shadowRoot.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call("switch", "toggle", { entity_id: b.dataset.toggle })));
+      const resume = this.shadowRoot.querySelector("[data-resume]");
+      if (resume) resume.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        this._resume();
+      });
       this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => {
         ev.stopPropagation();
         this._boostOpen = !this._boostOpen;
@@ -3569,7 +4168,7 @@
       const hoActive = !!(hoSt && (hoSt.state === "on" || hoSt.attributes.active_now));
       const pres = presSt ? PRESENCE[presSt.state] : null;
       const seas = seasSt ? SEASON[seasSt.state] : null;
-      const here = presSt ? Object.values(presSt.attributes.persons || {}).filter((p) => p.present).map((p) => p.name) : [];
+      const people = presSt ? Object.entries(presSt.attributes.persons || {}) : [];
       const cal = this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.calendar || null;
       const calCur = cal && (cal.events || [])[0];
       const calNext = cal && (cal.upcoming || [])[0];
@@ -3660,7 +4259,11 @@
         <span class="chip" style="--tone:${toneVar(windows ? "air" : "off")}"><ha-icon icon="mdi:window-open-variant"></ha-icon>${t("{n} offen", { n: windows })}</span>
         <span class="chip" style="--tone:${toneVar(warn ? "warn" : "ok")}"><ha-icon icon="${warn ? "mdi:alert-circle-outline" : "mdi:check-circle-outline"}"></ha-icon>${warn ? warn > 1 ? t("{n} Hinweise", { n: warn }) : t("1 Hinweis") : t("alles gut")}</span>
         <span class="chip" style="--tone:${toneVar(allSync ? "ok" : "warn")}"><ha-icon icon="mdi:sync"></ha-icon>${allSync ? t("synchron") : t("sendet …")}</span>
-        ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
+        ${pres && presSt.attributes.configured ? people.map(([id, p]) => {
+        const place = p.place === "home" ? t("Zuhause") : p.place === "away" ? t("unterwegs") : p.place && p.place !== "unknown" ? p.place : t("unbekannt");
+        return `<span class="chip" data-more="${esc(id)}" style="--tone:${toneVar(p.present ? "ok" : pres.tone)};cursor:pointer"><ha-icon icon="${p.present ? "mdi:home-account" : "mdi:account-arrow-right"}"></ha-icon>${esc(p.name)} · ${esc(place)}</span>`;
+      }).join("") : ""}
+        ${pres && presSt.attributes.configured && presSt.state === "preheat" && presSt.attributes.preheat_by ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-clock"></ha-icon>${t("Vorheizen")} · ${esc(presSt.attributes.preheat_by)}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
         ${hoActive ? `<span class="chip" data-more="${hubIds.home_office}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-city"></ha-icon>${t("Homeoffice")}</span>` : ""}
       </div>
@@ -3996,6 +4599,48 @@
 
   // src/help.js
   var HELP = {
+    "Kühlen": ["Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt.", "Air conditioning cools when the room is above the cooling limit.", "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement."],
+    "Klimaanlage zum Heizen": ["Erlaubt der Klimaanlage, den Raum auch zu heizen. Raumklima vergleicht dafür COP und Gaspreis; nur wenn die Klimaanlage günstiger ist, übernimmt sie.", "Allows the AC to heat the room. Raumklima compares COP and gas price; it only takes over when the AC is cheaper.", "Autorise la climatisation à chauffer la pièce. Raumklima compare le COP et le prix du gaz ; elle ne prend le relais que si elle est moins chère."],
+    "Sollwert am Gerät": ["Der Sollwert, der tatsächlich am Thermostat oder Stellglied steht – kann durch Handbedienung oder Geräte-Zeitplan abweichen.", "The setpoint actually present on the thermostat or actuator – can differ due to manual control or the device schedule.", "La consigne réellement présente sur le thermostat ou l’actionneur – peut différer en cas de commande manuelle ou de programme de l’appareil."],
+    "COP": ["Jahresarbeitszahl der Klimaanlage als Wärmepumpe. 3 bedeutet: 1 kWh Strom liefert 3 kWh Wärme. Höher ist besser.", "Seasonal performance factor of the AC as a heat pump. 3 means 1 kWh of electricity delivers 3 kWh of heat. Higher is better.", "Coefficient de performance annuel de la climatisation comme pompe à chaleur. 3 signifie que 1 kWh d’électricité fournit 3 kWh de chaleur. Plus haut est mieux."],
+    "Gaspreis": ["Preis je kWh Gas für den Vergleich mit der Klimaanlage. 0,10 €/kWh ist ein typischer Richtwert.", "Gas price per kWh for the comparison with the AC. 0.10 €/kWh is a typical reference value.", "Prix du gaz par kWh pour la comparaison avec la climatisation. 0,10 €/kWh est une valeur de référence typique."],
+    "Kühlgrenze": ["Oberhalb dieser Temperatur kühlt die Klimaanlage.", "Above this temperature the air conditioning cools.", "Au-delà de cette température, la climatisation refroidit."],
+    "Mindestlaufzeit": ["So lange bleibt die Klimaanlage nach dem Einschalten mindestens an. Größere Werte verhindern häufiges Takten, kosten aber Komfort.", "The air conditioner stays on for at least this long after switching on. Larger values prevent frequent cycling but cost comfort.", "La climatisation reste allumée au moins ce temps après la mise en marche. Des valeurs plus élevées évitent les cycles fréquents, mais coûtent du confort."],
+    "Mindestpause": ["So lange bleibt die Klimaanlage nach dem Ausschalten mindestens aus. Das schützt den Kompressor und reduziert unnötige Starts.", "The air conditioner stays off for at least this long after switching off. This protects the compressor and reduces unnecessary starts.", "La climatisation reste éteinte au moins ce temps après l’arrêt. Cela protège le compresseur et réduit les démarrages inutiles."],
+    "Dynamischer Tarif": ["Der Tarif-Sensor liefert einen wechselnden Preis. Die Karte zeigt den aktuellen Wert; die Kostenschätzung rechnet damit.", "The tariff sensor provides a changing price. The card shows the current value; the cost estimate uses it.", "Le capteur de tarif fournit un prix variable. La carte affiche la valeur actuelle ; l’estimation des coûts l’utilise."],
+    "Preisgrenze": ["Bis zu diesem Preis gilt Strom als günstig. Nur dann wird bei „Bei günstigem Strom vorheizen“ früher gestartet.", "Electricity counts as cheap up to this price. Only then does “Preheat on cheap electricity” start earlier.", "L’électricité est considérée comme bon marché jusqu’à ce prix. Ce n’est qu’alors que « Préchauffer en cas d’électricité bon marché » démarre plus tôt."],
+    "Bei günstigem Strom vorheizen": ["Startet bis zu 60 Minuten vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt. Der Rest der Regelung bleibt unverändert.", "Starts up to 60 minutes before a schedule window when the current price is below the limit. The rest of the control remains unchanged.", "Démarre jusqu’à 60 minutes avant une plage horaire lorsque le prix actuel est sous la limite. Le reste de la régulation reste inchangé."],
+    "Energie-Erfassung": ["Zähler, Tarife und PV-Ertrag auswerten.", "Analyse meters, tariffs and PV yield.", "Analyse compteurs, tarifs et rendement PV."],
+    "Energiequelle": [
+      "Legt fest, wie der Zähler gelesen wird: Gas in m³ wird über Brennwert und Zustandszahl in kWh umgerechnet, Wärmepumpen zählen Strom und optional die erzeugte Wärme, Fernwärme zählt kWh.",
+      "Defines how the meter is read: gas in m³ is converted to kWh via calorific value and correction factor, heat pumps count electricity and optionally the heat produced, district heating counts kWh.",
+      "Définit la lecture du compteur : le gaz en m³ est converti en kWh via le pouvoir calorifique et le facteur de correction, les pompes à chaleur comptent l’électricité et éventuellement la chaleur produite, le chauffage urbain compte les kWh."
+    ],
+    "Gas-Umrechnung": [
+      "Wie viele kWh stecken in einem m³ Gas? Brennwert × Zustandszahl; 10 kWh/m³ ist ein typischer Näherungswert. Genau steht beides auf der Gasabrechnung.",
+      "How many kWh are in one m³ of gas? Calorific value × correction factor; 10 kWh/m³ is a typical approximation. Both are shown on the gas bill.",
+      "Combien de kWh contient un m³ de gaz ? Pouvoir calorifique × facteur de correction ; 10 kWh/m³ est une approximation typique. Les deux figurent sur la facture de gaz."
+    ],
+    "Wärmemenge": [
+      "Optionaler Wärmezähler der Wärmepumpe. Ohne ihn zählt nur der Strom; die Euro-Schätzung bleibt korrekt, die Wärmemenge wird dann nicht ausgewiesen.",
+      "Optional heat meter for the heat pump. Without it only electricity is counted; the euro estimate stays correct, but the heat output is not shown.",
+      "Compteur de chaleur optionnel de la pompe à chaleur. Sans lui, seule l’électricité est comptée ; l’estimation en euros reste correcte, mais la chaleur produite n’est pas indiquée."
+    ],
+    "Jahresarbeitszahl": [
+      "Wie viel Wärme die Wärmepumpe aus einer kWh Strom macht. 3,0 ist ein guter Richtwert; 0 lässt die Angabe offen und rechnet nur mit Strom.",
+      "How much heat the heat pump makes from one kWh of electricity. 3.0 is a good reference; 0 leaves it open and counts electricity only.",
+      "Combien de chaleur la pompe à chaleur produit à partir d’un kWh d’électricité. 3,0 est une bonne référence ; 0 laisse la valeur ouverte et ne compte que l’électricité."
+    ],
+    "PV-Eigenverbrauch": [
+      "Welcher Anteil des PV-Ertrags den eigenen Verbrauch deckt. Nur eintragen, wenn der Zähler den Gesamtverbrauch misst – bei einem reinen Netzbezugszähler ist der PV-Anteil schon abgezogen.",
+      "Which share of PV yield covers your own consumption. Only enter this if the meter measures total consumption – with a grid-import-only meter the PV share is already deducted.",
+      "Part du rendement PV couvrant votre propre consommation. À renseigner uniquement si le compteur mesure la consommation totale – avec un compteur de soutirage réseau, la part PV est déjà déduite."
+    ],
+    "Zähler": ["Strom- oder Gaszähler als Verbrauchsquelle.", "Electricity or gas meter as consumption source.", "Compteur électrique ou gaz comme source de consommation."],
+    "Tarif": ["Arbeitspreis und Grundgebühr.", "Energy price and base fee.", "Prix de l’énergie et frais fixes."],
+    "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
+    "Grundpreis": ["Monatliche Grundgebühr in €.", "Monthly base fee in €.", "Frais fixes mensuels en €."],
+    "Arbeitspreis": ["Preis pro kWh – für die Euro-Schätzung.", "Price per kWh – for the euro estimate.", "Prix par kWh – pour l’estimation en euros."],
     "Feinstaubfühler": [
       "PM2,5-Fühler im Raum. Ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.",
       "PM2.5 sensor in the room. From 35 µg/m³ Raumklima suggests airing; below 15 µg/m³ the air counts as exchanged.",
@@ -4191,6 +4836,7 @@
       "Also sends every PDF report as an email attachment. Open “Set up email” below once: pick your provider (fills in server and port), enter user, password and recipients, “Check login”, then “Save & send test email” – the switch is then on. Gmail, iCloud and Outlook need an app password.",
       "Envoie en plus chaque rapport PDF en pièce jointe. Ouvrez une fois « Configurer l’e-mail » ci-dessous : choisissez le fournisseur (renseigne serveur et port), saisissez utilisateur, mot de passe et destinataires, « Vérifier l’accès » puis « Enregistrer & envoyer un e-mail de test » – l’interrupteur est alors activé. Gmail, iCloud et Outlook nécessitent un mot de passe d’application."
     ],
+    "SMTP-Bericht": ["Wählt eine Home-Assistant-SMTP-Entität. Der PDF-Bericht wird dann über HA und dessen SMTP-Integration gesendet; die Mail-Zugangsdaten liegen nicht mehr bei Raumklima.", "Selects a Home Assistant SMTP entity. The PDF report is then sent via HA’s SMTP integration; mail credentials no longer stay in Raumklima.", "Choisit une entité SMTP Home Assistant. Le rapport PDF est alors envoyé via l’intégration SMTP de HA ; les identifiants mail ne restent plus dans Raumklima."],
     "Test": [
       "Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.",
       "Creates a weekly report now and sends it to all recipients and by email.",
@@ -4555,6 +5201,81 @@
       "Jeder Befehl wird nach kurzer Zeit geprüft und bei Bedarf wiederholt – gegen Funk- und VPN-Aussetzer. „Synchron“ heißt: Thermostat hat bestätigt.",
       "Every command is checked after a short time and repeated if needed – against radio and VPN drops. “In sync” means the thermostat has confirmed.",
       "Chaque commande est vérifiée peu après et répétée si nécessaire – contre les coupures radio et VPN. « Synchronisé » signifie que le thermostat a confirmé."
+    ],
+    "Verschattung": [
+      "Steuert ausgewählte Rollläden oder Jalousien: aus, nur empfehlen oder automatisch bei Sonne und nachts.",
+      "Controls selected blinds or shutters: off, advise only, or automatic in sun and at night.",
+      "Commande les volets ou stores sélectionnés : arrêt, conseil seulement ou automatique au soleil et la nuit."
+    ],
+    "Rollläden": [
+      "Diese Rollläden oder Jalousien fährt die Verschattung. Auswahl unter „Geräte & Technik ändern“ am Raum; Fensterkontakte bleiben davon getrennt.",
+      "These blinds or shutters are moved by shading. Select them under “Change devices & technology” for the room; window contacts remain separate.",
+      "Ces volets ou stores sont commandés par l’ombrage. Sélection sous « Modifier appareils et technique » pour la pièce ; les contacts de fenêtre restent séparés."
+    ],
+    "Schließen ab innen": [
+      "Ab dieser Raumtemperatur wird es ohne Schatten zu warm – die Sonne heizt den Raum dann stärker auf, als er braucht.",
+      "From this room temperature it gets too warm without shade – the sun then heats the room more than needed.",
+      "À partir de cette température ambiante, il fait trop chaud sans ombre – le soleil chauffe alors la pièce plus que nécessaire."
+    ],
+    "oder ab außen": [
+      "Zusätzlicher Auslöser: Ist es draußen schon so warm, wird auch ein noch kühlerer Raum beschattet, damit die Sonne ihn nicht aufheizt.",
+      "Additional trigger: if it is already this warm outside, even a cooler room is shaded so the sun does not heat it up.",
+      "Déclencheur supplémentaire : s’il fait déjà aussi chaud dehors, une pièce encore fraîche est aussi ombragée pour que le soleil ne la réchauffe pas."
+    ],
+    "Schließposition": [
+      "Wie weit der Rollladen bei Sonne schließt: 0 % ist ganz zu, 100 % ganz offen. Geräte ohne Positionsfahrt fahren beim Schließen ganz zu.",
+      "How far the blind closes in sun: 0 % is fully closed, 100 % fully open. Devices without position control close fully.",
+      "Jusqu’où le volet se ferme au soleil : 0 % complètement fermé, 100 % complètement ouvert. Les appareils sans positionnement se ferment complètement."
+    ],
+    "Nachts schließen": [
+      "Schließt nach Sonnenuntergang und öffnet morgens wieder. Das schützt vor Wärmeverlust und hält Licht draußen – unabhängig von der Sonnenprognose.",
+      "Closes after sunset and opens again in the morning. This protects against heat loss and keeps light out – regardless of the sun forecast.",
+      "Ferme après le coucher du soleil et rouvre le matin. Cela protège des pertes de chaleur et garde la lumière dehors – indépendamment de la prévision solaire."
+    ],
+    "Handbedienung pausiert": [
+      "Wie lange die Automatik nach einer Handbedienung am Rollladen aussetzt. 0 bedeutet: Beim nächsten Prüflauf wird sofort wieder automatisch gefahren.",
+      "How long the automation pauses after someone moves a blind manually. 0 means it resumes automatically on the next check.",
+      "Combien de temps l’automatisme s’arrête après une commande manuelle. 0 signifie qu’il reprend automatiquement au prochain contrôle."
+    ],
+    "Ventilsteuerung": [
+      "Fährt die Ventilöffnung direkt über ein `number`-Stellglied (z. B. SONOFF TRVZB), statt nur den Sollwert am Thermostat zu setzen. „Automatisch“ nutzt das Stellglied, wenn es gefunden wurde; „Immer“ erzwingt es; „Aus“ bleibt beim Sollwert.",
+      "Drives the valve opening directly via a `number` actuator (e.g. SONOFF TRVZB) instead of only setting the thermostat setpoint. “Automatic” uses the actuator when found; “Always” forces it; “Off” keeps the setpoint.",
+      "Commande l’ouverture de la vanne directement via un actionneur `number` (p. ex. SONOFF TRVZB) au lieu de régler seulement la consigne du thermostat. « Automatique » utilise l’actionneur s’il est trouvé ; « Toujours » le force ; « Arrêt » conserve la consigne."
+    ],
+    "Fußbodenheizung": [
+      "Eigene Regelcharakteristik für träge Flächen: breiteres Band, begrenzter Vorlauf und ein einstellbarer Takt statt enger Thermostatsprünge.",
+      "Own control characteristic for slow surfaces: wider band, limited flow temperature and an adjustable cycle instead of tight thermostat steps.",
+      "Caractéristique de régulation propre pour les surfaces lentes : plage plus large, départ limité et cycle réglable au lieu de pas de thermostat serrés."
+    ],
+    "Max. Vorlauf": [
+      "Harte Obergrenze für den Sollwert der Fußbodenheizung. Sie schützt Boden und Heizkreis, ist aber kein Ersatz für die hydraulische Begrenzung der Anlage.",
+      "Hard upper limit for the underfloor heating setpoint. It protects the floor and heating circuit but does not replace the system’s hydraulic limit.",
+      "Limite haute stricte pour la consigne du plancher chauffant. Elle protège le sol et le circuit, mais ne remplace pas la limitation hydraulique de l’installation."
+    ],
+    "Min. Raumtemperatur": [
+      "Unter dieser Temperatur heizt die Fußbodenheizung nicht. Zusammen mit der Absenkung verhindert das ein Auskühlen des Estrichs.",
+      "The underfloor heating does not heat below this temperature. Together with the setback it prevents the screed from cooling down.",
+      "Le plancher chauffant ne chauffe pas sous cette température. Avec l’abaissement, cela évite que la chape ne refroidisse."
+    ],
+    "Regelband": [
+      "Innerhalb dieses Bandes bleibt der Sollwert stehen. Das bremst Überschwingen bei der träge reagierenden Fläche.",
+      "Within this band the setpoint stays put. This damps overshoot on the slow-reacting surface.",
+      "Dans cette plage, la consigne reste stable. Cela amortit les dépassements sur la surface à réaction lente."
+    ],
+    "Mindest-Taktzeit": [
+      "So oft darf der Sollwert höchstens nachgezogen werden. Größere Werte schonen Stellglieder und reduzieren Funkverkehr.",
+      "The setpoint is adjusted at most this often. Larger values protect actuators and reduce radio traffic.",
+      "La consigne est ajustée au plus souvent à cette fréquence. Des valeurs plus élevées ménagent les actionneurs et réduisent le trafic radio."
+    ],
+    "Vorlauf vor Zeitfenster": [
+      "Wie viele Minuten vor einem Zeitplanfenster die Fußbodenheizung früher startet. Der träge Boden braucht länger als ein Heizkörper.",
+      "How many minutes before a schedule window the underfloor heating starts earlier. The slow floor needs longer than a radiator.",
+      "Combien de minutes avant une plage horaire le plancher chauffant démarre plus tôt. Le sol lent demande plus de temps qu’un radiateur."
+    ],
+    "Durchfluss-Grenze": [
+      "Vorlauf minus Rücklauf unter diesem Wert deutet auf zu wenig Durchfluss hin. Dann Pumpe, Ventile und hydraulischen Abgleich prüfen.",
+      "Flow minus return below this value suggests too little flow. Then check the pump, valves and hydraulic balancing.",
+      "Départ moins retour sous cette valeur indique un débit trop faible. Vérifier alors la pompe, les vannes et l’équilibrage hydraulique."
     ]
   };
 
@@ -4584,6 +5305,27 @@
     setback_long: { unit: " °C", step: 0.5, min: 8, max: 22, dec: 1 },
     preheat_lead_min: { unit: " min", step: 15, min: 15, max: 360, dec: 0 },
     mold_cap: { unit: " K", step: 0.5, min: 0, max: 6, dec: 1 },
+    energy_base: { unit: " €", step: 1, min: 0, max: 1e3, dec: 2 },
+    energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
+    energy_cheap_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
+    energy_factor: { unit: " kWh/m³", step: 0.5, min: 0, max: 20, dec: 1 },
+    energy_efficiency: { unit: "", step: 0.1, min: 0, max: 6, dec: 1 },
+    pv_self_use: { unit: " %", step: 5, min: 0, max: 100, dec: 0 },
+    cool_setpoint: { unit: " °C", step: 0.5, min: 18, max: 30, dec: 1 },
+    ac_min_on: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
+    ac_min_off: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
+    ac_cop: { unit: "", step: 0.1, min: 1, max: 6, dec: 1 },
+    gas_price: { unit: " €/kWh", step: 0.01, min: 0, max: 1, dec: 2 },
+    shading_position: { unit: " %", step: 5, min: 0, max: 100, dec: 0 },
+    shading_min_temp: { unit: " °C", step: 0.5, min: 5, max: 30, dec: 1 },
+    shading_outdoor_min: { unit: " °C", step: 1, min: 0, max: 35, dec: 0 },
+    shading_manual_minutes: { unit: " min", step: 15, min: 0, max: 480, dec: 0 },
+    floor_max_temp: { unit: " °C", step: 0.5, min: 20, max: 35, dec: 1 },
+    floor_min_temp: { unit: " °C", step: 0.5, min: 10, max: 26, dec: 1 },
+    floor_band: { unit: " K", step: 0.5, min: 0.5, max: 5, dec: 1 },
+    floor_cycle_min: { unit: " min", step: 5, min: 5, max: 180, dec: 0 },
+    floor_lead_min: { unit: " min", step: 15, min: 0, max: 360, dec: 0 },
+    floor_flow_min: { unit: " K", step: 0.5, min: 0, max: 20, dec: 1 },
     window_open_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
     window_close_delay: { unit: " s", step: 5, min: 0, max: 600, dec: 0 },
     presence_target: { unit: " °C", step: 0.5, min: 5, max: 30, dec: 1 },
@@ -4598,7 +5340,11 @@
     home: { label: "Wohnung", icon: "mdi:home-outline" },
     room: { label: "Raum", icon: "mdi:door-open" },
     heating: { label: "Heizung", icon: "mdi:radiator" },
+    health: { label: "Gesundheit", icon: "mdi:heart-pulse" },
+    energy: { label: "Energie & Tarife", icon: "mdi:lightning-bolt" },
+    weather: { label: "Wetter", icon: "mdi:weather-partly-cloudy" },
     air: { label: "Lüften", icon: "mdi:weather-windy" },
+    shade: { label: "Verschattung", icon: "mdi:blinds" },
     presence: { label: "Anwesenheit", icon: "mdi:account-multiple-outline" },
     night: { label: "Nacht", icon: "mdi:weather-night" },
     notify: { label: "Benachrichtigungen", icon: "mdi:bell-outline" },
@@ -4646,7 +5392,109 @@
     frost_night: false
   };
   var RK_LAYOUT_COLORS = ["#1eb6a6", "#34a86e", "#e8982e", "#e2643c", "#7c6adc", "#3c8cdc", "#c94f8a", "#7a8288"];
-  var RK_GROUP_ORDER = ["home", "room", "heating", "air", "presence", "night", "notify", "reports", "learn", "layout", "advanced"];
+  var RK_GROUP_ORDER = ["home", "room", "heating", "health", "air", "shade", "presence", "night", "notify", "reports", "learn", "layout", "advanced"];
+  var NAV2_DEFAULT = true;
+  var SETTINGS_SECTIONS = [
+    { id: "home", label: "Wohnungen", icon: "mdi:home-outline", groups: ["home", "learn"] },
+    { id: "rooms", label: "Räume", icon: "mdi:door-open", groups: [] },
+    { id: "presence", label: "Personen & Anwesenheit", icon: "mdi:account-multiple-outline", groups: ["presence", "night"] },
+    { id: "energy", label: "Heizung & Energie", icon: "mdi:radiator", groups: ["energy", "weather", "heating", "reports"] },
+    { id: "notify", label: "Benachrichtigungen", icon: "mdi:bell-outline", groups: ["notify"] },
+    { id: "system", label: "System & Diagnose", icon: "mdi:cog-outline", groups: ["health", "layout", "advanced"] }
+  ];
+  var SETTINGS_ROOM_GROUPS = ["room", "heating", "air", "shade", "presence", "notify", "learn"];
+  var ROOM_TABS = [
+    { id: "overview", label: "Übersicht", icon: "mdi:view-dashboard-outline" },
+    { id: "control", label: "Regelung", icon: "mdi:thermometer" },
+    { id: "schedule", label: "Zeitplan", icon: "mdi:calendar-clock" },
+    { id: "windows", label: "Fenster & Lüften", icon: "mdi:window-open-variant" },
+    { id: "presence", label: "Präsenz", icon: "mdi:motion-sensor" },
+    { id: "sources", label: "Heizquellen", icon: "mdi:radiator" },
+    { id: "devices", label: "Geräte & Sensoren", icon: "mdi:thermometer-lines" },
+    { id: "notify", label: "Meldungen", icon: "mdi:bell-outline" },
+    { id: "mold", label: "Schimmel", icon: "mdi:shield-home-outline" },
+    { id: "learn", label: "Lernen & Verlauf", icon: "mdi:chart-line" }
+  ];
+  var ROOM_TAB_DEFAULT = "overview";
+  var ROOM_APPLY_KEYS = [
+    "comfort_temperature",
+    "setback_short",
+    "setback_long",
+    "window_open_delay",
+    "window_close_delay",
+    "preheat_mode",
+    "preheat_lead_min",
+    "preheat_not_before",
+    "quiet_mode",
+    "night_airing",
+    "virtual_window",
+    "solar_gain",
+    "mold_mode",
+    "mold_cap",
+    "wall",
+    "cooling",
+    "cool_setpoint",
+    "ac_min_on",
+    "ac_min_off",
+    "shading_mode",
+    "shading_position",
+    "shading_min_temp",
+    "shading_outdoor_min",
+    "shading_night",
+    "shading_manual_minutes",
+    "floor_heating",
+    "floor_max_temp",
+    "floor_min_temp",
+    "floor_band",
+    "floor_cycle_min",
+    "floor_lead_min",
+    "floor_flow_min",
+    "co2_limit",
+    "notify_cap",
+    "presence_target",
+    "presence_delay_min",
+    "presence_release_min",
+    "presence_pir",
+    "presence_learn",
+    "room_eco",
+    "room_eco_after",
+    "room_eco_drop",
+    "airing_min_minutes",
+    "long_airing_minutes",
+    "long_airing_remind",
+    "airing_occupied_only",
+    "fast_poll",
+    "trv_interval",
+    "valve_control",
+    "schedule_fallback",
+    "boost_temperature",
+    "boost_minutes",
+    "override_minutes"
+  ];
+  var ROOM_SEARCH = [
+    { terms: ["wunschtemperatur", "solltemperatur", "komfort", "temperatur"], tab: "control", label: "Regelung" },
+    { terms: ["zeitplan", "zeitfenster", "vorheizen"], tab: "schedule", label: "Zeitplan" },
+    { terms: ["fenster", "lüften", "feuchte", "co2"], tab: "windows", label: "Fenster & Lüften" },
+    { terms: ["verschattung", "rollladen", "jalousie", "sonnenschutz"], tab: "windows", label: "Verschattung" },
+    { terms: ["fußbodenheizung", "fussbodenheizung", "vorlauf", "rücklauf", "spreizung", "fließ"], tab: "control", label: "Fußbodenheizung" },
+    { terms: ["präsenz", "anwesenheit", "melder"], tab: "presence", label: "Präsenz" },
+    { terms: ["heizquelle", "thermostat", "klimaanlage"], tab: "sources", label: "Heizquellen" },
+    { terms: ["ventil", "ventilsteuerung", "stellglied", "trvzb"], tab: "devices", label: "Ventilsteuerung" },
+    { terms: ["sensor", "batterie", "funk", "kalibrierung"], tab: "devices", label: "Geräte & Sensoren" },
+    { terms: ["meldung", "empfänger", "lichtsignal"], tab: "notify", label: "Meldungen" },
+    { terms: ["schimmel", "wand"], tab: "mold", label: "Schimmel" },
+    { terms: ["lernen", "aufheizen", "verlauf"], tab: "learn", label: "Lernen & Verlauf" }
+  ];
+  var RK_SHADE = () => ({
+    off: t("Aus"),
+    advise: t("Nur empfehlen"),
+    auto: t("Automatisch")
+  });
+  var RK_VALVE = () => ({
+    off: t("Aus"),
+    auto: t("Automatisch"),
+    on: t("Immer")
+  });
   var RK_FACADES = () => [
     { id: "", name: t("egal – nur Vorhersage") },
     { id: "N", name: t("Nord") },
@@ -4659,6 +5507,505 @@
     { id: "NW", name: t("Nordwest") }
   ];
   var rkFacadeName = (v) => v ? (RK_FACADES().find((f) => f.id === v) || {}).name || v : t("nur Vorhersage");
+
+  // src/cards/settings/sections/home.js
+  var HomeSectionMethods = {
+    _groupHomeWelcome(ctx) {
+      const { ch, st } = ctx;
+      return this._grp("home", "Erste Schritte", "mdi:check-decagram-outline", "ok", this._checkRows(st, ch), "span");
+    },
+    _groupHomeApartment(ctx) {
+      const { ch, st, H } = ctx;
+      const frsi = fmt({ unrenovated: 0.6, renovated: 0.7, new: 0.8 }[this._hubOpt("building_type")] || 0.7, 2);
+      const homes = this._cfg.homes || [];
+      const homeRows = [
+        this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Ferienwohnung")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
+        this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
+        `<div class="hint">${t("Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.", { f: frsi })}</div>`,
+        this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
+        this._more("home-more", "Dashboard, Standort, weitere Wohnung", [
+          (() => {
+            const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
+            const dp = dh.dashboard || "";
+            const fehlt = this._admin && rkNeedsDashboard(this._dashKnown(), dp, String(this._hass && this._hass.panelUrl || "").replace(/^\//, ""));
+            return this._row(
+              "Dashboard",
+              `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc(dp || "heizung")}" ${this._admin ? "" : "disabled"}>${fehlt ? ` <button class="mini" data-mkdash="${esc(dp)}" title="${t("Dashboard mit der Raumklima-Strategie anlegen")}">${t("anlegen")}</button>` : ` <span class="lt">${t("vorhanden")}</span>`}`,
+              fehlt ? t("Für diese Wohnung gibt es noch kein Dashboard „{d}“ – der Knopf legt es mit der Raumklima-Strategie an (gefiltert auf diese Wohnung).", { d: dp }) : t("Adresse des Dashboards dieser Wohnung (für den Umschalter)")
+            );
+          })(),
+          (() => {
+            const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
+            const hl = this._hass.config || {};
+            const haLat = hl.latitude != null ? fmt(hl.latitude, 4) : "–";
+            const haLon = hl.longitude != null ? fmt(hl.longitude, 4) : "–";
+            const zn = this._hubOpt("zone") || "";
+            const zst = zn ? this._st(zn) : null;
+            const zlat = zst && zst.attributes ? zst.attributes.latitude : null;
+            const zlon = zst && zst.attributes ? zst.attributes.longitude : null;
+            const own = lat != null || lon != null;
+            return this._row(
+              "Standort der Wohnung",
+              `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}> ${this._admin ? `<button class="mini" data-geohass title="${t("Werte von Home Assistant übernehmen")}">${t("von HA")}</button>${own ? `<button class="mini x" data-geoclear title="${t("leeren – dann gilt Home Assistant")}">✕</button>` : ""}` : ""}</span>`,
+              t("Leer lassen = es gilt der Standort aus der Zone dieser Wohnung ({zone}{zl}). Ist keine Zone gesetzt, gilt der Standort von Home Assistant ({lat} / {lon}). Nur eintragen, wenn die Wohnung woanders liegt – daraus rechnet Raumklima den Sonnenstand; „von HA“ übernimmt die HA-Werte zum Anpassen.", {
+                zone: zn || t("keine Zone gesetzt"),
+                zl: zlat != null && zlon != null ? `, ${fmt(zlat, 4)} / ${fmt(zlon, 4)}` : "",
+                lat: haLat,
+                lon: haLon
+              })
+            );
+          })(),
+          this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
+          `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`
+        ].join(""), "hub", ["dashboard", "latitude", "longitude"])
+      ].join("");
+      return this._grp("home", "Wohnung", "mdi:home-switch-outline", "air", homeRows);
+    },
+    _groupLearn(ctx) {
+      return this._learnHub(ctx.st);
+    }
+  };
+
+  // src/cards/settings/sections/presence.js
+  var PresenceSectionMethods = {
+    _groupPresence(ctx) {
+      const { ch, st, H, hubIds, pres, residents, persons } = ctx;
+      const personChips = (ch.persons || []).map((p) => {
+        const on = residents.includes(p.id);
+        const info = persons[p.id];
+        const where = info ? info.present ? t("da") : info.distance_km != null ? `${fmt(info.distance_km, info.distance_km < 10 ? 1 : 0)} km` : t("unbekannt") : "";
+        return `<button class="chip2 ${on ? "" : "off"}" data-person="${p.id}" style="--c:${on ? info && info.present ? "var(--rk-ok)" : "var(--rk-eco)" : "var(--rk-off)"}" ${this._admin ? "" : "disabled"}><i></i>${esc(p.name)}${on && where ? ` · ${where}` : ""}</button>`;
+      }).join("");
+      const presRows = [
+        `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
+        this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
+        this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
+        this._row("Absenken nach", this._num(H, "away_delay", this._hubOpt("away_delay")), "damit kurze Wege nichts auslösen"),
+        this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
+        this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
+        this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
+        this._more("pres-ho", "Homeoffice & Kalender", [
+          (() => {
+            const items = Array.from({ length: 96 }, (_x, q) => {
+              const h = Math.floor(q / 4), m = q % 4 * 15;
+              const id = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+              return { id, name: id };
+            });
+            const from = this._hubOpt("home_office_from") || "08:00";
+            const to = this._hubOpt("home_office_to") || "17:00";
+            return this._row(
+              "Homeoffice-Fenster",
+              `<span class="inline">${this._select(H, "home_office_from", items, from)} – ${this._select(H, "home_office_to", items, to)}</span>`,
+              "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter"
+            );
+          })(),
+          this._row(
+            "Homeoffice gilt für",
+            `<div class="chips">${this._orderedRooms().map((r) => {
+              const rid = (r.attrs && r.attrs.settings || {}).entry_id || r.id;
+              const chosen = (this._hubOpt("home_office_rooms") || []).includes(rid);
+              return `<button class="chip2 ${chosen ? "" : "off"}" data-horoom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
+            }).join("")}</div>`,
+            (this._hubOpt("home_office_rooms") || []).length ? t("nur diese Räume werden auf Wunsch geheizt") : t("keine Auswahl = alle Räume mit Thermostat")
+          ),
+          this._row(
+            "Homeoffice nur wenn jemand da",
+            this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
+            "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"
+          ),
+          this._row(
+            "Homeoffice über Entität",
+            this._select(H, "home_office_entity", ch.signals || [], this._hubOpt("home_office_entity"), "– keiner –"),
+            "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung"
+          ),
+          this._row(
+            "Kalender",
+            this._select(H, "calendar_entity", ch.calendars || [], this._hubOpt("calendar_entity"), "– keiner –"),
+            st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"
+          ),
+          this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
+          this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : ""
+        ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity"]),
+        ...(() => {
+          const cal = st.calendar;
+          if (!cal) return [];
+          const cur = (cal.events || [])[0];
+          const up = cal.upcoming || [];
+          const when = (e) => e && e.all_day ? esc(String(e.start || "").slice(0, 10)) : esc(String(e && e.start || "").slice(11, 16));
+          const label = (e) => e && e.mode === "home" ? t("Homeoffice") : e && e.mode === "away" ? t("Urlaub") : t("kein Einfluss");
+          return [
+            this._row(t("Kalender – jetzt"), this._v(cur ? `${esc(cur.summary)} · ${when(cur)} · ${label(cur)}` : t("kein Termin"), !cur), ""),
+            ...up.slice(0, 5).map((e) => this._row(t("Kalender – als Nächstes"), this._v(`${esc(e.summary)} · ${when(e)} · ${label(e)}`, true), ""))
+          ];
+        })(),
+        this._more("pres-more", "Weitere Einstellungen", [
+          this._row(
+            "Anwesenheit aus",
+            this._optToggle(H, "presence_off", !!this._hubOpt("presence_off")),
+            "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist"
+          ),
+          this._row(
+            "Gäste gelten für",
+            `<div class="chips">${this._orderedRooms().map((r) => {
+              const rid = (r.attrs && r.attrs.settings || {}).entry_id || r.id;
+              const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
+              return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
+            }).join("")}</div>`,
+            (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
+          ),
+          this._row("„Länger weg“ ab", this._num(H, "long_away_hours", this._hubOpt("long_away_hours"))),
+          this._row("Vorheizen ab", this._num(H, "preheat_km", this._hubOpt("preheat_km")), "wenn sich jemand nähert"),
+          this._row("Urlaub automatisch ab", this._num(H, "vacation_km", this._hubOpt("vacation_km") ?? 0), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
+          this._row("… nach", this._num(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
+          this._row("Arbeitsplätze", `<div class="chips">${(ch.zones || []).map((z) => {
+            const chosen = (this._hubOpt("work_zones") || []).includes(z.id);
+            return `<button class="chip2 ${chosen ? "" : "off"}" data-workzone="${z.id}" title="${esc(z.name)}"><i></i>${esc(z.name)}</button>`;
+          }).join("")}</div>`, "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück"),
+          this._row("… gilt nach", this._num(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
+          this._row(
+            "Präsenzmelder zählen",
+            this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
+            st.sensed && st.sensed.length ? t("gerade jemand in: {r}", { r: esc(st.sensed.join(", ")) }) : "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie"
+          )
+        ].join(""), "hub", ["presence_off", "guests_rooms", "long_away_hours", "preheat_km", "vacation_km", "vacation_hours", "work_zones", "work_zone_minutes", "home_sensors"])
+      ].join("");
+      return this._grp("presence", "Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows);
+    },
+    _groupNight(ctx) {
+      const { ch, st, H } = ctx;
+      const sl = st.sleep || {};
+      const signals = this._hubOpt("sleep_signals") || [];
+      const sigNames = Object.fromEntries((ch.signals || []).map((x) => [x.id, x.name]));
+      const sigChips = signals.map((id) => `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${esc(sigNames[id] || this._name(id))}${this._admin ? ` <button class="mini x" data-sigrm="${esc(id)}" title="${t("entfernen")}">✕</button>` : ""}</span>`).join("");
+      const sigAvail = (ch.signals || []).filter((x) => !signals.includes(x.id));
+      const lrn = (k, label) => {
+        const v = sl[k] || {};
+        const e = v.effective || {};
+        const src = e.source || {};
+        const learned = (key) => src[key] === "learned" ? ` · ${t("gelernt")}` : "";
+        const chips = [
+          v.bed ? `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${t("ins Bett ~{v}", { v: v.bed })}${learned("night_start")}</span>` : `<span class="chip2" style="--c:var(--rk-off)"><i></i>${t("{n}/4 Nächte", { n: v.nights_bed || 0 })}</span>`,
+          v.wake ? `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${t("auf ~{v}", { v: v.wake })}${learned("wake")}</span>` : "",
+          e.quiet_start ? `<span class="chip2"><i></i>${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}</span>` : ""
+        ].filter(Boolean).join("");
+        return this._row(t(label), `<div class="chips">${chips}</div>`, "");
+      };
+      const sleepRows = [
+        `<div class="status"><span class="chip" style="--tone:${sl.quiet_now ? "var(--rk-eco)" : "var(--rk-ok)"}"><ha-icon icon="${sl.quiet_now ? "mdi:sleep" : "mdi:white-balance-sunny"}"></ha-icon>${sl.quiet_now ? t("Ruhezeit gerade aktiv") : t("Keine Ruhezeit")}</span>${sl.asleep ? `<span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-off-outline"></ha-icon>${t("Licht aus – alle schlafen")}</span>` : ""}</div>`,
+        this._row("Ruhezeit", `<span class="v">${this._timeField("quiet_start", this._hubOpt("quiet_start"))} – ${this._timeField("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
+        this._row("Wochenende bis", `<span class="v">${this._timeField("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
+        this._row("Ruhezeit senkt ab", this._optToggle(H, "quiet_setback", !!this._hubOpt("quiet_setback")), "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist"),
+        lrn("weekday", "Werktags"),
+        lrn("weekend", "Wochenende"),
+        this._more("night-more", "Weitere Einstellungen", [
+          this._row("Absenkwert nachts", this._select(H, "night_level", [{ id: "short", name: t("Kurz weg") }, { id: "long", name: t("Länger weg") }, { id: "frost", name: t("Frostschutz") }], this._hubOpt("night_level") || "long"), "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsenkung“ ein- oder ausgeschlossen"),
+          this._row(
+            "Nachtruhe über Entität",
+            this._select(H, "night_entity", ch.signals || [], this._hubOpt("night_entity"), "– keiner –"),
+            "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt"
+          ),
+          this._row("Nachtlüften", `<span class="v">${this._timeField("night_start", this._hubOpt("night_start"))} – ${this._timeField("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
+          this._row("… leise warnen unter", this._num(H, "night_alarm_temp", this._hubOpt("night_alarm_temp")), "einmal pro Nacht"),
+          this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
+          this._row("Schichtdienst", this._optToggle(H, "learn_shift", !!this._hubOpt("learn_shift")), "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht"),
+          this._row("Feiertage", this._select(H, "holiday_state", ch.states || [], this._hubOpt("holiday_state") || "", "– keine –"), sl.tonight && sl.tonight.holiday ? t("morgen: {h} – Ruhezeit wie am Wochenende", { h: esc(sl.tonight.holiday) }) : "Nacht vor einem Feiertag gilt wie Wochenende"),
+          this._row("Schlaf-Signale", `<div class="chips">${sigChips || this._v("keine", true)}</div>`, "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden"),
+          this._admin && sigAvail.length ? `<div class="addrow"><select class="sel" id="addSig">${sigAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-sigadd style="--c:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Signal hinzufügen")}</button></div>` : "",
+          `<div class="hint">${t("Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.")}</div>`
+        ].join(""), "hub", ["night_level", "night_entity", "night_start", "night_end", "night_alarm_temp", "learn_times", "learn_shift", "holiday_state", "sleep_signals"])
+      ].join("");
+      return this._grp("night", "Nacht & Ruhezeit", "mdi:sleep", "eco", sleepRows, "span");
+    }
+  };
+
+  // src/cards/settings/sections/heating.js
+  var HeatingSectionMethods = {
+    _groupHeating(ctx) {
+      const { ch, st, H, seas } = ctx;
+      const mode = this._hubOpt("season_mode");
+      const mdToInput = (v) => v && /^\d{2}-\d{2}$/.test(v) ? `2000-${v}` : "";
+      const seasRows = [
+        `<div class="status"><span class="chip" style="--tone:${toneVar(seas.tone)}"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}</span>
+        <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Ø 24 h {p} · Vorhersage {f}", { p: st.mean_past == null ? t("sammelt noch") : fmt(st.mean_past) + "°", f: st.mean_forecast == null ? "–" : fmt(st.mean_forecast) + "°" })}</span></div>`,
+        this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
+        this._row("Heizgrenze", this._num(H, "heating_limit", this._hubOpt("heating_limit")), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
+        this._row("Heute heizen", st.heat_today_until ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>` : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage"),
+        this._more("seas-more", "Weitere Einstellungen", [
+          this._row("Heizsaison", `<span class="v"><input class="inp short" type="date" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" type="date" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Kalender antippen – Tag und Monat zählen, das Jahr ist egal"),
+          this._row("Außentemperatur von", this._select(H, "outdoor_temp_entity", ch.outdoor || [], this._hubOpt("outdoor_temp_entity"), "Wetterdienst"), "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst"),
+          this._row("Kälteeinbruch unter", this._num(H, "cold_snap_temp", this._hubOpt("cold_snap_temp")), "3 Tage darunter → heizt auch außerhalb der Saison"),
+          this._row("Sicherung", this._num(H, "frost_floor", this._hubOpt("frost_floor")), "fällt ein Raum darunter, heizt er immer"),
+          this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
+          this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen")
+        ].join(""), "hub", ["season_start", "season_end", "outdoor_temp_entity", "cold_snap_temp", "frost_floor", "frost_night", "valve_care"])
+      ].join("");
+      return this._grp("heating", "Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows);
+    }
+  };
+
+  // src/cards/settings/sections/energy.js
+  var EnergySectionMethods = {
+    _groupEnergy() {
+      const H = this._hubOpt.bind(this);
+      const source = H("energy_source") || "auto";
+      const choices = this._cfg && this._cfg.choices || {};
+      const meters = choices.energy || [];
+      const heat = choices.heat || [];
+      const advanced = [
+        this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), t("monatliche Grundgebühr in €")),
+        this._row("Arbeitspreis", this._num("hub", "energy_price", H("energy_price") ?? 0.3), t("Preis pro kWh in € – gilt, wenn kein Tarif-Sensor gewählt ist")),
+        source === "gas" || source === "auto" ? this._row("Gas-Umrechnung", this._num("hub", "energy_factor", H("energy_factor") ?? 10), t("kWh je m³ – Brennwert × Zustandszahl; 10 ist ein typischer Näherungswert")) : "",
+        source === "heatpump" ? this._row("Wärmemenge", this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– wählen –"), t("optionaler Wärmezähler der Wärmepumpe – sonst zählt nur der Strom")) : "",
+        source === "heatpump" ? this._row("Jahresarbeitszahl", this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0), t("optional: Wärme je kWh Strom (JAZ); 0 = unbekannt")) : "",
+        H("pv_entity") ? this._row("PV-Eigenverbrauch", this._num("hub", "pv_self_use", H("pv_self_use") ?? 0), t("Anteil des PV-Ertrags, der den Verbrauch deckt – nur bei Gesamtverbrauchszähler")) : "",
+        this._row(
+          "Dynamischer Tarif",
+          `<button class="tgl ${H("energy_tariff_dynamic") ? "on" : ""}" data-optbool="hub" data-key="energy_tariff_dynamic" data-val="${H("energy_tariff_dynamic") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
+          t("der Tarif-Sensor liefert einen wechselnden Preis – die Karte zeigt ihn; die Kostenschätzung nutzt den aktuellen Wert")
+        ),
+        this._row("Preisgrenze", this._num("hub", "energy_cheap_price", H("energy_cheap_price") ?? 0.2), t("bis zu diesem Preis gilt Strom als günstig")),
+        this._row(
+          "Bei günstigem Strom vorheizen",
+          `<button class="tgl ${H("energy_preheat_cheap") ? "on" : ""}" data-optbool="hub" data-key="energy_preheat_cheap" data-val="${H("energy_preheat_cheap") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
+          t("startet bis zu 60 min vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt")
+        ),
+        this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), t("Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert")),
+        this._row("Gaspreis", this._num("hub", "gas_price", H("gas_price") ?? 0.1), t("€/kWh – nur für den Vergleich „Klimaanlage oder Gas“"))
+      ].join("");
+      return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [
+        this._row(
+          "Energie-Erfassung",
+          `<button class="tgl ${H("energy_enabled") ? "on" : ""}" data-optbool="hub" data-key="energy_enabled" data-val="${H("energy_enabled") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
+          t("Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht")
+        ),
+        this._row(
+          "Energiequelle",
+          this._select("hub", "energy_source", [
+            { id: "auto", name: t("automatisch") },
+            { id: "gas", name: t("Gas") },
+            { id: "heatpump", name: t("Wärmepumpe") },
+            { id: "district", name: t("Fernwärme") },
+            { id: "electric", name: t("Strom") }
+          ], source),
+          t("bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird")
+        ),
+        this._row(
+          "Zähler",
+          this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
+          t("Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")
+        ),
+        this._row(
+          "Tarif",
+          this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
+          t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")
+        ),
+        this._row(
+          "PV-Ertrag",
+          this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
+          t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")
+        ),
+        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price"])
+      ].join(""));
+    },
+    _groupWeather() {
+      return this._grp(
+        "weather",
+        "Wetter",
+        "mdi:weather-partly-cloudy",
+        "air",
+        `<div class="hint">${t("Kommt in einer späteren Beta: eigene Wetterquelle und Vorhersage je Wohnung.")}</div>`
+      );
+    },
+    _groupReports(ctx) {
+      const { ch, H } = ctx;
+      const reportRows = [
+        this._row(
+          "PDF-Berichte",
+          `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => {
+            const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k);
+            return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`;
+          }).join("")}</div>`,
+          "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"
+        ),
+        this._row(
+          "PDF per E-Mail",
+          `<button class="tgl ${this._hubOpt("report_email") ? "on" : ""}" data-mailtoggle ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
+          this._hubOpt("report_email") ? "die PDF kommt als Anhang an die Empfänger unten" : "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail"
+        ),
+        this._mailSetup(ch.mail || []),
+        this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
+        this._more("rep-more", "Weitere Einstellungen", [
+          this._row(
+            "Wärmemenge im Bericht",
+            this._select(H, "report_metric", [
+              { id: "auto", name: t("automatisch") },
+              { id: "valve", name: t("Ventilstellung") },
+              { id: "deficit", name: t("Gradstunden") },
+              { id: "hours", name: t("Heizstunden") }
+            ], this._hubOpt("report_metric") || "auto"),
+            "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)"
+          ),
+          this._row("Heizkosten pro Jahr", `<span class="v"><input type="number" class="inp" min="0" max="20000" step="50" data-hubnum="annual_cost" value="${this._hubOpt("annual_cost") ?? ""}" placeholder="${t("z. B. 1400")}" ${this._admin ? "" : "disabled"} style="width:110px"> €</span>`, "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)")
+        ].join(""), "hub", ["report_metric", "annual_cost"])
+      ].join("");
+      return this._grp("reports", "Berichte", "mdi:file-chart-outline", "heat", reportRows);
+    }
+  };
+
+  // src/cards/settings/sections/notify.js
+  var NotifySectionMethods = {
+    _groupRecipients(ctx) {
+      const { ch } = ctx;
+      const push = this._hubOpt("recipients") || {};
+      const tts = this._hubOpt("tts") || {};
+      const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
+      const kinds = this._cfg.kinds || Object.keys(RK_KINDS);
+      const card = (target, list, channel, i) => {
+        const ks = kinds.filter((k) => k !== "live" || channel === "push" && target.startsWith("notify.mobile_app_"));
+        const chips = ks.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
+        return `<div class="row"><div class="l">
+        <span class="rn" style="--c:${palette[i % palette.length]}"><i></i>${esc(rkPretty(target))}</span>
+        <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small></div>
+        <div class="chips">${chips}${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div></div>`;
+      };
+      const cards = [...Object.entries(push).map(([tg, l], i) => card(tg, l || [], "push", i)), ...Object.entries(tts).map(([tg, l], i) => card(tg, l || [], "tts", i + 3))].join("") || `<div class="hint">${t("Noch kein Empfänger – unten hinzufügen.")}</div>`;
+      const avail = (ch.notify || []).filter((tg) => !(tg in push) && !(tg in tts));
+      const addRow = this._admin && avail.length ? `<div class="addrow">
+        <select class="sel" id="addTarget">${avail.map((tg) => `<option value="${esc(tg)}">${esc(rkPretty(tg))} (${esc(tg)})</option>`).join("")}</select>
+        <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
+        <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
+      return this._grp("notify", "Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span");
+    },
+    _groupNotify(ctx) {
+      const { H } = ctx;
+      const notiRows = [
+        this._row(
+          "Lüfthinweise von",
+          `<span class="v">${this._timeField("vent_from", this._hubOpt("vent_from") || "08:00:00")} – ${this._timeField("vent_to", this._hubOpt("vent_to") || "21:00:00")}</span>`,
+          t("Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter")
+        ),
+        this._row("Nur an anwesende Personen", this._optToggle(H, "notify_present_only", this._hubOpt("notify_present_only") ?? true), t("Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle")),
+        this._row(
+          "Sturm- und Regenwarnung",
+          this._optToggle(H, "storm_warning", this._hubOpt("storm_warning") ?? true),
+          t("warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit")
+        ),
+        this._more("noti-more", "Weitere Einstellungen", [
+          this._row(
+            "… Böen ab",
+            this._num(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70),
+            t("ab dieser Böenstärke gilt es als Sturm")
+          ),
+          this._row(
+            "… Regen ab",
+            this._num(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8),
+            t("ab dieser Regenmenge gilt es als Starkregen")
+          ),
+          this._row("Erinnern alle", this._num(H, "repeat_minutes", this._hubOpt("repeat_minutes")), "solange das Problem besteht"),
+          this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
+          this._row("SMTP-Bericht", this._select("hub", "smtp_notify", this._cfg.choices.notify || [], this._hubOpt("smtp_notify") || "", "– HA-SMTP wählen –"), t("versendet den PDF-Bericht über Home Assistants SMTP-Integration statt über den eigenen Mail-Client"))
+        ].join(""), "hub", ["storm_gust_kmh", "storm_rain_mm", "repeat_minutes", "notify_on_failure", "smtp_notify"])
+      ].join("");
+      return this._grp("notify", "Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows);
+    }
+  };
+
+  // src/cards/settings/sections/system.js
+  var SystemSectionMethods = {
+    _groupHealth(ctx) {
+      const { st } = ctx;
+      const issues = st.issues || [];
+      const bad = issues.filter((i) => i.severity !== "info").length;
+      const healthTone = issues.some((i) => i.severity === "alert") ? "cold" : bad ? "warn" : "ok";
+      const healthExtra = `<span class="chip" style="--tone:${toneVar(healthTone)}">${bad ? t("{n} offen", { n: bad }) : "ok"}</span>`;
+      return this._grp("health", "Gesundheit der Heizung", "mdi:heart-pulse", healthTone, rkIssueList(issues, true, this._config.strip_prefix) + `<div class="hint">${t("Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.")}</div>`, "span", healthExtra);
+    },
+    _groupLayout() {
+      return this._layoutGroup();
+    },
+    _groupAdvanced() {
+      return this._grp(
+        "advanced",
+        "Erweitert",
+        "mdi:cog-outline",
+        "off",
+        `<div class="hint">${t("Kommt in einer späteren Beta: technische Einstellungen und Diagnosewerkzeuge.")}</div>`
+      );
+    }
+  };
+
+  // src/cards/settings/room/overview.js
+  var RoomOverviewMethods = {
+    _roomOverviewGroup(r) {
+      const a = r.attrs || {};
+      const s = a.settings || {};
+      if (a.monitor) return "";
+      const id = s.entry_id;
+      const target = a.effective_target != null ? a.effective_target : a.temperature;
+      const ranges = (this._roomOpt(r, "schedules") ?? s.schedules ?? []).length;
+      const sources = (this._roomOpt(r, "heat_sources") ?? s.heat_sources ?? []).length;
+      const windows = a.window_entities || [];
+      const open = windows.filter((w) => rkWindowOpen(this._hass, w)).length;
+      const changed = (s.changed || []).length;
+      const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : "";
+      const go = (tab, label, icon) => `<button class="btn small" data-roomtab="${tab}" style="--c:var(--rk-eco)"><ha-icon icon="${icon}"></ha-icon>${t(label)}</button>`;
+      const quick = [
+        [120, "2 Stunden", "2h"],
+        [240, "4 Stunden", "4h"],
+        [480, "8 Stunden", "8h"],
+        [240, "Party", "party"],
+        [0, "Pause", "off"]
+      ];
+      const balance = [
+        s.valve_position != null ? `${t("Ventil")} ${fmt(s.valve_position, 0)} %` : "",
+        s.heatup && s.heatup.rate != null ? `${t("Aufheizrate")} ${fmt(s.heatup.rate, 1)} K/h` : "",
+        s.heatup && s.heatup.minutes_2k != null ? `${t("Aufheizen +2 K")} ${s.heatup.minutes_2k} min` : "",
+        s.outdoor_temperature != null ? `${t("Draußen")} ${fmt(s.outdoor_temperature)} °C` : ""
+      ].filter(Boolean).join(" · ") || t("lernt noch");
+      const rows = [
+        plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
+        this._row(
+          t("Jetzt"),
+          this._v([
+            a.current_temperature != null ? `${fmt(a.current_temperature)} °C` : "",
+            a.current_humidity != null ? t("{h} % Feuchte", { h: fmt(a.current_humidity, 0) }) : ""
+          ].filter(Boolean).join(" · ") || "–"),
+          t("gemessen im Raum"),
+          this._srcBadge(r, "temperature_sensor")
+        ),
+        this._row(
+          t("Ziel"),
+          this._v(target != null ? `${fmt(target)} °C` : "–"),
+          t("was die Automatik gerade anstrebt"),
+          this._srcBadge(r, "comfort_temperature")
+        ),
+        this._row(t("Wärmebilanz"), this._v(balance), t("schnelle Einordnung – keine neue Regel")),
+        this._row(t("Zeitfenster"), this._v(ranges ? t("{n} angelegt", { n: ranges }) : t("keine"), !ranges), "", this._srcBadge(r, "schedules")),
+        this._row(t("Heizquellen"), this._v(sources ? t("{n} Quellen", { n: sources }) : t("keine"), !sources), "", this._srcBadge(r, "heat_sources")),
+        windows.length ? this._row(t("Fenster"), this._v(open ? t("{n} offen", { n: open }) : t("alle zu"), !open), "", this._srcBadge(r, "windows")) : "",
+        changed ? this._row(t("Abweichungen"), this._v(t("{n} Einstellungen vom Standard abweichend", { n: changed })), t("unter „Regelung“ und den anderen Unterseiten änderbar")) : "",
+        this._row(
+          t("Schnell-Override"),
+          `<div class="chips">${quick.map(([min, label, key]) => `<button class="chip2 ${a.boost_open && key === "party" ? "on" : ""}" data-roomboost="${key}" data-entry="${id}" data-min="${min}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${t(label)}</button>`).join("")}</div>`,
+          a.boost_open ? t("läuft ohne Zeitlimit") : a.boost_until ? t("aktiv bis {t}", { t: new Date(a.boost_until).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }) : t("wärmt kurzzeitig über den Zeitplan hinaus")
+        ),
+        this._row(t("Präsenzstatus"), this._v(
+          a.occupied === true ? t("belegt") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt"),
+          a.occupied !== true
+        ), t("aus Meldern und Lampen; Anwesenheits-Temperatur gilt, solange jemand im Raum ist")),
+        this._row(
+          t("Schnellzugriff"),
+          `<div class="chips">${[
+            go("control", "Regelung", "mdi:thermometer"),
+            go("schedule", "Zeitplan", "mdi:calendar-clock"),
+            go("windows", "Fenster & Lüften", "mdi:window-open-variant"),
+            go("sources", "Heizquellen", "mdi:radiator")
+          ].join("")}</div>`
+        )
+      ];
+      return this._grp("room", "Übersicht", "mdi:view-dashboard-outline", "air", rows.filter(Boolean).join(""), "span");
+    }
+  };
 
   // src/cards/settings/sheet.js
   var SheetMethods = {
@@ -4882,331 +6229,113 @@
 
   // src/cards/settings/general.js
   var GeneralMethods = {
-    // ---------------------------------------------------------------- Allgemein
-    _general() {
-      if (this._err) return `<div class="hint">${t("Einstellungen konnten nicht geladen werden: {e}", { e: esc(this._err) })}</div>`;
-      if (!this._cfg) return `<div class="hint">${t("Lade Einstellungen …")}</div>`;
-      if (!this._cfg.hub) return `<div class="hint">${t("„Raumklima Allgemein“ wird gerade eingerichtet – bitte die Seite gleich neu laden.")}</div>`;
-      const ch = this._cfg.choices || {};
-      const st = this._cfg.hub.state || {};
-      const hubIds = rkHub(this._hass);
-      const pres = PRESENCE[st.stage] || PRESENCE.home;
-      const seas = SEASON[st.decision] || SEASON.heating;
-      const residents = this._hubOpt("residents") || [];
-      const persons = st.persons || {};
-      const H = "hub";
-      const personChips = (ch.persons || []).map((p) => {
-        const on = residents.includes(p.id);
-        const info = persons[p.id];
-        const where = info ? info.present ? t("da") : info.distance_km != null ? `${fmt(info.distance_km, info.distance_km < 10 ? 1 : 0)} km` : t("unbekannt") : "";
-        return `<button class="chip2 ${on ? "" : "off"}" data-person="${p.id}" style="--c:${on ? info && info.present ? "var(--rk-ok)" : "var(--rk-eco)" : "var(--rk-off)"}" ${this._admin ? "" : "disabled"}><i></i>${esc(p.name)}${on && where ? ` · ${where}` : ""}</button>`;
-      }).join("");
-      const presRows = [
-        `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
-        this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
-        this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
-        this._row("Absenken nach", this._num(H, "away_delay", this._hubOpt("away_delay")), "damit kurze Wege nichts auslösen"),
-        this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
-        this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
-        this._row("Homeoffice", this._toggle(hubIds.home_office), "im Fenster gilt der Wunsch, der Zeitplan pausiert"),
-        this._more("pres-ho", "Homeoffice & Kalender", [
-          (() => {
-            const items = Array.from({ length: 96 }, (_x, q) => {
-              const h = Math.floor(q / 4), m = q % 4 * 15;
-              const id = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-              return { id, name: id };
-            });
-            const from = this._hubOpt("home_office_from") || "08:00";
-            const to = this._hubOpt("home_office_to") || "17:00";
-            return this._row(
-              "Homeoffice-Fenster",
-              `<span class="inline">${this._select(H, "home_office_from", items, from)} – ${this._select(H, "home_office_to", items, to)}</span>`,
-              "in dieser Zeit heizen die gewählten Räume auf Wunsch; danach läuft der Zeitplan weiter"
-            );
-          })(),
-          this._row(
-            "Homeoffice gilt für",
-            `<div class="chips">${this._orderedRooms().map((r) => {
-              const rid = (r.attrs && r.attrs.settings || {}).entry_id || r.id;
-              const chosen = (this._hubOpt("home_office_rooms") || []).includes(rid);
-              return `<button class="chip2 ${chosen ? "" : "off"}" data-horoom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
-            }).join("")}</div>`,
-            (this._hubOpt("home_office_rooms") || []).length ? t("nur diese Räume werden auf Wunsch geheizt") : t("keine Auswahl = alle Räume mit Thermostat")
-          ),
-          this._row(
-            "Homeoffice nur wenn jemand da",
-            this._optToggle(H, "home_office_check", this._hubOpt("home_office_check") !== false),
-            "gilt für Kalendertermine; der Schalter heizt auch ohne Ortung"
-          ),
-          this._row(
-            "Homeoffice über Entität",
-            this._select(H, "home_office_entity", ch.signals || [], this._hubOpt("home_office_entity"), "– keiner –"),
-            "HA-Schalter, der Homeoffice mit schaltet – gilt wie der Schalter, ohne Anwesenheitsprüfung"
-          ),
-          this._row(
-            "Kalender",
-            this._select(H, "calendar_entity", ch.calendars || [], this._hubOpt("calendar_entity"), "– keiner –"),
-            st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"
-          ),
-          this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
-          this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : ""
-        ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity"]),
-        ...(() => {
-          const cal = st.calendar;
-          if (!cal) return [];
-          const cur = (cal.events || [])[0];
-          const up = cal.upcoming || [];
-          const when = (e) => e && e.all_day ? esc(String(e.start || "").slice(0, 10)) : esc(String(e && e.start || "").slice(11, 16));
-          const label = (e) => e && e.mode === "home" ? t("Homeoffice") : e && e.mode === "away" ? t("Urlaub") : t("kein Einfluss");
-          return [
-            this._row(t("Kalender – jetzt"), this._v(cur ? `${esc(cur.summary)} · ${when(cur)} · ${label(cur)}` : t("kein Termin"), !cur), ""),
-            ...up.slice(0, 5).map((e) => this._row(t("Kalender – als Nächstes"), this._v(`${esc(e.summary)} · ${when(e)} · ${label(e)}`, true), ""))
-          ];
-        })(),
-        this._more("pres-more", "Weitere Einstellungen", [
-          this._row(
-            "Anwesenheit aus",
-            this._optToggle(H, "presence_off", !!this._hubOpt("presence_off")),
-            "keine Auswertung: nichts wird nach Anwesenheit abgesenkt, nichts vorgeheizt, keine Weg-Meldungen – gedacht, wenn keine Ortung möglich ist"
-          ),
-          this._row(
-            "Gäste gelten für",
-            `<div class="chips">${this._orderedRooms().map((r) => {
-              const rid = (r.attrs && r.attrs.settings || {}).entry_id || r.id;
-              const chosen = (this._hubOpt("guests_rooms") || []).includes(rid);
-              return `<button class="chip2 ${chosen ? "" : "off"}" data-guestroom="${rid}" title="${esc(r.name)}"><i></i>${esc(r.name)}</button>`;
-            }).join("")}</div>`,
-            (this._hubOpt("guests_rooms") || []).length ? t("nur diese Räume werden nicht abgesenkt") : t("keine Auswahl = alle Räume der Wohnung")
-          ),
-          this._row("„Länger weg“ ab", this._num(H, "long_away_hours", this._hubOpt("long_away_hours"))),
-          this._row("Vorheizen ab", this._num(H, "preheat_km", this._hubOpt("preheat_km")), "wenn sich jemand nähert"),
-          this._row("Urlaub automatisch ab", this._num(H, "vacation_km", this._hubOpt("vacation_km") ?? 0), "sind alle Bewohner weiter weg, gilt nach der Wartezeit Urlaub – 0 = aus"),
-          this._row("… nach", this._num(H, "vacation_hours", this._hubOpt("vacation_hours") ?? 12), "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)"),
-          this._row("Arbeitsplätze", `<div class="chips">${(ch.zones || []).map((z) => {
-            const chosen = (this._hubOpt("work_zones") || []).includes(z.id);
-            return `<button class="chip2 ${chosen ? "" : "off"}" data-workzone="${z.id}" title="${esc(z.name)}"><i></i>${esc(z.name)}</button>`;
-          }).join("")}</div>`, "Zonen, in denen gearbeitet wird – wer dort ist, kommt so schnell nicht zurück"),
-          this._row("… gilt nach", this._num(H, "work_zone_minutes", this._hubOpt("work_zone_minutes") ?? 5), "so lange dort, dann gilt die Wohnung sofort als leer (kein Vorheizen, keine Wartezeit)"),
-          this._row(
-            "Präsenzmelder zählen",
-            this._segs(H, "home_sensors", RK_HOMESENS, this._hubOpt("home_sensors") || "mmwave"),
-            st.sensed && st.sensed.length ? t("gerade jemand in: {r}", { r: esc(st.sensed.join(", ")) }) : "sieht ein Melder jemanden, wird nicht abgesenkt – PIR löst auch bei Haustieren aus, darum standardmäßig nur mmWave; im Urlaub zählen Melder nie"
-          )
-        ].join(""), "hub", ["presence_off", "guests_rooms", "long_away_hours", "preheat_km", "vacation_km", "vacation_hours", "work_zones", "work_zone_minutes", "home_sensors"])
-      ].join("");
-      const mode = this._hubOpt("season_mode");
-      const mdToInput = (v) => v && /^\d{2}-\d{2}$/.test(v) ? `2000-${v}` : "";
-      const seasRows = [
-        `<div class="status"><span class="chip" style="--tone:${toneVar(seas.tone)}"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}</span>
-        <span class="chip" style="--tone:var(--rk-off)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Ø 24 h {p} · Vorhersage {f}", { p: st.mean_past == null ? t("sammelt noch") : fmt(st.mean_past) + "°", f: st.mean_forecast == null ? "–" : fmt(st.mean_forecast) + "°" })}</span></div>`,
-        this._row("Betriebsart", this._segs(H, "season_mode", RK_MODES, mode)),
-        this._row("Heizgrenze", this._num(H, "heating_limit", this._hubOpt("heating_limit")), "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)"),
-        this._row("Heute heizen", st.heat_today_until ? `<button class="btn" data-action="cancel_heat_today" style="--c:var(--rk-heat)"><ha-icon icon="mdi:close"></ha-icon>${t("Beenden")}</button>` : `<button class="btn" data-action="heat_today" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><ha-icon icon="mdi:fire"></ha-icon>${t("24 h heizen")}</button>`, "für milde, aber kühle Tage"),
-        this._more("seas-more", "Weitere Einstellungen", [
-          this._row("Heizsaison", `<span class="v"><input class="inp short" type="date" data-md="season_start" value="${mdToInput(this._hubOpt("season_start"))}" ${this._admin ? "" : "disabled"}> ${t("bis")} <input class="inp short" type="date" data-md="season_end" value="${mdToInput(this._hubOpt("season_end"))}" ${this._admin ? "" : "disabled"}></span>`, "Kalender antippen – Tag und Monat zählen, das Jahr ist egal"),
-          this._row("Außentemperatur von", this._select(H, "outdoor_temp_entity", ch.outdoor || [], this._hubOpt("outdoor_temp_entity"), "Wetterdienst"), "eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst"),
-          this._row("Kälteeinbruch unter", this._num(H, "cold_snap_temp", this._hubOpt("cold_snap_temp")), "3 Tage darunter → heizt auch außerhalb der Saison"),
-          this._row("Sicherung", this._num(H, "frost_floor", this._hubOpt("frost_floor")), "fällt ein Raum darunter, heizt er immer"),
-          this._row("Frostnacht: weniger absenken", this._optToggle(H, "frost_night", !!this._hubOpt("frost_night")), "unter −5 °C laut Vorhersage nur halb so tief – der Raum ist schneller wieder warm"),
-          this._row("Sommerpflege Ventile", this._optToggle(H, "valve_care", !!this._hubOpt("valve_care")), "mittwochs 11 Uhr kurz öffnen")
-        ].join(""), "hub", ["season_start", "season_end", "outdoor_temp_entity", "cold_snap_temp", "frost_floor", "frost_night", "valve_care"])
-      ].join("");
-      const sl = st.sleep || {};
-      const signals = this._hubOpt("sleep_signals") || [];
-      const sigNames = Object.fromEntries((ch.signals || []).map((x) => [x.id, x.name]));
-      const sigChips = signals.map((id) => `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${esc(sigNames[id] || this._name(id))}${this._admin ? ` <button class="mini x" data-sigrm="${esc(id)}" title="${t("entfernen")}">✕</button>` : ""}</span>`).join("");
-      const sigAvail = (ch.signals || []).filter((x) => !signals.includes(x.id));
-      const lrn = (k, label) => {
-        const v = sl[k] || {};
-        const e = v.effective || {};
-        const src = e.source || {};
-        const learned = (key) => src[key] === "learned" ? ` · ${t("gelernt")}` : "";
-        const chips = [
-          v.bed ? `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${t("ins Bett ~{v}", { v: v.bed })}${learned("night_start")}</span>` : `<span class="chip2" style="--c:var(--rk-off)"><i></i>${t("{n}/4 Nächte", { n: v.nights_bed || 0 })}</span>`,
-          v.wake ? `<span class="chip2" style="--c:var(--rk-eco)"><i></i>${t("auf ~{v}", { v: v.wake })}${learned("wake")}</span>` : "",
-          e.quiet_start ? `<span class="chip2"><i></i>${t("Ruhezeit")} ${e.quiet_start}–${e.quiet_end}</span>` : ""
-        ].filter(Boolean).join("");
-        return this._row(t(label), `<div class="chips">${chips}</div>`, "");
-      };
-      const hm = (v) => String(v || "").slice(0, 5);
-      const tf = (key, val) => `<button class="timebtn" data-timeopen="${key}" data-val="${hm(val)}" ${this._admin ? "" : "disabled"}>${hm(val) || "–:–"}</button>`;
-      const sleepRows = [
-        `<div class="status"><span class="chip" style="--tone:${sl.quiet_now ? "var(--rk-eco)" : "var(--rk-ok)"}"><ha-icon icon="${sl.quiet_now ? "mdi:sleep" : "mdi:white-balance-sunny"}"></ha-icon>${sl.quiet_now ? t("Ruhezeit gerade aktiv") : t("Keine Ruhezeit")}</span>${sl.asleep ? `<span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-off-outline"></ha-icon>${t("Licht aus – alle schlafen")}</span>` : ""}</div>`,
-        this._row("Ruhezeit", `<span class="v">${tf("quiet_start", this._hubOpt("quiet_start"))} – ${tf("quiet_end", this._hubOpt("quiet_end"))}</span>`, "nur Dringendes (kühlt aus, Fenster offen bei Abwesenheit, Thermostat-Fehler) kommt laut"),
-        this._row("Wochenende bis", `<span class="v">${tf("quiet_end_weekend", this._hubOpt("quiet_end_weekend"))}</span>`, "Sa und So endet die Ruhezeit später – zum Ausschlafen"),
-        this._row("Ruhezeit senkt ab", this._optToggle(H, "quiet_setback", !!this._hubOpt("quiet_setback")), "während der Ruhezeit werden Schlafzimmer und selten genutzte Räume abgesenkt – auch wenn jemand zu Hause ist"),
-        lrn("weekday", "Werktags"),
-        lrn("weekend", "Wochenende"),
-        this._more("night-more", "Weitere Einstellungen", [
-          this._row("Absenkwert nachts", this._select(H, "night_level", [{ id: "short", name: t("Kurz weg") }, { id: "long", name: t("Länger weg") }, { id: "frost", name: t("Frostschutz") }], this._hubOpt("night_level") || "long"), "gilt bei der Ruhezeit und wenn der Schalter „Nachtruhe“ an ist – je Raum unter „Nachtabsenkung“ ein- oder ausgeschlossen"),
-          this._row(
-            "Nachtruhe über Entität",
-            this._select(H, "night_entity", ch.signals || [], this._hubOpt("night_entity"), "– keiner –"),
-            "HA-Schalter, der die Nachtruhe mit schaltet – der eigene Schalter bleibt"
-          ),
-          this._row("Nachtlüften", `<span class="v">${tf("night_start", this._hubOpt("night_start"))} – ${tf("night_end", this._hubOpt("night_end"))}</span>`, "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß"),
-          this._row("… leise warnen unter", this._num(H, "night_alarm_temp", this._hubOpt("night_alarm_temp")), "einmal pro Nacht"),
-          this._row("Zeiten lernen", this._optToggle(H, "learn_times", !!this._hubOpt("learn_times")), "aus Nachtlüften und Licht – verlängert Ruhezeit und Nachtlüften nur, verkürzt nie"),
-          this._row("Schichtdienst", this._optToggle(H, "learn_shift", !!this._hubOpt("learn_shift")), "auch Tagschlaf lernen: ins Bett bis 09:00, aufstehen bis 17:00 – für Nachtschicht und Wechselschicht"),
-          this._row("Feiertage", this._select(H, "holiday_state", ch.states || [], this._hubOpt("holiday_state") || "", "– keine –"), sl.tonight && sl.tonight.holiday ? t("morgen: {h} – Ruhezeit wie am Wochenende", { h: esc(sl.tonight.holiday) }) : "Nacht vor einem Feiertag gilt wie Wochenende"),
-          this._row("Schlaf-Signale", `<div class="chips">${sigChips || this._v("keine", true)}</div>`, "Lichter: abends alle 20 min aus = ins Bett, morgens eins an = aufgestanden"),
-          this._admin && sigAvail.length ? `<div class="addrow"><select class="sel" id="addSig">${sigAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-sigadd style="--c:var(--rk-eco)"><ha-icon icon="mdi:lightbulb-plus-outline"></ha-icon>${t("Signal hinzufügen")}</button></div>` : "",
-          `<div class="hint">${t("Jede Nacht zählt einmal (frühestes Ereignis). Gelernt wird zuerst je Wochentag (Schichtdienst), sonst nach Werktag und Wochenende (Fr→Sa, Sa→So); gelernt wird der typische Wert (Median) der letzten 6 Wochen, sobald 4 Nächte da sind. Die Ruhezeit beginnt 30 min vor der typischen Bettzeit und endet 30 min nach dem Aufstehen – aber nie kürzer als eingestellt.")}</div>`
-        ].join(""), "hub", ["night_level", "night_entity", "night_start", "night_end", "night_alarm_temp", "learn_times", "learn_shift", "holiday_state", "sleep_signals"])
-      ].join("");
-      const frsi = fmt({ unrenovated: 0.6, renovated: 0.7, new: 0.8 }[this._hubOpt("building_type")] || 0.7, 2);
-      const homes = this._cfg.homes || [];
-      const homeRows = [
-        this._row("Name der Wohnung", `<input class="inp" data-hubtext="name" value="${esc(this._hubOpt("name") || "")}" placeholder="${t("z. B. Ferienwohnung")}" ${this._admin ? "" : "disabled"}>`, "erscheint im Umschalter oben im Dashboard"),
-        this._row("Bauart", this._segs(H, "building_type", RK_BUILDING, this._hubOpt("building_type"))),
-        `<div class="hint">${t("Der Schimmelschutz rechnet bei längerer Abwesenheit mit der kältesten Wandstelle (Temperaturfaktor {f} nach DIN 4108-2). Ist die Raumluft feucht, wird weniger abgesenkt – warme Luft nimmt mehr Feuchte auf und die Wand bleibt unter 80 % Feuchte.", { f: frsi })}</div>`,
-        this._row("Wetterquelle", this._select(H, "weather_entity", ch.weather || [], this._hubOpt("weather_entity"), "– wählen –"), st.outdoor_temperature != null ? t("Draußen gerade {v} °C", { v: fmt(st.outdoor_temperature) }) : ""),
-        this._more("home-more", "Dashboard, Standort, weitere Wohnung", [
-          (() => {
-            const dh = homes.find((h) => h.entry_id === this._cfg.hub.entry_id) || {};
-            const dp = dh.dashboard || "";
-            const fehlt = this._admin && rkNeedsDashboard(this._dashKnown(), dp, String(this._hass && this._hass.panelUrl || "").replace(/^\//, ""));
-            return this._row(
-              "Dashboard",
-              `<input class="inp" data-hubtext="dashboard" value="${esc(this._hubOpt("dashboard") || "")}" placeholder="${esc(dp || "heizung")}" ${this._admin ? "" : "disabled"}>${fehlt ? ` <button class="mini" data-mkdash="${esc(dp)}" title="${t("Dashboard mit der Raumklima-Strategie anlegen")}">${t("anlegen")}</button>` : ` <span class="lt">${t("vorhanden")}</span>`}`,
-              fehlt ? t("Für diese Wohnung gibt es noch kein Dashboard „{d}“ – der Knopf legt es mit der Raumklima-Strategie an (gefiltert auf diese Wohnung).", { d: dp }) : t("Adresse des Dashboards dieser Wohnung (für den Umschalter)")
-            );
-          })(),
-          (() => {
-            const lat = this._hubOpt("latitude"), lon = this._hubOpt("longitude");
-            const hl = this._hass.config || {};
-            const haLat = hl.latitude != null ? fmt(hl.latitude, 4) : "–";
-            const haLon = hl.longitude != null ? fmt(hl.longitude, 4) : "–";
-            const zn = this._hubOpt("zone") || "";
-            const zst = zn ? this._st(zn) : null;
-            const zlat = zst && zst.attributes ? zst.attributes.latitude : null;
-            const zlon = zst && zst.attributes ? zst.attributes.longitude : null;
-            const own = lat != null || lon != null;
-            return this._row(
-              "Standort der Wohnung",
-              `<span class="v"><input type="number" class="inp short" step="0.0001" min="-90" max="90" data-hubgeo="latitude" value="${lat ?? ""}" placeholder="${t("Breite")}" ${this._admin ? "" : "disabled"}> <input type="number" class="inp short" step="0.0001" min="-180" max="180" data-hubgeo="longitude" value="${lon ?? ""}" placeholder="${t("Länge")}" ${this._admin ? "" : "disabled"}> ${this._admin ? `<button class="mini" data-geohass title="${t("Werte von Home Assistant übernehmen")}">${t("von HA")}</button>${own ? `<button class="mini x" data-geoclear title="${t("leeren – dann gilt Home Assistant")}">✕</button>` : ""}` : ""}</span>`,
-              t("Leer lassen = es gilt der Standort aus der Zone dieser Wohnung ({zone}{zl}). Ist keine Zone gesetzt, gilt der Standort von Home Assistant ({lat} / {lon}). Nur eintragen, wenn die Wohnung woanders liegt – daraus rechnet Raumklima den Sonnenstand; „von HA“ übernimmt die HA-Werte zum Anpassen.", {
-                zone: zn || t("keine Zone gesetzt"),
-                zl: zlat != null && zlon != null ? `, ${fmt(zlat, 4)} / ${fmt(zlon, 4)}` : "",
-                lat: haLat,
-                lon: haLon
-              })
-            );
-          })(),
-          this._admin ? `<div class="addrow"><input class="inp" id="newHome" placeholder="${t("Neue Wohnung, z. B. Ferienwohnung")}"><button class="btn" data-newhome style="--c:var(--rk-ok)"><ha-icon icon="mdi:home-plus-outline"></ha-icon>${t("Wohnung anlegen")}</button></div>` : "",
-          `<div class="hint">${homes.length > 1 ? t("{n} Wohnungen: {list}. Jede hat eigene Bewohner, Zone, Empfänger, Heizsaison und Protokoll; Räume ordnest du im Raum unter „Wohnung“ zu.", { n: homes.length, list: homes.map((h) => esc(h.name) + " (" + t("{n} Räume", { n: h.rooms.length }) + ")").join(", ") }) : t("Für eine zweite Wohnung (z. B. Ferienwohnung) mit eigenen Bewohnern, Zone und Empfängern hier anlegen. Bestehende Räume bleiben in dieser Wohnung.")}</div>`
-        ].join(""), "hub", ["dashboard", "latitude", "longitude"])
-      ].join("");
-      const reportRows = [
-        this._row(
-          "PDF-Berichte",
-          `<div class="chips">${Object.entries({ week: t("Woche"), month: t("Monat"), season: t("Heizsaison") }).map(([k, l]) => {
-            const on = (this._hubOpt("report_pdf") ?? ["week", "month", "season"]).includes(k);
-            return `<button class="chip2 ${on ? "" : "off"}" data-rpdf="${k}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${l}</button>`;
-          }).join("")}</div>`,
-          "automatisch erstellen: Woche sonntags 18 Uhr, Monat am 1., Heizsaison nach Saisonende – Push mit Link an alle mit „Wochenbericht“"
-        ),
-        this._row(
-          "PDF per E-Mail",
-          `<button class="tgl ${this._hubOpt("report_email") ? "on" : ""}" data-mailtoggle ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-          this._hubOpt("report_email") ? "die PDF kommt als Anhang an die Empfänger unten" : "darunter einmal „E-Mail einrichten“ – danach kommt jeder Bericht auch per Mail"
-        ),
-        this._mailSetup(ch.mail || []),
-        this._hubOpt("report_email") && this._admin ? this._row("Test", `<button class="btn" data-pdftest style="--c:var(--rk-heat)"><ha-icon icon="mdi:email-fast-outline"></ha-icon>${t("Wochenbericht jetzt senden")}</button>`) : "",
-        this._more("rep-more", "Weitere Einstellungen", [
-          this._row(
-            "Wärmemenge im Bericht",
-            this._select(H, "report_metric", [
-              { id: "auto", name: t("automatisch") },
-              { id: "valve", name: t("Ventilstellung") },
-              { id: "deficit", name: t("Gradstunden") },
-              { id: "hours", name: t("Heizstunden") }
-            ], this._hubOpt("report_metric") || "auto"),
-            "automatisch = Ventilstellung, wenn jedes Thermostat sie meldet – sonst Gradstunden unter Ziel (gemessen, nicht geschätzt)"
-          ),
-          this._row("Heizkosten pro Jahr", `<span class="v"><input type="number" class="inp" min="0" max="20000" step="50" data-hubnum="annual_cost" value="${this._hubOpt("annual_cost") ?? ""}" placeholder="${t("z. B. 1400")}" ${this._admin ? "" : "disabled"} style="width:110px"> €</span>`, "optional, laut Abrechnung – nur für die Euro-Schätzung im PDF-Bericht (Ersparnis, „1 °C weniger = … €“)")
-        ].join(""), "hub", ["report_metric", "annual_cost"])
-      ].join("");
-      const push = this._hubOpt("recipients") || {};
-      const tts = this._hubOpt("tts") || {};
-      const palette = ["#4f9dff", "#ff7a45", "#2ec4a6", "#a78bfa", "#ffb020"];
-      const kinds = this._cfg.kinds || Object.keys(RK_KINDS);
-      const card = (target, list, channel, i) => {
-        const ks = kinds.filter((k) => k !== "live" || channel === "push" && target.startsWith("notify.mobile_app_"));
-        const chips = ks.map((k) => `<button class="chip2 ${list.includes(k) ? "" : "off"}" data-kind="${k}" data-target="${esc(target)}" data-ch="${channel}" title="${RK_KINDS[k][1]}" ${this._admin ? "" : "disabled"}>${RK_KINDS[k][0]} ${RK_KINDS[k][1]}</button>`).join("");
-        return `<div class="row"><div class="l">
-        <span class="rn" style="--c:${palette[i % palette.length]}"><i></i>${esc(rkPretty(target))}</span>
-        <small>${channel === "tts" ? t("Sprachansage · nie in der Ruhezeit") : t("Push aufs Handy")} · ${esc(target)}</small></div>
-        <div class="chips">${chips}${this._admin ? `<button class="mini" data-test="${esc(target)}">${t("Test")}</button><button class="mini x" data-remove="${esc(target)}" data-ch="${channel}" title="${t("entfernen")}">✕</button>` : ""}</div></div>`;
-      };
-      const cards = [...Object.entries(push).map(([tg, l], i) => card(tg, l || [], "push", i)), ...Object.entries(tts).map(([tg, l], i) => card(tg, l || [], "tts", i + 3))].join("") || `<div class="hint">${t("Noch kein Empfänger – unten hinzufügen.")}</div>`;
-      const avail = (ch.notify || []).filter((tg) => !(tg in push) && !(tg in tts));
-      const addRow = this._admin && avail.length ? `<div class="addrow">
-        <select class="sel" id="addTarget">${avail.map((tg) => `<option value="${esc(tg)}">${esc(rkPretty(tg))} (${esc(tg)})</option>`).join("")}</select>
-        <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
-        <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
-      const notiRows = [
-        this._row(
-          "Lüfthinweise von",
-          `<span class="v">${tf("vent_from", this._hubOpt("vent_from") || "08:00:00")} – ${tf("vent_to", this._hubOpt("vent_to") || "21:00:00")}</span>`,
-          t("Bitte lüften, Fenster schließen und Luft ausgetauscht nur in dieser Zeit – nachts bleibt es still, Raum kühlt aus, Frost und Gerätefehler melden sich weiter")
-        ),
-        this._row("Nur an anwesende Personen", this._optToggle(H, "notify_present_only", this._hubOpt("notify_present_only") ?? true), t("Lüft-Hinweise nur an Handys von Personen, die laut Ortung zu Hause sind – dringende Meldungen (Fenster offen bei Abwesenheit, Frost, Ausfall) gehen weiter an alle")),
-        this._row(
-          "Sturm- und Regenwarnung",
-          this._optToggle(H, "storm_warning", this._hubOpt("storm_warning") ?? true),
-          t("warnt, wenn Sturm oder Starkregen angekündigt ist und ein Fenster offen steht – kommt auch in der Ruhezeit")
-        ),
-        this._more("noti-more", "Weitere Einstellungen", [
-          this._row(
-            "… Böen ab",
-            this._num(H, "storm_gust_kmh", this._hubOpt("storm_gust_kmh") ?? 70),
-            t("ab dieser Böenstärke gilt es als Sturm")
-          ),
-          this._row(
-            "… Regen ab",
-            this._num(H, "storm_rain_mm", this._hubOpt("storm_rain_mm") ?? 8),
-            t("ab dieser Regenmenge gilt es als Starkregen")
-          ),
-          this._row("Erinnern alle", this._num(H, "repeat_minutes", this._hubOpt("repeat_minutes")), "solange das Problem besteht"),
-          this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure")))
-        ].join(""), "hub", ["storm_gust_kmh", "storm_rain_mm", "repeat_minutes", "notify_on_failure"])
-      ].join("");
-      const yes = (b) => b ? `<span class="ok">● ${t("an")}</span>` : `<span class="no">○ ${t("aus")}</span>`;
-      const rowsT = this._orderedRooms().map((r) => {
+    // Raumkacheln – gemeinsam für „Alle Räume“ und die Räume-Liste (Phase 1).
+    _roomTiles(q = "") {
+      const issues = this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || [];
+      const needle = String(q || "").toLowerCase().trim();
+      return this._orderedRooms().filter(
+        (r) => !needle || String(r.name || "").toLowerCase().includes(needle) || String((r.attrs.settings || {}).name || "").toLowerCase().includes(needle)
+      ).map((r) => {
         const s = r.attrs.settings || {};
         const notif = (this._st(r.sib.notifications) || {}).state === "on";
         const wl = (this._st(r.sib.window_logic) || {}).state === "on";
+        const roomIssues = issues.filter((i) => i.entry_id === s.entry_id && i.severity !== "info");
+        const changed = (s.changed || []).length;
+        const plan = r.attrs.plan_reason && r.attrs.plan_reason !== "normal" ? planText(r.attrs, false, true) : "";
         const flags = [
+          roomIssues.length ? `<ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)" title="${t("{n} Warnungen", { n: roomIssues.length })}"></ha-icon>` : "",
           wl ? `<ha-icon icon="mdi:window-open-variant" title="${t("Fensterlogik an")}"></ha-icon>` : "",
           notif ? `<ha-icon icon="mdi:bell-outline" title="${t("Hinweise an")}"></ha-icon>` : "",
-          r.attrs.humidity_limit != null ? `<ha-icon icon="mdi:water-percent" title="${fmt(r.attrs.humidity_limit, 0)} %"></ha-icon>` : ""
+          r.attrs.humidity_limit != null ? `<ha-icon icon="mdi:water-percent" title="${fmt(r.attrs.humidity_limit, 0)} %"></ha-icon>` : "",
+          changed ? `<span class="rchg" title="${t("{n} Einstellungen vom Standard abweichend", { n: changed })}">${changed}</span>` : ""
         ].join("");
         return `<button class="rtile" data-tab="${r.id}" style="--c:${r.color}">
         <span class="rtop"><span class="rname">${r.name}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
         <span class="rbig">${fmt(r.attrs.comfort_temperature)}<i>°</i></span>
+        ${plan ? `<span class="rsub">${plan}</span>` : ""}
         <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>
         <span class="rsub">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>
         <span class="rflags">${flags}</span></button>`;
       }).join("");
-      const issues = st.issues || [];
-      const bad = issues.filter((i) => i.severity !== "info").length;
-      const healthTone = issues.some((i) => i.severity === "alert") ? "cold" : bad ? "warn" : "ok";
-      const healthExtra = `<span class="chip" style="--tone:${toneVar(healthTone)}">${bad ? t("{n} offen", { n: bad }) : "ok"}</span>`;
-      return `<div class="groups">
-      ${this._grp("home", "Erste Schritte", "mdi:check-decagram-outline", "ok", this._checkRows(st, ch), "span")}
-      ${this._grp("heating", "Gesundheit der Heizung", "mdi:heart-pulse", healthTone, rkIssueList(issues, true, this._config.strip_prefix) + `<div class="hint">${t("Prüft alle 10 Minuten: Batterien, Raum wird trotz offenem Ventil nicht warm, Fühler hängt, Funkaussetzer, Fensterkontakt still. Meldungen gehen an alle mit „🩺 Gesundheit“.")}</div>`, "span", healthExtra)}
-      ${this._grp("presence", "Anwesenheit & Absenkung", "mdi:home-account", "eco", presRows)}
-      ${this._grp("heating", "Heizsaison & Heizgrenze", "mdi:radiator", "heat", seasRows)}
-      ${this._grp("notify", "Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span")}
-      ${this._grp("notify", "Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows)}
-      ${this._grp("night", "Nacht & Ruhezeit", "mdi:sleep", "eco", sleepRows, "span")}
-      ${this._grp("reports", "Berichte", "mdi:file-chart-outline", "heat", reportRows)}
-      ${this._grp("home", "Wohnung", "mdi:home-switch-outline", "air", homeRows)}
-      ${this._grp("home", "Alle Räume auf einen Blick", "mdi:table", "off", `<div class="roomgrid">${rowsT}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>`, "span")}
-      ${this._learnHub(st)}
-      ${this._layoutGroup()}
-    </div>`;
+    },
+    // ---------------------------------------------------------------- Allgemein
+    _generalCtx() {
+      const ch = this._cfg.choices || {};
+      const st = this._cfg.hub.state || {};
+      return {
+        ch,
+        st,
+        H: "hub",
+        hubIds: rkHub(this._hass),
+        pres: PRESENCE[st.stage] || PRESENCE.home,
+        seas: SEASON[st.decision] || SEASON.heating,
+        residents: this._hubOpt("residents") || [],
+        persons: st.persons || {}
+      };
+    },
+    _timeField(key, val) {
+      const hm = String(val || "").slice(0, 5);
+      return `<button class="timebtn" data-timeopen="${key}" data-val="${hm}" ${this._admin ? "" : "disabled"}>${hm || "–:–"}</button>`;
+    },
+    _sectionBody(id, ctx) {
+      switch (id) {
+        case "rooms":
+          return this._roomList();
+        case "presence":
+          return `${this._groupPresence(ctx)}${this._groupNight(ctx)}`;
+        case "energy":
+          return `${this._groupEnergy()}${this._groupWeather()}${this._groupHeating(ctx)}${this._groupReports(ctx)}`;
+        case "notify":
+          return `${this._groupRecipients(ctx)}${this._groupNotify(ctx)}`;
+        case "system":
+          return `${this._groupHealth(ctx)}${this._groupLayout()}${this._groupAdvanced()}`;
+        default:
+          return `${this._groupHomeWelcome(ctx)}${this._groupHomeApartment(ctx)}${this._groupLearn(ctx)}`;
+      }
+    },
+    _general() {
+      if (this._err) return `<div class="hint">${t("Einstellungen konnten nicht geladen werden: {e}", { e: esc(this._err) })}</div>`;
+      if (!this._cfg) return `<div class="hint">${t("Lade Einstellungen …")}</div>`;
+      if (!this._cfg.hub) return `<div class="hint">${t("„Raumklima Allgemein“ wird gerade eingerichtet – bitte die Seite gleich neu laden.")}</div>`;
+      const ctx = this._generalCtx();
+      if (this._nav2) {
+        const sec = SETTINGS_SECTIONS.find((x) => x.id === this._section) || SETTINGS_SECTIONS[0];
+        return `<div class="groups">${this._sectionBody(sec.id, ctx)}</div>`;
+      }
+      return `<div class="groups">${[
+        this._groupHomeWelcome(ctx),
+        this._groupHealth(ctx),
+        this._groupPresence(ctx),
+        this._groupHeating(ctx),
+        this._groupRecipients(ctx),
+        this._groupNotify(ctx),
+        this._groupNight(ctx),
+        this._groupReports(ctx),
+        this._groupHomeApartment(ctx),
+        this._groupLearn(ctx),
+        this._groupLayout()
+      ].join("")}</div>`;
+    },
+    _roomSearchBlock(q) {
+      const needle = String(q || "").toLowerCase().trim();
+      if (!needle) return "";
+      const hit = ROOM_SEARCH.find((x) => x.terms.some((term) => needle.includes(term) || term.includes(needle)));
+      if (!hit) return "";
+      const rooms = this._orderedRooms().filter((r) => !r.attrs.monitor || hit.tab !== "sources");
+      if (!rooms.length) return "";
+      return `<div class="grp roomhits" data-g="search-rooms"><div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b><span class="chip" style="--tone:var(--rk-air)">${t(hit.label)}</span></div><div class="rws"><div class="roomgrid">${rooms.map((r) => `<button class="rtile" data-goto="roomtab:${r.id}:${hit.tab}" style="--c:${r.color}"><span class="rtop"><span class="rname">${esc(r.name)}</span><span class="rtyp">${t(hit.label)}</span></span><span class="rsub">${t("öffnen")}</span></button>`).join("")}</div></div></div>`;
+    },
+    // Phase 5: globale Suche. Alle Bereichsgruppen werden einmal gezeichnet; _filter()
+    // blendet die Treffer ein. Der aktuelle Raum bleibt dabei sichtbar, damit auch
+    // Raumeinstellungen gefunden werden.
+    _searchBody(q) {
+      const ctx = this._generalCtx();
+      const groups = SETTINGS_SECTIONS.filter((x) => x.id !== "rooms").map((x) => this._sectionBody(x.id, ctx)).join("");
+      const room = (this._rooms || []).find((r) => r.id === this._tab);
+      const roomGroups = room ? this._room(room) : "";
+      const nameHits = this._roomTiles(q);
+      const roomBlock = nameHits ? `<div class="grp roomhits" data-g="search-rooms"><div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div><div class="rws"><div class="roomgrid">${nameHits}</div></div></div>` : this._roomSearchBlock(q);
+      return `<div class="groups searching">${roomGroups}${groups}${roomBlock}</div>`;
     },
     _mailSetup(mailServices = []) {
       const o = (k) => this._mailForm && this._mailForm[k] !== void 0 ? this._mailForm[k] : this._hubOpt(k) ?? "";
@@ -5439,7 +6568,8 @@
         });
       }
       if (list.length > 3) {
-        rows.push(`<details class="sched-collapse"><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
+        const opened = !!(this._schedOpen && this._schedOpen.get(id));
+        rows.push(`<details class="sched-collapse" data-schedcollapse="${esc(id)}"${opened ? " open" : ""}><summary>${t("Zeitfenster")} (${list.length})</summary>${windowRows.join("")}</details>`);
       } else {
         rows.push(...windowRows);
       }
@@ -5617,6 +6747,11 @@
 
   // src/cards/settings/room.js
   var RoomMethods = {
+    // Gruppen einer Raum-Unterseite zuordnen, ohne die gewachsenen Gruppen-Bausteine
+    // doppelt zu pflegen. _filter() blendet anschließend alles außer der aktiven Seite aus.
+    _roomSub(tab, html) {
+      return String(html || "").replace('<div class="grp ', `<div data-room="${tab}" class="grp `);
+    },
     _room(r) {
       const a = r.attrs, s = a.settings || {}, sib = r.sib;
       const mon = a.monitor === true;
@@ -5637,28 +6772,34 @@
       const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
       const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
       const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
+      const cooling = this._roomOpt(r, "cooling") ?? s.cooling ?? false;
+      const coolSet = this._roomOpt(r, "cool_setpoint") ?? s.cool_setpoint ?? 26;
+      const acCount = (a.ac_sources || []).length;
       const moldMode = this._roomOpt(r, "mold_mode") ?? s.mold_mode ?? "strict";
       const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
       const editable = this._admin && cfgRoom;
       const push = Object.keys(this._cfg && this._cfg.hub && this._cfg.hub.options.recipients || {});
       const plan = a.plan_reason && a.plan_reason !== "normal" ? planText(a, false) : null;
       const rIssues = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).filter((i) => i.entry_id === id);
-      return `<div class="groups">
-      ${rIssues.length ? this._grp("heating", "Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : ""}
-      ${a.monitor ? this._grp("room", "Überwachung", "mdi:eye-outline", "eco", [
+      const sub = (tab, html) => this._roomSub(tab, html);
+      const tabBar = this._nav2 ? `<div class="tabs roomsub">${ROOM_TABS.map((x) => `<button class="tab ${x.id === (this._roomTab || ROOM_TAB_DEFAULT) ? "on" : ""}" data-roomtab="${x.id}"><ha-icon icon="${x.icon}"></ha-icon>${t(x.label)}</button>`).join("")}</div>` : "";
+      return `${tabBar}<div class="groups">
+      ${sub("overview", rIssues.length ? this._grp("heating", "Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : "")}
+      ${sub("overview", this._roomOverviewGroup(r))}
+      ${sub("overview", a.monitor ? this._grp("room", "Überwachung", "mdi:eye-outline", "eco", [
         this._row("Kein Thermostat", this._v("nur Messen und Hinweise", true), "Temperatur, Feuchte, CO₂ und Lüftungshinweise – ohne Heizungsregelung. Ein Thermostat lässt sich später in der Integration nachtragen.")
-      ].join(""), "span") : ""}
-      ${a.monitor ? "" : this._grp("room", "Temperatur", "mdi:thermometer", "heat", [
+      ].join(""), "span") : "")}
+      ${sub("control", a.monitor ? "" : this._grp("room", "Temperatur", "mdi:thermometer", "heat", [
         plan ? `<div class="status"><span class="chip" style="--tone:var(--rk-eco)"><ha-icon icon="mdi:information-outline"></ha-icon>${plan}</span></div>` : "",
-        this._row("Wunschtemperatur", editable ? this._num(scope, "comfort_temperature", comfort) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert"),
+        this._row("Wunschtemperatur", editable ? this._num(scope, "comfort_temperature", comfort) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert", this._srcBadge(r, "comfort_temperature")),
         this._row(
           "Raumtyp",
           editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–"),
           t("jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben")
         ),
         (this._cfg && this._cfg.homes || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
-        this._row("Absenkung „kurz weg“", editable ? this._num(scope, "setback_short", sbShort) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind"),
-        this._row("Absenkung „länger weg“", editable ? this._num(scope, "setback_long", sbLong) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer"),
+        this._row("Absenkung „kurz weg“", editable ? this._num(scope, "setback_short", sbShort) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind", this._srcBadge(r, "setback_short")),
+        this._row("Absenkung „länger weg“", editable ? this._num(scope, "setback_long", sbLong) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer", this._srcBadge(r, "setback_long")),
         this._row(
           "Aufheizen",
           this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: s.heatup && s.heatup.episodes || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
@@ -5670,7 +6811,8 @@
             const rows = [this._row(
               "Vorheizen",
               editable ? this._segs(scope, "preheat_mode", RK_PREHEAT, pm) : this._v(RK_PREHEAT[pm] || "–"),
-              pm === "off" ? t("heizt erst zum Beginn des Zeitfensters – der Raum ist dann noch kalt") : pm === "auto" ? t("startet so früh, wie die gelernte Aufheizzeit es verlangt") : pm === "clock" ? t("startet nicht vor der eingestellten Uhrzeit – zum Beginn evtl. noch nicht ganz warm") : t("startet höchstens so viele Minuten vor dem Zeitfenster")
+              pm === "off" ? t("heizt erst zum Beginn des Zeitfensters – der Raum ist dann noch kalt") : pm === "auto" ? t("startet so früh, wie die gelernte Aufheizzeit es verlangt") : pm === "clock" ? t("startet nicht vor der eingestellten Uhrzeit – zum Beginn evtl. noch nicht ganz warm") : t("startet höchstens so viele Minuten vor dem Zeitfenster"),
+              this._srcBadge(r, "preheat_mode")
             )];
             if (pm === "clock") {
               const cur = this._roomOpt(r, "preheat_not_before") ?? "05:00";
@@ -5688,20 +6830,53 @@
             return this._row(
               "Nachtabsenkung",
               editable ? this._segs(scope, "quiet_mode", RK_QUIET, qm) : this._v(RK_QUIET[qm] || "–"),
-              qm === "off" ? t("wird nachts nicht abgesenkt") : qm === "on" ? t("wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist") : t("wie bisher: nur Schlafzimmer und selten genutzte Räume")
+              qm === "off" ? t("wird nachts nicht abgesenkt") : qm === "on" ? t("wird abgesenkt, sobald Ruhezeit ist oder der Schalter „Nachtruhe“ an ist") : t("wie bisher: nur Schlafzimmer und selten genutzte Räume"),
+              this._srcBadge(r, "quiet_mode")
             );
           })(),
           this._row(
             "Sonnenseite",
             editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
-            a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit")
+            a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit"),
+            this._srcBadge(r, "solar_gain")
           ),
+          acCount ? this._row(
+            "Kühlen",
+            editable ? this._optToggle(scope, "cooling", cooling) : this._v(cooling ? t("ja") : t("nein")),
+            t("Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen"),
+            this._srcBadge(r, "cooling")
+          ) : "",
+          acCount && cooling ? this._row(
+            "Kühlgrenze",
+            editable ? this._num(scope, "cool_setpoint", coolSet) : this._v(`${fmt(coolSet)} °C`),
+            t("oberhalb dieser Temperatur kühlt die Klimaanlage"),
+            this._srcBadge(r, "cool_setpoint")
+          ) : "",
+          acCount && cooling ? this._row(
+            "Mindestlaufzeit",
+            editable ? this._num(scope, "ac_min_on", this._roomOpt(r, "ac_min_on") ?? s.ac_min_on ?? 10) : this._v(`${this._roomOpt(r, "ac_min_on") ?? s.ac_min_on ?? 10} min`),
+            t("so lange bleibt die Klimaanlage mindestens an – gegen Takten"),
+            this._srcBadge(r, "ac_min_on")
+          ) : "",
+          acCount && cooling ? this._row(
+            "Mindestpause",
+            editable ? this._num(scope, "ac_min_off", this._roomOpt(r, "ac_min_off") ?? s.ac_min_off ?? 10) : this._v(`${this._roomOpt(r, "ac_min_off") ?? s.ac_min_off ?? 10} min`),
+            t("so lange bleibt sie nach dem Ausgehen mindestens aus"),
+            this._srcBadge(r, "ac_min_off")
+          ) : "",
+          acCount ? this._row(
+            "Klimaanlage zum Heizen",
+            editable ? this._optToggle(scope, "ac_heat", !!(this._roomOpt(r, "ac_heat") ?? s.ac_heat)) : this._v(this._roomOpt(r, "ac_heat") ?? s.ac_heat ? t("ja") : t("nein")),
+            s.ac_heat_active ? t("gerade aktiv – günstiger als Gas") : t("nutzt die Klimaanlage nur, wenn COP und Gaspreis günstiger sind"),
+            this._srcBadge(r, "ac_heat")
+          ) : "",
           (() => {
             const fac = this._roomOpt(r, "solar_facade") ?? s.solar_facade ?? "";
             return this._row(
               "Sonne kommt aus",
               editable ? this._select(scope, "solar_facade", RK_FACADES(), fac) : this._v(rkFacadeName(fac)),
-              t("Richtung, in die die Fenster dieses Raums zeigen – vereinfacht, freie Sicht vorausgesetzt. Haus, Baum, Balkon oder ein tiefes Gewände davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage). Bei zwei Fensterseiten: die mit der größeren Glasfläche.")
+              t("Richtung, in die die Fenster dieses Raums zeigen – vereinfacht, freie Sicht vorausgesetzt. Haus, Baum, Balkon oder ein tiefes Gewände davor zählt nicht mit; dann lieber leer lassen (nur Vorhersage). Bei zwei Fensterseiten: die mit der größeren Glasfläche."),
+              this._srcBadge(r, "solar_facade")
             );
           })(),
           (() => {
@@ -5711,13 +6886,15 @@
             return this._row(
               "Gilt für Personen",
               `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
-              cur.length ? t("nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern")
+              cur.length ? t("nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern"),
+              this._srcBadge(r, "room_persons")
             );
           })()
         ].join(""), r, ["preheat_mode", "quiet_mode", "solar_gain", "solar_facade", "room_persons"])
-      ].join(""))}
-      ${mon ? "" : this._scheduleGroup(r, id, editable)}
-      ${this._grp("air", "Lüften & Feuchte", "mdi:water-percent", "air", [
+      ].join("")))}
+      ${sub("control", mon ? "" : this._floorGroup(r))}
+      ${sub("schedule", mon ? "" : this._scheduleGroup(r, id, editable))}
+      ${sub("windows", this._grp("air", "Lüften & Feuchte", "mdi:water-percent", "air", [
         sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
@@ -5732,53 +6909,137 @@
               [800, 1e3, 1200, 1500].map((v) => ({ id: String(v), name: `${v} ppm` })),
               String(this._roomOpt(r, "co2_limit") ?? 1e3)
             ) : this._v(`${this._roomOpt(r, "co2_limit") ?? 1e3} ppm`),
-            t("1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer")
+            t("1000 ppm ist der klassische Richtwert – in einem Wohnzimmer mit mehreren Personen liegt man abends dauerhaft darüber, 1200 ppm sind dort realistischer"),
+            this._srcBadge(r, "co2_limit")
           ) : ""
         ].join(""), r, ["co2_limit"])
-      ].join(""))}
-      ${mon ? "" : this._grp("air", "Schimmelschutz", "mdi:shield-home-outline", "ok", [
+      ].join("")))}
+      ${sub("mold", mon ? "" : this._grp("air", "Schimmelschutz", "mdi:shield-home-outline", "ok", [
         this._row(
           "Schimmelschutz",
           editable ? this._segs(scope, "mold_mode", RK_MOLD, moldMode) : this._v(RK_MOLD[moldMode] || "–"),
-          moldMode === "strict" ? t("hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter") : moldMode === "wish" ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt") : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden")
+          moldMode === "strict" ? t("hebt den Sollwert so weit an, dass die kälteste Wandstelle unter 80 % Feuchte bleibt (DIN 4108-2) – begrenzt durch den Zuschlag darunter") : moldMode === "wish" ? t("hebt nur bis zur Wunschtemperatur an – tiefer wird nicht abgesenkt, aber auch nicht darüber geheizt") : t("kein Feuchte-Boden: der Raum fährt genau den eingestellten Wert – bei hoher Feuchte droht Schimmel an kalten Wänden"),
+          this._srcBadge(r, "mold_mode")
         ),
         this._more("mold-more", "Weitere Einstellungen", [
           moldMode !== "off" ? this._row(
             "Höchstens anheben um",
             editable ? this._num(scope, "mold_cap", this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5) : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)} K`),
-            t("Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)")
+            t("Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)"),
+            this._srcBadge(r, "mold_cap")
           ) : "",
           this._row(
             "Bauart",
             editable ? this._select(scope, "wall", Object.entries(RK_WALL).map(([k, v]) => ({ id: k, name: v })), this._roomOpt(r, "wall") ?? "auto") : this._v(RK_WALL[this._roomOpt(r, "wall") ?? "auto"]),
-            t("bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand")
+            t("bestimmt, wie kalt die kälteste Wandstelle wird: eine Außenecke braucht mehr Schutz als eine Innenwand"),
+            this._srcBadge(r, "wall")
           )
         ].join(""), r, ["mold_cap", "wall"])
-      ].join(""))}
-      ${a.monitor ? "" : this._sourceGroup(r, id, editable)}
-      ${this._grp("air", "Fenster", "mdi:window-open-variant", "ok", [
+      ].join("")))}
+      ${sub("sources", a.monitor ? "" : this._sourceGroup(r, id, editable))}
+      ${sub("windows", this._grp("air", "Fenster", "mdi:window-open-variant", "ok", [
         mon ? "" : this._row("Heizung bei offenem Fenster pausieren", this._toggle(sib.window_logic)),
         this._row("Kontakte", `<div class="chips">${contacts}</div>`),
         this._more("win-more", "Weitere Einstellungen", [
-          mon ? "" : this._row("Pause nach", editable ? this._num(scope, "window_open_delay", wOpen) : this._v(`${wOpen ?? "–"} s`)),
-          mon ? "" : this._row("Weiter nach", editable ? this._num(scope, "window_close_delay", wClose) : this._v(`${wClose ?? "–"} s`)),
+          mon ? "" : this._row("Pause nach", editable ? this._num(scope, "window_open_delay", wOpen) : this._v(`${wOpen ?? "–"} s`), "", this._srcBadge(r, "window_open_delay")),
+          mon ? "" : this._row("Weiter nach", editable ? this._num(scope, "window_close_delay", wClose) : this._v(`${wClose ?? "–"} s`), "", this._srcBadge(r, "window_close_delay")),
           this._row(
             "Schlafen bei offenem Fenster",
             editable ? this._segs(scope, "night_airing", RK_NIGHT, nightMode) : this._v(RK_NIGHT[nightMode] || "–"),
-            nightMode === "auto" ? ["bedroom", "rarely_used"].includes(roomType) ? "Automatisch: ja, weil Schlafraum" : "Automatisch: nein, kein Schlafraum" : "abends geöffnet = Nachtlüften: keine Lüft-Hinweise, Heizung wartet"
+            nightMode === "auto" ? ["bedroom", "rarely_used"].includes(roomType) ? "Automatisch: ja, weil Schlafraum" : "Automatisch: nein, kein Schlafraum" : "abends geöffnet = Nachtlüften: keine Lüft-Hinweise, Heizung wartet",
+            this._srcBadge(r, "night_airing")
           ),
           mon ? "" : this._row(
             "Offenes Fenster an Temperatursturz erkennen",
             editable ? this._segs(scope, "virtual_window", RK_NIGHT, virtMode) : this._v(RK_NIGHT[virtMode] || "–"),
-            (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig" : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird")
+            (a.window_virtual ? t("gerade: Fenster vermutlich offen · ") : "") + t(virtMode === "auto" ? s.virtual_active ? "Automatisch: aktiv (kein Kontakt erreichbar)" : "Automatisch: aus, der Kontakt meldet zuverlässig" : "fällt es in 6 min um 1 °C, pausiert die Heizung bis es wieder wärmer wird"),
+            this._srcBadge(r, "virtual_window")
           )
         ].join(""), r, ["window_open_delay", "window_close_delay", "night_airing", "virtual_window"])
-      ].join(""))}
-      ${this._airingGroup(r, id, editable)}
-      ${this._presenceGroup(r, id, editable)}
-      ${this._learnRoom(r)}
-      ${this._lightGroup(r, id, editable)}
-      ${this._grp("notify", "Benachrichtigungen", "mdi:bell-outline", "warn", [
+      ].join("")))}
+      ${sub("windows", this._airingGroup(r, id, editable))}
+      ${sub("windows", (() => {
+        const shade = s.shading || {};
+        const mode = this._roomOpt(r, "shading_mode") ?? shade.mode ?? "off";
+        const pos = this._roomOpt(r, "shading_position") ?? shade.position ?? 20;
+        const minT = this._roomOpt(r, "shading_min_temp") ?? shade.min_temp ?? 22;
+        const outT = this._roomOpt(r, "shading_outdoor_min") ?? shade.outdoor_min ?? 18;
+        const night = this._roomOpt(r, "shading_night") ?? shade.night ?? false;
+        const manual = this._roomOpt(r, "shading_manual_minutes") ?? shade.manual_minutes ?? 120;
+        const covers = shade.covers || [];
+        const states = {
+          off: t("Aus"),
+          unconfigured: t("keine Rollläden gewählt"),
+          manual: t("Handbedienung – pausiert"),
+          open: t("offen"),
+          closed: t("geschlossen"),
+          advise_open: t("Empfehlung: öffnen"),
+          advise_close: t("Empfehlung: schließen"),
+          error: t("Gerät antwortet nicht")
+        };
+        const reasons = {
+          off: "",
+          no_covers: "",
+          manual: "",
+          night: t("Nacht"),
+          night_open: t("Nacht vorbei"),
+          sun: t("Sonne auf der Fassade"),
+          no_sun: t("keine Sonne erwartet"),
+          cool: t("zu kühl für Schatten"),
+          no_data: t("keine Temperaturdaten")
+        };
+        const status = [states[shade.state] || "–", reasons[shade.reason] || ""].filter(Boolean).join(" · ");
+        return this._grp("shade", "Verschattung", "mdi:blinds", "ok", [
+          this._row(
+            "Verschattung",
+            editable ? this._segs(scope, "shading_mode", RK_SHADE(), mode) : this._v(t("Aus")),
+            mode === "off" ? t("Rollläden bleiben, wie sie sind") : mode === "advise" ? t("die Karte empfiehlt, fährt aber nicht selbst") : t("fährt bei Sonne und nachts – Handbedienung pausiert die Automatik"),
+            this._srcBadge(r, "shading_mode")
+          ),
+          this._row(
+            "Rollläden",
+            covers.length ? `<div class="chips">${covers.map((x) => `<span class="chip2" style="--c:${x.available === false ? "var(--rk-cold)" : "var(--rk-ok)"}" title="${esc(x.entity_id)}"><i></i>${esc(x.name)}${x.position != null ? ` · ${fmt(x.position, 0)} %` : ""}</span>`).join("")}</div>` : this._v(t("keine – unter „Geräte & Technik ändern“ wählen"), true),
+            t("nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt")
+          ),
+          this._row("Jetzt", this._v(status || "–", shade.active === false), reasons[shade.reason] || ""),
+          mode !== "off" ? this._row(
+            "Schließen ab innen",
+            editable ? this._num(scope, "shading_min_temp", minT) : this._v(`${fmt(minT)} °C`),
+            t("ab dieser Raumtemperatur hält die Sonne den Raum warm – dann Schatten"),
+            this._srcBadge(r, "shading_min_temp")
+          ) : "",
+          mode !== "off" ? this._row(
+            "oder ab außen",
+            editable ? this._num(scope, "shading_outdoor_min", outT) : this._v(`${fmt(outT)} °C`),
+            t("ab dieser Außentemperatur wird es auch ohne warmen Raum zu warm"),
+            this._srcBadge(r, "shading_outdoor_min")
+          ) : "",
+          mode !== "off" ? this._row(
+            "Schließposition",
+            editable ? this._num(scope, "shading_position", pos) : this._v(`${fmt(pos, 0)} %`),
+            t("0 % = ganz zu, 100 % = ganz offen – Rollläden ohne Positionsfahrt schließen ganz"),
+            this._srcBadge(r, "shading_position")
+          ) : "",
+          mode !== "off" ? this._row(
+            "Nachts schließen",
+            editable ? this._optToggle(scope, "shading_night", !!night) : this._v(night ? t("ja") : t("nein")),
+            t("nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht"),
+            this._srcBadge(r, "shading_night")
+          ) : "",
+          this._more("shade-more", "Weitere Einstellungen", [
+            this._row(
+              "Handbedienung pausiert",
+              editable ? this._num(scope, "shading_manual_minutes", manual) : this._v(`${manual} min`),
+              t("so lange bleibt die Automatik aus, wenn jemand selbst am Rollladen zieht – 0 = sofort wieder automatisch"),
+              this._srcBadge(r, "shading_manual_minutes")
+            )
+          ].join(""), r, ["shading_manual_minutes"])
+        ].join(""));
+      })())}
+      ${sub("presence", this._presenceGroup(r, id, editable))}
+      ${sub("learn", this._learnRoom(r))}
+      ${sub("notify", this._lightGroup(r, id, editable))}
+      ${sub("notify", this._grp("notify", "Benachrichtigungen", "mdi:bell-outline", "warn", [
         this._row("Hinweise für diesen Raum", this._toggle(sib.notifications)),
         this._row(
           "Höchstens je Tag",
@@ -5791,14 +7052,20 @@
           t("gilt für wiederkehrende Hinweise (Bitte lüften, Fenster bleibt offen) – Fenster schließen und Luft ausgetauscht bleiben frei")
         ),
         this._row("Empfänger", push.length ? `<div class="chips">${push.map((tg) => `<span class="chip2"><i></i>${esc(rkPretty(tg))}</span>`).join("")}</div>` : this._v("niemand", true), "zentral unter Allgemein → Wer bekommt was")
-      ].join(""))}
-      ${this._grp("heating", mon ? "Fühler & Sensoren" : "Thermostat & Fühler", mon ? "mdi:thermometer-lines" : "mdi:radiator", "off", [
+      ].join("")))}
+      ${sub("devices", this._grp("heating", mon ? "Fühler & Sensoren" : "Thermostat & Fühler", mon ? "mdi:thermometer-lines" : "mdi:radiator", "off", [
         mon ? "" : this._row("Thermostat", this._v(esc(this._name(s.trv))), [(s.extra_trvs || []).length ? "Haupt-Thermostat" : "", s.valve_reported === false ? t("meldet keine Ventilöffnung") : ""].filter(Boolean).join(" · ")),
         !mon && (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}${x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert") : "",
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
+        mon ? "" : this._row(
+          "Ventilsteuerung",
+          editable ? this._segs(scope, "valve_control", RK_VALVE(), (s.valve || {}).mode || "off") : this._v(RK_VALVE()[(s.valve || {}).mode] || "–"),
+          (s.valve || {}).direct ? t("direkt über {e}", { e: esc(this._name((s.valve || {}).actuator || "")) }) : t("Sollwert am Thermostat – kein Ventilstellglied gefunden"),
+          this._srcBadge(r, "valve_control")
+        ),
         mon ? "" : this._row("Übertragung", `<span class="v" style="color:${toneVar(sync[1])}">● ${sync[0]}</span>`, t("prüft nach {s} s · bis zu {n} Wiederholungen", { s: s.sync_verify_delay ?? "–", n: s.sync_max_retries ?? "–" })),
         ...(s.battery_forecast || []).map((b) => this._row(
           t("Batterie: {n}", { n: b.name }),
@@ -5836,13 +7103,44 @@
           mon ? "" : this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
           mon ? "" : this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? t("ja") : t("nein")))
         ].join(""), r, ["fast_poll", "trv_interval"])
-      ].join(""), "span cols")}
+      ].join(""), `span cols`))}
     </div>
     <div class="foot">
       ${sib.calibrate ? `<button class="btn" data-press="${sib.calibrate}" style="--c:var(--rk-heat)"><ha-icon icon="mdi:tune-vertical"></ha-icon>${t("Jetzt kalibrieren")}</button>` : ""}
       <button class="btn primary" data-nav="/config/integrations/integration/raumklima"><ha-icon icon="mdi:cog"></ha-icon>${t("Geräte & Technik ändern")}</button>
     </div>
     <div class="hint">${t("Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.", { r: esc(r.name) })}</div>`;
+    },
+    _floorGroup(r) {
+      const s = r.attrs.settings || {};
+      const f = s.floor || {};
+      const id = s.entry_id;
+      const scope = `room:${id}`;
+      const editable = this._admin && this._cfgRoom(r);
+      const enabled = !!(this._roomOpt(r, "floor_heating") ?? f.enabled);
+      const rows = [
+        this._row(
+          "Fußbodenheizung",
+          editable ? this._optToggle(scope, "floor_heating", enabled) : this._v(enabled ? t("ja") : t("nein")),
+          t("eigene Regelcharakteristik: träge, mit Vor-/Rücklauf und größerem Band"),
+          this._srcBadge(r, "floor_heating")
+        )
+      ];
+      if (!enabled) return this._grp("heating", "Fußbodenheizung", "mdi:heating-coil", "heat", rows.join(""), "span");
+      const state = f.state || "no_sensors";
+      const stateText = { off: t("aus"), ok: t("Durchfluss in Ordnung"), no_sensors: t("Vor-/Rücklauf nicht verbunden"), low_flow: t("Spreizung zu klein – Pumpe/Abgleich prüfen") }[state] || state;
+      const tone = state === "low_flow" ? "warn" : state === "ok" ? "ok" : "off";
+      rows.push(this._row("Jetzt", this._v(`${fmt(f.supply)} / ${fmt(f.return)} °C${f.delta != null ? ` · Δ ${fmt(f.delta, 1)} K` : ""}`, state !== "ok"), stateText));
+      rows.push(this._row("Sollwert am Gerät", this._v(f.setpoint != null ? `${fmt(f.setpoint, 1)} °C` : "–"), t("durch die Fußboden-Charakteristik begrenzt und im Takt nachgezogen")));
+      if (editable) {
+        rows.push(this._row("Max. Vorlauf", this._num(scope, "floor_max_temp", this._roomOpt(r, "floor_max_temp") ?? f.max_temp ?? 27), t("harte Obergrenze – schützt Boden und Heizkreis"), this._srcBadge(r, "floor_max_temp")));
+        rows.push(this._row("Min. Raumtemperatur", this._num(scope, "floor_min_temp", this._roomOpt(r, "floor_min_temp") ?? f.min_temp ?? 18), t("darunter heizt die Fußbodenheizung nicht"), this._srcBadge(r, "floor_min_temp")));
+        rows.push(this._row("Regelband", this._num(scope, "floor_band", this._roomOpt(r, "floor_band") ?? f.band ?? 1), t("innerhalb des Bandes bleibt der Sollwert stehen – gegen Überschwingen"), this._srcBadge(r, "floor_band")));
+        rows.push(this._row("Mindest-Taktzeit", this._num(scope, "floor_cycle_min", this._roomOpt(r, "floor_cycle_min") ?? f.cycle_min ?? 30), t("so oft darf der Sollwert höchstens nachgezogen werden"), this._srcBadge(r, "floor_cycle_min")));
+        rows.push(this._row("Vorlauf vor Zeitfenster", this._num(scope, "floor_lead_min", this._roomOpt(r, "floor_lead_min") ?? f.lead_min ?? 60), t("früher starten, damit der träge Boden zum Fenster warm ist"), this._srcBadge(r, "floor_lead_min")));
+        rows.push(this._row("Durchfluss-Grenze", this._num(scope, "floor_flow_min", this._roomOpt(r, "floor_flow_min") ?? f.flow_min ?? 5), t("Vorlauf minus Rücklauf unter diesem Wert: Durchfluss prüfen"), this._srcBadge(r, "floor_flow_min")));
+      }
+      return this._grp("heating", "Fußbodenheizung", "mdi:heating-coil", tone, rows.join(""), "span");
     },
     _srcList(id) {
       const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
@@ -6056,30 +7354,37 @@
       const rooms = this._rooms || [];
       const opts = (r) => r.attrs.settings || {};
       const any = (fn) => rooms.some(fn);
+      const first = (fn) => rooms.find(fn);
+      const tabTarget = (tab, fn = () => true) => {
+        const r = first(fn);
+        return r ? `roomtab:${r.id}:${tab}` : "section:rooms";
+      };
       const people = (this._hubOpt("residents") || []).length;
       const rec = Object.keys(this._hubOpt("recipients") || {}).length;
       const items = [
-        [t("Bewohner hinterlegt"), people > 0, t("Einstellungen → Anwesenheit & Absenkung")],
-        [t("Empfänger für Meldungen"), rec > 0, t("Einstellungen → Wer bekommt was")],
-        [t("Wetterquelle gewählt"), !!this._hubOpt("weather_entity"), t("Einstellungen → Benachrichtigungen allgemein")],
-        [t("Raum mit Thermostat"), any((r) => opts(r).trv), t("Raum → Geräte")],
-        [t("Fensterkontakt eingetragen"), any((r) => (opts(r).windows || []).length), t("Raum → Fenster & Lüften")],
-        [t("Zeitplan angelegt"), any((r) => (opts(r).schedules || []).length), t("Raum → Zeitplan")]
+        [t("Bewohner hinterlegt"), people > 0, t("Einstellungen → Anwesenheit & Absenkung"), "group:presence:presence"],
+        [t("Empfänger für Meldungen"), rec > 0, t("Einstellungen → Wer bekommt was"), "group:notify:notify"],
+        [t("Wetterquelle gewählt"), !!this._hubOpt("weather_entity"), t("Einstellungen → Wohnung"), "group:home:home"],
+        [t("Raum mit Thermostat"), any((r) => opts(r).trv), t("Raum → Geräte"), tabTarget("devices", (r) => opts(r).trv)],
+        [t("Fensterkontakt eingetragen"), any((r) => (opts(r).windows || []).length), t("Raum → Fenster & Lüften"), tabTarget("windows", (r) => (opts(r).windows || []).length)],
+        [t("Zeitplan angelegt"), any((r) => (opts(r).schedules || []).length), t("Raum → Zeitplan"), tabTarget("schedule", (r) => (opts(r).schedules || []).length)]
       ];
       const optional = [
-        [t("Präsenzmelder eingetragen"), any((r) => (opts(r).presence_sensors || []).length), t("Raum → Anwesenheit im Raum")],
-        [t("Sturmschwelle geprüft"), this._hubOpt("storm_warning") != null, t("Einstellungen → Sturm- und Regenwarnung")]
+        [t("Präsenzmelder eingetragen"), any((r) => (opts(r).presence_sensors || []).length), t("Raum → Anwesenheit im Raum"), tabTarget("presence", (r) => (opts(r).presence_sensors || []).length)],
+        [t("Sturmschwelle geprüft"), this._hubOpt("storm_warning") != null, t("Einstellungen → Sturm- und Regenwarnung"), "group:notify:notify"]
       ];
       const done = items.filter((i) => i[1]).length;
       const chip = (on, optionalItem) => `<span class="chip2 ${on ? "" : "off"}" style="--c:var(--rk-${on ? "ok" : optionalItem ? "air" : "warn"})"><i></i>${on ? t("erledigt") : optionalItem ? t("optional") : t("offen")}</span>`;
+      const open = (target) => `<button class="mini" data-goto="${target}" title="${t("dorthin springen")}">${t("öffnen")}</button>`;
+      const next = items.find((i) => !i[1]) || optional.find((i) => !i[1]);
       const rows = [
         this._row(
           t("{a} von {b} erledigt", { a: done, b: items.length }),
-          `<span class="chip2" style="--c:var(--rk-${done === items.length ? "ok" : "warn"})"><i></i>${done === items.length ? t("bereit") : t("noch offen")}</span>`,
+          `<span class="chip2" style="--c:var(--rk-${done === items.length ? "ok" : "warn"})"><i></i>${done === items.length ? t("bereit") : t("noch offen")}</span>${next ? open(next[3]) : ""}`,
           t("die wichtigsten Schritte, damit Raumklima sinnvoll regeln kann")
         ),
-        ...items.map(([label, on, where]) => this._row(label, chip(on, false), where)),
-        ...optional.map(([label, on, where]) => this._row(label, chip(on, true), `${where} · ${t("bringt mehr Genauigkeit, ist aber nicht nötig")}`))
+        ...items.map(([label, on, where, target]) => this._row(label, `${chip(on, false)}${on ? "" : open(target)}`, where)),
+        ...optional.map(([label, on, where, target]) => this._row(label, `${chip(on, true)}${on ? "" : open(target)}`, `${where} · ${t("bringt mehr Genauigkeit, ist aber nicht nötig")}`))
       ];
       return rows.join("");
     },
@@ -6138,7 +7443,10 @@
         return `<div class="whyrule ${r.state}"><span class="chip2" style="--c:var(--rk-${tone})"><i></i>${label}</span> <b>${esc(r.label)}</b>${val}</div>`;
       }).join("");
       return `<div class="status"><span class="chip" style="--tone:var(${res.heating ? "--rk-heat" : "--rk-off"})"><ha-icon icon="${res.heating ? "mdi:fire" : "mdi:fire-off"}"></ha-icon>${esc(res.verdict)}</span>
-      <button class="btn" data-whyrefresh="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:refresh"></ha-icon>${t("Neu prüfen")}</button></div>
+      <button class="btn" data-whyrefresh="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:refresh"></ha-icon>${t("Neu prüfen")}</button>
+      <button class="btn" data-goto="roomtab:${id}:control" style="--c:var(--rk-heat)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Regelung")}</button>
+      <button class="btn" data-goto="roomtab:${id}:schedule" style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-clock"></ha-icon>${t("Zeitplan")}</button>
+      <button class="btn" data-goto="roomtab:${id}:windows" style="--c:var(--rk-air)"><ha-icon icon="mdi:window-open-variant"></ha-icon>${t("Fenster & Lüften")}</button></div>
       ${res.mold_raised ? `<div class="hint warn">${t("Der Schimmelschutz hebt das Ziel gerade an (Feuchte).")}</div>` : ""}
       <div class="sub">${t("Voraussetzungen")}</div>${checks}
       ${res.valve != null ? this._row(t("Ventil"), this._v(`${fmt(res.valve, 0)} %`)) : ""}
@@ -6242,7 +7550,7 @@
     _delegate() {
       if (this._delegating) return;
       this._delegating = true;
-      for (const type of ["click", "change", "input"]) {
+      for (const type of ["click", "change", "input", "keydown"]) {
         this.shadowRoot.addEventListener(type, (ev) => {
           for (let node = ev.target; node && node !== this.shadowRoot; node = node.parentNode) {
             if (node.nodeType !== 1) continue;
@@ -6254,6 +7562,13 @@
         });
       }
     },
+    // Auswahl neben einem Hinzufügen-Knopf: relativ suchen (nicht über eine ID) und den
+    // Fokus lösen, damit _renderSoon das Neuzeichnen nicht bis zum Verlassen des Feldes zurückhält.
+    _addSelect(el) {
+      const sel = (el.closest(".addrow") || el.parentElement || el).querySelector("select");
+      if (sel) sel.blur();
+      return sel;
+    },
     _bind() {
       this._handlers = [];
       const on = (type, sel, make) => this._handlers.push({ type, sel, make });
@@ -6262,10 +7577,85 @@
       const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
       on("click", "[data-tab]", (el) => () => {
         this._tab = el.dataset.tab;
+        this._search = "";
+        if (this._nav2) {
+          this._section = "rooms";
+          this._group = null;
+        }
         this._sig = null;
         this._render();
       });
+      on("click", "[data-section]", (el) => () => {
+        this._section = el.dataset.section;
+        this._search = "";
+        if (this._section === "rooms") this._tab = "general";
+        this._group = null;
+        try {
+          localStorage.setItem("raumklima-settings-section", this._section);
+        } catch (e) {
+        }
+        this._sig = null;
+        this._render();
+      });
+      on("click", "[data-nav2]", () => {
+        this._nav2 = !this._nav2;
+        this._group = null;
+        try {
+          localStorage.setItem("raumklima-settings-nav-v2", this._nav2 ? "1" : "0");
+        } catch (e) {
+        }
+        this._sig = null;
+        this._render();
+      });
+      on("click", "[data-roomtab]", (el) => () => {
+        this._roomTab = el.dataset.roomtab;
+        this._sig = null;
+        this._render();
+      });
+      on("click", "[data-goto]", (el) => () => this._goto(el.dataset.goto));
+      on("click", "[data-goto-room]", (el) => () => this._gotoRoomByEntry(el.dataset.gotoRoom));
+      on("keydown", "[data-goto-room]", (el) => (ev) => {
+        if (ev.key !== "Enter" && ev.key !== " ") return;
+        ev.preventDefault();
+        this._gotoRoomByEntry(el.dataset.gotoRoom);
+      });
+      on("click", "[data-applyall]", (el) => () => {
+        this._applyToAllRooms(el.dataset.applyall);
+      });
+      on("click", "[data-roomboost]", (el) => () => {
+        const mode = el.dataset.roomboost === "off" ? "off" : "minutes";
+        const minutes = Number(el.dataset.min || 0);
+        const payload = { type: "raumklima/boost", entry_id: el.dataset.entry, mode };
+        if (mode === "minutes" && minutes > 0) payload.minutes = minutes;
+        this._hass.callWS(payload).then(() => {
+          this._flash(t("Schnell-Override gesetzt"));
+          this._render();
+        }).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+      });
+      on("click", "[data-copyroom]", (el) => () => {
+        this._copyRoom = el.dataset.copyroom;
+        this._sig = null;
+        this._render();
+      });
+      on("click", "[data-copyroom-close]", () => () => {
+        this._copyRoom = null;
+        this._sig = null;
+        this._render();
+      });
+      on("click", "[data-copyroom-go]", (el) => () => {
+        this._copyRoomGo(el.dataset.copyroomGo);
+      });
+      on("click", "[data-template-save]", (el) => () => {
+        this._saveRoomTemplate(el.dataset.templateSave);
+      });
+      on("click", "[data-template-apply]", (el) => () => {
+        this._applyRoomTemplate(el.dataset.templateApply);
+      });
+      on("click", "[data-template-delete]", (el) => () => {
+        this._deleteRoomTemplate(el.dataset.templateDelete);
+      });
       on("click", ".railbtn", (el) => () => {
+        if (el.dataset.section) return;
         this._group = el.dataset.g;
         this._filter();
       });
@@ -6306,6 +7696,11 @@
         this._moreOpen.set(d.dataset.more, !d.open);
         d.dataset.open = d.open ? "0" : "1";
       });
+      on("click", "details.sched-collapse > summary", (el) => () => {
+        const d = el.parentElement;
+        this._schedOpen = this._schedOpen || /* @__PURE__ */ new Map();
+        this._schedOpen.set(d.dataset.schedcollapse, !d.open);
+      });
       on("click", "[data-pro]", (el) => () => {
         this._pro = !this._pro;
         this._moreOpen.clear();
@@ -6318,7 +7713,11 @@
       const search = this.shadowRoot.querySelector("#rks");
       if (search) search.addEventListener("input", () => {
         this._search = search.value;
-        this._filter();
+        const body = this.shadowRoot.getElementById("rkbody");
+        if (body) {
+          body.innerHTML = this._bodyHtml();
+          this._filter();
+        } else this._filter();
       });
       on("click", "[data-tgl]", (el) => () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl }));
       on("click", "[data-press]", (el) => () => this._hass.callService("button", "press", { entity_id: el.dataset.press }));
@@ -6546,9 +7945,12 @@
       });
       on("click", "[data-srcadd]", (el) => () => {
         const id = el.dataset.srcadd;
-        const sel = this.shadowRoot.getElementById(`addSrc-${id}`);
+        const sel = this._addSelect(el);
         const entity = sel ? sel.value : "";
-        if (!entity) return;
+        if (!entity) {
+          this._flash(t("Bitte zuerst eine Quelle auswählen"));
+          return;
+        }
         const st = this._st(entity);
         const modes = st && st.attributes && st.attributes.hvac_modes || [];
         const type = modes.includes("cool") || modes.includes("fan_only") ? "ac" : "trv";
@@ -6562,6 +7964,7 @@
         el.blur();
         apply(el.dataset.sel, { [el.dataset.key]: el.value || null });
       });
+      on("change", ".addrow select", (el) => () => el.blur());
       on("change", "[data-md]", (el) => () => {
         const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
         if (iso) {
@@ -6834,7 +8237,7 @@
         this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
       });
       on("click", "[data-presadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
       });
       const roomLights = (entry) => {
@@ -6843,7 +8246,7 @@
         return [...local || []];
       };
       on("click", "[data-plightadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById(`addPLight-${el.dataset.plightadd}`);
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.plightadd, { presence_lights: [...roomLights(el.dataset.plightadd), sel.value] }, 200);
       });
       on("click", "[data-plightrm]", (el) => () => {
@@ -6858,7 +8261,7 @@
         this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
       });
       on("click", "[data-lightadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById(`addLight-${el.dataset.lightadd}`);
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.lightadd, { signal_lights: [...roomList(el.dataset.lightadd, "signal_lights", []), sel.value] }, 200);
       });
       on("click", "[data-lsig]", (el) => () => {
@@ -6876,7 +8279,7 @@
         this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });
       });
       on("click", "[data-sigadd]", (el) => () => {
-        const sel = this.shadowRoot.getElementById("addSig");
+        const sel = this._addSelect(el);
         if (sel && sel.value) this._setHub({ sleep_signals: [...this._hubOpt("sleep_signals") || [], sel.value] });
       });
       on("click", "[data-kind]", (el) => () => {
@@ -6906,6 +8309,12 @@
       on("click", "[data-test]", (el) => async () => {
         const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test, ...this._homeMsg() });
         if (r) this._flash(t("Testnachricht an {n} gesendet", { n: rkPretty(el.dataset.test) }));
+      });
+      on("click", "[data-selftest]", () => () => {
+        this._hass.callWS({ type: "raumklima/self_test", ...this._homeMsg() }).then((res) => {
+          const text = (res && res.checks || []).map((c) => `${c.ok ? "✓" : "✕"} ${t(c.label)}: ${c.text}`).join("\n");
+          this._openSheet({ title: t("Selbsttest"), intro: t("Die Prüfung ist nur lesend. Bei Fehlern steht der betroffene Raum oder die Entität dabei."), text: text || t("Keine Prüfungen") });
+        }).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
       });
       on("click", "[data-diag]", (el) => () => {
         this._trace("click", { what: "diagnose" });
@@ -6966,7 +8375,25 @@
     setConfig(config) {
       this._config = { ...config };
       this._tab = this._tab || "general";
+      if (this._nav2 === void 0) {
+        try {
+          const v = localStorage.getItem("raumklima-settings-nav-v2");
+          this._nav2 = v == null ? NAV2_DEFAULT : v === "1";
+        } catch (e) {
+          this._nav2 = NAV2_DEFAULT;
+        }
+      }
+      if (this._section === void 0) {
+        try {
+          const v = localStorage.getItem("raumklima-settings-section");
+          this._section = SETTINGS_SECTIONS.some((x) => x.id === v) ? v : "home";
+        } catch (e) {
+          this._section = "home";
+        }
+      }
+      if (this._roomTab === void 0) this._roomTab = ROOM_TAB_DEFAULT;
       if (this._sheet === void 0) this._sheet = null;
+      if (this._copyRoom === void 0) this._copyRoom = null;
       this._local = this._local || {};
       this._timers = this._timers || {};
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
@@ -7053,12 +8480,25 @@
       return this._cfg && this._cfg.hub ? this._cfg.hub.options[key] : void 0;
     }
     _roomOpt(room, key) {
-      const lk = `room:${room.entry_id}:${key}`;
+      const rid = room.entry_id || room.attrs && room.attrs.settings && room.attrs.settings.entry_id || room.id;
+      const lk = `room:${rid}:${key}`;
       if (this._local[lk] !== void 0) return this._local[lk];
       const r = this._cfgRoom(room);
       if (!r) return void 0;
       if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature") return r[key];
       return r.options[key];
+    }
+    // Herkunft eines Werts (Phase 4): Standard, Wohnung, Raum oder Gerät.
+    _roomSource(room, key) {
+      const s = room.attrs && room.attrs.settings || {};
+      const src = (s.sources || {})[key];
+      if (src) return src;
+      return (s.changed || []).includes(key) ? "room" : "default";
+    }
+    _srcBadge(room, key) {
+      const src = this._roomSource(room, key);
+      const label = { default: "Standard", room: "Raum", home: "Wohnung", device: "Gerät" }[src] || "";
+      return `<span class="src src-${src}" title="${t("Herkunft")}: ${t(label)}">${t(label)}</span>`;
     }
     _cfgRoom(room) {
       const id = (room.attrs.settings || {}).entry_id;
@@ -7179,13 +8619,13 @@
       const s = this._st(id);
       return s && s.attributes.friendly_name || id || "–";
     }
-    _row(label, value, sub) {
+    _row(label, value, sub, badge = "") {
       const help = HELP[label];
       this._helpOpen = this._helpOpen || /* @__PURE__ */ new Set();
       const open = help && this._helpOpen.has(label);
       const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
       const box = open ? `<div class="helpbox">${esc(help[{ de: 0, en: 1, fr: 2 }[getLang()] ?? 1])}</div>` : "";
-      return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
+      return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}${badge}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
     }
     _v(text, mute) {
       return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`;
@@ -7270,35 +8710,52 @@
         }
       }
       this._moreOpen = this._moreOpen || /* @__PURE__ */ new Map();
+      this._schedOpen = this._schedOpen || /* @__PURE__ */ new Map();
       if (this._renderSoon()) return;
       const rooms = this._orderedRooms();
+      const nav2 = !!this._nav2;
+      const section = nav2 ? SETTINGS_SECTIONS.find((x) => x.id === this._section) || SETTINGS_SECTIONS[0] : null;
+      if (nav2 && section.id !== this._section) this._section = section.id;
       if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
+      if (this._roomTabRoom !== this._tab) {
+        this._roomTabRoom = this._tab;
+        this._roomTab = ROOM_TAB_DEFAULT;
+      }
+      if (!ROOM_TABS.some((x) => x.id === this._roomTab)) this._roomTab = ROOM_TAB_DEFAULT;
+      const inRooms = !nav2 || section.id === "rooms";
+      const room = inRooms ? rooms.find((r) => r.id === this._tab) : null;
+      this._allowedGroups = !nav2 ? null : section.id === "rooms" ? room ? [...SETTINGS_ROOM_GROUPS] : [] : [...section.groups];
+      if (nav2 && this._allowedGroups && !this._allowedGroups.includes(this._group)) this._group = this._allowedGroups[0] || null;
+      const body = this._bodyHtml();
       const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` + rooms.map((r) => {
         const sick = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).some((i) => i.entry_id === (r.attrs.settings || {}).entry_id && i.severity !== "info");
         return `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}${sick ? ` <ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)"></ha-icon>` : ""}</button>`;
       }).join("");
-      const room = rooms.find((r) => r.id === this._tab);
-      const body = room ? this._room(room) : this._general();
+      const sectionBar = nav2 ? `<div class="rail sects">${SETTINGS_SECTIONS.map((x) => `<button class="railbtn ${section.id === x.id ? "on" : ""}" data-section="${x.id}"><ha-icon icon="${x.icon}"></ha-icon>${t(x.label)}</button>`).join("")}</div>` : `<div class="tabs">${tabs}</div>`;
+      const railGroups = nav2 ? this._allowedGroups || [] : RK_GROUP_ORDER;
+      const showSearch = true;
+      const showRail = railGroups.length > 0 && !(nav2 && section.id === "rooms" && room) && !(nav2 && String(this._search || "").trim());
       const homes = this._cfg && this._cfg.homes || [];
       const me = homes.find((h) => h.entry_id === this._homeId());
       this._ctxHome = me ? me.name : this._config && this._config.home || t("Wohnung");
       const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
       rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-selftest style="--c:var(--rk-ok)" title="${t("Prüft Wohnung, Räume, Thermostate, Fühler und Erreichbarkeit")}"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
           <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
-          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._nav2 ? "on" : ""}" data-nav2 aria-pressed="${this._nav2 ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Zwischen neuer Bereichsnavigation und klassischer Ansicht wechseln")}"><ha-icon icon="${this._nav2 ? "mdi:table-large" : "mdi:view-dashboard-outline"}"></ha-icon>${this._nav2 ? t("Klassische Ansicht") : t("Neue Ansicht")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
-        <div class="tabs">${tabs}</div>
+        ${sectionBar}
         <div class="crumb" id="rkc"></div>
-        ${room ? `<div class="resetbar">${(() => {
+        ${room ? `<div class="resetbar">${nav2 ? `<button class="btn" data-section="rooms" style="--c:var(--rk-eco)"><ha-icon icon="mdi:arrow-left"></ha-icon>${t("Räume")}</button>` : ""}${(() => {
         const n = ((room.attrs.settings || {}).changed || []).length;
-        return n ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n })}</span><button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>` : `<span>${t("Alles auf Standard")}</span>`;
+        return n ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n })}</span>${this._admin ? `<button class="btn small" data-copyroom="${room.id}"><ha-icon icon="mdi:content-copy"></ha-icon>${t("Raum kopieren")}</button><button class="btn small" data-applyall="${room.id}"><ha-icon icon="mdi:content-duplicate"></ha-icon>${t("Für alle Räume übernehmen")}</button>` : ""}<button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>` : `<span>${t("Alles auf Standard")}</span>`;
       })()}</div>` : ""}
-        <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
-        <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
+        ${showSearch ? `<div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellungen durchsuchen …")}" aria-label="${t("Einstellungen durchsuchen")}" autocomplete="off" value="${esc(this._search || "")}"></div>` : ""}
+        ${showRail ? `<div class="rail">${railGroups.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>` : ""}
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
-        ${body}
+        <div id="rkbody">${body}</div>
+        ${this._copyRoom ? this._copyRoomHtml() : ""}
         ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
@@ -7308,27 +8765,219 @@
       this._filter();
       this._decFetch();
     }
+    //Phase 5: aktueller Inhalt – bei aktiver Suche alle Bereiche plus aktueller Raum.
+    _bodyHtml() {
+      const nav2 = !!this._nav2;
+      const section = nav2 ? SETTINGS_SECTIONS.find((x) => x.id === this._section) || SETTINGS_SECTIONS[0] : null;
+      const rooms = this._orderedRooms();
+      const inRooms = !nav2 || section.id === "rooms";
+      const room = inRooms ? rooms.find((r) => r.id === this._tab) : null;
+      if (nav2 && String(this._search || "").trim()) return this._searchBody(this._search);
+      return nav2 && section.id === "rooms" && !room ? this._roomList() : room ? this._room(room) : this._general();
+    }
+    // Deep-Link aus Checkliste, „Warum?“ oder Meldung.
+    _goto(target) {
+      const [kind, a, b] = String(target || "").split(":");
+      this._search = "";
+      this._group = null;
+      if (kind === "section") {
+        this._nav2 = true;
+        this._section = SETTINGS_SECTIONS.some((x) => x.id === a) ? a : "home";
+        this._tab = "general";
+      } else if (kind === "room") {
+        this._nav2 = true;
+        this._section = "rooms";
+        this._tab = a;
+        this._roomTab = ROOM_TAB_DEFAULT;
+      } else if (kind === "roomtab") {
+        this._nav2 = true;
+        this._section = "rooms";
+        this._tab = a;
+        this._roomTab = ROOM_TABS.some((x) => x.id === b) ? b : ROOM_TAB_DEFAULT;
+      } else if (kind === "group") {
+        this._nav2 = true;
+        this._section = SETTINGS_SECTIONS.some((x) => x.id === a) ? a : "home";
+        this._group = b || null;
+        this._tab = "general";
+      }
+      try {
+        localStorage.setItem("raumklima-settings-section", this._section);
+      } catch (e) {
+      }
+      this._sig = null;
+      this._render();
+    }
+    _gotoRoomByEntry(entryId) {
+      const room = (this._rooms || []).find((r) => (r.attrs.settings || {}).entry_id === entryId);
+      this._goto(room ? `room:${room.id}` : "section:system");
+    }
+    // Räume-Liste (Phase 1): Einstieg in die Raum-Detailseite.
+    _roomList() {
+      const rooms = this._orderedRooms();
+      return `<div class="roomlist" style="--g:var(--rk-heat)">
+      <div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div>
+      ${rooms.length ? `<div class="roomgrid">${this._roomTiles()}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>` : `<div class="hint">${t("Noch keine Räume eingerichtet.")}</div>`}
+    </div>`;
+    }
+    // Phase 6.1: einen Raum als Vorlage auf einen anderen Raum kopieren.
+    _copyRoomHtml() {
+      const from = (this._rooms || []).find((r) => r.id === this._copyRoom);
+      if (!from) return "";
+      const home = from.attrs.home || this._homeId();
+      const targets = this._orderedRooms().filter(
+        (r) => r.id !== from.id && (r.attrs.home || this._homeId()) === home && (r.attrs.settings || {}).entry_id
+      );
+      const templates = this._cfg && this._cfg.hub && this._cfg.hub.options && this._cfg.hub.options.room_templates || [];
+      return `<div class="sheetwrap">
+      <div class="sheet" role="dialog" aria-modal="true">
+        <div class="stitle">${t("Raum kopieren")}</div>
+        <div class="sintro">${t("Zielraum wählen. Kopiert werden nur sichere Werte – keine Entitäten, Zeitpläne oder Raumzuordnung.")}</div>
+        ${targets.length ? `<label class="mf"><span>${t("Zielraum")}</span><select class="sel" id="copyTarget">${targets.map((r) => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")}</select></label>` : `<div class="hint">${t("Kein weiterer Raum in dieser Wohnung.")}</div>`}
+        <div class="sbtns"><button class="btn primary" data-copyroom-go="${from.id}" ${targets.length ? "" : "disabled"}><ha-icon icon="mdi:content-copy"></ha-icon>${t("Kopieren")}</button><button class="btn" data-copyroom-close style="--c:var(--rk-off)">${t("Schließen")}</button></div>
+        <div class="sub">${t("Vorlagen")}</div>
+        <div class="chips">${templates.map((x) => `<button class="chip2" data-template-apply="${esc(x.name)}" style="--c:var(--rk-eco)"><i></i>${esc(x.name)}</button><button class="mini x" data-template-delete="${esc(x.name)}" title="${t("löschen")}">✕</button>`).join("") || `<span class="v mute">${t("keine")}</span>`}</div>
+        <div class="addrow"><input class="inp" id="templateName" placeholder="${t("Name der Vorlage")}" maxlength="40"><button class="btn" data-template-save="${from.id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:content-save"></ha-icon>${t("Aus diesem Raum speichern")}</button></div>
+      </div>
+    </div>`;
+    }
+    async _saveRoomTemplate(roomId) {
+      const input = this.shadowRoot && this.shadowRoot.querySelector("#templateName");
+      const name = input ? input.value.trim() : "";
+      if (!name) {
+        this._flash(t("Name fehlt"));
+        return;
+      }
+      const room = (this._rooms || []).find((r) => r.id === roomId);
+      const entryId = (room && room.attrs.settings || {}).entry_id;
+      if (!entryId) return;
+      try {
+        await this._hass.callWS({ type: "raumklima/room/template_save", entry_id: entryId, name, ...this._homeMsg() });
+        this._copyRoom = null;
+        this._flash(t("Vorlage gespeichert"));
+        await this._load();
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
+    }
+    async _applyRoomTemplate(name) {
+      const targetEl = this.shadowRoot && this.shadowRoot.querySelector("#copyTarget");
+      const target = targetEl ? (this._rooms || []).find((r) => r.id === targetEl.value) : null;
+      const entryId = (target && target.attrs.settings || {}).entry_id;
+      if (!entryId) return;
+      try {
+        await this._hass.callWS({ type: "raumklima/room/template_apply", entry_id: entryId, name, ...this._homeMsg() });
+        this._copyRoom = null;
+        this._flash(t("Vorlage angewendet"));
+        await this._load();
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
+    }
+    _deleteRoomTemplate(name) {
+      if (!window.confirm(t("Vorlage „{n}“ löschen?", { n: name }))) return;
+      this._hass.callWS({ type: "raumklima/room/template_delete", name, ...this._homeMsg() }).then(() => {
+        this._flash(t("Vorlage gelöscht"));
+        return this._load();
+      }).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+    }
+    async _copyRoomGo(roomId) {
+      const from = (this._rooms || []).find((r) => r.id === roomId);
+      const targetEl = this.shadowRoot && this.shadowRoot.querySelector("#copyTarget");
+      const target = targetEl ? (this._rooms || []).find((r) => r.id === targetEl.value) : null;
+      if (!from || !target) return;
+      const s = from.attrs.settings || {};
+      const changes = {};
+      for (const key of ROOM_APPLY_KEYS) {
+        if ((s.sources || {})[key] !== "room") continue;
+        const value = this._roomOpt(from, key);
+        if (value === void 0 || value === null) continue;
+        changes[key] = value;
+      }
+      if (!Object.keys(changes).length) {
+        this._flash(t("Keine sicheren Werte zum Kopieren"));
+        return;
+      }
+      const entryId = (target.attrs.settings || {}).entry_id;
+      if (!entryId) return;
+      try {
+        await this._hass.callWS({ type: "raumklima/room/update", entry_id: entryId, changes });
+        this._copyRoom = null;
+        this._flash(t("Raum kopiert"));
+        this._render();
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
+    }
+    // Phase 4: ausgewählte sichere Werte auf die anderen Räume derselben Wohnung legen.
+    async _applyToAllRooms(roomId) {
+      const room = (this._rooms || []).find((r) => r.id === roomId);
+      if (!room) return;
+      const s = room.attrs.settings || {};
+      const changes = {};
+      for (const key of ROOM_APPLY_KEYS) {
+        if ((s.sources || {})[key] !== "room") continue;
+        const value = this._roomOpt(room, key);
+        if (value === void 0 || value === null) continue;
+        changes[key] = value;
+      }
+      const home = room.attrs.home || this._homeId();
+      const targets = (this._rooms || []).filter(
+        (r) => r.id !== roomId && (r.attrs.settings || {}).entry_id && (r.attrs.home || this._homeId()) === home
+      );
+      if (!Object.keys(changes).length) {
+        this._flash(t("Keine sicheren Werte zum Übernehmen"));
+        return;
+      }
+      if (!targets.length) {
+        this._flash(t("Keine weiteren Räume"));
+        return;
+      }
+      if (typeof window.confirm === "function" && !window.confirm(t("{n} sichere Werte auf {m} Räume übernehmen?", { n: Object.keys(changes).length, m: targets.length }))) return;
+      let ok = 0;
+      for (const target of targets) {
+        const id = (target.attrs.settings || {}).entry_id;
+        try {
+          await this._hass.callWS({ type: "raumklima/room/update", entry_id: id, changes });
+          ok += 1;
+        } catch (e) {
+        }
+      }
+      this._flash(t("{n} Räume übernommen", { n: ok }));
+      this._render();
+    }
     // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
     _filter() {
       const root = this.shadowRoot;
       if (!root) return;
       const q = String(this._search || "").toLowerCase().trim();
+      const searching = !!q && !!this._nav2;
       const secs = [...root.querySelectorAll(".grp")];
+      const allowed = !searching && this._nav2 && this._allowedGroups ? new Set(this._allowedGroups) : null;
+      const order = searching ? RK_GROUP_ORDER : this._nav2 && this._allowedGroups ? this._allowedGroups : RK_GROUP_ORDER;
+      const room = !this._nav2 || this._section === "rooms" ? (this._rooms || []).find((r) => r.id === this._tab) : null;
+      const roomTab = !searching && this._nav2 && room ? this._roomTab || ROOM_TAB_DEFAULT : null;
       const present = /* @__PURE__ */ new Set();
       let active = null;
       let shown = 0;
-      for (const g of RK_GROUP_ORDER) {
-        if (secs.some((el) => (el.dataset.g || "advanced") === g)) {
-          active = g;
-          break;
+      if (!roomTab) {
+        for (const g of order) {
+          if (secs.some((el) => (el.dataset.g || "advanced") === g)) {
+            active = g;
+            break;
+          }
         }
+        if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group) && (!allowed || allowed.has(this._group))) active = this._group;
       }
-      if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group)) active = this._group;
       secs.forEach((el) => {
         const g = el.dataset.g || "advanced";
+        if (allowed && !allowed.has(g)) {
+          el.style.display = "none";
+          return;
+        }
         present.add(g);
         const hit = !q || el.textContent.toLowerCase().includes(q);
-        const vis = q ? hit : g === active;
+        const tab = el.dataset.room || ROOM_TAB_DEFAULT;
+        const vis = q ? hit : roomTab ? tab === roomTab : g === active;
         el.style.display = vis ? "" : "none";
         if (vis) shown += 1;
       });
@@ -7339,24 +8988,40 @@
       secs.forEach((el) => el.classList.toggle("solo", visible.length === 1 && el.style.display !== "none"));
       root.querySelector(".groups")?.classList.toggle("solo", visible.length === 1);
       root.querySelectorAll(".railbtn").forEach((b) => {
+        if (b.dataset.section) return;
         if (!root.querySelector(`.grp[data-g="${b.dataset.g}"]`)) b.remove();
       });
       root.querySelectorAll(".railbtn").forEach((b) => {
+        if (b.dataset.section) return;
         const g = b.dataset.g;
         b.classList.toggle("empty", !present.has(g));
         b.classList.toggle("on", !q && g === active);
       });
       const nos = root.querySelector(".nosearch");
-      if (nos) nos.style.display = q && !shown ? "" : "none";
+      if (nos) nos.style.display = q && !shown && root.querySelector(".searchrow") ? "" : "none";
       const crumb = root.querySelector("#rkc");
       if (crumb) {
-        const room = (this._rooms || []).find((r) => r.id === this._tab);
-        const parts = [this._ctxHome || t("Wohnung"), room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label)];
+        const parts = [this._ctxHome || t("Wohnung")];
+        if (q) {
+          parts.push(t("Suche"));
+        } else if (this._nav2) {
+          const sec = SETTINGS_SECTIONS.find((x) => x.id === this._section);
+          if (sec) parts.push(t(sec.label));
+          if (room) {
+            parts.push(room.name);
+            const rt = ROOM_TABS.find((x) => x.id === roomTab);
+            if (rt) parts.push(t(rt.label));
+          } else if (active && RK_GROUP_META[active]) {
+            parts.push(t(RK_GROUP_META[active].label));
+          }
+        } else {
+          parts.push(room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label));
+        }
         crumb.innerHTML = parts.map((x, i) => i === parts.length - 1 ? `<b>${esc(x)}</b>` : `${esc(x)} <span>›</span>`).join(" ");
       }
     }
   };
-  Object.assign(RaumklimaSettingsCard.prototype, SheetMethods, GeneralMethods, LayoutMethods, ScheduleMethods, RoomMethods, LearnMethods, BindMethods);
+  Object.assign(RaumklimaSettingsCard.prototype, SheetMethods, GeneralMethods, LayoutMethods, ScheduleMethods, RoomMethods, RoomOverviewMethods, LearnMethods, BindMethods, HomeSectionMethods, PresenceSectionMethods, HeatingSectionMethods, EnergySectionMethods, NotifySectionMethods, SystemSectionMethods);
 
   // src/cards/report.js
   var RaumklimaReportCard = class extends HTMLElement {
@@ -7913,6 +9578,379 @@
     }
   };
 
+  // src/cards/energy.js
+  var SOURCES = {
+    auto: "automatisch",
+    electric: "Strom",
+    gas: "Gas",
+    heatpump: "Wärmepumpe",
+    district: "Fernwärme"
+  };
+  var RaumklimaEnergyCard = class extends HTMLElement {
+    set _html(html) {
+      rkPaint(this, html);
+    }
+    static getConfigForm() {
+      return {
+        schema: [
+          { name: "title", selector: { text: {} } },
+          { name: "days", selector: { number: { min: 1, max: 365, step: 1 } } },
+          { name: "home", selector: { text: {} } }
+        ]
+      };
+    }
+    static getStubConfig() {
+      return { days: 30 };
+    }
+    setConfig(config) {
+      this._config = { days: 30, ...config };
+      this._days = Number(this._config.days) || 30;
+      if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+    }
+    getCardSize() {
+      return 5;
+    }
+    getGridOptions() {
+      return { columns: "full", rows: "auto" };
+    }
+    connectedCallback() {
+      this.style.display = "block";
+      this._poll = setInterval(() => this._load(), 10 * 60 * 1e3);
+    }
+    disconnectedCallback() {
+      clearInterval(this._poll);
+    }
+    set hass(hass) {
+      const first = !this._hass;
+      this._hass = hass;
+      setLang(hass);
+      if (first) this._load();
+      else if (this._data) this._render();
+    }
+    _home() {
+      const id = this._config.home || rkHomeId(this._hass, this._config);
+      return id ? { home: id } : {};
+    }
+    async _load() {
+      if (!this._hass) return;
+      try {
+        this._data = await this._hass.callWS({ type: "raumklima/energy", days: this._days, ...this._home() });
+        this._err = null;
+      } catch (e) {
+        this._err = e && e.message ? e.message : String(e);
+      }
+      this._render();
+    }
+    _source(e) {
+      return t(SOURCES[e.source] || e.source || "automatisch");
+    }
+    _tile(label, icon, value, unit, detail, tone = "warn") {
+      return `<div class="dtile"><div class="k"><ha-icon icon="${icon}"></ha-icon>${t(label)}</div>
+      <div class="n" style="color:${toneVar(tone)}">${value}${unit ? `<small>${unit}</small>` : ""}</div>
+      ${detail ? `<div class="d">${detail}</div>` : ""}</div>`;
+    }
+    _row(label, icon, value) {
+      return `<div class="drow"><div class="l"><ha-icon icon="${icon}"></ha-icon>${t(label)}</div><div class="v">${value}</div></div>`;
+    }
+    _empty(icon, text) {
+      return `<div class="dempty"><ha-icon icon="${icon}"></ha-icon><div>${t(text)}</div></div>`;
+    }
+    _body(d) {
+      const e = d.energy || {};
+      if (!e.enabled) {
+        return this._empty("mdi:lightning-bolt-off", "Energie-Erfassung ist aus. In den Einstellungen unter „Heizung & Energie“ aktivieren.");
+      }
+      if (!e.meter) {
+        return this._empty("mdi:counter", "Noch kein Zähler gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas- oder Wärmezähler auswählen.");
+      }
+      const money = d.money || {};
+      const kwh = e.kwh == null ? money.kwh : e.kwh;
+      const cost = money.period_cost;
+      const annual = money.annual;
+      const basis = money.basis === "bill" ? "Abrechnung" : money.basis === "meter" ? "Zähler" : "";
+      const meterInfo = e.m3 != null ? `${fmt(e.m3, 1)} m³ → ${fmt(e.kwh, 1)} kWh` : e.meter_unit || "";
+      const pvDetail = e.pv_entity ? `${t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) })}` + (e.surplus_kwh != null ? ` · ${t("{n} kWh Überschuss", { n: fmt(e.surplus_kwh, 1) })}` : "") : "";
+      const rows = [
+        this._row("Quelle", "mdi:transmission-tower", esc(this._source(e))),
+        this._row("Zähler", "mdi:counter", `<span data-more="${esc(e.meter)}" style="cursor:pointer">${esc(e.meter)}</span>`),
+        this._row("Tarif", "mdi:tag-outline", e.tariff ? `<span data-more="${esc(e.tariff)}" style="cursor:pointer">${esc(e.tariff)}</span>${e.tariff_dynamic ? ` · ${t("dynamisch")}` : ""}` : t("fester Preis")),
+        e.surplus_kwh != null ? this._row("PV-Überschuss", "mdi:solar-power-variant", `${fmt(e.surplus_kwh, 1)} kWh`) : "",
+        this._row("Arbeitspreis", "mdi:currency-eur", `${fmt(e.price, 2)} €/kWh`),
+        this._row("Grundpreis", "mdi:calendar-month-outline", `${fmt(e.base, 2)} €/${t("Monat")}`),
+        e.heat_kwh != null ? this._row("Wärmemenge", "mdi:radiator", `${fmt(e.heat_kwh, 1)} kWh`) : "",
+        e.efficiency > 0 ? this._row("Jahresarbeitszahl", "mdi:gauge", fmt(e.efficiency, 1)) : "",
+        e.pv_entity ? this._row("PV-Ertrag", "mdi:solar-power", `${fmt(e.pv_kwh, 1)} kWh`) : "",
+        this._row("Zeitraum", "mdi:calendar-range", `${d.start} – ${d.end}`)
+      ].join("");
+      return `<div class="dtiles">
+        ${this._tile("Verbrauch", "mdi:lightning-bolt", kwh == null ? "–" : fmt(kwh, 1), " kWh", meterInfo)}
+        ${this._tile("Kosten", "mdi:currency-eur", cost == null ? "–" : fmt(cost, 2), " €", basis ? t("Basis: {b}", { b: t(basis) }) : t("noch keine Schätzung"), "heat")}
+        ${this._tile("Jahr", "mdi:chart-timeline-variant", annual == null ? "–" : fmt(annual, 0), " €", t("Schätzung"), "ok")}
+        ${this._tile("PV", "mdi:solar-power", e.pv_kwh == null ? "–" : fmt(e.pv_kwh, 1), " kWh", pvDetail, "ok")}
+      </div><div class="drows">${rows}</div>`;
+    }
+    _render() {
+      if (!this._hass) return;
+      const d = this._data;
+      let body;
+      if (this._err) body = this._empty("mdi:alert-circle-outline", "Energie nicht verfügbar: {e}".replace("{e}", esc(this._err)));
+      else if (!d) body = `<div class="dempty"><ha-icon icon="mdi:loading"></ha-icon><div>${t("Lade Energie …")}</div></div>`;
+      else body = this._body(d);
+      const title = this._config.title || t("Energie");
+      const sub = d ? `${t("Letzte {n} Tage", { n: d.days })} · ${d.start} – ${d.end}` : t("Zähler, Tarif und Kosten");
+      this._html = `<style>${STYLES}${DASH_STYLES}</style>
+      <ha-card class="dashcard" style="--tone:${toneVar("warn")}">
+        <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:lightning-bolt-outline"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div>
+          <div class="dseg">${[7, 30, 90].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${t("{n} Tage", { n })}</button>`).join("")}</div>
+        </div>
+        ${body}
+      </ha-card>`;
+      this.shadowRoot.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => {
+        this._days = Number(b.dataset.days);
+        this._load();
+      }));
+      this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
+    }
+  };
+
+  // src/cards/learning.js
+  var RaumklimaLearningCard = class extends HTMLElement {
+    set _html(html) {
+      rkPaint(this, html);
+    }
+    static getConfigForm() {
+      return {
+        schema: [
+          { name: "title", selector: { text: {} } },
+          { name: "home", selector: { text: {} } },
+          { name: "strip_prefix", selector: { text: {} } }
+        ]
+      };
+    }
+    static getStubConfig() {
+      return {};
+    }
+    setConfig(config) {
+      this._config = { ...config };
+      if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+    }
+    getCardSize() {
+      return 8;
+    }
+    getGridOptions() {
+      return { columns: "full", rows: "auto" };
+    }
+    connectedCallback() {
+      this.style.display = "block";
+      this._poll = setInterval(() => this._loadHub(), 15 * 60 * 1e3);
+    }
+    disconnectedCallback() {
+      clearInterval(this._poll);
+    }
+    set hass(hass) {
+      const first = !this._hass;
+      this._hass = hass;
+      setLang(hass);
+      this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
+      if (!this._layout) {
+        rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
+          this._layout = L || {};
+          this._rooms = rkRoomsOrdered(this._rooms || [], this._layout);
+          this._render();
+        }).catch(() => {
+        });
+      }
+      if (first) this._loadHub();
+      else this._render();
+    }
+    _home() {
+      const id = this._config.home || rkHomeId(this._hass, this._config);
+      return id ? { home: id } : {};
+    }
+    async _loadHub() {
+      if (!this._hass) return;
+      try {
+        const cfg = await this._hass.callWS({ type: "raumklima/config", ...this._home() });
+        this._hub = cfg && cfg.hub ? cfg.hub.state : null;
+        this._err = null;
+      } catch (e) {
+        this._err = e && e.message ? e.message : String(e);
+      }
+      this._render();
+    }
+    _tile(label, icon, value, unit, detail, tone = "ok") {
+      return `<div class="dtile"><div class="k"><ha-icon icon="${icon}"></ha-icon>${t(label)}</div>
+      <div class="n" style="color:${toneVar(tone)}">${value}${unit ? `<small>${unit}</small>` : ""}</div>
+      ${detail ? `<div class="d">${detail}</div>` : ""}</div>`;
+    }
+    _tag(icon, text) {
+      return `<span class="tag"><ha-icon icon="${icon}"></ha-icon>${esc(text)}</span>`;
+    }
+    _tip() {
+      const tip = this._hub && this._hub.presence_tip || {};
+      if (!tip.ready) return "";
+      const part = (key, label) => tip[key] ? `${t(label)} ${tip[key].from}–${tip[key].to}` : "";
+      return [part("weekday", "Wochentags"), part("weekend", "Wochenende")].filter(Boolean).join(" · ");
+    }
+    _sleep() {
+      const s = this._hub && this._hub.sleep || {};
+      const bed = s.weekday && s.weekday.bed;
+      const wake = s.weekday && s.weekday.wake;
+      return bed && wake ? `${bed}–${wake}` : "–";
+    }
+    _roomRow(room) {
+      const s = room.attrs && room.attrs.settings || {};
+      const h = s.heatup || {};
+      const th = s.thermal || {};
+      const usage = s.usage || {};
+      const airing = s.airing || {};
+      const top = ((s.airing_top || {}).learned || [])[0];
+      const episodes = Number(h.episodes) || 0;
+      const rate = h.rate;
+      const minutes = h.minutes_2k;
+      const pct = rate != null ? Math.min(100, Math.round(episodes / 5 * 100)) : 0;
+      const heat = episodes && rate != null ? `${fmt(rate, 1)} K/h · ${t("+2 K in {n} min", { n: minutes == null ? "–" : fmt(minutes, 0) })} · ${t("{n} Aufheizvorgänge", { n: episodes })}` + (th.cool_rate != null ? ` · ${fmt(th.cool_rate, 1)} K/h ${t("Abkühlung")}` : "") + (th.solar_gain != null && th.solar_gain > 0 ? ` · ${t("Sonne")} +${fmt(th.solar_gain, 1)} K/h` : "") : t("Noch zu wenig Daten");
+      const use = usage.text ? `${t("Nutzung")}: ${usage.text}` : usage.days_seen ? t("{n} Tage mit Belegung", { n: usage.days_seen }) : t("Kein Präsenzprofil");
+      const air = airing.episodes ? `${t("Lüften")}: ${t("{n} Vorgänge", { n: airing.episodes })}${top ? ` · ${t("typisch")} ${top.time} (${top.count}×)` : ""}` : t("Noch kein Lüftmuster");
+      return `<div class="dlrow">
+      <div class="ltop"><span class="name" data-more="${esc(room.id)}" style="cursor:pointer">${esc(room.name)}</span><span class="pct">${rate != null ? `${pct} %` : ""}</span></div>
+      <div class="dbar"><i style="width:${pct}%"></i></div>
+      <div class="meta">${esc(heat)}</div>
+      <div class="tags">${this._tag("mdi:account-clock-outline", use)}${this._tag("mdi:weather-windy", air)}</div>
+    </div>`;
+    }
+    _render() {
+      if (!this._hass) return;
+      const rooms = this._rooms || [];
+      const withHeat = rooms.filter((r) => {
+        const h = ((r.attrs || {}).settings || {}).heatup || {};
+        return h.rate != null && Number(h.episodes) > 0;
+      }).length;
+      const airings = rooms.reduce((n, r) => n + Number((((r.attrs || {}).settings || {}).airing || {}).episodes || 0), 0);
+      const withModel = rooms.filter((r) => {
+        const th = ((r.attrs || {}).settings || {}).thermal || {};
+        return th.ready && th.cool_rate != null;
+      }).length;
+      const profile = this._hub && this._hub.presence_profile || {};
+      const days = Number((profile.days || {}).weekday || 0) + Number((profile.days || {}).weekend || 0);
+      const tip = this._tip();
+      const title = this._config.title || t("Lernen");
+      const sub = tip ? `${t("Vorschlag")}: ${tip}` : t("Was Raumklima aus deinen Daten gelernt hat");
+      const body = rooms.length ? `<div class="dlrow">${rooms.map((r) => this._roomRow(r)).join("")}</div>` : `<div class="dempty"><ha-icon icon="mdi:school-outline"></ha-icon><div>${t("Noch keine Räume eingerichtet.")}</div></div>`;
+      this._html = `<style>${STYLES}${DASH_STYLES}</style>
+      <ha-card class="dashcard" style="--tone:${toneVar("eco")}">
+        <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:brain"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div></div>
+        <div class="dtiles">
+          ${this._tile("Aufheizraten", "mdi:fire", `${withHeat}/${rooms.length}`, "", t("Räume mit Daten"), "heat")}
+          ${this._tile("Wärmemodell", "mdi:chart-bell-curve", `${withModel}/${rooms.length}`, "", t("Räume mit Wärmeverlust"), "eco")}
+          ${this._tile("Anwesenheit", "mdi:account-clock-outline", days, t(" Tage"), profile.complete ? t("Profil vollständig") : t("Profil wächst"), "ok")}
+          ${this._tile("Lüften", "mdi:weather-windy", airings, "", t("gelernte Vorgänge"), "air")}
+          ${this._tile("Schlaf", "mdi:power-sleep", this._sleep(), "", t("typische Nacht"), "eco")}
+        </div>
+        ${body}
+        <div class="dnote">${t("Lernen ist lesend: Raumklima zeigt hier nur, was es aus den letzten Wochen gelernt hat.")}</div>
+      </ha-card>`;
+      this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
+    }
+  };
+
+  // src/cards/demo.js
+  var STATUS2 = {
+    heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
+    idle: { label: "Bereit", icon: "mdi:check-circle-outline", tone: "ok" },
+    setback: { label: "Absenkt", icon: "mdi:weather-night", tone: "eco" },
+    window: { label: "Fenster offen", icon: "mdi:window-open-variant", tone: "air" }
+  };
+  var SAMPLE = [
+    { id: "bad", name: "Bad", temp: 21.5, target: 22, humidity: 62, status: "heating", window: false },
+    { id: "wohnen", name: "Wohnzimmer", temp: 20.8, target: 21, humidity: 48, status: "idle", window: false },
+    { id: "buero", name: "Büro", temp: 19.2, target: 20, humidity: 40, status: "setback", window: true }
+  ];
+  var RaumklimaDemoCard = class extends HTMLElement {
+    set _html(html) {
+      rkPaint(this, html);
+    }
+    static getConfigForm() {
+      return { schema: [{ name: "title", selector: { text: {} } }] };
+    }
+    static getStubConfig() {
+      return {};
+    }
+    setConfig(config) {
+      this._config = { ...config };
+      if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+    }
+    getCardSize() {
+      return 8;
+    }
+    getGridOptions() {
+      return { columns: "full", rows: "auto" };
+    }
+    connectedCallback() {
+      this.style.display = "block";
+    }
+    set hass(hass) {
+      this._hass = hass;
+      setLang(hass);
+      this._render();
+    }
+    constructor() {
+      super();
+      this._rooms = SAMPLE.map((r) => ({ ...r }));
+    }
+    _step(id, delta) {
+      const room = this._rooms.find((r) => r.id === id);
+      if (!room) return;
+      room.target = Math.max(5, Math.min(30, Math.round((room.target + delta) * 2) / 2));
+      this._render();
+    }
+    _window(id) {
+      const room = this._rooms.find((r) => r.id === id);
+      if (!room) return;
+      room.window = !room.window;
+      room.status = room.window ? "window" : "idle";
+      this._render();
+    }
+    _tile(label, icon, value, unit, detail, tone = "ok") {
+      return `<div class="dtile"><div class="k"><ha-icon icon="${icon}"></ha-icon>${t(label)}</div>
+      <div class="n" style="color:${toneVar(tone)}">${value}${unit ? `<small>${unit}</small>` : ""}</div>
+      ${detail ? `<div class="d">${detail}</div>` : ""}</div>`;
+    }
+    _render() {
+      if (!this._hass) return;
+      const rooms = this._rooms.map((r) => {
+        const st = STATUS2[r.status] || STATUS2.idle;
+        const label = r.id === "bad" ? t("Bad") : r.id === "wohnen" ? t("Wohnzimmer") : t("Büro");
+        return `<div class="dlrow">
+        <div class="ltop"><span class="name">${esc(label)}</span><span class="pct" style="color:${toneVar(st.tone)}">${t(st.label)}</span></div>
+        <div class="dbar"><i style="width:${Math.min(100, Math.max(0, (r.temp - 14) / 14 * 100))}%"></i></div>
+        <div class="meta">${t("Innen {v} °C", { v: fmt(r.temp, 1) })} · ${t("Soll {v} °C", { v: fmt(r.target, 1) })} · ${t("{v} % Feuchte", { v: fmt(r.humidity, 0) })}</div>
+        <div class="tags">
+          <button class="chip2" data-demo-step="${r.id}|-0.5">− 0,5</button>
+          <button class="chip2" data-demo-step="${r.id}|0.5">+ 0,5</button>
+          <button class="chip2${r.window ? "" : " off"}" data-demo-window="${r.id}"><i></i>${r.window ? t("Fenster zu") : t("Fenster auf")}</button>
+        </div>
+      </div>`;
+      }).join("");
+      this._html = `<style>${STYLES}${DASH_STYLES}</style>
+      <ha-card class="dashcard" style="--tone:${toneVar("eco")}">
+        <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:flask-outline"></ha-icon><div>${esc(this._config.title || t("Demo"))}<div class="dsub">${t("Simulierte Räume ohne Hardware")}</div></div></div></div></div>
+        <div class="dtiles">
+          ${this._tile("Räume", "mdi:home-group", "3", "", t("Demo-Daten"), "eco")}
+          ${this._tile("Energie", "mdi:lightning-bolt", "128", " kWh", "42,50 € · 30 % PV", "warn")}
+          ${this._tile("Lernen", "mdi:brain", "+2 K", "", t("in 45 min"), "ok")}
+        </div>
+        <div class="dlrow">${rooms}</div>
+        <div class="dnote">${t("Alles hier ist simuliert – ohne Home-Assistant-Entitäten und ohne persönliche Daten.")}</div>
+      </ha-card>`;
+      this.shadowRoot.querySelectorAll("[data-demo-step]").forEach((b) => b.addEventListener("click", () => {
+        const [id, delta] = b.dataset.demoStep.split("|");
+        this._step(id, Number(delta));
+      }));
+      this.shadowRoot.querySelectorAll("[data-demo-window]").forEach((b) => b.addEventListener("click", () => this._window(b.dataset.demoWindow)));
+    }
+  };
+
   // src/cards/strategy.js
   function roomSort(config = {}) {
     const collator = new Intl.Collator(void 0, { numeric: true, sensitivity: "base" });
@@ -7934,6 +9972,19 @@
   var RaumklimaDashboardStrategy = class extends HTMLElement {
     static async generate(config, hass) {
       setLang(hass);
+      if (config.demo) {
+        return {
+          title: config.title || t("Raumklima"),
+          views: [{
+            title: t("Demo"),
+            path: "demo",
+            icon: "mdi:flask-outline",
+            type: "sections",
+            max_columns: 3,
+            sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-demo-card", grid_options: { columns: "full" } }] }]
+          }]
+        };
+      }
       const prefix = config.strip_prefix ?? "";
       const homeId = rkHomeId(hass, config) || "";
       const reg = Object.values(hass.entities || {});
@@ -7966,6 +10017,18 @@
         }
       }
       if (!weather) weather = Object.keys(hass.states).find((id) => id.startsWith("weather."));
+      const overviewCard = { type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather, strip_prefix: prefix, grid_options: { columns: "full" } };
+      const insightsView = {
+        title: t("Energie & Lernen"),
+        path: "energie-lernen",
+        icon: "mdi:chart-donut",
+        type: "sections",
+        max_columns: 3,
+        sections: [
+          { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-energy-card", ...H, days: config.energy_days || 30, grid_options: { columns: "full" } }] },
+          { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-learning-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }
+        ]
+      };
       const roomsView = {
         title: t("Räume"),
         path: "raeume",
@@ -7973,7 +10036,7 @@
         type: "sections",
         max_columns: 3,
         sections: [
-          { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
+          { type: "grid", column_span: 3, cards: [overviewCard] },
           // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
           // sie erscheinen nur als Kachel in der Übersicht.
           // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
@@ -8019,7 +10082,7 @@
         max_columns: 3,
         sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
       };
-      return { title: config.title || t("Heizung"), views: [roomsView, historyView, reportView, logView, settingsView] };
+      return { title: config.title || t("Heizung"), views: [roomsView, insightsView, historyView, reportView, logView, settingsView] };
     }
   };
 
@@ -8041,13 +10104,19 @@
       { type: "raumklima-settings-card", name: t("Raumklima – Einstellungen"), description: t("Was eingestellt ist, wer welche Hinweise bekommt – mit Reglern"), preview: false },
       { type: "raumklima-history-card", name: t("Raumklima – Verlauf"), description: t("Temperatur, Luftfeuchte oder Zeitleiste aller Räume"), preview: false },
       { type: "raumklima-log-card", name: t("Raumklima – Protokoll"), description: t("Was wann warum entschieden wurde – live, mit Filtern"), preview: false },
-      { type: "raumklima-report-card", name: t("Raumklima – Heizbericht"), description: t("Woche und Monat: Heizstunden, Ersparnis, wetterbereinigter Vergleich, Gesundheit"), preview: false }
+      { type: "raumklima-report-card", name: t("Raumklima – Heizbericht"), description: t("Woche und Monat: Heizstunden, Ersparnis, wetterbereinigter Vergleich, Gesundheit"), preview: false },
+      { type: "raumklima-energy-card", name: t("Raumklima – Energie"), description: t("Zähler, Tarif und Kosten im Zeitraum"), preview: false },
+      { type: "raumklima-learning-card", name: t("Raumklima – Lernen"), description: t("Was Raumklima aus deinen Daten gelernt hat"), preview: false },
+      { type: "raumklima-demo-card", name: t("Raumklima – Demo"), description: t("Simulierte Räume ohne Hardware"), preview: true }
     );
   }
   if (!customElements.get("raumklima-settings-card")) customElements.define("raumklima-settings-card", RaumklimaSettingsCard);
   if (!customElements.get("raumklima-history-card")) customElements.define("raumklima-history-card", RaumklimaHistoryCard);
   if (!customElements.get("raumklima-log-card")) customElements.define("raumklima-log-card", RaumklimaLogCard);
   if (!customElements.get("raumklima-report-card")) customElements.define("raumklima-report-card", RaumklimaReportCard);
+  if (!customElements.get("raumklima-energy-card")) customElements.define("raumklima-energy-card", RaumklimaEnergyCard);
+  if (!customElements.get("raumklima-learning-card")) customElements.define("raumklima-learning-card", RaumklimaLearningCard);
+  if (!customElements.get("raumklima-demo-card")) customElements.define("raumklima-demo-card", RaumklimaDemoCard);
   if (!customElements.get("ll-strategy-dashboard-raumklima")) customElements.define("ll-strategy-dashboard-raumklima", RaumklimaDashboardStrategy);
   window.customStrategies = window.customStrategies || [];
   if (!window.customStrategies.find((x) => x.type === "raumklima")) {

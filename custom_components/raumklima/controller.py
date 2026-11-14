@@ -48,6 +48,8 @@ from .const import (
     CONF_COMFORT_TEMP,
     CONF_EXTRA_TRVS,
     CONF_FAST_POLL,
+    CONF_FLOOR_RETURN,
+    CONF_FLOOR_SUPPLY,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_NAME,
@@ -58,6 +60,7 @@ from .const import (
     CONF_SCHEDULES,
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
+    CONF_SHADING_COVERS,
     CONF_SYNC_MAX_RETRIES,
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
@@ -121,6 +124,7 @@ from .room_const import (
     VALVE_CARE,
 )
 from .room_extra_trvs import AcSource, ExtraTrv
+from .room_floor import FloorMixin
 from .room_health import HealthMixin
 from .room_lights import LightSignal
 from .room_mold import MoldMixin
@@ -128,6 +132,7 @@ from .room_plan import PlanMixin
 from .room_presence import PresenceMixin
 from .room_radio import RadioMixin
 from .room_settings import SettingsMixin
+from .room_shading import ShadingMixin
 from .room_store import StoreMixin
 from .room_trv import MANUAL_OVERRIDE, TrvMixin
 from .room_windows import WindowMixin
@@ -143,7 +148,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 
-class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMixin, SettingsMixin, WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
+class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMixin, SettingsMixin, ShadingMixin, FloorMixin, WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     """Steuert genau einen Raum."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -159,6 +164,10 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self.co2_sensor: str | None = self.config.get(CONF_CO2_SENSOR) or None
         self.pm25_sensor: str | None = self.config.get(CONF_PM25_SENSOR) or None
         self.windows: list[str] = list(self.config.get(CONF_WINDOWS) or [])
+        raw_covers = self.config.get(CONF_SHADING_COVERS) or []
+        if isinstance(raw_covers, str):
+            raw_covers = [raw_covers]
+        self.covers: list[str] = list(dict.fromkeys(str(e) for e in raw_covers if e))
         self._extra_ids: list[str] = [
             e for e in (self.config.get(CONF_EXTRA_TRVS) or []) if e and e != self.trv
         ]
@@ -208,12 +217,24 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._listeners: list[Callable[[], None]] = []
         self._apply_lock = asyncio.Lock()
         self.valve_sensor: str | None = None
+        self.valve_actuator: str | None = None
         self._valve_hunt_until: datetime | None = None  # Zeitfenster für die Nachsuche
         self._valve_last_try: datetime | None = None
         self._frost_active = False
         self._solar_active = False
         self.frost_night_low: float | None = None
         self._manual_until: datetime | None = None
+        # Verschattung: zuletzt von uns geschlossene Covers und pausierte Automatik.
+        self._shading_closed: set[str] = set()
+        self._shading_manual_until: datetime | None = None
+        self._shading_last: dict[str, dict[str, Any]] = {}
+        self._shading_state: str = "off"
+        self._shading_reason: str = "off"
+        self._shading_sun: bool = False
+        self.floor_supply: str | None = self.config.get(CONF_FLOOR_SUPPLY) or None
+        self.floor_return: str | None = self.config.get(CONF_FLOOR_RETURN) or None
+        self._floor_last_setpoint: float | None = None
+        self._floor_last_change: datetime | None = None
         self._valve_care_until: datetime | None = None
         self._started = False
         # Gesundheitscheck
@@ -309,21 +330,28 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             self.vent.load(None)
             self.series.load(None)
         self.valve_sensor = self._find_valve_sensor()
+        self.valve_actuator = self._find_valve_actuator()
         for extra in self.extra_trvs:
             extra.discover()
         self._batteries = self._find_batteries()
 
-        tracked = [self.trv, self.temp_sensor, *self.windows, *(e for x in self.extra_trvs for e in x.tracked()), *(e for x in self.ac_sources for e in x.tracked())]
+        tracked = [self.trv, self.temp_sensor, *self.windows, *self.covers, *(e for x in self.extra_trvs for e in x.tracked()), *(e for x in self.ac_sources for e in x.tracked())]
         if self.humidity_sensor:
             tracked.append(self.humidity_sensor)
         if self.co2_sensor:
             tracked.append(self.co2_sensor)
         if self.pm25_sensor:
             tracked.append(self.pm25_sensor)
+        if self.floor_supply:
+            tracked.append(self.floor_supply)
+        if self.floor_return:
+            tracked.append(self.floor_return)
         if self.config.get(CONF_WEATHER):
             tracked.append(self.config[CONF_WEATHER])
         if self.valve_sensor:
             tracked.append(self.valve_sensor)
+        if self.valve_actuator:
+            tracked.append(self.valve_actuator)
         if self.cal_entity:
             tracked.append(self.cal_entity)
         self._unsubs.append(
@@ -364,9 +392,11 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self.update_presence(initial=True)
 
         domain_data(self.hass)["rooms"][self.entry.entry_id] = self
+        self.shading_start()
         self._started = True
         self.hass.async_create_task(self._apply())
         self.hass.async_create_task(self.async_calibrate())
+        self.hass.async_create_task(self.async_evaluate_shading())
 
     async def async_stop(self) -> None:
         """Alles abmelden."""
@@ -744,18 +774,30 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
 
     # ================================================================ Bedienung
+    async def async_resume_manual(self) -> None:
+        """Handverstellung beenden: auf die in den Einstellungen hinterlegte Wunschtemperatur."""
+        self.target_temp = self.comfort_temp
+        self._manual_until = None
+        self._manual_candidate = None
+        self._save()
+        self._notify()
+        await self._apply()
+
     async def async_set_target(self, temperature: float, by: str | None = None) -> None:
         new = clamp(float(temperature), self.trv_min, self.trv_max)
         on, current, reason = self.plan()
         override = reason in AWAY_STAGES and new > current
         now = dt_util.utcnow()
-        if override:
-            # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
-            self._manual_until = now + MANUAL_OVERRIDE
-        elif self.override_minutes > 0 and schedule_target(self.schedules, dt_util.now()) is not None:
-            # In einem laufenden Zeitfenster: von Hand gestellt heißt „für X Minuten mein Wunsch".
-            self._manual_until = now + timedelta(minutes=self.override_minutes)
-        if new != self.target_temp:
+        changed = new != self.target_temp
+        if changed:
+            if override:
+                # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
+                self._manual_until = now + MANUAL_OVERRIDE
+            elif self.override_minutes > 0:
+                # Auch ohne Zeitplan: Die Handverstellung bekommt ein Zeitfenster, damit die
+                # Karte „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ zeigen kann.
+                self._manual_until = now + timedelta(minutes=self.override_minutes)
+        if changed:
             self.log(
                 CAT_MANUAL,
                 tr("Wunschtemperatur {old} → {new}", old=fmt_temp(self.target_temp), new=fmt_temp(new)),
@@ -931,6 +973,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
                 self._valve_last_try = now
                 self._try_valve_sensor()
 
+        if entity_id in self.covers:
+            self._on_shading_change(entity_id, old, new)
         if entity_id in self.windows:
             self._on_window(entity_id, new)
         elif entity_id == self.temp_sensor:
@@ -940,6 +984,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             self._trv_reports.append(dt_util.utcnow())
             self._on_trv(old, new)
         elif entity_id == self.cal_entity:
+            self.sync.check_all()
+        elif entity_id == self.valve_actuator:
             self.sync.check_all()
         else:
             for extra in self.extra_trvs:

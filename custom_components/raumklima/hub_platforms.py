@@ -90,6 +90,31 @@ class OutdoorMeanSensor(HubEntity, SensorEntity):
         return self.hub.mean_combined
 
 
+class HeatDemandSensor(HubEntity, SensorEntity):
+    """Braucht die Anlage Wärme? Zählt fordernde Räume und propose Vorlauf."""
+
+    _attr_translation_key = "heat_demand"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = ["heat", "idle"]
+
+    def __init__(self, hub: RaumklimaHub) -> None:
+        super().__init__(hub, "heat_demand")
+
+    @property
+    def native_value(self) -> str:
+        return "heat" if self.hub.heat_summary()["active"] else "idle"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        h = self.hub.heat_summary()
+        return {
+            "flow_target": h["flow_target"],
+            "sum_deficit": h["sum_deficit"],
+            "rooms_heating": h["rooms_heating"],
+            "rooms": h["rooms"],
+        }
+
+
 class HealthSensor(HubEntity, SensorEntity):
     """Anzahl offener Hinweise des Gesundheitschecks."""
 
@@ -234,7 +259,7 @@ class HeatTodayButton(HubEntity, ButtonEntity):
 
 def hub_entities(platform: str, hub: RaumklimaHub) -> list:
     if platform == "sensor":
-        return [PresenceSensor(hub), SeasonSensor(hub), OutdoorMeanSensor(hub), HealthSensor(hub)]
+        return [PresenceSensor(hub), SeasonSensor(hub), OutdoorMeanSensor(hub), HeatDemandSensor(hub), HealthSensor(hub)]
     if platform == "switch":
         return [VacationSwitch(hub), GuestsSwitch(hub), HomeOfficeSwitch(hub), NightSwitch(hub)]
     if platform == "select":

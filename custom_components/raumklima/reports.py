@@ -21,7 +21,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from .const import CONF_REPORT_METRIC, CONF_SEASON_END, CONF_SEASON_START, KIND_REPORT
-from .mailer import BUILTIN, MailError, recipients, send as mail_send
+from .const import CONF_SMTP_NOTIFY
+from .mailer import BUILTIN, MailError, recipients, send as mail_send, send_via_ha
 from .msg import tr
 from .report_data import MONTH, SEASON, WEEK, build, period, report_lang
 from .shared import all_hubs
@@ -139,6 +140,8 @@ class PdfReports:
         season = (str(hub.opt(CONF_SEASON_START) or "10-01"), str(hub.opt(CONF_SEASON_END) or "04-30"))
         start, end = period(kind, today, *season, current=current)
         lang = self.lang
+        extras = hub.insights.report_extras()
+        extras.update(await hub.insights.async_energy_extras(start, end))
         data = build(
             hub.insights.rooms_by_name(),
             hub.insights.data["home"],
@@ -148,7 +151,7 @@ class PdfReports:
             hub.insights.all_issues(),
             lang,
             season,
-            hub.insights.report_extras(),
+            extras,
             hub.opt(CONF_REPORT_METRIC) if hub.opt(CONF_REPORT_METRIC) != "auto" else None,
         )
         name = file_name(kind, start, end, lang, current, self._home_label())
@@ -217,7 +220,22 @@ class PdfReports:
             push_data |= {"url": url, "clickAction": url, "actions": [{"action": "URI", "title": tx["open"], "uri": url}]}
         await self.hub.async_notify(KIND_REPORT, title, message, push_data, speak=False)
         email = self.hub.opt(CONF_REPORT_EMAIL)
-        if email == BUILTIN:
+        smtp_notify = self.hub.opt(CONF_SMTP_NOTIFY)
+        if smtp_notify:
+            path = str(report_dir(self.hass) / entry["file"])
+            try:
+                await send_via_ha(
+                    self.hass,
+                    str(smtp_notify),
+                    title.replace("📊 ", ""),
+                    f"{message}\n\n{tx['mail']}",
+                    [path],
+                )
+                self.hub.log.add("notify", tr("PDF-Bericht per E-Mail: {file}", file=entry["file"]), str(smtp_notify))
+            except Exception as err:  # noqa: BLE001
+                self.hub.log.add("notify", tr("E-Mail mit Heizbericht fehlgeschlagen"), str(err), level="warn")
+                _LOGGER.warning("E-Mail mit Heizbericht über HA-SMTP fehlgeschlagen: %s", err)
+        elif email == BUILTIN:
             path = str(report_dir(self.hass) / entry["file"])
             try:
                 await self.hass.async_add_executor_job(

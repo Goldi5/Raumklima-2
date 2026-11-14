@@ -90,6 +90,20 @@ def test_money_and_tips():
     assert "≈ 78 € im Jahr" in text
 
 
+def test_energy_kwh_and_meter_money():
+    assert rx.energy_kwh(120, "m³", 10) == 1200
+    assert rx.energy_kwh(1500, "Wh", 10) == 1.5
+    rooms, home = _rooms(warm=True, night_heat=True)
+    cur = summarize(rooms, home, TODAY - timedelta(days=6), TODAY)
+    meter = rx.money(cur, None, {"source": "gas", "kwh": 1000, "price": 0.12, "base": 10, "days": 7})
+    assert meter["basis"] == "meter" and meter["kwh"] == 1000
+    assert abs(meter["period_cost"] - 122.3) < 0.05  # 1000 kWh + 7/30,44 Monate Grundpreis
+    assert rx.money(cur, 1300, {"source": "gas", "kwh": 1000, "price": 0.12})["basis"] == "bill"
+    pv = rx.money(cur, None, {"source": "electric", "kwh": 100, "price": 0.3, "days": 7, "pv_kwh": 50, "pv_self_use": 50})
+    assert pv["period_cost"] == 22.5
+    assert rx.money(cur, None, {"source": "gas", "kwh": 0, "price": 0.12}) is None
+
+
 def test_season_highlights():
     daily = [
         {"date": "2025-10-01", "heating_h": 0, "outdoor": 14.0, "recorded": True},

@@ -102,6 +102,8 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Heizpause, aber unter der Sicherung {t}", "Heating break, but below the safety minimum {t}", "Pause chauffage, mais sous le minimum de sécurité {t}"),
     ("Sommerpflege: Ventil kurz öffnen", "Summer care: briefly open valve", "Entretien d’été : ouvrir brièvement la vanne"),
     ("Raum seit {m} min leer (Präsenzmelder) – {d} weniger (Wunsch {t})", "Room empty for {m} min (presence sensor) – {d} less (desired {t})", "Pièce vide depuis {m} min (détecteur de présence) – {d} de moins (souhaité {t})"),
+    ("Kühlen", "Cooling", "Refroidissement"),
+    ("Kühlen – {t}", "Cooling – {t}", "Refroidissement – {t}"),
     ("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", "Sun expected – {d} less, it helps heat (desired {t})", "Soleil attendu – {d} de moins, il aide à chauffer (souhaité {t})"),
     ("alle weg – Absenkung „kurz weg“ {t}", "everyone away – “short absence” setback {t}", "tout le monde parti – abaissement « absence courte » {t}"),
     ("länger weg – Absenkung {t}", "away for longer – setback {t}", "absence prolongée – abaissement {t}"),
@@ -148,6 +150,9 @@ _ROWS: list[tuple[str, str, str]] = [
     ('Thermostat erreichbar', 'Thermostat reachable', 'Thermostat joignable'),
     ('Thermostat funkt auffällig viel', 'Thermostat transmits unusually often', 'Le thermostat émet anormalement souvent'),
     ('Ventilpflege', 'Valve care', 'Entretien de vanne'),
+    ('Ventil 0 %', 'Valve 0 %', 'Vanne 0 %'),
+    ('HA-SMTP-Dienst und Notify-Entität prüfen', 'Check HA SMTP service and notify entity', 'Vérifier le service SMTP HA et l’entité notify'),
+    ('Ventil {p} %', 'Valve {p} %', 'Vanne {p} %'),
     ('Von Hand gestellt', 'Set by hand', 'Réglé à la main'),
     ('Vorheizen für den Zeitplan', 'Preheating for the schedule', 'Préchauffage pour le programme'),
     ('Vorwärmen nach gelernten Zeiten', 'Warming up by learned times', 'Préchauffage selon les horaires appris'),
@@ -608,6 +613,15 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Format HH:MM erwartet", "Format HH:MM expected", "Format HH:MM attendu"),
     ("Ungültige Uhrzeit", "Invalid time", "Heure invalide"),
     ("Raum nicht gefunden", "Room not found", "Pièce introuvable"),
+    ("Raum oder Wohnung nicht gefunden", "Room or home not found", "Pièce ou logement introuvable"),
+    (
+        "{room} ist ein Überwachungsraum – dort lässt sich nichts boosten.",
+        "{room} is a monitoring room – there is nothing to boost there.",
+        "{room} est une pièce de surveillance – il n’y a rien à booster.",
+    ),
+    ("Keine sicheren Werte zum Speichern", "No safe values to save", "Aucune valeur sûre à enregistrer"),
+    ("Vorlage nicht gefunden", "Template not found", "Modèle introuvable"),
+    ("Wohnung nicht gefunden", "Home not found", "Logement introuvable"),
     ("Wunschtemperatur übernommen", "Target temperature applied", "Température de consigne appliquée"),
     ("neuer Sollwert {t} aus den Einstellungen", "new setpoint {t} from the settings", "nouvelle consigne {t} depuis les réglages"),
     (
@@ -772,6 +786,27 @@ _ROWS: list[tuple[str, str, str]] = [
         "{device}: Thermostat übernimmt den Sollwert nicht",
         "{device}: thermostat does not accept the setpoint",
         "{device} : le thermostat n‘accepte pas la consigne",
+    ),
+
+    (
+        "Verschattung: {name} nicht erreichbar",
+        "Shading: {name} not reachable",
+        "Ombrage : {name} injoignable",
+    ),
+    (
+        "Verschattung von Hand",
+        "Shading controlled manually",
+        "Ombrage commandé à la main",
+    ),
+    (
+        "Automatik pausiert für {m} min",
+        "Automation paused for {m} min",
+        "Automatisme en pause pendant {m} min",
+    ),
+    (
+        "Automatik bleibt aus",
+        "Automation stays off",
+        "L’automatisme reste désactivé",
     ),
 
 ]

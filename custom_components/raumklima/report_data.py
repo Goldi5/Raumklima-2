@@ -279,8 +279,10 @@ def add_extras(data: dict[str, Any], rooms: dict[str, Any], home: dict[str, Any]
     data["highlights"] = rx.season_highlights(daily, data["series"]) if kind == SEASON else None
     data["score"] = rx.score(cur)
     data["score_history"] = rx.score_history(rooms, home, kind, end, 6 if kind != WEEK else 8)
-    data["money"] = rx.money(cur, annual_cost)
-    data["tips"] = rx.saving_tips(cur, daily, grid, annual_cost, extras.get("room_types", {}), lang)
+    energy = extras.get("energy") or {}
+    data["money"] = rx.money(cur, annual_cost, energy)
+    tip_cost = annual_cost or (data["money"] or {}).get("annual")
+    data["tips"] = rx.saving_tips(cur, daily, grid, tip_cost, extras.get("room_types", {}), lang)
     data["presence"] = {
         "away_h": cur["away_h"],
         "preheats": cur["preheats"],

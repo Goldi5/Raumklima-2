@@ -1,6 +1,6 @@
 # Raumklima – Documentation
 
-**Current version: 0.62.47** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
+**Current version: 1.1.0b1** – see [CHANGELOG](../../CHANGELOG.md) · planned: [ROADMAP](../../ROADMAP.md) · 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇫🇷 [Français](../fr/README.md)
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
@@ -39,7 +39,7 @@
 - **Heating report** for week and month – heating hours, weather-adjusted comparison, savings from setback, comfort time; weekly push; **CSV export**; **PDF report** for week, month and heating season with year-over-year comparison – via push link, email or download.
 - **Health check:** batteries, “room doesn't warm up”, radiator can't keep up (hydraulic balancing), stuck or missing sensor, radio and connection dropouts, silent window contact, protection against endless loops with the thermostat; battery forecast and warning for unusually many radio commands.
 - **Several homes** (e.g. city flat and holiday home), each with its own residents, recipients, report and log.
-- **Modern dashboard** with room cards, history, timeline, report, live decision log and a fully editable settings page – in **English, German or French**, following your Home Assistant language.
+- **Dashboard 2.0** with “Today” (overview, energy and learning), room cards, history, timeline, report, live decision log and a fully editable settings page – in **English, German or French**, following your Home Assistant language. The energy card shows meter, tariff, PV self-use and costs for 7/30/90 days; the learning card shows heat-up rate, usage, airing pattern, presence profile and sleep times. Shading moves selected blinds in sun and at night – automatic, advice only or off. Underfloor heating gets its own slow control characteristic with flow/return and a flow warning. The AC can heat when COP and gas price make it cheaper. The PDF report can be sent with an attachment via Home Assistant’s SMTP integration. The learning model 2.0 learns heat-up rate, heat loss and solar gain and stops earlier before the target. The stepless valve control drives a `number` actuator directly. Air conditioners cool with a separate target and anti-cycling. Heat demand aggregates all rooms and proposes a flow temperature. Dynamic tariffs and PV surplus are shown. The history compares actual and predicted temperature. Demo mode shows simulated rooms without hardware.
 - **Your own automations:** device triggers such as “please air the room”, “window opened” or “heating paused”.
 
 Tested with Tuya **TRV602Z** (Zigbee2MQTT) and IKEA sensors; works with every `climate` thermostat in Home Assistant – notes per device type (Shelly, Matter/Thread, cloud …) under [Which thermostats work?](installation.md#which-thermostats-work).

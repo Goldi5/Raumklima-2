@@ -37,6 +37,9 @@ ROOM_FIELDS = (
     "mold_s",  # Schimmelrisiko
     "temp_s",  # ∫ Temperatur · s (für Mittelwert)
     "temp_n_s",  # Zeit mit gültiger Temperatur
+    "predicted_s",  # ∫ vom Wärmemodell erwartete Temperatur · s
+    "predicted_n_s",  # Zeit mit Vorhersage
+    "prediction_err_s",  # ∫ |Ist − Vorhersage| · s
     "hum_s",  # ∫ Feuchte · s
     "hum_n_s",
     "airings",  # Anzahl Fenster-Öffnungen
@@ -85,6 +88,7 @@ class RoomSample:
     trv_down: bool = False
     hour: int | None = None  # Ortszeit, für das Wärmebild
     valve_calc: float | None = None  # Schattenmodus: berechneter Öffnungsgrad %
+    predicted_temp: float | None = None  # vom Wärmemodell erwartete Temperatur
 
 
 def _empty(fields: tuple[str, ...]) -> dict[str, float]:
@@ -142,6 +146,10 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
     if s.temp is not None:
         day["temp_s"] += s.temp * dt
         day["temp_n_s"] += dt
+    if s.temp is not None and s.predicted_temp is not None:
+        day["predicted_s"] += s.predicted_temp * dt
+        day["predicted_n_s"] += dt
+        day["prediction_err_s"] += abs(s.temp - s.predicted_temp) * dt
     if s.window_open:
         day["airing_s"] += dt
     if s.co2 is not None:
@@ -234,6 +242,8 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         "humid_h": round(_sum(days, "humid_s") / 3600, 1),
         "mold_h": round(_sum(days, "mold_s") / 3600, 1),
         "temp_avg": round(_sum(days, "temp_s") / temp_n, 1) if temp_n else None,
+        "predicted_avg": round(_sum(days, "predicted_s") / pred_n, 1) if (pred_n := _sum(days, "predicted_n_s")) else None,
+        "prediction_error_avg": round(_sum(days, "prediction_err_s") / pred_n, 1) if pred_n else None,
         "humidity_avg": round(_sum(days, "hum_s") / hum_n) if hum_n else None,
         "airings": int(_sum(days, "airings")),
         "airing_h": round(_sum(days, "airing_s") / 3600, 1),
@@ -346,6 +356,8 @@ CSV_COLUMNS = (
     ("window_pause_h", "fenster_pause_h"),
     ("night_h", "nachtlueften_h"),
     ("temp_avg", "temperatur_mittel_C"),
+    ("predicted_avg", "vorhersage_mittel_C"),
+    ("prediction_error_avg", "vorhersage_fehler_K"),
     ("humidity_avg", "feuchte_mittel_pct"),
     ("humid_h", "zu_feucht_h"),
     ("on_target_pct", "am_ziel_pct"),

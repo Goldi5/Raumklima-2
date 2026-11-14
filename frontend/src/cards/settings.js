@@ -2,7 +2,14 @@ import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_VERSION, RK_CAL
 import { HELP } from "../help.js";
 import { RK_NUM } from "../fields.js";
 import { getLang } from "../i18n.js";
-import { RK_GROUP_META, RK_IMPLICIT, RK_LAYOUT_COLORS, RK_GROUP_ORDER, RK_FACADES, rkFacadeName } from "./settings/const.js";
+import { RK_GROUP_META, RK_IMPLICIT, RK_LAYOUT_COLORS, RK_GROUP_ORDER, RK_FACADES, rkFacadeName, SETTINGS_SECTIONS, SETTINGS_ROOM_GROUPS, NAV2_DEFAULT, ROOM_APPLY_KEYS, ROOM_TABS, ROOM_TAB_DEFAULT } from "./settings/const.js";
+import { HomeSectionMethods } from "./settings/sections/home.js";
+import { PresenceSectionMethods } from "./settings/sections/presence.js";
+import { HeatingSectionMethods } from "./settings/sections/heating.js";
+import { EnergySectionMethods } from "./settings/sections/energy.js";
+import { NotifySectionMethods } from "./settings/sections/notify.js";
+import { SystemSectionMethods } from "./settings/sections/system.js";
+import { RoomOverviewMethods } from "./settings/room/overview.js";
 import { SheetMethods } from "./settings/sheet.js";
 import { GeneralMethods } from "./settings/general.js";
 import { LayoutMethods } from "./settings/layout.js";
@@ -19,7 +26,19 @@ export class RaumklimaSettingsCard extends HTMLElement {
   setConfig(config) {
     this._config = { ...config };
     this._tab = this._tab || "general";
+    if (this._nav2 === undefined) {
+      try { const v = localStorage.getItem("raumklima-settings-nav-v2"); this._nav2 = v == null ? NAV2_DEFAULT : v === "1"; }
+      catch (e) { this._nav2 = NAV2_DEFAULT; }
+    }
+    if (this._section === undefined) {
+      try {
+        const v = localStorage.getItem("raumklima-settings-section");
+        this._section = SETTINGS_SECTIONS.some((x) => x.id === v) ? v : "home";
+      } catch (e) { this._section = "home"; }
+    }
+    if (this._roomTab === undefined) this._roomTab = ROOM_TAB_DEFAULT;
     if (this._sheet === undefined) this._sheet = null;  // Dialog für Sichern/Diagnose/Fehler
+    if (this._copyRoom === undefined) this._copyRoom = null;
     this._local = this._local || {}; // optimistische Werte bis zur Bestätigung
     this._timers = this._timers || {};
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
@@ -97,12 +116,25 @@ export class RaumklimaSettingsCard extends HTMLElement {
     return this._cfg && this._cfg.hub ? this._cfg.hub.options[key] : undefined;
   }
   _roomOpt(room, key) {
-    const lk = `room:${room.entry_id}:${key}`;
+    const rid = room.entry_id || (room.attrs && room.attrs.settings && room.attrs.settings.entry_id) || room.id;
+    const lk = `room:${rid}:${key}`;
     if (this._local[lk] !== undefined) return this._local[lk];
     const r = this._cfgRoom(room);
     if (!r) return undefined;
     if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature") return r[key];
     return r.options[key];
+  }
+  // Herkunft eines Werts (Phase 4): Standard, Wohnung, Raum oder Gerät.
+  _roomSource(room, key) {
+    const s = (room.attrs && room.attrs.settings) || {};
+    const src = (s.sources || {})[key];
+    if (src) return src;
+    return (s.changed || []).includes(key) ? "room" : "default";
+  }
+  _srcBadge(room, key) {
+    const src = this._roomSource(room, key);
+    const label = { default: "Standard", room: "Raum", home: "Wohnung", device: "Gerät" }[src] || "";
+    return `<span class="src src-${src}" title="${t("Herkunft")}: ${t(label)}">${t(label)}</span>`;
   }
   _cfgRoom(room) {
     const id = (room.attrs.settings || {}).entry_id;
@@ -208,13 +240,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
   // ---------------------------------------------------------------- Bausteine
   _st(id) { return id ? this._hass.states[id] : undefined; }
   _name(id) { const s = this._st(id); return (s && s.attributes.friendly_name) || id || "–"; }
-  _row(label, value, sub) {
+  _row(label, value, sub, badge = "") {
     const help = HELP[label];
     this._helpOpen = this._helpOpen || new Set();
     const open = help && this._helpOpen.has(label);
     const q = help ? `<button class="qm ${open ? "on" : ""}" data-help="${esc(label)}" title="${t("Erklärung")}" aria-label="${t("Erklärung")}" aria-expanded="${open}">?</button>` : "";
     const box = open ? `<div class="helpbox">${esc(help[{ de: 0, en: 1, fr: 2 }[getLang()] ?? 1])}</div>` : "";
-    return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
+    return `<div class="row"><div class="l"><span class="lbl">${t(label)}${q}${badge}</span>${sub ? `<small>${t(sub)}</small>` : ""}</div>${value}</div>${box}`;
   }
   _v(text, mute) { return `<span class="v ${mute ? "mute" : ""}">${t(String(text))}</span>`; }
   _grp(g, title, icon, tone, rows, cls = "", extra = "") {
@@ -296,38 +328,58 @@ export class RaumklimaSettingsCard extends HTMLElement {
       try { this._pro = localStorage.getItem("raumklima-settings-pro") === "1"; } catch (e) { this._pro = false; }
     }
     this._moreOpen = this._moreOpen || new Map();
+    this._schedOpen = this._schedOpen || new Map();
     if (this._renderSoon()) return;
     const rooms = this._orderedRooms();
+    const nav2 = !!this._nav2;
+    const section = nav2 ? (SETTINGS_SECTIONS.find((x) => x.id === this._section) || SETTINGS_SECTIONS[0]) : null;
+    if (nav2 && section.id !== this._section) this._section = section.id;
     if (this._tab !== "general" && !rooms.find((r) => r.id === this._tab)) this._tab = "general";
+    // Raumwechsel beginnt auf der Übersicht; die Unterseite bleibt beim Blättern erhalten.
+    if (this._roomTabRoom !== this._tab) {
+      this._roomTabRoom = this._tab;
+      this._roomTab = ROOM_TAB_DEFAULT;
+    }
+    if (!ROOM_TABS.some((x) => x.id === this._roomTab)) this._roomTab = ROOM_TAB_DEFAULT;
+    const inRooms = !nav2 || section.id === "rooms";
+    const room = inRooms ? rooms.find((r) => r.id === this._tab) : null;
+    this._allowedGroups = !nav2 ? null : section.id === "rooms" ? (room ? [...SETTINGS_ROOM_GROUPS] : []) : [...section.groups];
+    if (nav2 && this._allowedGroups && !this._allowedGroups.includes(this._group)) this._group = this._allowedGroups[0] || null;
+    const body = this._bodyHtml();
     const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` +
       rooms.map((r) => {
         const sick = ((this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues) || []).some((i) => i.entry_id === (r.attrs.settings || {}).entry_id && i.severity !== "info");
         return `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}${sick ? ` <ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)"></ha-icon>` : ""}</button>`;
       }).join("");
-    const room = rooms.find((r) => r.id === this._tab);
-    const body = room ? this._room(room) : this._general();
+    const sectionBar = nav2
+      ? `<div class="rail sects">${SETTINGS_SECTIONS.map((x) => `<button class="railbtn ${section.id === x.id ? "on" : ""}" data-section="${x.id}"><ha-icon icon="${x.icon}"></ha-icon>${t(x.label)}</button>`).join("")}</div>`
+      : `<div class="tabs">${tabs}</div>`;
+    const railGroups = nav2 ? (this._allowedGroups || []) : RK_GROUP_ORDER;
+    const showSearch = true;
+    const showRail = railGroups.length > 0 && !(nav2 && section.id === "rooms" && room) && !(nav2 && String(this._search || "").trim());
     const homes = (this._cfg && this._cfg.homes) || [];
     const me = homes.find((h) => h.entry_id === this._homeId());
     this._ctxHome = me ? me.name : (this._config && this._config.home) || t("Wohnung");
     const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
     rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-selftest style="--c:var(--rk-ok)" title="${t("Prüft Wohnung, Räume, Thermostate, Fühler und Erreichbarkeit")}"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
           <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
-          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
+          ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._nav2 ? "on" : ""}" data-nav2 aria-pressed="${this._nav2 ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Zwischen neuer Bereichsnavigation und klassischer Ansicht wechseln")}"><ha-icon icon="${this._nav2 ? "mdi:table-large" : "mdi:view-dashboard-outline"}"></ha-icon>${this._nav2 ? t("Klassische Ansicht") : t("Neue Ansicht")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
-        <div class="tabs">${tabs}</div>
+        ${sectionBar}
         <div class="crumb" id="rkc"></div>
-        ${room ? `<div class="resetbar">${(() => {
+        ${room ? `<div class="resetbar">${nav2 ? `<button class="btn" data-section="rooms" style="--c:var(--rk-eco)"><ha-icon icon="mdi:arrow-left"></ha-icon>${t("Räume")}</button>` : ""}${(() => {
           const n = (((room.attrs.settings || {}).changed) || []).length;
           return n
-            ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n: n })}</span><button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>`
+            ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n: n })}</span>${this._admin ? `<button class="btn small" data-copyroom="${room.id}"><ha-icon icon="mdi:content-copy"></ha-icon>${t("Raum kopieren")}</button><button class="btn small" data-applyall="${room.id}"><ha-icon icon="mdi:content-duplicate"></ha-icon>${t("Für alle Räume übernehmen")}</button>` : ""}<button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>`
             : `<span>${t("Alles auf Standard")}</span>`;
         })()}</div>` : ""}
-        <div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellung suchen …")}" autocomplete="off" value="${esc(this._search || "")}"></div>
-        <div class="rail">${RK_GROUP_ORDER.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>
+        ${showSearch ? `<div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellungen durchsuchen …")}" aria-label="${t("Einstellungen durchsuchen")}" autocomplete="off" value="${esc(this._search || "")}"></div>` : ""}
+        ${showRail ? `<div class="rail">${railGroups.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>` : ""}
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
-        ${body}
+        <div id="rkbody">${body}</div>
+        ${this._copyRoom ? this._copyRoomHtml() : ""}
         ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
@@ -338,24 +390,206 @@ export class RaumklimaSettingsCard extends HTMLElement {
     this._decFetch();
   }
 
+  //Phase 5: aktueller Inhalt – bei aktiver Suche alle Bereiche plus aktueller Raum.
+  _bodyHtml() {
+    const nav2 = !!this._nav2;
+    const section = nav2 ? (SETTINGS_SECTIONS.find((x) => x.id === this._section) || SETTINGS_SECTIONS[0]) : null;
+    const rooms = this._orderedRooms();
+    const inRooms = !nav2 || section.id === "rooms";
+    const room = inRooms ? rooms.find((r) => r.id === this._tab) : null;
+    if (nav2 && String(this._search || "").trim()) return this._searchBody(this._search);
+    return nav2 && section.id === "rooms" && !room ? this._roomList() : room ? this._room(room) : this._general();
+  }
+
+  // Deep-Link aus Checkliste, „Warum?“ oder Meldung.
+  _goto(target) {
+    const [kind, a, b] = String(target || "").split(":");
+    this._search = "";
+    this._group = null;
+    if (kind === "section") {
+      this._nav2 = true;
+      this._section = SETTINGS_SECTIONS.some((x) => x.id === a) ? a : "home";
+      this._tab = "general";
+    } else if (kind === "room") {
+      this._nav2 = true;
+      this._section = "rooms";
+      this._tab = a;
+      this._roomTab = ROOM_TAB_DEFAULT;
+    } else if (kind === "roomtab") {
+      this._nav2 = true;
+      this._section = "rooms";
+      this._tab = a;
+      this._roomTab = ROOM_TABS.some((x) => x.id === b) ? b : ROOM_TAB_DEFAULT;
+    } else if (kind === "group") {
+      this._nav2 = true;
+      this._section = SETTINGS_SECTIONS.some((x) => x.id === a) ? a : "home";
+      this._group = b || null;
+      this._tab = "general";
+    }
+    try { localStorage.setItem("raumklima-settings-section", this._section); } catch (e) { /* ignorieren */ }
+    this._sig = null;
+    this._render();
+  }
+
+  _gotoRoomByEntry(entryId) {
+    const room = (this._rooms || []).find((r) => (r.attrs.settings || {}).entry_id === entryId);
+    this._goto(room ? `room:${room.id}` : "section:system");
+  }
+
+  // Räume-Liste (Phase 1): Einstieg in die Raum-Detailseite.
+  _roomList() {
+    const rooms = this._orderedRooms();
+    return `<div class="roomlist" style="--g:var(--rk-heat)">
+      <div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div>
+      ${rooms.length ? `<div class="roomgrid">${this._roomTiles()}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>` : `<div class="hint">${t("Noch keine Räume eingerichtet.")}</div>`}
+    </div>`;
+  }
+
+  // Phase 6.1: einen Raum als Vorlage auf einen anderen Raum kopieren.
+  _copyRoomHtml() {
+    const from = (this._rooms || []).find((r) => r.id === this._copyRoom);
+    if (!from) return "";
+    const home = from.attrs.home || this._homeId();
+    const targets = this._orderedRooms().filter((r) =>
+      r.id !== from.id
+      && (r.attrs.home || this._homeId()) === home
+      && (r.attrs.settings || {}).entry_id
+    );
+    const templates = ((this._cfg && this._cfg.hub && this._cfg.hub.options && this._cfg.hub.options.room_templates) || []);
+    return `<div class="sheetwrap">
+      <div class="sheet" role="dialog" aria-modal="true">
+        <div class="stitle">${t("Raum kopieren")}</div>
+        <div class="sintro">${t("Zielraum wählen. Kopiert werden nur sichere Werte – keine Entitäten, Zeitpläne oder Raumzuordnung.")}</div>
+        ${targets.length ? `<label class="mf"><span>${t("Zielraum")}</span><select class="sel" id="copyTarget">${targets.map((r) => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")}</select></label>` : `<div class="hint">${t("Kein weiterer Raum in dieser Wohnung.")}</div>`}
+        <div class="sbtns"><button class="btn primary" data-copyroom-go="${from.id}" ${targets.length ? "" : "disabled"}><ha-icon icon="mdi:content-copy"></ha-icon>${t("Kopieren")}</button><button class="btn" data-copyroom-close style="--c:var(--rk-off)">${t("Schließen")}</button></div>
+        <div class="sub">${t("Vorlagen")}</div>
+        <div class="chips">${templates.map((x) => `<button class="chip2" data-template-apply="${esc(x.name)}" style="--c:var(--rk-eco)"><i></i>${esc(x.name)}</button><button class="mini x" data-template-delete="${esc(x.name)}" title="${t("löschen")}">✕</button>`).join("") || `<span class="v mute">${t("keine")}</span>`}</div>
+        <div class="addrow"><input class="inp" id="templateName" placeholder="${t("Name der Vorlage")}" maxlength="40"><button class="btn" data-template-save="${from.id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:content-save"></ha-icon>${t("Aus diesem Raum speichern")}</button></div>
+      </div>
+    </div>`;
+  }
+
+  async _saveRoomTemplate(roomId) {
+    const input = this.shadowRoot && this.shadowRoot.querySelector("#templateName");
+    const name = input ? input.value.trim() : "";
+    if (!name) { this._flash(t("Name fehlt")); return; }
+    const room = (this._rooms || []).find((r) => r.id === roomId);
+    const entryId = (room && room.attrs.settings || {}).entry_id;
+    if (!entryId) return;
+    try {
+      await this._hass.callWS({ type: "raumklima/room/template_save", entry_id: entryId, name, ...this._homeMsg() });
+      this._copyRoom = null;
+      this._flash(t("Vorlage gespeichert"));
+      await this._load();
+    } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
+  }
+
+  async _applyRoomTemplate(name) {
+    const targetEl = this.shadowRoot && this.shadowRoot.querySelector("#copyTarget");
+    const target = targetEl ? (this._rooms || []).find((r) => r.id === targetEl.value) : null;
+    const entryId = (target && target.attrs.settings || {}).entry_id;
+    if (!entryId) return;
+    try {
+      await this._hass.callWS({ type: "raumklima/room/template_apply", entry_id: entryId, name, ...this._homeMsg() });
+      this._copyRoom = null;
+      this._flash(t("Vorlage angewendet"));
+      await this._load();
+    } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
+  }
+
+  _deleteRoomTemplate(name) {
+    if (!window.confirm(t("Vorlage „{n}“ löschen?", { n: name }))) return;
+    this._hass.callWS({ type: "raumklima/room/template_delete", name, ...this._homeMsg() })
+      .then(() => { this._flash(t("Vorlage gelöscht")); return this._load(); })
+      .catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+  }
+
+  async _copyRoomGo(roomId) {
+    const from = (this._rooms || []).find((r) => r.id === roomId);
+    const targetEl = this.shadowRoot && this.shadowRoot.querySelector("#copyTarget");
+    const target = targetEl ? (this._rooms || []).find((r) => r.id === targetEl.value) : null;
+    if (!from || !target) return;
+    const s = from.attrs.settings || {};
+    const changes = {};
+    for (const key of ROOM_APPLY_KEYS) {
+      if ((s.sources || {})[key] !== "room") continue;
+      const value = this._roomOpt(from, key);
+      if (value === undefined || value === null) continue;
+      changes[key] = value;
+    }
+    if (!Object.keys(changes).length) { this._flash(t("Keine sicheren Werte zum Kopieren")); return; }
+    const entryId = (target.attrs.settings || {}).entry_id;
+    if (!entryId) return;
+    try {
+      await this._hass.callWS({ type: "raumklima/room/update", entry_id: entryId, changes });
+      this._copyRoom = null;
+      this._flash(t("Raum kopiert"));
+      this._render();
+    } catch (e) {
+      this._flash(t("Fehler: {e}", { e: e.message || e }));
+    }
+  }
+
+  // Phase 4: ausgewählte sichere Werte auf die anderen Räume derselben Wohnung legen.
+  async _applyToAllRooms(roomId) {
+    const room = (this._rooms || []).find((r) => r.id === roomId);
+    if (!room) return;
+    const s = room.attrs.settings || {};
+    const changes = {};
+    for (const key of ROOM_APPLY_KEYS) {
+      if ((s.sources || {})[key] !== "room") continue;
+      const value = this._roomOpt(room, key);
+      if (value === undefined || value === null) continue;
+      changes[key] = value;
+    }
+    const home = room.attrs.home || this._homeId();
+    const targets = (this._rooms || []).filter((r) =>
+      r.id !== roomId
+      && (r.attrs.settings || {}).entry_id
+      && (r.attrs.home || this._homeId()) === home
+    );
+    if (!Object.keys(changes).length) { this._flash(t("Keine sicheren Werte zum Übernehmen")); return; }
+    if (!targets.length) { this._flash(t("Keine weiteren Räume")); return; }
+    if (typeof window.confirm === "function" && !window.confirm(t("{n} sichere Werte auf {m} Räume übernehmen?", { n: Object.keys(changes).length, m: targets.length }))) return;
+    let ok = 0;
+    for (const target of targets) {
+      const id = (target.attrs.settings || {}).entry_id;
+      try {
+        await this._hass.callWS({ type: "raumklima/room/update", entry_id: id, changes });
+        ok += 1;
+      } catch (e) { /* einzeln weitermachen; der Nutzer sieht die Zahl */ }
+    }
+    this._flash(t("{n} Räume übernommen", { n: ok }));
+    this._render();
+  }
+
   // Gruppenleiste + Suche: blendet Gruppen im bereits gezeichneten Inhalt aus.
   _filter() {
     const root = this.shadowRoot;
     if (!root) return;
     const q = String(this._search || "").toLowerCase().trim();
+    const searching = !!q && !!this._nav2;
     const secs = [...root.querySelectorAll(".grp")];
+    const allowed = !searching && this._nav2 && this._allowedGroups ? new Set(this._allowedGroups) : null;
+    const order = searching ? RK_GROUP_ORDER : this._nav2 && this._allowedGroups ? this._allowedGroups : RK_GROUP_ORDER;
+    const room = (!this._nav2 || this._section === "rooms") ? (this._rooms || []).find((r) => r.id === this._tab) : null;
+    const roomTab = !searching && this._nav2 && room ? (this._roomTab || ROOM_TAB_DEFAULT) : null;
     const present = new Set();
     let active = null;
     let shown = 0;
-    for (const g of RK_GROUP_ORDER) {
-      if (secs.some((el) => (el.dataset.g || "advanced") === g)) { active = g; break; }
+    if (!roomTab) {
+      for (const g of order) {
+        if (secs.some((el) => (el.dataset.g || "advanced") === g)) { active = g; break; }
+      }
+      if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group) && (!allowed || allowed.has(this._group))) active = this._group;
     }
-    if (this._group && secs.some((el) => (el.dataset.g || "advanced") === this._group)) active = this._group;
     secs.forEach((el) => {
       const g = el.dataset.g || "advanced";
+      if (allowed && !allowed.has(g)) { el.style.display = "none"; return; }
       present.add(g);
       const hit = !q || el.textContent.toLowerCase().includes(q);
-      const vis = q ? hit : g === active;
+      const tab = el.dataset.room || ROOM_TAB_DEFAULT;
+      const vis = q ? hit : roomTab ? tab === roomTab : g === active;
       el.style.display = vis ? "" : "none";
       if (vis) shown += 1;
     });
@@ -370,19 +604,35 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // Leiste nur für Gruppen zeigen, die es in diesem Bereich wirklich gibt
     // (sonst führt „Lernen" ins Nichts, solange der Reiter noch fehlt).
     root.querySelectorAll(".railbtn").forEach((b) => {
+      if (b.dataset.section) return;
       if (!root.querySelector(`.grp[data-g="${b.dataset.g}"]`)) b.remove();
     });
     root.querySelectorAll(".railbtn").forEach((b) => {
+      if (b.dataset.section) return;
       const g = b.dataset.g;
       b.classList.toggle("empty", !present.has(g));
       b.classList.toggle("on", !q && g === active);
     });
     const nos = root.querySelector(".nosearch");
-    if (nos) nos.style.display = q && !shown ? "" : "none";
+    if (nos) nos.style.display = q && !shown && root.querySelector(".searchrow") ? "" : "none";
     const crumb = root.querySelector("#rkc");
     if (crumb) {
-      const room = (this._rooms || []).find((r) => r.id === this._tab);
-      const parts = [this._ctxHome || t("Wohnung"), room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label)];
+      const parts = [this._ctxHome || t("Wohnung")];
+      if (q) {
+        parts.push(t("Suche"));
+      } else if (this._nav2) {
+        const sec = SETTINGS_SECTIONS.find((x) => x.id === this._section);
+        if (sec) parts.push(t(sec.label));
+        if (room) {
+          parts.push(room.name);
+          const rt = ROOM_TABS.find((x) => x.id === roomTab);
+          if (rt) parts.push(t(rt.label));
+        } else if (active && RK_GROUP_META[active]) {
+          parts.push(t(RK_GROUP_META[active].label));
+        }
+      } else {
+        parts.push(room ? room.name : t("Allgemein"), t(RK_GROUP_META[active || "home"].label));
+      }
       crumb.innerHTML = parts.map((x, i) => (i === parts.length - 1 ? `<b>${esc(x)}</b>` : `${esc(x)} <span>›</span>`)).join(" ");
     }
   }
@@ -390,4 +640,4 @@ export class RaumklimaSettingsCard extends HTMLElement {
 }
 
 // Methoden aus den Teildateien (settings/*.js) an die Klasse hängen
-Object.assign(RaumklimaSettingsCard.prototype, SheetMethods, GeneralMethods, LayoutMethods, ScheduleMethods, RoomMethods, LearnMethods, BindMethods);
+Object.assign(RaumklimaSettingsCard.prototype, SheetMethods, GeneralMethods, LayoutMethods, ScheduleMethods, RoomMethods, RoomOverviewMethods, LearnMethods, BindMethods, HomeSectionMethods, PresenceSectionMethods, HeatingSectionMethods, EnergySectionMethods, NotifySectionMethods, SystemSectionMethods);

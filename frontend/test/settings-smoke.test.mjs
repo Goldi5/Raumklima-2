@@ -61,7 +61,8 @@ globalThis.CustomEvent = class {
 };
 
 const { RaumklimaSettingsCard } = await import("../src/cards/settings.js");
-const { setLang, rkRooms } = await import("../src/shared.js");
+const { BindMethods } = await import("../src/cards/settings/bind.js");
+const { setLang, rkRooms, rkIssueList } = await import("../src/shared.js");
 
 const config = {
   hub: { entry_id: "hub1", options: {}, state: { stage: "home", persons: [], issues: [], sleep: {} } },
@@ -124,7 +125,7 @@ test("Einstellungen-Karte rendert", () => {
 
 const fixture = JSON.parse(readFileSync(new URL("./fixture.json", import.meta.url), "utf8"));
 
-function renderRoom(change = () => {}, general = false) {
+function makeRoom(change = () => {}, general = false, nav2 = false) {
   const fhass = { ...hass, states: fixture.states, entities: fixture.entities, config: {} };
   setLang(fhass);
   const card = new RaumklimaSettingsCard();
@@ -135,11 +136,35 @@ function renderRoom(change = () => {}, general = false) {
   const ro = card._cfg.rooms[0].options;
   card._cfg.room_defaults = { window_open_delay: ro.window_open_delay, window_close_delay: ro.window_close_delay };
   card._rooms = rkRooms(fhass, "", null);
-  card._tab = general ? "general" : card._rooms[0].id;
+  card._nav2 = nav2;
+  if (nav2) card._section = general ? "home" : "rooms";
+  card._tab = general ? "general" : nav2 ? "general" : card._rooms[0].id;
   change(card);
   card._render();
-  return card.shadowRoot.innerHTML;
+  return card;
 }
+
+function renderRoom(change = () => {}, general = false, nav2 = false) {
+  return makeRoom(change, general, nav2).shadowRoot.innerHTML;
+}
+
+test("Zeitplan: aufgeklappte Zeitfenster bleiben beim Neuzeichnen offen", () => {
+  const card = makeRoom((c) => {
+    c._cfg.rooms[0].options.schedules = [
+      { days: [], start: "06:00", end: "08:00", temperature: 21 },
+      { days: [], start: "12:00", end: "14:00", temperature: 20 },
+      { days: [], start: "17:00", end: "19:00", temperature: 22 },
+      { days: [], start: "21:00", end: "23:00", temperature: 19 },
+    ];
+  });
+  assert.match(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]*>/);
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]* open/);
+  card._schedOpen.set(card._rooms[0].attrs.settings.entry_id, true);
+  card._render();
+  assert.match(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]* open/);
+  card._render();
+  assert.match(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]* open/);
+});
 
 test("Raum-Einstellungen: jeder Stepper hat Schritt > 0 und Minimum < Maximum", () => {
   const html = renderRoom();
@@ -206,4 +231,234 @@ test("Jede Einstellung bleibt vorhanden (nichts ging beim Umsortieren verloren)"
     "Wärmemenge im Bericht", "Heizkosten pro Jahr", "Lüfthinweise von", "Sturm- und Regenwarnung", "… Böen ab", "Erinnern alle", "Fehler auch in der HA-Glocke"]) {
     assert.ok(general.includes(`>${label}`), `Allgemein: „${label}" fehlt`);
   }
+});
+
+test("Neue Navigation: Bereiche, Räume-Liste und Raumdetails", () => {
+  const list = renderRoom(() => {}, false, true);
+  for (const id of ["home", "rooms", "presence", "energy", "notify", "system"]) {
+    assert.match(list, new RegExp(`data-section="${id}"`), `Bereich ${id} fehlt`);
+  }
+  assert.match(list, /class="roomgrid"/);
+  assert.match(list, /Bad/);
+
+  const detail = renderRoom((card) => { card._tab = card._rooms[0].id; }, false, true);
+  assert.match(detail, /Wunschtemperatur/);
+  assert.match(detail, /data-section="rooms"/);
+
+  const home = renderRoom(() => {}, true, true);
+  assert.match(home, /Erste Schritte/);
+  assert.match(home, /Wohnung/);
+
+  const presence = renderRoom((card) => { card._section = "presence"; }, true, true);
+  assert.match(presence, /Wer wohnt hier\?/);
+});
+
+test("Bereiche enthalten genau ihre Gruppen", () => {
+  const energy = renderRoom((card) => { card._section = "energy"; }, true, true);
+  assert.match(energy, /Energie & Tarife/);
+  assert.match(energy, /Wetter/);
+  assert.match(energy, /Heizsaison & Heizgrenze/);
+  assert.doesNotMatch(energy, /Gesundheit der Heizung/);
+
+  const system = renderRoom((card) => { card._section = "system"; }, true, true);
+  assert.match(system, /Gesundheit der Heizung/);
+  assert.match(system, /Darstellung/);
+  assert.match(system, /Erweitert/);
+  assert.doesNotMatch(system, /Heizsaison & Heizgrenze/);
+
+  const home = renderRoom((card) => { card._section = "home"; }, true, true);
+  assert.match(home, /Erste Schritte/);
+  assert.match(home, /Lernen & Warum/);
+
+  const notify = renderRoom((card) => { card._section = "notify"; }, true, true);
+  assert.match(notify, /Wer bekommt was/);
+  assert.match(notify, /Benachrichtigungen allgemein/);
+
+  const classic = renderRoom(() => {}, true, false);
+  assert.doesNotMatch(classic, />Alle Räume auf einen Blick</);
+});
+
+test("Quelle hinzufügen: liest die Auswahl neben dem Knopf und löst den Fokus", () => {
+  let saved = null;
+  let blurred = false;
+  const select = { value: "climate.ac", blur() { blurred = true; } };
+  const row = { querySelector: (sel) => (sel === "select" ? select : null) };
+  const button = { dataset: { srcadd: "room1" }, closest: (sel) => (sel === ".addrow" ? row : null) };
+  const card = {
+    shadowRoot: { querySelectorAll: () => [], querySelector: () => null, getElementById: () => null, addEventListener() {} },
+    _handlers: [],
+    _delegate() {},
+    _addSelect: BindMethods._addSelect,
+    _hass: { callWS: async () => ({}) },
+    _cfg: { choices: { climate: [{ id: "climate.ac", name: "Klima" }] } },
+    _flash() { throw new Error("kein Fehler erwartet"); },
+    _st: () => ({ attributes: { hvac_modes: ["heat", "cool"] } }),
+    _name: () => "Klima",
+    _srcList: () => [],
+    _setRoom(id, changes, delay) { saved = { id, changes, delay }; },
+  };
+  BindMethods._bind.call(card);
+  const handler = card._handlers.find((h) => h.type === "click" && h.sel === "[data-srcadd]");
+  handler.make(button)();
+  assert.equal(blurred, true, "Auswahl muss den Fokus abgeben");
+  assert.equal(saved.id, "room1");
+  assert.equal(saved.changes.heat_sources[0].entity, "climate.ac");
+  assert.equal(saved.changes.heat_sources[0].type, "ac");
+  assert.equal(saved.delay, 700);
+});
+
+test("Raum-Unterseiten: Leiste zeigt die Bereiche und blendet die Gruppen passend aus", () => {
+  const card = makeRoom(() => {});
+  card._nav2 = true;
+  card._section = "rooms";
+  card._render();
+  for (const id of ["overview", "control", "schedule", "windows", "presence", "sources", "devices", "notify", "mold", "learn"]) {
+    assert.match(card.shadowRoot.innerHTML, new RegExp(`data-roomtab="${id}"`), `Unterseite ${id} fehlt`);
+  }
+  const html = card.shadowRoot.innerHTML;
+  for (const id of ["overview", "control", "schedule", "windows", "presence", "sources", "devices", "notify", "mold", "learn"]) {
+    assert.match(html, new RegExp(`data-room="${id}"`), `Gruppe für ${id} fehlt`);
+  }
+  assert.match(html, /data-roomtab="overview" class="tab on"|class="tab on" data-roomtab="overview"/);
+  assert.match(html, /Wunschtemperatur/);
+
+  card._roomTab = "control";
+  card._render();
+  assert.match(card.shadowRoot.innerHTML, /data-roomtab="control" class="tab on"|class="tab on" data-roomtab="control"/);
+});
+
+test("Raum-Unterseiten: ungespeicherte Werte überleben den Wechsel", () => {
+  const card = makeRoom(() => {});
+  const id = card._rooms.find((r) => r.id === card._tab).attrs.settings.entry_id;
+  card._local[`room:${id}:setback_short`] = 12.5;
+  card._roomTab = "control";
+  card._render();
+  assert.match(card.shadowRoot.innerHTML, /12,5/);
+});
+
+test("Raumliste: Warnung und Override-Kennzeichen sind sichtbar", () => {
+  const card = makeRoom((c) => {
+    c._rooms[0].attrs.settings.changed = ["setback_short"];
+    c._cfg.hub.state.issues = [{ entry_id: c._rooms[0].attrs.settings.entry_id, severity: "warn", title: "Test" }];
+  }, false, true);
+  const html = card.shadowRoot.innerHTML;
+  assert.match(html, /class="rchg"/);
+  assert.match(html, /mdi:alert-circle/);
+});
+
+test("Einstellungs-Herkunft: Raum und Gerät bekommen ein Badge", () => {
+  const card = makeRoom((c) => {
+    c._rooms[0].attrs.settings.sources = { comfort_temperature: "room", temperature_sensor: "device" };
+  });
+  const html = card.shadowRoot.innerHTML;
+  assert.match(html, /class="src src-room"[^>]*>Raum/);
+  assert.match(html, /class="src src-device"[^>]*>Gerät/);
+});
+
+test("Für alle Räume: nur sichere Werte wandern", async () => {
+  const sent = [];
+  const card = new RaumklimaSettingsCard();
+  card._rooms = [
+    { id: "a", entry_id: "room-a", attrs: { settings: { entry_id: "room-a", sources: { comfort_temperature: "room", trv: "device" } } } },
+    { id: "b", entry_id: "room-b", attrs: { settings: { entry_id: "room-b" } } },
+    { id: "c", entry_id: "room-c", attrs: { home: "other", settings: { entry_id: "room-c" } } },
+  ];
+  card._local = {};
+  card._cfg = { rooms: [{ entry_id: "room-a", comfort_temperature: 21, options: { trv: "climate.x" } }] };
+  card._hass = { callWS: async (m) => { sent.push(m); return {}; } };
+  card._flash = () => {};
+  card._render = () => {};
+  await card._applyToAllRooms("a");
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].entry_id, "room-b");
+  assert.deepEqual(sent[0].changes, { comfort_temperature: 21 });
+});
+
+
+test("Suche: global über Bereiche und aktuellen Raum", () => {
+  const card = makeRoom(() => {});
+  const html = card._searchBody("Wunschtemperatur");
+  assert.match(html, /class="groups searching"/);
+  assert.match(html, /data-g="home"/);
+  assert.match(html, /data-g="presence"/);
+  assert.match(html, /data-room="control"/);
+  card._nav2 = true;
+  card._section = "rooms";
+  card._tab = card._rooms[0].id;
+  card._search = "Wunschtemperatur";
+  assert.match(card._bodyHtml(), /class="groups searching"/);
+});
+
+test("Deep-Link: roomtab springt in Raum und Unterseite", () => {
+  const card = makeRoom(() => {});
+  const room = card._rooms[0];
+  card._goto(`roomtab:${room.id}:windows`);
+  assert.equal(card._section, "rooms");
+  assert.equal(card._tab, room.id);
+  assert.equal(card._roomTab, "windows");
+  assert.equal(card._search, "");
+});
+
+test("Checkliste: offene Punkte haben einen Deep-Link", () => {
+  const card = makeRoom(() => {}, true, true);
+  assert.match(card.shadowRoot.innerHTML, /data-goto="group:presence:presence"/);
+});
+
+test("Meldung: Issue führt per Klick in den Raum", () => {
+  const html = rkIssueList([{ severity: "warn", title: "Test", message: "Bitte prüfen", entry_id: "room1", room: "Testraum" }], false);
+  assert.match(html, /data-goto-room="room1"/);
+});
+
+test("Suche: Raumbegriff findet alle Räume mit passender Unterseite", () => {
+  const card = makeRoom(() => {});
+  const html = card._roomSearchBlock("Wunschtemperatur");
+  assert.match(html, /data-goto="roomtab:[^"]+:control"/);
+  assert.match(html, /Regelung/);
+});
+
+test("Raum kopieren: nur sichere Werte wandern in den Zielraum", async () => {
+  const sent = [];
+  const card = makeRoom(() => {});
+  const from = card._rooms[0];
+  from.attrs.settings.sources = { comfort_temperature: "room" };
+  const target = { id: "ziel", entry_id: "room-ziel", name: "Zielraum", attrs: { home: from.attrs.home, settings: { entry_id: "room-ziel" } }, color: "#4f9dff" };
+  card._rooms.push(target);
+  card._cfg.rooms.push({ entry_id: "room-ziel", options: {} });
+  card._hass.callWS = async (m) => { sent.push(m); return {}; };
+  card._flash = () => {};
+  card._render = () => {};
+  card._copyRoom = from.id;
+  assert.match(card._copyRoomHtml(), /data-copyroom-go="[^"]+"/);
+  card.shadowRoot = { querySelector: (sel) => (sel === "#copyTarget" ? { value: target.id } : null) };
+  sent.length = 0;
+  await card._copyRoomGo(from.id);
+  const updates = sent.filter((m) => m.type === "raumklima/room/update");
+  assert.equal(updates.length, 1);
+  assert.equal(updates[0].entry_id, "room-ziel");
+  assert.equal(updates[0].changes.comfort_temperature, 22);
+  assert.equal(updates[0].changes.trv, undefined);
+});
+
+test("Schnell-Override: 2/4/8 Stunden, Party und Pause", () => {
+  const card = makeRoom(() => {});
+  const html = card._roomOverviewGroup(card._rooms[0]);
+  assert.match(html, /data-roomboost="2h"/);
+  assert.match(html, /data-roomboost="4h"/);
+  assert.match(html, /data-roomboost="8h"/);
+  assert.match(html, /data-roomboost="party"/);
+  assert.match(html, /data-roomboost="off"/);
+});
+
+test("Selbsttest-Knopf ist erreichbar", () => {
+  const html = makeRoom(() => {}).shadowRoot.innerHTML;
+  assert.match(html, /data-selftest/);
+});
+
+test("Raum-Vorlage: Liste und Speichern-Knopf im Dialog", () => {
+  const card = makeRoom(() => {});
+  card._copyRoom = card._rooms[0].id;
+  card._cfg.hub.options.room_templates = [{ name: "Grundlage" }];
+  const html = card._copyRoomHtml();
+  assert.match(html, /data-template-apply="Grundlage"/);
+  assert.match(html, /data-template-save="[^"]+"/);
 });

@@ -5,11 +5,11 @@ from rk.heatup import HeatupTracker
 T0 = datetime(2026, 11, 2, 6, 0)
 
 
-def _run(tr, start, target, rate_kh, outdoor):
+def _run(tr, start, target, rate_kh, outdoor, sun=False):
     t, temp = T0, start
     ep = None
     for m in range(0, 400):
-        ep = tr.update(t + timedelta(minutes=m), temp, target, True, outdoor) or ep
+        ep = tr.update(t + timedelta(minutes=m), temp, target, True, outdoor, sun) or ep
         temp = min(target, start + rate_kh * m / 60)
         if ep:
             return ep
@@ -41,3 +41,24 @@ def test_interruptions():
     assert not tr.active
     tr.update(T0, 20.0, 20.5, True, 5)  # nur 0,5 K unter Ziel → keine Episode
     assert not tr.active
+
+
+def test_cool_episodes_and_rate():
+    tr = HeatupTracker()
+    for i in range(3):
+        base = T0 + timedelta(hours=2 * i)
+        tr.update(base, 22.0, 20.0, False, 5.0)
+        for m in range(1, 61):
+            tr.update(base + timedelta(minutes=m), 22.0 - m * 0.02, 20.0, False, 5.0)
+    assert len(tr.cool_episodes) >= 3
+    assert 0.9 <= tr.cool_rate(5.0) <= 1.3
+
+
+def test_solar_gain_and_pre_stop():
+    tr = HeatupTracker()
+    for sun, rate in [(True, 2.6), (True, 2.7), (False, 1.4), (False, 1.5)]:
+        _run(tr, 18.0, 20.5, rate, 5.0, sun)
+    gain = tr.solar_gain()
+    assert gain is not None and gain >= 0.9
+    assert tr.pre_stop() > 0
+    assert tr.summary(5.0)["ready"] is True

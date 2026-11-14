@@ -22,7 +22,9 @@ from .decision_log import (
     fmt_temp,
 )
 from .logic import (
+    shadow_opening,
     to_float,
+    values_match,
 )
 from .msg import tr
 from .planning import (
@@ -30,6 +32,7 @@ from .planning import (
 )
 from .room_const import (
     REASON_BOOST,
+    REASON_COOL,
     REASON_VALVE_CARE,
 )
 from .room_extra_trvs import AcSource, ExtraTrv
@@ -172,6 +175,25 @@ class ApplyMixin:
             if reason == REASON_VALVE_CARE and self.hvac_on:
                 want_on = True
             boosting = reason == REASON_BOOST
+            if reason == REASON_COOL:
+                await self._apply_cooling(_target)
+                return
+            if self.ac_heat_active:
+                await self._send_off(method)
+                for ac in self.ac_sources:
+                    await ac.apply(bool(want_on), _target)
+                await self._apply_extras(False, method, _target, boosting)
+                return
+            if self.valve_direct:
+                if not want_on:
+                    await self._send_off(method)
+                else:
+                    await self._send_on_mode(method)
+                    opening = shadow_opening(_target, self.current_temperature, heating=True)
+                    if opening is not None:
+                        await self._send_valve(opening)
+                await self._apply_extras(want_on, method, _target, boosting)
+                return
             main_on = self._source_on(self.all_sources[0], want_on, boosting)
 
             if not main_on:
@@ -183,10 +205,62 @@ class ApplyMixin:
                 return
             await self._apply_extras(want_on, method, _target, boosting)
 
+    async def _apply_cooling(self, target: float) -> None:
+        """Zu warm: Heizthermostate aus, Klimaanlagen in den Kühlmodus."""
+        method = self._off_method()
+        await self._send_off(method)
+        for extra in self.extra_trvs:
+            try:
+                await extra.apply(False, method, target)
+            except Exception as err:  # noqa: BLE001 – ein Gerät darf die anderen nicht aufhalten
+                _LOGGER.warning("%s: Heizquelle %s (Kühlen): %s", self.name, extra.entity_id, err)
+        for ac in self.ac_sources:
+            try:
+                await ac.apply_cooling(target)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning("%s: Klimaanlage %s (Kühlen): %s", self.name, ac.entity_id, err)
+
+    async def _send_valve(self, opening: float) -> None:
+        """Direkte Ventilöffnung schreiben (number) und bestätigen lassen."""
+        if not self.valve_actuator:
+            return
+        value = round(float(opening), 1)
+        await self.sync.request(
+            "valve",
+            tr("Ventil {p} %", p=f"{value:.0f}"),
+            lambda: self._write_valve(value),
+            lambda: self._valve_matches(value),
+        )
+
+    async def _write_valve(self, value: float) -> None:
+        if not self.valve_actuator:
+            return
+        self._mark_own_write()
+        await self.hass.services.async_call(
+            "number",
+            "set_value",
+            {"entity_id": self.valve_actuator, "value": round(float(value), 1)},
+            blocking=True,
+        )
+
+    def _valve_matches(self, value: float) -> bool:
+        state = self.hass.states.get(self.valve_actuator or "")
+        step = to_float(state.attributes.get("step")) if state is not None else None
+        return values_match(state.state if state is not None else None, value, max(1.0, step or 1.0))
+
     async def _send_off(self, method: str) -> None:
         """Ausschalten – je nach Art: Preset „off“, HVAC „off“ oder Minimaltemperatur."""
         self.sync.cancel("setpoint")
         self.sync.cancel("hvac")
+        self.sync.cancel("valve")
+        if self.valve_direct:
+            await self.sync.request(
+                "valve",
+                tr("Ventil 0 %"),
+                lambda: self._write_valve(0.0),
+                lambda: self._valve_matches(0.0),
+            )
+            return
         if method == OFF_PRESET:
             current = self._trv_attr("preset_mode")
             if current and current != "off":

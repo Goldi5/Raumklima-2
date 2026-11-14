@@ -118,6 +118,30 @@ def send(opts: dict[str, Any], subject: str, body: str, attachments: list[str] |
         raise MailError(tr("Mail-Server {server} nicht erreichbar ({err}) – Server, Port und Internetverbindung prüfen.", server=f"{server}:{port}", err=err)) from err
 
 
+async def send_via_ha(
+    hass: Any,
+    notify_entity: str,
+    subject: str,
+    body: str,
+    attachments: list[str] | None = None,
+) -> None:
+    """Über Home Assistants SMTP-Integration senden (seit 2026.11 mit Anhängen)."""
+    data: dict[str, Any] = {
+        "target": {"entity_id": notify_entity},
+        "title": subject,
+        "message": body,
+    }
+    if attachments:
+        data["attachments"] = [
+            {
+                "media_source": f"media-source://media_source/local/raumklima/{Path(path).name}",
+                "filename": Path(path).name,
+            }
+            for path in attachments
+        ]
+    await hass.services.async_call("smtp", "send_message", data, blocking=True)
+
+
 def verify(opts: dict[str, Any], timeout: float = 15.0) -> list[dict[str, Any]]:
     """Zugang Schritt für Schritt prüfen, ohne eine Mail zu senden (im Executor aufrufen).
 

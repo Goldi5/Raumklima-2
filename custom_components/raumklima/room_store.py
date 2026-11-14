@@ -31,12 +31,15 @@ class StoreMixin:
             "vent": self.vent.export() if self.vent else None,
             "series": self.series.export(),
             "heatup": self.heatup.dump(),
+            "heatup_cool": self.heatup.cool_dump(),
             "mold_vapour": self.mold_guard.dump(),
             "rf": self._rf,
             "airing_profile": self.airing.export(),
             "usage_profile": self.usage.export(),
             "outage_durations": list(self._outage_durations),
             "battery_hist": self._battery_hist,
+            "shading_closed": sorted(self._shading_closed),
+            "shading_manual_until": iso(self._shading_manual_until),
         }
 
     def _load_stored(self, stored: dict[str, Any]) -> None:
@@ -54,6 +57,7 @@ class StoreMixin:
         if stored.get("shift") is not None:
             self.shift = float(stored.get("shift") or 0.0)
         self.heatup.load(stored.get("heatup"))
+        self.heatup.cool_load(stored.get("heatup_cool"))
         self.mold_guard.load(stored.get("mold_vapour"))
         if isinstance(stored.get("rf"), dict):
             self._rf = stored["rf"]
@@ -72,3 +76,7 @@ class StoreMixin:
             }
         self.vent.load(stored.get("vent"))
         self.series.load(stored.get("series"))
+        self._shading_closed = {
+            str(entity_id) for entity_id in (stored.get("shading_closed") or []) if entity_id
+        }
+        self._shading_manual_until = parse_dt(stored.get("shading_manual_until"))

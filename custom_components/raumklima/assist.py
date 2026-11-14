@@ -36,8 +36,9 @@ except ImportError:  # pragma: no cover - sehr alte Installationen
 
 PROMPT = (
     "Raumklima steuert die Heizung je Raum (Wunschtemperatur, Zeitpläne, Absenkung, Lüften). "
-    "Nutze raumklima_rooms für die Raumnamen, raumklima_room_status für Werte und "
-    "raumklima_set_room_temperature, wenn jemand eine Temperatur ändern will. "
+    "Nutze raumklima_rooms für die Raumnamen, raumklima_room_status für Werte, "
+    "raumklima_set_room_temperature für die Wunschtemperatur und "
+    "raumklima_boost_room für einen kurzen Boost (Minuten; 0 beendet ihn). "
     "Antworte in der Sprache der Person und nenne Zahlen mit Einheit."
 )
 
@@ -185,11 +186,51 @@ if llm is not None:
                 "effective_temperature_c": round(target if on else ctrl.target_temp, 1),
             }
 
+    class BoostRoomTool(llm.Tool):
+        """Kurzzeitig wärmer (Boost) oder Boost beenden."""
+
+        def __init__(self) -> None:
+            self.name = "raumklima_boost_room"
+            self.description = (
+                "Boost a room for a number of minutes (5–480). Use 0 to end a running boost."
+            )
+            self.parameters = Schema(
+                {Required("room"): str, Required("minutes"): Coerce(int)}
+            )
+
+        async def async_call(
+            self, hass: HomeAssistant, tool_input: llm.ToolInput, llm_context: llm.LLMContext
+        ) -> dict[str, Any]:
+            ctrl, error = _resolve(hass, str(tool_input.tool_args.get("room") or ""))
+            if ctrl is None:
+                return {"success": False, "error": error}
+            if ctrl.status == STATUS_MONITOR:
+                return {
+                    "success": False,
+                    "error": tr("{room} ist ein Überwachungsraum – dort lässt sich nichts boosten.", room=ctrl.name),
+                }
+            minutes = int(tool_input.tool_args.get("minutes") or 0)
+            if minutes <= 0:
+                await ctrl.async_boost("off")
+                return {"success": True, "room": ctrl.name, "boost": "off"}
+            await ctrl.async_boost("minutes", min(480, max(5, minutes)))
+            return {
+                "success": True,
+                "room": ctrl.name,
+                "boost_minutes": min(480, max(5, minutes)),
+                "boost_until": ctrl.boost_until.isoformat() if ctrl.boost_until else None,
+            }
+
     class RaumklimaLLMAPI(llm.API):
         """Schnittstelle für KI-Sprachassistenten."""
 
         async def async_get_api_instance(self, llm_context: llm.LLMContext) -> llm.APIInstance:
-            return llm.APIInstance(self, PROMPT, llm_context, [RoomListTool(), RoomStatusTool(), SetTemperatureTool()])
+            return llm.APIInstance(
+                self,
+                PROMPT,
+                llm_context,
+                [RoomListTool(), RoomStatusTool(), SetTemperatureTool(), BoostRoomTool()],
+            )
 
 
 def async_register(hass: HomeAssistant) -> None:

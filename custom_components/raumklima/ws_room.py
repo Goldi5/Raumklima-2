@@ -9,17 +9,13 @@ from homeassistant.core import HomeAssistant, callback
 import voluptuous as vol
 
 from .const import (
-    CONF_LIGHTS,
-    CONF_PRESENCE,
     CONF_ROOM_TYPE,
-    CONF_SCHEDULES,
-    CONF_SOLAR_FACADE,
-    DEFAULTS,
     DOMAIN,
     LIGHT_SIGNALS,
 )
 from .msg import tr
 from .retype import retyped_values
+from .room_const import reset_room_options
 from .shared import domain_data
 from .ws_common import (
     ROOM_CHANGES,
@@ -135,6 +131,24 @@ async def ws_layout_save(hass: HomeAssistant, connection: websocket_api.ActiveCo
 
 @websocket_api.websocket_command(
     {
+        vol.Required("type"): f"{DOMAIN}/room/resume",
+        vol.Required("entry_id"): str,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_room_resume(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Handverstellung beenden und Zeitplan/Automatik sofort fortsetzen."""
+    room = domain_data(hass)["rooms"].get(msg["entry_id"])
+    if room is None:
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
+        return
+    await room.async_resume_manual()
+    connection.send_result(msg["id"], {"ok": True, "override_until": None})
+
+
+@websocket_api.websocket_command(
+    {
         vol.Required("type"): f"{DOMAIN}/room/reset",
         vol.Required("entry_id"): str,
     }
@@ -147,17 +161,7 @@ async def ws_room_reset(hass: HomeAssistant, connection: websocket_api.ActiveCon
     if entry is None or entry.domain != DOMAIN:
         connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
         return
-    options = dict(entry.options or {})
-    options.update(DEFAULTS)
-    # Listen/Zeichenketten ohne Standardwert ausdrücklich leeren
-    options.update(
-        {
-            CONF_SCHEDULES: [],
-            CONF_PRESENCE: [],
-            CONF_LIGHTS: [],
-            CONF_SOLAR_FACADE: "",
-        }
-    )
+    options = reset_room_options(dict(entry.options or {}))
     hass.config_entries.async_update_entry(entry, options=options)
     await hass.config_entries.async_reload(entry.entry_id)
     connection.send_result(msg["id"], {"ok": True})

@@ -188,3 +188,15 @@ type: custom:raumklima-settings-card   # Einstellungen (am besten als Panel-Ansi
 ## Sprachsteuerung (Assist)
 
 Fragen wie „Wie warm ist es im Bad?" oder „Muss ich lüften?" beantwortet ein KI-Agent im Assistenten (ChatGPT, Google, Anthropic, Ollama) mit den Werten aus Raumklima. Wie man die Pipeline anlegt und Raumklima dort freischaltet: **[Sprachsteuerung](sprachsteuerung.md)**.
+
+## Neu in 1.1
+
+- **Dashboard:** „Räume“ zuerst, „Energie & Lernen“ als eigener Reiter.
+- **Verschattung:** Rollläden bei Sonne/Nacht – automatisch, Empfehlung oder aus.
+- **Fußbodenheizung:** träge Regelung mit Vor-/Rücklauf und Durchfluss-Warnung.
+- **Lernmodell 2.0:** Aufheizrate, Wärmeverlust, Sonneneinfluss; früher Abstopp.
+- **Ventilsteuerung:** direktes `number`-Stellglied, z. B. SONOFF TRVZB.
+- **Klimaanlagen:** getrennte Ziele, Takt-Schutz, günstigere Quelle nach COP/Gaspreis.
+- **Wärmeanforderung:** Sensor `sensor.raumklima_allgemein_warmeanforderung`.
+- **Dynamische Tarife/PV:** Preisgrenze, günstig vorheizen, PV-Überschuss.
+- **Handverstellung:** „Zeitplan fortsetzen“/„Wunschtemperatur fortsetzen“ auf der Raumkarte.

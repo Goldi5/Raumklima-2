@@ -94,6 +94,16 @@ class ValveFinder:
                 return hit
         return None
 
+    def find_actuator(self) -> str | None:
+        """Stellglied (number) für die direkte Ventilöffnung finden."""
+        if self.trv_entry is None:
+            return None
+        for step in STEPS:
+            hit = getattr(self, f"_step_{step}_actuator")()
+            if hit:
+                return hit
+        return None
+
     # ------------------------------------------------------------ Bausteine
     def usable(self, entry: er.RegistryEntry) -> bool:
         """Ein %-Sensor, dessen Bezeichnung nach Ventil klingt."""
@@ -108,9 +118,24 @@ class ValveFinder:
             return True
         return any(k in hay for k in WEAK_KEYWORDS) and entry.device_id in self._heating_devices
 
+    def usable_actuator(self, entry: er.RegistryEntry) -> bool:
+        """Ein `number` mit Ventilstellung, das zum Thermostat gehört."""
+        if entry.domain != "number" or entry.disabled_by:
+            return False
+        hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
+        if any(k in hay for k in STRONG_KEYWORDS):
+            return True
+        return "position" in hay and entry.device_id in self._heating_devices
+
     def pick(self, entries: Iterable[er.RegistryEntry]) -> str | None:
         for entry in entries:
             if self.usable(entry):
+                return entry.entity_id
+        return None
+
+    def pick_actuator(self, entries: Iterable[er.RegistryEntry]) -> str | None:
+        for entry in entries:
+            if self.usable_actuator(entry):
                 return entry.entity_id
         return None
 
@@ -190,4 +215,53 @@ class ValveFinder:
 
     def _step_only_one(self) -> str | None:
         loose = [e.entity_id for e in self.registry.entities.values() if self.usable(e) and self.same_area(e)]
+        return loose[0] if len(loose) == 1 else None
+
+    # ------------------------------------------------------------ Stellglied
+    def _step_same_device_actuator(self) -> str | None:
+        if not self.trv_entry.device_id:
+            return None
+        return self.pick_actuator(er.async_entries_for_device(self.registry, self.trv_entry.device_id))
+
+    def _step_name_stem_actuator(self) -> str | None:
+        stem = entity_stem(self.trv)
+        if len(stem) < 4:
+            return None
+        related = [
+            e
+            for e in self.registry.entities.values()
+            if (other := entity_stem(e.entity_id))
+            and other != stem
+            and (other.startswith(stem) or stem.startswith(other))
+            and self.same_known_area(e)
+        ]
+        related.sort(key=lambda e: -common_prefix(entity_stem(e.entity_id), stem))
+        return self.pick_actuator(related)
+
+    def _step_extra_trvs_actuator(self) -> str | None:
+        for entity_id in self.extra_trvs:
+            entry = self.registry.async_get(entity_id or "")
+            if entry is not None and entry.device_id:
+                hit = self.pick_actuator(er.async_entries_for_device(self.registry, entry.device_id))
+                if hit:
+                    return hit
+        return None
+
+    def _step_same_area_actuator(self) -> str | None:
+        if not self.trv_area:
+            return None
+        return self.pick_actuator([e for e in self.registry.entities.values() if self.area_of(e) == self.trv_area])
+
+    def _step_device_name_actuator(self) -> str | None:
+        trv_name = self.name_of(self.trv_entry)
+        if not trv_name:
+            return None
+        return self.pick_actuator(
+            e
+            for e in self.registry.entities.values()
+            if e.device_id and name_related(self.name_of(e), trv_name) and self.same_known_area(e)
+        )
+
+    def _step_only_one_actuator(self) -> str | None:
+        loose = [e.entity_id for e in self.registry.entities.values() if self.usable_actuator(e) and self.same_area(e)]
         return loose[0] if len(loose) == 1 else None

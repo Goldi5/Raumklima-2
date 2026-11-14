@@ -137,11 +137,18 @@ async def _async_register_resource(hass: HomeAssistant) -> None:
         return
     try:
         await resources.async_get_info()  # lädt die Sammlung bei Bedarf
-        for item in resources.async_items():
-            if str(item.get("url", "")).split("?")[0] == CARD_URL:
+        # Alle Einträge aktualisieren, nicht nur den ersten: Nach mehreren Updates können
+        # Dubletten entstehen. Bliebe eine alte URL stehen, lädt der Browser weiter die alte
+        # Karte – der Fix aus der neuen Version käme nie an.
+        items = [
+            item for item in resources.async_items()
+            if str(item.get("url", "")).split("?")[0] == CARD_URL
+        ]
+        if items:
+            for item in items:
                 if item.get("url") != url:
                     await resources.async_update_item(item["id"], {"res_type": "module", "url": url})
-                return
+            return
         await resources.async_create_item({"res_type": "module", "url": url})
     except Exception as err:  # noqa: BLE001 – interne API, lieber Rückfall als Absturz
         _LOGGER.warning("Ressource konnte nicht eingetragen werden (%s) – nutze Extra-Modul", err)

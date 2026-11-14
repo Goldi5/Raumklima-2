@@ -11,6 +11,9 @@ from typing import Any
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_COOL_SETPOINT,
+    CONF_COOLING,
+    CONF_FLOOR_LEAD_MIN,
     CONF_MOLD_MODE,
     CONF_PREHEAT_LEAD,
     CONF_PREHEAT_MODE,
@@ -53,6 +56,7 @@ from .room_const import (
     MOLD_STRICT,
     PLAN_RULES,
     REASON_BOOST,
+    REASON_COOL,
     REASON_DEVICE_AUTO,
     REASON_EMPTY,
     REASON_FROST,
@@ -168,6 +172,26 @@ class PlanMixin:
         if self._valve_care_until and ctx.now < self._valve_care_until:
             return True, self.trv_max, REASON_VALVE_CARE
         return None
+
+    def _rule_cool(self, ctx: _PlanContext) -> PlanResult:
+        """Zu warm und Klimaanlage vorhanden: kühlen statt heizen."""
+        if not self.config.get(CONF_COOLING) or not self.ac_sources:
+            return None
+        if self.monitor or self.hvac_auto:
+            return None
+        if self.boost_open or (self.boost_until and ctx.now < self.boost_until):
+            return None
+        ready = [
+            ac for ac in self.ac_sources
+            if ac.available() and "cool" in ((ac.state.attributes or {}).get("hvac_modes") or [])
+        ]
+        if not ready:
+            return None
+        current = self.current_temperature
+        limit = float(self.config.get(CONF_COOL_SETPOINT) or 26.0)
+        if current is None or current <= limit:
+            return None
+        return False, limit, REASON_COOL
 
     def _rule_no_hub(self, ctx: _PlanContext) -> PlanResult:
         """Ohne Zentrale gilt schlicht der Wunsch."""
@@ -288,9 +312,15 @@ class PlanMixin:
         if nxt is None or cur is None or not self._preheat_allowed(nxt[0], ctx.local_now):
             return None
         start, want = nxt
+        if ctx.hub.energy_cheap_now() and ctx.local_now + timedelta(minutes=60) >= start:
+            return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
         need = self.heatup.minutes_needed(want - cur, ctx.hub.outdoor_temp())
         if need is not None and ctx.local_now + timedelta(minutes=need + PREHEAT_MARGIN_MINUTES) >= start:
             return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
+        if self.floor_mode:
+            floor_lead = float(self.config.get(CONF_FLOOR_LEAD_MIN) or 0)
+            if floor_lead and ctx.local_now + timedelta(minutes=floor_lead) >= start:
+                return True, min(want, self.trv_max), REASON_SCHEDULE_PREHEAT
         return None
 
     def _rule_presence_preheat(self, ctx: _PlanContext) -> PlanResult:
@@ -495,6 +525,7 @@ class PlanMixin:
             REASON_MONITOR: tr("nur Messen, kein Thermostat"),
             REASON_DEVICE_AUTO: tr("Gerät im Auto-Modus – fährt sein eigenes Programm"),
             REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
+            REASON_COOL: tr("Kühlen – {t}", t=fmt_temp(target)),
             REASON_SLEEP: tr("Ruhezeit – Schlafraum abgesenkt auf {t}", t=fmt_temp(self.setback_long)),
             REASON_SCHEDULE_FALLBACK: tr(
                 "außerhalb der Zeitfenster – {t}", t=fmt_temp(target)

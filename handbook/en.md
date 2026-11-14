@@ -443,6 +443,18 @@ does not matter.
 
 <!-- include: ../docs/en/voice-control.md -->
 
+## New in 1.1
+
+- **Dashboard:** “Rooms” is the first view; energy and learning are in their own “Energy & learning” tab.
+- **Shading:** blinds move in sun and at night – automatic, advice only or off.
+- **Underfloor heating:** own slow control characteristic with flow/return and flow warning.
+- **Learning model 2.0:** learns heat-up rate, heat loss and solar gain; stops earlier before target.
+- **Direct valve control:** for thermostats with a `number` actuator, e.g. SONOFF TRVZB.
+- **Air conditioning:** cools and heats with separate targets and anti-cycling; cheaper source by COP/gas price.
+- **Heat demand:** sensor `sensor.raumklima_allgemein_warmeanforderung` aggregates all rooms.
+- **Dynamic tariffs/PV:** price limit, preheat when cheap, PV surplus.
+- **Manual override:** “Resume schedule” or “Resume desired temperature” button on the room card.
+
 # Frequently asked questions
 
 <!-- include: ../docs/en/faq.md -->

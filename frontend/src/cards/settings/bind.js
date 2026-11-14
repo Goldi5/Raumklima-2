@@ -13,7 +13,7 @@ export const BindMethods = {
   _delegate() {
     if (this._delegating) return;
     this._delegating = true;
-    for (const type of ["click", "change", "input"]) {
+    for (const type of ["click", "change", "input", "keydown"]) {
       this.shadowRoot.addEventListener(type, (ev) => {
         for (let node = ev.target; node && node !== this.shadowRoot; node = node.parentNode) {
           if (node.nodeType !== 1) continue;
@@ -26,6 +26,14 @@ export const BindMethods = {
     }
   },
 
+  // Auswahl neben einem Hinzufügen-Knopf: relativ suchen (nicht über eine ID) und den
+  // Fokus lösen, damit _renderSoon das Neuzeichnen nicht bis zum Verlassen des Feldes zurückhält.
+  _addSelect(el) {
+    const sel = (el.closest(".addrow") || el.parentElement || el).querySelector("select");
+    if (sel) sel.blur();
+    return sel;
+  },
+
   _bind() {
     // Alle Klicks/Änderungen laufen über einen Verteiler an der Wurzel (siehe _delegate):
     // on(typ, selektor, (el) => handler) – handler bekommt das Ereignis wie bei addEventListener.
@@ -34,8 +42,80 @@ export const BindMethods = {
     this._delegate();
     const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
     const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
-    on("click", "[data-tab]", (el) => () => { this._tab = el.dataset.tab; this._sig = null; this._render(); });
-    on("click", ".railbtn", (el) => () => { this._group = el.dataset.g; this._filter(); });
+    on("click", "[data-tab]", (el) => () => {
+      this._tab = el.dataset.tab;
+      this._search = "";
+      if (this._nav2) { this._section = "rooms"; this._group = null; }
+      this._sig = null;
+      this._render();
+    });
+    on("click", "[data-section]", (el) => () => {
+      this._section = el.dataset.section;
+      this._search = "";
+      if (this._section === "rooms") this._tab = "general";
+      this._group = null;
+      try { localStorage.setItem("raumklima-settings-section", this._section); } catch (e) { /* ignorieren */ }
+      this._sig = null;
+      this._render();
+    });
+    on("click", "[data-nav2]", () => {
+      this._nav2 = !this._nav2;
+      this._group = null;
+      try { localStorage.setItem("raumklima-settings-nav-v2", this._nav2 ? "1" : "0"); } catch (e) { /* ignorieren */ }
+      this._sig = null;
+      this._render();
+    });
+    on("click", "[data-roomtab]", (el) => () => {
+      this._roomTab = el.dataset.roomtab;
+      this._sig = null;
+      this._render();
+    });
+    on("click", "[data-goto]", (el) => () => this._goto(el.dataset.goto));
+    on("click", "[data-goto-room]", (el) => () => this._gotoRoomByEntry(el.dataset.gotoRoom));
+    on("keydown", "[data-goto-room]", (el) => (ev) => {
+      if (ev.key !== "Enter" && ev.key !== " ") return;
+      ev.preventDefault();
+      this._gotoRoomByEntry(el.dataset.gotoRoom);
+    });
+    on("click", "[data-applyall]", (el) => () => {
+      this._applyToAllRooms(el.dataset.applyall);
+    });
+    on("click", "[data-roomboost]", (el) => () => {
+      const mode = el.dataset.roomboost === "off" ? "off" : "minutes";
+      const minutes = Number(el.dataset.min || 0);
+      const payload = { type: "raumklima/boost", entry_id: el.dataset.entry, mode };
+      if (mode === "minutes" && minutes > 0) payload.minutes = minutes;
+      this._hass.callWS(payload)
+        .then(() => { this._flash(t("Schnell-Override gesetzt")); this._render(); })
+        .catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+    });
+    on("click", "[data-copyroom]", (el) => () => {
+      this._copyRoom = el.dataset.copyroom;
+      this._sig = null;
+      this._render();
+    });
+    on("click", "[data-copyroom-close]", () => () => {
+      this._copyRoom = null;
+      this._sig = null;
+      this._render();
+    });
+    on("click", "[data-copyroom-go]", (el) => () => {
+      this._copyRoomGo(el.dataset.copyroomGo);
+    });
+    on("click", "[data-template-save]", (el) => () => {
+      this._saveRoomTemplate(el.dataset.templateSave);
+    });
+    on("click", "[data-template-apply]", (el) => () => {
+      this._applyRoomTemplate(el.dataset.templateApply);
+    });
+    on("click", "[data-template-delete]", (el) => () => {
+      this._deleteRoomTemplate(el.dataset.templateDelete);
+    });
+    on("click", ".railbtn", (el) => () => {
+      if (el.dataset.section) return;
+      this._group = el.dataset.g;
+      this._filter();
+    });
     on("click", "[data-lmove]", (el) => () => {
       const L = this._layout;
       const list = this._layoutList().map((r) => r.id);
@@ -74,6 +154,11 @@ export const BindMethods = {
       this._moreOpen.set(d.dataset.more, !d.open); // der Klick schaltet gleich um
       d.dataset.open = d.open ? "0" : "1";
     });
+    on("click", "details.sched-collapse > summary", (el) => () => {
+      const d = el.parentElement;
+      this._schedOpen = this._schedOpen || new Map();
+      this._schedOpen.set(d.dataset.schedcollapse, !d.open); // der Klick schaltet gleich um
+    });
     on("click", "[data-pro]", (el) => () => {
       this._pro = !this._pro;
       this._moreOpen.clear();
@@ -81,7 +166,12 @@ export const BindMethods = {
       this._render();
     });
     const search = this.shadowRoot.querySelector("#rks");
-    if (search) search.addEventListener("input", () => { this._search = search.value; this._filter(); });
+    if (search) search.addEventListener("input", () => {
+      this._search = search.value;
+      const body = this.shadowRoot.getElementById("rkbody");
+      if (body) { body.innerHTML = this._bodyHtml(); this._filter(); }
+      else this._filter();
+    });
     on("click", "[data-tgl]", (el) => () => this._hass.callService("switch", "toggle", { entity_id: el.dataset.tgl }));
     on("click", "[data-press]", (el) => () => this._hass.callService("button", "press", { entity_id: el.dataset.press }));
     on("click", "[data-num]", (el) => () => {
@@ -300,9 +390,9 @@ export const BindMethods = {
     });
     on("click", "[data-srcadd]", (el) => () => {
       const id = el.dataset.srcadd;
-      const sel = this.shadowRoot.getElementById(`addSrc-${id}`);
+      const sel = this._addSelect(el);
       const entity = sel ? sel.value : "";
-      if (!entity) return;
+      if (!entity) { this._flash(t("Bitte zuerst eine Quelle auswählen")); return; }
       const st = this._st(entity);
       const modes = (st && st.attributes && st.attributes.hvac_modes) || [];
       const type = modes.includes("cool") || modes.includes("fan_only") ? "ac" : "trv";
@@ -314,6 +404,7 @@ export const BindMethods = {
     on("click", "[data-seg]", (el) => () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val }));
     // nach der Auswahl Fokus lösen, sonst wartet die Karte mit dem Aktualisieren (Schutz beim Tippen)
     on("change", "[data-sel]", (el) => () => { el.blur(); apply(el.dataset.sel, { [el.dataset.key]: el.value || null }); });
+    on("change", ".addrow select", (el) => () => el.blur());
     on("change", "[data-md]", (el) => () => {
       const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
       if (iso) { this._setHub({ [el.dataset.md]: `${iso[2]}-${iso[3]}` }, 200); return; }
@@ -520,7 +611,7 @@ export const BindMethods = {
       this._setRoom(el.dataset.entry, { presence_sensors: roomPres(el.dataset.entry).filter((x) => x !== el.dataset.presrm) }, 200);
     });
     on("click", "[data-presadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById(`addPres-${el.dataset.presadd}`);
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
     });
     const roomLights = (entry) => {
@@ -529,7 +620,7 @@ export const BindMethods = {
       return [...(local || [])];
     };
     on("click", "[data-plightadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById(`addPLight-${el.dataset.plightadd}`);
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setRoom(el.dataset.plightadd, { presence_lights: [...roomLights(el.dataset.plightadd), sel.value] }, 200);
     });
     on("click", "[data-plightrm]", (el) => () => {
@@ -544,7 +635,7 @@ export const BindMethods = {
       this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
     });
     on("click", "[data-lightadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById(`addLight-${el.dataset.lightadd}`);
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setRoom(el.dataset.lightadd, { signal_lights: [...roomList(el.dataset.lightadd, "signal_lights", []), sel.value] }, 200);
     });
     on("click", "[data-lsig]", (el) => () => {
@@ -561,7 +652,7 @@ export const BindMethods = {
       this._setHub({ sleep_signals: (this._hubOpt("sleep_signals") || []).filter((x) => x !== el.dataset.sigrm) });
     });
     on("click", "[data-sigadd]", (el) => () => {
-      const sel = this.shadowRoot.getElementById("addSig");
+      const sel = this._addSelect(el);
       if (sel && sel.value) this._setHub({ sleep_signals: [...(this._hubOpt("sleep_signals") || []), sel.value] });
     });
     on("click", "[data-kind]", (el) => () => {
@@ -590,6 +681,14 @@ export const BindMethods = {
     on("click", "[data-test]", (el) => async () => {
       const r = await ws({ type: "raumklima/notify/test", target: el.dataset.test, ...this._homeMsg() });
       if (r) this._flash(t("Testnachricht an {n} gesendet", { n: rkPretty(el.dataset.test) }));
+    });
+    on("click", "[data-selftest]", () => () => {
+      this._hass.callWS({ type: "raumklima/self_test", ...this._homeMsg() })
+        .then((res) => {
+          const text = ((res && res.checks) || []).map((c) => `${c.ok ? "✓" : "✕"} ${t(c.label)}: ${c.text}`).join("\n");
+          this._openSheet({ title: t("Selbsttest"), intro: t("Die Prüfung ist nur lesend. Bei Fehlern steht der betroffene Raum oder die Entität dabei."), text: text || t("Keine Prüfungen") });
+        })
+        .catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
     });
     on("click", "[data-diag]", (el) => () => { this._trace("click", { what: "diagnose" }); this._downloadDiagnostics(); });
     on("click", "[data-backup]", (el) => () => { this._trace("click", { what: "sichern" }); this._backupExport(); });

@@ -2,7 +2,7 @@
 
 🇩🇪 [Deutsche Dokumentation](../de/README.md) · 🇬🇧 [English documentation](../en/README.md)
 
-**Version actuelle : 0.62.47** – modifications dans le [CHANGELOG](../../CHANGELOG.md) · prévu : [ROADMAP](../../ROADMAP.md)
+**Version actuelle : 1.1.0b1** – modifications dans le [CHANGELOG](../../CHANGELOG.md) · prévu : [ROADMAP](../../ROADMAP.md)
 
 **Raumklima** transforme chaque thermostat de radiateur (TRV) de Home Assistant en thermostat d’ambiance intelligent : il régule selon une vraie sonde dans la pièce, se met en pause quand une fenêtre est ouverte, vous guide pour aérer, abaisse la température quand personne n’est là – avec protection contre les moisissures – et ne chauffe que quand il fait vraiment froid dehors.
 
@@ -36,7 +36,7 @@
 - **Notifications** par destinataire, heures calmes, heures de sommeil apprises, annonces vocales.
 - **Rapports PDF** (semaine, mois, saison) avec note A–F, comparaison avec l’année précédente, conseils d’économie – en téléchargement, en push ou **par e-mail**.
 - **Contrôle de santé** : piles, radio, sonde bloquée, « la pièce ne chauffe pas », équilibrage hydraulique; prévision des piles et alerte en cas de trop nombreuses commandes radio.
-- **Tableau de bord** complet avec un **« ? »** d’explication derrière chaque réglage – en allemand, anglais ou français selon la langue de Home Assistant.
+- **Tableau de bord 2.0** avec « Aujourd’hui » (aperçu, énergie et apprentissage), cartes de pièces, historique, chronologie, rapport, journal des décisions et page de réglages entièrement modifiable – en allemand, anglais ou français selon la langue de Home Assistant. La carte énergie affiche compteur, tarif, autoconsommation PV et coûts sur 7/30/90 jours ; la carte apprentissage affiche vitesse de montée, utilisation, profil d’aération, présence et heures de sommeil. L’ombrage commande les volets sélectionnés au soleil et la nuit – automatique, conseil seulement ou arrêt. Le plancher chauffant reçoit sa propre régulation lente avec départ/retour et alerte de débit. La climatisation peut chauffer lorsque le COP et le prix du gaz sont plus avantageux. Le rapport PDF peut être envoyé avec pièce jointe via l’intégration SMTP de Home Assistant. Le modèle d’apprentissage 2.0 apprend la vitesse de montée, la perte de chaleur et l’apport solaire, et s’arrête plus tôt avant la consigne. La régulation de vanne sans à-coups pilote directement un actionneur `number`. Les climatiseurs refroidissent avec une consigne séparée et une protection anti-cycle. La demande de chaleur agrège toutes les pièces et propose une température de départ. Les tarifs dynamiques et le surplus PV sont affichés. L’historique compare la température réelle et prédite. Le mode démo montre des pièces simulées sans matériel.
 
 ## Installation
 

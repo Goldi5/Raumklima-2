@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import smtplib
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from homeassistant.core import HomeAssistant
 import pytest
@@ -153,3 +153,27 @@ async def test_ws_check_only(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_pat
     assert msg["result"] == {"ok": False, "steps": steps}
     assert verify.call_args.args[0]["mail_user"] == "x@y.de" and verify.call_args.args[0]["mail_password"] == "geheim"
     send.assert_not_called()
+
+
+async def test_send_via_ha_uses_smtp_service(tmp_path) -> None:
+    pdf = tmp_path / "Raumklima-Woche.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+    hass = MagicMock()
+    hass.services.async_call = AsyncMock()
+    await mailer.send_via_ha(hass, "notify.smtp_test", "Betreff", "Text", [str(pdf)])
+    hass.services.async_call.assert_awaited_once()
+    args = hass.services.async_call.await_args.args
+    assert args[:2] == ("smtp", "send_message")
+    assert args[2]["target"] == {"entity_id": "notify.smtp_test"}
+    assert args[2]["attachments"][0]["filename"] == pdf.name
+    assert "raumklima" in args[2]["attachments"][0]["media_source"]
+
+
+async def test_report_sent_by_ha_smtp(hass: HomeAssistant, trv, sensors, tmp_path) -> None:
+    hub, _room = await _ready(hass, tmp_path, {"smtp_notify": "notify.smtp_test"})
+    pdf = hub.runtime_data.pdf
+    entry = await pdf.async_create("month", current=True)
+    with patch("custom_components.raumklima.reports.send_via_ha", new=AsyncMock()) as send:
+        await pdf.async_send(entry)
+    assert send.await_args.args[1] == "notify.smtp_test"
+    assert send.await_args.args[4] == [str(tmp_path / "raumklima" / entry["file"])]

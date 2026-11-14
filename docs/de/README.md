@@ -2,7 +2,7 @@
 
 🇬🇧 [English documentation](../en/README.md) · 🇫🇷 [Documentation en français](../fr/README.md)
 
-**Aktuelle Version: 0.62.47** – Änderungen siehe [CHANGELOG](../../CHANGELOG.md) · Geplant: [ROADMAP](../../ROADMAP.md)
+**Aktuelle Version: 1.1.0b1** – Änderungen siehe [CHANGELOG](../../CHANGELOG.md) · Geplant: [ROADMAP](../../ROADMAP.md)
 
 **Raumklima** macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: geregelt wird nach einem echten Raumfühler, bei offenem Fenster pausiert, beim Lüften beraten, bei Abwesenheit abgesenkt – und im Sommer gar nicht erst geheizt.
 
@@ -39,7 +39,7 @@
 - **Benachrichtigungen:** pro Empfänger wählbar, welche Nachrichten er bekommt; Push mit Knöpfen, optional Sprachansagen; **Lüft-Countdown auf dem Sperrbildschirm** (iPhone-Live-Aktivität, Android-Live-Update).
 - **Präsenzmelder:** mmWave und PIR (PIR vorsichtiger gewichtet) – niemand wird fälschlich „weg“, solange jemand da ist; leere Räume auf Wunsch etwas kühler; Anwesenheits-Temperatur je Raum, Lampen als Anwesenheit, Vorwärmen nach gelernten Belegungszeiten.
 - **Lichtsignal:** Lampen im Raum blinken blau bei „Bitte lüften“ und orange bei „Bitte schließen“ – danach wie vorher.
-- **Modernes Dashboard** mit Raumkarten, Verlauf, Zeitleiste, Heizbericht (auch als CSV und als **PDF** für Woche, Monat und Heizsaison – per Push, E-Mail oder Download) und einer komplett bearbeitbaren Einstellungsseite – auf Deutsch, Englisch oder Französisch, je nach Sprache in Home Assistant. Auch Push-Nachrichten, Protokoll und Hinweise folgen der Systemsprache.
+- **Dashboard 2.0** mit „Heute“ (Übersicht, Energie und Lernen), Raumkarten, Verlauf, Zeitleiste, Heizbericht (auch als CSV und als **PDF** für Woche, Monat und Heizsaison – per Push, E-Mail oder Download) und einer komplett bearbeitbaren Einstellungsseite – auf Deutsch, Englisch oder Französisch, je nach Sprache in Home Assistant. Die Energiekarte zeigt Zähler, Tarif, PV-Eigenverbrauch und Kosten für 7/30/90 Tage; die Lernkarte Aufheizrate, Nutzung, Lüftmuster, Präsenzprofil und Schlafzeiten. Die Verschattung fährt ausgewählte Rollläden bei Sonne und nachts – automatisch, nur als Empfehlung oder aus. Die Fußbodenheizung bekommt eine eigene, träge Regelcharakteristik mit Vorlauf/Rücklauf und Durchfluss-Warnung. Die Klimaanlage kann günstiger heizen, wenn COP und Gaspreis passen. Der PDF-Bericht kann über Home Assistants SMTP-Integration mit Anhang versendet werden. Das Lernmodell 2.0 lernt Aufheizrate, Wärmeverlust und Sonneneinfluss und stoppt früher vor dem Ziel. Die stufenlose Ventilsteuerung fährt ein `number`-Stellglied direkt. Klimaanlagen kühlen mit getrenntem Ziel und Takt-Schutz. Die Wärmeanforderung summiert alle Räume und schlägt einen Vorlauf vor. Dynamische Tarife und PV-Überschuss fließen in die Anzeige ein. Der Verlauf vergleicht Ist und Vorhersage. Der Demo-Modus zeigt simulierte Räume ohne Hardware.
 - **Eigene Automationen:** Geräte-Auslöser wie „Bitte lüften“, „Fenster geöffnet“ oder „Heizung pausiert“.
 
 Getestet mit Tuya **TRV602Z** (Zigbee2MQTT) und IKEA-Fühlern, funktioniert mit jedem `climate`-Thermostat in Home Assistant – Hinweise je Gerätetyp (Shelly, Matter/Thread, Cloud …) unter [Welche Thermostate funktionieren?](installation.md#welche-thermostate-funktionieren).

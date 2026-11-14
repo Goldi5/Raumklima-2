@@ -26,6 +26,15 @@ export function roomSort(config = {}) {
 export class RaumklimaDashboardStrategy extends HTMLElement {
   static async generate(config, hass) {
     setLang(hass);
+    if (config.demo) {
+      return {
+        title: config.title || t("Raumklima"),
+        views: [{
+          title: t("Demo"), path: "demo", icon: "mdi:flask-outline", type: "sections", max_columns: 3,
+          sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-demo-card", grid_options: { columns: "full" } }] }],
+        }],
+      };
+    }
     const prefix = config.strip_prefix ?? "";
     // `home` ist die ID der Wohnung – der Name wird auch akzeptiert (beides steht in den Einstellungen)
     const homeId = rkHomeId(hass, config) || "";
@@ -63,10 +72,20 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
     }
     if (!weather) weather = Object.keys(hass.states).find((id) => id.startsWith("weather."));
 
+    const overviewCard = { type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather, strip_prefix: prefix, grid_options: { columns: "full" } };
+    // Energie und Lernen sind eigene Auswertungen – sie liegen in einem eigenen Reiter.
+    const insightsView = {
+      title: t("Energie & Lernen"), path: "energie-lernen", icon: "mdi:chart-donut", type: "sections", max_columns: 3,
+      sections: [
+        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-energy-card", ...H, days: config.energy_days || 30, grid_options: { columns: "full" } }] },
+        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-learning-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] },
+      ],
+    };
+
     const roomsView = {
       title: t("Räume"), path: "raeume", icon: "mdi:home-thermometer", type: "sections", max_columns: 3,
       sections: [
-        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather, strip_prefix: prefix, grid_options: { columns: "full" } }] },
+        { type: "grid", column_span: 3, cards: [overviewCard] },
         // Überwachungsräume haben keine Heizung – die große Raumkarte wäre leer,
         // sie erscheinen nur als Kachel in der Übersicht.
         // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
@@ -104,6 +123,7 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
       sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
-    return { title: config.title || t("Heizung"), views: [roomsView, historyView, reportView, logView, settingsView] };
+    // Das ursprüngliche Dashboard beginnt mit „Räume“; „Heute“ ist entfallen.
+    return { title: config.title || t("Heizung"), views: [roomsView, insightsView, historyView, reportView, logView, settingsView] };
   }
 }

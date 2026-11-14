@@ -189,3 +189,15 @@ hours: 24
 ---
 type: custom:raumklima-settings-card   # réglages (de préférence en vue panneau)
 ```
+
+## Nouveau en 1.1
+
+- **Tableau de bord :** « Pièces » d’abord, « Énergie et apprentissage » dans un onglet séparé.
+- **Ombrage :** volets au soleil/nuit – automatique, conseil ou arrêt.
+- **Plancher chauffant :** régulation lente avec départ/retour et alerte de débit.
+- **Modèle d’apprentissage 2.0 :** vitesse de montée, perte de chaleur, apport solaire ; arrêt plus tôt.
+- **Commande de vanne :** actionneur `number` direct, p. ex. SONOFF TRVZB.
+- **Climatisation :** consignes séparées, anti-cycle, source la moins chère selon COP/prix du gaz.
+- **Demande de chaleur :** capteur `sensor.raumklima_allgemein_warmeanforderung`.
+- **Tarifs dynamiques/PV :** limite de prix, préchauffage si bon marché, surplus PV.
+- **Commande manuelle :** « Reprendre le programme »/« Reprendre la température souhaitée » sur la carte de pièce.

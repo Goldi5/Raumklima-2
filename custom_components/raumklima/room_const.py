@@ -11,10 +11,23 @@ from .const import (
     CONF_AIRING_OCCUPIED_ONLY,
     CONF_AIRING_WINDOWS,
     CONF_BOOST_MINUTES,
+    CONF_AC_HEAT,
     CONF_BOOST_TEMP,
     CONF_CO2_LIMIT,
     CONF_COMFORT_TEMP,
+    CONF_AC_MIN_OFF,
+    CONF_AC_MIN_ON,
+    CONF_COOL_SETPOINT,
+    CONF_COOLING,
     CONF_FAST_POLL,
+    CONF_FLOOR_BAND,
+    CONF_FLOOR_CYCLE_MIN,
+    CONF_FLOOR_FLOW_MIN,
+    CONF_FLOOR_HEATING,
+    CONF_FLOOR_LEAD_MIN,
+    CONF_FLOOR_MAX_TEMP,
+    CONF_FLOOR_MIN_TEMP,
+    CONF_HEAT_SOURCES,
     CONF_HOME,
     CONF_LEARN_AIRING,
     CONF_LIGHT_SIGNALS,
@@ -46,13 +59,22 @@ from .const import (
     CONF_SCHEDULES,
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
+    CONF_SHADING_MANUAL_MINUTES,
+    CONF_SHADING_MIN_TEMP,
+    CONF_SHADING_MODE,
+    CONF_SHADING_NIGHT,
+    CONF_SHADING_OUTDOOR_MIN,
+    CONF_SHADING_POSITION,
     CONF_SOLAR,
     CONF_SOLAR_FACADE,
     CONF_TRV_INTERVAL,
+    CONF_VALVE_CONTROL,
     CONF_VIRTUAL_WINDOW,
     CONF_WALL,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
+    DEFAULT_LIGHT_SIGNALS,
+    DEFAULTS,
 )
 from .msg import N_
 
@@ -89,6 +111,7 @@ REASON_SEASON = "season"
 REASON_FROST = "frost"
 REASON_VALVE_CARE = "valve_care"
 REASON_SOLAR = "solar"
+REASON_COOL = "cool"
 REASON_EMPTY = "room_empty"
 REASON_SCHEDULE = "schedule"
 REASON_BOOST = "boost"
@@ -118,6 +141,7 @@ PLAN_RULES: tuple[str, ...] = (
     "_rule_monitor",
     "_rule_device_auto",
     "_rule_valve_care",
+    "_rule_cool",
     "_rule_no_hub",
     "_rule_season",
     "_rule_boost",
@@ -154,6 +178,7 @@ RULE_LABELS: dict[str, str] = {
     "_rule_schedule_fallback": N_("Außerhalb der Zeitfenster"),
     "_rule_empty_room": N_("Leerer Raum"),
     "_rule_solar": N_("Sonne erwartet"),
+    "_rule_cool": N_("Kühlen"),
 }
 
 
@@ -173,7 +198,7 @@ class _PlanContext:
 
 
 MOLD_EXEMPT = frozenset(
-    {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD}
+    {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD, REASON_COOL}
 )
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
@@ -194,6 +219,13 @@ LIVE_OPTIONS = frozenset(
         CONF_HOME,
         CONF_SOLAR,
         CONF_SOLAR_FACADE,
+        CONF_FLOOR_HEATING,
+        CONF_FLOOR_MAX_TEMP,
+        CONF_FLOOR_MIN_TEMP,
+        CONF_FLOOR_BAND,
+        CONF_FLOOR_CYCLE_MIN,
+        CONF_FLOOR_LEAD_MIN,
+        CONF_FLOOR_FLOW_MIN,
         CONF_LIGHTS,
         CONF_LIGHT_SIGNALS,
         CONF_PRESENCE,
@@ -213,10 +245,16 @@ LIVE_OPTIONS = frozenset(
         CONF_LEARN_AIRING,
         CONF_AIRING_MIN_MINUTES,
         CONF_TRV_INTERVAL,
+        CONF_VALVE_CONTROL,
         CONF_CO2_LIMIT,
         CONF_NOTIFY_CAP,
         CONF_MOLD_CAP,
         CONF_MOLD_MODE,
+        CONF_COOLING,
+        CONF_COOL_SETPOINT,
+        CONF_AC_MIN_ON,
+        CONF_AC_MIN_OFF,
+        CONF_AC_HEAT,
         CONF_PREHEAT_LEAD,
         CONF_PREHEAT_MODE,
         CONF_PREHEAT_NOT_BEFORE,
@@ -224,5 +262,78 @@ LIVE_OPTIONS = frozenset(
         CONF_ROOM_PERSONS,
         CONF_WALL,
         CONF_SCHEDULE_FALLBACK,
+        CONF_SHADING_MODE,
+        CONF_SHADING_POSITION,
+        CONF_SHADING_MIN_TEMP,
+        CONF_SHADING_OUTDOOR_MIN,
+        CONF_SHADING_NIGHT,
+        CONF_SHADING_MANUAL_MINUTES,
     }
 )
+
+# Werte, die das Backend nicht in DEFAULTS führt, aber als „unverändert“ gelten.
+# Ohne diese Liste würde z. B. „Schimmel-Deckel 2,5“ als Raum-Override gezählt.
+IMPLICIT_DEFAULTS: dict[str, Any] = {
+    CONF_SOLAR: False,
+    CONF_SOLAR_FACADE: "",
+    CONF_LIGHT_SIGNALS: list(DEFAULT_LIGHT_SIGNALS),
+    CONF_MOLD_CAP: 2.5,
+    CONF_WALL: "auto",
+    CONF_CO2_LIMIT: 1000,
+    CONF_NOTIFY_CAP: 3,
+    CONF_TRV_INTERVAL: 0,
+    CONF_PRESENCE_KIND: "auto",
+    CONF_ROOM_ECO: "auto",
+    CONF_VIRTUAL_WINDOW: "auto",
+    CONF_NIGHT_AIRING: "auto",
+}
+
+# Alle Raum-Einstellungen, die „Auf Standard zurücksetzen“ betreffen – auch die,
+# die nicht in DEFAULTS stehen. CONF_HOME bleibt Struktur und wird nicht zurückgesetzt.
+ROOM_RESET_KEYS = frozenset(DEFAULTS) | (LIVE_OPTIONS - {CONF_HOME})
+
+
+# Sichere Werte für benannte Raum-Vorlagen (Phase 6.1).
+ROOM_TEMPLATE_KEYS = (
+    CONF_COMFORT_TEMP, CONF_SETBACK_SHORT, CONF_SETBACK_LONG,
+    CONF_WINDOW_OPEN_DELAY, CONF_WINDOW_CLOSE_DELAY,
+    CONF_PREHEAT_MODE, CONF_PREHEAT_LEAD, CONF_PREHEAT_NOT_BEFORE, CONF_QUIET_MODE,
+    CONF_NIGHT_AIRING, CONF_VIRTUAL_WINDOW, CONF_SOLAR,
+    CONF_MOLD_MODE, CONF_MOLD_CAP, CONF_WALL,
+    CONF_COOLING, CONF_COOL_SETPOINT, CONF_AC_MIN_ON, CONF_AC_MIN_OFF, CONF_AC_HEAT,
+    CONF_CO2_LIMIT, CONF_NOTIFY_CAP,
+    CONF_PRESENCE_TARGET, CONF_PRESENCE_DELAY, CONF_PRESENCE_RELEASE, CONF_PRESENCE_PIR, CONF_PRESENCE_LEARN,
+    CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP,
+    CONF_LONG_AIRING, CONF_LONG_AIRING_REMIND, CONF_AIRING_MIN_MINUTES, CONF_AIRING_OCCUPIED_ONLY,
+    CONF_FAST_POLL, CONF_TRV_INTERVAL, CONF_VALVE_CONTROL, CONF_SCHEDULE_FALLBACK,
+    CONF_BOOST_TEMP, CONF_BOOST_MINUTES, CONF_OVERRIDE_MINUTES,
+    CONF_SHADING_MODE, CONF_SHADING_POSITION, CONF_SHADING_MIN_TEMP,
+    CONF_SHADING_OUTDOOR_MIN, CONF_SHADING_NIGHT, CONF_SHADING_MANUAL_MINUTES,
+    CONF_FLOOR_HEATING, CONF_FLOOR_MAX_TEMP, CONF_FLOOR_MIN_TEMP, CONF_FLOOR_BAND,
+    CONF_FLOOR_CYCLE_MIN, CONF_FLOOR_LEAD_MIN, CONF_FLOOR_FLOW_MIN,
+)
+
+
+def _reset_value(key: str) -> Any:
+    """Standardwert einer Raum-Einstellung – auch für Schlüssel außerhalb von DEFAULTS."""
+    if key in DEFAULTS:
+        return DEFAULTS[key]
+    if key in IMPLICIT_DEFAULTS:
+        value = IMPLICIT_DEFAULTS[key]
+        return list(value) if isinstance(value, list) else value
+    if key in {
+        CONF_SCHEDULES, CONF_PRESENCE, CONF_LIGHTS, CONF_HEAT_SOURCES,
+        CONF_ROOM_PERSONS, CONF_AIRING_WINDOWS, CONF_PRESENCE_LIGHTS,
+    }:
+        return []
+    return None
+
+
+def reset_room_options(options: dict[str, Any]) -> dict[str, Any]:
+    """Einstellungen auf Standard setzen, ohne Struktur (Namen, Geräte, Sensoren) anzutasten."""
+    out = dict(options)
+    for key in ROOM_RESET_KEYS:
+        out.pop(key, None)
+    for key in ROOM_RESET_KEYS:
+        out[key] = _reset_value(key)
+    return out

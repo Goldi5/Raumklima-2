@@ -33,6 +33,22 @@ def ws_report(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
 
 @websocket_api.websocket_command(
     {
+        vol.Required("type"): f"{DOMAIN}/energy",
+        vol.Optional("home"): vol.Any(None, str),
+        vol.Optional("days", default=30): vol.All(vol.Coerce(int), vol.Range(1, 365)),
+    }
+)
+@websocket_api.async_response
+async def ws_energy(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Energie für das Dashboard: Zähler, Tarif und Kosten im Zeitraum."""
+    hub = _hub_or_error(hass, connection, msg)
+    if hub is None:
+        return
+    connection.send_result(msg["id"], await hub.insights.async_energy_summary(msg["days"]))
+
+
+@websocket_api.websocket_command(
+    {
         vol.Required("type"): f"{DOMAIN}/report/export",
         vol.Optional("home"): vol.Any(None, str),
         vol.Optional("days"): vol.All(vol.Coerce(int), vol.Range(1, 400)),

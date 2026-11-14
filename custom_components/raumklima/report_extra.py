@@ -234,14 +234,84 @@ def score_history(rooms: Rooms, home: Home, kind: str, end: date, count: int = 8
 
 
 # ------------------------------------------------------------------ Euro
-def money(cur: dict[str, Any], annual_cost: float | None) -> dict[str, float] | None:
-    """Grobe Schätzung aus den jährlichen Heizkosten (Abrechnung) und den Heizgradtagen."""
-    if not annual_cost or cur["hdd"] < 3:
+def pv_split(pv_kwh: float | None, self_use_pct: float | None) -> dict[str, float] | None:
+    """PV-Ertrag in selbst genutzten Anteil und Überschuss aufteilen."""
+    if pv_kwh is None:
         return None
-    period_cost = annual_cost * cur["hdd"] / REF_HDD
+    pv = max(0.0, float(pv_kwh))
+    share = max(0.0, min(100.0, float(self_use_pct or 0))) / 100
+    self_kwh = pv * share
+    return {"pv_kwh": round(pv, 1), "self_kwh": round(self_kwh, 1), "surplus_kwh": round(pv - self_kwh, 1)}
+
+
+def energy_kwh(value: float | None, unit: str | None, factor: float = 10.0) -> float | None:
+    """Zählerstand in kWh umrechnen – Gas in m³ über Brennwert/Zustandszahl."""
+    if value is None:
+        return None
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return None
+    u = (unit or "").strip().lower().replace("³", "3")
+    if u in ("m3", "m^3"):
+        return amount * (factor or 10.0)
+    if u == "wh":
+        return amount / 1000
+    if u == "mwh":
+        return amount * 1000
+    return amount
+
+
+def money(
+    cur: dict[str, Any],
+    annual_cost: float | None,
+    energy: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    """Grobe Euro-Schätzung – aus Abrechnung oder aus Zähler und Tarif.
+
+    Die Abrechnung hat Vorrang: sie ist die belastbarste Zahl und der einfache Weg
+    für Mietwohnungen. Ohne Abrechnung zählt der Zähler, sofern Verbrauch und Preis
+    für den Berichtszeitraum vorliegen.
+    """
+    if cur["hdd"] < 3:
+        return None
+    energy = energy or {}
+    kwh: float | None = None
+    if annual_cost:
+        annual = float(annual_cost)
+        period_cost = annual * cur["hdd"] / REF_HDD
+        basis = "bill"
+    else:
+        kwh = energy.get("kwh")
+        price = energy.get("price")
+        if kwh is None or float(kwh) <= 0 or price is None or float(price) <= 0:
+            return None
+        kwh = float(kwh)
+        price = float(price)
+        offset = 0.0
+        if energy.get("source") in ("electric", "heatpump") and energy.get("pv_kwh"):
+            share = max(0.0, min(100.0, float(energy.get("pv_self_use") or 0))) / 100
+            offset = max(0.0, float(energy["pv_kwh"])) * share
+        billed = max(0.0, kwh - offset)
+        days = max(int(energy.get("days") or 1), 1)
+        period_cost = billed * price + max(0.0, float(energy.get("base") or 0)) * days / 30.44
+        if period_cost <= 0:
+            return None
+        annual = period_cost * REF_HDD / cur["hdd"]
+        basis = "meter"
     s = cur["total"]["saving_pct"]
     saved = period_cost * s / max(100 - s, 1)
-    return {"period_cost": round(period_cost), "saved": round(saved), "per_degree_year": round(annual_cost * ENERGY_PER_KELVIN)}
+    out: dict[str, Any] = {
+        "period_cost": round(period_cost, 2),
+        "saved": round(saved),
+        "per_degree_year": round(annual * ENERGY_PER_KELVIN),
+        "annual": round(annual, 2),
+        "basis": basis,
+        "source": energy.get("source") if basis == "meter" else "bill",
+    }
+    if kwh is not None:
+        out["kwh"] = round(kwh, 1)
+    return out
 
 
 # ------------------------------------------------------------------ Spartipps

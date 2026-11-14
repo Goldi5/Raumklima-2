@@ -415,6 +415,11 @@ class TrvMixin:
     def _desired_setpoint(self) -> float:
         self._update_shift()  # Abgleich vor dem Rechnen auffrischen
         target = self.effective_target
+        if self.floor_mode:
+            return clamp(self.floor_setpoint(target), self.trv_min, self.trv_max)
+        pre_stop = self.heatup.pre_stop()
+        if pre_stop and self.current_temperature is not None and self.current_temperature >= target - pre_stop:
+            target = max(self.trv_min, target - pre_stop)
         if self.cal_mode == CAL_TARGET:
             # Gelernten Abgleich immer anwenden – nicht nur, wenn gerade ein Messwert eintrifft.
             return clamp(

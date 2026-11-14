@@ -1,6 +1,49 @@
 // Erklärungen hinter dem „?“ in der Einstellungskarte. Schlüssel = deutsche Beschriftung der Zeile.
 // [Deutsch, Englisch, Französisch] – kurz, verständlich, ohne Fachchinesisch.
 export const HELP = {
+  "Kühlen": ["Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt.", "Air conditioning cools when the room is above the cooling limit.", "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement."],
+  "Klimaanlage zum Heizen": ["Erlaubt der Klimaanlage, den Raum auch zu heizen. Raumklima vergleicht dafür COP und Gaspreis; nur wenn die Klimaanlage günstiger ist, übernimmt sie.", "Allows the AC to heat the room. Raumklima compares COP and gas price; it only takes over when the AC is cheaper.", "Autorise la climatisation à chauffer la pièce. Raumklima compare le COP et le prix du gaz ; elle ne prend le relais que si elle est moins chère."],
+  "Sollwert am Gerät": ["Der Sollwert, der tatsächlich am Thermostat oder Stellglied steht – kann durch Handbedienung oder Geräte-Zeitplan abweichen.", "The setpoint actually present on the thermostat or actuator – can differ due to manual control or the device schedule.", "La consigne réellement présente sur le thermostat ou l’actionneur – peut différer en cas de commande manuelle ou de programme de l’appareil."],
+  "COP": ["Jahresarbeitszahl der Klimaanlage als Wärmepumpe. 3 bedeutet: 1 kWh Strom liefert 3 kWh Wärme. Höher ist besser.", "Seasonal performance factor of the AC as a heat pump. 3 means 1 kWh of electricity delivers 3 kWh of heat. Higher is better.", "Coefficient de performance annuel de la climatisation comme pompe à chaleur. 3 signifie que 1 kWh d’électricité fournit 3 kWh de chaleur. Plus haut est mieux."],
+  "Gaspreis": ["Preis je kWh Gas für den Vergleich mit der Klimaanlage. 0,10 €/kWh ist ein typischer Richtwert.", "Gas price per kWh for the comparison with the AC. 0.10 €/kWh is a typical reference value.", "Prix du gaz par kWh pour la comparaison avec la climatisation. 0,10 €/kWh est une valeur de référence typique."],
+  "Kühlgrenze": ["Oberhalb dieser Temperatur kühlt die Klimaanlage.", "Above this temperature the air conditioning cools.", "Au-delà de cette température, la climatisation refroidit."],
+  "Mindestlaufzeit": ["So lange bleibt die Klimaanlage nach dem Einschalten mindestens an. Größere Werte verhindern häufiges Takten, kosten aber Komfort.", "The air conditioner stays on for at least this long after switching on. Larger values prevent frequent cycling but cost comfort.", "La climatisation reste allumée au moins ce temps après la mise en marche. Des valeurs plus élevées évitent les cycles fréquents, mais coûtent du confort."],
+  "Mindestpause": ["So lange bleibt die Klimaanlage nach dem Ausschalten mindestens aus. Das schützt den Kompressor und reduziert unnötige Starts.", "The air conditioner stays off for at least this long after switching off. This protects the compressor and reduces unnecessary starts.", "La climatisation reste éteinte au moins ce temps après l’arrêt. Cela protège le compresseur et réduit les démarrages inutiles."],
+  "Dynamischer Tarif": ["Der Tarif-Sensor liefert einen wechselnden Preis. Die Karte zeigt den aktuellen Wert; die Kostenschätzung rechnet damit.", "The tariff sensor provides a changing price. The card shows the current value; the cost estimate uses it.", "Le capteur de tarif fournit un prix variable. La carte affiche la valeur actuelle ; l’estimation des coûts l’utilise."],
+  "Preisgrenze": ["Bis zu diesem Preis gilt Strom als günstig. Nur dann wird bei „Bei günstigem Strom vorheizen“ früher gestartet.", "Electricity counts as cheap up to this price. Only then does “Preheat on cheap electricity” start earlier.", "L’électricité est considérée comme bon marché jusqu’à ce prix. Ce n’est qu’alors que « Préchauffer en cas d’électricité bon marché » démarre plus tôt."],
+  "Bei günstigem Strom vorheizen": ["Startet bis zu 60 Minuten vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt. Der Rest der Regelung bleibt unverändert.", "Starts up to 60 minutes before a schedule window when the current price is below the limit. The rest of the control remains unchanged.", "Démarre jusqu’à 60 minutes avant une plage horaire lorsque le prix actuel est sous la limite. Le reste de la régulation reste inchangé."],
+  "Energie-Erfassung": ["Zähler, Tarife und PV-Ertrag auswerten.", "Analyse meters, tariffs and PV yield.", "Analyse compteurs, tarifs et rendement PV."],
+  "Energiequelle": [
+    "Legt fest, wie der Zähler gelesen wird: Gas in m³ wird über Brennwert und Zustandszahl in kWh umgerechnet, Wärmepumpen zählen Strom und optional die erzeugte Wärme, Fernwärme zählt kWh.",
+    "Defines how the meter is read: gas in m³ is converted to kWh via calorific value and correction factor, heat pumps count electricity and optionally the heat produced, district heating counts kWh.",
+    "Définit la lecture du compteur : le gaz en m³ est converti en kWh via le pouvoir calorifique et le facteur de correction, les pompes à chaleur comptent l’électricité et éventuellement la chaleur produite, le chauffage urbain compte les kWh.",
+  ],
+  "Gas-Umrechnung": [
+    "Wie viele kWh stecken in einem m³ Gas? Brennwert × Zustandszahl; 10 kWh/m³ ist ein typischer Näherungswert. Genau steht beides auf der Gasabrechnung.",
+    "How many kWh are in one m³ of gas? Calorific value × correction factor; 10 kWh/m³ is a typical approximation. Both are shown on the gas bill.",
+    "Combien de kWh contient un m³ de gaz ? Pouvoir calorifique × facteur de correction ; 10 kWh/m³ est une approximation typique. Les deux figurent sur la facture de gaz.",
+  ],
+  "Wärmemenge": [
+    "Optionaler Wärmezähler der Wärmepumpe. Ohne ihn zählt nur der Strom; die Euro-Schätzung bleibt korrekt, die Wärmemenge wird dann nicht ausgewiesen.",
+    "Optional heat meter for the heat pump. Without it only electricity is counted; the euro estimate stays correct, but the heat output is not shown.",
+    "Compteur de chaleur optionnel de la pompe à chaleur. Sans lui, seule l’électricité est comptée ; l’estimation en euros reste correcte, mais la chaleur produite n’est pas indiquée.",
+  ],
+  "Jahresarbeitszahl": [
+    "Wie viel Wärme die Wärmepumpe aus einer kWh Strom macht. 3,0 ist ein guter Richtwert; 0 lässt die Angabe offen und rechnet nur mit Strom.",
+    "How much heat the heat pump makes from one kWh of electricity. 3.0 is a good reference; 0 leaves it open and counts electricity only.",
+    "Combien de chaleur la pompe à chaleur produit à partir d’un kWh d’électricité. 3,0 est une bonne référence ; 0 laisse la valeur ouverte et ne compte que l’électricité.",
+  ],
+  "PV-Eigenverbrauch": [
+    "Welcher Anteil des PV-Ertrags den eigenen Verbrauch deckt. Nur eintragen, wenn der Zähler den Gesamtverbrauch misst – bei einem reinen Netzbezugszähler ist der PV-Anteil schon abgezogen.",
+    "Which share of PV yield covers your own consumption. Only enter this if the meter measures total consumption – with a grid-import-only meter the PV share is already deducted.",
+    "Part du rendement PV couvrant votre propre consommation. À renseigner uniquement si le compteur mesure la consommation totale – avec un compteur de soutirage réseau, la part PV est déjà déduite.",
+  ],
+  "Zähler": ["Strom- oder Gaszähler als Verbrauchsquelle.", "Electricity or gas meter as consumption source.", "Compteur électrique ou gaz comme source de consommation."],
+  "Tarif": ["Arbeitspreis und Grundgebühr.", "Energy price and base fee.", "Prix de l’énergie et frais fixes."],
+  "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
+  "Grundpreis": ["Monatliche Grundgebühr in €.", "Monthly base fee in €.", "Frais fixes mensuels en €."],
+  "Arbeitspreis": ["Preis pro kWh – für die Euro-Schätzung.", "Price per kWh – for the euro estimate.", "Prix par kWh – pour l’estimation en euros."],
+
   "Feinstaubfühler": [
     "PM2,5-Fühler im Raum. Ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.",
     "PM2.5 sensor in the room. From 35 µg/m³ Raumklima suggests airing; below 15 µg/m³ the air counts as exchanged.",
@@ -197,6 +240,7 @@ export const HELP = {
     "Also sends every PDF report as an email attachment. Open “Set up email” below once: pick your provider (fills in server and port), enter user, password and recipients, “Check login”, then “Save & send test email” – the switch is then on. Gmail, iCloud and Outlook need an app password.",
     "Envoie en plus chaque rapport PDF en pièce jointe. Ouvrez une fois « Configurer l’e-mail » ci-dessous : choisissez le fournisseur (renseigne serveur et port), saisissez utilisateur, mot de passe et destinataires, « Vérifier l’accès » puis « Enregistrer & envoyer un e-mail de test » – l’interrupteur est alors activé. Gmail, iCloud et Outlook nécessitent un mot de passe d’application.",
   ],
+  "SMTP-Bericht": ["Wählt eine Home-Assistant-SMTP-Entität. Der PDF-Bericht wird dann über HA und dessen SMTP-Integration gesendet; die Mail-Zugangsdaten liegen nicht mehr bei Raumklima.", "Selects a Home Assistant SMTP entity. The PDF report is then sent via HA’s SMTP integration; mail credentials no longer stay in Raumklima.", "Choisit une entité SMTP Home Assistant. Le rapport PDF est alors envoyé via l’intégration SMTP de HA ; les identifiants mail ne restent plus dans Raumklima."],
   "Test": [
     "Erstellt jetzt einen Wochenbericht und schickt ihn an alle Empfänger und per E-Mail.",
     "Creates a weekly report now and sends it to all recipients and by email.",
@@ -561,5 +605,80 @@ export const HELP = {
     "Jeder Befehl wird nach kurzer Zeit geprüft und bei Bedarf wiederholt – gegen Funk- und VPN-Aussetzer. „Synchron“ heißt: Thermostat hat bestätigt.",
     "Every command is checked after a short time and repeated if needed – against radio and VPN drops. “In sync” means the thermostat has confirmed.",
     "Chaque commande est vérifiée peu après et répétée si nécessaire – contre les coupures radio et VPN. « Synchronisé » signifie que le thermostat a confirmé.",
+  ],
+  "Verschattung": [
+    "Steuert ausgewählte Rollläden oder Jalousien: aus, nur empfehlen oder automatisch bei Sonne und nachts.",
+    "Controls selected blinds or shutters: off, advise only, or automatic in sun and at night.",
+    "Commande les volets ou stores sélectionnés : arrêt, conseil seulement ou automatique au soleil et la nuit.",
+  ],
+  "Rollläden": [
+    "Diese Rollläden oder Jalousien fährt die Verschattung. Auswahl unter „Geräte & Technik ändern“ am Raum; Fensterkontakte bleiben davon getrennt.",
+    "These blinds or shutters are moved by shading. Select them under “Change devices & technology” for the room; window contacts remain separate.",
+    "Ces volets ou stores sont commandés par l’ombrage. Sélection sous « Modifier appareils et technique » pour la pièce ; les contacts de fenêtre restent séparés.",
+  ],
+  "Schließen ab innen": [
+    "Ab dieser Raumtemperatur wird es ohne Schatten zu warm – die Sonne heizt den Raum dann stärker auf, als er braucht.",
+    "From this room temperature it gets too warm without shade – the sun then heats the room more than needed.",
+    "À partir de cette température ambiante, il fait trop chaud sans ombre – le soleil chauffe alors la pièce plus que nécessaire.",
+  ],
+  "oder ab außen": [
+    "Zusätzlicher Auslöser: Ist es draußen schon so warm, wird auch ein noch kühlerer Raum beschattet, damit die Sonne ihn nicht aufheizt.",
+    "Additional trigger: if it is already this warm outside, even a cooler room is shaded so the sun does not heat it up.",
+    "Déclencheur supplémentaire : s’il fait déjà aussi chaud dehors, une pièce encore fraîche est aussi ombragée pour que le soleil ne la réchauffe pas.",
+  ],
+  "Schließposition": [
+    "Wie weit der Rollladen bei Sonne schließt: 0 % ist ganz zu, 100 % ganz offen. Geräte ohne Positionsfahrt fahren beim Schließen ganz zu.",
+    "How far the blind closes in sun: 0 % is fully closed, 100 % fully open. Devices without position control close fully.",
+    "Jusqu’où le volet se ferme au soleil : 0 % complètement fermé, 100 % complètement ouvert. Les appareils sans positionnement se ferment complètement.",
+  ],
+  "Nachts schließen": [
+    "Schließt nach Sonnenuntergang und öffnet morgens wieder. Das schützt vor Wärmeverlust und hält Licht draußen – unabhängig von der Sonnenprognose.",
+    "Closes after sunset and opens again in the morning. This protects against heat loss and keeps light out – regardless of the sun forecast.",
+    "Ferme après le coucher du soleil et rouvre le matin. Cela protège des pertes de chaleur et garde la lumière dehors – indépendamment de la prévision solaire.",
+  ],
+  "Handbedienung pausiert": [
+    "Wie lange die Automatik nach einer Handbedienung am Rollladen aussetzt. 0 bedeutet: Beim nächsten Prüflauf wird sofort wieder automatisch gefahren.",
+    "How long the automation pauses after someone moves a blind manually. 0 means it resumes automatically on the next check.",
+    "Combien de temps l’automatisme s’arrête après une commande manuelle. 0 signifie qu’il reprend automatiquement au prochain contrôle.",
+  ],
+  "Ventilsteuerung": [
+    "Fährt die Ventilöffnung direkt über ein `number`-Stellglied (z. B. SONOFF TRVZB), statt nur den Sollwert am Thermostat zu setzen. „Automatisch“ nutzt das Stellglied, wenn es gefunden wurde; „Immer“ erzwingt es; „Aus“ bleibt beim Sollwert.",
+    "Drives the valve opening directly via a `number` actuator (e.g. SONOFF TRVZB) instead of only setting the thermostat setpoint. “Automatic” uses the actuator when found; “Always” forces it; “Off” keeps the setpoint.",
+    "Commande l’ouverture de la vanne directement via un actionneur `number` (p. ex. SONOFF TRVZB) au lieu de régler seulement la consigne du thermostat. « Automatique » utilise l’actionneur s’il est trouvé ; « Toujours » le force ; « Arrêt » conserve la consigne.",
+  ],
+  "Fußbodenheizung": [
+    "Eigene Regelcharakteristik für träge Flächen: breiteres Band, begrenzter Vorlauf und ein einstellbarer Takt statt enger Thermostatsprünge.",
+    "Own control characteristic for slow surfaces: wider band, limited flow temperature and an adjustable cycle instead of tight thermostat steps.",
+    "Caractéristique de régulation propre pour les surfaces lentes : plage plus large, départ limité et cycle réglable au lieu de pas de thermostat serrés.",
+  ],
+  "Max. Vorlauf": [
+    "Harte Obergrenze für den Sollwert der Fußbodenheizung. Sie schützt Boden und Heizkreis, ist aber kein Ersatz für die hydraulische Begrenzung der Anlage.",
+    "Hard upper limit for the underfloor heating setpoint. It protects the floor and heating circuit but does not replace the system’s hydraulic limit.",
+    "Limite haute stricte pour la consigne du plancher chauffant. Elle protège le sol et le circuit, mais ne remplace pas la limitation hydraulique de l’installation.",
+  ],
+  "Min. Raumtemperatur": [
+    "Unter dieser Temperatur heizt die Fußbodenheizung nicht. Zusammen mit der Absenkung verhindert das ein Auskühlen des Estrichs.",
+    "The underfloor heating does not heat below this temperature. Together with the setback it prevents the screed from cooling down.",
+    "Le plancher chauffant ne chauffe pas sous cette température. Avec l’abaissement, cela évite que la chape ne refroidisse.",
+  ],
+  "Regelband": [
+    "Innerhalb dieses Bandes bleibt der Sollwert stehen. Das bremst Überschwingen bei der träge reagierenden Fläche.",
+    "Within this band the setpoint stays put. This damps overshoot on the slow-reacting surface.",
+    "Dans cette plage, la consigne reste stable. Cela amortit les dépassements sur la surface à réaction lente.",
+  ],
+  "Mindest-Taktzeit": [
+    "So oft darf der Sollwert höchstens nachgezogen werden. Größere Werte schonen Stellglieder und reduzieren Funkverkehr.",
+    "The setpoint is adjusted at most this often. Larger values protect actuators and reduce radio traffic.",
+    "La consigne est ajustée au plus souvent à cette fréquence. Des valeurs plus élevées ménagent les actionneurs et réduisent le trafic radio.",
+  ],
+  "Vorlauf vor Zeitfenster": [
+    "Wie viele Minuten vor einem Zeitplanfenster die Fußbodenheizung früher startet. Der träge Boden braucht länger als ein Heizkörper.",
+    "How many minutes before a schedule window the underfloor heating starts earlier. The slow floor needs longer than a radiator.",
+    "Combien de minutes avant une plage horaire le plancher chauffant démarre plus tôt. Le sol lent demande plus de temps qu’un radiateur.",
+  ],
+  "Durchfluss-Grenze": [
+    "Vorlauf minus Rücklauf unter diesem Wert deutet auf zu wenig Durchfluss hin. Dann Pumpe, Ventile und hydraulischen Abgleich prüfen.",
+    "Flow minus return below this value suggests too little flow. Then check the pump, valves and hydraulic balancing.",
+    "Départ moins retour sous cette valeur indique un débit trop faible. Vérifier alors la pompe, les vannes et l’équilibrage hydraulique.",
   ],
 };

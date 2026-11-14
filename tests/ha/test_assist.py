@@ -28,7 +28,12 @@ async def test_werkzeuge_sind_angemeldet(hass: HomeAssistant, setup, trv: FakeTr
 
     inst = await apis["raumklima"].async_get_api_instance(None)
     namen = {tool.name for tool in inst.tools}
-    assert namen == {"raumklima_rooms", "raumklima_room_status", "raumklima_set_room_temperature"}
+    assert namen == {
+        "raumklima_rooms",
+        "raumklima_room_status",
+        "raumklima_set_room_temperature",
+        "raumklima_boost_room",
+    }
 
     # Die Parameter müssen ein echtes Schema der laufenden HA-Version sein
     # (2026.10 nutzt probatio, davor voluptuous) – sonst kann der KI-Agent sie nicht aufrufen.
@@ -36,6 +41,7 @@ async def test_werkzeuge_sind_angemeldet(hass: HomeAssistant, setup, trv: FakeTr
     assert by_name["raumklima_room_status"].parameters({"room": "Bad"})
     assert by_name["raumklima_set_room_temperature"].parameters({"room": "Bad", "temperature": "22"})["temperature"] == 22.0
     assert by_name["raumklima_rooms"].parameters({}) == {}
+    assert by_name["raumklima_boost_room"].parameters({"room": "Bad", "minutes": "30"})["minutes"] == 30
 
 
 async def test_raumstatus_liefert_werte(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
@@ -85,3 +91,19 @@ async def test_raumliste(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     res = await _call(assist.RoomListTool(), hass)
     assert res["success"] is True
     assert [r["room"] for r in res["rooms"]] == [_ctrl(hass, room).name]
+
+
+async def test_boost_setzen_und_beenden(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """„Bad 30 Minuten wärmer“ setzt den Boost, „0“ beendet ihn."""
+    _hub, room = setup
+    ctrl = _ctrl(hass, room)
+    tool = assist.BoostRoomTool()
+    res = await _call(tool, hass, room=ctrl.name, minutes=30)
+    assert res["success"] is True
+    assert ctrl.boost_until is not None
+    assert res["boost_minutes"] == 30
+
+    res = await _call(tool, hass, room=ctrl.name, minutes=0)
+    assert res["success"] is True
+    assert res["boost"] == "off"
+    assert ctrl.boost_until is None

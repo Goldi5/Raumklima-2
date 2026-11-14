@@ -110,7 +110,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
     const hoActive = !!(hoSt && (hoSt.state === "on" || hoSt.attributes.active_now));
     const pres = presSt ? PRESENCE[presSt.state] : null;
     const seas = seasSt ? SEASON[seasSt.state] : null;
-    const here = presSt ? Object.values(presSt.attributes.persons || {}).filter((p) => p.present).map((p) => p.name) : [];
+    const people = presSt ? Object.entries(presSt.attributes.persons || {}) : [];
     const cal = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.calendar) || null;
     const calCur = cal && (cal.events || [])[0];
     const calNext = cal && (cal.upcoming || [])[0];
@@ -227,7 +227,11 @@ export class RaumklimaOverviewCard extends HTMLElement {
         <span class="chip" style="--tone:${toneVar(windows ? "air" : "off")}"><ha-icon icon="mdi:window-open-variant"></ha-icon>${t("{n} offen", { n: windows })}</span>
         <span class="chip" style="--tone:${toneVar(warn ? "warn" : "ok")}"><ha-icon icon="${warn ? "mdi:alert-circle-outline" : "mdi:check-circle-outline"}"></ha-icon>${warn ? (warn > 1 ? t("{n} Hinweise", { n: warn }) : t("1 Hinweis")) : t("alles gut")}</span>
         <span class="chip" style="--tone:${toneVar(allSync ? "ok" : "warn")}"><ha-icon icon="mdi:sync"></ha-icon>${allSync ? t("synchron") : t("sendet …")}</span>
-        ${pres && presSt.attributes.configured ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar(pres.tone)};cursor:pointer"><ha-icon icon="${pres.icon}"></ha-icon>${presSt.state === "home" && here.length ? here.join(", ") : pres.label}${presSt.state === "preheat" && presSt.attributes.preheat_by ? ` · ${presSt.attributes.preheat_by}` : ""}</span>` : ""}
+        ${pres && presSt.attributes.configured ? people.map(([id, p]) => {
+          const place = p.place === "home" ? t("Zuhause") : p.place === "away" ? t("unterwegs") : p.place && p.place !== "unknown" ? p.place : t("unbekannt");
+          return `<span class="chip" data-more="${esc(id)}" style="--tone:${toneVar(p.present ? "ok" : pres.tone)};cursor:pointer"><ha-icon icon="${p.present ? "mdi:home-account" : "mdi:account-arrow-right"}"></ha-icon>${esc(p.name)} · ${esc(place)}</span>`;
+        }).join("") : ""}
+        ${pres && presSt.attributes.configured && presSt.state === "preheat" && presSt.attributes.preheat_by ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-clock"></ha-icon>${t("Vorheizen")} · ${esc(presSt.attributes.preheat_by)}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
         ${hoActive ? `<span class="chip" data-more="${hubIds.home_office}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-city"></ha-icon>${t("Homeoffice")}</span>` : ""}
       </div>

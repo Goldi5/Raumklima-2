@@ -449,6 +449,18 @@ Jahr ist egal.
 
 <!-- include: ../docs/de/sprachsteuerung.md -->
 
+## Neu in 1.1
+
+- **Dashboard:** „Räume“ ist die erste Ansicht; Energie und Lernen liegen im eigenen Reiter „Energie & Lernen“.
+- **Verschattung:** Rollläden und Jalousien fahren bei Sonne und nachts – automatisch, nur als Empfehlung oder aus.
+- **Fußbodenheizung:** eigene, träge Regelcharakteristik mit Vor-/Rücklauf und Durchfluss-Warnung.
+- **Lernmodell 2.0:** lernt Aufheizrate, Wärmeverlust und Sonneneinfluss; stoppt früher vor dem Ziel.
+- **Direkte Ventilsteuerung:** für Thermostate mit `number`-Stellglied, z. B. SONOFF TRVZB.
+- **Klimaanlagen:** kühlen und heizen mit getrennten Zielen und Takt-Schutz; günstigere Quelle nach COP/Gaspreis.
+- **Wärmeanforderung:** Sensor `sensor.raumklima_allgemein_warmeanforderung` bündelt alle Räume.
+- **Dynamische Tarife/PV:** Preisgrenze, günstig vorheizen, PV-Überschuss.
+- **Handverstellung:** Knopf „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ auf der Raumkarte.
+
 # Häufige Fragen
 
 <!-- include: ../docs/de/faq.md -->

@@ -18,3 +18,11 @@ combine-as-imports = true
 testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+source = ["custom_components/raumklima"]
+omit = ["custom_components/raumklima/www/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

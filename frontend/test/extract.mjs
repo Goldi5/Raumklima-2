@@ -14,7 +14,8 @@ const keys = new Set();
 const SKIP = new Set(["air", "cold", "eco", "heat", "off", "ok", "warn", "g", "live", "push", "tts"]);
 const add = (s) => { if (/[A-Za-zÄÖÜäöüß]/.test(s) && !/^(mdi:|var\(|#|color-mix)/.test(s) && !SKIP.has(s)) keys.add(JSON.parse(`"${s}"`)); };
 for (const f of files) {
-  const code = readFileSync(f, "utf8");
+  // Herkunfts-Badges nennen nur den Einstellungs-Schlüssel, keinen UI-Text.
+  const code = readFileSync(f, "utf8").replace(/this\._srcBadge\([^,]+,\s*"[^"]*"/g, 'this._srcBadge(X, "")');
   // t("…")
   for (const m of code.matchAll(new RegExp(String.raw`(?<![\w$.])t\(\s*` + STR, "g"))) add(m[1]);
   // Hilfsfunktionen, die selbst übersetzen: erster Text

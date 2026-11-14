@@ -11,7 +11,10 @@ from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_AC_HEAT,
+    CONF_SOLAR_FACADE,
     CONF_TRV_INTERVAL,
+    CONF_VALVE_CONTROL,
     STATUS_HEATING,
     STATUS_TRV,
 )
@@ -72,6 +75,51 @@ class HealthMixin:
         """Ventilstellung passend zum Thermostat finden (Suchschritte: valve_finder.STEPS)."""
         extras = [getattr(extra, "entity_id", "") for extra in getattr(self, "extra_trvs", [])]
         return ValveFinder(self.hass, self.trv, extras).find()
+
+    def _find_valve_actuator(self) -> str | None:
+        """Stellglied für die direkte Ventilöffnung finden (`number`, z. B. SONOFF TRVZB)."""
+        extras = [getattr(extra, "entity_id", "") for extra in getattr(self, "extra_trvs", [])]
+        return ValveFinder(self.hass, self.trv, extras).find_actuator()
+
+    @property
+    def ac_heat_active(self) -> bool:
+        """Klimaanlage jetzt als Wärmequelle nutzen – nur wenn sie wärmer machen kann und günstiger ist."""
+        if self.monitor or not self.config.get(CONF_AC_HEAT):
+            return False
+        hub = self.hub
+        if hub is None or not hub.ac_heat_cheaper():
+            return False
+        return any(
+            ac.available() and "heat" in ((ac.state.attributes or {}).get("hvac_modes") or [])
+            for ac in self.ac_sources
+        )
+
+    @property
+    def valve_control_mode(self) -> str:
+        mode = str(self.config.get(CONF_VALVE_CONTROL) or "off")
+        return mode if mode in ("off", "auto", "on") else "off"
+
+    @property
+    def valve_direct(self) -> bool:
+        """Läuft die direkte Ventilsteuerung gerade?"""
+        return self.valve_control_mode in ("auto", "on") and bool(getattr(self, "valve_actuator", None))
+
+    def valve_opening(self) -> float | None:
+        """Soll-Öffnung für die direkte Ventilsteuerung (0 %, wenn nicht geheizt wird)."""
+        on, target, _reason = self.peek_plan()
+        if not on or not self.hvac_on or self.paused:
+            return 0.0
+        return shadow_opening(target, self.current_temperature, heating=True)
+
+    def valve_summary(self) -> dict[str, Any]:
+        """Zustand der Ventilsteuerung für Karte und Diagnose."""
+        return {
+            "mode": self.valve_control_mode,
+            "actuator": getattr(self, "valve_actuator", None),
+            "direct": self.valve_direct,
+            "position": self.valve_position,
+            "opening": self.valve_opening() if self.valve_direct else None,
+        }
 
     @property
     def battery_low(self) -> dict[str, Any] | None:
@@ -256,10 +304,20 @@ class HealthMixin:
 
     def stats_sample(self) -> RoomSample:
         on, target, reason = self.plan()
+        outdoor = self.hub.outdoor_temp() if self.hub else None
+        rate = self.heatup.rate(outdoor)
+        cool_rate = self.heatup.cool_rate(outdoor)
+        predicted = self.current_temperature
+        if predicted is not None:
+            if on and rate:
+                predicted = predicted + rate / 60.0
+            elif not on and cool_rate:
+                predicted = predicted - cool_rate / 60.0
         return RoomSample(
             heating=self.status == STATUS_HEATING,
             valve=self.valve_position,
             valve_calc=(self.valve_shadow().get("calc_pct")),
+            predicted_temp=None if predicted is None else round(predicted, 2),
             reason=reason,
             target=self.target_temp,
             effective=target,
@@ -292,7 +350,8 @@ class HealthMixin:
         on, target, _reason = self.plan()
         hub = self.hub
         regulating = on and self.hvac_on and not self.paused and self.trv_available() and self.sensor_ok
-        ep = self.heatup.update(now, self.current_temperature, target, regulating, hub.outdoor_temp() if hub else None)
+        sun = bool(hub.sun_expected(self.config.get(CONF_SOLAR_FACADE) or None)) if hub else False
+        ep = self.heatup.update(now, self.current_temperature, target, regulating, hub.outdoor_temp() if hub else None, sun)
         if ep is not None:
             self.log(
                 CAT_TARGET,

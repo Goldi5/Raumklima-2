@@ -55,31 +55,38 @@ export const LearnMethods = {
     const rooms = this._rooms || [];
     const opts = (r) => r.attrs.settings || {};
     const any = (fn) => rooms.some(fn);
+    const first = (fn) => rooms.find(fn);
+    const tabTarget = (tab, fn = () => true) => {
+      const r = first(fn);
+      return r ? `roomtab:${r.id}:${tab}` : "section:rooms";
+    };
     const people = (this._hubOpt("residents") || []).length;
     const rec = Object.keys(this._hubOpt("recipients") || {}).length;
     const items = [
-      [t("Bewohner hinterlegt"), people > 0, t("Einstellungen → Anwesenheit & Absenkung")],
-      [t("Empfänger für Meldungen"), rec > 0, t("Einstellungen → Wer bekommt was")],
-      [t("Wetterquelle gewählt"), !!this._hubOpt("weather_entity"), t("Einstellungen → Benachrichtigungen allgemein")],
-      [t("Raum mit Thermostat"), any((r) => opts(r).trv), t("Raum → Geräte")],
-      [t("Fensterkontakt eingetragen"), any((r) => (opts(r).windows || []).length), t("Raum → Fenster & Lüften")],
-      [t("Zeitplan angelegt"), any((r) => (opts(r).schedules || []).length), t("Raum → Zeitplan")],
+      [t("Bewohner hinterlegt"), people > 0, t("Einstellungen → Anwesenheit & Absenkung"), "group:presence:presence"],
+      [t("Empfänger für Meldungen"), rec > 0, t("Einstellungen → Wer bekommt was"), "group:notify:notify"],
+      [t("Wetterquelle gewählt"), !!this._hubOpt("weather_entity"), t("Einstellungen → Wohnung"), "group:home:home"],
+      [t("Raum mit Thermostat"), any((r) => opts(r).trv), t("Raum → Geräte"), tabTarget("devices", (r) => opts(r).trv)],
+      [t("Fensterkontakt eingetragen"), any((r) => (opts(r).windows || []).length), t("Raum → Fenster & Lüften"), tabTarget("windows", (r) => (opts(r).windows || []).length)],
+      [t("Zeitplan angelegt"), any((r) => (opts(r).schedules || []).length), t("Raum → Zeitplan"), tabTarget("schedule", (r) => (opts(r).schedules || []).length)],
     ];
     const optional = [
-      [t("Präsenzmelder eingetragen"), any((r) => (opts(r).presence_sensors || []).length), t("Raum → Anwesenheit im Raum")],
-      [t("Sturmschwelle geprüft"), this._hubOpt("storm_warning") != null, t("Einstellungen → Sturm- und Regenwarnung")],
+      [t("Präsenzmelder eingetragen"), any((r) => (opts(r).presence_sensors || []).length), t("Raum → Anwesenheit im Raum"), tabTarget("presence", (r) => (opts(r).presence_sensors || []).length)],
+      [t("Sturmschwelle geprüft"), this._hubOpt("storm_warning") != null, t("Einstellungen → Sturm- und Regenwarnung"), "group:notify:notify"],
     ];
     const done = items.filter((i) => i[1]).length;
     const chip = (on, optionalItem) =>
       `<span class="chip2 ${on ? "" : "off"}" style="--c:var(--rk-${on ? "ok" : optionalItem ? "air" : "warn"})"><i></i>${on ? t("erledigt") : optionalItem ? t("optional") : t("offen")}</span>`;
+    const open = (target) => `<button class="mini" data-goto="${target}" title="${t("dorthin springen")}">${t("öffnen")}</button>`;
+    const next = items.find((i) => !i[1]) || optional.find((i) => !i[1]);
     const rows = [
       this._row(
         t("{a} von {b} erledigt", { a: done, b: items.length }),
-        `<span class="chip2" style="--c:var(--rk-${done === items.length ? "ok" : "warn"})"><i></i>${done === items.length ? t("bereit") : t("noch offen")}</span>`,
+        `<span class="chip2" style="--c:var(--rk-${done === items.length ? "ok" : "warn"})"><i></i>${done === items.length ? t("bereit") : t("noch offen")}</span>${next ? open(next[3]) : ""}`,
         t("die wichtigsten Schritte, damit Raumklima sinnvoll regeln kann")
       ),
-      ...items.map(([label, on, where]) => this._row(label, chip(on, false), where)),
-      ...optional.map(([label, on, where]) => this._row(label, chip(on, true), `${where} · ${t("bringt mehr Genauigkeit, ist aber nicht nötig")}`)),
+      ...items.map(([label, on, where, target]) => this._row(label, `${chip(on, false)}${on ? "" : open(target)}`, where)),
+      ...optional.map(([label, on, where, target]) => this._row(label, `${chip(on, true)}${on ? "" : open(target)}`, `${where} · ${t("bringt mehr Genauigkeit, ist aber nicht nötig")}`)),
     ];
     return rows.join("");
   },
@@ -131,7 +138,10 @@ export const LearnMethods = {
       return `<div class="whyrule ${r.state}"><span class="chip2" style="--c:var(--rk-${tone})"><i></i>${label}</span> <b>${esc(r.label)}</b>${val}</div>`;
     }).join("");
     return `<div class="status"><span class="chip" style="--tone:var(${res.heating ? "--rk-heat" : "--rk-off"})"><ha-icon icon="${res.heating ? "mdi:fire" : "mdi:fire-off"}"></ha-icon>${esc(res.verdict)}</span>
-      <button class="btn" data-whyrefresh="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:refresh"></ha-icon>${t("Neu prüfen")}</button></div>
+      <button class="btn" data-whyrefresh="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:refresh"></ha-icon>${t("Neu prüfen")}</button>
+      <button class="btn" data-goto="roomtab:${id}:control" style="--c:var(--rk-heat)"><ha-icon icon="mdi:thermometer"></ha-icon>${t("Regelung")}</button>
+      <button class="btn" data-goto="roomtab:${id}:schedule" style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-clock"></ha-icon>${t("Zeitplan")}</button>
+      <button class="btn" data-goto="roomtab:${id}:windows" style="--c:var(--rk-air)"><ha-icon icon="mdi:window-open-variant"></ha-icon>${t("Fenster & Lüften")}</button></div>
       ${res.mold_raised ? `<div class="hint warn">${t("Der Schimmelschutz hebt das Ziel gerade an (Feuchte).")}</div>` : ""}
       <div class="sub">${t("Voraussetzungen")}</div>${checks}
       ${res.valve != null ? this._row(t("Ventil"), this._v(`${fmt(res.valve, 0)} %`)) : ""}

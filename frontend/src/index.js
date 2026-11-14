@@ -11,6 +11,9 @@ import { RaumklimaHistoryCard } from "./cards/history.js";
 import { RaumklimaSettingsCard } from "./cards/settings.js";
 import { RaumklimaReportCard } from "./cards/report.js";
 import { RaumklimaLogCard } from "./cards/log.js";
+import { RaumklimaEnergyCard } from "./cards/energy.js";
+import { RaumklimaLearningCard } from "./cards/learning.js";
+import { RaumklimaDemoCard } from "./cards/demo.js";
 import { RaumklimaDashboardStrategy } from "./cards/strategy.js";
 
 if (!customElements.get("raumklima-card")) customElements.define("raumklima-card", RaumklimaCard);
@@ -29,12 +32,18 @@ if (!window.customCards.find((c) => c.type === "raumklima-card")) {
     { type: "raumklima-history-card", name: t("Raumklima – Verlauf"), description: t("Temperatur, Luftfeuchte oder Zeitleiste aller Räume"), preview: false },
     { type: "raumklima-log-card", name: t("Raumklima – Protokoll"), description: t("Was wann warum entschieden wurde – live, mit Filtern"), preview: false },
     { type: "raumklima-report-card", name: t("Raumklima – Heizbericht"), description: t("Woche und Monat: Heizstunden, Ersparnis, wetterbereinigter Vergleich, Gesundheit"), preview: false },
+    { type: "raumklima-energy-card", name: t("Raumklima – Energie"), description: t("Zähler, Tarif und Kosten im Zeitraum"), preview: false },
+    { type: "raumklima-learning-card", name: t("Raumklima – Lernen"), description: t("Was Raumklima aus deinen Daten gelernt hat"), preview: false },
+    { type: "raumklima-demo-card", name: t("Raumklima – Demo"), description: t("Simulierte Räume ohne Hardware"), preview: true },
   );
 }
 if (!customElements.get("raumklima-settings-card")) customElements.define("raumklima-settings-card", RaumklimaSettingsCard);
 if (!customElements.get("raumklima-history-card")) customElements.define("raumklima-history-card", RaumklimaHistoryCard);
 if (!customElements.get("raumklima-log-card")) customElements.define("raumklima-log-card", RaumklimaLogCard);
 if (!customElements.get("raumklima-report-card")) customElements.define("raumklima-report-card", RaumklimaReportCard);
+if (!customElements.get("raumklima-energy-card")) customElements.define("raumklima-energy-card", RaumklimaEnergyCard);
+if (!customElements.get("raumklima-learning-card")) customElements.define("raumklima-learning-card", RaumklimaLearningCard);
+if (!customElements.get("raumklima-demo-card")) customElements.define("raumklima-demo-card", RaumklimaDemoCard);
 if (!customElements.get("ll-strategy-dashboard-raumklima")) customElements.define("ll-strategy-dashboard-raumklima", RaumklimaDashboardStrategy);
 window.customStrategies = window.customStrategies || [];
 if (!window.customStrategies.find((x) => x.type === "raumklima")) {

@@ -94,6 +94,43 @@ async def test_report(hass: HomeAssistant, setup, hass_ws_client) -> None:
     assert "issues" in msg["result"]
 
 
+async def test_energy_defaults(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/energy", "days": 7})
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    result = msg["result"]
+    assert result["days"] == 7
+    assert result["energy"]["enabled"] is False
+    assert result["money"] is None
+
+
+async def test_energy_meter_config(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    hub, _room = setup
+    hass.states.async_set(
+        "sensor.strom",
+        "120",
+        {"unit_of_measurement": "kWh", "device_class": "energy", "state_class": "total_increasing"},
+    )
+    hass.config_entries.async_update_entry(
+        hub,
+        options={
+            **hub.options,
+            "energy_enabled": True,
+            "energy_meter": "sensor.strom",
+            "energy_source": "electric",
+            "annual_cost": 1300,
+        },
+    )
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/energy"})
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    energy = msg["result"]["energy"]
+    assert energy["source"] == "electric" and energy["meter"] == "sensor.strom"
+    assert energy["meter_unit"] == "kWh"
+
+
 async def test_no_hub_error(hass: HomeAssistant, hass_ws_client) -> None:
     from custom_components.raumklima.websocket_api import async_register_websocket
 

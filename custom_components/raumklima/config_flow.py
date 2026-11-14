@@ -55,6 +55,8 @@ from .const import (
     CONF_ENTRY_TYPE,
     CONF_EXTRA_TRVS,
     CONF_FOLLOW_TRV,
+    CONF_FLOOR_RETURN,
+    CONF_FLOOR_SUPPLY,
     CONF_FROST_FLOOR,
     CONF_HEATING_LIMIT,
     CONF_HOME,
@@ -79,6 +81,7 @@ from .const import (
     CONF_SENSOR_STALE_MINUTES,
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
+    CONF_SHADING_COVERS,
     CONF_SYNC_MAX_RETRIES,
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
@@ -245,6 +248,15 @@ def _monitor_schema() -> vol.Schema:
             vol.Optional(CONF_WINDOWS): EntitySelector(
                 EntitySelectorConfig(domain=["binary_sensor", "cover"], multiple=True)
             ),
+            vol.Optional(CONF_SHADING_COVERS): EntitySelector(
+                EntitySelectorConfig(domain="cover", multiple=True)
+            ),
+            vol.Optional(CONF_FLOOR_SUPPLY): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="temperature")
+            ),
+            vol.Optional(CONF_FLOOR_RETURN): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="temperature")
+            ),
         }
     )
 
@@ -281,6 +293,15 @@ def _devices_schema(
             vol.Optional(
                 CONF_WINDOWS, description=_suggest(defaults.get(CONF_WINDOWS))
             ): EntitySelector(EntitySelectorConfig(domain=["binary_sensor", "cover"], multiple=True)),
+            vol.Optional(
+                CONF_SHADING_COVERS, description=_suggest(defaults.get(CONF_SHADING_COVERS))
+            ): EntitySelector(EntitySelectorConfig(domain="cover", multiple=True)),
+            vol.Optional(
+                CONF_FLOOR_SUPPLY, description=_suggest(defaults.get(CONF_FLOOR_SUPPLY))
+            ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="temperature")),
+            vol.Optional(
+                CONF_FLOOR_RETURN, description=_suggest(defaults.get(CONF_FLOOR_RETURN))
+            ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="temperature")),
             vol.Optional(
                 CONF_EXTRA_TRVS, description=_suggest(defaults.get(CONF_EXTRA_TRVS))
             ): EntitySelector(EntitySelectorConfig(domain="climate", multiple=True)),

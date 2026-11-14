@@ -1,9 +1,75 @@
 # Einstellungen 2.0 – Umsetzungsplan
 
-**Stand:** 2026-11-13  
-**Basis:** 0.62.x (aktuell 0.62.47)  
-**Zielversion:** 1.0.0  
-**Entwicklungslinie:** `1.0.0b1` auf dem Branch `next`
+**Stand:** 2026-11-14
+**Basis:** 0.62.x (Release 0.62.48b1 auf `main`)
+**Zielversion:** 1.1.0
+**Entwicklungslinie:** `1.1.0b1` auf dem Branch `next` – Dashboard 2.0 (1.1),
+Verschattung (1.2), Fußbodenheizung (1.3), Lernmodell 2.0 (1.4), die
+stufenlose Ventilsteuerung (1.5), Klimaanlagen (1.6), Wärmeanforderung (1.7), dynamische Tarife/PV (1.8)
+und Auswertung mit Vorhersage (1.9) sind umgesetzt.
+
+**Feature-Freeze 1.0.0:** Der Funktionsumfang von `1.0.0` ist eingefroren. Es kommen
+nur noch Fixes, Tests und Dokumentation dazu. Dashboard 2.0, Verschattung,
+Auch die Fußbodenheizung und das erweiterte Lernmodell sind umgesetzt.
+
+**1.1 Dashboard 2.0 (umgesetzt):** Die bestehende Strategie
+`ll-strategy-dashboard-raumklima` beginnt mit der ursprünglichen Ansicht „Räume“.
+Energie und Lernen liegen in einem eigenen Reiter „Energie & Lernen“; die frühere
+Ansicht „Heute“ ist entfallen. Die Energiekarte zeigt Zähler, Tarif, Preise,
+PV-Eigenverbrauch und eine Euro-Schätzung für 7/30/90 Tage. Die Lernkarte zeigt
+Aufheizrate, +2-K-Prognose, Nutzung, Lüftmuster, Präsenzprofil und Schlafzeiten.
+
+**1.2 Verschattung (umgesetzt):** Je Raum lassen sich Rollläden oder Jalousien
+auswählen (Integration → Geräte & Technik). Die Raumseite „Fenster & Lüften“
+steuert den Modus (Aus, Nur empfehlen, Automatisch), die Schließposition, die
+Innen- und Außentemperaturgrenze, das nächtliche Schließen und die Pause nach
+Handbedienung. Automatisch nutzt die vorhandene Fassadenprognose
+(`solar_facade` + `sun_expected`) und `sun.sun`. Der Status steht in
+`settings_summary().shading`.
+
+**1.3 Fußbodenheizung (umgesetzt):** Je Raum lässt sich die Fußbodenheizung
+einschalten. Sie nutzt ein breiteres Regelband, eine begrenzte Vorlauf-
+temperatur, eine Mindest-Taktzeit und einen Vorlauf vor Zeitfenstern. Optional
+lassen sich Vor- und Rücklauffühler auswählen (Integration → Geräte & Technik);
+die Raumseite „Regelung“ zeigt Spreizung und Durchfluss-Warnung. Der Zustand
+steht in `settings_summary().floor`.
+
+**1.4 Lernmodell 2.0 (umgesetzt):** Das Wärmemodell lernt je Raum die
+Aufheizrate, die Abkühlrate und den solaren Zugewinn aus Aufheiz- und
+Abkühl-Episoden. Die Lernkarte zeigt die Werte; die Regelung stoppt bei
+Sonneneinfluss etwas früher vor dem Ziel, um Überschwingen zu reduzieren. Der
+Zustand steht in `settings_summary().thermal`.
+
+**1.5 Stufenlose Ventilsteuerung (umgesetzt):** Für Thermostate mit
+einstellbarer Ventilöffnung (z. B. SONOFF TRVZB) kann Raumklima das
+`number`-Stellglied direkt fahren. Der Modus „Automatisch“ nutzt es, sobald es
+gefunden wurde; „Immer“ erzwingt die direkte Fahrt; „Aus“ bleibt beim Sollwert
+am Thermostat. Der Zustand steht in `settings_summary().valve`.
+
+**1.6 Klimaanlagen (umgesetzt):** Kühlen und Heizen haben getrennte Ziele. Die
+Klimaanlage bekommt eine Mindestlaufzeit und Mindestpause, damit sie nicht
+ständig taktet. Beide Werte stehen je Raum unter „Kühlen“. Die Klimaanlage kann
+auch heizen; Raumklima vergleicht dafür COP und Gaspreis und übernimmt nur, wenn
+sie günstiger ist.
+
+**1.7 Wärmeanforderung (umgesetzt):** Die Zentrale summiert die Heizlücke aller
+fordernden Räume und schlägt einen Vorlauf vor. Der Sensor
+`sensor.raumklima_allgemein_warmeanforderung` zeigt „Wärme“/„Bereit“; die Attribute
+nennen Summe, Vorlauf und die fordernden Räume.
+
+**1.8 Dynamische Tarife und PV-Überschuss (umgesetzt):** Der Tarif-Sensor kann
+als dynamisch markiert werden; die Energiekarte zeigt den aktuellen Preis und den
+PV-Überschuss. Ist Strom günstig, startet die Heizung bis zu 60 min vor einem
+Zeitfenster. Die Kostenschätzung nutzt weiterhin den aktuellen Preis.
+
+**1.9 Auswertung mit Vorhersage (umgesetzt):** Der Verlauf summiert die vom
+Wärmemodell erwartete Temperatur und die Abweichung zum Ist-Wert. CSV und
+Bericht enthalten `vorhersage_mittel_C` und `vorhersage_fehler_K`.
+
+**1.10 Demo-Modus (umgesetzt):** In der Dashboard-Konfiguration `demo: true`
+setzen; die Strategie zeigt dann eine Demo-Ansicht mit drei simulierten Räumen.
+Die Demo-Karte erlaubt Temperatur ändern und Fenster umschalten – ohne Hardware
+und ohne persönliche Daten.
 
 Dieses Dokument beschreibt den Umbau der Einstellungen und die getrennte
 1.0-Entwicklungslinie. Es ist ein Plan, keine Zusage: Phasen und Aufwände
@@ -179,6 +245,19 @@ springt richtig.
 **Abnahme:** Alle Raum-Einstellungen erreichbar; keine Duplikate;
 ungespeicherte Werte überleben den Tab-Wechsel.
 
+**Umgesetzt (Stand Phase 3):**
+
+- Unterseiten-Leiste im Raum mit `data-roomtab`; Auswahl in `_roomTab`,
+  Raumwechsel beginnt auf **Übersicht**.
+- Die gewachsenen Gruppen bleiben im DOM und tragen `data-room`; `_filter()`
+  blendet nur die aktive Unterseite ein. Das hält Suche, gespeicherte
+  Aufklapp-Zustände und bestehende Tests stabil. `room/overview.js` liefert
+  die neue Zusammenfassung (Status, Ist/Soll, Zeitfenster, Quellen, Fenster,
+  Overrides, Schnellzugriff).
+- Raumliste zeigt Statuszeile, Warnungen und die Anzahl vom Standard
+  abweichender Einstellungen.
+- Ungespeicherte Werte (`_local`) bleiben beim Unterseitenwechsel erhalten.
+
 ### Phase 4 – Vererbung & Overrides (ca. 3–5 Tage)
 
 - Backend: effektive Werte und Quelle je Einstellung bereitstellen;
@@ -190,6 +269,22 @@ ungespeicherte Werte überleben den Tab-Wechsel.
 **Abnahme:** Kein Wert ändert sich unbemerkt; Reset funktioniert;
 Testmatrix für `false`, `0`, Arrays und Objekte bestanden.
 
+**Umgesetzt (Stand Phase 4):**
+
+- `settings_summary()` liefert zusätzlich `sources` je Einstellung: `default`
+  (noch kein Raum-Override), `room` (Wert steht im Raum-Eintrag) oder
+  `device` (am Thermostat/Fühler, nicht konfigurierbar). `home` ist für
+  spätere Wohnungs-Defaults reserviert, solange es dort keine Werte gibt.
+- Die Karte zeigt an den wichtigsten Zeilen ein Herkunfts-Badge
+  („Standard“, „Raum“, „Gerät“); das hilft, doppelte Pflege zu erkennen.
+- „Für alle Räume übernehmen“ kopiert nur eine sichere Auswahlliste
+  (Temperaturen, Fensterzeiten, Vorheizen, Schimmel, Präsenz, Technik) und
+  fragt vorher nach. Entitäten, Raumzuordnung und Zeitpläne bleiben außen vor.
+- „Auf Standard zurücksetzen“ deckt jetzt alle Raum-Einstellungen ab, auch die
+  außerhalb von `DEFAULTS` (z. B. `mold_cap`, `wall`, `co2_limit`, `notify_cap`,
+  `trv_interval`). Struktur wie Name, Thermostat, Sensoren und Fensterkontakte
+  bleibt unberührt; jede Übernahme landet im Einstellungs-Log (`apply_live_options`).
+
 ### Phase 5 – Suche, Deep-Links, Onboarding (ca. 3–4 Tage)
 
 - Globale Suche über Bereiche und Räume; Treffer springen in den Kontext.
@@ -199,6 +294,20 @@ Testmatrix für `false`, `0`, Arrays und Objekte bestanden.
 
 **Abnahme:** Jede Meldung führt zum passenden Ort; Suche findet auch
 versteckte Werte.
+
+**Umgesetzt (Stand Phase 5):**
+
+- Die Suche ist global: Sie durchsucht alle Bereichsgruppen und den aktuellen
+  Raum, auch Werte in zugeklappten „Weitere Einstellungen“. Raum-Begriffe wie
+  „Wunschtemperatur“ oder „Zeitplan“ finden alle Räume und springen direkt in
+  die passende Unterseite. Treffer bleiben beim Tippen im Eingabefeld, weil nur
+  der Inhaltsbereich neu gezeichnet wird.
+- Deep-Links: Checklistenpunkte, „Warum?“ und Raum-Meldungen springen in den
+  passenden Bereich bzw. die passende Raum-Unterseite (`data-goto`,
+  `data-goto-room`). Meldungen sind per Tastatur (Enter/Space) erreichbar.
+- Die Checkliste „Erste Schritte“ ist Startseite der neuen Navigation und
+  verlinkt jeden offenen Punkt direkt an die richtige Stelle.
+- Fokus-Ringe für Buttons, Eingaben und Meldungen; `aria-label` an der Suche.
 
 ### Phase 6 – Neue Funktionen andocken (je Feature)
 
@@ -212,19 +321,59 @@ Reihenfolge nach Nutzen:
 6. Energie, Tarife, PV
 7. Präsenz 2.0 (#29)
 8. MCP/Assist
-9. Dashboard 2.0, Verschattung, Fußbodenheizung
+9. Dashboard 2.0 (1.1), Verschattung (1.2), Fußbodenheizung (1.3) und Lernmodell 2.0 (1.4) – eigene Phasen auf `next`.
 
 Jedes Feature bekommt: eigenen Beta-Eintrag, Platz im neuen Gerüst, Tests
 und Dokumentation.
 
+**Umgesetzt (Stand 6.1–6.8):** „Raum kopieren“ und benannte Raum-Vorlagen sind
+ebenso fertig wie Schnell-Override, Selbsttest, Wärmebilanz, Kühlen, Energie,
+Präsenz 2.0 und Assist/Boost. Die Funktionen sitzen im neuen Gerüst und sind
+durch Backend- und Frontend-Tests abgedeckt.
+
+**Schnell-Override (6.2):** In der Raum-Übersicht gibt es 2/4/8 Stunden, Party
+und Pause. Die Knöpfe nutzen den bestehenden Boost (`raumklima/boost`); „Pause“
+beendet ihn. Eine laufende Zeitbegrenzung wird angezeigt.
+
+**Selbsttest & Support-Paket (6.3):** Der Selbsttest prüft Wohnung, Räume,
+Thermostate, Temperaturfühler, erreichbare Entitäten und Zeitfenster – rein lesend.
+Ergebnis erscheint als Dialog. Das Support-Paket bleibt der bestehende Diagnose-
+Export (`raumklima/diagnostics`) mit allen Werten, Entitäten und Log-Zeilen.
+
+**Wärmebilanz (6.4):** Die Raum-Übersicht zeigt Ist/Soll, Ventilstellung,
+Aufheizrate, prognostizierte Aufheizzeit für +2 K und Außentemperatur. Das ist eine
+read-only Einordnung, keine neue Regel und keine Heizlastberechnung.
+
+**Assist/Boost (6.8):** Das Sprachwerkzeug `raumklima_boost_room` setzt einen Boost
+für 5–480 Minuten; `0` beendet ihn. Überwachungsräume werden abgelehnt.
+
+**Kühlen/Klima 2.0 (6.5):** Ist eine AC-Quelle in den Heizquellen konfiguriert, kann
+der Raum optional kühlen: oberhalb der Kühlgrenze schaltet Raumklima die
+Heizthermostate aus und die Klimaanlage in den Kühlmodus. Die Funktion ist pro Raum
+abschaltbar; ohne AC-Quelle passiert nichts.
+
+**Energie, Tarife, PV (6.6):** Zähler, Tarif, PV-Ertrag, Grundpreis und Arbeitspreis
+lassen sich wählen. Die Energiequelle bestimmt die Umrechnung: Gas in m³ wird über
+Brennwert/Zustandszahl zu kWh, Wärmepumpen nutzen den Stromzähler und optional einen
+Wärmezähler samt JAZ, Fernwärme zählt kWh. Tarif-Sensoren werden aus ct/kWh, €/kWh
+oder €/m³ normalisiert. PV-Eigenverbrauch ist optional und greift nur bei einem
+Gesamtverbrauchszähler. Die Euro-Schätzung im PDF-Bericht nutzt den Zähler; eine
+gesetzte Jahresabrechnung hat Vorrang und bleibt der einfache Weg für Mietwohnungen.
+Eine eigene Energieseite mit Diagrammen kommt später.
+
+**Präsenz 2.0 (6.7):** Die Raum-Übersicht zeigt jetzt den Präsenzstatus
+(belegt / leer / leer – abgesenkt / unbekannt) mit Herkunft aus Meldern und Lampen.
+Die Kopfzeile zeigt zusätzlich jede Person einzeln mit ihrem Ort: Zuhause, Zonenname
+oder „unterwegs“. Die vorhandene Anwesenheits-Temperatur und das leere-Raum-Absenken
+bleiben unverändert; die Übersicht macht den Zustand nur sichtbar.
+
 ### Phase 7 – Test, Doku, Release (ca. 2–3 Tage)
 
 - Testmatrix aus Abschnitt 8.
-- Frontend-Tests für Navigation/Rendering; Backend-Tests für Vererbung;
-  Ruff; Build.
+- Frontend-Tests für Navigation/Rendering; Backend-Tests für Vererbung; Build.
+  Ruff ist in der Test-CT derzeit nicht installiert und läuft daher nicht.
 - Handbuch und Screenshots (DE/EN/FR), CHANGELOG, ROADMAP.
-- Release: `1.0.0b1` Gerüst, `b2` Bereiche, `b3` Raum-Unterseiten,
-  `b4` Vererbung, dann RC und `1.0.0`.
+- Release: `1.0.0b1` bündelt Gerüst und Phase 6; danach RC und `1.0.0`.
 
 ## 7. Grober Aufwand
 
@@ -269,6 +418,26 @@ Neue Funktionen aus Phase 6 kommen separat dazu.
 
 ## 10. Nächster Schritt
 
-Phase 0 starten: Inventar und Mapping-Tabelle, ohne die UI zu ändern. Danach
-Branch `next` anlegen, das Navigationsgerüst hinter dem Flag bauen und mit
-den ersten Testern prüfen.
+Phase 7 abschließen: Testmatrix auf HA 2026.11.1 fahren, Handbuch und CHANGELOG
+fertigstellen, dann Release Candidate und `1.0.0`. Die Beta `1.0.0b1` enthält
+bereits das Gerüst und alle Phase-6-Funktionen.
+
+Danach, außerhalb des 1.0.0-Freeze:
+
+1. ~~Dashboard 2.0 (1.1)~~ – umgesetzt: „Räume“, Energie- und Lernkarte,
+   `raumklima/energy`, Lernwerte in `settings_summary()`.
+2. ~~Verschattung (1.2)~~ – umgesetzt: Auswahl je Raum, Empfehlung/Automatik,
+   Fassadenprognose, Nacht und Handbedienung.
+3. ~~Fußbodenheizung (1.3)~~ – umgesetzt: Regelband, Vorlauf/Rücklauf, Takt und
+   Vorlauf vor Zeitfenstern.
+4. ~~Lernmodell 2.0 (1.4)~~ – umgesetzt: Aufheizrate, Abkühlrate, solarer Zugewinn und
+   früherer Abstopp vor dem Ziel.
+5. ~~Stufenlose Ventilsteuerung (1.5)~~ – umgesetzt: `number`-Stellglied, automatische
+   Erkennung, berechnete Öffnung.
+6. ~~Klimaanlagen (1.6)~~ – umgesetzt: getrennte Ziele, Mindestlaufzeit/-pause gegen Takten.
+7. ~~Wärmeanforderung an den Erzeuger (1.7)~~ – umgesetzt: Summe, Vorlauf-Empfehlung,
+   Sensor `warmeanforderung`.
+8. ~~Dynamische Tarife und PV-Überschuss (1.8)~~ – umgesetzt: Preisgrenze,
+   günstig vorheizen, PV-Überschuss.
+9. ~~Auswertung mit Vorhersage (1.9)~~ – umgesetzt: erwartete Temperatur und
+   Abweichung im Verlauf/CSV.

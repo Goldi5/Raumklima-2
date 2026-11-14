@@ -20,11 +20,21 @@ from .const import (
     CONF_CALIBRATION_MODE,
     CONF_COMFORT_TEMP,
     CONF_FOLLOW_TRV,
+    CONF_FLOOR_RETURN,
+    CONF_FLOOR_SUPPLY,
+    CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_LIGHTS,
     CONF_LOOK_DARK,
+    CONF_AC_MIN_OFF,
+    CONF_AC_MIN_ON,
+    CONF_AC_HEAT,
+    CONF_COOL_SETPOINT,
+    CONF_COOLING,
     CONF_MOLD_MODE,
+    CONF_NAME,
     CONF_NOTIFY,
+    CONF_PM25_SENSOR,
     CONF_OFF_METHOD,
     CONF_ON_PRESET,
     CONF_PRESENCE,
@@ -43,12 +53,22 @@ from .const import (
     CONF_SCHEDULE_FROM,
     CONF_SCHEDULES,
     CONF_SENSOR_STALE_MINUTES,
+    CONF_CO2_SENSOR,
+    CONF_SHADING_COVERS,
+    CONF_SHADING_MANUAL_MINUTES,
+    CONF_SHADING_MIN_TEMP,
+    CONF_SHADING_MODE,
+    CONF_SHADING_NIGHT,
+    CONF_SHADING_OUTDOOR_MIN,
+    CONF_SHADING_POSITION,
     CONF_SOLAR,
     CONF_SOLAR_FACADE,
     CONF_SYNC_MAX_RETRIES,
     CONF_SYNC_VERIFY_DELAY,
     CONF_TEMP_SENSOR,
+    CONF_TRV,
     CONF_WEATHER,
+    CONF_WINDOWS,
     CONF_WINDOW_CLOSE_DELAY,
     CONF_WINDOW_OPEN_DELAY,
     DEFAULTS,
@@ -60,14 +80,73 @@ from .decision_log import (
 from .hub import _change_text
 from .msg import tr
 from .room_const import (
+    IMPLICIT_DEFAULTS,
     LIVE_OPTIONS,
 )
 
 _LOGGER = logging.getLogger(f"{__package__}.controller")  # gleicher Logger-Name wie bisher
 
+# Werte, die nicht in der Raum-Konfiguration stehen, sondern am Gerät/Fühler hängen.
+DEVICE_SOURCE_KEYS = {
+    CONF_TRV,
+    "valve_reported",
+    "valve_own",
+    "extra_trvs",
+    "ac_sources",
+    "battery_forecast",
+    "rf_per_day",
+    "heatup",
+    CONF_TEMP_SENSOR,
+    CONF_HUMIDITY_SENSOR,
+    CONF_CO2_SENSOR,
+    CONF_PM25_SENSOR,
+    CONF_WINDOWS,
+    CONF_SHADING_COVERS,
+    CONF_FLOOR_SUPPLY,
+    CONF_FLOOR_RETURN,
+    "presence_sensors",
+    "virtual_active",
+}
+
+_MISSING = object()
+
+# Struktur und Gerätezugehörigkeit sind keine Einstellungen mit Herkunft.
+STRUCTURE_KEYS = {
+    CONF_NAME,
+    CONF_HOME,
+    CONF_ROOM_TYPE,
+    CONF_CALIBRATION_MODE,
+    CONF_CALIBRATION_ENTITY,
+} | DEVICE_SOURCE_KEYS
+
 
 class SettingsMixin:
     """Einstellungen des Raums: Übersicht für die Karte und sofort übernehmbare Änderungen."""
+
+    def thermal_summary(self) -> dict[str, Any]:
+        """Gelerntes Wärmemodell für die Lernkarte und die Diagnose."""
+        return self.heatup.summary(self.hub.outdoor_temp() if self.hub else None)
+
+    @staticmethod
+    def _setting_sources(own: dict[str, Any]) -> dict[str, str]:
+        """Herkunft eines effektiven Werts: Standard, Wohnung, Raum oder Gerät.
+
+        Phase 4 schickt die Herkunft mit, damit die Karte nicht raten muss. Es gibt
+        noch keine Wohnung-Defaults für Raumwerte; ``home`` bleibt für spätere
+        Ausbaustufen reserviert und wird erst gesetzt, wenn ein solcher Wert existiert.
+        """
+        sources: dict[str, str] = {}
+        for key in set(DEFAULTS) | set(own):
+            if key in DEVICE_SOURCE_KEYS:
+                sources[key] = "device"
+                continue
+            value = own.get(key, _MISSING)
+            if value is _MISSING or value in (None, "", [], {}):
+                sources[key] = "default"
+                continue
+            default = DEFAULTS.get(key, IMPLICIT_DEFAULTS.get(key, _MISSING))
+            sources[key] = "room" if default is _MISSING or value != default else "default"
+        return sources
 
     @callback
     def settings_summary(self) -> dict[str, Any]:
@@ -78,17 +157,28 @@ class SettingsMixin:
         entry = self.hass.config_entries.async_get_entry(self.entry.entry_id) or self.entry
         own = {**(entry.data or {}), **(entry.options or {})}
         # Struktur (Raumtyp, erkannte Abgleichart) ist keine Einstellung – nicht mitzählen.
-        skip = {CONF_ROOM_TYPE, CONF_CALIBRATION_MODE}
-        changed = sorted(k for k, v in DEFAULTS.items() if k in own and own.get(k) != v and k not in skip)
-        for key in (CONF_SCHEDULES, CONF_PRESENCE, CONF_LIGHTS, CONF_SOLAR_FACADE):
-            if own.get(key):
-                changed.append(key)
+        changed = sorted(
+            k
+            for k, v in own.items()
+            if k not in STRUCTURE_KEYS
+            and v not in (None, "", [], {})
+            and (DEFAULTS.get(k, IMPLICIT_DEFAULTS.get(k, _MISSING)) is _MISSING
+                 or v != DEFAULTS.get(k, IMPLICIT_DEFAULTS.get(k)))
+        )
         return {
             "entry_id": self.entry.entry_id,
             "mold_mode": self.config.get(CONF_MOLD_MODE),
+            "cooling": bool(self.config.get(CONF_COOLING)),
+            "cool_setpoint": self.config.get(CONF_COOL_SETPOINT),
+            "ac_heat": bool(self.config.get(CONF_AC_HEAT)),
+            "ac_heat_active": self.ac_heat_active,
+            "ac_heat_cheaper": hub.ac_heat_cheaper() if hub is not None else False,
+            "ac_min_on": self.config.get(CONF_AC_MIN_ON),
+            "ac_min_off": self.config.get(CONF_AC_MIN_OFF),
             "airing_min_minutes": self.config.get(CONF_AIRING_MIN_MINUTES),
             "schedule_fallback": self.config.get(CONF_SCHEDULE_FALLBACK),
             "changed": changed,
+            "sources": self._setting_sources(own),
             "trv": self.trv,
             "valve_reported": self.valve_position is not None,
             "valve_own": self.valve_own,
@@ -109,6 +199,8 @@ class SettingsMixin:
             "virtual_window": self.virtual_mode,
             "solar_gain": bool(self.config.get(CONF_SOLAR)),
             "solar_facade": self.config.get(CONF_SOLAR_FACADE) or "",
+            "shading": self.shading_summary(),
+            "floor": self.floor_summary(),
             "schedules": self.schedules,
             "schedule_from": self.config.get(CONF_SCHEDULE_FROM) or "",
             "boost_temperature": cfg.get(CONF_BOOST_TEMP),
@@ -136,6 +228,15 @@ class SettingsMixin:
                 "rate": self.heatup.rate(self.hub.outdoor_temp() if self.hub else None),
                 "minutes_2k": self.heatup.minutes_needed(2.0, self.hub.outdoor_temp() if self.hub else None),
             },
+            "thermal": self.thermal_summary(),
+            "usage": self.usage_summary,
+            "airing": self.airing.summary(),
+            "airing_top": self.airing.typical(),
+            "current_temperature": self.current_temperature,
+            "target_temperature": self.effective_target,
+            "outdoor_temperature": hub.outdoor_temp() if hub is not None else None,
+            "valve_position": self.valve_position,
+            "valve": self.valve_summary(),
             "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
             "co2_sensor": self.co2_sensor,
             "pm25_sensor": self.pm25_sensor,
@@ -194,6 +295,11 @@ class SettingsMixin:
             self.update_presence()
         if self.virtual_open_at is not None and not self.virtual_enabled():
             self._close_virtual("off")
+        if changed.keys() & {
+            CONF_SHADING_MODE, CONF_SHADING_POSITION, CONF_SHADING_MIN_TEMP,
+            CONF_SHADING_OUTDOOR_MIN, CONF_SHADING_NIGHT, CONF_SHADING_MANUAL_MINUTES,
+        }:
+            self.hass.async_create_task(self.async_evaluate_shading())
         new_hub = self.hub
         if new_hub is not old_hub:
             for hub in (old_hub, new_hub):

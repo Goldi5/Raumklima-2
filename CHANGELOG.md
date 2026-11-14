@@ -1,3 +1,50 @@
+## 1.1.0b1 – 2026-11-14
+
+### Neu
+- **Dashboard 2.0:** Das Dashboard beginnt mit der ursprünglichen Ansicht „Räume“. Energie und Lernen liegen in einem eigenen Reiter „Energie & Lernen“; die frühere Ansicht „Heute“ ist entfallen. Die Energiekarte zeigt Zähler, Tarif, Arbeits- und Grundpreis, PV-Eigenverbrauch sowie eine Euro-Schätzung für 7, 30 oder 90 Tage. Die Lernkarte zeigt je Raum Aufheizrate, prognostizierte +2 K, Nutzung, Lüftmuster und Schlafzeiten; dazu Präsenzprofil und Vorschlag.
+- **Energie-WebSocket:** `raumklima/energy` liefert Zeitraum, Zähler, Quelle, Tarif und Kosten. `settings_summary()` liefert zusätzlich `usage`, `airing` und `airing_top` für die Lernkarte.
+- **Verschattung:** Rollläden und Jalousien lassen sich je Raum auswählen und auf „Aus“, „Nur empfehlen“ oder „Automatisch“ stellen. Automatisch schließt bei erwarteter Sonne auf der eingestellten Fassade, sobald Raum- oder Außentemperatur den Grenzwert erreicht; nachts schließt oder öffnet sie je Einstellung. Handbedienung pausiert die Automatik für die eingestellte Zeit. Der Zustand steht in `settings_summary()` unter `shading`.
+- **Fußbodenheizung:** Eigene Regelcharakteristik je Raum – breiteres Band, begrenzter Vorlauf, einstellbarer Takt und Vorlauf vor Zeitfenstern. Optionale Vor-/Rücklauffühler zeigen die Spreizung und warnen bei zu kleinem Durchfluss. Der Zustand steht in `settings_summary()` unter `floor`.
+- **Lernmodell 2.0:** Je Raum werden jetzt auch Abkühlraten und der solare Zugewinn gelernt. Aus Aufheiz- und Abkühl-Episoden entsteht ein Wärmemodell; die Lernkarte zeigt Aufheizrate, Wärmeverlust und Sonne. Das Modell stoppt die Heizung etwas früher vor dem Ziel, um Überschwingen zu reduzieren. Der Zustand steht in `settings_summary()` unter `thermal`.
+- **Stufenlose Ventilsteuerung:** Für Thermostate mit einstellbarer Ventilöffnung (z. B. SONOFF TRVZB) kann Raumklima das `number`-Stellglied direkt fahren: berechnete Öffnung statt nur Sollwert. Automatisch nutzt das Stellglied, wenn es gefunden wird; „Immer“ erzwingt es, „Aus“ bleibt beim Sollwert. Der Zustand steht in `settings_summary()` unter `valve`.
+- **Klimaanlagen:** Kühlgrenze und Sollwert bleiben getrennt; die Klimaanlage bekommt eine Mindestlaufzeit und Mindestpause gegen häufiges Takten. Beide Werte sind je Raum einstellbar und stehen in `settings_summary()` unter `ac_min_on`/`ac_min_off`.
+- **Wärmeanforderung an den Erzeuger:** Die Zentrale summiert die Heizlücke aller fordernden Räume und schlägt einen Vorlauf vor. Der neue Sensor `sensor.raumklima_allgemein_warmeanforderung` zeigt „Wärme“/„Bereit“; Attribute nennen Vorlauf, Summe und Räume.
+- **Dynamische Tarife und PV-Überschuss:** Der Tarif-Sensor kann als dynamisch markiert werden; die Energiekarte zeigt den aktuellen Preis und den PV-Überschuss. Ist Strom günstig, kann die Heizung bis zu 60 min vor einem Zeitfenster vorheizen. Die Kostenschätzung nutzt weiterhin den aktuellen Preis.
+- **Auswertung mit Vorhersage:** Der Verlauf summiert jetzt auch die vom Wärmemodell erwartete Temperatur und die Abweichung zum Ist-Wert. In CSV stehen `vorhersage_mittel_C` und `vorhersage_fehler_K`; so fallen offene Fenster oder zu schwache Heizkörper als unerwartet große Abweichung auf.
+- **Handverstellung beenden:** Nach einer manuellen Temperaturänderung erscheint auf der großen Raumkarte ein Knopf. Mit Zeitplan heißt er „Zeitplan fortsetzen“, ohne Zeitplan „Wunschtemperatur fortsetzen“. Ein Klick beendet die Handverstellung sofort – auch dann, wenn gar kein Zeitplan angelegt ist.
+- **Günstigere Wärmequelle:** Ist eine Klimaanlage als Wärmequenzrichter konfiguriert, vergleicht Raumklima COP und Gaspreis. Nur wenn die Klimaanlage günstiger ist, übernimmt sie das Heizen; sonst bleibt der Heizkörper die Quelle. Die Werte stehen in `settings_summary()` unter `ac_heat_active`/`ac_heat_cheaper`.
+- **SMTP über Home Assistant:** Der PDF-Bericht kann jetzt über eine Home-Assistant-SMTP-Entität (`smtp.send_message`) mit Anhang versendet werden. Die Mail-Zugangsdaten müssen dann nicht mehr in Raumklima liegen; der eigene Mail-Client bleibt als Fallback.
+- **Testabdeckung:** Der Validierungs-Workflow misst jetzt die Python-Abdeckung und zeigt fehlende Zeilen im Lauf an.
+- **Demo-Modus:** Die Dashboard-Strategie kann mit `demo: true` eine Demo-Ansicht mit drei simulierten Räumen aufbauen – ohne Hardware und ohne persönliche Daten. Die Demo-Karte erlaubt Temperatur ändern und Fenster umschalten; die Ansicht ist für Screenshots und zum Ausprobieren gedacht.
+
+### Tests
+- Backend 629/629 auf HA 2026.2.3; HA 2026.10.4: 628/629 (bekannter `test_health_meldet_automatik_modus`). Frontend 100/100, Build und Check grün.
+
+## 1.0.0b1 – 2026-11-14
+
+Gerüst-Release der Einstellungen 2.0: Bereiche, Raum-Unterseiten, Vererbung, Suche, Deep-Links, Raum-Vorlagen, Schnell-Override, Selbsttest, Wärmebilanz, Kühlen, Energie/Tarife/PV, Präsenzstatus und Assist/Boost.
+
+### Neu
+- **Raum-Unterseiten:** Die Raumseite ist in Übersicht, Regelung, Zeitplan, Fenster & Lüften, Präsenz, Heizquellen, Schimmel, Geräte & Sensoren, Meldungen sowie Lernen & Verlauf gegliedert. Die Leiste bleibt auf Mobil horizontal scrollbar.
+- **Raum-Übersicht:** Status, Ist/Soll, Zeitfenster, Heizquellen, offene Fenster, Abweichungen und Schnellzugriffe auf einer Seite.
+- **Raumliste:** Status, Warnungen und die Anzahl vom Standard abweichender Einstellungen sind direkt sichtbar.
+- Ungespeicherte Werte überleben den Wechsel zwischen Unterseiten.
+- **Herkunft je Einstellung:** Die Karte zeigt „Standard“, „Raum“ oder „Gerät“; das Backend liefert dafür `sources` in `settings_summary()`.
+- **Für alle Räume übernehmen:** Sichere Werte (Temperaturen, Fensterzeiten, Vorheizen, Schimmel, Präsenz, Technik) lassen sich nach Rückfrage auf die anderen Räume derselben Wohnung kopieren; Entitäten und Zeitpläne bleiben unberührt.
+- **Reset vollständig:** „Auf Standard zurücksetzen“ setzt jetzt auch Werte außerhalb von `DEFAULTS` zurück (`mold_cap`, `wall`, `co2_limit`, `notify_cap`, `trv_interval`); Struktur und Geräte bleiben erhalten.
+- **Globale Suche:** Einstellungen aus allen Bereichen und dem aktuellen Raum werden durchsucht, auch in zugeklappten Abschnitten; Raum-Begriffe finden alle Räume und springen in die passende Unterseite. Treffer bleiben beim Tippen im Feld.
+- **Deep-Links:** Checkliste, „Warum?“ und Raum-Meldungen springen direkt in den passenden Bereich oder die Raum-Unterseite; Meldungen sind per Tastatur erreichbar.
+- **Fokus & ARIA:** sichtbare Fokus-Ringe und ein `aria-label` für die Suche.
+- **Raum kopieren:** Ein Raum kann als Vorlage auf einen anderen Raum derselben Wohnung kopiert werden – nur sichere Werte, ohne Entitäten, Zeitpläne oder Raumzuordnung.
+- **Raum-Vorlagen:** Benannte Vorlagen aus sicheren Raumwerten speichern, auf andere Räume anwenden und löschen (pro Wohnung gespeichert).
+- **Schnell-Override:** 2/4/8 Stunden, Party und Pause in der Raum-Übersicht; „Pause“ beendet den Boost, die Restzeit wird angezeigt.
+- **Selbsttest:** prüft Wohnung, Räume, Thermostate, Temperaturfühler, erreichbare Entitäten und Zeitfenster – rein lesend, Ergebnis als Dialog. Das Support-Paket bleibt der Diagnose-Export.
+- **Wärmebilanz:** Die Raum-Übersicht zeigt Ist/Soll, Ventilstellung, Aufheizrate, prognostizierte Aufheizzeit für +2 K und Außentemperatur – read-only, keine neue Regel.
+- **Assist/Boost:** Das Sprachwerkzeug `raumklima_boost_room` setzt einen Boost für 5–480 Minuten; `0` beendet ihn.
+- **Kühlen/Klima 2.0:** Optionaler Kühlmodus pro Raum: oberhalb der Kühlgrenze schaltet Raumklima die Heizthermostate aus und die AC-Quelle in den Kühlmodus; ohne AC-Quelle inaktiv.
+- **Energie, Tarife, PV:** Zähler, Tarif, PV-Ertrag, Grundpreis und Arbeitspreis im Bereich „Heizung & Energie“ auswählbar. Neu: Gas (m³ → kWh), Wärmepumpe (Stromzähler, optionaler Wärmezähler/JAZ), Fernwärme, Tarif-Sensoren in ct/kWh, €/kWh oder €/m³ sowie optionaler PV-Eigenverbrauch. Die Euro-Schätzung im PDF-Bericht nutzt jetzt den Zähler; die Jahresabrechnung hat Vorrang und bleibt der einfache Weg für Mietwohnungen.
+- **Präsenz 2.0:** Die Raum-Übersicht zeigt den Präsenzstatus (belegt/leer/abgesenkt/unbekannt) aus Meldern und Lampen. Die Kopfzeile zeigt außerdem jede Person einzeln mit ihrem aktuellen Ort (Zuhause, Zone oder „unterwegs“).
+
 ## 0.62.47 – 2026-11-13
 
 Stabile Version (Ausnahme: direkt nach der Beta 0.62.47b1, ohne Release Candidate).

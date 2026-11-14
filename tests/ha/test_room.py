@@ -923,6 +923,57 @@ async def test_settings_dump_has_schedules(hass: HomeAssistant, setup, trv: Fake
     assert settings["boost_minutes"] == 45
 
 
+async def test_kuehlen_statt_heizen(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Zu warmer Raum mit AC-Quelle: Regel „Kühlen“, kein Heizen."""
+    from custom_components.raumklima.const import CONF_COOL_SETPOINT, CONF_COOLING
+    from custom_components.raumklima.room_const import REASON_COOL
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.config[CONF_COOLING] = True
+    ctrl.config[CONF_COOL_SETPOINT] = 26.0
+    ctrl._ext_value = 28.0
+    class _Ac:
+        state = type("State", (), {"attributes": {"hvac_modes": ["cool"]}})()
+        def available(self):
+            return True
+    ctrl.ac_sources = [_Ac()]
+
+    on, target, reason = ctrl.plan()
+    assert on is False
+    assert target == 26.0
+    assert reason == REASON_COOL
+
+
+async def test_settings_dump_hat_lernwerte(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Die Lernkarte liest Aufheizrate, Nutzung und Lüftmuster aus den Raumattributen."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    values = ctrl.settings_summary()
+    for key in ("heatup", "usage", "airing", "airing_top"):
+        assert key in values
+    assert "episodes" in values["heatup"]
+    assert isinstance(values["usage"], dict)
+    assert "episodes" in values["airing"]
+    assert "learned" in values["airing_top"]
+
+
+async def test_settings_dump_hat_waermebilanz(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Die Übersicht braucht Ist, Soll, Ventil und Außentemperatur für die Wärmebilanz."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    values = ctrl.settings_summary()
+    for key in ("current_temperature", "target_temperature", "outdoor_temperature", "valve_position"):
+        assert key in values
+    assert values["current_temperature"] is not None
+    assert values["target_temperature"] is not None
+
+
 async def test_window_open_since_survives_restart(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Der Öffnungszeitpunkt wandert in den Speicher und wird genau einmal übernommen (Issue #9)."""
     from custom_components.raumklima.shared import domain_data
@@ -1344,6 +1395,74 @@ async def test_geaenderte_einstellungen_werden_gemeldet(hass: HomeAssistant, set
     hass.config_entries.async_update_entry(room, options={**room.options, "window_open_delay": 30})
     await hass.async_block_till_done()
     assert "window_open_delay" in ctrl.settings_summary()["changed"]
+
+
+async def test_einstellungsquellen_werden_gemeldet(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Die Karte sieht, ob ein Wert Standard, Raum oder Gerät ist."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    before = ctrl.settings_summary()["sources"]
+    assert before["window_open_delay"] == "default"
+    assert before["trv"] == "device"
+
+    hass.config_entries.async_update_entry(room, options={**room.options, "window_open_delay": 30})
+    await hass.async_block_till_done()
+    assert ctrl.settings_summary()["sources"]["window_open_delay"] == "room"
+
+
+async def test_einstellungen_ausserhalb_defaults_zaehlen_als_override(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Auch Werte ohne DEFAULTS-Eintrag (z. B. mold_cap) müssen als Abweichung zählen."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert "mold_cap" not in ctrl.settings_summary()["changed"]
+
+    hass.config_entries.async_update_entry(room, options={**room.options, "mold_cap": 3.0})
+    await hass.async_block_till_done()
+    assert "mold_cap" in ctrl.settings_summary()["changed"]
+
+
+def test_raum_reset_setzt_auch_ausserhalb_defaults_zurueck() -> None:
+    """Der Reset darf mold_cap/wall nicht als Override stehen lassen."""
+    from custom_components.raumklima.const import CONF_MOLD_CAP, CONF_TRV, CONF_WALL, CONF_WINDOWS, CONF_WINDOW_OPEN_DELAY
+    from custom_components.raumklima.room_const import reset_room_options
+
+    out = reset_room_options({
+        CONF_MOLD_CAP: 3.0,
+        CONF_WALL: "massive",
+        CONF_TRV: "climate.test",
+        CONF_WINDOWS: ["binary_sensor.fenster"],
+        CONF_WINDOW_OPEN_DELAY: 30,
+    })
+    assert out[CONF_MOLD_CAP] == 2.5
+    assert out[CONF_WALL] == "auto"
+    assert out[CONF_TRV] == "climate.test"
+    assert out[CONF_WINDOWS] == ["binary_sensor.fenster"]
+    assert out[CONF_WINDOW_OPEN_DELAY] == 10
+
+
+def test_raum_reset_deckt_false_null_und_listen_ab() -> None:
+    """Die Reset-Matrix muss false, 0, leere Listen und Standard-Listen kennen."""
+    from custom_components.raumklima.const import (
+        CONF_LIGHT_SIGNALS, CONF_MOLD_CAP, CONF_SCHEDULES, CONF_SOLAR, CONF_TRV_INTERVAL,
+    )
+    from custom_components.raumklima.room_const import reset_room_options
+
+    out = reset_room_options({
+        CONF_SOLAR: True,
+        CONF_MOLD_CAP: 3.0,
+        CONF_TRV_INTERVAL: 30,
+        CONF_SCHEDULES: [{"start": "06:00", "end": "07:00", "temperature": 21}],
+        CONF_LIGHT_SIGNALS: ["problem"],
+    })
+    assert out[CONF_SOLAR] is False
+    assert out[CONF_MOLD_CAP] == 2.5
+    assert out[CONF_TRV_INTERVAL] == 0
+    assert out[CONF_SCHEDULES] == []
+    assert out[CONF_LIGHT_SIGNALS] == ["open", "close"]
 
 
 async def test_dachluke_zaehlt_als_fenster(hass: HomeAssistant, sensors) -> None:

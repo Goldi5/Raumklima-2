@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 0.62.22
+Stand: Version 1.1.0b1 (Branch `next`)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -49,7 +49,7 @@ Stand: Version 0.62.22
 - [x] **Schlafzeiten aus dem Präsenzmelder im Schlafzimmer** (0.54.0) – ist ein Raum vom Typ Schlafzimmer
       20 Minuten belegt (mit eigenem Melder), gilt die Bettzeit als erkannt – zusätzlich zu Licht und
       Nachtlüften.
-- [ ] **Direkte Ventilsteuerung** – für Thermostate, deren Ventilöffnung als Zahl einstellbar ist
+- [x] **Direkte Ventilsteuerung (1.5)** – für Thermostate, deren Ventilöffnung als Zahl einstellbar ist
       (z. B. SONOFF TRVZB): gleichmäßige Öffnung statt Auf/Zu – leiser, weniger Ventilbewegungen.
 - [x] **Sprachsteuerung über die Raum-Entität** (0.53.0) – die Raum-Entität (und alle Sensoren/Schalter des
       Raums) wird beim Start dem Home-Assistant-Bereich zugeordnet, damit Assist „Wohnzimmer auf 22 Grad“
@@ -58,42 +58,52 @@ Stand: Version 0.62.22
 
 ## 🧭 Einstellungen 2.0 (eigene 1.0-Linie)
 
-- [ ] **Einstellungen 2.0** – Bereiche, Raum-Unterseiten und Vererbung;
-      eigene `1.0.0b`-Linie auf `next`, getrennt von 0.62.x. Plan:
+**1.0.0 ist funktional eingefroren:** nur Fixes, Tests und Doku. Dashboard 2.0 ist
+in 1.1, die Verschattung in 1.2, die Fußbodenheizung in 1.3 und das Lernmodell 2.0 in 1.4 umgesetzt.
+
+- [x] **Einstellungen 2.0** – Bereiche, Raum-Unterseiten, Vererbung, Suche,
+      Vorlagen, Selbsttest, Energie und Präsenz 2.0; eigene `1.0.0b`-Linie auf
+      `next`, getrennt von 0.62.x. Plan:
       [docs/de/einstellungen-2.md](docs/de/einstellungen-2.md).
+- [x] **Dashboard 2.0 (1.1)** – „Heute“ als erste Ansicht mit Übersicht, Energie-
+      und Lernkarte; `raumklima/energy` und Lernwerte in `settings_summary()`.
+- [x] **Verschattung (1.2)** – Rollläden/Jalousien nach Sonne, Nacht und Handbedienung; Auswahl je Raum über die Integration, Modus Aus/Empfehlung/Automatik.
+- [x] **Fußbodenheizung (1.3)** – eigene Regelcharakteristik, Vorlauf/Rücklauf und
+      Trägheit statt Thermostat-Logik; Auswahl je Raum über die Integration.
 
 ## 🧠 Größere Vorhaben
 
-- [ ] **Lernendes Wärmemodell pro Raum** – lernt Wärmeverlust, Heizleistung und Sonneneinfluss jedes Raums
-      (Ausbau der schon gelernten Aufheizzeit) und plant voraus: früher aufhören, weniger Überschwingen.
+- [x] **Lernendes Wärmemodell pro Raum (1.4)** – lernt Wärmeverlust, Aufheizrate und Sonneneinfluss
+      (Ausbau der schon gelernten Aufheizzeit) und stoppt vor dem Ziel früher, um Überschwingen zu senken.
       Das rechtzeitige Vorheizen vor einem Zeitfenster ist bereits umgesetzt (0.20.0). Bis genug gelernt ist,
       regelt Raumklima wie bisher.
-- [ ] **Stufenlose Ventilsteuerung** – statt „heizen/nicht heizen“ einen berechneten Sollwert bzw. eine
+- [x] **Stufenlose Ventilsteuerung (1.5)** – statt „heizen/nicht heizen“ einen berechneten Sollwert bzw. eine
       Ventilöffnung nach Bedarf – gleichmäßigere Temperatur.
-- [ ] **Wärmepumpen und Klimaanlagen** – auch kühlen, getrennte Ziele für Heizen/Kühlen, Schutz gegen
-      häufiges Takten; in Räumen mit Heizkörper *und* Klimagerät die günstigere Wärmequelle wählen.
-- [ ] **Rollläden und Verschattung** – bei viel vorhergesagter Sonne beschatten, nachts schließen
+- [x] **Klimaanlagen (1.6)** – kühlen, getrennte Ziele für Heizen/Kühlen und Mindestlaufzeit/-pause
+      gegen häufiges Takten.
+- [x] **Günstigere Wärmequelle wählen (1.6.1)** – in Räumen mit Heizkörper *und* Klimagerät die günstigere
+      Wärmequelle automatisch auswählen (COP und Gaspreis).
+- [x] **Rollläden und Verschattung** (1.2) – bei vorhergesagter Sonne beschatten, nachts schließen
       (hält Wärme drin), manuelles Verstellen erkennen.
-- [ ] **Wärmeanforderung an den Erzeuger** – Summe über alle Räume, daraus eine gewünschte
+- [x] **Wärmeanforderung an den Erzeuger (1.7)** – Summe über alle Räume, daraus eine gewünschte
       Vorlauftemperatur bzw. ein Signal „es wird Wärme gebraucht“ (passt zum Hinweis „Heizkörper kommt
       kaum hinterher“). Zusammen mit Wärmepumpe/Klima planen, nicht vorher.
-- [ ] **Energie und Kosten aus Zählern** – Gas-/Wärmemengenzähler und Stromzähler aus Home Assistant statt
-      manuell eingetragener Jahreskosten; das PDF rechnet dann mit echten Verbräuchen.
-- [ ] **Dynamische Tarife und PV-Überschuss** – Vorheizen, wenn Strom günstig ist oder die Sonne liefert.
-- [ ] **Auswertung mit Vorhersage** – im Verlauf zusätzlich, was das Wärmemodell erwartet hatte
+- [x] **Energie und Kosten aus Zählern** (1.0.0b1) – Gas-/Wärmemengenzähler und Stromzähler aus Home Assistant;
+      das PDF rechnet mit echten Verbräuchen, die Jahresabrechnung bleibt als einfacher Weg für Mietwohnungen.
+- [x] **Dynamische Tarife und PV-Überschuss (1.8)** – Vorheizen, wenn Strom günstig ist oder die Sonne liefert.
+- [x] **Auswertung mit Vorhersage (1.9)** – im Verlauf zusätzlich, was das Wärmemodell erwartet hatte
       (hilft, Probleme wie offene Fenster oder zu schwache Heizkörper zu erkennen).
 
 ## 🛠️ Pflege
 
 - [x] **Einstellungen sichern und wiederherstellen** (0.56.0) – als JSON-Datei ohne Zugangsdaten, Räume werden über den Namen zugeordnet.
-- [ ] **Demo-Modus** – simulierte Räume zum Ausprobieren ohne Hardware, für Screenshots ohne persönliche Daten
-      und englische Bilder.
+- [x] **Demo-Modus (1.10)** – simulierte Räume zum Ausprobieren ohne Hardware, für Screenshots ohne persönliche Daten
+      und englische Bilder (`demo: true` in der Dashboard-Strategie).
 - [x] **Automatische Updates der Abhängigkeiten** (Dependabot) und wöchentlicher Test gegen die
       neueste Home-Assistant-Version.
-- [ ] **Testabdeckung messen** und in der CI anzeigen.
-- [ ] **E-Mail über Home-Assistants SMTP-Integration** statt eigenem Client – dann lägen die
-      Mail-Zugangsdaten gar nicht mehr bei Raumklima. Erst sinnvoll, wenn eine Mindestversion
-      festgelegt ist, ab der `smtp.send_message` Anhänge kann (2026.11).
+- [x] **Testabdeckung messen** und in der CI anzeigen (aktuell 83 %).
+- [x] **E-Mail über Home-Assistants SMTP-Integration (1.8.1)** – der PDF-Bericht kann über
+      `smtp.send_message` mit Anhang versendet werden; der eigene Mail-Client bleibt als Fallback.
 
 ## 🕓 Später
 

@@ -192,3 +192,15 @@ type: custom:raumklima-settings-card   # settings (best as a panel view)
 ## Voice control (Assist)
 
 Questions such as “How warm is it in the bathroom?” or “Do I need to air?” are answered by an AI agent in the assistant (ChatGPT, Google, Anthropic, Ollama) using Raumklima's values. How to create the pipeline and enable Raumklima there: **[Voice control](voice-control.md)**.
+
+## New in 1.1
+
+- **Dashboard:** “Rooms” first, “Energy & learning” as a separate tab.
+- **Shading:** blinds in sun/night – automatic, advice or off.
+- **Underfloor heating:** slow control with flow/return and flow warning.
+- **Learning model 2.0:** heat-up rate, heat loss, solar gain; earlier stop.
+- **Valve control:** direct `number` actuator, e.g. SONOFF TRVZB.
+- **Air conditioning:** separate targets, anti-cycling, cheaper source by COP/gas price.
+- **Heat demand:** sensor `sensor.raumklima_allgemein_warmeanforderung`.
+- **Dynamic tariffs/PV:** price limit, preheat when cheap, PV surplus.
+- **Manual override:** “Resume schedule”/“Resume desired temperature” on the room card.
