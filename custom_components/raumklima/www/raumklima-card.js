@@ -1,4 +1,4 @@
-/* Raumklima 1.1.0b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.1.0b2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -451,6 +451,14 @@
     "Ruhezeit": "Quiet hours",
     "Ruhezeit gerade aktiv": "Quiet hours active",
     "Ruhezeit wirksam": "Effective quiet hours",
+    "Raum hinzufügen": "Add room",
+    "Nur messen": "Monitor only",
+    "Name des neuen Raums": "New room name",
+    "Raum löschen": "Delete room",
+    "Raum wirklich löschen? Einstellungen, Zeitpläne und Verlauf dieses Raums werden entfernt.": "Delete this room? Its settings, schedules and history will be removed.",
+    "Raum gelöscht": "Room deleted",
+    "Name und Temperaturfühler wählen": "Choose a name and temperature sensor",
+    "Raum „{n}“ angelegt": "Room “{n}” created",
     "Räume": "Rooms",
     "Sa und So endet die Ruhezeit später – zum Ausschlafen": "On Sat and Sun quiet hours end later – to sleep in",
     "Schlaf-Signale": "Sleep signals",
@@ -916,6 +924,16 @@
     "Einstellungen aus dieser Datei einspielen? Die aktuellen Einstellungen werden überschrieben.": "apply the settings from this file? current settings will be overwritten.",
     "Eingespielt: {n} Räume": "restored: {n} rooms",
     "Eingespielt: {n} Räume · {m} nicht gefunden": "restored: {n} rooms · {m} not found",
+    "Abbrechen": "Cancel",
+    "Abschließen": "Finish",
+    "Bitte {f} ausfüllen": "Please fill in {f}",
+    "Einrichtung abgeschlossen": "Setup complete",
+    "Einrichtungsassistent": "Setup assistant",
+    "Führt Schritt für Schritt durch die Einrichtung": "Guides you through setup step by step",
+    "Keine weiteren Fragen – bereit zum Abschließen.": "No more questions – ready to finish.",
+    "Neuer Raum": "New room",
+    "Weiter": "Next",
+    "– keins –": "– none –",
     "Erste Schritte": "First steps",
     "Bewohner hinterlegt": "Residents set up",
     "Empfänger für Meldungen": "Notification recipients",
@@ -1730,6 +1748,14 @@
     "Ruhezeit": "Heures calmes",
     "Ruhezeit gerade aktiv": "Heures calmes actives",
     "Ruhezeit wirksam": "Heures calmes effectives",
+    "Raum hinzufügen": "Ajouter une pièce",
+    "Nur messen": "Surveillance seulement",
+    "Name des neuen Raums": "Nom de la nouvelle pièce",
+    "Raum löschen": "Supprimer la pièce",
+    "Raum wirklich löschen? Einstellungen, Zeitpläne und Verlauf dieses Raums werden entfernt.": "Supprimer cette pièce ? Ses réglages, programmes et historique seront supprimés.",
+    "Raum gelöscht": "Pièce supprimée",
+    "Name und Temperaturfühler wählen": "Choisir un nom et un capteur de température",
+    "Raum „{n}“ angelegt": "Pièce « {n} » créée",
     "Räume": "Pièces",
     "Sa und So endet die Ruhezeit später – zum Ausschlafen": "Le samedi et le dimanche, les heures calmes finissent plus tard – pour faire la grasse matinée",
     "Schlaf-Signale": "Signaux de sommeil",
@@ -2195,6 +2221,16 @@
     "Einstellungen aus dieser Datei einspielen? Die aktuellen Einstellungen werden überschrieben.": "appliquer les réglages de ce fichier ? les réglages actuels seront écrasés.",
     "Eingespielt: {n} Räume": "restauré : {n} pièces",
     "Eingespielt: {n} Räume · {m} nicht gefunden": "restauré : {n} pièces · {m} introuvables",
+    "Abbrechen": "Annuler",
+    "Abschließen": "Terminer",
+    "Bitte {f} ausfüllen": "Veuillez remplir {f}",
+    "Einrichtung abgeschlossen": "Configuration terminée",
+    "Einrichtungsassistent": "Assistant de configuration",
+    "Führt Schritt für Schritt durch die Einrichtung": "Guide pas à pas dans la configuration",
+    "Keine weiteren Fragen – bereit zum Abschließen.": "Plus de questions – prêt à terminer.",
+    "Neuer Raum": "Nouvelle pièce",
+    "Weiter": "Suivant",
+    "– keins –": "– aucun –",
     "Erste Schritte": "Premiers pas",
     "Bewohner hinterlegt": "Occupants définis",
     "Empfänger für Meldungen": "Destinataires des messages",
@@ -2599,7 +2635,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.1.0b1";
+  var RK_VERSION = "1.1.0b2";
 
   // src/styles.js
   var STYLES = `
@@ -8104,6 +8140,38 @@
           this._render();
         }
       });
+      on("click", "[data-addroom]", () => async () => {
+        const name = (this.shadowRoot.getElementById("newRoomName") || {}).value?.trim() || "";
+        const trv = (this.shadowRoot.getElementById("newRoomTrv") || {}).value || "";
+        const temp = (this.shadowRoot.getElementById("newRoomTemp") || {}).value || "";
+        if (!name || !temp) {
+          this._flash(t("Name und Temperaturfühler wählen"));
+          return;
+        }
+        try {
+          const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp });
+          this._tab = "general";
+          this._section = "rooms";
+          this._roomTab = "overview";
+          this._flash(t("Raum „{n}“ angelegt", { n: name }));
+          await this._load();
+          if (r && r.entry_id) this._gotoRoomByEntry(r.entry_id);
+        } catch (e) {
+          this._flash(t("Fehler: {e}", { e: e.message || e }));
+        }
+      });
+      on("click", "[data-deleteroom]", (el) => () => this._deleteRoom(el.dataset.deleteroom));
+      on("click", "[data-onboard]", () => () => this._onboardStart());
+      on("click", "[data-onbnext]", () => () => this._onboardNext(1));
+      on("click", "[data-onbback]", () => () => this._onboardNext(-1));
+      on("click", "[data-onbclose]", () => () => this._onboardClose());
+      on("click", "[data-onbfinish]", () => () => this._onboardFinish());
+      on("click", '[data-onbtype="toggle"]', (el) => () => {
+        el.classList.toggle("on");
+        el.dataset.val = el.classList.contains("on") ? "1" : "0";
+        this._onboardCollect();
+        this._render();
+      });
       on("click", "[data-newhome]", (el) => async () => {
         const inp = this.shadowRoot.getElementById("newHome");
         const name = inp && inp.value.trim();
@@ -8361,6 +8429,270 @@
         history.pushState(null, "", el.dataset.nav);
         window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
       });
+    }
+  };
+
+  // src/cards/settings/onboarding.js
+  var STEPS = [
+    {
+      id: "start",
+      title: "Willkommen",
+      fields: [],
+      intro: "Der Assistent fragt die wichtigsten Punkte ab. Du kannst jederzeit abbrechen und später in den Einstellungen weitermachen."
+    },
+    {
+      id: "home",
+      title: "Wohnung",
+      fields: [
+        { key: "home_name", label: "Name der Wohnung", type: "text", placeholder: "z. B. Remscheid", required: true },
+        { key: "zone", label: "Zone", type: "select", choices: "zones", allowEmpty: true },
+        { key: "weather_entity", label: "Wetterquelle", type: "select", choices: "weather", allowEmpty: true }
+      ]
+    },
+    {
+      id: "heat",
+      title: "Heizung",
+      fields: [
+        { key: "room_name", label: "Name des Raums", type: "text", placeholder: "z. B. Bad", required: true },
+        { key: "heat_type", label: "Art der Heizung", type: "select", options: [["trv", "Thermostat"], ["floor", "Fußbodenheizung"], ["monitor", "Nur messen"]], required: true },
+        { key: "room_type", label: "Raumtyp", type: "select", options: Object.entries(RK_ROOM_TYPES), required: true }
+      ]
+    },
+    {
+      id: "trv",
+      title: "Thermostat & Fühler",
+      show: (d) => d.heat_type !== "monitor",
+      fields: [
+        { key: "trv", label: "Thermostat", type: "select", choices: "climate", required: true },
+        { key: "temperature_sensor", label: "Temperaturfühler", type: "select", choices: "outdoor", required: true },
+        { key: "humidity_sensor", label: "Feuchtefühler (optional)", type: "select", choices: "humidity", allowEmpty: true },
+        { key: "window_sensors", label: "Fensterkontakte (optional)", type: "multi", choices: "windows" }
+      ]
+    },
+    {
+      id: "pv",
+      title: "Photovoltaik",
+      fields: [
+        { key: "pv_yes", label: "PV-Anlage vorhanden?", type: "toggle" },
+        { key: "pv_entity", label: "PV-Ertrag", type: "select", choices: "pv", show: (d) => d.pv_yes, allowEmpty: true },
+        { key: "pv_self_use", label: "Eigenverbrauch", type: "number", unit: " %", show: (d) => d.pv_yes, min: 0, max: 100, step: 5 }
+      ]
+    },
+    {
+      id: "energy",
+      title: "Energie & Tarif",
+      fields: [
+        { key: "energy_source", label: "Quelle", type: "select", options: [["auto", "Automatisch"], ["electric", "Strom"], ["gas", "Gas"], ["heatpump", "Wärmepumpe"], ["district", "Fernwärme"]] },
+        { key: "energy_meter", label: "Zähler", type: "select", choices: "energy", allowEmpty: true },
+        { key: "energy_tariff", label: "Tarif", type: "select", choices: "tariff", allowEmpty: true },
+        { key: "energy_price", label: "Arbeitspreis", type: "number", unit: " €/kWh", min: 0, max: 2, step: 0.01 },
+        { key: "energy_base", label: "Grundpreis", type: "number", unit: " €", min: 0, max: 1e3, step: 1 }
+      ]
+    },
+    {
+      id: "presence",
+      title: "Anwesenheit",
+      fields: [
+        { key: "presence_sensors", label: "Präsenzmelder", type: "multi", choices: "presence" },
+        { key: "presence_kind", label: "Auswertung", type: "select", options: [["auto", "Automatisch"], ["mmwave", "mmWave"], ["pir", "PIR"]] }
+      ]
+    },
+    {
+      id: "comfort",
+      title: "Komfort & Absenkung",
+      fields: [
+        { key: "comfort_temperature", label: "Wunschtemperatur", type: "number", unit: " °C", min: 12, max: 26, step: 0.5 },
+        { key: "setback_short", label: "Absenkung kurz weg", type: "number", unit: " °C", min: 10, max: 24, step: 0.5 },
+        { key: "setback_long", label: "Absenkung länger weg", type: "number", unit: " °C", min: 8, max: 22, step: 0.5 }
+      ]
+    },
+    {
+      id: "air",
+      title: "Lüften",
+      fields: [
+        { key: "co2_limit", label: "CO₂-Grenze", type: "select", options: [["800", "800 ppm"], ["1000", "1000 ppm"], ["1200", "1200 ppm"], ["1500", "1500 ppm"]] }
+      ]
+    },
+    {
+      id: "shade",
+      title: "Verschattung",
+      fields: [
+        { key: "shading_covers", label: "Rollläden/Jalousien", type: "multi", choices: "covers" },
+        { key: "shading_mode", label: "Modus", type: "select", options: [["off", "Aus"], ["advise", "Nur empfehlen"], ["auto", "Automatisch"]] }
+      ]
+    },
+    {
+      id: "floor",
+      title: "Fußbodenheizung",
+      show: (d) => d.heat_type === "floor",
+      fields: [
+        { key: "floor_supply", label: "Vorlauffühler", type: "select", choices: "outdoor", allowEmpty: true },
+        { key: "floor_return", label: "Rücklauffühler", type: "select", choices: "outdoor", allowEmpty: true }
+      ]
+    },
+    {
+      id: "summary",
+      title: "Fertig",
+      fields: [],
+      intro: "Der Assistent legt die Wohnung an, übernimmt die Energie-/Tarifdaten und erstellt den Raum. Du kannst danach alles in den Einstellungen feinjustieren."
+    }
+  ];
+  var EMPTY = {
+    home_name: "",
+    room_name: "",
+    heat_type: "trv",
+    room_type: "living",
+    energy_source: "auto",
+    presence_kind: "auto",
+    co2_limit: 1e3,
+    shading_mode: "off",
+    pv_yes: false,
+    pv_self_use: 0,
+    energy_price: 0.3,
+    energy_base: 0,
+    floor_supply: "",
+    floor_return: ""
+  };
+  var OnboardingMethods = {
+    _onboardStart() {
+      const roomOnly = (this._rooms || []).length > 0;
+      this._onboard = { step: 0, roomOnly, data: { ...EMPTY } };
+      this._onboardOpen = true;
+      this._render();
+    },
+    _onboardClose() {
+      this._onboardOpen = false;
+      this._onboard = null;
+      this._render();
+    },
+    _onboardVisible() {
+      const d = this._onboard && this._onboard.data || {};
+      return STEPS.filter((s) => {
+        if (this._onboard && this._onboard.roomOnly && (s.id === "start" || s.id === "home")) return false;
+        return !s.show || s.show(d);
+      });
+    },
+    _onboardCollect() {
+      const root = this.shadowRoot;
+      if (!root || !this._onboard) return;
+      root.querySelectorAll("[data-onb]").forEach((el) => {
+        const key = el.dataset.onb;
+        if (el.type === "checkbox") this._onboard.data[key] = !!el.checked;
+        else if (el.dataset.onbtype === "toggle") this._onboard.data[key] = el.classList.contains("on");
+        else if (el.multiple) this._onboard.data[key] = Array.from(el.selectedOptions || []).map((o) => o.value).filter(Boolean);
+        else if (el.dataset.onbtype === "number") this._onboard.data[key] = el.value === "" ? null : Number(el.value);
+        else this._onboard.data[key] = el.value;
+      });
+    },
+    _onboardNext(delta) {
+      this._onboardCollect();
+      const steps = this._onboardVisible();
+      const step = steps[this._onboard.step];
+      if (step && step.fields) {
+        for (const f of step.fields) {
+          if (!f.required) continue;
+          const v = this._onboard.data[f.key];
+          if (v === void 0 || v === null || v === "" || Array.isArray(v) && !v.length) {
+            this._flash(t("Bitte {f} ausfüllen", { f: t(f.label) }));
+            return;
+          }
+        }
+      }
+      const next = Math.max(0, Math.min(steps.length - 1, this._onboard.step + delta));
+      this._onboard.step = next;
+      this._render();
+    },
+    _onboardField(f, value) {
+      const v = value ?? this._onboard.data[f.key];
+      const id = `onb-${f.key}`;
+      if (f.type === "select") {
+        const choices = f.choices ? this._cfg && this._cfg.choices && this._cfg.choices[f.choices] || [] : (f.options || []).map(([id2, name]) => ({ id: id2, name }));
+        const opts = (f.allowEmpty ? [["", t("– keins –")]] : []).concat(choices.map((x) => [x.id, x.name]));
+        return `<select class="sel" id="${id}" data-onb="${f.key}" data-onbtype="select">${opts.map(([oid, name]) => `<option value="${esc(oid)}"${String(v ?? "") === String(oid) ? " selected" : ""}>${esc(name)}</option>`).join("")}</select>`;
+      }
+      if (f.type === "multi") {
+        const choices = f.choices ? this._cfg && this._cfg.choices && this._cfg.choices[f.choices] || [] : [];
+        const cur = Array.isArray(v) ? v : [];
+        return `<select class="sel" id="${id}" data-onb="${f.key}" multiple>${choices.map((x) => `<option value="${esc(x.id)}"${cur.includes(x.id) ? " selected" : ""}>${esc(x.name)}</option>`).join("")}</select>`;
+      }
+      if (f.type === "toggle") {
+        const on = !!v;
+        return `<button class="tgl ${on ? "on" : ""}" data-onb="${f.key}" data-onbtype="toggle" data-val="${on ? 1 : 0}" aria-label="${t("umschalten")}"></button>`;
+      }
+      if (f.type === "number") {
+        return `<input class="inp" type="number" id="${id}" data-onb="${f.key}" data-onbtype="number" value="${v ?? ""}" min="${f.min ?? ""}" max="${f.max ?? ""}" step="${f.step ?? 1}">`;
+      }
+      return `<input class="inp" id="${id}" data-onb="${f.key}" data-onbtype="text" value="${esc(v ?? "")}" placeholder="${esc(f.placeholder || "")}">`;
+    },
+    _onboardHtml() {
+      if (!this._onboardOpen || !this._onboard) return "";
+      const steps = this._onboardVisible();
+      const step = steps[this._onboard.step] || steps[0];
+      const fields = (step.fields || []).filter((f) => !f.show || f.show(this._onboard.data));
+      const body = fields.map((f) => `<label class="mf"><span>${t(f.label)}</span>${this._onboardField(f)}</label>`).join("");
+      const last = this._onboard.step >= steps.length - 1;
+      return `<div class="sheetwrap">
+      <div class="sheet" role="dialog" aria-modal="true">
+        <div class="stitle"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Einrichtungsassistent")} · ${t(step.title)}</div>
+        <div class="sintro">${t(this._onboard.roomOnly ? "Neuer Raum – die Wohnung bleibt unverändert." : step.intro || "Schritt {n} von {m}", { n: this._onboard.step + 1, m: steps.length })}</div>
+        ${body || `<div class="hint">${t("Keine weiteren Fragen – bereit zum Abschließen.")}</div>`}
+        <div class="sbtns">
+          ${this._onboard.step > 0 ? `<button class="btn" data-onbback style="--c:var(--rk-off)"><ha-icon icon="mdi:arrow-left"></ha-icon>${t("Zurück")}</button>` : ""}
+          ${last ? `<button class="btn primary" data-onbfinish><ha-icon icon="mdi:check"></ha-icon>${t("Abschließen")}</button>` : `<button class="btn primary" data-onbnext><ha-icon icon="mdi:arrow-right"></ha-icon>${t("Weiter")}</button>`}
+          <button class="btn" data-onbclose style="--c:var(--rk-off)">${t("Abbrechen")}</button>
+        </div>
+      </div>
+    </div>`;
+    },
+    async _onboardFinish() {
+      this._onboardCollect();
+      const d = this._onboard.data;
+      const hubChanges = {};
+      if (!this._onboard.roomOnly && d.home_name) hubChanges.name = d.home_name;
+      if (d.zone !== void 0) hubChanges.zone = d.zone || null;
+      if (d.weather_entity !== void 0) hubChanges.weather_entity = d.weather_entity || null;
+      if (d.energy_source) hubChanges.energy_source = d.energy_source;
+      if (d.energy_meter !== void 0) hubChanges.energy_meter = d.energy_meter || null;
+      if (d.energy_tariff !== void 0) hubChanges.energy_tariff = d.energy_tariff || null;
+      if (d.energy_price !== void 0) hubChanges.energy_price = Number(d.energy_price ?? 0.3);
+      if (d.energy_base !== void 0) hubChanges.energy_base = Number(d.energy_base ?? 0);
+      if (d.energy_meter) hubChanges.energy_enabled = true;
+      if (d.pv_yes && d.pv_entity) {
+        hubChanges.pv_entity = d.pv_entity;
+        hubChanges.pv_self_use = Number(d.pv_self_use ?? 0);
+      }
+      try {
+        if (Object.keys(hubChanges).length) {
+          await this._hass.callWS({ type: "raumklima/hub/update", changes: hubChanges });
+        }
+        const create = d.heat_type !== "monitor" ? d.trv && d.temperature_sensor : d.temperature_sensor;
+        if (create) {
+          const roomChanges = {
+            name: d.room_name || d.home_name || t("Neuer Raum"),
+            trv: d.heat_type === "monitor" ? "" : d.trv || "",
+            temperature_sensor: d.temperature_sensor,
+            room_type: d.room_type || "living"
+          };
+          if (d.humidity_sensor) roomChanges.humidity_sensor = d.humidity_sensor;
+          if ((d.window_sensors || []).length) roomChanges.window_sensors = d.window_sensors;
+          if ((d.presence_sensors || []).length) roomChanges.presence_sensors = d.presence_sensors;
+          if ((d.shading_covers || []).length) roomChanges.shading_covers = d.shading_covers;
+          if (d.heat_type === "floor") {
+            if (d.floor_supply) roomChanges.floor_supply = d.floor_supply;
+            if (d.floor_return) roomChanges.floor_return = d.floor_return;
+          }
+          await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges });
+        }
+        this._onboardOpen = false;
+        this._onboard = null;
+        this._flash(t("Einrichtung abgeschlossen"));
+        await this._load();
+        this._section = "rooms";
+        this._tab = "general";
+        this._render();
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
     }
   };
 
@@ -8741,7 +9073,7 @@
       const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
       rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
-        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-selftest style="--c:var(--rk-ok)" title="${t("Prüft Wohnung, Räume, Thermostate, Fühler und Erreichbarkeit")}"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
+        <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-onboard style="--c:var(--rk-heat)" title="${t("Führt Schritt für Schritt durch die Einrichtung")}"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Einrichtungsassistent")}</button><button class="btn" data-selftest style="--c:var(--rk-ok)" title="${t("Prüft Wohnung, Räume, Thermostate, Fühler und Erreichbarkeit")}"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
           <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
           ${this._admin ? `<button class="btn" data-restore style="--c:var(--rk-eco)" title="${t("Sicherung einspielen – Räume werden über ihren Namen zugeordnet")}"><ha-icon icon="mdi:content-save-arrow-left-outline"></ha-icon>${t("Wiederherstellen")}</button><input type="file" id="rkrestore" accept="application/json,.json" style="display:none">` : ""}<button class="btn" data-bug style="--c:var(--rk-warn)" title="${t("Öffnet ein neues GitHub-Issue mit Version, Home-Assistant-Version und Thermostat-Modell – ohne Raumnamen oder Entitäten")}"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button><button class="btn ${this._nav2 ? "on" : ""}" data-nav2 aria-pressed="${this._nav2 ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Zwischen neuer Bereichsnavigation und klassischer Ansicht wechseln")}"><ha-icon icon="${this._nav2 ? "mdi:table-large" : "mdi:view-dashboard-outline"}"></ha-icon>${this._nav2 ? t("Klassische Ansicht") : t("Neue Ansicht")}</button><button class="btn ${this._pro ? "on" : ""}" data-pro aria-pressed="${this._pro ? "true" : "false"}" style="--c:var(--rk-eco)" title="${t("Alle selten gebrauchten Einstellungen dauerhaft aufklappen")}"><ha-icon icon="${this._pro ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal"}"></ha-icon>${t("Profi-Ansicht")}</button>${this._admin ? "" : `<span class="chip" style="--tone:var(--rk-warn)">${t("Nur Ansicht – Ändern erfordert Admin")}</span>`}</div>
         ${homeBar}
@@ -8749,13 +9081,14 @@
         <div class="crumb" id="rkc"></div>
         ${room ? `<div class="resetbar">${nav2 ? `<button class="btn" data-section="rooms" style="--c:var(--rk-eco)"><ha-icon icon="mdi:arrow-left"></ha-icon>${t("Räume")}</button>` : ""}${(() => {
         const n = ((room.attrs.settings || {}).changed || []).length;
-        return n ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n })}</span>${this._admin ? `<button class="btn small" data-copyroom="${room.id}"><ha-icon icon="mdi:content-copy"></ha-icon>${t("Raum kopieren")}</button><button class="btn small" data-applyall="${room.id}"><ha-icon icon="mdi:content-duplicate"></ha-icon>${t("Für alle Räume übernehmen")}</button>` : ""}<button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>` : `<span>${t("Alles auf Standard")}</span>`;
+        return n ? `<span>${t("{n} Einstellungen vom Standard abweichend", { n })}</span>${this._admin ? `<button class="btn small" data-copyroom="${room.id}"><ha-icon icon="mdi:content-copy"></ha-icon>${t("Raum kopieren")}</button><button class="btn small" data-applyall="${room.id}"><ha-icon icon="mdi:content-duplicate"></ha-icon>${t("Für alle Räume übernehmen")}</button>` : ""}<button class="btn small" data-resetroom="${room.id}"><ha-icon icon="mdi:backup-restore"></ha-icon>${t("Auf Standard zurücksetzen")}</button>${this._admin && (room.attrs.settings || {}).entry_id ? `<button class="btn small" data-deleteroom="${esc((room.attrs.settings || {}).entry_id)}" style="--c:var(--rk-cold)"><ha-icon icon="mdi:delete-outline"></ha-icon>${t("Raum löschen")}</button>` : ""}` : `<span>${t("Alles auf Standard")}</span>`;
       })()}</div>` : ""}
         ${showSearch ? `<div class="searchrow"><input id="rks" type="search" placeholder="${t("Einstellungen durchsuchen …")}" aria-label="${t("Einstellungen durchsuchen")}" autocomplete="off" value="${esc(this._search || "")}"></div>` : ""}
         ${showRail ? `<div class="rail">${railGroups.map((g) => `<button class="railbtn" data-g="${g}"><ha-icon icon="${RK_GROUP_META[g].icon}"></ha-icon>${t(RK_GROUP_META[g].label)}</button>`).join("")}</div>` : ""}
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         <div id="rkbody">${body}</div>
         ${this._copyRoom ? this._copyRoomHtml() : ""}
+        ${this._onboardHtml ? this._onboardHtml() : ""}
         ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
@@ -8811,12 +9144,35 @@
       const room = (this._rooms || []).find((r) => (r.attrs.settings || {}).entry_id === entryId);
       this._goto(room ? `room:${room.id}` : "section:system");
     }
+    async _deleteRoom(entryId) {
+      if (!entryId) return;
+      if (typeof window.confirm === "function" && !window.confirm(t("Raum wirklich löschen? Einstellungen, Zeitpläne und Verlauf dieses Raums werden entfernt."))) return;
+      try {
+        await this._hass.callWS({ type: "raumklima/room/delete", entry_id: entryId });
+        this._tab = "general";
+        this._section = "rooms";
+        this._flash(t("Raum gelöscht"));
+        await this._load();
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
+    }
     // Räume-Liste (Phase 1): Einstieg in die Raum-Detailseite.
     _roomList() {
       const rooms = this._orderedRooms();
+      const choices = this._cfg && this._cfg.choices || {};
+      const climates = choices.climate || [];
+      const temps = choices.outdoor || [];
+      const addRow = this._admin ? `<div class="addrow">
+      <input class="inp" id="newRoomName" placeholder="${t("Name des neuen Raums")}" maxlength="40">
+      <select class="sel" id="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
+      <select class="sel" id="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
+      <button class="btn" data-addroom style="--c:var(--rk-heat)"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
+    </div>` : "";
       return `<div class="roomlist" style="--g:var(--rk-heat)">
       <div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div>
       ${rooms.length ? `<div class="roomgrid">${this._roomTiles()}</div><div class="hint">${t("Tippe auf einen Raum, um seine Einstellungen zu ändern.")}</div>` : `<div class="hint">${t("Noch keine Räume eingerichtet.")}</div>`}
+      ${addRow}
     </div>`;
     }
     // Phase 6.1: einen Raum als Vorlage auf einen anderen Raum kopieren.
@@ -9021,7 +9377,7 @@
       }
     }
   };
-  Object.assign(RaumklimaSettingsCard.prototype, SheetMethods, GeneralMethods, LayoutMethods, ScheduleMethods, RoomMethods, RoomOverviewMethods, LearnMethods, BindMethods, HomeSectionMethods, PresenceSectionMethods, HeatingSectionMethods, EnergySectionMethods, NotifySectionMethods, SystemSectionMethods);
+  Object.assign(RaumklimaSettingsCard.prototype, SheetMethods, GeneralMethods, LayoutMethods, ScheduleMethods, RoomMethods, RoomOverviewMethods, LearnMethods, BindMethods, HomeSectionMethods, PresenceSectionMethods, HeatingSectionMethods, EnergySectionMethods, NotifySectionMethods, SystemSectionMethods, OnboardingMethods);
 
   // src/cards/report.js
   var RaumklimaReportCard = class extends HTMLElement {

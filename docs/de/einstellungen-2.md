@@ -71,6 +71,14 @@ setzen; die Strategie zeigt dann eine Demo-Ansicht mit drei simulierten Räumen.
 Die Demo-Karte erlaubt Temperatur ändern und Fenster umschalten – ohne Hardware
 und ohne persönliche Daten.
 
+**1.11 Raumverwaltung (umgesetzt):** Räume lassen sich in der Einstellungs-Karte
+anlegen und löschen, ohne HA-Einstellungen → Geräte & Integrationen.
+
+**1.12 Einrichtungsassistent (umgesetzt):** Geführter Assistent mit
+Ja/Nein-Zweigen durch Wohnung, Heizung, PV, Energie, Anwesenheit, Komfort,
+Lüften, Verschattung und Fußboden. Er legt die Wohnung/Einstellungen und den Raum
+direkt an; danach kann alles in den Einstellungen feinjustiert werden.
+
 Dieses Dokument beschreibt den Umbau der Einstellungen und die getrennte
 1.0-Entwicklungslinie. Es ist ein Plan, keine Zusage: Phasen und Aufwände
 können sich mit den Rückmeldungen aus der Beta ändern.

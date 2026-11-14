@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 1.1.0b1 (Branch `next`)
+Stand: Version 1.1.0b2 (Branch `next`)
 
 ## 🧪 Tester-Phase (als Nächstes)
 
@@ -70,6 +70,8 @@ in 1.1, die Verschattung in 1.2, die Fußbodenheizung in 1.3 und das Lernmodell 
 - [x] **Verschattung (1.2)** – Rollläden/Jalousien nach Sonne, Nacht und Handbedienung; Auswahl je Raum über die Integration, Modus Aus/Empfehlung/Automatik.
 - [x] **Fußbodenheizung (1.3)** – eigene Regelcharakteristik, Vorlauf/Rücklauf und
       Trägheit statt Thermostat-Logik; Auswahl je Raum über die Integration.
+- [x] **Raumverwaltung in der Integration (1.11)** – Räume anlegen und löschen, ohne HA-Einstellungen → Geräte & Integrationen.
+- [x] **Einrichtungsassistent (1.12)** – geführter Assistent mit Ja/Nein-Zweigen durch alle Facetten; legt Wohnung, Einstellungen und Raum direkt an.
 
 ## 🧠 Größere Vorhaben
 

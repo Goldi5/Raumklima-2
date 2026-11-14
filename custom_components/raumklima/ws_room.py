@@ -2,15 +2,38 @@
 
 from __future__ import annotations
 
+from types import MappingProxyType
 from typing import Any
 
 from homeassistant.components import websocket_api
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import HomeAssistant, callback
 import voluptuous as vol
 
 from .const import (
+    CONF_CALIBRATION_MODE,
+    CONF_COMFORT_TEMP,
+    CONF_ENTRY_TYPE,
+    CONF_EXTRA_TRVS,
+    CONF_FLOOR_RETURN,
+    CONF_FLOOR_SUPPLY,
+    CONF_HOME,
+    CONF_HUMIDITY_SENSOR,
+    CONF_NAME,
+    CONF_OFF_METHOD,
+    CONF_PM25_SENSOR,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULES,
+    CONF_SETBACK_LONG,
+    CONF_SETBACK_SHORT,
+    CONF_SHADING_COVERS,
+    CONF_TEMP_SENSOR,
+    CONF_TRV,
+    CONF_WINDOWS,
+    CONF_CO2_SENSOR,
+    DEFAULTS,
     DOMAIN,
+    ENTRY_HUB,
     LIGHT_SIGNALS,
 )
 from .msg import tr
@@ -145,6 +168,117 @@ async def ws_room_resume(hass: HomeAssistant, connection: websocket_api.ActiveCo
         return
     await room.async_resume_manual()
     connection.send_result(msg["id"], {"ok": True, "override_until": None})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/room/create",
+        vol.Required("name"): str,
+        vol.Required("temperature_sensor"): str,
+        vol.Optional("trv", default=""): str,
+        vol.Optional("home", default=""): str,
+        vol.Optional("room_type", default="living"): str,
+        vol.Optional("humidity_sensor"): vol.Any(None, str),
+        vol.Optional("co2_sensor"): vol.Any(None, str),
+        vol.Optional("pm25_sensor"): vol.Any(None, str),
+        vol.Optional("window_sensors", default=[]): [str],
+        vol.Optional("shading_covers", default=[]): [str],
+        vol.Optional("floor_supply"): vol.Any(None, str),
+        vol.Optional("floor_return"): vol.Any(None, str),
+        vol.Optional("extra_trvs", default=[]): [str],
+        vol.Optional("comfort_temperature"): vol.Any(None, vol.Coerce(float)),
+        vol.Optional("setback_short"): vol.Any(None, vol.Coerce(float)),
+        vol.Optional("setback_long"): vol.Any(None, vol.Coerce(float)),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_room_create(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Raum direkt in der Integration anlegen – ohne HA-Einstellungen."""
+    trv = str(msg.get("trv") or "").strip()
+    temp = str(msg["temperature_sensor"]).strip()
+    name = str(msg["name"]).strip()
+    if not name or not temp:
+        connection.send_error(msg["id"], "invalid", tr("Name und Temperaturfühler sind erforderlich"))
+        return
+    unique_id = trv or f"monitor:{temp}"
+    for entry in hass.config_entries.async_entries(DOMAIN):
+        if entry.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB:
+            continue
+        if entry.unique_id == unique_id or entry.data.get(CONF_TRV) == trv and trv:
+            connection.send_error(msg["id"], "already_configured", tr("Dieses Thermostat ist schon einem Raum zugeordnet."))
+            return
+    home = str(msg.get("home") or "").strip()
+    if not home:
+        hubs = [e for e in hass.config_entries.async_entries(DOMAIN) if e.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB]
+        if not hubs:
+            connection.send_error(msg["id"], "no_home", tr("Bitte zuerst eine Wohnung anlegen."))
+            return
+        home = hubs[0].entry_id
+    data = {
+        CONF_NAME: name,
+        CONF_TRV: trv,
+        CONF_TEMP_SENSOR: temp,
+        CONF_HUMIDITY_SENSOR: msg.get("humidity_sensor") or None,
+        CONF_CO2_SENSOR: msg.get("co2_sensor") or None,
+        CONF_PM25_SENSOR: msg.get("pm25_sensor") or None,
+        CONF_WINDOWS: list(msg.get("window_sensors") or []),
+        CONF_SHADING_COVERS: list(msg.get("shading_covers") or []),
+        CONF_FLOOR_SUPPLY: msg.get("floor_supply") or "",
+        CONF_FLOOR_RETURN: msg.get("floor_return") or "",
+        CONF_ROOM_TYPE: str(msg.get("room_type") or "living"),
+        CONF_CALIBRATION_MODE: "target" if trv else "none",
+        CONF_OFF_METHOD: "auto",
+        CONF_HOME: home,
+        CONF_EXTRA_TRVS: list(msg.get("extra_trvs") or []),
+        CONF_SCHEDULES: [],
+    }
+    options = dict(DEFAULTS)
+    for key in (CONF_COMFORT_TEMP, CONF_SETBACK_SHORT, CONF_SETBACK_LONG):
+        if msg.get(key) is not None:
+            options[key] = msg[key]
+    entry = ConfigEntry(
+        version=1,
+        minor_version=1,
+        domain=DOMAIN,
+        title=name,
+        data=data,
+        options=options,
+        unique_id=unique_id,
+        source="user",
+        discovery_keys=MappingProxyType({}),
+        subentries_data=None,
+    )
+    try:
+        await hass.config_entries.async_add(entry)
+        await hass.async_block_till_done()
+    except Exception as err:  # noqa: BLE001
+        connection.send_error(msg["id"], "create_failed", str(err))
+        return
+    connection.send_result(msg["id"], {"ok": True, "entry_id": entry.entry_id, "title": name})
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/room/delete",
+        vol.Required("entry_id"): str,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_room_delete(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Raum aus der Integration entfernen."""
+    entry = hass.config_entries.async_get_entry(msg["entry_id"])
+    if entry is None or entry.domain != DOMAIN or entry.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB:
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
+        return
+    try:
+        await hass.config_entries.async_remove(entry.entry_id)
+        await hass.async_block_till_done()
+    except Exception as err:  # noqa: BLE001
+        connection.send_error(msg["id"], "delete_failed", str(err))
+        return
+    connection.send_result(msg["id"], {"ok": True})
 
 
 @websocket_api.websocket_command(

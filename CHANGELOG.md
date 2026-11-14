@@ -1,3 +1,9 @@
+## 1.1.0b2 – 2026-11-14
+
+### Neu
+- **Raumverwaltung:** Räume lassen sich direkt in der Einstellungs-Karte anlegen und löschen.
+- **Einrichtungsassistent:** Geführter Assistent mit Ja/Nein-Zweigen durch Wohnung, Heizung, PV, Energie, Anwesenheit, Komfort, Lüften, Verschattung und Fußboden; für weitere Räume startet er im Raum-Modus.
+
 ## 1.1.0b1 – 2026-11-14
 
 ### Neu
@@ -11,6 +17,8 @@
 - **Wärmeanforderung an den Erzeuger:** Die Zentrale summiert die Heizlücke aller fordernden Räume und schlägt einen Vorlauf vor. Der neue Sensor `sensor.raumklima_allgemein_warmeanforderung` zeigt „Wärme“/„Bereit“; Attribute nennen Vorlauf, Summe und Räume.
 - **Dynamische Tarife und PV-Überschuss:** Der Tarif-Sensor kann als dynamisch markiert werden; die Energiekarte zeigt den aktuellen Preis und den PV-Überschuss. Ist Strom günstig, kann die Heizung bis zu 60 min vor einem Zeitfenster vorheizen. Die Kostenschätzung nutzt weiterhin den aktuellen Preis.
 - **Auswertung mit Vorhersage:** Der Verlauf summiert jetzt auch die vom Wärmemodell erwartete Temperatur und die Abweichung zum Ist-Wert. In CSV stehen `vorhersage_mittel_C` und `vorhersage_fehler_K`; so fallen offene Fenster oder zu schwache Heizkörper als unerwartet große Abweichung auf.
+- **Räume direkt verwalten:** Räume lassen sich jetzt in der Einstellungs-Karte anlegen und löschen – ohne den Weg über HA-Einstellungen → Geräte & Integrationen.
+- **Einrichtungsassistent:** Ein geführter Assistent fragt Wohnung, Heizung, PV, Energie, Anwesenheit, Komfort, Lüften, Verschattung und Fußboden ab – mit Ja/Nein-Zweigen und Zusammenfassung. Er legt Wohnung/Einstellungen und den Raum direkt an.
 - **Handverstellung beenden:** Nach einer manuellen Temperaturänderung erscheint auf der großen Raumkarte ein Knopf. Mit Zeitplan heißt er „Zeitplan fortsetzen“, ohne Zeitplan „Wunschtemperatur fortsetzen“. Ein Klick beendet die Handverstellung sofort – auch dann, wenn gar kein Zeitplan angelegt ist.
 - **Günstigere Wärmequelle:** Ist eine Klimaanlage als Wärmequenzrichter konfiguriert, vergleicht Raumklima COP und Gaspreis. Nur wenn die Klimaanlage günstiger ist, übernimmt sie das Heizen; sonst bleibt der Heizkörper die Quelle. Die Werte stehen in `settings_summary()` unter `ac_heat_active`/`ac_heat_cheaper`.
 - **SMTP über Home Assistant:** Der PDF-Bericht kann jetzt über eine Home-Assistant-SMTP-Entität (`smtp.send_message`) mit Anhang versendet werden. Die Mail-Zugangsdaten müssen dann nicht mehr in Raumklima liegen; der eigene Mail-Client bleibt als Fallback.
@@ -18,7 +26,7 @@
 - **Demo-Modus:** Die Dashboard-Strategie kann mit `demo: true` eine Demo-Ansicht mit drei simulierten Räumen aufbauen – ohne Hardware und ohne persönliche Daten. Die Demo-Karte erlaubt Temperatur ändern und Fenster umschalten; die Ansicht ist für Screenshots und zum Ausprobieren gedacht.
 
 ### Tests
-- Backend 629/629 auf HA 2026.2.3; HA 2026.10.4: 628/629 (bekannter `test_health_meldet_automatik_modus`). Frontend 100/100, Build und Check grün.
+- Backend 636/636 auf HA 2026.2.3; HA 2026.10.4: 635/636 (bekannter `test_health_meldet_automatik_modus`). Frontend 100/100, Build und Check grün.
 
 ## 1.0.0b1 – 2026-11-14
 

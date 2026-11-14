@@ -506,6 +506,32 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
             ),
             key=lambda x: x["name"].lower(),
         ),
+        "humidity": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("sensor")
+                if s.attributes.get("device_class") == "humidity"
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "windows": sorted(
+            [
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("binary_sensor")
+                if s.attributes.get("device_class") in ("window", "door", "opening")
+            ] + [
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("cover")
+            ],
+            key=lambda x: x["name"].lower(),
+        ),
+        "covers": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("cover")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
         "states": [{"id": k, "name": v} for k, v in STATES.items()],
         "energy": sorted(
             (

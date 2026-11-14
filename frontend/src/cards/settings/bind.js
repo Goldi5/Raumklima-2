@@ -503,6 +503,31 @@ export const BindMethods = {
       this._flash(made ? t("Dashboard „{d}“ angelegt", { d: made }) : t("Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen"));
       if (made) { await this._load(); } else { this._render(); }
     });
+    on("click", "[data-addroom]", () => async () => {
+      const name = (this.shadowRoot.getElementById("newRoomName") || {}).value?.trim() || "";
+      const trv = (this.shadowRoot.getElementById("newRoomTrv") || {}).value || "";
+      const temp = (this.shadowRoot.getElementById("newRoomTemp") || {}).value || "";
+      if (!name || !temp) { this._flash(t("Name und Temperaturfühler wählen")); return; }
+      try {
+        const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp });
+        this._tab = "general"; this._section = "rooms"; this._roomTab = "overview";
+        this._flash(t("Raum „{n}“ angelegt", { n: name }));
+        await this._load();
+        if (r && r.entry_id) this._gotoRoomByEntry(r.entry_id);
+      } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
+    });
+    on("click", "[data-deleteroom]", (el) => () => this._deleteRoom(el.dataset.deleteroom));
+    on("click", "[data-onboard]", () => () => this._onboardStart());
+    on("click", "[data-onbnext]", () => () => this._onboardNext(1));
+    on("click", "[data-onbback]", () => () => this._onboardNext(-1));
+    on("click", "[data-onbclose]", () => () => this._onboardClose());
+    on("click", "[data-onbfinish]", () => () => this._onboardFinish());
+    on("click", '[data-onbtype="toggle"]', (el) => () => {
+      el.classList.toggle("on");
+      el.dataset.val = el.classList.contains("on") ? "1" : "0";
+      this._onboardCollect();
+      this._render();
+    });
     on("click", "[data-newhome]", (el) => async () => {
       const inp = this.shadowRoot.getElementById("newHome");
       const name = inp && inp.value.trim();
