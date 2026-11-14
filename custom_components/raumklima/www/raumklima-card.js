@@ -1,4 +1,4 @@
-/* Raumklima 1.1.0b5 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.1.0b6 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -2697,7 +2697,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.1.0b5";
+  var RK_VERSION = "1.1.0b6";
 
   // src/styles.js
   var STYLES = `
@@ -8688,7 +8688,7 @@
     _onboardVisible() {
       const d = this._onboard && this._onboard.data || {};
       return STEPS.filter((s) => {
-        if (this._onboard && this._onboard.roomOnly && (s.id === "start" || s.id === "home")) return false;
+        if (this._onboard && this._onboard.roomOnly && (s.id === "start" || s.id === "home" || s.id === "pv" || s.id === "energy")) return false;
         return !s.show || s.show(d);
       });
     },
@@ -8787,18 +8787,20 @@
       this._onboardCollect();
       const d = this._onboard.data;
       const hubChanges = {};
-      if (!this._onboard.roomOnly && d.home_name) hubChanges.name = d.home_name;
-      if (d.zone !== void 0) hubChanges.zone = d.zone || null;
-      if (d.weather_entity !== void 0) hubChanges.weather_entity = d.weather_entity || null;
-      if (d.energy_source) hubChanges.energy_source = d.energy_source;
-      if (d.energy_meter !== void 0) hubChanges.energy_meter = d.energy_meter || null;
-      if (d.energy_tariff !== void 0) hubChanges.energy_tariff = d.energy_tariff || null;
-      if (d.energy_price !== void 0) hubChanges.energy_price = Number(d.energy_price ?? 0.3);
-      if (d.energy_base !== void 0) hubChanges.energy_base = Number(d.energy_base ?? 0);
-      if (d.energy_meter) hubChanges.energy_enabled = true;
-      if (d.pv_yes && d.pv_entity) {
-        hubChanges.pv_entity = d.pv_entity;
-        hubChanges.pv_self_use = Number(d.pv_self_use ?? 0);
+      if (!this._onboard.roomOnly) {
+        if (d.home_name) hubChanges.name = d.home_name;
+        if (d.zone !== void 0) hubChanges.zone = d.zone || null;
+        if (d.weather_entity !== void 0) hubChanges.weather_entity = d.weather_entity || null;
+        if (d.energy_source) hubChanges.energy_source = d.energy_source;
+        if (d.energy_meter !== void 0) hubChanges.energy_meter = d.energy_meter || null;
+        if (d.energy_tariff !== void 0) hubChanges.energy_tariff = d.energy_tariff || null;
+        if (d.energy_price !== void 0) hubChanges.energy_price = Number(d.energy_price ?? 0.3);
+        if (d.energy_base !== void 0) hubChanges.energy_base = Number(d.energy_base ?? 0);
+        if (d.energy_meter) hubChanges.energy_enabled = true;
+        if (d.pv_yes && d.pv_entity) {
+          hubChanges.pv_entity = d.pv_entity;
+          hubChanges.pv_self_use = Number(d.pv_self_use ?? 0);
+        }
       }
       try {
         if (Object.keys(hubChanges).length) {

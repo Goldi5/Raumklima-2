@@ -3,7 +3,7 @@
 Geplante Ideen für Raumklima – Reihenfolge = Priorität. Wünsche und Rückmeldungen gern als
 [Issue](https://github.com/Goldi5/Raumklima-2/issues). 🇬🇧 Summary at the end.
 
-Stand: Version 1.1.0b5 (Branch `next`)
+Stand: Version 1.1.0b6 (Branch `next`)
 
 ## 🧪 Tester-Phase (als Nächstes)
 

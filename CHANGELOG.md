@@ -1,3 +1,8 @@
+## 1.1.0b6 – 2026-11-14
+
+### Behoben
+- **Einrichtungsassistent für weitere Räume:** Im Raum-Modus werden PV und Energie/Tarif nicht mehr abgefragt. Der Assistent fragt nur noch die Raumdaten; die Wohnungs-/Energieeinstellungen bleiben unverändert.
+
 ## 1.1.0b5 – 2026-11-14
 
 ### Behoben
