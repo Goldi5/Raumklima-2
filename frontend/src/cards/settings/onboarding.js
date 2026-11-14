@@ -21,9 +21,9 @@ const STEPS = [
     ],
   },
   {
-    id: "trv", title: "Thermostat & Fühler", show: (d) => d.heat_type !== "monitor", fields: [
-      { key: "trv", label: "Thermostat", type: "select", choices: "climate", required: true },
-      { key: "extra_trvs", label: "Weitere Thermostate", type: "multi", choices: "climate" },
+    id: "trv", title: "Thermostat & Fühler", fields: [
+      { key: "trv", label: "Thermostat", type: "select", choices: "climate", required: true, show: (d) => d.heat_type !== "monitor" },
+      { key: "extra_trvs", label: "Weitere Thermostate", type: "multi", choices: "climate", show: (d) => d.heat_type !== "monitor" },
       { key: "temperature_sensor", label: "Temperaturfühler", type: "select", choices: "outdoor", required: true },
       { key: "humidity_sensor", label: "Feuchtefühler (optional)", type: "select", choices: "humidity", allowEmpty: true },
       { key: "window_sensors", label: "Fensterkontakte (optional)", type: "multi", choices: "windows" },
@@ -90,9 +90,30 @@ const EMPTY = {
 };
 
 export const OnboardingMethods = {
+  _onboardFreeClimates() {
+    const used = new Set();
+    for (const r of this._rooms || []) {
+      const trv = (((r.attrs || {}).settings || {}).trv) || "";
+      if (trv) used.add(trv);
+    }
+    return ((this._cfg && this._cfg.choices && this._cfg.choices.climate) || []).filter((x) => !used.has(x.id));
+  },
+
+  _onboardMonitorSensors() {
+    const used = new Set();
+    for (const r of this._rooms || []) {
+      const settings = (r.attrs || {}).settings || {};
+      if (!settings.trv && settings.temperature_sensor) used.add(settings.temperature_sensor);
+    }
+    return used;
+  },
+
   _onboardStart() {
     const roomOnly = (this._rooms || []).length > 0;
-    this._onboard = { step: 0, roomOnly, data: { ...EMPTY } };
+    const free = this._onboardFreeClimates();
+    const data = { ...EMPTY, trv: free.length ? free[0].id : "" };
+    if (!free.length) data.heat_type = "monitor";
+    this._onboard = { step: 0, roomOnly, data };
     this._onboardOpen = true;
     this._render();
   },
@@ -147,22 +168,37 @@ export const OnboardingMethods = {
     const v = value ?? this._onboard.data[f.key];
     const id = `onb-${f.key}`;
     if (f.type === "select") {
-      const choices = f.choices ? ((this._cfg && this._cfg.choices && this._cfg.choices[f.choices]) || []) : (f.options || []).map(([id, name]) => ({ id, name }));
+      let choices = f.choices ? ((this._cfg && this._cfg.choices && this._cfg.choices[f.choices]) || []) : (f.options || []).map(([id, name]) => ({ id, name }));
+      if (f.choices === "climate" && f.key === "trv") {
+        const used = new Set((this._rooms || []).map((r) => (((r.attrs || {}).settings || {}).trv) || "").filter(Boolean));
+        choices = choices.filter((x) => !used.has(x.id));
+      }
+      if (f.key === "trv" && !choices.length) return `<div class="hint">${t("Keine freien Thermostate – bitte „Nur messen“ wählen.")}</div>`;
+      if (f.key === "temperature_sensor" && this._onboard.data.heat_type === "monitor") {
+        const used = this._onboardMonitorSensors();
+        choices = choices.filter((x) => !used.has(x.id));
+        if (!choices.length) {
+          this._onboard.data.temperature_sensor = "";
+          return `<div class="hint">${t("Keine freien Temperaturfühler – bitte einen bestehenden Messraum entfernen oder „Thermostat“ wählen.")}</div>`;
+        }
+      }
       const opts = (f.allowEmpty ? [["", t("– keins –")]] : []).concat(choices.map((x) => [x.id, x.name]));
       return `<select class="sel" id="${id}" data-onb="${f.key}" data-onbtype="select">${opts.map(([oid, name]) => `<option value="${esc(oid)}"${String(v ?? "") === String(oid) ? " selected" : ""}>${esc(name)}</option>`).join("")}</select>`;
     }
     if (f.type === "multi") {
       let choices = f.choices ? ((this._cfg && this._cfg.choices && this._cfg.choices[f.choices]) || []) : [];
       const cur = Array.isArray(v) ? v : [];
-      if (f.key === "extra_trvs" && this._onboard && this._onboard.data.trv) {
-        choices = choices.filter((x) => x.id !== this._onboard.data.trv);
+      if (f.key === "extra_trvs") {
+        const used = new Set((this._rooms || []).map((r) => (((r.attrs || {}).settings || {}).trv) || "").filter(Boolean));
+        const main = (this._onboard && this._onboard.data.trv) || choices[0]?.id;
+        choices = choices.filter((x) => !used.has(x.id) && x.id !== main);
       }
       const selected = cur.map((sid) => {
         const c = choices.find((x) => x.id === sid);
         return `<span class="chip2" style="--c:var(--rk-ok)"><i></i>${esc(c ? c.name : sid)} <button class="mini x" data-onbrm="${esc(f.key)}|${esc(sid)}" title="${t("entfernen")}">✕</button></span>`;
       }).join("") || `<span class="v mute">${t("keine")}</span>`;
       const avail = choices.filter((x) => !cur.includes(x.id));
-      const add = avail.length ? `<div class="addrow"><select class="sel" data-onbadd="${esc(f.key)}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-onbaddbtn="${esc(f.key)}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Hinzufügen")}</button></div>` : `<div class="hint">${t("Alle verfügbaren gewählt")}</div>`;
+      const add = avail.length ? `<div class="addrow"><select class="sel" data-onbadd="${esc(f.key)}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-onbaddbtn="${esc(f.key)}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Hinzufügen")}</button></div>` : (cur.length ? `<div class="hint">${t("Keine weiteren verfügbar")}</div>` : "");
       return `<div class="chips">${selected}</div>${add}`;
     }
     if (f.type === "toggle") {

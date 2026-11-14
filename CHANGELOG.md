@@ -1,3 +1,13 @@
+## 1.1.0b8 – 2026-11-14
+
+### Behoben
+- **Einrichtungsassistent – Optik:** „keine“ in den Mehrfachauswahlen steht nicht mehr am rechten Rand, sondern links beim Feld. Belegte Thermostate werden nicht mehr angeboten; der Haupt-Thermostat erscheint nicht doppelt in „Weitere Thermostate“.
+- **Einrichtungsassistent – Nur messen:** Der Fühler-Schritt bleibt sichtbar, der Thermostat entfällt. Räume ohne freien Thermostat starten direkt im Messmodus.
+- **Einrichtungsassistent – Geräteliste:** Von Raumklima erzeugte virtuelle Raum-Thermostate werden nicht mehr als auswählbare Geräte angeboten. Im Messmodus werden Fühler ausgeblendet, die bereits zu einem Messraum gehören.
+
+### Tests
+- Backend 637/637 auf HA 2026.11.1; HA 2026.10.4: 636/637 (bekannter `test_health_meldet_automatik_modus`). Frontend 105/105, Build und Check grün.
+
 ## 1.1.0b7 – 2026-11-14
 
 ### Behoben

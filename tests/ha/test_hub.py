@@ -54,6 +54,18 @@ async def test_switch_to_always_via_options(hass: HomeAssistant, trv: FakeTrv, s
     assert target > 0
 
 
+async def test_choices_skip_virtual_room_thermostats(
+    hass: HomeAssistant, trv: FakeTrv, sensors, hass_ws_client
+) -> None:
+    """Der Assistent darf keine von Raumklima erzeugten Raum-Thermostate anbieten."""
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/config"})
+    climate_ids = [item["id"] for item in (await client.receive_json())["result"]["choices"]["climate"]]
+    assert "climate.bad" not in climate_ids
+    assert "climate.trv_bad" in climate_ids
+
+
 async def test_vacation_switch(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
     await _setup(hass)
     await hass.services.async_call(

@@ -54,3 +54,56 @@ test("Raum-Modus speichert Raumantworten und ändert die Wohnung nicht", async (
   assert.equal(calls[1].changes.shading_mode, "auto");
   assert.ok(!types.includes("raumklima/hub/update"));
 });
+
+test("Assistent bietet keine bereits belegten Thermostate an", () => {
+  const c = ctx([]);
+  c._rooms = [
+    { entry_id: "r1", attrs: { settings: { trv: "climate.bad" } } },
+  ];
+  c._cfg = { choices: { climate: [
+    { id: "climate.bad", name: "Bad" },
+    { id: "climate.frei", name: "Frei" },
+  ] } };
+  c._onboardStart();
+  assert.equal(c._onboard.data.trv, "climate.frei");
+  c._onboardOpen = true;
+  c._onboard.step = 1;
+  const html = c._onboardHtml();
+  assert.ok(!html.includes('value="climate.bad"'), "belegtes Thermostat im Auswahlfeld");
+  assert.ok(html.includes('value="climate.frei"'), "freies Thermostat fehlt");
+});
+
+test("Nur messen bietet keine Fühler belegter Messräume an", () => {
+  const c = ctx([]);
+  c._rooms = [
+    { entry_id: "r1", attrs: { settings: { trv: "", temperature_sensor: "sensor.used" } } },
+  ];
+  c._cfg = { choices: { outdoor: [
+    { id: "sensor.used", name: "Belegt" },
+    { id: "sensor.free", name: "Frei" },
+  ] } };
+  c._onboard = { step: 0, roomOnly: true, data: { heat_type: "monitor", temperature_sensor: "sensor.used" } };
+  c._onboardOpen = true;
+  c._onboard.step = c._onboardVisible().findIndex((s) => s.id === "trv");
+  const html = c._onboardHtml();
+  assert.ok(!html.includes('value="sensor.used"'), "belegter Fühler im Auswahlfeld");
+  assert.ok(html.includes('value="sensor.free"'), "freier Fühler fehlt");
+});
+
+test("Nur messen zeigt den Fühler-Schritt ohne Thermostat", () => {
+  const c = ctx([]);
+  c._rooms = [{ entry_id: "r1", attrs: { settings: { trv: "climate.bad" } } }];
+  c._cfg = { choices: {
+    climate: [{ id: "climate.bad", name: "Bad" }],
+    outdoor: [{ id: "sensor.test", name: "Test" }],
+  } };
+  c._onboardStart();
+  assert.equal(c._onboard.data.heat_type, "monitor");
+  const ids = c._onboardVisible().map((s) => s.id);
+  assert.ok(ids.includes("trv"));
+  c._onboardOpen = true;
+  c._onboard.step = ids.indexOf("trv");
+  const html = c._onboardHtml();
+  assert.ok(!html.includes('data-onb="trv"'), "Thermostat darf bei Nur messen fehlen");
+  assert.ok(html.includes('data-onb="temperature_sensor"'), "Temperaturfühler fehlt");
+});

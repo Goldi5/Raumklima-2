@@ -517,6 +517,8 @@ export const BindMethods = {
       } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
     });
     on("click", "[data-deleteroom]", (el) => () => this._deleteRoom(el.dataset.deleteroom));
+    on("change", '[data-onb="trv"]', () => () => { this._onboardCollect(); this._render(); });
+    on("change", '[data-onb="heat_type"]', () => () => { this._onboardCollect(); if (this._onboard && this._onboard.data.heat_type === "monitor") this._onboard.data.extra_trvs = []; this._render(); });
     on("click", "[data-onboard]", () => () => this._onboardStart());
     on("click", "[data-onbnext]", () => () => this._onboardNext(1));
     on("click", "[data-onbback]", () => () => this._onboardNext(-1));

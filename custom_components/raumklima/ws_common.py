@@ -6,6 +6,7 @@ from typing import Any
 
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
@@ -150,6 +151,7 @@ from .const import (
     CONF_WORK_ZONE_MINUTES,
     CONF_WORK_ZONES,
     CONF_ZONE,
+    DOMAIN,
     ENERGY_SOURCES,
     HOME_SENSOR_MODES,
     KINDS,
@@ -479,19 +481,38 @@ def _known_dashboards(hass: HomeAssistant) -> list[str]:
     return sorted(str(p) for p in (known or {}) if p)
 
 
+def _virtual_climates(hass: HomeAssistant) -> set[str]:
+    """Virtuelle Raum-Thermostate, die nicht als Gerät angeboten werden dürfen."""
+    entry_ids = {entry.entry_id for entry in hass.config_entries.async_entries(DOMAIN)}
+    if not entry_ids:
+        return set()
+    registry = er.async_get(hass)
+    return {
+        entity.entity_id
+        for entity in registry.entities.values()
+        if entity.domain == "climate" and entity.config_entry_id in entry_ids
+    }
+
+
 def _choices(hass: HomeAssistant) -> dict[str, Any]:
     notify = notify_choices(hass)
+    virtual_climates = _virtual_climates(hass)
+
     def ents(domain: str) -> list[dict[str, str]]:
         return sorted(
             ({"id": s.entity_id, "name": s.name} for s in hass.states.async_all(domain)),
             key=lambda x: x["name"].lower(),
         )
+
+    def climates() -> list[dict[str, str]]:
+        return [item for item in ents("climate") if item["id"] not in virtual_climates]
+
     return {
         "notify": notify,
         "persons": ents("person"),
         "zones": ents("zone"),
         "weather": ents("weather"),
-        "climate": ents("climate"),
+        "climate": climates(),
         "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
         "lights": ents("light"),
