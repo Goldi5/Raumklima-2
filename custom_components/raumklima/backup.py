@@ -116,12 +116,12 @@ async def ws_export(hass: HomeAssistant, connection: websocket_api.ActiveConnect
     connection.send_result(msg["id"], {"backup": build_backup(hass, msg.get("home"))})
 
 
-def apply_backup(hass: HomeAssistant, backup: Any) -> dict[str, Any]:
-    """Sicherung einspielen – Räume werden über ihren Namen zugeordnet."""
+def apply_backup(hass: HomeAssistant, backup: Any, home: str | None = None) -> dict[str, Any]:
+    """Sicherung in eine Wohnung einspielen – Räume dieser Wohnung über ihren Namen zugeordnet."""
     if not isinstance(backup, dict) or backup.get("format") not in (None, FORMAT):
         raise ValueError("format")
 
-    hub, rooms = _entries(hass)
+    hub, rooms = _entries(hass, home)
     hub_opts = backup.get("hub") or {}
     if hub is not None and isinstance(hub_opts, dict) and hub_opts:
         clean = _clean(hub_opts, HUB_DEFAULTS)

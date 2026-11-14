@@ -25,6 +25,8 @@ def test_cheap_now_uses_tariff_entity():
         state="0.15", attributes={"unit_of_measurement": "€/kWh"})))
     fake = SimpleNamespace(hass=hass, opt=lambda key, default=None: values.get(key, default))
     fake.energy_price_now = lambda: RaumklimaHub.energy_price_now(fake)
+    fake.electric_price_now = lambda: RaumklimaHub.electric_price_now(fake)
+    fake.energy_source = lambda: "electric"
     assert fake.energy_price_now() == 0.15
     assert RaumklimaHub.energy_cheap_now(fake) is True
 

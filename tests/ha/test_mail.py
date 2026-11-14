@@ -163,10 +163,12 @@ async def test_send_via_ha_uses_smtp_service(tmp_path) -> None:
     await mailer.send_via_ha(hass, "notify.smtp_test", "Betreff", "Text", [str(pdf)])
     hass.services.async_call.assert_awaited_once()
     args = hass.services.async_call.await_args.args
+    kwargs = hass.services.async_call.await_args.kwargs
     assert args[:2] == ("smtp", "send_message")
-    assert args[2]["target"] == {"entity_id": "notify.smtp_test"}
+    assert kwargs["target"] == {"entity_id": "notify.smtp_test"}
+    assert "target" not in args[2]
     assert args[2]["attachments"][0]["filename"] == pdf.name
-    assert "raumklima" in args[2]["attachments"][0]["media_source"]
+    assert "raumklima" in args[2]["attachments"][0]["media_source"]["media_content_id"]
 
 
 async def test_report_sent_by_ha_smtp(hass: HomeAssistant, trv, sensors, tmp_path) -> None:
