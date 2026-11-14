@@ -1,3 +1,8 @@
+## 1.1.1 – 2026-11-14
+
+### Behoben
+- **Update-Erkennung:** 1.1.1 löst 1.1.0 ab, damit die Beta **1.1.0b8** nicht mehr als neuere Version angezeigt wird. Inhaltlich entspricht 1.1.1 der stabilen 1.1.0.
+
 ## 1.1.0 – 2026-11-14
 
 Erste stabile Vollversion der Einstellungen 2.0. Sie bündelt die Beta-Reihe **1.1.0b1–b8** und die Stabilisierungen aus **0.62.48b1–0.62.50b3**.
