@@ -1,4 +1,4 @@
-/* Raumklima 1.1.0b6 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.1.0b7 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -2697,7 +2697,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.1.0b6";
+  var RK_VERSION = "1.1.0b7";
 
   // src/styles.js
   var STYLES = `
@@ -8823,7 +8823,18 @@
             if (d.floor_supply) roomChanges.floor_supply = d.floor_supply;
             if (d.floor_return) roomChanges.floor_return = d.floor_return;
           }
-          await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges });
+          if (d.comfort_temperature !== void 0 && d.comfort_temperature !== null) roomChanges.comfort_temperature = Number(d.comfort_temperature);
+          if (d.setback_short !== void 0 && d.setback_short !== null) roomChanges.setback_short = Number(d.setback_short);
+          if (d.setback_long !== void 0 && d.setback_long !== null) roomChanges.setback_long = Number(d.setback_long);
+          const created = await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges });
+          const extra = {};
+          if (d.co2_limit !== void 0) extra.co2_limit = Number(d.co2_limit);
+          if (d.presence_kind) extra.presence_kind = d.presence_kind;
+          if (d.shading_mode) extra.shading_mode = d.shading_mode;
+          if (d.heat_type === "floor") extra.floor_heating = true;
+          if (created && created.entry_id && Object.keys(extra).length) {
+            await this._hass.callWS({ type: "raumklima/room/update", entry_id: created.entry_id, changes: extra });
+          }
         }
         this._onboardOpen = false;
         this._onboard = null;

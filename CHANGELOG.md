@@ -1,3 +1,8 @@
+## 1.1.0b7 – 2026-11-14
+
+### Behoben
+- **Einrichtungsassistent speichert Raumantworten:** Wunschtemperatur, kurze/lange Absenkung, CO₂-Grenze, Präsenzauswertung und Verschattungsmodus werden beim Anlegen übernommen. Bei Fußbodenheizung wird diese aktiviert.
+
 ## 1.1.0b6 – 2026-11-14
 
 ### Behoben
