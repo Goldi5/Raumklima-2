@@ -1,3 +1,27 @@
+## 1.1.0 – 2026-11-14
+
+Erste stabile Vollversion der Einstellungen 2.0. Sie bündelt die Beta-Reihe **1.1.0b1–b8** und die Stabilisierungen aus **0.62.48b1–0.62.50b3**.
+
+### Neu
+- **Dashboard 2.0:** Räume als Startansicht, eigener Reiter „Energie & Lernen“ mit Zähler, Tarif, PV-Eigenverbrauch, Kostenschätzung, Aufheizrate, Nutzung und Lüftmustern.
+- **Verschattung, Fußbodenheizung und Lernmodell 2.0:** Rollläden/Jalousien mit Sonnenprognose, breiteres Regelband und Vorlauf für Fußbodenheizung, gelernte Aufheiz-/Abkühlraten und solarer Zugewinn.
+- **Stufenlose Ventilsteuerung und Klimaanlagen:** direkte Ventilöffnung, getrennte Kühlgrenze, Mindestlaufzeit/Mindestpause sowie COP-/Gaspreisvergleich beim Heizen mit der Klimaanlage.
+- **Wärmeanforderung, dynamische Tarife und PV:** zentraler Sensor für Vorlauf und Heizlücke; dynamischer Tarif, günstiges Vorheizen und PV-Überschuss.
+- **Energieabrechnung 2.0 und Auswertung:** Strom, Gas, Wärmepumpe und Fernwärme; Preise brutto/netto, MwSt., Abgaben und Prognose im Verlauf.
+- **Räume direkt verwalten und Einrichtungsassistent:** Räume anlegen/löschen, geführter Assistent inkl. Raum-Modus, Messmodus und Geräteauswahl.
+- **Handverstellung beenden:** „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ stellt den hinterlegten Wunsch wieder her – auch ohne Zeitplan.
+- **SMTP über Home Assistant, Selbsttest, Raum-Vorlagen und Demo-Modus:** PDF-Versand über HA-SMTP, lesender Selbsttest, sichere Raumvorlagen und simulierte Demo-Ansicht.
+
+### Behoben
+- **Quelle hinzufügen:** Auswahl wird neben dem Knopf gesucht, Fokus gelöst; gilt auch für Melder, Lampe und Signal.
+- **Zeitfenster:** Aufklappzustand bleibt beim Bearbeiten erhalten.
+- **Karte nach dem Update:** Alle vorhandenen Lovelace-Ressourcen werden auf die aktuelle Karten-URL aktualisiert.
+- **Einrichtungsassistent:** Keine virtuellen Raum-Thermostate oder belegten Geräte mehr in der Auswahl; „keine“ steht links, „Nur messen“ filtert belegte Fühler und zeigt den Fühlerschritt.
+
+### Tests
+- Backend **637/637** auf HA 2026.11.1; HA 2026.10.4: **636/637** (bekannter `test_health_meldet_automatik_modus`). Frontend **105/105**, Build und Check grün.
+- Live auf CT 999: Diagnose `1.1.0`, HA `2026.11.1`, Python `3.14.2`; Assistentenablauf inkl. Anlegen und Löschen eines Messraums geprüft.
+
 ## 1.1.0b8 – 2026-11-14
 
 ### Behoben
@@ -49,14 +73,14 @@
 - **Lernmodell 2.0:** Je Raum werden jetzt auch Abkühlraten und der solare Zugewinn gelernt. Aus Aufheiz- und Abkühl-Episoden entsteht ein Wärmemodell; die Lernkarte zeigt Aufheizrate, Wärmeverlust und Sonne. Das Modell stoppt die Heizung etwas früher vor dem Ziel, um Überschwingen zu reduzieren. Der Zustand steht in `settings_summary()` unter `thermal`.
 - **Stufenlose Ventilsteuerung:** Für Thermostate mit einstellbarer Ventilöffnung (z. B. SONOFF TRVZB) kann Raumklima das `number`-Stellglied direkt fahren: berechnete Öffnung statt nur Sollwert. Automatisch nutzt das Stellglied, wenn es gefunden wird; „Immer“ erzwingt es, „Aus“ bleibt beim Sollwert. Der Zustand steht in `settings_summary()` unter `valve`.
 - **Klimaanlagen:** Kühlgrenze und Sollwert bleiben getrennt; die Klimaanlage bekommt eine Mindestlaufzeit und Mindestpause gegen häufiges Takten. Beide Werte sind je Raum einstellbar und stehen in `settings_summary()` unter `ac_min_on`/`ac_min_off`.
-- **Wärmeanforderung an den Erzeuger:** Die Zentrale summiert die Heizlücke aller fordernden Räume und schlägt einen Vorlauf vor. Der neue Sensor `sensor.raumklima_allgemein_warmeanforderung` zeigt „Wärme“/„Bereit“; Attribute nennen Vorlauf, Summe und Räume.
+- **Wärmeanforderung an den Erzeuger:** Die Zentrale summiert die Heizlücke aller fordernden Räume und schlägt einen Vorlauf vor. Der neue Sensor `sensor.raumklima_allgemein_warmeanforderung` zeigt `heat`/`idle`; Attribute nennen Vorlauf, Heizlücke, fordernde Räume und deren Anzahl.
 - **Dynamische Tarife und PV-Überschuss:** Der Tarif-Sensor kann als dynamisch markiert werden; die Energiekarte zeigt den aktuellen Preis und den PV-Überschuss. Ist Strom günstig, kann die Heizung bis zu 60 min vor einem Zeitfenster vorheizen. Die Kostenschätzung nutzt weiterhin den aktuellen Preis.
 - **Energieabrechnung 2.0:** Dynamische Tarife werden aus dem Preisverlauf gemittelt; die Einstellungen zeigen den aktuellen Sensorwert und die Preisbasis (brutto/netto, MwSt., zusätzliche Abgaben). Die Energiekarte kennt jetzt auch „Heute“. Der Wetter-Reiter zeigt aktuelle Werte und Heizgrenzen; System & Diagnose zeigt Version, Entitäten und offene Hinweise.
 - **Auswertung mit Vorhersage:** Der Verlauf summiert jetzt auch die vom Wärmemodell erwartete Temperatur und die Abweichung zum Ist-Wert. In CSV stehen `vorhersage_mittel_C` und `vorhersage_fehler_K`; so fallen offene Fenster oder zu schwache Heizkörper als unerwartet große Abweichung auf.
 - **Räume direkt verwalten:** Räume lassen sich jetzt in der Einstellungs-Karte anlegen und löschen – ohne den Weg über HA-Einstellungen → Geräte & Integrationen.
 - **Einrichtungsassistent:** Ein geführter Assistent fragt Wohnung, Heizung, PV, Energie, Anwesenheit, Komfort, Lüften, Verschattung und Fußboden ab – mit Ja/Nein-Zweigen und Zusammenfassung. Er legt Wohnung/Einstellungen und den Raum direkt an.
 - **Handverstellung beenden:** Nach einer manuellen Temperaturänderung erscheint auf der großen Raumkarte ein Knopf. Mit Zeitplan heißt er „Zeitplan fortsetzen“, ohne Zeitplan „Wunschtemperatur fortsetzen“. Ein Klick beendet die Handverstellung sofort – auch dann, wenn gar kein Zeitplan angelegt ist.
-- **Günstigere Wärmequelle:** Ist eine Klimaanlage als Wärmequenzrichter konfiguriert, vergleicht Raumklima COP und Gaspreis. Nur wenn die Klimaanlage günstiger ist, übernimmt sie das Heizen; sonst bleibt der Heizkörper die Quelle. Die Werte stehen in `settings_summary()` unter `ac_heat_active`/`ac_heat_cheaper`.
+- **Günstigere Wärmequelle:** Ist eine Klimaanlage als Wärmequelle konfiguriert, vergleicht Raumklima COP und Gaspreis. Nur wenn die Klimaanlage günstiger ist, übernimmt sie das Heizen; sonst bleibt der Heizkörper die Quelle. Die Werte stehen in `settings_summary()` unter `ac_heat_active`/`ac_heat_cheaper`.
 - **SMTP über Home Assistant:** Der PDF-Bericht kann jetzt über eine Home-Assistant-SMTP-Entität (`smtp.send_message`) mit Anhang versendet werden. Die Mail-Zugangsdaten müssen dann nicht mehr in Raumklima liegen; der eigene Mail-Client bleibt als Fallback.
 - **Testabdeckung:** Der Validierungs-Workflow misst jetzt die Python-Abdeckung und zeigt fehlende Zeilen im Lauf an.
 - **Demo-Modus:** Die Dashboard-Strategie kann mit `demo: true` eine Demo-Ansicht mit drei simulierten Räumen aufbauen – ohne Hardware und ohne persönliche Daten. Die Demo-Karte erlaubt Temperatur ändern und Fenster umschalten; die Ansicht ist für Screenshots und zum Ausprobieren gedacht.
