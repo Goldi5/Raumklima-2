@@ -89,6 +89,33 @@ Gerüst-Release der Einstellungen 2.0: Bereiche, Raum-Unterseiten, Vererbung, Su
 - **Energie, Tarife, PV:** Zähler, Tarif, PV-Ertrag, Grundpreis und Arbeitspreis im Bereich „Heizung & Energie“ auswählbar. Neu: Gas (m³ → kWh), Wärmepumpe (Stromzähler, optionaler Wärmezähler/JAZ), Fernwärme, Tarif-Sensoren in ct/kWh, €/kWh oder €/m³ sowie optionaler PV-Eigenverbrauch. Die Euro-Schätzung im PDF-Bericht nutzt jetzt den Zähler; die Jahresabrechnung hat Vorrang und bleibt der einfache Weg für Mietwohnungen.
 - **Präsenz 2.0:** Die Raum-Übersicht zeigt den Präsenzstatus (belegt/leer/abgesenkt/unbekannt) aus Meldern und Lampen. Die Kopfzeile zeigt außerdem jede Person einzeln mit ihrem aktuellen Ort (Zuhause, Zone oder „unterwegs“).
 
+## 0.62.50b3 – 2026-11-14
+
+### Behoben
+- **Handverstellung: Wunschtemperatur aus den Einstellungen:** „Wunschtemperatur fortsetzen“ stellt jetzt den in den Einstellungen hinterlegten Wunsch wieder her, nicht den vorherigen Ist-Zielwert (z. B. einen Absenkungswert).
+
+## 0.62.50b2 – 2026-11-14
+
+### Behoben
+- **Handverstellung stellt den vorherigen Wunsch wieder her:** „Wunschtemperatur fortsetzen“ setzt jetzt den Zielwert vor der Handänderung zurück, nicht nur den Override. Damit landet Raum Finja nach dem Test wieder bei 18 °C statt bei 19,5 °C.
+
+## 0.62.50b1 – 2026-11-14
+
+### Behoben
+- **Handverstellung ohne Zeitplan:** Der Knopf „Wunschtemperatur fortsetzen“ erscheint jetzt auch in Räumen ohne Zeitplan. Zuvor wurde der Override nur bei aktivem Zeitfenster oder Abwesenheit gesetzt; `override_until` blieb sonst leer.
+
+## 0.62.49b1 – 2026-11-14
+
+### Neu
+- **Handverstellung beenden:** Nach einer manuellen Temperaturänderung erscheint auf der großen Raumkarte ein Knopf. Mit Zeitplan heißt er „Zeitplan fortsetzen“, ohne Zeitplan „Wunschtemperatur fortsetzen“. Ein Klick beendet die Handverstellung sofort – auch ohne Zeitplan.
+
+## 0.62.48b1 – 2026-11-13
+
+### Behoben
+- **„Quelle hinzufügen“ reagierte nicht:** Die Auswahl wird jetzt direkt neben dem Knopf gesucht (nicht über eine ID im Schatten-DOM) und der Fokus wird gelöst, damit die Karte sofort neu zeichnet. Gilt auch für **Melder, Lampe und Signal hinzufügen**; ohne Auswahl erscheint ein Hinweis.
+- **Zeitfenster klappten beim Bearbeiten zu:** Der Aufklappzustand der Zeitfenster bleibt jetzt über das Neuzeichnen erhalten.
+- **Alte Karte nach dem Update:** Alle vorhandenen Lovelace-Ressourcen werden auf die aktuelle Karten-URL aktualisiert. Eine stehen gebliebene alte URL konnte dazu führen, dass der Browser weiterhin die alte Karte lud.
+
 ## 0.62.47 – 2026-11-13
 
 Stabile Version (Ausnahme: direkt nach der Beta 0.62.47b1, ohne Release Candidate).
