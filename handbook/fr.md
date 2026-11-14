@@ -277,7 +277,7 @@ Si vous rentrez plus tôt et qu’il fait trop frais : montez simplement la temp
 
 ## Vacances et visiteurs
 
-- **Vacances :** l’interrupteur *Vacances* dans les réglages – ou un événement de calendrier avec « vacances » dans le titre. Se termine automatiquement à votre retour.
+- **Vacances :** l’interrupteur *Vacances* dans les réglages – ou un événement de calendrier avec « vacances » dans le titre. Les vacances ne comptent que depuis le calendrier choisi, et le mot doit être un mot entier ou une fin de mot. Se termine automatiquement à votre retour.
 - **Visiteurs :** l’interrupteur *Invités* – dans ce cas, il n’y a pas d’abaissement même lorsque tous les habitants sont sortis.
 
 ## Pause de chauffage au printemps et en automne
@@ -447,7 +447,7 @@ sont enregistrés – l'année n'a pas d'importance.
 ## Nouveau en 1.1
 
 - **Tableau de bord :** « Pièces » est la première vue ; énergie et apprentissage sont dans l’onglet « Énergie et apprentissage ».
-- **Ombrage :** les volets bougent au soleil et la nuit – automatique, conseil seulement ou arrêt.
+- **Ombrage :** les volets bougent au soleil et la nuit – automatique, conseil seulement ou arrêt. Si une fenêtre ou porte de la pièce est ouverte, rien ne se ferme. Fermé pour le soleil, il ne rouvre que 1 K (dehors 2 K) sous les seuils.
 - **Plancher chauffant :** régulation propre, lente, avec départ/retour et alerte de débit.
 - **Modèle d’apprentissage 2.0 :** apprend la vitesse de montée, la perte de chaleur et l’apport solaire ; s’arrête plus tôt avant la consigne.
 - **Commande directe de vanne :** pour les thermostats avec actionneur `number`, p. ex. SONOFF TRVZB.

@@ -278,7 +278,7 @@ If you come home early and it's too cool: just turn it up – the setback then p
 
 ## Vacation and visitors
 
-- **Vacation:** the *Vacation* switch in the settings – or a calendar event with “vacation” in the title. Ends automatically when you come back.
+- **Vacation:** the *Vacation* switch in the settings – or a calendar event with “vacation” in the title. Vacation only counts from the configured calendar, and the word must stand on its own or end a word. Home-office events may also be in other calendars. Ends automatically when you come back.
 - **Visitors:** the *Guests* switch – then there is no setback even when all residents are out.
 
 ## Heating pause in spring and autumn
@@ -446,7 +446,7 @@ does not matter.
 ## New in 1.1
 
 - **Dashboard:** “Rooms” is the first view; energy and learning are in their own “Energy & learning” tab.
-- **Shading:** blinds move in sun and at night – automatic, advice only or off.
+- **Shading:** blinds move in sun and at night – automatic, advice only or off. If a window or door of the room is open, nothing closes (no lock-out). Closed for sun, it reopens only 1 K (outside 2 K) below the limits.
 - **Underfloor heating:** own slow control characteristic with flow/return and flow warning.
 - **Learning model 2.0:** learns heat-up rate, heat loss and solar gain; stops earlier before target.
 - **Direct valve control:** for thermostats with a `number` actuator, e.g. SONOFF TRVZB.

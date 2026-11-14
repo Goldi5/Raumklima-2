@@ -1,3 +1,30 @@
+## 1.2.1 – 2026-11-14
+
+Korrekturen nach der Code-Prüfung von 1.1/1.2.
+
+### Behoben
+- **Frostschutz je Raum ist eine Untergrenze, keine Regel:** Unter 5 °C galt bisher nur das Ziel 5 °C –
+  ein höherer Wunsch, Boost oder Zeitplan griff erst darüber. Jetzt wird mindestens auf den Frostschutz
+  geheizt, ein höheres Ziel gilt weiter; frei erst 0,5 K darüber (kein Takten an der Grenze).
+- **„Frostschutz“ in Nachtabsenkung und außerhalb der Zeitfenster wieder wie bis 1.1:** Seit 1.2.0 galten dort
+  still 5 °C statt der Sicherung der Wohnung (Standard 16 °C). Jetzt wieder die Sicherung, nie unter dem
+  Raum-Frostschutz.
+- **Kalender:** „Urlaub“ zählt nur noch aus dem eingestellten Kalender – „Urlaub Müller“ im Teamkalender
+  schaltete die ganze Wohnung ab. Schlagwörter als ganzes Wort oder Wortende („Dienstreise“ ja, „Preise“,
+  „Reisepass“ nein). Bei `off` meldet HA den *nächsten* Termin – der zählt nur noch, wenn er laut Start/Ende
+  jetzt läuft. Weitere Kalender werden höchstens alle 10 Minuten abgefragt (vorher jede Minute).
+- **Vor-Stopp (Lernmodell 2.0):** Galt dauerhaft – Räume blieben bis 0,5 K unter dem Wunsch, der Sollwert sprang
+  bei jedem Messwert. Jetzt nur nach einer echten Aufheiz-Phase mit erwarteter Sonne, mit Hysterese.
+- **Fußbodenheizung:** Das Band verglich die Raumtemperatur statt des Sollwerts – ein gesenkter Wunsch blieb hängen.
+- **Kühlen:** nicht mehr bei offenem Fenster oder ausgeschaltetem Raum; 1 K Hysterese unter der Kühlgrenze;
+  eine Klimaanlage im Modus „cool“ wird beim Heizen auf „heat“ gestellt.
+- **Direkte Ventilsteuerung:** nimmt nie mehr `valve_closing_degree` (Sonoff TRVZB), sondern die Öffnung;
+  der Thermostat-Sollwert wird weiter gesetzt; Änderungen unter 5 % werden nicht gefunkt (Batterie).
+- **Verschattung:** fährt nicht vor ein offenes Fenster / eine offene Tür (Aussperren); Hysterese gegen
+  Auf/Zu alle 5 Minuten; Rollläden ohne Positionsangabe werden nicht dauernd erneut gefahren; Protokolltext
+  bei 0 Minuten Pause korrigiert.
+- **Prüfungen:** `recorder` als `after_dependencies` (hassfest), Lint bereinigt.
+
 ## 1.2.0 – 2026-11-14
 
 ### Neu
