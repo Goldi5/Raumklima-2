@@ -99,7 +99,6 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Wunschtemperatur {t}", "Desired temperature {t}", "Température souhaitée {t}"),
     ("von Hand wärmer gestellt – Absenkung 3 h ausgesetzt", "turned up by hand – setback paused for 3 h", "monté à la main – abaissement suspendu 3 h"),
     ("Heizpause (mild draußen)", "Heating break (mild outside)", "Pause chauffage (doux dehors)"),
-    ("Frostschutz", "Frost protection", "Hors gel"),
     ("Frostschutz – heizt auf {t}", "Frost protection – heating to {t}", "Hors gel – chauffe à {t}"),
     ("Sommerpflege: Ventil kurz öffnen", "Summer care: briefly open valve", "Entretien d’été : ouvrir brièvement la vanne"),
     ("Raum seit {m} min leer (Präsenzmelder) – {d} weniger (Wunsch {t})", "Room empty for {m} min (presence sensor) – {d} less (desired {t})", "Pièce vide depuis {m} min (détecteur de présence) – {d} de moins (souhaité {t})"),
