@@ -757,13 +757,16 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         on, current, reason = self.plan()
         override = reason in AWAY_STAGES and new > current
         now = dt_util.utcnow()
-        if override:
-            # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
-            self._manual_until = now + MANUAL_OVERRIDE
-        elif self.override_minutes > 0 and schedule_target(self.schedules, dt_util.now()) is not None:
-            # In einem laufenden Zeitfenster: von Hand gestellt heißt „für X Minuten mein Wunsch".
-            self._manual_until = now + timedelta(minutes=self.override_minutes)
-        if new != self.target_temp:
+        changed = new != self.target_temp
+        if changed:
+            if override:
+                # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
+                self._manual_until = now + MANUAL_OVERRIDE
+            elif self.override_minutes > 0:
+                # Auch ohne Zeitplan: Die Handverstellung bekommt ein Zeitfenster, damit die
+                # Karte „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ zeigen kann.
+                self._manual_until = now + timedelta(minutes=self.override_minutes)
+        if changed:
             self.log(
                 CAT_MANUAL,
                 tr("Wunschtemperatur {old} → {new}", old=fmt_temp(self.target_temp), new=fmt_temp(new)),

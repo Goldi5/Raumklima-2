@@ -1,7 +1,12 @@
+## 0.62.50b1 – 2026-11-14
+
+### Behoben
+- **Handverstellung ohne Zeitplan:** Der Knopf „Wunschtemperatur fortsetzen“ erscheint jetzt auch in Räumen ohne Zeitplan. Zuvor wurde der Override nur bei aktivem Zeitfenster oder Abwesenheit gesetzt; `override_until` blieb sonst leer.
+
 ## 0.62.49b1 – 2026-11-14
 
 ### Neu
-- **Handverstellung beenden:** Nach einer manuellen Temperaturänderung erscheint auf der großen Raumkarte ein Knopf. Mit Zeitplan heißt er „Zeitplan fortsetzen“, ohne Zeitplan „Wunschtemperatur fortsetzen“. Ein Klick beendet die Handverstellung sofort.
+- **Handverstellung beenden:** Nach einer manuellen Temperaturänderung erscheint auf der großen Raumkarte ein Knopf. Mit Zeitplan heißt er „Zeitplan fortsetzen“, ohne Zeitplan „Wunschtemperatur fortsetzen“. Ein Klick beendet die Handverstellung sofort – auch ohne Zeitplan.
 
 ## 0.62.48b1 – 2026-11-13
 
