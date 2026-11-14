@@ -266,7 +266,7 @@ export const OnboardingMethods = {
     }
     try {
       if (Object.keys(hubChanges).length) {
-        await this._hass.callWS({ type: "raumklima/hub/update", changes: hubChanges });
+        await this._hass.callWS({ type: "raumklima/hub/update", changes: hubChanges, ...this._homeMsg() });
       }
       const create = d.heat_type !== "monitor" ? (d.trv && d.temperature_sensor) : d.temperature_sensor;
       if (create) {
@@ -279,7 +279,6 @@ export const OnboardingMethods = {
         if (d.humidity_sensor) roomChanges.humidity_sensor = d.humidity_sensor;
         if ((d.window_sensors || []).length) roomChanges.window_sensors = d.window_sensors;
         if ((d.extra_trvs || []).length) roomChanges.extra_trvs = d.extra_trvs;
-        if ((d.presence_sensors || []).length) roomChanges.presence_sensors = d.presence_sensors;
         if ((d.shading_covers || []).length) roomChanges.shading_covers = d.shading_covers;
         if (d.heat_type === "floor") {
           if (d.floor_supply) roomChanges.floor_supply = d.floor_supply;
@@ -289,10 +288,13 @@ export const OnboardingMethods = {
         if (d.setback_short !== undefined && d.setback_short !== null) roomChanges.setback_short = Number(d.setback_short);
         if (d.setback_long !== undefined && d.setback_long !== null) roomChanges.setback_long = Number(d.setback_long);
         if (d.frost_temperature !== undefined && d.frost_temperature !== null) roomChanges.frost_temperature = Number(d.frost_temperature);
-        const created = await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges });
+        // In die gerade gewählte Wohnung – ohne „home“ landete der Raum immer in der ersten.
+        const created = await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges, ...this._homeMsg() });
         const extra = {};
         if (d.co2_limit !== undefined) extra.co2_limit = Number(d.co2_limit);
         if (d.presence_kind) extra.presence_kind = d.presence_kind;
+        // Präsenzmelder kennt „Raum anlegen“ nicht – sie kommen mit den übrigen Raumwerten.
+        if ((d.presence_sensors || []).length) extra.presence_sensors = d.presence_sensors;
         if (d.shading_mode) extra.shading_mode = d.shading_mode;
         if (d.heat_type === "floor") extra.floor_heating = true;
         if (created && created.entry_id && Object.keys(extra).length) {
@@ -301,7 +303,7 @@ export const OnboardingMethods = {
       }
       this._onboardOpen = false;
       this._onboard = null;
-      this._flash(t("Einrichtung abgeschlossen"));
+      this._flash(create ? t("Einrichtung abgeschlossen") : t("Einstellungen übernommen – kein Raum angelegt (Thermostat oder Temperaturfühler fehlt)"));
       await this._load();
       this._section = "rooms";
       this._tab = "general";

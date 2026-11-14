@@ -294,7 +294,7 @@ async def ws_room_delete(hass: HomeAssistant, connection: websocket_api.ActiveCo
 async def ws_room_reset(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Raum-Einstellungen auf die Standardwerte zurückstellen (Geräte bleiben)."""
     entry = hass.config_entries.async_get_entry(msg["entry_id"])
-    if entry is None or entry.domain != DOMAIN:
+    if entry is None or entry.domain != DOMAIN or entry.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB:
         connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
         return
     options = reset_room_options(dict(entry.options or {}))

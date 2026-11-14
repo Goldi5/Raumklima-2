@@ -177,3 +177,30 @@ async def test_report_sent_by_ha_smtp(hass: HomeAssistant, trv, sensors, tmp_pat
         await pdf.async_send(entry)
     assert send.await_args.args[1] == "notify.smtp_test"
     assert send.await_args.args[4] == [str(tmp_path / "raumklima" / entry["file"])]
+
+
+async def test_send_via_ha_smtp_aufruf_wie_home_assistant_ihn_erwartet(hass: HomeAssistant) -> None:
+    """smtp.send_message: Ziel als target, Anhang mit media_source als Map (HA-Doku).
+
+    Vorher stand ``target`` in den Daten und ``media_source`` war ein Text – HA lehnte den
+    Aufruf ab, Test-Mail und Bericht über HA-SMTP kamen nie an.
+    """
+    from homeassistant.core import ServiceCall, SupportsResponse
+
+    seen: list[ServiceCall] = []
+
+    async def _handler(call: ServiceCall) -> None:
+        seen.append(call)
+
+    hass.services.async_register("smtp", "send_message", _handler, supports_response=SupportsResponse.NONE)
+    await mailer.send_via_ha(hass, "notify.mail", "Betreff", "Text", ["/media/raumklima/Raumklima-Monat-2026-10.pdf"])
+    assert seen, "Dienst nicht aufgerufen"
+    data = dict(seen[0].data)
+    assert "target" not in data
+    assert data["entity_id"] in ("notify.mail", ["notify.mail"])
+    att = data["attachments"][0]
+    assert att["media_source"] == {
+        "media_content_id": "media-source://media_source/local/raumklima/Raumklima-Monat-2026-10.pdf",
+        "media_content_type": "application/pdf",
+    }
+    assert att["filename"] == "Raumklima-Monat-2026-10.pdf"

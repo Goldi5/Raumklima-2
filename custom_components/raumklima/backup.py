@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
-from .const import CONF_ENTRY_TYPE, DEFAULTS, DOMAIN, ENTRY_HUB, HUB_DEFAULTS
+from .const import CONF_ENTRY_TYPE, CONF_HOME, DEFAULTS, DOMAIN, ENTRY_HUB, HUB_DEFAULTS
 from .msg import tr
 
 FORMAT = 1
@@ -19,15 +19,38 @@ FORMAT = 1
 SKIP = ("entry_id", "name")  # Identität: Räume werden über den Namen zugeordnet
 
 
-def _entries(hass: HomeAssistant) -> tuple[ConfigEntry | None, list[ConfigEntry]]:
-    hub: ConfigEntry | None = None
+def _entries(hass: HomeAssistant, home: str | None = None) -> tuple[ConfigEntry | None, list[ConfigEntry]]:
+    """Zentrale einer Wohnung und ihre Räume.
+
+    Früher: irgendeine (die zuletzt gefundene) Zentrale und alle Räume aller Wohnungen – bei
+    zwei Wohnungen landeten Einstellungen der einen in der anderen.
+    """
+    from .shared import get_hub
+
+    hubs = [e for e in hass.config_entries.async_entries(DOMAIN) if e.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB]
+    runtime = get_hub(hass, home)
+    hub: ConfigEntry | None = runtime.entry if runtime is not None else (hubs[0] if hubs else None)
+    if hub is None:
+        return None, []
+    hub_ids = {e.entry_id for e in hubs}
+    is_default = _is_default(hass, hub)
     rooms: list[ConfigEntry] = []
     for entry in hass.config_entries.async_entries(DOMAIN):
         if entry.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB:
-            hub = entry
-        else:
+            continue
+        room_home = (entry.options or {}).get(CONF_HOME) or (entry.data or {}).get(CONF_HOME)
+        if room_home not in hub_ids:
+            room_home = None  # ohne (gültige) Zuordnung gehört der Raum zur Standard-Wohnung
+        if room_home == hub.entry_id or (room_home is None and is_default):
             rooms.append(entry)
     return hub, rooms
+
+
+def _is_default(hass: HomeAssistant, hub: ConfigEntry) -> bool:
+    from .shared import get_hub
+
+    default = get_hub(hass, None)
+    return default is not None and default.entry.entry_id == hub.entry_id
 
 
 def _clean(options: dict[str, Any], allowed: dict[str, Any]) -> dict[str, Any]:
@@ -64,9 +87,9 @@ def _split(entry: ConfigEntry, values: dict[str, Any], allowed: dict[str, Any]) 
     return data_part, opt_part
 
 
-def build_backup(hass: HomeAssistant) -> dict[str, Any]:
-    """Sicherung als JSON-fähiges Wörterbuch."""
-    hub, rooms = _entries(hass)
+def build_backup(hass: HomeAssistant, home: str | None = None) -> dict[str, Any]:
+    """Sicherung einer Wohnung als JSON-fähiges Wörterbuch."""
+    hub, rooms = _entries(hass, home)
     return {
         "format": FORMAT,
         "created": dt_util.now().isoformat(timespec="minutes"),
@@ -90,7 +113,7 @@ def build_backup(hass: HomeAssistant) -> dict[str, Any]:
 @websocket_api.async_response
 async def ws_export(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Alle Einstellungen als Sicherung ausgeben."""
-    connection.send_result(msg["id"], {"backup": build_backup(hass)})
+    connection.send_result(msg["id"], {"backup": build_backup(hass, msg.get("home"))})
 
 
 def apply_backup(hass: HomeAssistant, backup: Any) -> dict[str, Any]:
@@ -142,13 +165,14 @@ def apply_backup(hass: HomeAssistant, backup: Any) -> dict[str, Any]:
 async def ws_import(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     """Sicherung einspielen (Antwort erst, wenn die Einträge neu geladen sind)."""
     try:
-        result = apply_backup(hass, msg["backup"])
+        result = apply_backup(hass, msg["backup"], msg.get("home"))
     except ValueError:
         connection.send_error(msg["id"], "invalid_format", tr("Diese Datei ist keine Raumklima-Sicherung"))
         return
 
     await asyncio.sleep(0)
-    for entry in hass.config_entries.async_entries(DOMAIN):
+    hub, rooms = _entries(hass, msg.get("home"))
+    for entry in ([hub] if hub is not None else []) + rooms:
         hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
 
     connection.send_result(msg["id"], result)

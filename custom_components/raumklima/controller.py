@@ -401,12 +401,15 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
     async def async_stop(self) -> None:
         """Alles abmelden."""
         self._started = False
+        self._stopped = True
         domain_data(self.hass)["rooms"].pop(self.entry.entry_id, None)
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
-        for attr in ("_window_timer", "_trv_down_cancel", "_virtual_cancel"):
-            cancel = getattr(self, attr)
+        # Alle eigenen Timer abbrechen – sonst speichert z. B. die Bestätigung eines Handeingriffs
+        # nach dem Neuladen noch den alten Zustand und überschreibt den des neuen Raums.
+        for attr in ("_window_timer", "_trv_down_cancel", "_virtual_cancel", "_manual_timer", "_valve_care_cancel"):
+            cancel = getattr(self, attr, None)
             if cancel:
                 cancel()
                 setattr(self, attr, None)
@@ -444,6 +447,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         return self.airing.count(when)
 
     def _save(self) -> None:
+        if getattr(self, "_stopped", False):
+            return  # entladen: nicht mehr in den (dann neuen) Speicher schreiben
         self._store.async_delay_save(self._stored_data, 5)
 
     def save(self) -> None:
@@ -708,10 +713,11 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
         @callback
         def _done() -> None:
+            self._valve_care_cancel = None
             self._valve_care_until = None
             self.hass.async_create_task(self._apply())
 
-        self._schedule(VALVE_CARE.total_seconds() + 1, _done)
+        self._valve_care_cancel = self._schedule(VALVE_CARE.total_seconds() + 1, _done)
 
     @property
     def hvac_action(self) -> HVACAction:

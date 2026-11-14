@@ -33,6 +33,7 @@ export const EnergySectionMethods = {
         t("startet bis zu 60 min vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt")),
       this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), t("Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert")),
       this._row("Gaspreis", this._num("hub", "gas_price", H("gas_price") ?? 0.10), t("€/kWh – nur für den Vergleich „Klimaanlage oder Gas“")),
+      (source === "gas" || source === "district" || source === "auto") ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), t("€/kWh – der Zähler misst Gas/Fernwärme; für „Klimaanlage oder Gas“ und günstiges Vorheizen")) : "",
     ].join("");
     return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [
       this._row("Energie-Erfassung", `<button class="tgl ${H("energy_enabled") ? "on" : ""}" data-optbool="hub" data-key="energy_enabled" data-val="${H("energy_enabled") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
@@ -51,7 +52,7 @@ export const EnergySectionMethods = {
         H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")),
       this._row("PV-Ertrag", this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
         H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")),
-      this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price"]),
+      this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"]),
     ].join(""));
   },
 
@@ -61,26 +62,24 @@ export const EnergySectionMethods = {
     const w = H("weather_entity") ? this._hass && this._hass.states[H("weather_entity")] : null;
     const sun = this._hass && this._hass.states["sun.sun"];
     const a = (w && w.attributes) || {};
-    const forecast = Array.isArray(a.forecast) ? a.forecast.slice(0, 8) : [];
     const time = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "–";
     const rows = [
       this._row("Wetterquelle", this._select("hub", "weather_entity", choices.weather || [], H("weather_entity"), "– wählen –"),
         t("Quelle für Außentemperatur, Vorhersage, Sonnenseite und Frostnacht")),
       this._row("Außentemperatur von", this._select("hub", "outdoor_temp_entity", choices.outdoor || [], H("outdoor_temp_entity"), "Wetterdienst"),
         t("eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst")),
-      this._row("Aktuell", this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w), w ? t("gefühlte Temperatur") : ""),
+      this._row("Aktuell", this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w),
+        w && a.apparent_temperature != null ? t("gefühlt {v} °C", { v: fmt(a.apparent_temperature) }) : ""),
       this._row("Feuchte", this._v(w && a.humidity != null ? `${fmt(a.humidity, 0)} %` : "–", !w), ""),
       this._row("Wind", this._v(w && a.wind_speed != null ? `${fmt(a.wind_speed, 1)} km/h` : "–", !w), ""),
       this._row("Sonne", this._v(sun ? t(sun.state === "above_horizon" ? "über dem Horizont" : "unter dem Horizont") : "–", !sun), t("für die Verschattung und die Sonnenprognose")),
-      this._row("Sonnenaufgang", this._v(time((sun && sun.attributes || {}).next_dawn), !sun), t("nächster Sonnenaufgang")),
-      this._row("Sonnenuntergang", this._v(time((sun && sun.attributes || {}).next_dusk), !sun), t("nächster Sonnenuntergang")),
+      // next_rising/next_setting = Sonnenauf-/-untergang (next_dawn/next_dusk wären die Dämmerung)
+      this._row("Sonnenaufgang", this._v(time((sun && sun.attributes || {}).next_rising), !sun), t("nächster Sonnenaufgang")),
+      this._row("Sonnenuntergang", this._v(time((sun && sun.attributes || {}).next_setting), !sun), t("nächster Sonnenuntergang")),
       this._row("Heizgrenze", this._v(`${fmt(this._hubOpt("heating_limit") ?? 15, 1)} °C`, false), t("darunter gilt die Heizsaison")),
       this._row("Kälteeinbruch", this._v(`${fmt(this._hubOpt("cold_snap_temp") ?? 12, 1)} °C`, false), t("Vorhersage unter diesem Wert")),
       this._row("Sturm", this._v(`${fmt(this._hubOpt("storm_gust_kmh") ?? 70, 0)} km/h`, false), t("Böen ab dieser Stärke")),
     ];
-    if (forecast.length) {
-      rows.push(this._row("Nächste Stunden", this._v(forecast.slice(0, 4).map((f) => `${f.datetime ? new Date(f.datetime).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) : ""} ${fmt(f.temperature)}°`).join(" · "), false), t("aus der Wettervorhersage")));
-    }
     return this._grp("weather", "Wetter", "mdi:weather-partly-cloudy", "air", rows.join(""), "span");
   },
 

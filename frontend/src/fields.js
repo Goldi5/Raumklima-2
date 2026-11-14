@@ -39,6 +39,7 @@ export const RK_NUM = {
   ac_min_off: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
   ac_cop: { unit: "", step: 0.1, min: 1, max: 6, dec: 1 },
   gas_price: { unit: " €/kWh", step: 0.01, min: 0, max: 1, dec: 2 },
+  electric_price: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },
   shading_position: { unit: " %", step: 5, min: 0, max: 100, dec: 0 },
   shading_min_temp: { unit: " °C", step: 0.5, min: 5, max: 30, dec: 1 },
   shading_outdoor_min: { unit: " °C", step: 1, min: 0, max: 35, dec: 0 },

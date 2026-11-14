@@ -146,3 +146,31 @@ async def test_away_message_names_home_only_with_several_homes(hass: HomeAssista
     await hass.async_block_till_done()
     assert hub._where() == " in Allgemein"
     assert second.runtime_data._where() == " in Wohnung B"
+
+
+async def test_unwetter_merker_ueberlebt_neustart(hass: HomeAssistant, trv: FakeTrv, sensors, hass_storage) -> None:
+    """Sonst kam nach jedem Neustart dieselbe Unwetter-Warnung noch einmal."""
+    hass_storage["raumklima.hub"] = {"version": 1, "key": "raumklima.hub", "data": {"storm_notified": "2026-11-14T18|gust"}}
+    hub, _room = await _setup(hass)
+    assert hub.runtime_data._storm_notified == "2026-11-14T18|gust"
+
+
+async def test_sprachansage_nur_an_anwesende(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """„Nur wenn jemand zu Hause ist“ gilt auch für Sprachausgaben, nicht nur für Push."""
+    from unittest.mock import AsyncMock
+
+    hub, _room = await _setup(hass)
+    h = hub.runtime_data
+    h._async_send = AsyncMock()
+    h.targets = lambda kind, how="push": ["notify.alexa"] if how == "tts" else ["notify.handy"]
+    h.quiet_now = lambda: False
+    import custom_components.raumklima.hub_notify as hn
+
+    orig = hn.keep_present
+    hn.keep_present = lambda targets, persons, only: [x for x in targets if x == "notify.handy"]
+    try:
+        await h.async_notify(next(iter(hn.PRESENT_ONLY_KINDS)), "Titel", "Text")
+    finally:
+        hn.keep_present = orig
+    sent = [c.args[0] for c in h._async_send.await_args_list]
+    assert sent == ["notify.handy"], f"Sprachausgabe trotz Filter: {sent}"

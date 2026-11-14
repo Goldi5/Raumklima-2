@@ -45,7 +45,6 @@ export const HELP = {
   "Entitäten": ["Anzahl aller Entitäten in Home Assistant.", "Number of all entities in Home Assistant.", "Nombre de toutes les entités dans Home Assistant."],
   "Home Assistant": ["Version von Home Assistant.", "Home Assistant version.", "Version de Home Assistant."],
   "Integration": ["Version der Raumklima-Integration.", "Raumklima integration version.", "Version de l’intégration Raumklima."],
-  "Nächste Stunden": ["Auszug aus der Wettervorhersage.", "Excerpt from the weather forecast.", "Extrait de la prévision météo."],
   "Offene Hinweise": ["Anzahl der offenen Gesundheitshinweise.", "Number of open health notices.", "Nombre d’avis de santé ouverts."],
   "Python": ["Python-Version von Home Assistant.", "Python version used by Home Assistant.", "Version Python utilisée par Home Assistant."],
   "Sturm": ["Böen-Schwelle für die Sturmwarnung.", "Gust threshold for the storm warning.", "Seuil de rafales pour l’alerte tempête."],

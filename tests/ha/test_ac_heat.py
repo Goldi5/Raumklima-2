@@ -67,3 +67,20 @@ async def test_ac_heat_off_when_gas_cheaper(hass: HomeAssistant, trv, sensors) -
     ctrl.ac_sources = [ac]
     assert ctrl.ac_heat_active is False
     assert hub.ac_heat_cheaper() is False
+
+
+async def test_gas_haushalt_nimmt_nicht_den_gaspreis_als_strompreis(hass: HomeAssistant, trv, sensors) -> None:
+    """Zähler misst Gas: der Tarif ist der Gaspreis – nicht als Strompreis rechnen.
+
+    Früher: Strom = Gaspreis → bei jedem COP über 1 galt die Klimaanlage als günstiger.
+    """
+    hub, _ctrl = await _setup(hass, **{CONF_AC_HEAT: True})
+    hub.config["energy_source"] = "gas"
+    hub.config[CONF_ENERGY_PRICE] = 0.10  # Arbeitspreis des Gaszählers
+    hub.config[CONF_GAS_PRICE] = 0.10
+    hub.config[CONF_AC_COP] = 3.0
+    assert hub.ac_heat_cheaper() is False, "ohne Strompreis kein Vergleich"
+    hub.config["electric_price"] = 0.36
+    assert hub.ac_heat_cheaper() is False  # 0,36 / 3 = 0,12 > 0,10
+    hub.config["electric_price"] = 0.27
+    assert hub.ac_heat_cheaper() is True  # 0,09 < 0,10
