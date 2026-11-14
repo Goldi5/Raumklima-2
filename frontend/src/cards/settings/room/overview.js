@@ -30,6 +30,7 @@ export const RoomOverviewMethods = {
       s.valve_position != null ? `${t("Ventil")} ${fmt(s.valve_position, 0)} %` : "",
       s.heatup && s.heatup.rate != null ? `${t("Aufheizrate")} ${fmt(s.heatup.rate, 1)} K/h` : "",
       s.heatup && s.heatup.minutes_2k != null ? `${t("Aufheizen +2 K")} ${s.heatup.minutes_2k} min` : "",
+      s.frost_temperature != null ? `${t("Frostschutz")} ${fmt(s.frost_temperature)} °C` : "",
       s.outdoor_temperature != null ? `${t("Draußen")} ${fmt(s.outdoor_temperature)} °C` : "",
     ].filter(Boolean).join(" · ") || t("lernt noch");
     const rows = [

@@ -56,16 +56,24 @@ export const EnergySectionMethods = {
   },
 
   _groupWeather() {
-    const w = this._hubOpt("weather_entity") ? this._hass && this._hass.states[this._hubOpt("weather_entity")] : null;
+    const H = this._hubOpt.bind(this);
+    const choices = (this._cfg && this._cfg.choices) || {};
+    const w = H("weather_entity") ? this._hass && this._hass.states[H("weather_entity")] : null;
     const sun = this._hass && this._hass.states["sun.sun"];
     const a = (w && w.attributes) || {};
     const forecast = Array.isArray(a.forecast) ? a.forecast.slice(0, 8) : [];
+    const time = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "–";
     const rows = [
-      this._row("Wetterquelle", this._v(esc(w ? w.name : t("keine")), !w), t("Wetter-Entität in den Einstellungen wählen")),
+      this._row("Wetterquelle", this._select("hub", "weather_entity", choices.weather || [], H("weather_entity"), "– wählen –"),
+        t("Quelle für Außentemperatur, Vorhersage, Sonnenseite und Frostnacht")),
+      this._row("Außentemperatur von", this._select("hub", "outdoor_temp_entity", choices.outdoor || [], H("outdoor_temp_entity"), "Wetterdienst"),
+        t("eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst")),
       this._row("Aktuell", this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w), w ? t("gefühlte Temperatur") : ""),
       this._row("Feuchte", this._v(w && a.humidity != null ? `${fmt(a.humidity, 0)} %` : "–", !w), ""),
       this._row("Wind", this._v(w && a.wind_speed != null ? `${fmt(a.wind_speed, 1)} km/h` : "–", !w), ""),
       this._row("Sonne", this._v(sun ? t(sun.state === "above_horizon" ? "über dem Horizont" : "unter dem Horizont") : "–", !sun), t("für die Verschattung und die Sonnenprognose")),
+      this._row("Sonnenaufgang", this._v(time((sun && sun.attributes || {}).next_dawn), !sun), t("nächster Sonnenaufgang")),
+      this._row("Sonnenuntergang", this._v(time((sun && sun.attributes || {}).next_dusk), !sun), t("nächster Sonnenuntergang")),
       this._row("Heizgrenze", this._v(`${fmt(this._hubOpt("heating_limit") ?? 15, 1)} °C`, false), t("darunter gilt die Heizsaison")),
       this._row("Kälteeinbruch", this._v(`${fmt(this._hubOpt("cold_snap_temp") ?? 12, 1)} °C`, false), t("Vorhersage unter diesem Wert")),
       this._row("Sturm", this._v(`${fmt(this._hubOpt("storm_gust_kmh") ?? 70, 0)} km/h`, false), t("Böen ab dieser Stärke")),

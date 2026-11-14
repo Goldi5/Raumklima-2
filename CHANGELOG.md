@@ -1,3 +1,14 @@
+## 1.2.0 – 2026-11-14
+
+### Neu
+- **Frostschutz je Raum:** Neben Wunschtemperatur und den beiden Absenkungen lässt sich pro Raum ein Frostschutz einstellen (Standard 5 °C). Fällt die gemessene Raumtemperatur darunter, heizt Raumklima unabhängig von Zeitplan, Abwesenheit oder Heizpause. Der Wert wird auch für „Frostschutz“ in der Nachtabsenkung und als Wert außerhalb der Zeitfenster verwendet.
+- **Wetterbereich:** Wetterquelle und Außentemperatur-Geber sind jetzt direkt im Reiter „Wetter“ wählbar; Sonnenaufgang und Sonnenuntergang werden angezeigt.
+- **System & Diagnose:** Der Bereich „Erweitert“ zeigt zusätzlich die Kartenversion, die Datenquelle und Schnellzugriffe auf Selbsttest, Diagnose-Datei und Fehlerbericht.
+
+### Tests
+- Backend **638/638** auf HA 2026.11.1; HA 2026.10.4: **637/638** (bekannter `test_health_meldet_automatik_modus`). Frontend **106/106**, Build und Check grün.
+- Live auf CT 999: Frostschutz 5,0 °C, Wetter- und Erweitert-Bereich geprüft.
+
 ## 1.1.1 – 2026-11-14
 
 ### Behoben

@@ -71,7 +71,7 @@ Die Werte stammen aus den Empfehlungen der Verbraucherzentrale bzw. des vzbv: be
 
 ## 5b. Außerhalb der Zeitfenster
 
-Wer nur Heizphasen einträgt („morgens 6–8, abends 17–22"), will dazwischen nicht auf der Wunschtemperatur heizen. Die Raum-Einstellung **Außerhalb der Zeitfenster** legt das fest: Wunschtemperatur (Standard), kurz weg, länger weg oder Sicherung. Das Vorheizen vor einem Fenster bleibt bestehen, und der Schimmelschutz bleibt als Boden darüber.
+Wer nur Heizphasen einträgt („morgens 6–8, abends 17–22"), will dazwischen nicht auf der Wunschtemperatur heizen. Die Raum-Einstellung **Außerhalb der Zeitfenster** legt das fest: Wunschtemperatur (Standard), kurz weg, länger weg oder Frostschutz (5 °C). Das Vorheizen vor einem Fenster bleibt bestehen, und der Schimmelschutz bleibt als Boden darüber.
 
 ## 6. Schimmelschutz
 
@@ -101,7 +101,8 @@ Geheizt wird, wenn es draußen wirklich kalt ist – maßgeblich ist die **Heizg
   - Aus erst nach **2 milden Tagen** über Heizgrenze + 1 °C.
   - An, sobald das Mittel unter die Heizgrenze fällt.
 - **Außerhalb der Saison** bleibt die Heizung aus. Ausnahme **Kälteeinbruch**: Liegt das Tagesmittel 3 Tage unter 12 °C, wird trotzdem geheizt (wie im Mietrecht).
-- **Sicherung:** Fällt ein Raum unter 16 °C, heizt er immer.
+- **Frostschutz je Raum:** Fällt ein Raum unter den eingestellten Frostschutz (Standard 5 °C), heizt er immer – unabhängig von Zeitplan oder Abwesenheit.
+- **Sicherung der Wohnung:** Fällt ein Raum während der Heizpause unter 16 °C, heizt er zusätzlich.
 - **Betriebsarten:** Automatisch, Immer heizen, Heizpause. **Heute heizen** hebt eine Pause für 24 h auf.
 - **Sommerpflege:** In der Heizpause öffnet Raumklima mittwochs um 11 Uhr die Ventile für 3 Minuten, damit sie nicht festsitzen.
 
@@ -132,7 +133,7 @@ Die Art wird aus der Geräteklasse erkannt (`occupancy`/`presence` = mmWave, `mo
 ## Vorrang
 
 1. Fenster offen → Pause
-2. Heizpause → aus (außer Sicherung bzw. Frostschutz)
+2. Heizpause → aus (außer Frostschutz bzw. Sicherung der Wohnung)
 3. Alle weg → Absenkung, aber nie unter den Schimmelschutz (in Frostnächten nur halb so tief)
 4. Raum laut Präsenzmelder leer → bis zu 1,5 °C weniger
 5. Sonnenseite und Sonne erwartet → 1 °C unter Wunsch

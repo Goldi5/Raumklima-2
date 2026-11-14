@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from platform import python_version
 from typing import Any
 
 from homeassistant.components import websocket_api
@@ -57,6 +58,7 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
                 "setback_short": room.setback_short,
                 "setback_long": room.setback_long,
                 "comfort_temperature": room.comfort_temp,
+                "frost_temperature": room.frost_temp,
             }
         )
     connection.send_result(
@@ -92,6 +94,7 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
             # Version der Installation – die Karte vergleicht damit ihre eigene und warnt,
             # wenn der Browser noch eine alte Datei hält.
             "version": _installed_version(),
+            "python": python_version(),
         },
     )
 

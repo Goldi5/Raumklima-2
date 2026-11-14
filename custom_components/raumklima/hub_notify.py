@@ -74,7 +74,7 @@ class NotifyMixin:
         if level == "short":
             return room.setback_short
         if level == "frost":
-            return self.frost_floor
+            return room.frost_temp
         return room.setback_long
 
     def set_night_manual(self, on: bool) -> None:

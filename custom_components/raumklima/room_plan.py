@@ -199,6 +199,20 @@ class PlanMixin:
             return True, self.target_temp, REASON_NORMAL
         return None
 
+    def _rule_frost(self, ctx: _PlanContext) -> PlanResult:
+        """Absoluter Frostschutz: unter dem Raumwert wird immer geheizt.
+
+        Das ist die Geräte-Sicherung (standardmäßig 5 °C), unabhängig von Zeitplan,
+        Abwesenheit oder Heizpause. Die globale Sicherung der Wohnung bleibt davon
+        getrennt und kann höher liegen.
+        """
+        if self.monitor or self.hvac_auto:
+            return None
+        current = self.current_temperature
+        if current is None or current >= self.frost_temp:
+            return None
+        return True, min(self.frost_temp, self.trv_max), REASON_FROST
+
     def _rule_season(self, ctx: _PlanContext) -> PlanResult:
         """Heizpause – mit Sicherung: fällt der Raum unter den Frostboden, heizt er trotzdem."""
         hub = ctx.hub
@@ -356,7 +370,7 @@ class PlanMixin:
         outside = {
             SCHEDULE_FALLBACK_SHORT: self.setback_short,
             SCHEDULE_FALLBACK_LONG: self.setback_long,
-            SCHEDULE_FALLBACK_FROST: ctx.hub.frost_floor,
+            SCHEDULE_FALLBACK_FROST: self.frost_temp,
         }.get(fb)
         if outside is not None and outside < self.target_temp - 0.05:
             return True, min(outside, self.trv_max), REASON_SCHEDULE_FALLBACK
@@ -507,7 +521,7 @@ class PlanMixin:
             REASON_NORMAL: tr("Wunschtemperatur {t}", t=fmt_temp(self.target_temp)),
             REASON_MANUAL: tr("von Hand wärmer gestellt – Absenkung 3 h ausgesetzt"),
             REASON_SEASON: tr("Heizpause (mild draußen)"),
-            REASON_FROST: tr("Heizpause, aber unter der Sicherung {t}", t=fmt_temp(hub.frost_floor if hub else None)),
+            REASON_FROST: tr("Frostschutz – unter {t}", t=fmt_temp(target)),
             REASON_VALVE_CARE: tr("Sommerpflege: Ventil kurz öffnen"),
             REASON_EMPTY: tr(
                 "Raum seit {m} min leer (Präsenzmelder) – {d} weniger (Wunsch {t})",

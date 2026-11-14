@@ -122,7 +122,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     if (this._local[lk] !== undefined) return this._local[lk];
     const r = this._cfgRoom(room);
     if (!r) return undefined;
-    if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature") return r[key];
+    if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature" || key === "frost_temperature") return r[key];
     return r.options[key];
   }
   // Herkunft eines Werts (Phase 4): Standard, Wohnung, Raum oder Gerät.

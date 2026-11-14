@@ -28,6 +28,7 @@ export const RoomMethods = {
     const roomType = this._roomOpt(r, "room_type") ?? s.room_type;
     const sbShort = this._roomOpt(r, "setback_short") ?? s.setback_short;
     const sbLong = this._roomOpt(r, "setback_long") ?? s.setback_long;
+    const frost = this._roomOpt(r, "frost_temperature") ?? s.frost_temperature ?? 5;
     const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
     const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
     const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
@@ -56,6 +57,7 @@ export const RoomMethods = {
         ((this._cfg && this._cfg.homes) || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row("Absenkung „kurz weg“", editable ? this._num(scope, "setback_short", sbShort) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind", this._srcBadge(r, "setback_short")),
         this._row("Absenkung „länger weg“", editable ? this._num(scope, "setback_long", sbLong) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer", this._srcBadge(r, "setback_long")),
+        this._row("Frostschutz", editable ? this._num(scope, "frost_temperature", frost) : this._v(`${fmt(frost)} °C`), "unter diesem Wert heizt der Raum immer – wie am Gerät", this._srcBadge(r, "frost_temperature")),
         this._row("Aufheizen", this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: (s.heatup && s.heatup.episodes) || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
           s.heatup && s.heatup.rate ? t("{r} °C/h bei aktuellem Wetter · aus {n} Aufheizvorgängen · steuert, wann vorgeheizt wird", { r: fmt(s.heatup.rate, 1), n: s.heatup.episodes }) : "danach heizt die Wohnung rechtzeitig vor, bevor jemand ankommt"),
         this._more("temp-more", "Weitere Einstellungen", [

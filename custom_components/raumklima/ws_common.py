@@ -30,6 +30,7 @@ from .const import (
     CONF_CO2_LIMIT,
     CONF_COLD_SNAP_TEMP,
     CONF_COMFORT_TEMP,
+    CONF_FROST_TEMP,
     CONF_AC_HEAT,
     CONF_AC_MIN_OFF,
     CONF_AC_MIN_ON,
@@ -330,6 +331,7 @@ HUB_CHANGES = vol.Schema(
 ROOM_CHANGES = vol.Schema(
     {
         vol.Optional(CONF_COMFORT_TEMP): num_schema("comfort_temperature"),
+        vol.Optional(CONF_FROST_TEMP): num_schema("frost_temperature"),
         vol.Optional(CONF_ROOM_TYPE): vol.In(ROOM_TYPE_OPTIONS),
         vol.Optional(CONF_CALIBRATION_MODE): vol.In(CALIBRATION_MODES),
         vol.Optional(CONF_TRV_INTERVAL): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(0, 60))),

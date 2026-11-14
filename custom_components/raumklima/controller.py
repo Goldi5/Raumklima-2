@@ -50,6 +50,7 @@ from .const import (
     CONF_FAST_POLL,
     CONF_FLOOR_RETURN,
     CONF_FLOOR_SUPPLY,
+    CONF_FROST_TEMP,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_NAME,
@@ -684,6 +685,12 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
     def setback_long(self) -> float:
         value = to_float(self.config.get(CONF_SETBACK_LONG))
         return value if value is not None else setback_defaults(self.config.get(CONF_ROOM_TYPE))[1]
+
+    @property
+    def frost_temp(self) -> float:
+        """Absoluter Frostschutz des Raums – wie am Gerät, standardmäßig 5 °C."""
+        value = to_float(self.config.get(CONF_FROST_TEMP))
+        return value if value is not None else 5.0
 
     @callback
     def on_hub_change(self) -> None:

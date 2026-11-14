@@ -21,6 +21,7 @@ export const RK_NUM = {
   long_airing_minutes: { unit: " min", step: 5, min: 0, max: 180, dec: 0 },
   long_airing_remind: { unit: " min", step: 15, min: 0, max: 240, dec: 0 },
   comfort_temperature: { unit: " °C", step: 0.5, min: 12, max: 26, dec: 1 },
+  frost_temperature: { unit: " °C", step: 0.5, min: 5, max: 15, dec: 1 },
   setback_short: { unit: " °C", step: 0.5, min: 10, max: 24, dec: 1 },
   setback_long: { unit: " °C", step: 0.5, min: 8, max: 22, dec: 1 },
   preheat_lead_min: { unit: " min", step: 15, min: 15, max: 360, dec: 0 },

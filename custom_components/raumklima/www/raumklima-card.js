@@ -1,4 +1,4 @@
-/* Raumklima 1.1.1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.2.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1095,6 +1095,7 @@
     "meldet keine Ventilöffnung": "reports no valve opening",
     "Absenkwert nachts": "Night setback value",
     "Frostschutz": "Frost protection",
+    "unter diesem Wert heizt der Raum immer – wie am Gerät": "below this value the room always heats – like on the device",
     "Immer": "Always",
     "Nachtabsenkung": "Night setback",
     "Nie": "Never",
@@ -1326,7 +1327,21 @@
     "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "only these blinds or shutters are moved – window contacts stay separate",
     "oder ab außen": "or from outdoor",
     "so lange bleibt die Automatik aus, wenn jemand selbst am Rollladen zieht – 0 = sofort wieder automatisch": "automation stays off this long when someone moves a blind manually – 0 = automatic again immediately",
-    "zu kühl für Schatten": "too cool for shade"
+    "zu kühl für Schatten": "too cool for shade",
+    "Werkzeuge": "Tools",
+    "Karte": "Card",
+    "Sonnenaufgang": "Sunrise",
+    "Sonnenuntergang": "Sunset",
+    "Quelle für Außentemperatur, Vorhersage, Sonnenseite und Frostnacht": "source for outdoor temperature, forecast, sun side and frost night",
+    "nächster Sonnenaufgang": "next sunrise",
+    "nächster Sonnenuntergang": "next sunset",
+    "Version der Karte im Browser": "version of the card in the browser",
+    "Datenquelle": "Data source",
+    "WebSocket": "WebSocket",
+    "Live-Verbindung zur Integration": "live connection to the integration",
+    "Selbsttest, Diagnose-Datei oder Fehlerbericht öffnen": "open self-test, diagnostics file or bug report",
+    "aktiv": "active",
+    "nicht aktiv": "not active"
   };
 
   // src/i18n/fr.js
@@ -2424,6 +2439,7 @@
     "meldet keine Ventilöffnung": "ne signale pas d’ouverture de vanne",
     "Absenkwert nachts": "Valeur de réduction nocturne",
     "Frostschutz": "Hors gel",
+    "unter diesem Wert heizt der Raum immer – wie am Gerät": "en dessous de cette valeur, la pièce chauffe toujours – comme sur l’appareil",
     "Immer": "Toujours",
     "Nachtabsenkung": "Réduction nocturne",
     "Nie": "Jamais",
@@ -2655,7 +2671,21 @@
     "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "seuls ces volets roulants ou stores sont commandés – les contacts de fenêtre restent séparés",
     "oder ab außen": "ou à partir de l’extérieur",
     "so lange bleibt die Automatik aus, wenn jemand selbst am Rollladen zieht – 0 = sofort wieder automatisch": "l’automatisme reste désactivé aussi longtemps après une commande manuelle – 0 = de nouveau automatique immédiatement",
-    "zu kühl für Schatten": "trop frais pour de l’ombre"
+    "zu kühl für Schatten": "trop frais pour de l’ombre",
+    "Werkzeuge": "Outils",
+    "Karte": "Carte",
+    "Sonnenaufgang": "Lever du soleil",
+    "Sonnenuntergang": "Coucher du soleil",
+    "Quelle für Außentemperatur, Vorhersage, Sonnenseite und Frostnacht": "source de la température extérieure, des prévisions, de l’ensoleillement et de la nuit de gel",
+    "nächster Sonnenaufgang": "prochain lever du soleil",
+    "nächster Sonnenuntergang": "prochain coucher du soleil",
+    "Version der Karte im Browser": "version de la carte dans le navigateur",
+    "Datenquelle": "Source de données",
+    "WebSocket": "WebSocket",
+    "Live-Verbindung zur Integration": "connexion en direct à l’intégration",
+    "Selbsttest, Diagnose-Datei oder Fehlerbericht öffnen": "ouvrir l’auto-test, le fichier de diagnostic ou le rapport de bug",
+    "aktiv": "actif",
+    "nicht aktiv": "inactif"
   };
 
   // src/i18n.js
@@ -2699,7 +2729,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.1.1";
+  var RK_VERSION = "1.2.0";
 
   // src/styles.js
   var STYLES = `
@@ -4860,6 +4890,36 @@
       "If a room drops below this temperature during the heating pause, it heats anyway – protection against cooling down and mould.",
       "Si une pièce descend sous cette température pendant la pause de chauffage, elle chauffe quand même – protection contre le refroidissement et les moisissures."
     ],
+    "Sonnenaufgang": [
+      "Zeitpunkt des nächsten Sonnenaufgangs – hilft bei der Verschattung und beim Vorheizen am Morgen.",
+      "Time of the next sunrise – useful for shading and morning preheating.",
+      "Heure du prochain lever du soleil – utile pour l’occultation et le préchauffage matinal."
+    ],
+    "Sonnenuntergang": [
+      "Zeitpunkt des nächsten Sonnenuntergangs – danach fährt die Verschattung je Einstellung herunter.",
+      "Time of the next sunset – afterwards shading closes or opens according to its setting.",
+      "Heure du prochain coucher du soleil – ensuite l’occultation se ferme ou s’ouvre selon le réglage."
+    ],
+    "Karte": [
+      "Version der Karte, die gerade im Browser läuft. Weicht sie von der Integration ab, die Seite mit Strg+Shift+R neu laden.",
+      "Version of the card currently running in the browser. If it differs from the integration, reload the page with Ctrl+Shift+R.",
+      "Version de la carte actuellement chargée dans le navigateur. Si elle diffère de l’intégration, rechargez avec Ctrl+Shift+R."
+    ],
+    "Datenquelle": [
+      "Die Karte liest die Werte live über die WebSocket-Verbindung von Home Assistant – ohne Umweg über eine Datei.",
+      "The card reads values live from Home Assistant over the WebSocket connection – without a file in between.",
+      "La carte lit les valeurs en direct depuis Home Assistant via la connexion WebSocket – sans passer par un fichier."
+    ],
+    "Werkzeuge": [
+      "Schnellzugriff auf Selbsttest, Diagnose-Datei und Fehlerbericht – ohne den Umweg über den Kopf der Karte.",
+      "Quick access to self-test, diagnostics file and bug report – without going through the card header.",
+      "Accès rapide à l’auto-test, au fichier de diagnostic et au rapport de bug – sans passer par l’en-tête de la carte."
+    ],
+    "Frostschutz": [
+      "Die absolute Untergrenze wie am Thermostat: Fällt der Raum darunter, heizt Raumklima auf diesen Wert – unabhängig von Zeitplan, Abwesenheit oder Heizpause.",
+      "The absolute lower limit, like on the thermostat: if the room drops below it, Raumklima heats to this value – regardless of schedule, absence or heating pause.",
+      "La limite inférieure absolue, comme sur le thermostat : si la pièce descend en dessous, Raumklima chauffe jusqu’à cette valeur – indépendamment du programme, de l’absence ou de la pause."
+    ],
     "Frostnacht: weniger absenken": [
       "Sagt die Vorhersage −5 °C oder kälter, wird bei Abwesenheit nur halb so tief abgesenkt. So kühlen die Wände nicht zu stark aus und der Raum ist schneller wieder warm.",
       "If the forecast says −5 °C or colder, setback during absence is only half as deep. Walls don't cool down too much and the room warms up faster.",
@@ -5420,6 +5480,7 @@
     long_airing_minutes: { unit: " min", step: 5, min: 0, max: 180, dec: 0 },
     long_airing_remind: { unit: " min", step: 15, min: 0, max: 240, dec: 0 },
     comfort_temperature: { unit: " °C", step: 0.5, min: 12, max: 26, dec: 1 },
+    frost_temperature: { unit: " °C", step: 0.5, min: 5, max: 15, dec: 1 },
     setback_short: { unit: " °C", step: 0.5, min: 10, max: 24, dec: 1 },
     setback_long: { unit: " °C", step: 0.5, min: 8, max: 22, dec: 1 },
     preheat_lead_min: { unit: " min", step: 15, min: 15, max: 360, dec: 0 },
@@ -5541,6 +5602,7 @@
     "comfort_temperature",
     "setback_short",
     "setback_long",
+    "frost_temperature",
     "window_open_delay",
     "window_close_delay",
     "preheat_mode",
@@ -5940,16 +6002,30 @@
       ].join(""));
     },
     _groupWeather() {
-      const w = this._hubOpt("weather_entity") ? this._hass && this._hass.states[this._hubOpt("weather_entity")] : null;
+      const H = this._hubOpt.bind(this);
+      const choices = this._cfg && this._cfg.choices || {};
+      const w = H("weather_entity") ? this._hass && this._hass.states[H("weather_entity")] : null;
       const sun = this._hass && this._hass.states["sun.sun"];
       const a = w && w.attributes || {};
       const forecast = Array.isArray(a.forecast) ? a.forecast.slice(0, 8) : [];
+      const time = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "–";
       const rows = [
-        this._row("Wetterquelle", this._v(esc(w ? w.name : t("keine")), !w), t("Wetter-Entität in den Einstellungen wählen")),
+        this._row(
+          "Wetterquelle",
+          this._select("hub", "weather_entity", choices.weather || [], H("weather_entity"), "– wählen –"),
+          t("Quelle für Außentemperatur, Vorhersage, Sonnenseite und Frostnacht")
+        ),
+        this._row(
+          "Außentemperatur von",
+          this._select("hub", "outdoor_temp_entity", choices.outdoor || [], H("outdoor_temp_entity"), "Wetterdienst"),
+          t("eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst")
+        ),
         this._row("Aktuell", this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w), w ? t("gefühlte Temperatur") : ""),
         this._row("Feuchte", this._v(w && a.humidity != null ? `${fmt(a.humidity, 0)} %` : "–", !w), ""),
         this._row("Wind", this._v(w && a.wind_speed != null ? `${fmt(a.wind_speed, 1)} km/h` : "–", !w), ""),
         this._row("Sonne", this._v(sun ? t(sun.state === "above_horizon" ? "über dem Horizont" : "unter dem Horizont") : "–", !sun), t("für die Verschattung und die Sonnenprognose")),
+        this._row("Sonnenaufgang", this._v(time((sun && sun.attributes || {}).next_dawn), !sun), t("nächster Sonnenaufgang")),
+        this._row("Sonnenuntergang", this._v(time((sun && sun.attributes || {}).next_dusk), !sun), t("nächster Sonnenuntergang")),
         this._row("Heizgrenze", this._v(`${fmt(this._hubOpt("heating_limit") ?? 15, 1)} °C`, false), t("darunter gilt die Heizsaison")),
         this._row("Kälteeinbruch", this._v(`${fmt(this._hubOpt("cold_snap_temp") ?? 12, 1)} °C`, false), t("Vorhersage unter diesem Wert")),
         this._row("Sturm", this._v(`${fmt(this._hubOpt("storm_gust_kmh") ?? 70, 0)} km/h`, false), t("Böen ab dieser Stärke"))
@@ -6073,11 +6149,14 @@
       const rows = [
         this._row("Integration", this._v(esc(c.version || "–"), false), ""),
         this._row("Home Assistant", this._v(esc(cfg.version || "–"), false), ""),
-        this._row("Python", this._v(esc(cfg.python_version || "–"), false), ""),
+        this._row("Python", this._v(esc(c.python || cfg.python_version || "–"), false), ""),
         this._row("Zeitzone", this._v(esc(cfg.time_zone || "–"), false), ""),
         this._row("Entitäten", this._v(String(Object.keys(h.states || {}).length), false), t("alle Entitäten in Home Assistant")),
         this._row("Räume", this._v(String((this._rooms || []).length), false), t("Raumklima-Räume")),
-        this._row("Offene Hinweise", this._v(String((c.hub && c.hub.state && c.hub.state.issues || []).length), false), t("Gesundheit der Heizung"))
+        this._row("Offene Hinweise", this._v(String((c.hub && c.hub.state && c.hub.state.issues || []).length), false), t("Gesundheit der Heizung")),
+        this._row("Karte", this._v(RK_VERSION, false), t("Version der Karte im Browser")),
+        this._row("Datenquelle", this._v("WebSocket", false), t("Live-Verbindung zur Integration")),
+        this._row("Werkzeuge", `<div class="chips"><button class="btn" data-selftest style="--c:var(--rk-ok)"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button><button class="btn" data-bug style="--c:var(--rk-warn)"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button></div>`, t("Selbsttest, Diagnose-Datei oder Fehlerbericht öffnen"))
       ];
       return this._grp("advanced", "System & Diagnose", "mdi:cog-outline", "off", rows.join(""), "span");
     }
@@ -6109,6 +6188,7 @@
         s.valve_position != null ? `${t("Ventil")} ${fmt(s.valve_position, 0)} %` : "",
         s.heatup && s.heatup.rate != null ? `${t("Aufheizrate")} ${fmt(s.heatup.rate, 1)} K/h` : "",
         s.heatup && s.heatup.minutes_2k != null ? `${t("Aufheizen +2 K")} ${s.heatup.minutes_2k} min` : "",
+        s.frost_temperature != null ? `${t("Frostschutz")} ${fmt(s.frost_temperature)} °C` : "",
         s.outdoor_temperature != null ? `${t("Draußen")} ${fmt(s.outdoor_temperature)} °C` : ""
       ].filter(Boolean).join(" · ") || t("lernt noch");
       const rows = [
@@ -6402,7 +6482,7 @@
         <span class="rtop"><span class="rname">${r.name}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
         <span class="rbig">${fmt(r.attrs.comfort_temperature)}<i>°</i></span>
         ${plan ? `<span class="rsub">${plan}</span>` : ""}
-        <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>
+        <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C · ${t("Frost")} ${fmt(s.frost_temperature ?? 5)} °C</span>
         <span class="rsub">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>
         <span class="rflags">${flags}</span></button>`;
       }).join("");
@@ -6918,6 +6998,7 @@
       const roomType = this._roomOpt(r, "room_type") ?? s.room_type;
       const sbShort = this._roomOpt(r, "setback_short") ?? s.setback_short;
       const sbLong = this._roomOpt(r, "setback_long") ?? s.setback_long;
+      const frost = this._roomOpt(r, "frost_temperature") ?? s.frost_temperature ?? 5;
       const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
       const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
       const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
@@ -6949,6 +7030,7 @@
         (this._cfg && this._cfg.homes || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row("Absenkung „kurz weg“", editable ? this._num(scope, "setback_short", sbShort) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind", this._srcBadge(r, "setback_short")),
         this._row("Absenkung „länger weg“", editable ? this._num(scope, "setback_long", sbLong) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer", this._srcBadge(r, "setback_long")),
+        this._row("Frostschutz", editable ? this._num(scope, "frost_temperature", frost) : this._v(`${fmt(frost)} °C`), "unter diesem Wert heizt der Raum immer – wie am Gerät", this._srcBadge(r, "frost_temperature")),
         this._row(
           "Aufheizen",
           this._v(s.heatup && s.heatup.minutes_2k != null ? t("~{m} min für +2 °C", { m: s.heatup.minutes_2k }) : t("lernt noch ({n}/3)", { n: s.heatup && s.heatup.episodes || 0 }), !(s.heatup && s.heatup.minutes_2k != null)),
@@ -8633,7 +8715,8 @@
       fields: [
         { key: "comfort_temperature", label: "Wunschtemperatur", type: "number", unit: " °C", min: 12, max: 26, step: 0.5 },
         { key: "setback_short", label: "Absenkung kurz weg", type: "number", unit: " °C", min: 10, max: 24, step: 0.5 },
-        { key: "setback_long", label: "Absenkung länger weg", type: "number", unit: " °C", min: 8, max: 22, step: 0.5 }
+        { key: "setback_long", label: "Absenkung länger weg", type: "number", unit: " °C", min: 8, max: 22, step: 0.5 },
+        { key: "frost_temperature", label: "Frostschutz", type: "number", unit: " °C", min: 5, max: 15, step: 0.5 }
       ]
     },
     {
@@ -8871,6 +8954,7 @@
           if (d.comfort_temperature !== void 0 && d.comfort_temperature !== null) roomChanges.comfort_temperature = Number(d.comfort_temperature);
           if (d.setback_short !== void 0 && d.setback_short !== null) roomChanges.setback_short = Number(d.setback_short);
           if (d.setback_long !== void 0 && d.setback_long !== null) roomChanges.setback_long = Number(d.setback_long);
+          if (d.frost_temperature !== void 0 && d.frost_temperature !== null) roomChanges.frost_temperature = Number(d.frost_temperature);
           const created = await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges });
           const extra = {};
           if (d.co2_limit !== void 0) extra.co2_limit = Number(d.co2_limit);
@@ -9015,7 +9099,7 @@
       if (this._local[lk] !== void 0) return this._local[lk];
       const r = this._cfgRoom(room);
       if (!r) return void 0;
-      if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature") return r[key];
+      if (key === "setback_short" || key === "setback_long" || key === "comfort_temperature" || key === "frost_temperature") return r[key];
       return r.options[key];
     }
     // Herkunft eines Werts (Phase 4): Standard, Wohnung, Raum oder Gerät.

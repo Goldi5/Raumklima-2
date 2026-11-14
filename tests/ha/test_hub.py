@@ -31,6 +31,23 @@ async def test_frost_floor_in_pause(hass: HomeAssistant, trv: FakeTrv, sensors) 
     assert trv.setpoint == 17.0  # Sicherung + 1 °C
 
 
+async def test_raum_frostschutz_heizt_unter_5_grad(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Jeder Raum hat einen eigenen Frostschutz wie das Gerät – Standard 5 °C."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = await _setup(hass)
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.frost_temp == 5.0
+    # In kleinen Schritten, sonst verwirft der Ausreißer-Schutz den Sprung von 19 auf 4 °C.
+    for value in (16.1, 13.2, 10.3, 7.4, 4.5):
+        hass.states.async_set(SENSOR, str(value), {"device_class": "temperature", "unit_of_measurement": "°C"})
+        await hass.async_block_till_done()
+    on, target, reason = ctrl.plan()
+    assert on is True
+    assert target == 5.0
+    assert reason == "frost"
+
+
 async def test_switch_to_always_via_options(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
     """Saisonwechsel über die Zentrale wirkt sofort auf die Entscheidung des Raums.
 

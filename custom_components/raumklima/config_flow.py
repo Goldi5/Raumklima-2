@@ -57,6 +57,7 @@ from .const import (
     CONF_FOLLOW_TRV,
     CONF_FLOOR_RETURN,
     CONF_FLOOR_SUPPLY,
+    CONF_FROST_TEMP,
     CONF_FROST_FLOOR,
     CONF_HEATING_LIMIT,
     CONF_HOME,
@@ -368,6 +369,9 @@ def _room_schema(defaults: dict[str, Any], presets: list[str], monitor: bool = F
         fields[vol.Optional(
             CONF_COMFORT_TEMP, description=_suggest(defaults.get(CONF_COMFORT_TEMP))
         )] = _number(12, 26, 0.5, "°C")
+        fields[vol.Optional(
+            CONF_FROST_TEMP, description=_suggest(defaults.get(CONF_FROST_TEMP, 5.0))
+        )] = _number(5, 15, 0.5, "°C")
         fields[vol.Optional(
             CONF_SETBACK_SHORT, description=_suggest(defaults.get(CONF_SETBACK_SHORT, short))
         )] = _number(10, 24, 0.5, "°C")
@@ -778,7 +782,7 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
             flat = _flatten_room(user_input)
             errors = _validate_calibration(flat)
             if not errors:
-                for key in (CONF_COMFORT_TEMP, CONF_CALIBRATION_ENTITY):
+                for key in (CONF_COMFORT_TEMP, CONF_FROST_TEMP, CONF_CALIBRATION_ENTITY):
                     flat.setdefault(key, None)
                 self._options.update(flat)
                 if monitor:

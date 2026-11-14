@@ -17,6 +17,7 @@ from .const import (
     CONF_EXTRA_TRVS,
     CONF_FLOOR_RETURN,
     CONF_FLOOR_SUPPLY,
+    CONF_FROST_TEMP,
     CONF_HOME,
     CONF_HUMIDITY_SENSOR,
     CONF_NAME,
@@ -187,6 +188,7 @@ async def ws_room_resume(hass: HomeAssistant, connection: websocket_api.ActiveCo
         vol.Optional("floor_return"): vol.Any(None, str),
         vol.Optional("extra_trvs", default=[]): [str],
         vol.Optional("comfort_temperature"): vol.Any(None, vol.Coerce(float)),
+        vol.Optional("frost_temperature"): vol.Any(None, vol.Coerce(float)),
         vol.Optional("setback_short"): vol.Any(None, vol.Coerce(float)),
         vol.Optional("setback_long"): vol.Any(None, vol.Coerce(float)),
     }
@@ -234,7 +236,7 @@ async def ws_room_create(hass: HomeAssistant, connection: websocket_api.ActiveCo
         CONF_SCHEDULES: [],
     }
     options = dict(DEFAULTS)
-    for key in (CONF_COMFORT_TEMP, CONF_SETBACK_SHORT, CONF_SETBACK_LONG):
+    for key in (CONF_COMFORT_TEMP, CONF_FROST_TEMP, CONF_SETBACK_SHORT, CONF_SETBACK_LONG):
         if msg.get(key) is not None:
             options[key] = msg[key]
     entry = ConfigEntry(

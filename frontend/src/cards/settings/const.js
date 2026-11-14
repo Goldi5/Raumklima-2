@@ -64,7 +64,7 @@ export const ROOM_TAB_DEFAULT = "overview";
 // Werte, die sich gefahrlos auf andere Räume übertragen lassen (Phase 4).
 // Keine Entitäten, keine Raumzuordnung, keine Zeitpläne: die sind raum- bzw. gerätespezifisch.
 export const ROOM_APPLY_KEYS = [
-  "comfort_temperature", "setback_short", "setback_long",
+  "comfort_temperature", "setback_short", "setback_long", "frost_temperature",
   "window_open_delay", "window_close_delay",
   "preheat_mode", "preheat_lead_min", "preheat_not_before", "quiet_mode",
   "night_airing", "virtual_window", "solar_gain",

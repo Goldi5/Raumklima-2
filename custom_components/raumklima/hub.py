@@ -94,6 +94,7 @@ def _short(value: Any) -> str:
 # Optionsnamen, die im Protokoll lesbar stehen sollen (Schlüssel bleiben unverändert)
 OPTION_LABELS: dict[str, str] = {
     "comfort_temperature": "Wunschtemperatur",
+    "frost_temperature": "Frostschutz",
     "setback_short": "Absenkung kurz",
     "setback_long": "Absenkung lang",
     "room_eco": "Leeren Raum absenken",

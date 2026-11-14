@@ -38,16 +38,14 @@ async def test_laenger_weg_ausserhalb_der_fenster(hass: HomeAssistant, setup, tr
     assert target == ctrl.setback_long
 
 
-async def test_sicherung_ist_der_kalteste_wert(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+async def test_frostschutz_ist_der_kalteste_wert(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     _hub, room = setup
     ctrl = _ctrl(hass, room)
-    hub = ctrl.hub
-    assert hub is not None
     ctrl.config[CONF_SCHEDULES] = NICHT_JETZT
     ctrl.config[CONF_SCHEDULE_FALLBACK] = "frost"
     _on, target, reason = ctrl.plan()
     assert reason == "schedule_fallback"
-    assert target == hub.frost_floor
+    assert target == ctrl.frost_temp == 5.0
 
 
 async def test_im_fenster_gilt_der_zeitplan(hass: HomeAssistant, setup, trv: FakeTrv) -> None:

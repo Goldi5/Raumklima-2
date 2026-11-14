@@ -166,6 +166,12 @@ test("Zeitplan: aufgeklappte Zeitfenster bleiben beim Neuzeichnen offen", () => 
   assert.match(card.shadowRoot.innerHTML, /<details class="sched-collapse"[^>]* open/);
 });
 
+test("Raum-Regelung zeigt Frostschutz", () => {
+  const html = renderRoom();
+  assert.match(html, /Frostschutz/);
+  assert.match(html, /data-key="frost_temperature"/);
+});
+
 test("Raum-Einstellungen: jeder Stepper hat Schritt > 0 und Minimum < Maximum", () => {
   const html = renderRoom();
   const steppers = [...html.matchAll(/data-key="([a-z_0-9]+)" data-step="([^"]*)" data-min="([^"]*)" data-max="([^"]*)"/g)];

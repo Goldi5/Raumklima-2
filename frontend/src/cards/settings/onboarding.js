@@ -56,6 +56,7 @@ const STEPS = [
       { key: "comfort_temperature", label: "Wunschtemperatur", type: "number", unit: " °C", min: 12, max: 26, step: 0.5 },
       { key: "setback_short", label: "Absenkung kurz weg", type: "number", unit: " °C", min: 10, max: 24, step: 0.5 },
       { key: "setback_long", label: "Absenkung länger weg", type: "number", unit: " °C", min: 8, max: 22, step: 0.5 },
+      { key: "frost_temperature", label: "Frostschutz", type: "number", unit: " °C", min: 5, max: 15, step: 0.5 },
     ],
   },
   {
@@ -287,6 +288,7 @@ export const OnboardingMethods = {
         if (d.comfort_temperature !== undefined && d.comfort_temperature !== null) roomChanges.comfort_temperature = Number(d.comfort_temperature);
         if (d.setback_short !== undefined && d.setback_short !== null) roomChanges.setback_short = Number(d.setback_short);
         if (d.setback_long !== undefined && d.setback_long !== null) roomChanges.setback_long = Number(d.setback_long);
+        if (d.frost_temperature !== undefined && d.frost_temperature !== null) roomChanges.frost_temperature = Number(d.frost_temperature);
         const created = await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges });
         const extra = {};
         if (d.co2_limit !== undefined) extra.co2_limit = Number(d.co2_limit);

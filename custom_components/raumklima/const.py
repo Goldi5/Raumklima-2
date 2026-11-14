@@ -115,6 +115,8 @@ CONF_FAST_POLL: Final = "fast_poll"  # Thermostat alle 2 min aktiv abfragen (tr√
 CONF_OVERRIDE_MINUTES: Final = "override_minutes"
 CONF_AIRING_OCCUPIED_ONLY: Final = "airing_occupied_only"  # nur erinnern, wenn der Raum belegt war  # Zeitplan so lange pausieren, wenn jemand von Hand stellt
 CONF_COMFORT_TEMP: Final = "comfort_temperature"
+CONF_FROST_TEMP: Final = "frost_temperature"
+FROST_TEMP_DEFAULT: Final = 5.0
 NOTIFY_ACTION_EVENT: Final = "mobile_app_notification_action"
 EVENT_RAUMKLIMA: Final = "raumklima_event"
 ROOM_TYPE_OPTIONS: Final = [
@@ -386,6 +388,7 @@ OFF_METHODS: Final = [OFF_AUTO, OFF_PRESET, OFF_HVAC, OFF_MIN_TEMP]
 
 DEFAULTS: Final = {
     CONF_CALIBRATION_MODE: CAL_OFFSET,
+    CONF_FROST_TEMP: FROST_TEMP_DEFAULT,
     CONF_OFF_METHOD: OFF_AUTO,
     "on_preset": "auto_detect",
     CONF_WINDOW_OPEN_DELAY: 10,

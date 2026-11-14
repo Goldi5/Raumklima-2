@@ -32,7 +32,7 @@ export const GeneralMethods = {
         <span class="rtop"><span class="rname">${r.name}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
         <span class="rbig">${fmt(r.attrs.comfort_temperature)}<i>°</i></span>
         ${plan ? `<span class="rsub">${plan}</span>` : ""}
-        <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C</span>
+        <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C · ${t("Frost")} ${fmt(s.frost_temperature ?? 5)} °C</span>
         <span class="rsub">${t("Lüften ab {v} °C", { v: fmt(r.attrs.min_temp) })}</span>
         <span class="rflags">${flags}</span></button>`;
     }).join("");

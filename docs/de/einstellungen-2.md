@@ -2,8 +2,8 @@
 
 **Stand:** 2026-11-14
 **Basis:** 0.62.x, zuletzt 0.62.50b3 auf `main`
-**Zielversion:** 1.1.1 (stabil)
-**Entwicklungslinie:** `1.1.0b1–b8` auf dem Branch `next`; mit `1.1.1` auf `main`
+**Zielversion:** 1.2.0 (stabil)
+**Entwicklungslinie:** `1.1.0b1–b8` auf dem Branch `next`; mit `1.2.0` auf `main`
 abgeschlossen. Dashboard 2.0 (1.1), Verschattung (1.2), Fußbodenheizung (1.3),
 Lernmodell 2.0 (1.4), die stufenlose Ventilsteuerung (1.5), Klimaanlagen (1.6),
 Wärmeanforderung (1.7), dynamische Tarife/PV (1.8) und Auswertung mit Vorhersage (1.9)

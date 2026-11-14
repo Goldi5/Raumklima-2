@@ -162,6 +162,36 @@ export const HELP = {
     "If a room drops below this temperature during the heating pause, it heats anyway – protection against cooling down and mould.",
     "Si une pièce descend sous cette température pendant la pause de chauffage, elle chauffe quand même – protection contre le refroidissement et les moisissures.",
   ],
+  "Sonnenaufgang": [
+    "Zeitpunkt des nächsten Sonnenaufgangs – hilft bei der Verschattung und beim Vorheizen am Morgen.",
+    "Time of the next sunrise – useful for shading and morning preheating.",
+    "Heure du prochain lever du soleil – utile pour l’occultation et le préchauffage matinal.",
+  ],
+  "Sonnenuntergang": [
+    "Zeitpunkt des nächsten Sonnenuntergangs – danach fährt die Verschattung je Einstellung herunter.",
+    "Time of the next sunset – afterwards shading closes or opens according to its setting.",
+    "Heure du prochain coucher du soleil – ensuite l’occultation se ferme ou s’ouvre selon le réglage.",
+  ],
+  "Karte": [
+    "Version der Karte, die gerade im Browser läuft. Weicht sie von der Integration ab, die Seite mit Strg+Shift+R neu laden.",
+    "Version of the card currently running in the browser. If it differs from the integration, reload the page with Ctrl+Shift+R.",
+    "Version de la carte actuellement chargée dans le navigateur. Si elle diffère de l’intégration, rechargez avec Ctrl+Shift+R.",
+  ],
+  "Datenquelle": [
+    "Die Karte liest die Werte live über die WebSocket-Verbindung von Home Assistant – ohne Umweg über eine Datei.",
+    "The card reads values live from Home Assistant over the WebSocket connection – without a file in between.",
+    "La carte lit les valeurs en direct depuis Home Assistant via la connexion WebSocket – sans passer par un fichier.",
+  ],
+  "Werkzeuge": [
+    "Schnellzugriff auf Selbsttest, Diagnose-Datei und Fehlerbericht – ohne den Umweg über den Kopf der Karte.",
+    "Quick access to self-test, diagnostics file and bug report – without going through the card header.",
+    "Accès rapide à l’auto-test, au fichier de diagnostic et au rapport de bug – sans passer par l’en-tête de la carte.",
+  ],
+  "Frostschutz": [
+    "Die absolute Untergrenze wie am Thermostat: Fällt der Raum darunter, heizt Raumklima auf diesen Wert – unabhängig von Zeitplan, Abwesenheit oder Heizpause.",
+    "The absolute lower limit, like on the thermostat: if the room drops below it, Raumklima heats to this value – regardless of schedule, absence or heating pause.",
+    "La limite inférieure absolue, comme sur le thermostat : si la pièce descend en dessous, Raumklima chauffe jusqu’à cette valeur – indépendamment du programme, de l’absence ou de la pause.",
+  ],
   "Frostnacht: weniger absenken": [
     "Sagt die Vorhersage −5 °C oder kälter, wird bei Abwesenheit nur halb so tief abgesenkt. So kühlen die Wände nicht zu stark aus und der Raum ist schneller wieder warm.",
     "If the forecast says −5 °C or colder, setback during absence is only half as deep. Walls don't cool down too much and the room warms up faster.",

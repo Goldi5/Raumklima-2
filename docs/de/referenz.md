@@ -20,7 +20,8 @@
 | Heizsaison | 10-01 bis 04-30 | Format MM-TT |
 | Heizgrenze | 15 °C | Tagesmittel außen (24 h gemessen + 24 h Vorhersage) |
 | Kälteeinbruch unter | 12 °C | 3 Tage darunter → heizen auch außerhalb der Saison |
-| Sicherung | 16 °C | darunter heizt ein Raum immer |
+| Frostschutz je Raum | 5 °C | absolute Untergrenze wie am Gerät – darunter heizt der Raum immer |
+| Sicherung (Wohnung) | 16 °C | zusätzliche Sicherung in der Heizpause – darunter heizt ein Raum immer |
 | Sommerpflege | an | mittwochs 11 Uhr Ventile 3 min öffnen |
 | Frostnacht: weniger absenken | an | Vorhersage ≤ −5 °C in 12 h → Absenkung nur halb so tief |
 | Empfänger | – | je `notify`-Dienst die Nachrichtenarten |
