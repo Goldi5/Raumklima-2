@@ -256,7 +256,6 @@ class PlanMixin:
             if ctx.manual_until is not None and ctx.manual_until <= ctx.now:
                 ctx.manual_until = None
                 self._manual_until = None
-                self._manual_return_target = None
                 self._save()
             self.frost_night_low = None
         return None

@@ -1,3 +1,8 @@
+## 0.62.50b3 – 2026-11-14
+
+### Behoben
+- **Handverstellung: Wunschtemperatur aus den Einstellungen:** „Wunschtemperatur fortsetzen“ stellt jetzt den in den Einstellungen hinterlegten Wunsch wieder her, nicht den vorherigen Ist-Zielwert (z. B. einen Absenkungswert).
+
 ## 0.62.50b2 – 2026-11-14
 
 ### Behoben

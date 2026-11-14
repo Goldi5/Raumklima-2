@@ -24,7 +24,6 @@ class StoreMixin:
             "boost_until": iso(self.boost_until),
             "boost_open": self.boost_open,
             "boost_temperature": self.boost_temperature,
-            "manual_return_target": self._manual_return_target,
             "window_logic": self.window_logic,
             "trv_on_preset": self.trv_on_preset,
             "preset_learned": self.preset_learned,
@@ -49,7 +48,6 @@ class StoreMixin:
         self.boost_until = parse_dt(stored.get("boost_until"))
         self.boost_open = bool(stored.get("boost_open") or False)
         self.boost_temperature = stored.get("boost_temperature")
-        self._manual_return_target = stored.get("manual_return_target")
         self.window_logic = bool(stored.get("window_logic", self.window_logic))
         self.trv_on_preset = stored.get("trv_on_preset")
         self.preset_learned = stored.get("preset_learned")
