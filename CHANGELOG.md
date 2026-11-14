@@ -1,3 +1,8 @@
+## 1.1.0b4 – 2026-11-14
+
+### Behoben
+- **Einrichtungsassistent:** Weitere Thermostate lassen sich jetzt als Mehrfachauswahl anlegen; Fenster, Präsenzmelder und Rollläden waren bereits mehrfach wählbar.
+
 ## 1.1.0b3 – 2026-11-14
 
 ### Behoben
@@ -21,6 +26,7 @@
 - **Klimaanlagen:** Kühlgrenze und Sollwert bleiben getrennt; die Klimaanlage bekommt eine Mindestlaufzeit und Mindestpause gegen häufiges Takten. Beide Werte sind je Raum einstellbar und stehen in `settings_summary()` unter `ac_min_on`/`ac_min_off`.
 - **Wärmeanforderung an den Erzeuger:** Die Zentrale summiert die Heizlücke aller fordernden Räume und schlägt einen Vorlauf vor. Der neue Sensor `sensor.raumklima_allgemein_warmeanforderung` zeigt „Wärme“/„Bereit“; Attribute nennen Vorlauf, Summe und Räume.
 - **Dynamische Tarife und PV-Überschuss:** Der Tarif-Sensor kann als dynamisch markiert werden; die Energiekarte zeigt den aktuellen Preis und den PV-Überschuss. Ist Strom günstig, kann die Heizung bis zu 60 min vor einem Zeitfenster vorheizen. Die Kostenschätzung nutzt weiterhin den aktuellen Preis.
+- **Energieabrechnung 2.0:** Dynamische Tarife werden aus dem Preisverlauf gemittelt; die Einstellungen zeigen den aktuellen Sensorwert und die Preisbasis (brutto/netto, MwSt., zusätzliche Abgaben). Die Energiekarte kennt jetzt auch „Heute“. Der Wetter-Reiter zeigt aktuelle Werte und Heizgrenzen; System & Diagnose zeigt Version, Entitäten und offene Hinweise.
 - **Auswertung mit Vorhersage:** Der Verlauf summiert jetzt auch die vom Wärmemodell erwartete Temperatur und die Abweichung zum Ist-Wert. In CSV stehen `vorhersage_mittel_C` und `vorhersage_fehler_K`; so fallen offene Fenster oder zu schwache Heizkörper als unerwartet große Abweichung auf.
 - **Räume direkt verwalten:** Räume lassen sich jetzt in der Einstellungs-Karte anlegen und löschen – ohne den Weg über HA-Einstellungen → Geräte & Integrationen.
 - **Einrichtungsassistent:** Ein geführter Assistent fragt Wohnung, Heizung, PV, Energie, Anwesenheit, Komfort, Lüften, Verschattung und Fußboden ab – mit Ja/Nein-Zweigen und Zusammenfassung. Er legt Wohnung/Einstellungen und den Raum direkt an.

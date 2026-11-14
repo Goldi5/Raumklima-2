@@ -1,4 +1,4 @@
-/* Raumklima 1.1.0b3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.1.0b4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -128,6 +128,34 @@
     "Zähler": "Meter",
     "Tarif": "Tariff",
     "PV-Ertrag": "PV yield",
+    "MwSt.": "VAT",
+    "Preisbasis": "Price basis",
+    "Zusätzliche Abgaben": "Additional charges",
+    "aktuell {v}": "current {v}",
+    "brutto": "gross",
+    "brutto = inkl. MwSt./Netzentgelte; netto = der Sensor liefert den Nettopreis": "gross = incl. VAT/network charges; net = the sensor provides the net price",
+    "netto": "net",
+    "nur bei netto – wird auf den Nettopreis addiert": "only for net – added to the net price",
+    "€/kWh – z. B. Netzentgelte, die der Sensor nicht enthält": "€/kWh – e.g. network charges not included in the sensor",
+    "Aktuell": "Current",
+    "Böen ab dieser Stärke": "Gusts from this strength",
+    "Entitäten": "Entities",
+    "Home Assistant": "Home Assistant",
+    "Integration": "Integration",
+    "Nächste Stunden": "Next hours",
+    "Offene Hinweise": "Open issues",
+    "Python": "Python",
+    "Raumklima-Räume": "Raumklima rooms",
+    "Sturm": "Storm",
+    "Vorhersage unter diesem Wert": "forecast below this value",
+    "Wetter-Entität in den Einstellungen wählen": "select a weather entity in the settings",
+    "Wind": "Wind",
+    "Zeitzone": "Time zone",
+    "alle Entitäten in Home Assistant": "all entities in Home Assistant",
+    "aus der Wettervorhersage": "from the weather forecast",
+    "darunter gilt die Heizsaison": "below this the heating season applies",
+    "für die Verschattung und die Sonnenprognose": "for shading and the sun forecast",
+    "gefühlte Temperatur": "feels-like temperature",
     "Grundpreis": "Base fee",
     "Arbeitspreis": "Energy price",
     "Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht": "Analyse meters, tariffs and PV yield – prerequisite for the euro estimate in the report",
@@ -1426,6 +1454,34 @@
     "Zähler": "Compteur",
     "Tarif": "Tarif",
     "PV-Ertrag": "Rendement PV",
+    "MwSt.": "TVA",
+    "Preisbasis": "Base de prix",
+    "Zusätzliche Abgaben": "Charges supplémentaires",
+    "aktuell {v}": "actuel {v}",
+    "brutto": "brut",
+    "brutto = inkl. MwSt./Netzentgelte; netto = der Sensor liefert den Nettopreis": "brut = TVA/charges réseau incluses ; net = le capteur fournit le prix net",
+    "netto": "net",
+    "nur bei netto – wird auf den Nettopreis addiert": "uniquement en net – ajouté au prix net",
+    "€/kWh – z. B. Netzentgelte, die der Sensor nicht enthält": "€/kWh – p. ex. charges réseau non incluses dans le capteur",
+    "Aktuell": "Actuel",
+    "Böen ab dieser Stärke": "Rafales à partir de cette force",
+    "Entitäten": "Entités",
+    "Home Assistant": "Home Assistant",
+    "Integration": "Intégration",
+    "Nächste Stunden": "Prochaines heures",
+    "Offene Hinweise": "Remarques ouvertes",
+    "Python": "Python",
+    "Raumklima-Räume": "Pièces Raumklima",
+    "Sturm": "Tempête",
+    "Vorhersage unter diesem Wert": "prévision sous cette valeur",
+    "Wetter-Entität in den Einstellungen wählen": "choisir une entité météo dans les réglages",
+    "Wind": "Vent",
+    "Zeitzone": "Fuseau horaire",
+    "alle Entitäten in Home Assistant": "toutes les entités dans Home Assistant",
+    "aus der Wettervorhersage": "de la prévision météo",
+    "darunter gilt die Heizsaison": "en dessous, la saison de chauffe s’applique",
+    "für die Verschattung und die Sonnenprognose": "pour l’ombrage et la prévision solaire",
+    "gefühlte Temperatur": "température ressentie",
     "Grundpreis": "Frais fixes",
     "Arbeitspreis": "Prix de l’énergie",
     "Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht": "Analyser compteurs, tarifs et rendement PV – prérequis pour l’estimation en euros dans le rapport",
@@ -2637,7 +2693,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.1.0b3";
+  var RK_VERSION = "1.1.0b4";
 
   // src/styles.js
   var STYLES = `
@@ -4678,6 +4734,23 @@
     "Zähler": ["Strom- oder Gaszähler als Verbrauchsquelle.", "Electricity or gas meter as consumption source.", "Compteur électrique ou gaz comme source de consommation."],
     "Tarif": ["Arbeitspreis und Grundgebühr.", "Energy price and base fee.", "Prix de l’énergie et frais fixes."],
     "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
+    "Aktuell": ["Aktueller Messwert der gewählten Entität.", "Current reading of the selected entity.", "Valeur actuelle de l’entité choisie."],
+    "Entitäten": ["Anzahl aller Entitäten in Home Assistant.", "Number of all entities in Home Assistant.", "Nombre de toutes les entités dans Home Assistant."],
+    "Home Assistant": ["Version von Home Assistant.", "Home Assistant version.", "Version de Home Assistant."],
+    "Integration": ["Version der Raumklima-Integration.", "Raumklima integration version.", "Version de l’intégration Raumklima."],
+    "Nächste Stunden": ["Auszug aus der Wettervorhersage.", "Excerpt from the weather forecast.", "Extrait de la prévision météo."],
+    "Offene Hinweise": ["Anzahl der offenen Gesundheitshinweise.", "Number of open health notices.", "Nombre d’avis de santé ouverts."],
+    "Python": ["Python-Version von Home Assistant.", "Python version used by Home Assistant.", "Version Python utilisée par Home Assistant."],
+    "Sturm": ["Böen-Schwelle für die Sturmwarnung.", "Gust threshold for the storm warning.", "Seuil de rafales pour l’alerte tempête."],
+    "Wind": ["Windgeschwindigkeit aus der Wetterquelle.", "Wind speed from the weather source.", "Vitesse du vent de la source météo."],
+    "Zeitzone": ["Zeitzone von Home Assistant.", "Home Assistant time zone.", "Fuseau horaire de Home Assistant."],
+    "Preisbasis": ["Ob der Tarif-Sensor brutto oder netto liefert.", "Whether the tariff sensor reports gross or net.", "Si le capteur de tarif indique brut ou net."],
+    "MwSt.": ["Mehrwertsteuer für den Nettopreis.", "VAT for the net price.", "TVA pour le prix net."],
+    "Zusätzliche Abgaben": ["€/kWh für Netzentgelte oder Abgaben, die der Sensor nicht enthält.", "€/kWh for network charges or levies the sensor does not include.", "€/kWh pour les charges réseau ou taxes non incluses dans le capteur."],
+    "Feuchte": ["Relative Luftfeuchte aus der Wetterquelle.", "Relative humidity from the weather source.", "Humidité relative de la source météo."],
+    "Sonne": ["Stand der Sonne über/unter dem Horizont.", "Sun position above/below the horizon.", "Position du soleil au-dessus/en dessous de l’horizon."],
+    "Kälteeinbruch": ["Schwelle für die Kälteeinbruch-Warnung.", "Threshold for the cold-snap warning.", "Seuil d’alerte de vague de froid."],
+    "Räume": ["Anzahl der Raumklima-Räume.", "Number of Raumklima rooms.", "Nombre de pièces Raumklima."],
     "Grundpreis": ["Monatliche Grundgebühr in €.", "Monthly base fee in €.", "Frais fixes mensuels en €."],
     "Arbeitspreis": ["Preis pro kWh – für die Euro-Schätzung.", "Price per kWh – for the euro estimate.", "Prix par kWh – pour l’estimation en euros."],
     "Feinstaubfühler": [
@@ -5347,6 +5420,8 @@
     energy_base: { unit: " €", step: 1, min: 0, max: 1e3, dec: 2 },
     energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
     energy_cheap_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
+    energy_vat: { unit: " %", step: 0.5, min: 0, max: 30, dec: 1 },
+    energy_extra_fee: { unit: " €", step: 0.01, min: 0, max: 1, dec: 2 },
     energy_factor: { unit: " kWh/m³", step: 0.5, min: 0, max: 20, dec: 1 },
     energy_efficiency: { unit: "", step: 0.1, min: 0, max: 6, dec: 1 },
     pv_self_use: { unit: " %", step: 5, min: 0, max: 100, dec: 0 },
@@ -5784,6 +5859,14 @@
 
   // src/cards/settings/sections/energy.js
   var EnergySectionMethods = {
+    _sensorInfo(entityId) {
+      const st = entityId ? this._hass && this._hass.states[entityId] : null;
+      if (!st) return "–";
+      const v = Number.parseFloat(st.state);
+      if (!Number.isFinite(v)) return st.state;
+      const unit = st.attributes.unit_of_measurement || "";
+      return `${fmt(v, 2)} ${unit}`.trim();
+    },
     _groupEnergy() {
       const H = this._hubOpt.bind(this);
       const source = H("energy_source") || "auto";
@@ -5793,6 +5876,9 @@
       const advanced = [
         this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), t("monatliche Grundgebühr in €")),
         this._row("Arbeitspreis", this._num("hub", "energy_price", H("energy_price") ?? 0.3), t("Preis pro kWh in € – gilt, wenn kein Tarif-Sensor gewählt ist")),
+        this._row("Preisbasis", this._select("hub", "energy_price_basis", [{ id: "gross", name: t("brutto") }, { id: "net", name: t("netto") }], H("energy_price_basis") || "gross"), t("brutto = inkl. MwSt./Netzentgelte; netto = der Sensor liefert den Nettopreis")),
+        this._row("MwSt.", this._num("hub", "energy_vat", H("energy_vat") ?? 19), t("nur bei netto – wird auf den Nettopreis addiert")),
+        this._row("Zusätzliche Abgaben", this._num("hub", "energy_extra_fee", H("energy_extra_fee") ?? 0), t("€/kWh – z. B. Netzentgelte, die der Sensor nicht enthält")),
         source === "gas" || source === "auto" ? this._row("Gas-Umrechnung", this._num("hub", "energy_factor", H("energy_factor") ?? 10), t("kWh je m³ – Brennwert × Zustandszahl; 10 ist ein typischer Näherungswert")) : "",
         source === "heatpump" ? this._row("Wärmemenge", this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– wählen –"), t("optionaler Wärmezähler der Wärmepumpe – sonst zählt nur der Strom")) : "",
         source === "heatpump" ? this._row("Jahresarbeitszahl", this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0), t("optional: Wärme je kWh Strom (JAZ); 0 = unbekannt")) : "",
@@ -5831,29 +5917,40 @@
         this._row(
           "Zähler",
           this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-          t("Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")
+          H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")
         ),
         this._row(
           "Tarif",
           this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
-          t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")
+          H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")
         ),
         this._row(
           "PV-Ertrag",
           this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
-          t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")
+          H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")
         ),
-        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price"])
+        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price"])
       ].join(""));
     },
     _groupWeather() {
-      return this._grp(
-        "weather",
-        "Wetter",
-        "mdi:weather-partly-cloudy",
-        "air",
-        `<div class="hint">${t("Kommt in einer späteren Beta: eigene Wetterquelle und Vorhersage je Wohnung.")}</div>`
-      );
+      const w = this._hubOpt("weather_entity") ? this._hass && this._hass.states[this._hubOpt("weather_entity")] : null;
+      const sun = this._hass && this._hass.states["sun.sun"];
+      const a = w && w.attributes || {};
+      const forecast = Array.isArray(a.forecast) ? a.forecast.slice(0, 8) : [];
+      const rows = [
+        this._row("Wetterquelle", this._v(esc(w ? w.name : t("keine")), !w), t("Wetter-Entität in den Einstellungen wählen")),
+        this._row("Aktuell", this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w), w ? t("gefühlte Temperatur") : ""),
+        this._row("Feuchte", this._v(w && a.humidity != null ? `${fmt(a.humidity, 0)} %` : "–", !w), ""),
+        this._row("Wind", this._v(w && a.wind_speed != null ? `${fmt(a.wind_speed, 1)} km/h` : "–", !w), ""),
+        this._row("Sonne", this._v(sun ? t(sun.state === "above_horizon" ? "über dem Horizont" : "unter dem Horizont") : "–", !sun), t("für die Verschattung und die Sonnenprognose")),
+        this._row("Heizgrenze", this._v(`${fmt(this._hubOpt("heating_limit") ?? 15, 1)} °C`, false), t("darunter gilt die Heizsaison")),
+        this._row("Kälteeinbruch", this._v(`${fmt(this._hubOpt("cold_snap_temp") ?? 12, 1)} °C`, false), t("Vorhersage unter diesem Wert")),
+        this._row("Sturm", this._v(`${fmt(this._hubOpt("storm_gust_kmh") ?? 70, 0)} km/h`, false), t("Böen ab dieser Stärke"))
+      ];
+      if (forecast.length) {
+        rows.push(this._row("Nächste Stunden", this._v(forecast.slice(0, 4).map((f) => `${f.datetime ? new Date(f.datetime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""} ${fmt(f.temperature)}°`).join(" · "), false), t("aus der Wettervorhersage")));
+      }
+      return this._grp("weather", "Wetter", "mdi:weather-partly-cloudy", "air", rows.join(""), "span");
     },
     _groupReports(ctx) {
       const { ch, H } = ctx;
@@ -5963,13 +6060,19 @@
       return this._layoutGroup();
     },
     _groupAdvanced() {
-      return this._grp(
-        "advanced",
-        "Erweitert",
-        "mdi:cog-outline",
-        "off",
-        `<div class="hint">${t("Kommt in einer späteren Beta: technische Einstellungen und Diagnosewerkzeuge.")}</div>`
-      );
+      const c = this._cfg || {};
+      const h = this._hass || {};
+      const cfg = h.config || {};
+      const rows = [
+        this._row("Integration", this._v(esc(c.version || "–"), false), ""),
+        this._row("Home Assistant", this._v(esc(cfg.version || "–"), false), ""),
+        this._row("Python", this._v(esc(cfg.python_version || "–"), false), ""),
+        this._row("Zeitzone", this._v(esc(cfg.time_zone || "–"), false), ""),
+        this._row("Entitäten", this._v(String(Object.keys(h.states || {}).length), false), t("alle Entitäten in Home Assistant")),
+        this._row("Räume", this._v(String((this._rooms || []).length), false), t("Raumklima-Räume")),
+        this._row("Offene Hinweise", this._v(String((c.hub && c.hub.state && c.hub.state.issues || []).length), false), t("Gesundheit der Heizung"))
+      ];
+      return this._grp("advanced", "System & Diagnose", "mdi:cog-outline", "off", rows.join(""), "span");
     }
   };
 
@@ -8467,6 +8570,7 @@
       show: (d) => d.heat_type !== "monitor",
       fields: [
         { key: "trv", label: "Thermostat", type: "select", choices: "climate", required: true },
+        { key: "extra_trvs", label: "Weitere Thermostate", type: "multi", choices: "climate" },
         { key: "temperature_sensor", label: "Temperaturfühler", type: "select", choices: "outdoor", required: true },
         { key: "humidity_sensor", label: "Feuchtefühler (optional)", type: "select", choices: "humidity", allowEmpty: true },
         { key: "window_sensors", label: "Fensterkontakte (optional)", type: "multi", choices: "windows" }
@@ -8546,6 +8650,7 @@
     heat_type: "trv",
     room_type: "living",
     energy_source: "auto",
+    extra_trvs: [],
     presence_kind: "auto",
     co2_limit: 1e3,
     shading_mode: "off",
@@ -8614,8 +8719,11 @@
         return `<select class="sel" id="${id}" data-onb="${f.key}" data-onbtype="select">${opts.map(([oid, name]) => `<option value="${esc(oid)}"${String(v ?? "") === String(oid) ? " selected" : ""}>${esc(name)}</option>`).join("")}</select>`;
       }
       if (f.type === "multi") {
-        const choices = f.choices ? this._cfg && this._cfg.choices && this._cfg.choices[f.choices] || [] : [];
+        let choices = f.choices ? this._cfg && this._cfg.choices && this._cfg.choices[f.choices] || [] : [];
         const cur = Array.isArray(v) ? v : [];
+        if (f.key === "extra_trvs" && this._onboard && this._onboard.data.trv) {
+          choices = choices.filter((x) => x.id !== this._onboard.data.trv);
+        }
         return `<select class="sel" id="${id}" data-onb="${f.key}" multiple>${choices.map((x) => `<option value="${esc(x.id)}"${cur.includes(x.id) ? " selected" : ""}>${esc(x.name)}</option>`).join("")}</select>`;
       }
       if (f.type === "toggle") {
@@ -8676,6 +8784,7 @@
           };
           if (d.humidity_sensor) roomChanges.humidity_sensor = d.humidity_sensor;
           if ((d.window_sensors || []).length) roomChanges.window_sensors = d.window_sensors;
+          if ((d.extra_trvs || []).length) roomChanges.extra_trvs = d.extra_trvs;
           if ((d.presence_sensors || []).length) roomChanges.presence_sensors = d.presence_sensors;
           if ((d.shading_covers || []).length) roomChanges.shading_covers = d.shading_covers;
           if (d.heat_type === "floor") {
@@ -10059,7 +10168,7 @@
       this._html = `<style>${STYLES}${DASH_STYLES}</style>
       <ha-card class="dashcard" style="--tone:${toneVar("warn")}">
         <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:lightning-bolt-outline"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div>
-          <div class="dseg">${[7, 30, 90].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${t("{n} Tage", { n })}</button>`).join("")}</div>
+          <div class="dseg">${[1, 7, 30, 90].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${n === 1 ? t("Heute") : t("{n} Tage", { n })}</button>`).join("")}</div>
         </div>
         ${body}
       </ha-card>`;

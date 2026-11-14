@@ -351,6 +351,9 @@ HUB_DEFAULTS: Final = {
     "energy_meter": None,
     "energy_tariff": None,
     "energy_tariff_dynamic": False,
+    "energy_price_basis": "gross",
+    "energy_vat": 19.0,
+    "energy_extra_fee": 0.0,
     "energy_cheap_price": 0.20,
     "energy_preheat_cheap": False,
     "energy_base": 0.0,
@@ -498,6 +501,9 @@ CONF_ENERGY_ENABLED: Final = "energy_enabled"
 CONF_ENERGY_METER: Final = "energy_meter"
 CONF_ENERGY_TARIFF: Final = "energy_tariff"
 CONF_ENERGY_TARIFF_DYNAMIC: Final = "energy_tariff_dynamic"
+CONF_ENERGY_PRICE_BASIS: Final = "energy_price_basis"
+CONF_ENERGY_VAT: Final = "energy_vat"
+CONF_ENERGY_EXTRA_FEE: Final = "energy_extra_fee"
 CONF_ENERGY_CHEAP_PRICE: Final = "energy_cheap_price"
 CONF_ENERGY_PREHEAT_CHEAP: Final = "energy_preheat_cheap"
 CONF_ENERGY_BASE: Final = "energy_base"

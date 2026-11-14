@@ -20,6 +20,9 @@ from .const import (
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_METER,
     CONF_ENERGY_PRICE,
+    CONF_ENERGY_PRICE_BASIS,
+    CONF_ENERGY_VAT,
+    CONF_ENERGY_EXTRA_FEE,
     CONF_ENERGY_SOURCE,
     CONF_ENERGY_CHEAP_PRICE,
     CONF_ENERGY_PREHEAT_CHEAP,
@@ -273,6 +276,9 @@ class Insights:
             "meter_unit": attrs.get("unit_of_measurement"),
             "tariff": self.hub.opt(CONF_ENERGY_TARIFF),
             "tariff_dynamic": bool(self.hub.opt(CONF_ENERGY_TARIFF_DYNAMIC)),
+            "price_basis": str(self.hub.opt(CONF_ENERGY_PRICE_BASIS) or "gross"),
+            "vat": float(self.hub.opt(CONF_ENERGY_VAT) or 0),
+            "extra_fee": float(self.hub.opt(CONF_ENERGY_EXTRA_FEE) or 0),
             "cheap_price": float(self.hub.opt(CONF_ENERGY_CHEAP_PRICE) or 0),
             "preheat_cheap": bool(self.hub.opt(CONF_ENERGY_PREHEAT_CHEAP)),
             "price": float(self.hub.opt(CONF_ENERGY_PRICE) or 0),
@@ -332,6 +338,13 @@ class Insights:
                 if (cfg["meter_unit"] or "").strip().lower().replace("³", "3") in ("m3", "m^3"):
                     cfg["m3"] = value
                 cfg["price"] = self._tariff_price(cfg["tariff"], cfg["price"], cfg["factor"])
+                avg = await self._tariff_average(cfg["tariff"], start, end, cfg["factor"])
+                if avg is not None:
+                    cfg["price"] = avg
+                    cfg["price_avg"] = round(avg, 4)
+                    cfg["price_source"] = "history"
+                else:
+                    cfg["price_source"] = "current"
             if cfg["heat_entity"]:
                 heat = await self._stat_change(cfg["heat_entity"], start, end)
                 if heat is not None:
@@ -373,8 +386,26 @@ class Insights:
         total = sum(float(row.get("change") or 0) for row in rows)
         return total if rows else None
 
+    def _normalize_tariff(self, value: float, unit: str | None, factor: float) -> float:
+        """Preis auf €/kWh bringen und die eingestellte Preisbasis anwenden."""
+        unit = str(unit or "").lower().replace("³", "3")
+        if "ct" in unit or "cent" in unit:
+            value /= 100
+        elif "/mwh" in unit:
+            value /= 1000
+        elif "/m3" in unit or "/m^3" in unit:
+            value /= factor or 10.0
+        basis = str(self.hub.opt(CONF_ENERGY_PRICE_BASIS) or "gross")
+        vat = float(self.hub.opt(CONF_ENERGY_VAT) or 0)
+        extra = float(self.hub.opt(CONF_ENERGY_EXTRA_FEE) or 0)
+        if basis == "net":
+            value = value * (1 + vat / 100) + extra
+        else:
+            value = value + extra
+        return round(value, 4) if value > 0 else 0.0
+
     def _tariff_price(self, entity_id: str | None, fallback: float, factor: float) -> float:
-        """Tarif-Entität lesen und auf €/kWh normalisieren (ct und €/MWh kommen vor)."""
+        """Tarif-Entität lesen und auf €/kWh normalisieren."""
         state = self.hass.states.get(entity_id) if entity_id else None
         if state is None:
             return fallback
@@ -382,14 +413,34 @@ class Insights:
             value = float(state.state)
         except (TypeError, ValueError):
             return fallback
-        unit = str(state.attributes.get("unit_of_measurement") or "").lower().replace("³", "3")
-        if "ct" in unit or "cent" in unit:
-            value /= 100
-        elif "/mwh" in unit:
-            value /= 1000
-        elif "/m3" in unit or "/m^3" in unit:
-            value /= factor or 10.0
-        return value if value > 0 else fallback
+        unit = state.attributes.get("unit_of_measurement")
+        return self._normalize_tariff(value, unit, factor) or fallback
+
+    async def _tariff_average(self, entity_id: str | None, start: date, end: date, factor: float) -> float | None:
+        """Durchschnittspreis aus der Statistik – für dynamische Tarife."""
+        if not entity_id:
+            return None
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        first = dt_util.as_utc(dt_util.start_of_local_day(start))
+        last = dt_util.as_utc(dt_util.start_of_local_day(end + timedelta(days=1)))
+        result = await get_instance(self.hass).async_add_executor_job(
+            statistics_during_period,
+            self.hass,
+            first,
+            last,
+            {entity_id},
+            "hour",
+            None,
+            {"mean"},
+        )
+        rows = result.get(entity_id) or []
+        values = [float(row["mean"]) for row in rows if row.get("mean") is not None]
+        if not values:
+            return None
+        unit = self._unit_of(entity_id)
+        return self._normalize_tariff(sum(values) / len(values), unit, factor)
 
     def report_extras(self) -> dict[str, Any]:
         """Live-Werte für den PDF-Bericht: Raumtypen, Aufheizzeiten, Batterien, Heizkosten."""

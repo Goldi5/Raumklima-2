@@ -79,6 +79,12 @@ Ja/Nein-Zweigen durch Wohnung, Heizung, PV, Energie, Anwesenheit, Komfort,
 Lüften, Verschattung und Fußboden. Er legt die Wohnung/Einstellungen und den Raum
 direkt an; danach kann alles in den Einstellungen feinjustiert werden.
 
+**1.13 Energieabrechnung 2.0 (umgesetzt):** Dynamische Tarife werden aus dem
+Preisverlauf gemittelt; die Einstellungen zeigen den aktuellen Sensorwert und die
+Preisbasis (brutto/netto, MwSt., zusätzliche Abgaben). Die Energiekarte kennt
+„Heute“. Der Wetter-Reiter zeigt aktuelle Werte und Heizgrenzen; System &
+Diagnose zeigt Version, Entitäten und offene Hinweise.
+
 Dieses Dokument beschreibt den Umbau der Einstellungen und die getrennte
 1.0-Entwicklungslinie. Es ist ein Plan, keine Zusage: Phasen und Aufwände
 können sich mit den Rückmeldungen aus der Beta ändern.

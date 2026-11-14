@@ -1,4 +1,4 @@
-import { rkIssueList, t, toneVar } from "../../../shared.js";
+import { esc, rkIssueList, t, toneVar } from "../../../shared.js";
 
 export const SystemSectionMethods = {
   _groupHealth(ctx) {
@@ -15,7 +15,18 @@ export const SystemSectionMethods = {
   },
 
   _groupAdvanced() {
-    return this._grp("advanced", "Erweitert", "mdi:cog-outline", "off",
-      `<div class="hint">${t("Kommt in einer späteren Beta: technische Einstellungen und Diagnosewerkzeuge.")}</div>`);
+    const c = this._cfg || {};
+    const h = this._hass || {};
+    const cfg = h.config || {};
+    const rows = [
+      this._row("Integration", this._v(esc(c.version || "–"), false), ""),
+      this._row("Home Assistant", this._v(esc(cfg.version || "–"), false), ""),
+      this._row("Python", this._v(esc(cfg.python_version || "–"), false), ""),
+      this._row("Zeitzone", this._v(esc(cfg.time_zone || "–"), false), ""),
+      this._row("Entitäten", this._v(String(Object.keys(h.states || {}).length), false), t("alle Entitäten in Home Assistant")),
+      this._row("Räume", this._v(String((this._rooms || []).length), false), t("Raumklima-Räume")),
+      this._row("Offene Hinweise", this._v(String(((c.hub && c.hub.state && c.hub.state.issues) || []).length), false), t("Gesundheit der Heizung")),
+    ];
+    return this._grp("advanced", "System & Diagnose", "mdi:cog-outline", "off", rows.join(""), "span");
   },
 };

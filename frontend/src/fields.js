@@ -28,6 +28,8 @@ export const RK_NUM = {
   energy_base: { unit: " €", step: 1, min: 0, max: 1000, dec: 2 },
   energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
   energy_cheap_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
+  energy_vat: { unit: " %", step: 0.5, min: 0, max: 30, dec: 1 },
+  energy_extra_fee: { unit: " €", step: 0.01, min: 0, max: 1, dec: 2 },
   energy_factor: { unit: " kWh/m³", step: 0.5, min: 0, max: 20, dec: 1 },
   energy_efficiency: { unit: "", step: 0.1, min: 0, max: 6, dec: 1 },
   pv_self_use: { unit: " %", step: 5, min: 0, max: 100, dec: 0 },

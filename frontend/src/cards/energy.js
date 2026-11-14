@@ -126,7 +126,7 @@ export class RaumklimaEnergyCard extends HTMLElement {
     this._html = `<style>${STYLES}${DASH_STYLES}</style>
       <ha-card class="dashcard" style="--tone:${toneVar("warn")}">
         <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:lightning-bolt-outline"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div>
-          <div class="dseg">${[7, 30, 90].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${t("{n} Tage", { n })}</button>`).join("")}</div>
+          <div class="dseg">${[1, 7, 30, 90].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${n === 1 ? t("Heute") : t("{n} Tage", { n })}</button>`).join("")}</div>
         </div>
         ${body}
       </ha-card>`;

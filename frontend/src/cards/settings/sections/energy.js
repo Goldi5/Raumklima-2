@@ -1,6 +1,15 @@
-import { t } from "../../../shared.js";
+import { esc, fmt, t } from "../../../shared.js";
 
 export const EnergySectionMethods = {
+  _sensorInfo(entityId) {
+    const st = entityId ? this._hass && this._hass.states[entityId] : null;
+    if (!st) return "–";
+    const v = Number.parseFloat(st.state);
+    if (!Number.isFinite(v)) return st.state;
+    const unit = st.attributes.unit_of_measurement || "";
+    return `${fmt(v, 2)} ${unit}`.trim();
+  },
+
   _groupEnergy() {
     const H = this._hubOpt.bind(this);
     const source = H("energy_source") || "auto";
@@ -10,6 +19,9 @@ export const EnergySectionMethods = {
     const advanced = [
       this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), t("monatliche Grundgebühr in €")),
       this._row("Arbeitspreis", this._num("hub", "energy_price", H("energy_price") ?? 0.3), t("Preis pro kWh in € – gilt, wenn kein Tarif-Sensor gewählt ist")),
+      this._row("Preisbasis", this._select("hub", "energy_price_basis", [{id:"gross",name:t("brutto")},{id:"net",name:t("netto")}], H("energy_price_basis") || "gross"), t("brutto = inkl. MwSt./Netzentgelte; netto = der Sensor liefert den Nettopreis")),
+      this._row("MwSt.", this._num("hub", "energy_vat", H("energy_vat") ?? 19), t("nur bei netto – wird auf den Nettopreis addiert")),
+      this._row("Zusätzliche Abgaben", this._num("hub", "energy_extra_fee", H("energy_extra_fee") ?? 0), t("€/kWh – z. B. Netzentgelte, die der Sensor nicht enthält")),
       (source === "gas" || source === "auto") ? this._row("Gas-Umrechnung", this._num("hub", "energy_factor", H("energy_factor") ?? 10), t("kWh je m³ – Brennwert × Zustandszahl; 10 ist ein typischer Näherungswert")) : "",
       source === "heatpump" ? this._row("Wärmemenge", this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– wählen –"), t("optionaler Wärmezähler der Wärmepumpe – sonst zählt nur der Strom")) : "",
       source === "heatpump" ? this._row("Jahresarbeitszahl", this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0), t("optional: Wärme je kWh Strom (JAZ); 0 = unbekannt")) : "",
@@ -34,18 +46,34 @@ export const EnergySectionMethods = {
       ], source),
         t("bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird")),
       this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-        t("Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")),
+        H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")),
       this._row("Tarif", this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
-        t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")),
+        H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")),
       this._row("PV-Ertrag", this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
-        t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")),
-      this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price"]),
+        H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")),
+      this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price"]),
     ].join(""));
   },
 
   _groupWeather() {
-    return this._grp("weather", "Wetter", "mdi:weather-partly-cloudy", "air",
-      `<div class="hint">${t("Kommt in einer späteren Beta: eigene Wetterquelle und Vorhersage je Wohnung.")}</div>`);
+    const w = this._hubOpt("weather_entity") ? this._hass && this._hass.states[this._hubOpt("weather_entity")] : null;
+    const sun = this._hass && this._hass.states["sun.sun"];
+    const a = (w && w.attributes) || {};
+    const forecast = Array.isArray(a.forecast) ? a.forecast.slice(0, 8) : [];
+    const rows = [
+      this._row("Wetterquelle", this._v(esc(w ? w.name : t("keine")), !w), t("Wetter-Entität in den Einstellungen wählen")),
+      this._row("Aktuell", this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w), w ? t("gefühlte Temperatur") : ""),
+      this._row("Feuchte", this._v(w && a.humidity != null ? `${fmt(a.humidity, 0)} %` : "–", !w), ""),
+      this._row("Wind", this._v(w && a.wind_speed != null ? `${fmt(a.wind_speed, 1)} km/h` : "–", !w), ""),
+      this._row("Sonne", this._v(sun ? t(sun.state === "above_horizon" ? "über dem Horizont" : "unter dem Horizont") : "–", !sun), t("für die Verschattung und die Sonnenprognose")),
+      this._row("Heizgrenze", this._v(`${fmt(this._hubOpt("heating_limit") ?? 15, 1)} °C`, false), t("darunter gilt die Heizsaison")),
+      this._row("Kälteeinbruch", this._v(`${fmt(this._hubOpt("cold_snap_temp") ?? 12, 1)} °C`, false), t("Vorhersage unter diesem Wert")),
+      this._row("Sturm", this._v(`${fmt(this._hubOpt("storm_gust_kmh") ?? 70, 0)} km/h`, false), t("Böen ab dieser Stärke")),
+    ];
+    if (forecast.length) {
+      rows.push(this._row("Nächste Stunden", this._v(forecast.slice(0, 4).map((f) => `${f.datetime ? new Date(f.datetime).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) : ""} ${fmt(f.temperature)}°`).join(" · "), false), t("aus der Wettervorhersage")));
+    }
+    return this._grp("weather", "Wetter", "mdi:weather-partly-cloudy", "air", rows.join(""), "span");
   },
 
   _groupReports(ctx) {

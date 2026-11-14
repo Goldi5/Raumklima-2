@@ -51,6 +51,8 @@ NUM: dict[str, NumField] = {
     "energy_base": NumField(" €", 1, 0, 1000, 2, 'float', 0, 1000),
     "energy_price": NumField(" €", 0.01, 0, 2, 2, 'float', 0, 2),
     "energy_cheap_price": NumField(" €", 0.01, 0, 2, 2, 'float', 0, 2),
+    "energy_vat": NumField(" %", 0.5, 0, 30, 1, 'float', 0, 30),
+    "energy_extra_fee": NumField(" €", 0.01, 0, 1, 2, 'float', 0, 1),
     "energy_factor": NumField(" kWh/m³", 0.5, 0, 20, 1, 'float', 0, 20),
     "energy_efficiency": NumField("", 0.1, 0, 6, 1, 'float', 0, 6),
     "pv_self_use": NumField(" %", 5, 0, 100, 0, 'int', 0, 100),

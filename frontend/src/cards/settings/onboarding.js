@@ -23,6 +23,7 @@ const STEPS = [
   {
     id: "trv", title: "Thermostat & Fühler", show: (d) => d.heat_type !== "monitor", fields: [
       { key: "trv", label: "Thermostat", type: "select", choices: "climate", required: true },
+      { key: "extra_trvs", label: "Weitere Thermostate", type: "multi", choices: "climate" },
       { key: "temperature_sensor", label: "Temperaturfühler", type: "select", choices: "outdoor", required: true },
       { key: "humidity_sensor", label: "Feuchtefühler (optional)", type: "select", choices: "humidity", allowEmpty: true },
       { key: "window_sensors", label: "Fensterkontakte (optional)", type: "multi", choices: "windows" },
@@ -82,6 +83,7 @@ const STEPS = [
 
 const EMPTY = {
   home_name: "", room_name: "", heat_type: "trv", room_type: "living", energy_source: "auto",
+  extra_trvs: [],
   presence_kind: "auto", co2_limit: 1000,
   shading_mode: "off", pv_yes: false, pv_self_use: 0,
   energy_price: 0.3, energy_base: 0, floor_supply: "", floor_return: "",
@@ -150,8 +152,11 @@ export const OnboardingMethods = {
       return `<select class="sel" id="${id}" data-onb="${f.key}" data-onbtype="select">${opts.map(([oid, name]) => `<option value="${esc(oid)}"${String(v ?? "") === String(oid) ? " selected" : ""}>${esc(name)}</option>`).join("")}</select>`;
     }
     if (f.type === "multi") {
-      const choices = f.choices ? ((this._cfg && this._cfg.choices && this._cfg.choices[f.choices]) || []) : [];
+      let choices = f.choices ? ((this._cfg && this._cfg.choices && this._cfg.choices[f.choices]) || []) : [];
       const cur = Array.isArray(v) ? v : [];
+      if (f.key === "extra_trvs" && this._onboard && this._onboard.data.trv) {
+        choices = choices.filter((x) => x.id !== this._onboard.data.trv);
+      }
       return `<select class="sel" id="${id}" data-onb="${f.key}" multiple>${choices.map((x) => `<option value="${esc(x.id)}"${cur.includes(x.id) ? " selected" : ""}>${esc(x.name)}</option>`).join("")}</select>`;
     }
     if (f.type === "toggle") {
@@ -214,6 +219,7 @@ export const OnboardingMethods = {
         };
         if (d.humidity_sensor) roomChanges.humidity_sensor = d.humidity_sensor;
         if ((d.window_sensors || []).length) roomChanges.window_sensors = d.window_sensors;
+        if ((d.extra_trvs || []).length) roomChanges.extra_trvs = d.extra_trvs;
         if ((d.presence_sensors || []).length) roomChanges.presence_sensors = d.presence_sensors;
         if ((d.shading_covers || []).length) roomChanges.shading_covers = d.shading_covers;
         if (d.heat_type === "floor") {
