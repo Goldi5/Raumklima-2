@@ -1,3 +1,8 @@
+## 0.62.49b1 – 2026-11-14
+
+### Neu
+- **Handverstellung beenden:** Nach einer manuellen Temperaturänderung erscheint auf der großen Raumkarte ein Knopf. Mit Zeitplan heißt er „Zeitplan fortsetzen“, ohne Zeitplan „Wunschtemperatur fortsetzen“. Ein Klick beendet die Handverstellung sofort.
+
 ## 0.62.48b1 – 2026-11-13
 
 ### Behoben

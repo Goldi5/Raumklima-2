@@ -1,4 +1,4 @@
-/* Raumklima 0.62.48b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 0.62.49b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -94,6 +94,8 @@
     "keine – die Automatik regelt wie gewohnt": "none – the automation works as usual",
     "danach gilt wieder Zeitplan bzw. Automatik": "afterwards the schedule or the automation applies again",
     "Zeitplan · Ziel <b>{v} °C</b>": "Schedule · target <b>{v} °C</b>",
+    "Zeitplan fortsetzen": "Resume schedule",
+    "Wunschtemperatur fortsetzen": "Resume desired temperature",
     "Zeitplan": "Schedule",
     "Zeitfenster {n}": "Time window {n}",
     "Zeitfenster hinzufügen": "Add time window",
@@ -1113,6 +1115,8 @@
     "keine – die Automatik regelt wie gewohnt": "aucune – la régulation fonctionne comme d’habitude",
     "danach gilt wieder Zeitplan bzw. Automatik": "ensuite, le planning ou la régulation s’applique de nouveau",
     "Zeitplan · Ziel <b>{v} °C</b>": "Planning · cible <b>{v} °C</b>",
+    "Zeitplan fortsetzen": "Reprendre le programme",
+    "Wunschtemperatur fortsetzen": "Reprendre la température souhaitée",
     "Zeitplan": "Planning",
     "Zeitfenster {n}": "Plage horaire {n}",
     "Zeitfenster hinzufügen": "Ajouter une plage horaire",
@@ -2079,7 +2083,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "0.62.48b1";
+  var RK_VERSION = "0.62.49b1";
 
   // src/styles.js
   var STYLES = `
@@ -3231,6 +3235,18 @@
         </div>
       </div>`;
     }
+    async _resume() {
+      const st = this._hass && this._hass.states[this._config.entity];
+      const entry = st && st.attributes && st.attributes.room;
+      if (!entry) return;
+      try {
+        await this._hass.connection.sendMessagePromise({ type: "raumklima/room/resume", entry_id: entry });
+        this._pending = null;
+        this._render();
+      } catch (e) {
+        console.error("raumklima resume:", e);
+      }
+    }
     async _boost(mode, minutes) {
       const st = this._hass.states[this._config.entity];
       const entry = st && st.attributes && st.attributes.room;
@@ -3422,6 +3438,7 @@
         ${devLine}
         ${this._boostOpen ? this._boostSheet(a) : ""}
         <div class="actions">
+          ${!mon && a.override_until && Date.parse(a.override_until) > Date.now() ? `<button class="pill" data-resume style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-check-outline"></ha-icon>${(a.settings && a.settings.schedules || []).length ? t("Zeitplan fortsetzen") : t("Wunschtemperatur fortsetzen")}</button>` : ""}
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
           ${mon ? "" : `<span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>`}
@@ -3431,6 +3448,11 @@
       const p = this.shadowRoot.querySelector("[data-power]");
       if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
       this.shadowRoot.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call("switch", "toggle", { entity_id: b.dataset.toggle })));
+      const resume = this.shadowRoot.querySelector("[data-resume]");
+      if (resume) resume.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        this._resume();
+      });
       this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => {
         ev.stopPropagation();
         this._boostOpen = !this._boostOpen;

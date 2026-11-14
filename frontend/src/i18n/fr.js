@@ -94,6 +94,8 @@ export const FR = {
   "keine – die Automatik regelt wie gewohnt": "aucune – la régulation fonctionne comme d’habitude",
   "danach gilt wieder Zeitplan bzw. Automatik": "ensuite, le planning ou la régulation s’applique de nouveau",
   "Zeitplan · Ziel <b>{v} °C</b>": "Planning · cible <b>{v} °C</b>",
+  "Zeitplan fortsetzen": "Reprendre le programme",
+  "Wunschtemperatur fortsetzen": "Reprendre la température souhaitée",
   "Zeitplan": "Planning",
   "Zeitfenster {n}": "Plage horaire {n}",
   "Zeitfenster hinzufügen": "Ajouter une plage horaire",

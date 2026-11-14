@@ -94,6 +94,8 @@ export const EN = {
   "keine – die Automatik regelt wie gewohnt": "none – the automation works as usual",
   "danach gilt wieder Zeitplan bzw. Automatik": "afterwards the schedule or the automation applies again",
   "Zeitplan · Ziel <b>{v} °C</b>": "Schedule · target <b>{v} °C</b>",
+  "Zeitplan fortsetzen": "Resume schedule",
+  "Wunschtemperatur fortsetzen": "Resume desired temperature",
   "Zeitplan": "Schedule",
   "Zeitfenster {n}": "Time window {n}",
   "Zeitfenster hinzufügen": "Add time window",

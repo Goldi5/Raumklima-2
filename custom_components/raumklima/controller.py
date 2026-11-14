@@ -744,6 +744,14 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
 
     # ================================================================ Bedienung
+    async def async_resume_manual(self) -> None:
+        """Handverstellung beenden: Zeitplan/Automatik sofort wieder übernehmen."""
+        self._manual_until = None
+        self._manual_candidate = None
+        self._save()
+        self._notify()
+        await self._apply()
+
     async def async_set_target(self, temperature: float, by: str | None = None) -> None:
         new = clamp(float(temperature), self.trv_min, self.trv_max)
         on, current, reason = self.plan()

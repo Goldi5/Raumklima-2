@@ -135,6 +135,24 @@ async def ws_layout_save(hass: HomeAssistant, connection: websocket_api.ActiveCo
 
 @websocket_api.websocket_command(
     {
+        vol.Required("type"): f"{DOMAIN}/room/resume",
+        vol.Required("entry_id"): str,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_room_resume(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Handverstellung beenden und Zeitplan/Automatik sofort fortsetzen."""
+    room = domain_data(hass)["rooms"].get(msg["entry_id"])
+    if room is None:
+        connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
+        return
+    await room.async_resume_manual()
+    connection.send_result(msg["id"], {"ok": True, "override_until": None})
+
+
+@websocket_api.websocket_command(
+    {
         vol.Required("type"): f"{DOMAIN}/room/reset",
         vol.Required("entry_id"): str,
     }
