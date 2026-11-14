@@ -450,7 +450,7 @@ does not matter.
 - **Underfloor heating:** own slow control characteristic with flow/return and flow warning.
 - **Learning model 2.0:** learns heat-up rate, heat loss and solar gain; stops earlier before target.
 - **Direct valve control:** for thermostats with a `number` actuator, e.g. SONOFF TRVZB.
-- **Air conditioning:** cools and heats with separate targets and anti-cycling; cheaper source by COP/gas price.
+- **Air conditioning:** cools and heats with separate targets and anti-cycling; cheaper source by COP/gas price. If the meter measures gas or district heat, enter the electricity price under *Energy & tariffs* – otherwise no comparison is made.
 - **Heat demand:** sensor `sensor.raumklima_allgemein_warmeanforderung` aggregates all rooms.
 - **Dynamic tariffs/PV:** price limit, preheat when cheap, PV surplus.
 - **Manual override:** “Resume schedule” or “Resume desired temperature” button on the room card.
