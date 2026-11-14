@@ -1,3 +1,8 @@
+## 1.1.0b3 – 2026-11-14
+
+### Behoben
+- **Einrichtungsassistent:** Der Assistent läuft jetzt als eigene Seite in der Einstellungs-Karte statt als Overlay. Er verschwindet nicht mehr sofort; zusätzlich gibt es einen „Assistent“-Knopf in der Raumliste.
+
 ## 1.1.0b2 – 2026-11-14
 
 ### Neu

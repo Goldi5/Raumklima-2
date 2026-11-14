@@ -929,6 +929,7 @@ export const FR = {
   "Abschließen": "Terminer",
   "Bitte {f} ausfüllen": "Veuillez remplir {f}",
   "Einrichtung abgeschlossen": "Configuration terminée",
+  "Assistent": "Assistant",
   "Einrichtungsassistent": "Assistant de configuration",
   "Führt Schritt für Schritt durch die Einrichtung": "Guide pas à pas dans la configuration",
   "Keine weiteren Fragen – bereit zum Abschließen.": "Plus de questions – prêt à terminer.",

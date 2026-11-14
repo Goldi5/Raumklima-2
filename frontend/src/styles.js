@@ -157,6 +157,7 @@ export const SETTINGS_STYLES = `
     background: var(--secondary-background-color, #f5f5f5); color: var(--primary-text-color);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78rem; line-height: 1.4; }
   .sbtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .sheet.onb { margin: 12px; width: auto; max-height: none; box-shadow: none; background: var(--card-background-color, #fff); }
 
   details.adv { margin: 12px 0 2px; border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent); }
   details.adv > summary { cursor: pointer; padding: 12px 2px 4px; font-size: .88rem; font-weight: 600; color: var(--secondary-text-color);

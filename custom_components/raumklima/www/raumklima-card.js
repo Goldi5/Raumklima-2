@@ -1,4 +1,4 @@
-/* Raumklima 1.1.0b2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.1.0b3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -928,6 +928,7 @@
     "Abschließen": "Finish",
     "Bitte {f} ausfüllen": "Please fill in {f}",
     "Einrichtung abgeschlossen": "Setup complete",
+    "Assistent": "Assistant",
     "Einrichtungsassistent": "Setup assistant",
     "Führt Schritt für Schritt durch die Einrichtung": "Guides you through setup step by step",
     "Keine weiteren Fragen – bereit zum Abschließen.": "No more questions – ready to finish.",
@@ -2225,6 +2226,7 @@
     "Abschließen": "Terminer",
     "Bitte {f} ausfüllen": "Veuillez remplir {f}",
     "Einrichtung abgeschlossen": "Configuration terminée",
+    "Assistent": "Assistant",
     "Einrichtungsassistent": "Assistant de configuration",
     "Führt Schritt für Schritt durch die Einrichtung": "Guide pas à pas dans la configuration",
     "Keine weiteren Fragen – bereit zum Abschließen.": "Plus de questions – prêt à terminer.",
@@ -2635,7 +2637,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.1.0b2";
+  var RK_VERSION = "1.1.0b3";
 
   // src/styles.js
   var STYLES = `
@@ -2792,6 +2794,7 @@
     background: var(--secondary-background-color, #f5f5f5); color: var(--primary-text-color);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78rem; line-height: 1.4; }
   .sbtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .sheet.onb { margin: 12px; width: auto; max-height: none; box-shadow: none; background: var(--card-background-color, #fff); }
 
   details.adv { margin: 12px 0 2px; border-top: 1px solid color-mix(in srgb, var(--primary-text-color) 10%, transparent); }
   details.adv > summary { cursor: pointer; padding: 12px 2px 4px; font-size: .88rem; font-weight: 600; color: var(--secondary-text-color);
@@ -8631,8 +8634,7 @@
       const fields = (step.fields || []).filter((f) => !f.show || f.show(this._onboard.data));
       const body = fields.map((f) => `<label class="mf"><span>${t(f.label)}</span>${this._onboardField(f)}</label>`).join("");
       const last = this._onboard.step >= steps.length - 1;
-      return `<div class="sheetwrap">
-      <div class="sheet" role="dialog" aria-modal="true">
+      return `<div class="sheet onb" role="dialog" aria-modal="false">
         <div class="stitle"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Einrichtungsassistent")} · ${t(step.title)}</div>
         <div class="sintro">${t(this._onboard.roomOnly ? "Neuer Raum – die Wohnung bleibt unverändert." : step.intro || "Schritt {n} von {m}", { n: this._onboard.step + 1, m: steps.length })}</div>
         ${body || `<div class="hint">${t("Keine weiteren Fragen – bereit zum Abschließen.")}</div>`}
@@ -8641,7 +8643,6 @@
           ${last ? `<button class="btn primary" data-onbfinish><ha-icon icon="mdi:check"></ha-icon>${t("Abschließen")}</button>` : `<button class="btn primary" data-onbnext><ha-icon icon="mdi:arrow-right"></ha-icon>${t("Weiter")}</button>`}
           <button class="btn" data-onbclose style="--c:var(--rk-off)">${t("Abbrechen")}</button>
         </div>
-      </div>
     </div>`;
     },
     async _onboardFinish() {
@@ -9088,7 +9089,6 @@
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         <div id="rkbody">${body}</div>
         ${this._copyRoom ? this._copyRoomHtml() : ""}
-        ${this._onboardHtml ? this._onboardHtml() : ""}
         ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
@@ -9100,6 +9100,7 @@
     }
     //Phase 5: aktueller Inhalt – bei aktiver Suche alle Bereiche plus aktueller Raum.
     _bodyHtml() {
+      if (this._onboardOpen) return this._onboardHtml();
       const nav2 = !!this._nav2;
       const section = nav2 ? SETTINGS_SECTIONS.find((x) => x.id === this._section) || SETTINGS_SECTIONS[0] : null;
       const rooms = this._orderedRooms();
@@ -9168,6 +9169,7 @@
       <select class="sel" id="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
       <select class="sel" id="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
       <button class="btn" data-addroom style="--c:var(--rk-heat)"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
+      <button class="btn" data-onboard style="--c:var(--rk-eco)"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Assistent")}</button>
     </div>` : "";
       return `<div class="roomlist" style="--g:var(--rk-heat)">
       <div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div>

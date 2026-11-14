@@ -381,7 +381,6 @@ export class RaumklimaSettingsCard extends HTMLElement {
         <div class="nosearch" style="display:none">${t("Kein Treffer – anderen Begriff versuchen")}</div>
         <div id="rkbody">${body}</div>
         ${this._copyRoom ? this._copyRoomHtml() : ""}
-        ${this._onboardHtml ? this._onboardHtml() : ""}
         ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
@@ -394,6 +393,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   //Phase 5: aktueller Inhalt – bei aktiver Suche alle Bereiche plus aktueller Raum.
   _bodyHtml() {
+    if (this._onboardOpen) return this._onboardHtml();
     const nav2 = !!this._nav2;
     const section = nav2 ? (SETTINGS_SECTIONS.find((x) => x.id === this._section) || SETTINGS_SECTIONS[0]) : null;
     const rooms = this._orderedRooms();
@@ -461,6 +461,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
       <select class="sel" id="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
       <select class="sel" id="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
       <button class="btn" data-addroom style="--c:var(--rk-heat)"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
+      <button class="btn" data-onboard style="--c:var(--rk-eco)"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Assistent")}</button>
     </div>` : "";
     return `<div class="roomlist" style="--g:var(--rk-heat)">
       <div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div>

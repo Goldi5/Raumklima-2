@@ -171,8 +171,7 @@ export const OnboardingMethods = {
     const fields = (step.fields || []).filter((f) => !f.show || f.show(this._onboard.data));
     const body = fields.map((f) => `<label class="mf"><span>${t(f.label)}</span>${this._onboardField(f)}</label>`).join("");
     const last = this._onboard.step >= steps.length - 1;
-    return `<div class="sheetwrap">
-      <div class="sheet" role="dialog" aria-modal="true">
+    return `<div class="sheet onb" role="dialog" aria-modal="false">
         <div class="stitle"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Einrichtungsassistent")} · ${t(step.title)}</div>
         <div class="sintro">${t(this._onboard.roomOnly ? "Neuer Raum – die Wohnung bleibt unverändert." : (step.intro || "Schritt {n} von {m}"), { n: this._onboard.step + 1, m: steps.length })}</div>
         ${body || `<div class="hint">${t("Keine weiteren Fragen – bereit zum Abschließen.")}</div>`}
@@ -181,7 +180,6 @@ export const OnboardingMethods = {
           ${last ? `<button class="btn primary" data-onbfinish><ha-icon icon="mdi:check"></ha-icon>${t("Abschließen")}</button>` : `<button class="btn primary" data-onbnext><ha-icon icon="mdi:arrow-right"></ha-icon>${t("Weiter")}</button>`}
           <button class="btn" data-onbclose style="--c:var(--rk-off)">${t("Abbrechen")}</button>
         </div>
-      </div>
     </div>`;
   },
 

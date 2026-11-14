@@ -929,6 +929,7 @@ export const EN = {
   "Abschließen": "Finish",
   "Bitte {f} ausfüllen": "Please fill in {f}",
   "Einrichtung abgeschlossen": "Setup complete",
+  "Assistent": "Assistant",
   "Einrichtungsassistent": "Setup assistant",
   "Führt Schritt für Schritt durch die Einrichtung": "Guides you through setup step by step",
   "Keine weiteren Fragen – bereit zum Abschließen.": "No more questions – ready to finish.",
