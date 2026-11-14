@@ -1,3 +1,31 @@
+## 1.2.2 – 2026-11-14
+
+Korrekturen nach der vollständigen Code-Prüfung.
+
+### Behoben
+- **E-Mail über die SMTP-Integration von Home Assistant:** Der Aufruf von `smtp.send_message` war falsch gebaut
+  (Ziel in den Daten statt als Ziel des Aufrufs, PDF-Anhang als Text statt als `media_source`-Angabe). Test-Mail
+  und Berichtsversand über diesen Weg schlugen fehl – jetzt wie in der HA-Doku.
+- **Einrichtungsassistent:** Mit gewählten Präsenzmeldern wurde der Raum abgelehnt (das Feld gehört nicht zu
+  „Raum anlegen“) – die Melder werden jetzt danach gesetzt. Fehlen Thermostat oder Fühler, sagt der Assistent,
+  dass kein Raum angelegt wurde.
+- **Mehrere Wohnungen:**
+  - „Raum hinzufügen“ und der Assistent legen den Raum in der gewählten Wohnung an (vorher immer in der ersten),
+    der Assistent ändert nur die gewählte Wohnung.
+  - Sichern/Wiederherstellen gilt je Wohnung: nur ihre Räume, nur ihre Einstellungen (vorher eine beliebige Wohnung
+    mit allen Räumen).
+- **Klimaanlage statt Gas:** In Gas-/Fernwärme-Haushalten wurde der Gaspreis als Strompreis gerechnet – die
+  Klimaanlage galt bei jedem COP über 1 als günstiger. Neu: *Strompreis* unter *Energie & Tarife → Weitere
+  Einstellungen*; ohne ihn wird nicht verglichen. Gilt auch für „bei günstigem Strom vorheizen“.
+- **Raum neu laden:** Laufende Timer (Bestätigung eines Handeingriffs, Ende der Ventilpflege) werden abgebrochen,
+  ein entladener Raum schreibt nicht mehr in den Speicher – vorher konnte er frische Werte überschreiben.
+- **Raum löschen** entfernt auch seine Speicherdatei.
+- **Unwetter-Warnung** kam nach jedem Neustart erneut (gemerktes Ereignis wurde beim Start gelöscht).
+- **Sprachansagen** beachten „nur wenn jemand zu Hause ist“ wie Push-Nachrichten.
+- **Wetter in den Einstellungen:** Sonnenauf- und -untergang statt Dämmerung; „gefühlt“ nur, wenn das Wetter es
+  liefert; die leere Zeile „Nächste Stunden“ ist entfernt.
+- „Raum zurücksetzen“ und „Vorlage anwenden“ nehmen nur Raumklima-Räume an.
+
 ## 1.2.1 – 2026-11-14
 
 Korrekturen nach der Code-Prüfung von 1.1/1.2.

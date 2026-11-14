@@ -456,7 +456,7 @@ Jahr ist egal.
 - **Fußbodenheizung:** eigene, träge Regelcharakteristik mit Vor-/Rücklauf und Durchfluss-Warnung.
 - **Lernmodell 2.0:** lernt Aufheizrate, Wärmeverlust und Sonneneinfluss; stoppt früher vor dem Ziel.
 - **Direkte Ventilsteuerung:** für Thermostate mit `number`-Stellglied, z. B. SONOFF TRVZB.
-- **Klimaanlagen:** kühlen und heizen mit getrennten Zielen und Takt-Schutz; günstigere Quelle nach COP/Gaspreis.
+- **Klimaanlagen:** kühlen und heizen mit getrennten Zielen und Takt-Schutz; günstigere Quelle nach COP/Gaspreis. Misst der Zähler Gas oder Fernwärme, unter *Energie & Tarife* den Strompreis eintragen – sonst wird nicht verglichen.
 - **Wärmeanforderung:** Sensor `sensor.raumklima_allgemein_warmeanforderung` bündelt alle Räume.
 - **Dynamische Tarife/PV:** Preisgrenze, günstig vorheizen, PV-Überschuss.
 - **Handverstellung:** Knopf „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ auf der Raumkarte.

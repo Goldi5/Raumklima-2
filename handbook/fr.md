@@ -451,7 +451,7 @@ sont enregistrés – l'année n'a pas d'importance.
 - **Plancher chauffant :** régulation propre, lente, avec départ/retour et alerte de débit.
 - **Modèle d’apprentissage 2.0 :** apprend la vitesse de montée, la perte de chaleur et l’apport solaire ; s’arrête plus tôt avant la consigne.
 - **Commande directe de vanne :** pour les thermostats avec actionneur `number`, p. ex. SONOFF TRVZB.
-- **Climatisation :** refroidit et chauffe avec des consignes séparées et une protection anti-cycle ; source la moins chère selon COP/prix du gaz.
+- **Climatisation :** refroidit et chauffe avec des consignes séparées et une protection anti-cycle ; source la moins chère selon COP/prix du gaz. Si le compteur mesure le gaz ou le réseau de chaleur, saisir le prix de l’électricité sous *Énergie & tarifs* – sinon pas de comparaison.
 - **Demande de chaleur :** le capteur `sensor.raumklima_allgemein_warmeanforderung` agrège toutes les pièces.
 - **Tarifs dynamiques/PV :** limite de prix, préchauffage si bon marché, surplus PV.
 - **Commande manuelle :** bouton « Reprendre le programme » ou « Reprendre la température souhaitée » sur la carte de pièce.
