@@ -762,6 +762,8 @@ export const EN = {
   "statt der Zugangsdaten oben": "instead of the login above",
   "– nein, Zugangsdaten oben –": "– no, use the login above –",
   "Bitte erst unten die Zugangsdaten eintragen und speichern.": "Please enter and save the login below first.",
+  "Alle verfügbaren gewählt": "All available selected",
+  "Hinzufügen": "Add",
   "Weitere Thermostate": "Further thermostats",
   "Haupt-Thermostat": "main thermostat",
   "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert": "get the same commands, each with its own check and correction",

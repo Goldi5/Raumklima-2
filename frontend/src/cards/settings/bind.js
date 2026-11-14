@@ -522,6 +522,14 @@ export const BindMethods = {
     on("click", "[data-onbback]", () => () => this._onboardNext(-1));
     on("click", "[data-onbclose]", () => () => this._onboardClose());
     on("click", "[data-onbfinish]", () => () => this._onboardFinish());
+    on("click", "[data-onbaddbtn]", (el) => () => {
+      const sel = this.shadowRoot.querySelector(`[data-onbadd="${el.dataset.onbaddbtn}"]`);
+      if (sel && sel.value) this._onboardAdd(el.dataset.onbaddbtn, sel.value);
+    });
+    on("click", "[data-onbrm]", (el) => () => {
+      const [key, value] = el.dataset.onbrm.split("|");
+      this._onboardRemove(key, value);
+    });
     on("click", '[data-onbtype="toggle"]', (el) => () => {
       el.classList.toggle("on");
       el.dataset.val = el.classList.contains("on") ? "1" : "0";

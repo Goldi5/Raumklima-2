@@ -762,6 +762,8 @@ export const FR = {
   "statt der Zugangsdaten oben": "au lieu des identifiants ci-dessus",
   "– nein, Zugangsdaten oben –": "– non, identifiants ci-dessus –",
   "Bitte erst unten die Zugangsdaten eintragen und speichern.": "Saisissez et enregistrez d’abord les identifiants ci-dessous.",
+  "Alle verfügbaren gewählt": "Tous les disponibles sélectionnés",
+  "Hinzufügen": "Ajouter",
   "Weitere Thermostate": "Thermostats supplémentaires",
   "Haupt-Thermostat": "thermostat principal",
   "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert": "reçoivent les mêmes commandes, chacun avec sa propre vérification et sa propre correction",

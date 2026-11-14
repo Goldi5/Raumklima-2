@@ -620,6 +620,7 @@ async def test_quiet_time_sets_back_bedroom(hass: HomeAssistant, setup, trv: Fak
     now = dt_util.now()
     hub.config["quiet_start"] = (now - timedelta(hours=1)).strftime("%H:%M:%S")
     hub.config["quiet_end"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config["quiet_end_weekend"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
     hub.config[CONF_QUIET_SETBACK] = True
     ctrl.config[CONF_ROOM_TYPE] = "bedroom"
 
@@ -644,6 +645,7 @@ async def test_quiet_time_needs_bedroom_and_setting(hass: HomeAssistant, setup, 
     now = dt_util.now()
     hub.config["quiet_start"] = (now - timedelta(hours=1)).strftime("%H:%M:%S")
     hub.config["quiet_end"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config["quiet_end_weekend"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
 
     # eingeschaltet, aber kein Schlafraum (Bad) → kein Absenken
     hub.config[CONF_QUIET_SETBACK] = True
@@ -671,6 +673,7 @@ async def test_quiet_mode_per_room(hass: HomeAssistant, setup, trv: FakeTrv) -> 
     now = dt_util.now()
     hub.config["quiet_start"] = (now - timedelta(hours=1)).strftime("%H:%M:%S")
     hub.config["quiet_end"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config["quiet_end_weekend"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
     hub.config[CONF_QUIET_SETBACK] = True
 
     # Wohnraum, aber ausdrücklich „immer" → wird abgesenkt

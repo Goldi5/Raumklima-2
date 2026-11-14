@@ -157,7 +157,13 @@ export const OnboardingMethods = {
       if (f.key === "extra_trvs" && this._onboard && this._onboard.data.trv) {
         choices = choices.filter((x) => x.id !== this._onboard.data.trv);
       }
-      return `<select class="sel" id="${id}" data-onb="${f.key}" multiple>${choices.map((x) => `<option value="${esc(x.id)}"${cur.includes(x.id) ? " selected" : ""}>${esc(x.name)}</option>`).join("")}</select>`;
+      const selected = cur.map((sid) => {
+        const c = choices.find((x) => x.id === sid);
+        return `<span class="chip2" style="--c:var(--rk-ok)"><i></i>${esc(c ? c.name : sid)} <button class="mini x" data-onbrm="${esc(f.key)}|${esc(sid)}" title="${t("entfernen")}">✕</button></span>`;
+      }).join("") || `<span class="v mute">${t("keine")}</span>`;
+      const avail = choices.filter((x) => !cur.includes(x.id));
+      const add = avail.length ? `<div class="addrow"><select class="sel" data-onbadd="${esc(f.key)}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-onbaddbtn="${esc(f.key)}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Hinzufügen")}</button></div>` : `<div class="hint">${t("Alle verfügbaren gewählt")}</div>`;
+      return `<div class="chips">${selected}</div>${add}`;
     }
     if (f.type === "toggle") {
       const on = !!v;
@@ -167,6 +173,20 @@ export const OnboardingMethods = {
       return `<input class="inp" type="number" id="${id}" data-onb="${f.key}" data-onbtype="number" value="${v ?? ""}" min="${f.min ?? ""}" max="${f.max ?? ""}" step="${f.step ?? 1}">`;
     }
     return `<input class="inp" id="${id}" data-onb="${f.key}" data-onbtype="text" value="${esc(v ?? "")}" placeholder="${esc(f.placeholder || "")}">`;
+  },
+
+  _onboardAdd(key, value) {
+    if (!this._onboard || !value) return;
+    const cur = Array.isArray(this._onboard.data[key]) ? this._onboard.data[key] : [];
+    if (!cur.includes(value)) this._onboard.data[key] = [...cur, value];
+    this._render();
+  },
+
+  _onboardRemove(key, value) {
+    if (!this._onboard) return;
+    const cur = Array.isArray(this._onboard.data[key]) ? this._onboard.data[key] : [];
+    this._onboard.data[key] = cur.filter((x) => x !== value);
+    this._render();
   },
 
   _onboardHtml() {

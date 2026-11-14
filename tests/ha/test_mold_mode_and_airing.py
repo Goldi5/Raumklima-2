@@ -38,6 +38,7 @@ def _setup_room(hass: HomeAssistant, setup):
     now = dt_util.now()
     hub.config["quiet_start"] = (now - timedelta(hours=1)).strftime("%H:%M:%S")
     hub.config["quiet_end"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
+    hub.config["quiet_end_weekend"] = (now + timedelta(hours=1)).strftime("%H:%M:%S")
     hub.config[CONF_QUIET_SETBACK] = True
     ctrl.config[CONF_ROOM_TYPE] = "bedroom"
     _humid(hass, ctrl, hub)

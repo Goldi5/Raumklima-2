@@ -1,3 +1,8 @@
+## 1.1.0b5 – 2026-11-14
+
+### Behoben
+- **Einrichtungsassistent:** Weitere Thermostate, Fenster, Präsenzmelder und Rollläden werden jetzt über „Auswählen + Hinzufügen“ gepflegt – mit Chips und Entfernen-Knopf statt Mehrfach-Auswahlfeld.
+
 ## 1.1.0b4 – 2026-11-14
 
 ### Behoben
