@@ -395,6 +395,27 @@ test("Suche: global über Bereiche und aktuellen Raum", () => {
   assert.match(card._bodyHtml(), /class="groups searching"/);
 });
 
+test("Suche: Treffer in anderen Räumen werden als Reiter gemeldet", () => {
+  const card = makeRoom(() => {});
+  card._tab = "nicht-der-aktuelle-raum";
+  const old = globalThis.document.createElement;
+  globalThis.document.createElement = () => ({
+    set innerHTML(value) { this._html = String(value); },
+    querySelectorAll() {
+      return this._html.includes("Wunschtemperatur")
+        ? [{ textContent: "Wunschtemperatur", dataset: { room: "control" } }]
+        : [];
+    },
+  });
+  try {
+    const hits = card._roomSettingHits("Wunschtemperatur");
+    assert.ok(hits.length >= 1);
+    assert.equal(hits[0].tab, "control");
+  } finally {
+    globalThis.document.createElement = old;
+  }
+});
+
 test("Deep-Link: roomtab springt in Raum und Unterseite", () => {
   const card = makeRoom(() => {});
   const room = card._rooms[0];

@@ -609,7 +609,8 @@ def in_time_window(local: datetime, start: str, end: str) -> bool:
     now = local.hour * 60 + local.minute
     s, e = _minutes(start), _minutes(end)
     if s == e:
-        return False
+        # 00:00–00:00 bedeutet ganzer Tag, nicht „leer“.
+        return True
     return s <= now < e if s < e else now >= s or now < e
 
 

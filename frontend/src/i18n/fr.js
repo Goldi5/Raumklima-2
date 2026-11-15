@@ -267,6 +267,7 @@ export const FR = {
   "– keiner –": "– aucun –",
   "gerade: „{s}“": "en cours : « {s} »",
   "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Capteur de prix en €/kWh, ct/kWh, €/m³ ou €/L – facultatif, sinon le prix fixe s’applique",
+  "Auch in": "Aussi dans",
   "Heizöl": "Fioul",
   "Ölpreis": "Prix du fioul",
   "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",

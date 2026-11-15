@@ -375,6 +375,11 @@ class PresenceMixin:
         if room is not None and not self.guests:
             persons = list(room.config.get(CONF_ROOM_PERSONS) or [])
             if persons and not any(self.persons.get(p, {}).get("present") for p in persons):
+                # Fährt eine zugeordnete Person heran, wird auch ihr Raum vorgeheizt.
+                if self.stage == STAGE_PREHEAT and any(
+                    self.persons.get(p, {}).get("approaching") for p in persons
+                ):
+                    return STAGE_PREHEAT
                 return STAGE_AWAY_LONG if self.stage == STAGE_AWAY_LONG else STAGE_AWAY_SHORT
         if self.stage != STAGE_GUESTS:
             return self.stage

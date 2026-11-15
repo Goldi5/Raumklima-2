@@ -267,6 +267,7 @@ export const EN = {
   "– keiner –": "– none –",
   "gerade: „{s}“": "now: “{s}”",
   "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Energy price sensor in €/kWh, ct/kWh, €/m³ or €/L – optional, otherwise the fixed price applies",
+  "Auch in": "Also in",
   "Heizöl": "Heating oil",
   "Ölpreis": "Oil price",
   "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",

@@ -278,6 +278,8 @@ Raumklima notices through your phones when nobody is home anymore:
 | Someone is on the way home | preheat in time (from 10 km away) |
 | Someone comes home | back to the desired temperature |
 
+The setback never goes above the schedule currently in effect. When a person assigned to a room is approaching, that room is preheated too. A `00:00–00:00` time window counts as the whole day.
+
 If you come home early and it's too cool: just turn it up – the setback then pauses for 3 hours.
 
 ## Vacation and visitors

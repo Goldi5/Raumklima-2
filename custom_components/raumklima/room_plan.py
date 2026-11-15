@@ -297,8 +297,13 @@ class PlanMixin:
         mold = None
         if self.humidity_capable and (self.config.get(CONF_MOLD_MODE) or MOLD_STRICT) != MOLD_OFF:
             mold = self.mold_min(hub)
+        # Bei Abwesenheit nie wärmer als der gerade gültige Zeitplan.
+        base = self.target_temp
+        scheduled = schedule_target(self.plan_schedules, ctx.local_now)
+        if scheduled is not None:
+            base = min(base, scheduled)
         target = setback_target(
-            self.target_temp, stage, self.setback_short, self.setback_long, mold
+            base, stage, self.setback_short, self.setback_long, mold
         )
         frost = hub.frost_night
         if not self._peeking:

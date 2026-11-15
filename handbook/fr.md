@@ -277,6 +277,8 @@ Raumklima le remarque via vos téléphones dès que plus personne n’est à la 
 | Quelqu’un est en route vers la maison | préchauffage à temps (dès 10 km) |
 | Quelqu’un rentre | retour à la température souhaitée |
 
+L’abaissement ne dépasse jamais le planning en cours. Lorsqu’une personne affectée à une pièce approche, cette pièce est également préchauffée. Une plage `00:00–00:00` compte comme la journée entière.
+
 Si vous rentrez plus tôt et qu’il fait trop frais : montez simplement la température – l’abaissement est alors suspendu pendant 3 heures.
 
 ## Vacances et visiteurs

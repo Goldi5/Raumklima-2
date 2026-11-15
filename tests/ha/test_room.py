@@ -308,6 +308,37 @@ async def test_preheats_before_schedule_window(
     assert target == 26.0
 
 
+async def test_preheat_fuer_zugeordnete_person(
+    hass: HomeAssistant, setup, trv: FakeTrv, freezer
+) -> None:
+    """Fährt eine zugeordnete Person heran, wird ihr Raum trotz Abwesenheit vorgeheizt."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_ROOM_PERSONS, CONF_SCHEDULES
+    from custom_components.raumklima.planning import STAGE_PREHEAT
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    freezer.move_to("2026-06-15 12:00:00+00:00")
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    ctrl.heatup.episodes = [{"rate": 1.0, "outdoor": 5.0, "minutes": 60, "rise": 1.0}] * 3
+    start = (dt_util.now() + timedelta(minutes=60)).strftime("%H:%M")
+    ctrl.apply_live_options(
+        {CONF_SCHEDULES: [{"days": [], "start": start, "end": "23:59", "temperature": 26.0}]}
+    )
+    await hass.async_block_till_done()
+    ctrl.config[CONF_ROOM_PERSONS] = ["person.luna"]
+    hub.persons = {"person.luna": {"name": "Luna", "present": False, "approaching": True}}
+    hub.stage = STAGE_PREHEAT
+
+    _on, target, reason = ctrl.plan()
+    assert reason == "schedule_preheat"
+    assert target == 26.0
+
+
 async def test_preheat_only_with_rate_and_when_somebody_is_home(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
     """Ohne gelernte Aufheizzeit und bei Abwesenheit wird nicht vorgeheizt."""
     from datetime import timedelta
@@ -338,6 +369,32 @@ async def test_preheat_only_with_rate_and_when_somebody_is_home(hass: HomeAssist
     assert reason != "schedule_preheat"
     assert target < 26.0
     hub.stage = STAGE_HOME
+
+
+async def test_abwesenheit_nie_waermer_als_zeitplan(
+    hass: HomeAssistant, setup, trv: FakeTrv, freezer
+) -> None:
+    """Kurz weg darf nicht über dem gerade laufenden Zeitplan liegen."""
+    from custom_components.raumklima.const import CONF_FROST_NIGHT, CONF_SCHEDULES, CONF_SETBACK_LONG, CONF_SETBACK_SHORT
+    from custom_components.raumklima.planning import STAGE_AWAY_SHORT
+    from custom_components.raumklima.shared import domain_data, get_hub
+
+    freezer.move_to("2026-06-15 12:00:00+00:00")
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.config[CONF_SCHEDULES] = [
+        {"days": [], "start": "00:00", "end": "00:00", "temperature": 12.5}
+    ]
+    ctrl.target_temp = 17.0
+    ctrl.config[CONF_SETBACK_SHORT] = 14.0
+    ctrl.config[CONF_SETBACK_LONG] = 12.0
+    hub = get_hub(hass, None)
+    hub.config[CONF_FROST_NIGHT] = False
+    hub.stage = STAGE_AWAY_SHORT
+
+    _on, target, reason = ctrl.plan()
+    assert reason == STAGE_AWAY_SHORT
+    assert target == 12.5
 
 
 async def test_homeoffice_fenster(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:

@@ -1,3 +1,16 @@
+## Unreleased
+
+### Behoben
+- **Ganztägige Zeitfenster:** `00:00–00:00` gilt jetzt als ganzer Tag statt als leeres Fenster.
+- **Abwesenheit:** Die Absenkung liegt nie über dem gerade gültigen Zeitplan; „kurz weg“ kann einen niedrigeren Nachtwert nicht mehr überstimmen.
+- **Vorheizen:** Fährt eine dem Raum zugeordnete Person heran, wird auch dieser Raum vorgeheizt – nicht nur Räume ohne Personenzuordnung.
+
+### Neu
+- **Suche in den Einstellungen:** Unter den Treffern erscheint „Auch in“ mit Raum und Reiter, wenn derselbe Begriff in anderen Räumen vorkommt.
+
+### Tests
+- Ganztagsfenster, Abwesenheit gegen Zeitplan, Vorheizen für zugeordnete Personen und „Auch in“-Treffer.
+
 ## 1.3.0b1 – 2026-11-15
 
 ### Neu

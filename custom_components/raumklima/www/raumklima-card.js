@@ -267,6 +267,7 @@
     "– keiner –": "– none –",
     "gerade: „{s}“": "now: “{s}”",
     "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Energy price sensor in €/kWh, ct/kWh, €/m³ or €/L – optional, otherwise the fixed price applies",
+    "Auch in": "Also in",
     "Heizöl": "Heating oil",
     "Ölpreis": "Oil price",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",
@@ -1650,6 +1651,7 @@
     "– keiner –": "– aucun –",
     "gerade: „{s}“": "en cours : « {s} »",
     "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Capteur de prix en €/kWh, ct/kWh, €/m³ ou €/L – facultatif, sinon le prix fixe s’applique",
+    "Auch in": "Aussi dans",
     "Heizöl": "Fioul",
     "Ölpreis": "Prix du fioul",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",
@@ -6671,6 +6673,31 @@
       if (!rooms.length) return "";
       return `<div class="grp roomhits" data-g="search-rooms"><div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b><span class="chip" style="--tone:var(--rk-air)">${t(hit.label)}</span></div><div class="rws"><div class="roomgrid">${rooms.map((r) => `<button class="rtile" data-goto="roomtab:${r.id}:${hit.tab}" style="--c:${r.color}"><span class="rtop"><span class="rname">${esc(r.name)}</span><span class="rtyp">${t(hit.label)}</span></span><span class="rsub">${t("öffnen")}</span></button>`).join("")}</div></div></div>`;
     },
+    _tabLabel(tab) {
+      const found = ROOM_TABS.find((x) => x.id === tab);
+      return found ? t(found.label) : tab;
+    },
+    // Treffer in den Einstellungen anderer Räume – als „Auch in“-Leiste.
+    // Bewusst ohne DOM-Zwang: fehlt querySelectorAll (Tests), bleibt die Liste leer.
+    _roomSettingHits(q) {
+      const needle = String(q || "").toLowerCase().trim();
+      if (!needle || typeof document === "undefined") return [];
+      let box;
+      try {
+        box = document.createElement("div");
+      } catch (e) {
+        return [];
+      }
+      if (!box || typeof box.querySelectorAll !== "function") return [];
+      const hits = [];
+      for (const room of this._orderedRooms()) {
+        if (room.id === this._tab) continue;
+        box.innerHTML = this._room(room);
+        const tabs = [...new Set([...box.querySelectorAll(".grp[data-room]")].filter((el) => String(el.textContent || "").toLowerCase().includes(needle)).map((el) => el.dataset.room || ROOM_TAB_DEFAULT))];
+        for (const tab of tabs) hits.push({ room, tab });
+      }
+      return hits;
+    },
     // Phase 5: globale Suche. Alle Bereichsgruppen werden einmal gezeichnet; _filter()
     // blendet die Treffer ein. Der aktuelle Raum bleibt dabei sichtbar, damit auch
     // Raumeinstellungen gefunden werden.
@@ -6681,7 +6708,9 @@
       const roomGroups = room ? this._room(room) : "";
       const nameHits = this._roomTiles(q);
       const roomBlock = nameHits ? `<div class="grp roomhits" data-g="search-rooms"><div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div><div class="rws"><div class="roomgrid">${nameHits}</div></div></div>` : this._roomSearchBlock(q);
-      return `<div class="groups searching">${roomGroups}${groups}${roomBlock}</div>`;
+      const settingHits = this._roomSettingHits(q);
+      const settingBlock = settingHits.length ? `<div class="grp roomhits" data-g="search-rooms"><div class="gh"><div class="ic"><ha-icon icon="mdi:map-search-outline"></ha-icon></div><b>${t("Auch in")}</b><span class="chip" style="--tone:var(--rk-air)">${settingHits.length}</span></div><div class="rws"><div class="roomgrid">${settingHits.map((h) => `<button class="rtile" data-goto="roomtab:${h.room.id}:${h.tab}" style="--c:${h.room.color}"><span class="rtop"><span class="rname">${esc(h.room.name)}</span><span class="rtyp">${esc(this._tabLabel(h.tab))}</span></span><span class="rsub">${t("öffnen")}</span></button>`).join("")}</div></div></div>` : "";
+      return `<div class="groups searching">${roomGroups}${groups}${roomBlock}${settingBlock}</div>`;
     },
     _mailSetup(mailServices = []) {
       const o = (k) => this._mailForm && this._mailForm[k] !== void 0 ? this._mailForm[k] : this._hubOpt(k) ?? "";

@@ -228,6 +228,16 @@ def test_night_window():
     assert not in_time_window(d.replace(hour=14), "20:00", "03:00")
 
 
+def test_ganztags_fenster_0000_bis_0000():
+    """00:00–00:00 ist ein ganzer Tag, kein leeres Fenster."""
+    samstag = datetime(2026, 11, 7, 12, 0)
+    assert samstag.weekday() == 5
+    assert in_time_window(samstag, "00:00", "00:00")
+    full = [{"days": [5, 6], "start": "00:00", "end": "00:00", "temperature": 17.5}]
+    assert schedule_target(full, samstag) == 17.5
+    assert schedule_target(full, datetime(2026, 11, 7, 23, 59)) == 17.5
+
+
 def test_night_applies():
     assert night_airing_applies("auto", "bedroom", True, True)
     assert night_airing_applies("auto", "rarely_used", True, True)

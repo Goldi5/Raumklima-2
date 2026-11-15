@@ -279,6 +279,8 @@ Raumklima merkt über eure Handys, wenn niemand mehr zu Hause ist:
 | Jemand ist auf dem Heimweg | Rechtzeitig vorheizen (ab 10 km Entfernung) |
 | Jemand kommt nach Hause | Wieder Wunschtemperatur |
 
+Die Absenkung liegt nie über dem gerade gültigen Zeitplan. Fährt eine dem Raum zugeordnete Person heran, wird auch dieser Raum vorgeheizt. Ein Zeitfenster `00:00–00:00` gilt als ganzer Tag.
+
 Kommst du früher heim und es ist dir zu kühl: einfach hochdrehen – die Absenkung pausiert dann für 3 Stunden.
 
 ## Urlaub und Besuch
