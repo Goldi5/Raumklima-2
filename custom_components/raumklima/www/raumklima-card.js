@@ -286,6 +286,7 @@
     "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "No meter, tank or market price selected yet. Choose a source under Settings → Heating & Energy.",
     "Suchen …": "Search …",
     "Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.": "For a heat pump choose the heat pump electricity meter; heat output goes in its own field. No daily/weekly values that reset.",
+    "PV-Erzeugung in kWh – Gesamtzähler ohne Reset; optional für den Eigenverbrauch bei Strom und Wärmepumpe": "PV yield in kWh – cumulative meter without reset; optional for self-consumption with electricity and heat pump.",
     "Heizöl": "Heating oil",
     "Ölpreis": "Oil price",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",
@@ -1688,6 +1689,7 @@
     "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "Aucun compteur, réservoir ou prix de marché sélectionné. Choisissez une source sous Réglages → Chauffage & énergie.",
     "Suchen …": "Rechercher …",
     "Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.": "Pour une pompe à chaleur, choisissez le compteur électrique de la PAC ; la chaleur produite va dans son propre champ. Pas de valeurs journalières/hebdomadaires qui se réinitialisent.",
+    "PV-Erzeugung in kWh – Gesamtzähler ohne Reset; optional für den Eigenverbrauch bei Strom und Wärmepumpe": "Rendement PV en kWh – compteur cumulé sans remise à zéro ; facultatif pour l’autoconsommation avec l’électricité et la pompe à chaleur.",
     "Heizöl": "Fioul",
     "Ölpreis": "Prix du fioul",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",
@@ -4889,7 +4891,7 @@
     ],
     "Zähler": ["Verbrauchsquelle. Bei einer Wärmepumpe den Stromzähler der Wärmepumpe wählen (kWh, dauerhaft steigend); Tages- oder Wochenwerte mit Reset sind ungeeignet. Die Wärmemenge kommt separat in ihr eigenes Feld.", "Consumption source. For a heat pump, choose the heat pump electricity meter (kWh, continuously increasing); daily or weekly values that reset are unsuitable. Heat output goes in its own field.", "Source de consommation. Pour une pompe à chaleur, choisissez le compteur électrique de la PAC (kWh, croissant en continu) ; les valeurs journalières ou hebdomadaires qui se réinitialisent ne conviennent pas. La chaleur produite va dans son propre champ."],
     "Tarif": ["Preis-Entität für Arbeitspreis und Grundgebühr. Bei Öl €/L, bei Gas €/m³, bei Strom €/kWh. Ohne Entität gilt der feste Preis.", "Price entity for the energy price and base fee. Oil in €/L, gas in €/m³, electricity in €/kWh. Without an entity the fixed price applies.", "Entité de prix pour le prix de l’énergie et les frais fixes. Fioul en €/L, gaz en €/m³, électricité en €/kWh. Sans entité, le prix fixe s’applique."],
-    "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
+    "PV-Ertrag": ["PV-Erzeugung oder Einspeisung als Gesamtzähler, der immer weiter steigt (kWh, `total_increasing`). Tages- oder Wochenwerte mit Reset sind ungeeignet.", "PV yield or feed-in as a lifetime total that keeps increasing (kWh, `total_increasing`). Daily or weekly values that reset are unsuitable.", "Rendement PV ou injection en compteur cumulé qui augmente en continu (kWh, `total_increasing`). Les valeurs journalières ou hebdomadaires qui se réinitialisent ne conviennent pas."],
     "Aktuell": ["Aktueller Messwert der gewählten Entität.", "Current reading of the selected entity.", "Valeur actuelle de l’entité choisie."],
     "Entitäten": ["Anzahl aller Entitäten in Home Assistant.", "Number of all entities in Home Assistant.", "Nombre de toutes les entités dans Home Assistant."],
     "Home Assistant": ["Version von Home Assistant.", "Home Assistant version.", "Version de Home Assistant."],
@@ -6174,7 +6176,7 @@
         this._row(
           "PV-Ertrag",
           this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
-          H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")
+          H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – Gesamtzähler ohne Reset; optional für den Eigenverbrauch bei Strom und Wärmepumpe")
         ),
         this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "energy_oil_factor", "energy_oil_price", "energy_tank_capacity", "energy_tank_min", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"])
       ].join(""));

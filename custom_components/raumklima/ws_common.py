@@ -649,7 +649,11 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
                 {"id": s.entity_id, "name": s.name}
                 for s in hass.states.async_all("sensor")
                 if s.attributes.get("device_class") == "energy"
-                and ("pv" in s.entity_id.lower() or "solar" in s.entity_id.lower())
+                and s.attributes.get("state_class") in ("total", "total_increasing")
+                and any(
+                    term in s.entity_id.lower() or term in str(s.name).lower()
+                    for term in ("pv", "solar", "erzeug", "einspeis", "produktion", "production", "lifetime", "lebensdauer", "yield")
+                )
             ),
             key=lambda x: x["name"].lower(),
         ),

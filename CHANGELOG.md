@@ -2,6 +2,7 @@
 
 ### Neu
 - **Suchfeld in Auswahllisten:** Lange Entitäts- und Zähler-Auswahllisten haben jetzt ein Suchfeld direkt über der Auswahl.
+- **PV-Ertrag:** Gesamtzähler ohne Reset werden jetzt auch erkannt, wenn sie „Lebensdauer“, „erzeugte Energie“ o. Ä. heißen. MWh wird automatisch in kWh umgerechnet.
 - **Bessere Hilfe für die Zählerwahl:** Die Texte erklären jetzt, dass bei einer Wärmepumpe der Stromzähler der Wärmepumpe als Hauptzähler dient und Tages-/Wochenwerte mit Reset ungeeignet sind; die Wärmemenge kommt in ihr eigenes Feld.
 
 ### Tests

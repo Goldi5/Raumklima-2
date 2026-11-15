@@ -72,7 +72,7 @@ export const EnergySectionMethods = {
       this._row("Tarif", this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
         H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis")),
       this._row("PV-Ertrag", this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
-        H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")),
+        H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – Gesamtzähler ohne Reset; optional für den Eigenverbrauch bei Strom und Wärmepumpe")),
       this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "energy_oil_factor", "energy_oil_price", "energy_tank_capacity", "energy_tank_min", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"]),
     ].join(""));
   },

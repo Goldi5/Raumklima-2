@@ -286,6 +286,7 @@ export const EN = {
   "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "No meter, tank or market price selected yet. Choose a source under Settings → Heating & Energy.",
   "Suchen …": "Search …",
   "Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.": "For a heat pump choose the heat pump electricity meter; heat output goes in its own field. No daily/weekly values that reset.",
+  "PV-Erzeugung in kWh – Gesamtzähler ohne Reset; optional für den Eigenverbrauch bei Strom und Wärmepumpe": "PV yield in kWh – cumulative meter without reset; optional for self-consumption with electricity and heat pump.",
   "Heizöl": "Heating oil",
   "Ölpreis": "Oil price",
   "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",
