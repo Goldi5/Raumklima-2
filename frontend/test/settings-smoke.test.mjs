@@ -416,6 +416,15 @@ test("Suche: Treffer in anderen Räumen werden als Reiter gemeldet", () => {
   }
 });
 
+test("Lange Auswahllisten bekommen ein Suchfeld", () => {
+  const card = makeRoom(() => {});
+  const items = Array.from({ length: 12 }, (_, i) => ({ id: `entity.${i}`, name: `Entity ${i}` }));
+  const html = card._select("hub", "energy_meter", items, "", "– wählen –");
+  assert.match(html, /data-selwrap/);
+  assert.match(html, /data-selsearch/);
+  assert.match(html, /<select/);
+});
+
 test("Deep-Link: roomtab springt in Raum und Unterseite", () => {
   const card = makeRoom(() => {});
   const room = card._rooms[0];

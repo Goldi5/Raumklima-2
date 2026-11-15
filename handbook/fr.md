@@ -326,7 +326,7 @@ L’onglet **Journal** liste chaque décision avec sa raison – pratique quand 
 
 # Réglages
 
-Vous trouverez tous les réglages dans le tableau de bord sous l’onglet **Réglages**. Vous ne savez pas à quoi sert un réglage ? Touchez le **« ? »** à côté pour ouvrir une explication. Les modifications sont enregistrées après une courte pause et prennent effet immédiatement.
+Vous trouverez tous les réglages dans le tableau de bord sous l’onglet **Réglages**. Les longues listes de choix disposent d’un champ de recherche juste au-dessus. Vous ne savez pas à quoi sert un réglage ? Touchez le **« ? »** à côté pour ouvrir une explication. Les modifications sont enregistrées après une courte pause et prennent effet immédiatement.
 
 :::tip
 Vous hésitez ? Gardez les valeurs par défaut. Elles suivent les recommandations des associations de consommateurs allemandes et de l’Agence fédérale de l’environnement allemande.

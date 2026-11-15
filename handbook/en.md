@@ -327,7 +327,7 @@ The **Log** tab lists every decision with its reason – handy when you wonder �
 
 # Settings
 
-You'll find all settings in the dashboard under the **Settings** tab. Not sure what a setting does? Tap the **“?”** next to it to open an explanation. Changes are saved after a short pause and take effect right away.
+You'll find all settings in the dashboard under the **Settings** tab. Long selection lists have a search field right above them. Not sure what a setting does? Tap the **“?”** next to it to open an explanation. Changes are saved after a short pause and take effect right away.
 
 :::tip
 Not sure? Keep the defaults. They follow the recommendations of German consumer organisations and the German Environment Agency.

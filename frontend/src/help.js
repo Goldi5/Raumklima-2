@@ -24,9 +24,9 @@ export const HELP = {
     "Combien de kWh contient un m³ de gaz ? Pouvoir calorifique × facteur de correction ; 10 kWh/m³ est une approximation typique. Les deux figurent sur la facture de gaz.",
   ],
   "Wärmemenge": [
-    "Optionaler Wärmezähler der Wärmepumpe. Ohne ihn zählt nur der Strom; die Euro-Schätzung bleibt korrekt, die Wärmemenge wird dann nicht ausgewiesen.",
-    "Optional heat meter for the heat pump. Without it only electricity is counted; the euro estimate stays correct, but the heat output is not shown.",
-    "Compteur de chaleur optionnel de la pompe à chaleur. Sans lui, seule l’électricité est comptée ; l’estimation en euros reste correcte, mais la chaleur produite n’est pas indiquée.",
+    "Optionaler Wärmemengenzähler der Wärmepumpe (kWh thermisch, dauerhaft steigend). Der Hauptzähler bleibt der Stromzähler; die Wärmemenge dient nur zur Anzeige und zum Vergleich.",
+    "Optional heat meter for the heat pump (thermal kWh, continuously increasing). The main meter stays the electricity meter; heat output is only for display and comparison.",
+    "Compteur de chaleur optionnel de la pompe à chaleur (kWh thermiques, croissant en continu). Le compteur principal reste le compteur électrique ; la chaleur produite sert seulement à l’affichage et à la comparaison.",
   ],
   "Jahresarbeitszahl": [
     "Wie viel Wärme die Wärmepumpe aus einer kWh Strom macht. 3,0 ist ein guter Richtwert; 0 lässt die Angabe offen und rechnet nur mit Strom.",
@@ -38,8 +38,8 @@ export const HELP = {
     "Which share of PV yield covers your own consumption. Only enter this if the meter measures total consumption – with a grid-import-only meter the PV share is already deducted.",
     "Part du rendement PV couvrant votre propre consommation. À renseigner uniquement si le compteur mesure la consommation totale – avec un compteur de soutirage réseau, la part PV est déjà déduite.",
   ],
-  "Zähler": ["Strom-, Gas-, Öl- oder Wärmezähler als Verbrauchsquelle.", "Electricity, gas, oil or heat meter as consumption source.", "Compteur d’électricité, de gaz, de fioul ou de chaleur comme source de consommation."],
-  "Tarif": ["Arbeitspreis und Grundgebühr.", "Energy price and base fee.", "Prix de l’énergie et frais fixes."],
+  "Zähler": ["Verbrauchsquelle. Bei einer Wärmepumpe den Stromzähler der Wärmepumpe wählen (kWh, dauerhaft steigend); Tages- oder Wochenwerte mit Reset sind ungeeignet. Die Wärmemenge kommt separat in ihr eigenes Feld.", "Consumption source. For a heat pump, choose the heat pump electricity meter (kWh, continuously increasing); daily or weekly values that reset are unsuitable. Heat output goes in its own field.", "Source de consommation. Pour une pompe à chaleur, choisissez le compteur électrique de la PAC (kWh, croissant en continu) ; les valeurs journalières ou hebdomadaires qui se réinitialisent ne conviennent pas. La chaleur produite va dans son propre champ."],
+  "Tarif": ["Preis-Entität für Arbeitspreis und Grundgebühr. Bei Öl €/L, bei Gas €/m³, bei Strom €/kWh. Ohne Entität gilt der feste Preis.", "Price entity for the energy price and base fee. Oil in €/L, gas in €/m³, electricity in €/kWh. Without an entity the fixed price applies.", "Entité de prix pour le prix de l’énergie et les frais fixes. Fioul en €/L, gaz en €/m³, électricité en €/kWh. Sans entité, le prix fixe s’applique."],
   "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
   "Aktuell": ["Aktueller Messwert der gewählten Entität.", "Current reading of the selected entity.", "Valeur actuelle de l’entité choisie."],
   "Entitäten": ["Anzahl aller Entitäten in Home Assistant.", "Number of all entities in Home Assistant.", "Nombre de toutes les entités dans Home Assistant."],

@@ -1,3 +1,12 @@
+## Unreleased
+
+### Neu
+- **Suchfeld in Auswahllisten:** Lange Entitäts- und Zähler-Auswahllisten haben jetzt ein Suchfeld direkt über der Auswahl.
+- **Bessere Hilfe für die Zählerwahl:** Die Texte erklären jetzt, dass bei einer Wärmepumpe der Stromzähler der Wärmepumpe als Hauptzähler dient und Tages-/Wochenwerte mit Reset ungeeignet sind; die Wärmemenge kommt in ihr eigenes Feld.
+
+### Tests
+- Suchfeld für lange Auswahllisten.
+
 ## 1.3.0b4 – 2026-11-15
 
 ### Neu

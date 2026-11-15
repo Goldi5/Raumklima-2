@@ -284,6 +284,8 @@
     "30-Tage-Ø {v} €/L": "30-day avg {v} €/L",
     "Markt": "Market",
     "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "No meter, tank or market price selected yet. Choose a source under Settings → Heating & Energy.",
+    "Suchen …": "Search …",
+    "Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.": "For a heat pump choose the heat pump electricity meter; heat output goes in its own field. No daily/weekly values that reset.",
     "Heizöl": "Heating oil",
     "Ölpreis": "Oil price",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",
@@ -1684,6 +1686,8 @@
     "30-Tage-Ø {v} €/L": "moy. 30 j {v} €/L",
     "Markt": "Marché",
     "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "Aucun compteur, réservoir ou prix de marché sélectionné. Choisissez une source sous Réglages → Chauffage & énergie.",
+    "Suchen …": "Rechercher …",
+    "Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.": "Pour une pompe à chaleur, choisissez le compteur électrique de la PAC ; la chaleur produite va dans son propre champ. Pas de valeurs journalières/hebdomadaires qui se réinitialisent.",
     "Heizöl": "Fioul",
     "Ölpreis": "Prix du fioul",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",
@@ -3175,6 +3179,9 @@
   .chip2.strike { opacity:.45; text-decoration: line-through; }
   .sel, .inp { font: inherit; font-size:.95rem; font-weight:600; padding:8px 12px; border-radius:12px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
     background: var(--ha-card-background, var(--card-background-color)); color: var(--primary-text-color); max-width: 260px; }
+  .selwrap { display:flex; flex-direction:column; gap:5px; min-width:0; max-width:260px; }
+  .selwrap .sel, .selwrap .selsearch { max-width:100%; width:100%; }
+  .selsearch { font-weight:500 !important; }
   .inp.short { width: 86px; text-align:center; }
   .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap:14px; }
   @container (max-width: 560px) {
@@ -4866,9 +4873,9 @@
       "Combien de kWh contient un m³ de gaz ? Pouvoir calorifique × facteur de correction ; 10 kWh/m³ est une approximation typique. Les deux figurent sur la facture de gaz."
     ],
     "Wärmemenge": [
-      "Optionaler Wärmezähler der Wärmepumpe. Ohne ihn zählt nur der Strom; die Euro-Schätzung bleibt korrekt, die Wärmemenge wird dann nicht ausgewiesen.",
-      "Optional heat meter for the heat pump. Without it only electricity is counted; the euro estimate stays correct, but the heat output is not shown.",
-      "Compteur de chaleur optionnel de la pompe à chaleur. Sans lui, seule l’électricité est comptée ; l’estimation en euros reste correcte, mais la chaleur produite n’est pas indiquée."
+      "Optionaler Wärmemengenzähler der Wärmepumpe (kWh thermisch, dauerhaft steigend). Der Hauptzähler bleibt der Stromzähler; die Wärmemenge dient nur zur Anzeige und zum Vergleich.",
+      "Optional heat meter for the heat pump (thermal kWh, continuously increasing). The main meter stays the electricity meter; heat output is only for display and comparison.",
+      "Compteur de chaleur optionnel de la pompe à chaleur (kWh thermiques, croissant en continu). Le compteur principal reste le compteur électrique ; la chaleur produite sert seulement à l’affichage et à la comparaison."
     ],
     "Jahresarbeitszahl": [
       "Wie viel Wärme die Wärmepumpe aus einer kWh Strom macht. 3,0 ist ein guter Richtwert; 0 lässt die Angabe offen und rechnet nur mit Strom.",
@@ -4880,8 +4887,8 @@
       "Which share of PV yield covers your own consumption. Only enter this if the meter measures total consumption – with a grid-import-only meter the PV share is already deducted.",
       "Part du rendement PV couvrant votre propre consommation. À renseigner uniquement si le compteur mesure la consommation totale – avec un compteur de soutirage réseau, la part PV est déjà déduite."
     ],
-    "Zähler": ["Strom-, Gas-, Öl- oder Wärmezähler als Verbrauchsquelle.", "Electricity, gas, oil or heat meter as consumption source.", "Compteur d’électricité, de gaz, de fioul ou de chaleur comme source de consommation."],
-    "Tarif": ["Arbeitspreis und Grundgebühr.", "Energy price and base fee.", "Prix de l’énergie et frais fixes."],
+    "Zähler": ["Verbrauchsquelle. Bei einer Wärmepumpe den Stromzähler der Wärmepumpe wählen (kWh, dauerhaft steigend); Tages- oder Wochenwerte mit Reset sind ungeeignet. Die Wärmemenge kommt separat in ihr eigenes Feld.", "Consumption source. For a heat pump, choose the heat pump electricity meter (kWh, continuously increasing); daily or weekly values that reset are unsuitable. Heat output goes in its own field.", "Source de consommation. Pour une pompe à chaleur, choisissez le compteur électrique de la PAC (kWh, croissant en continu) ; les valeurs journalières ou hebdomadaires qui se réinitialisent ne conviennent pas. La chaleur produite va dans son propre champ."],
+    "Tarif": ["Preis-Entität für Arbeitspreis und Grundgebühr. Bei Öl €/L, bei Gas €/m³, bei Strom €/kWh. Ohne Entität gilt der feste Preis.", "Price entity for the energy price and base fee. Oil in €/L, gas in €/m³, electricity in €/kWh. Without an entity the fixed price applies.", "Entité de prix pour le prix de l’énergie et les frais fixes. Fioul en €/L, gaz en €/m³, électricité en €/kWh. Sans entité, le prix fixe s’applique."],
     "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
     "Aktuell": ["Aktueller Messwert der gewählten Entität.", "Current reading of the selected entity.", "Valeur actuelle de l’entité choisie."],
     "Entitäten": ["Anzahl aller Entitäten in Home Assistant.", "Number of all entities in Home Assistant.", "Nombre de toutes les entités dans Home Assistant."],
@@ -6133,7 +6140,7 @@
         this._row(
           "Zähler",
           this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-          H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas-, Öl- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")
+          H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.")
         ),
         source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.1), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
         source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
@@ -8399,6 +8406,18 @@
         this._setRoom(id, { heat_sources: list }, 700);
       });
       on("click", "[data-seg]", (el) => () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val }));
+      on("input", "[data-selsearch]", (el) => () => {
+        const wrap = el.closest("[data-selwrap]");
+        const sel = wrap && wrap.querySelector("select");
+        if (!sel) return;
+        if (!sel._rkOptions) {
+          sel._rkOptions = [...sel.options].map((o) => ({ value: o.value, text: o.textContent }));
+        }
+        const q = el.value.trim().toLowerCase();
+        const current = sel.value;
+        sel.innerHTML = sel._rkOptions.filter((o) => !q || o.text.toLowerCase().includes(q) || o.value.toLowerCase().includes(q)).map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`).join("");
+        if ([...sel.options].some((o) => o.value === current)) sel.value = current;
+      });
       on("change", "[data-sel]", (el) => () => {
         el.blur();
         apply(el.dataset.sel, { [el.dataset.key]: el.value || null });
@@ -9518,7 +9537,10 @@
       return `<div class="segs">${Object.entries(options).map(([v, l]) => `<button class="${v === current ? "on" : ""}" data-seg="${scope}" data-key="${key}" data-val="${v}" ${this._admin ? "" : "disabled"}>${l}</button>`).join("")}</div>`;
     }
     _select(scope, key, items, current, empty) {
-      return `<select class="sel" data-sel="${scope}" data-key="${key}" ${this._admin ? "" : "disabled"}>${empty !== void 0 ? `<option value="">${t(empty)}</option>` : ""}${items.map((it) => `<option value="${esc(it.id)}" ${it.id === current ? "selected" : ""}>${esc(it.name)}</option>`).join("")}</select>`;
+      const options = `${empty !== void 0 ? `<option value="">${esc(t(empty))}</option>` : ""}${items.map((it) => `<option value="${esc(it.id)}" ${it.id === current ? "selected" : ""}>${esc(it.name)}</option>`).join("")}`;
+      const select = `<select class="sel" data-sel="${scope}" data-key="${key}" ${this._admin ? "" : "disabled"}>${options}</select>`;
+      if (items.length < 8) return select;
+      return `<div class="selwrap" data-selwrap><input class="inp selsearch" type="search" placeholder="${esc(t("Suchen …"))}" aria-label="${esc(t("Suchen …"))}" data-selsearch autocomplete="off" ${this._admin ? "" : "disabled"}>${select}</div>`;
     }
     // ---------------------------------------------------------------- Lernen & Warum
     // ---------------------------------------------------------------- Rendern

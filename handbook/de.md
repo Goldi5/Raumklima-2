@@ -328,7 +328,7 @@ Im Reiter **Protokoll** steht jede Entscheidung mit Begründung – praktisch, w
 
 # Einstellungen
 
-Alle Einstellungen findest du im Dashboard im Reiter **Einstellungen**. Änderungen werden nach einer kurzen Pause gespeichert und gelten sofort. Unsicher, was eine Einstellung bewirkt? Tippe auf das **„?“** dahinter – dann klappt eine Erklärung auf.
+Alle Einstellungen findest du im Dashboard im Reiter **Einstellungen**. Lange Auswahllisten haben ein Suchfeld direkt über der Auswahl. Änderungen werden nach einer kurzen Pause gespeichert und gelten sofort. Unsicher, was eine Einstellung bewirkt? Tippe auf das **„?“** dahinter – dann klappt eine Erklärung auf.
 
 :::tip
 Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbraucherzentrale und Umweltbundesamt.

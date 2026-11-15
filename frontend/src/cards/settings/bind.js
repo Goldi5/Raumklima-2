@@ -403,6 +403,21 @@ export const BindMethods = {
     });
     on("click", "[data-seg]", (el) => () => apply(el.dataset.seg, { [el.dataset.key]: el.dataset.val }));
     // nach der Auswahl Fokus lösen, sonst wartet die Karte mit dem Aktualisieren (Schutz beim Tippen)
+    on("input", "[data-selsearch]", (el) => () => {
+      const wrap = el.closest("[data-selwrap]");
+      const sel = wrap && wrap.querySelector("select");
+      if (!sel) return;
+      if (!sel._rkOptions) {
+        sel._rkOptions = [...sel.options].map((o) => ({ value: o.value, text: o.textContent }));
+      }
+      const q = el.value.trim().toLowerCase();
+      const current = sel.value;
+      sel.innerHTML = sel._rkOptions
+        .filter((o) => !q || o.text.toLowerCase().includes(q) || o.value.toLowerCase().includes(q))
+        .map((o) => `<option value="${esc(o.value)}">${esc(o.text)}</option>`)
+        .join("");
+      if ([...sel.options].some((o) => o.value === current)) sel.value = current;
+    });
     on("change", "[data-sel]", (el) => () => { el.blur(); apply(el.dataset.sel, { [el.dataset.key]: el.value || null }); });
     on("change", ".addrow select", (el) => () => el.blur());
     on("change", "[data-md]", (el) => () => {

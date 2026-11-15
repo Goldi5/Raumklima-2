@@ -284,6 +284,8 @@ export const FR = {
   "30-Tage-Ø {v} €/L": "moy. 30 j {v} €/L",
   "Markt": "Marché",
   "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "Aucun compteur, réservoir ou prix de marché sélectionné. Choisissez une source sous Réglages → Chauffage & énergie.",
+  "Suchen …": "Rechercher …",
+  "Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.": "Pour une pompe à chaleur, choisissez le compteur électrique de la PAC ; la chaleur produite va dans son propre champ. Pas de valeurs journalières/hebdomadaires qui se réinitialisent.",
   "Heizöl": "Fioul",
   "Ölpreis": "Prix du fioul",
   "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",

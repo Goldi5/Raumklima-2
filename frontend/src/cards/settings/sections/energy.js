@@ -50,7 +50,7 @@ export const EnergySectionMethods = {
       ], source),
         t("bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird")),
       this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-        H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas-, Öl- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")),
+        H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.")),
       source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.10), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
       source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
       source === "oil" ? this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), t("Liter aus dem letzten Winter – für die grobe Planung")) : "",
