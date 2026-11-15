@@ -391,7 +391,7 @@ class PresenceMixin:
         if self.stage != STAGE_GUESTS:
             return self.stage
         # Unbekannte Kennungen (z. B. „undefined“ aus einer alten Karte) zählen nicht als Auswahl
-        chosen = [r for r in (self.opt(CONF_GUESTS_ROOMS) or []) if r in self.rooms]
+        chosen = [r for r in (self.opt(CONF_GUESTS_ROOMS) or []) if r and r not in ("undefined", "null")]
         if chosen and entry_id not in chosen:
             minutes = (
                 (dt_util.utcnow() - self.last_present).total_seconds() / 60 if self.last_present else None

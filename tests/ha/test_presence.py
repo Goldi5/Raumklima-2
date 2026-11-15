@@ -179,6 +179,10 @@ async def test_guests_only_for_selected_rooms(hass: HomeAssistant, setup) -> Non
     hub.config = {**hub.config, "guests_rooms": ["01ANDERERRAUM"]}
     assert hub.stage_for_room(room.entry_id) != "guests"
 
+    # Müll aus einer alten Karte („undefined“) ist keine Auswahl – Gäste gelten wieder überall
+    hub.config = {**hub.config, "guests_rooms": ["undefined"]}
+    assert hub.stage_for_room(room.entry_id) == "guests"
+
 
 async def test_arbeitsplatz_zone_hebt_wartezeit_auf(hass: HomeAssistant, setup, freezer) -> None:
     """Wer an einem Arbeitsplatz steht, ist sofort weg – ohne Wartezeit und ohne Vorheizen."""
