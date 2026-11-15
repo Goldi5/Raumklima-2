@@ -573,9 +573,8 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             return None
         if value <= 0:
             return None
-        factor = float(
-            self.opt(CONF_ENERGY_OIL_FACTOR) if self.energy_source() == "oil" else self.opt(CONF_ENERGY_FACTOR)
-        ) or 10.0
+        raw = self.opt(CONF_ENERGY_OIL_FACTOR) if self.energy_source() == "oil" else self.opt(CONF_ENERGY_FACTOR)
+        factor = float(raw or 10.0)
         return tariff_to_kwh(
             value,
             state.attributes.get("unit_of_measurement"),
