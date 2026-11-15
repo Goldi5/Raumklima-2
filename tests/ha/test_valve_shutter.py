@@ -62,3 +62,30 @@ async def test_rollladen_allein_bleibt_ohne_ventilanzeige(hass: HomeAssistant, s
     hass.states.async_set("sensor.ra_bad_position_ch1", "60", {"unit_of_measurement": "%"})
 
     assert ctrl._find_valve_sensor() is None
+
+
+async def test_batteriesensor_ist_kein_ventil(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Ein Batteriesensor in % darf nicht als Ventilstellung gelten (Issue #48)."""
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    devs = dr.async_get(hass)
+    regs = er.async_get(hass)
+
+    wth = devs.async_get_or_create(config_entry_id=room.entry_id, identifiers={("demo", "wth-batterie")})
+    regs.async_get_or_create("climate", "demo", "wth-bat", suggested_object_id="wth_batterie", device_id=wth.id)
+    hass.states.async_set("climate.wth_batterie", "heat")
+    ctrl.trv = "climate.wth_batterie"
+
+    fan = devs.async_get_or_create(config_entry_id=room.entry_id, identifiers={("demo", "ventilator")})
+    regs.async_get_or_create(
+        "sensor", "demo", "fan-bat", suggested_object_id="ventilator_batterie", device_id=fan.id
+    )
+    hass.states.async_set(
+        "sensor.ventilator_batterie", "89", {"unit_of_measurement": "%", "device_class": "battery"}
+    )
+
+    assert ctrl._find_valve_sensor() is None

@@ -110,9 +110,15 @@ class ValveFinder:
         if entry.domain != "sensor" or entry.disabled_by:
             return False
         state = self.hass.states.get(entry.entity_id)
-        unit = str((state.attributes.get("unit_of_measurement") if state else "") or "")
+        attrs = state.attributes if state else {}
+        # Batterien melden ebenfalls in % – aber nie die Ventilstellung (Issue #48).
+        if (getattr(entry, "device_class", None) or getattr(entry, "original_device_class", None)) == "battery":
+            return False
+        if attrs.get("device_class") == "battery":
+            return False
+        unit = str(attrs.get("unit_of_measurement") or "")
         if "%" not in unit:
-            return False  # Batterie, RSSI, Ventilhub-Historie usw. aussortieren
+            return False  # RSSI, Ventilhub-Historie usw. aussortieren
         hay = f"{entry.entity_id} {entry.original_name or ''} {entry.translation_key or ''}".lower()
         if any(k in hay for k in STRONG_KEYWORDS):
             return True
