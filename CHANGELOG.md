@@ -1,4 +1,4 @@
-## Unreleased
+## 1.3.0b4 – 2026-11-15
 
 ### Neu
 - **Marktpreis für Heizöl:** Optionale Preis-Entität in €/L. Die Energie-Karte zeigt den aktuellen Marktpreis, den 30-Tage-Vergleich und die Differenz zu deinem eigenen Einkaufspreis.
