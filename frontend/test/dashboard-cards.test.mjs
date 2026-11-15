@@ -58,7 +58,7 @@ test("Energiekarte zeigt Zähler, Tarif und Kosten", () => {
 
 test("Energiekarte erklärt fehlende Zähler", () => {
   const html = energyCard({ start: "2026-11-08", end: "2026-11-14", days: 7, energy: { enabled: true }, money: null });
-  assert.match(html, /Noch kein Zähler oder Tank/);
+  assert.match(html, /Noch kein Zähler, Tank oder Marktpreis/);
   assert.doesNotMatch(html, /konnte nicht gezeichnet/);
 });
 
@@ -94,6 +94,21 @@ test("Energiekarte zeigt Winterverbrauch und Preisverlauf", () => {
   assert.match(html, /12,0 L\/Tag/);
   assert.match(html, /Preisverlauf/);
   assert.match(html, /1,10/);
+});
+
+test("Energiekarte zeigt Marktpreis und Vergleich", () => {
+  const html = energyCard({
+    start: "2026-11-08", end: "2026-11-14", days: 7,
+    energy: {
+      enabled: true, source: "oil", meter: "sensor.oil", meter_unit: "L", kwh: 500, liter: 50, price: 0.11,
+      oil_market: { value: 1.05, avg_30d: 1.12, delta_avg: -0.07, vs_your_price: -0.05 },
+    },
+    money: { period_cost: 55, annual: 2860, basis: "meter", kwh: 500 },
+  });
+  assert.match(html, /Marktpreis/);
+  assert.match(html, /1,05/);
+  assert.match(html, /30-Tage-Ø/);
+  assert.match(html, /Markt vs. deinem Preis/);
 });
 
 test("Lernkarte zeigt Aufheizrate, Nutzung und Lüften", () => {

@@ -55,6 +55,8 @@ export const EnergySectionMethods = {
       source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
       source === "oil" ? this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), t("Liter aus dem letzten Winter – für die grobe Planung")) : "",
       source === "oil" ? this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), t("Zeitraum des letzten Winters")) : "",
+      source === "oil" ? this._row("Marktpreis-Entität", this._select("hub", "energy_oil_market_entity", choices.oil_market || [], H("energy_oil_market_entity"), "– wählen –"),
+        H("energy_oil_market_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_oil_market_entity")) }) : t("optionaler Börsen-/Marktpreis in €/L – für den Vergleich")) : "",
       source === "oil" ? this._row("Preisverlauf", this._v(
         (() => {
           const h = H("energy_oil_price_history") || [];

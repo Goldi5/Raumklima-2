@@ -38,6 +38,30 @@ def liters_from_level(value: float | None, unit: str | None, capacity_l: float) 
     return None
 
 
+def price_per_litre(
+    value: float | None,
+    unit: str | None,
+    factor_kwh_per_l: float = 10.0,
+) -> float | None:
+    """Preis auf €/Liter normalisieren – €/L, ct/L, €/m³ oder €/kWh."""
+    if value is None:
+        return None
+    u = _unit(unit)
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return None
+    if u in ("eur/l", "eur/liter", "€/l", "€/liter"):
+        return amount
+    if u in ("ct/l", "ct/liter", "cent/l"):
+        return amount / 100.0
+    if u in ("eur/m3", "eur/m^3", "€/m3"):
+        return amount / 1000.0
+    if u in ("eur/kwh", "€/kwh"):
+        return amount * (factor_kwh_per_l or 10.0)
+    return None
+
+
 def percent_from_level(value: float | None, unit: str | None, capacity_l: float) -> float | None:
     """Füllstand in Prozent – Prozent direkt, Liter/m³ über den Tankinhalt."""
     if value is None:

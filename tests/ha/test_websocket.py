@@ -144,6 +144,29 @@ async def test_energy_meter_config(hass: HomeAssistant, setup, hass_ws_client) -
     assert energy["meter_unit"] == "kWh"
 
 
+async def test_energy_market_price(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    hub, _room = setup
+    hass.states.async_set("sensor.oelmarkt", "1.05", {"unit_of_measurement": "€/L"})
+    hass.config_entries.async_update_entry(
+        hub,
+        options={
+            **hub.options,
+            "energy_enabled": True,
+            "energy_source": "oil",
+            "energy_oil_price": 1.10,
+            "energy_oil_market_entity": "sensor.oelmarkt",
+        },
+    )
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/energy", "days": 30})
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    market = msg["result"]["energy"]["oil_market"]
+    assert market["value"] == 1.05
+    assert market["vs_your_price"] == -0.05
+
+
 async def test_no_hub_error(hass: HomeAssistant, hass_ws_client) -> None:
     from custom_components.raumklima.websocket_api import async_register_websocket
 

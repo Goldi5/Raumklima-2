@@ -22,6 +22,7 @@ from .const import (
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_METER,
     CONF_ENERGY_OIL_FACTOR,
+    CONF_ENERGY_OIL_MARKET,
     CONF_ENERGY_OIL_PRICE,
     CONF_ENERGY_OIL_PRICE_HISTORY,
     CONF_ENERGY_OIL_WINTER_DAYS,
@@ -49,7 +50,7 @@ from .const import (
 )
 from .health import SEV_INFO, Issue, check_connection, check_notify_targets, check_presence_residents
 from .msg import tr
-from .oil_tank import tank_summary
+from .oil_tank import price_per_litre, tank_summary
 from .report_extra import energy_kwh, money, pv_split
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
@@ -286,6 +287,8 @@ class Insights:
                 source = "electric"
         tank = self.hub.opt(CONF_ENERGY_TANK_ENTITY)
         tank_state = self.hass.states.get(tank) if tank else None
+        market = self.hub.opt(CONF_ENERGY_OIL_MARKET)
+        market_state = self.hass.states.get(market) if market else None
         winter_liters = float(self.hub.opt(CONF_ENERGY_OIL_WINTER_LITERS) or 0)
         winter_days = int(self.hub.opt(CONF_ENERGY_OIL_WINTER_DAYS) or 0)
         price_history = list(self.hub.opt(CONF_ENERGY_OIL_PRICE_HISTORY) or [])
@@ -318,6 +321,8 @@ class Insights:
             "winter_avg_l_day": winter_liters / winter_days if winter_days > 0 and winter_liters > 0 else None,
             "oil_price_history": price_history[-6:],
             "oil_price_avg": round(sum(prices) / len(prices), 2) if prices else None,
+            "oil_market_entity": market,
+            "oil_market_unit": market_state.attributes.get("unit_of_measurement") if market_state is not None else None,
             "pv_entity": self.hub.opt(CONF_PV_ENTITY),
             "pv_self_use": float(self.hub.opt(CONF_PV_SELF_USE) or 0),
         }
@@ -361,7 +366,7 @@ class Insights:
     async def async_energy_extras(self, start: date, end: date) -> dict[str, Any]:
         """Zählerstände und Öltank für den Berichtszeitraum holen."""
         cfg = self.energy_config()
-        if not cfg["enabled"] or (not cfg["meter"] and not cfg["tank_entity"]):
+        if not cfg["enabled"] or (not cfg["meter"] and not cfg["tank_entity"] and not cfg["oil_market_entity"]):
             return {"energy": cfg}
         cfg["days"] = (end - start).days + 1
         if cfg["source"] == "oil":
@@ -370,6 +375,9 @@ class Insights:
             tank = await self._tank_summary(cfg["tank_entity"], cfg)
             if tank is not None:
                 cfg["tank"] = tank
+            market = await self._market_summary(cfg)
+            if market is not None:
+                cfg["oil_market"] = market
             if cfg["meter"]:
                 value = await self._stat_change(cfg["meter"], start, end)
                 if value is not None:
@@ -412,6 +420,55 @@ class Insights:
         except Exception:
             _LOGGER.debug("Energie-Statistik für den Bericht nicht verfügbar", exc_info=True)
         return {"energy": cfg}
+
+    async def _market_summary(self, cfg: dict[str, Any]) -> dict[str, Any] | None:
+        """Marktpreis der optionalen Preis-Entität und der 30-Tage-Vergleich."""
+        entity = cfg.get("oil_market_entity")
+        if not entity:
+            return None
+        state = self.hass.states.get(entity)
+        if state is None:
+            return None
+        unit = state.attributes.get("unit_of_measurement") or cfg.get("oil_market_unit")
+        factor = float(cfg.get("oil_factor") or 10.0)
+        try:
+            value = price_per_litre(float(state.state), unit, factor)
+        except (TypeError, ValueError):
+            value = None
+        avg = price_per_litre(await self._price_average(entity, 30), unit, factor)
+        your_price = float(cfg.get("oil_price") or 0)
+        return {
+            "entity": entity,
+            "unit": unit,
+            "value": round(value, 3) if value is not None else None,
+            "avg_30d": round(avg, 3) if avg is not None else None,
+            "delta_avg": round(value - avg, 3) if value is not None and avg is not None else None,
+            "vs_your_price": round(value - your_price, 3) if value is not None and your_price > 0 else None,
+        }
+
+    async def _price_average(self, entity_id: str, days: int = 30) -> float | None:
+        """Mittelwert einer Preis-Entität aus der Statistik."""
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        now = dt_util.utcnow()
+        first = dt_util.as_utc(dt_util.start_of_local_day((now - timedelta(days=days)).date()))
+        last = dt_util.as_utc(dt_util.start_of_local_day(now.date() + timedelta(days=1)))
+        try:
+            result = await get_instance(self.hass).async_add_executor_job(
+                statistics_during_period,
+                self.hass,
+                first,
+                last,
+                {entity_id},
+                "day",
+                None,
+                {"mean"},
+            )
+        except Exception:  # noqa: BLE001 – ohne Statistik bleibt der aktuelle Preis
+            return None
+        values = [float(row["mean"]) for row in result.get(entity_id) or [] if row.get("mean") is not None]
+        return sum(values) / len(values) if values else None
 
     def _oil_price_kwh(self, cfg: dict[str, Any]) -> float:
         """Ölpreis von €/Liter auf €/kWh umrechnen."""

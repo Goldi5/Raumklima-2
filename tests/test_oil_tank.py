@@ -116,3 +116,13 @@ def test_tank_jitter_is_not_consumption() -> None:
     assert out is not None
     assert out["consumed_l"] == 50
     assert out["consumed_kwh"] == 500
+
+
+def test_price_per_litre_units() -> None:
+    from custom_components.raumklima.oil_tank import price_per_litre
+
+    assert price_per_litre(1.20, "€/L", 10) == 1.20
+    assert price_per_litre(120, "ct/L", 10) == 1.20
+    assert price_per_litre(1200, "€/m³", 10) == 1.20
+    assert price_per_litre(0.12, "€/kWh", 10) == 1.20
+    assert price_per_litre(1.0, "°C", 10) is None

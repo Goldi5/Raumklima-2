@@ -82,8 +82,8 @@ export class RaumklimaEnergyCard extends HTMLElement {
     if (!e.enabled) {
       return this._empty("mdi:lightning-bolt-off", "Energie-Erfassung ist aus. In den Einstellungen unter „Heizung & Energie“ aktivieren.");
     }
-    if (!e.meter && !e.tank) {
-      return this._empty("mdi:counter", "Noch kein Zähler oder Tank gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas-, Öl- oder Wärmezähler auswählen.");
+    if (!e.meter && !e.tank && !e.oil_market) {
+      return this._empty("mdi:counter", "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.");
     }
     const money = d.money || {};
     const kwh = e.kwh == null ? money.kwh : e.kwh;
@@ -104,6 +104,10 @@ export class RaumklimaEnergyCard extends HTMLElement {
           tank.days_left != null ? t("reicht noch ~{d} Tage", { d: tank.days_left }) : tank.order ? t("jetzt bestellen") : t("lernt noch"),
         ].filter(Boolean).join(" · ")
       : "";
+    const market = e.oil_market || null;
+    const marketDetail = market && market.avg_30d != null
+      ? t("30-Tage-Ø {v} €/L", { v: fmt(market.avg_30d, 2) })
+      : "";
     const pvDetail = e.pv_entity
       ? `${t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) })}`
         + (e.surplus_kwh != null ? ` · ${t("{n} kWh Überschuss", { n: fmt(e.surplus_kwh, 1) })}` : "")
@@ -118,6 +122,8 @@ export class RaumklimaEnergyCard extends HTMLElement {
       e.tank ? this._row("Ölbestellung", "mdi:truck-delivery-outline", tank.order ? t("jetzt bestellen") : t("noch Zeit")) : "",
       e.winter_liters ? this._row("Letzter Winter", "mdi:snowflake", `${fmt(e.winter_liters, 0)} L${e.winter_days ? ` · ${t("{n} Tage", { n: e.winter_days })}` : ""}`) : "",
       e.winter_avg_l_day != null ? this._row("Ø Verbrauch", "mdi:chart-timeline-variant", `${fmt(e.winter_avg_l_day, 1)} L/Tag`) : "",
+      market ? this._row("Marktpreis", "mdi:chart-line", market.value != null ? `${fmt(market.value, 2)} €/L` : "–") : "",
+      market && market.vs_your_price != null ? this._row("Markt vs. deinem Preis", "mdi:scale-balance", `${market.vs_your_price > 0 ? "+" : ""}${fmt(market.vs_your_price, 2)} €/L`) : "",
       e.oil_price_history && e.oil_price_history.length ? this._row("Preisverlauf", "mdi:tag-history", (() => {
         const last = e.oil_price_history[e.oil_price_history.length - 1] || {};
         return `${esc(last.date || "–")} · ${fmt(last.price, 2)} €/L${e.oil_price_avg != null ? ` · Ø ${fmt(e.oil_price_avg, 2)}` : ""}`;
@@ -136,6 +142,7 @@ export class RaumklimaEnergyCard extends HTMLElement {
         ${this._tile("Kosten", "mdi:currency-eur", cost == null ? "–" : fmt(cost, 2), " €", basis ? t("Basis: {b}", { b: t(basis) }) : t("noch keine Schätzung"), "heat")}
         ${this._tile("Jahr", "mdi:chart-timeline-variant", annual == null ? "–" : fmt(annual, 0), " €", t("Schätzung"), "ok")}
         ${e.tank ? this._tile("Tank", "mdi:oil-level", tankValue, tankUnit, tankDetail, tank.order ? "warn" : "ok") : ""}
+        ${market ? this._tile("Markt", "mdi:chart-line", market.value != null ? fmt(market.value, 2) : "–", " €/L", marketDetail, market.delta_avg != null && market.delta_avg <= 0 ? "ok" : "warn") : ""}
         ${this._tile("PV", "mdi:solar-power", e.pv_kwh == null ? "–" : fmt(e.pv_kwh, 1), " kWh", pvDetail, "ok")}
       </div><div class="drows">${rows}</div>`;
   }

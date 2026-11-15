@@ -277,6 +277,13 @@
     "wird beim Ändern des Ölpreises automatisch notiert": "recorded automatically when the oil price changes",
     "Liter aus dem letzten Winter – für die grobe Planung": "litres from last winter – for rough planning",
     "Zeitraum des letzten Winters": "period of last winter",
+    "Marktpreis-Entität": "Market price entity",
+    "optionaler Börsen-/Marktpreis in €/L – für den Vergleich": "optional market/stock price in €/L – for comparison",
+    "Marktpreis": "Market price",
+    "Markt vs. deinem Preis": "Market vs. your price",
+    "30-Tage-Ø {v} €/L": "30-day avg {v} €/L",
+    "Markt": "Market",
+    "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "No meter, tank or market price selected yet. Choose a source under Settings → Heating & Energy.",
     "Heizöl": "Heating oil",
     "Ölpreis": "Oil price",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",
@@ -1670,6 +1677,13 @@
     "wird beim Ändern des Ölpreises automatisch notiert": "noté automatiquement lors du changement du prix du fioul",
     "Liter aus dem letzten Winter – für die grobe Planung": "litres du dernier hiver – pour une planification approximative",
     "Zeitraum des letzten Winters": "période du dernier hiver",
+    "Marktpreis-Entität": "Entité de prix du marché",
+    "optionaler Börsen-/Marktpreis in €/L – für den Vergleich": "prix boursier/du marché facultatif en €/L – pour comparaison",
+    "Marktpreis": "Prix du marché",
+    "Markt vs. deinem Preis": "Marché vs votre prix",
+    "30-Tage-Ø {v} €/L": "moy. 30 j {v} €/L",
+    "Markt": "Marché",
+    "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.": "Aucun compteur, réservoir ou prix de marché sélectionné. Choisissez une source sous Réglages → Chauffage & énergie.",
     "Heizöl": "Fioul",
     "Ölpreis": "Prix du fioul",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",
@@ -4957,6 +4971,7 @@
       "A calendar from Home Assistant. If an event with one of the vacation words in its title is running, it acts like the vacation switch; with one of the at-home words like “guests”.",
       "Un calendrier de Home Assistant. Si un événement contenant l’un des mots « vacances » est en cours, il agit comme l’interrupteur Vacances ; avec l’un des mots « à la maison », comme « Invités présents »."
     ],
+    "Marktpreis-Entität": ["Optionale Entität mit dem aktuellen Markt-/Börsenpreis in €/L. Raumklima vergleicht sie mit dem 30-Tage-Mittel und deinem eigenen Preis.", "Optional entity with the current market/stock price in €/L. Raumklima compares it with the 30-day average and your own price.", "Entité facultative avec le prix actuel du marché/boursier en €/L. Raumklima le compare à la moyenne sur 30 jours et à votre propre prix."],
     "Letzter Winter (Liter)": ["Liter aus dem letzten Winter. Raumklima rechnet daraus einen groben Tagesverbrauch für die Planung.", "Litres from last winter. Raumklima derives a rough daily consumption for planning.", "Litres du dernier hiver. Raumklima en déduit une consommation journalière approximative pour la planification."],
     "Letzter Winter (Tage)": ["Zeitraum des letzten Winters in Tagen, damit der Tagesverbrauch stimmt.", "Period of last winter in days so the daily consumption is right.", "Période du dernier hiver en jours pour que la consommation journalière soit correcte."],
     "Preisverlauf": ["Preise, die beim Ändern des Ölpreises automatisch notiert werden. Der letzte Wert gilt für die Kostenschätzung.", "Prices recorded automatically when the oil price changes. The latest value is used for the cost estimate.", "Prix notés automatiquement lors du changement du prix du fioul. La dernière valeur sert à l’estimation des coûts."],
@@ -6124,6 +6139,11 @@
         source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
         source === "oil" ? this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), t("Liter aus dem letzten Winter – für die grobe Planung")) : "",
         source === "oil" ? this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), t("Zeitraum des letzten Winters")) : "",
+        source === "oil" ? this._row(
+          "Marktpreis-Entität",
+          this._select("hub", "energy_oil_market_entity", choices.oil_market || [], H("energy_oil_market_entity"), "– wählen –"),
+          H("energy_oil_market_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_oil_market_entity")) }) : t("optionaler Börsen-/Marktpreis in €/L – für den Vergleich")
+        ) : "",
         source === "oil" ? this._row("Preisverlauf", this._v(
           (() => {
             const h = H("energy_oil_price_history") || [];
@@ -10488,8 +10508,8 @@
       if (!e.enabled) {
         return this._empty("mdi:lightning-bolt-off", "Energie-Erfassung ist aus. In den Einstellungen unter „Heizung & Energie“ aktivieren.");
       }
-      if (!e.meter && !e.tank) {
-        return this._empty("mdi:counter", "Noch kein Zähler oder Tank gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas-, Öl- oder Wärmezähler auswählen.");
+      if (!e.meter && !e.tank && !e.oil_market) {
+        return this._empty("mdi:counter", "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.");
       }
       const money = d.money || {};
       const kwh = e.kwh == null ? money.kwh : e.kwh;
@@ -10504,6 +10524,8 @@
         tank.current_l != null ? `${fmt(tank.current_l, 0)} L` : "",
         tank.days_left != null ? t("reicht noch ~{d} Tage", { d: tank.days_left }) : tank.order ? t("jetzt bestellen") : t("lernt noch")
       ].filter(Boolean).join(" · ") : "";
+      const market = e.oil_market || null;
+      const marketDetail = market && market.avg_30d != null ? t("30-Tage-Ø {v} €/L", { v: fmt(market.avg_30d, 2) }) : "";
       const pvDetail = e.pv_entity ? `${t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) })}` + (e.surplus_kwh != null ? ` · ${t("{n} kWh Überschuss", { n: fmt(e.surplus_kwh, 1) })}` : "") : "";
       const rows = [
         this._row("Quelle", "mdi:transmission-tower", esc(this._source(e))),
@@ -10515,6 +10537,8 @@
         e.tank ? this._row("Ölbestellung", "mdi:truck-delivery-outline", tank.order ? t("jetzt bestellen") : t("noch Zeit")) : "",
         e.winter_liters ? this._row("Letzter Winter", "mdi:snowflake", `${fmt(e.winter_liters, 0)} L${e.winter_days ? ` · ${t("{n} Tage", { n: e.winter_days })}` : ""}`) : "",
         e.winter_avg_l_day != null ? this._row("Ø Verbrauch", "mdi:chart-timeline-variant", `${fmt(e.winter_avg_l_day, 1)} L/Tag`) : "",
+        market ? this._row("Marktpreis", "mdi:chart-line", market.value != null ? `${fmt(market.value, 2)} €/L` : "–") : "",
+        market && market.vs_your_price != null ? this._row("Markt vs. deinem Preis", "mdi:scale-balance", `${market.vs_your_price > 0 ? "+" : ""}${fmt(market.vs_your_price, 2)} €/L`) : "",
         e.oil_price_history && e.oil_price_history.length ? this._row("Preisverlauf", "mdi:tag-history", (() => {
           const last = e.oil_price_history[e.oil_price_history.length - 1] || {};
           return `${esc(last.date || "–")} · ${fmt(last.price, 2)} €/L${e.oil_price_avg != null ? ` · Ø ${fmt(e.oil_price_avg, 2)}` : ""}`;
@@ -10533,6 +10557,7 @@
         ${this._tile("Kosten", "mdi:currency-eur", cost == null ? "–" : fmt(cost, 2), " €", basis ? t("Basis: {b}", { b: t(basis) }) : t("noch keine Schätzung"), "heat")}
         ${this._tile("Jahr", "mdi:chart-timeline-variant", annual == null ? "–" : fmt(annual, 0), " €", t("Schätzung"), "ok")}
         ${e.tank ? this._tile("Tank", "mdi:oil-level", tankValue, tankUnit, tankDetail, tank.order ? "warn" : "ok") : ""}
+        ${market ? this._tile("Markt", "mdi:chart-line", market.value != null ? fmt(market.value, 2) : "–", " €/L", marketDetail, market.delta_avg != null && market.delta_avg <= 0 ? "ok" : "warn") : ""}
         ${this._tile("PV", "mdi:solar-power", e.pv_kwh == null ? "–" : fmt(e.pv_kwh, 1), " kWh", pvDetail, "ok")}
       </div><div class="drows">${rows}</div>`;
     }

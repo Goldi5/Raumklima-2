@@ -47,6 +47,7 @@ from .const import (
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_METER,
     CONF_ENERGY_OIL_FACTOR,
+    CONF_ENERGY_OIL_MARKET,
     CONF_ENERGY_OIL_PRICE,
     CONF_ENERGY_OIL_WINTER_DAYS,
     CONF_ENERGY_OIL_WINTER_LITERS,
@@ -315,6 +316,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_ENERGY_FACTOR): num_schema("energy_factor"),
         vol.Optional(CONF_ENERGY_EFFICIENCY): num_schema("energy_efficiency"),
         vol.Optional(CONF_ENERGY_OIL_PRICE): num_schema("energy_oil_price"),
+        vol.Optional(CONF_ENERGY_OIL_MARKET): vol.Any(None, cv.entity_id),
         vol.Optional(CONF_ENERGY_OIL_FACTOR): num_schema("energy_oil_factor"),
         vol.Optional(CONF_ENERGY_OIL_WINTER_LITERS): num_schema("energy_oil_winter_liters"),
         vol.Optional(CONF_ENERGY_OIL_WINTER_DAYS): num_schema("energy_oil_winter_days"),
@@ -563,6 +565,15 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
                 for s in hass.states.async_all("sensor")
                 if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("³", "3")
                 in ("l", "liter", "liters", "%", "m3", "m^3")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "oil_market": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("sensor")
+                if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("€", "eur")
+                in ("eur/l", "eur/liter", "ct/l", "ct/liter", "eur/m3", "eur/kwh")
             ),
             key=lambda x: x["name"].lower(),
         ),
