@@ -1,3 +1,20 @@
+## 1.3.0b7 – 2026-11-15
+
+### Neu
+- **Hysterese-Regelung (Issue #54):** neue Kalibrierart „Hysterese (auf/zu)“ je Raum. Unter Ziel − ½ Hysterese stellt Raumklima den Sollwert am Thermostat ganz hoch (Ventil auf), über Ziel + ½ ganz runter (Ventil zu), dazwischen bleibt es. Weniger Ventilbewegungen, etwas mehr Schwankung. Breite einstellbar (Standard 0,5 K).
+- **Zeitplan-Helfer (Issue #52):** pro Raum ein HA-Zeitplan-Helfer (`schedule.*`) statt der eigenen Zeitfenster. „An“ = Zeitfenster aktiv; `temperature` im Datenfeld des Blocks wird übernommen, sonst die Wunschtemperatur. Vorgeheizt wird auf den nächsten Start (`next_event`).
+- **Schalter in „Gilt für Personen“ (Issue #53):** neben Personen auch `input_boolean` (z. B. Gast-Schalter) und Präsenz-Sensoren (`binary_sensor` mit Klasse presence/occupancy). „An“ zählt wie „Person da“.
+- **Gesundheitshinweis „Thermostat heizt über dem Ziel“ (Issue #51):** wenn ein Gerät eine halbe Stunde lang heizt, obwohl der Raum mindestens 1 K über dem Ziel liegt – mit den typischen Ursachen.
+
+### Behoben
+- **Ventil zu = heizt nicht, auch im Modus „Auto“ (Issue #34):** Läuft das Thermostat mit eigenem Programm, wurde die Ventil-Prüfung übersprungen.
+- **Energie-Karte:** „Details und Sensoren“ klappte sofort wieder zu – die Karte zeichnete bei jeder Zustandsänderung neu.
+- **Lernen:** ganztägige Anwesenheit heißt „ganztägig“ statt „00:00–00:00“.
+- **Gäste:** unbekannte Raum-Kennungen in „Gäste gelten für“ (z. B. „undefined“ aus einer alten Karte) zählen nicht mehr als Auswahl.
+
+### Tests
+- Ventil-Prüfung im Auto-Modus, „heizt über dem Ziel“, Gast-Schalter pro Raum, Zeitplan-Helfer, Hysterese-Schaltpunkte.
+
 ## 1.3.0b6 – 2026-11-15
 
 ### Neu

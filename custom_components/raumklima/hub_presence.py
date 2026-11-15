@@ -390,7 +390,8 @@ class PresenceMixin:
                 return STAGE_AWAY_LONG if self.stage == STAGE_AWAY_LONG else STAGE_AWAY_SHORT
         if self.stage != STAGE_GUESTS:
             return self.stage
-        chosen = list(self.opt(CONF_GUESTS_ROOMS) or [])
+        # Unbekannte Kennungen (z. B. „undefined“ aus einer alten Karte) zählen nicht als Auswahl
+        chosen = [r for r in (self.opt(CONF_GUESTS_ROOMS) or []) if r in self.rooms]
         if chosen and entry_id not in chosen:
             minutes = (
                 (dt_util.utcnow() - self.last_present).total_seconds() / 60 if self.last_present else None

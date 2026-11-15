@@ -278,7 +278,7 @@ Raumklima notices through your phones when nobody is home anymore:
 | Someone is on the way home | preheat in time (from 10 km away) |
 | Someone comes home | back to the desired temperature |
 
-The setback never goes above the schedule currently in effect. When a person assigned to a room is approaching, that room is preheated too. A `00:00–00:00` time window counts as the whole day.
+The setback never goes above the schedule currently in effect. When a person assigned to a room is approaching, that room is preheated too. A `00:00–00:00` time window counts as the whole day. Instead of its own windows a room can follow a Home Assistant **schedule helper** (*Room → Schedule → More settings*): “on” means the window is active, `temperature: 21` in a block’s data field sets the temperature. Under *Applies to persons* you can also pick switches such as a guest switch. For fewer valve movements choose **Hysteresis (open/closed)** under *Thermostat & sensor → Calibration*: the valve then opens or closes fully.
 
 If you come home early and it's too cool: just turn it up – the setback then pauses for 3 hours.
 
