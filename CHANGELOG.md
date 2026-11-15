@@ -1,4 +1,4 @@
-## Unreleased
+## 1.3.0b5 – 2026-11-15
 
 ### Neu
 - **Suchfeld in Auswahllisten:** Lange Entitäts- und Zähler-Auswahllisten haben jetzt ein Suchfeld direkt über der Auswahl.
@@ -7,7 +7,7 @@
 - **Energie im PDF-Bericht:** Der Bericht bekommt eine Seite „Energie und Kosten“ mit Quelle, Zähler, Tarif, Verbrauch, Kosten, PV-Ertrag, Wärmemenge und – bei Öl – Tankfüllstand und Bestellhinweis.
 
 ### Tests
-- Suchfeld für lange Auswahllisten.
+- Suchfeld für lange Auswahllisten, Energie- und Kostenseite im PDF.
 
 ## 1.3.0b4 – 2026-11-15
 
