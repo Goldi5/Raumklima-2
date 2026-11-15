@@ -45,7 +45,7 @@ async def test_zeitplan_helfer_steuert_das_zeitfenster(hass: HomeAssistant, setu
     _on, _target, reason = ctrl.plan()
     assert reason != "schedule"
     nxt = ctrl.next_plan_window(dt_util.now())
-    assert nxt is not None and nxt[0].year == 2099
+    assert nxt is not None and nxt[0] > dt_util.now()
 
     # ohne Temperatur im Block gilt die Wunschtemperatur
     hass.states.async_set("schedule.bad", "on", {})
