@@ -1,21 +1,15 @@
-## Unreleased
-
-### Neu
-- **Heizöl als Energiequelle:** Ölverbrauch in Litern, Preis je Liter und Umrechnung in kWh; die Kosten erscheinen wie bei den anderen Quellen im Energie-Reiter und im Bericht.
-- **Öltank:** Optionaler Füllstandsfühler in `%`, `L` oder `m³`. Raumklima schätzt Verbrauch und Resttage aus sinkendem Füllstand, ignoriert Nachfüllungen und zeigt „Öl bestellen“, wenn die eingestellte Restmenge oder eine Restlaufzeit von 14 Tagen erreicht ist.
-
-### Tests
-- Heizöl-Umrechnung, Tankverbrauch mit Nachfüllung, Resttage und Bestellhinweis.
-
 ## 1.3.0b1 – 2026-11-15
 
 ### Neu
 - **Schulferien-Kalender:** Ein eigener Kalender mit ganztägigen Ferienterminen kann Morgen-Zeitfenster nach hinten verschieben. Zeitfenster, die vor 12:00 beginnen, starten an Ferientagen um die eingestellte Zeit später (Standard 60 min, 0 = aus); die gespeicherten Zeiten bleiben unverändert.
 - **Entfeuchter:** Pro Raum optional eine Steckdose, ein Ventilator oder ein natives Entfeuchter-Gerät. Raumklima schaltet ab der Feuchtegrenze ein und 5 % darunter wieder aus, nicht bei offenem Fenster. Läuft der Entfeuchter, verzichtet der Schimmelschutz auf den Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.
+- **Heizöl als Energiequelle:** Ölverbrauch in Litern, Preis je Liter und Umrechnung in kWh; die Kosten erscheinen wie bei den anderen Quellen im Energie-Reiter und im Bericht.
+- **Öltank:** Optionaler Füllstandsfühler in `%`, `L` oder `m³`. Raumklima schätzt Verbrauch und Resttage aus sinkendem Füllstand, ignoriert Nachfüllungen und zeigt „Öl bestellen“, wenn die eingestellte Restmenge oder eine Restlaufzeit von 14 Tagen erreicht ist.
 
 ### Tests
 - Ferienkalender: ganztägiger Termin erkannt, Morgenfenster verschoben, übrige Fenster unverändert, Ende der Ferien setzt den Zeitplan zurück.
 - Entfeuchter: Schalten an der Feuchtegrenze, Hysterese, Fenster-aus und Rückfall auf den Schimmelschutz.
+- Heizöl: Liter-Umrechnung, Tankverbrauch mit Nachfüllung, Resttage und Bestellhinweis.
 
 ## 1.2.3b1 – 2026-11-15
 
