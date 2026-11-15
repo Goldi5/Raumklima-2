@@ -1,3 +1,11 @@
+## 1.2.3b1 – 2026-11-15
+
+### Behoben
+- **Ventilsensor-Erkennung:** Batterie-Sensoren werden nicht mehr als Ventilstellung verwendet, auch wenn sie in Prozent melden. Das verhindert die Fehlerkennung eines Ventilator-Batteriesensors in allen Räumen (Issue #48).
+
+### Tests
+- Neuer Regressionstest: Ein Batteriesensor in Prozent wird nicht als Ventil erkannt.
+
 ## 1.2.2 – 2026-11-14
 
 Korrekturen nach der vollständigen Code-Prüfung.
