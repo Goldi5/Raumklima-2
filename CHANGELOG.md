@@ -1,3 +1,8 @@
+## Unreleased
+
+### Behoben
+- **Datum im Bericht:** Jede Seite des PDF-Berichts zeigt jetzt den konkreten Zeitraum – auch bei einem Wochenbericht und in der Energie-/Kostenseite.
+
 ## 1.3.0b5 – 2026-11-15
 
 ### Neu

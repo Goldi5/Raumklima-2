@@ -38,6 +38,7 @@ L = {
         "month": "{m} {y}",
         "season": "Heizsaison {a}/{b}",
         "created": "erstellt am {d}",
+        "period": "Zeitraum",
         "heating": "Heizstunden",
         "heating_sub": "alle Räume zusammen",
         "saving": "Ersparnis",
@@ -178,6 +179,7 @@ L = {
         "month": "{m} {y}",
         "season": "Heating season {a}/{b}",
         "created": "created {d}",
+        "period": "Period",
         "heating": "Heating hours",
         "heating_sub": "all rooms together",
         "saving": "Savings",
@@ -318,6 +320,7 @@ L = {
         "month": "{m} {y}",
         "season": "Saison de chauffage {a}/{b}",
         "created": "créé le {d}",
+        "period": "Période",
         "heating": "Heures de chauffe",
         "heating_sub": "toutes les pièces",
         "saving": "Économies",
@@ -655,6 +658,23 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
     return bytes(pdf.output())
 
 
+def _period_line(pdf: _Pdf, data: dict[str, Any]) -> None:
+    """Datumsbereich auf jeder Seite – auch wenn der Bericht „Woche“ heißt."""
+    lang = data["lang"]
+    start = date.fromisoformat(data["start"])
+    end = date.fromisoformat(data["end"])
+    pdf.set_font("Helvetica", size=8.5)
+    pdf.set_text_color(*GREY)
+    pdf.cell(
+        0,
+        5,
+        clean(f"{L[lang]['period']}: {date_text(start, lang)} – {date_text(end, lang)}"),
+        new_x="LMARGIN",
+        new_y="NEXT",
+    )
+    pdf.ln(1)
+
+
 def _page_overview(data: dict[str, Any], home: str, created: datetime) -> tuple[_Pdf, bool]:
     """Seite 1: Kopf mit Note, Kennzahlen, Vergleich, Verlaufsdiagramm. (pdf, hat Daten?)"""
     lang = data["lang"]
@@ -788,6 +808,7 @@ def _page_energy(pdf: _Pdf, data: dict[str, Any]) -> None:
     e = data.get("energy") or {}
     pdf.add_page()
     pdf.heading(tx["energy"])
+    _period_line(pdf, data)
     if not e or not e.get("enabled"):
         pdf.set_font("Helvetica", size=10)
         pdf.set_text_color(*GREY)
@@ -865,6 +886,7 @@ def _page_rooms(pdf: _Pdf, data: dict[str, Any]) -> None:
     full = pdf.w - 30
     pdf.add_page()
     pdf.heading(tx["rooms"])
+    _period_line(pdf, data)
     trends = data.get("trends") or {}
     names = [n for n, r in sorted(cur["rooms"].items()) if r["hours"]]
     widths = [full * 0.2] + [full * 0.09] * 6 + [full * 0.26]
@@ -932,6 +954,7 @@ def _page_humidity(pdf: _Pdf, data: dict[str, Any]) -> None:
     names = [n for n, r in sorted(cur["rooms"].items()) if r["hours"]]
     pdf.add_page()
     pdf.heading(tx["humidity"])
+    _period_line(pdf, data)
     hum = data.get("humidity") or {}
     co2 = data.get("co2") or {}
     lights = hum.get("lights") or {}
