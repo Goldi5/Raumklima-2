@@ -573,7 +573,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
                 {"id": s.entity_id, "name": s.name}
                 for s in hass.states.async_all("sensor")
                 if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("€", "eur")
-                in ("eur/l", "eur/liter", "ct/l", "ct/liter", "eur/m3", "eur/kwh")
+                in ("eur/l", "eur/liter", "ct/l", "ct/liter", "eur/m3", "eur/m^3")
             ),
             key=lambda x: x["name"].lower(),
         ),
@@ -661,7 +661,11 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
             (
                 {"id": s.entity_id, "name": s.name}
                 for s in hass.states.async_all("sensor")
-                if "tariff" in s.entity_id.lower() or "price" in s.entity_id.lower()
+                if "tariff" in s.entity_id.lower()
+                or "price" in s.entity_id.lower()
+                or "preis" in s.entity_id.lower()
+                or str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("€", "eur")
+                in ("eur/kwh", "ct/kwh", "eur/m3", "eur/m^3", "eur/l", "ct/l")
             ),
             key=lambda x: x["name"].lower(),
         ),
