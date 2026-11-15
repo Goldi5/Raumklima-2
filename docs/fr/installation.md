@@ -3,13 +3,13 @@
 ## Prérequis
 
 - Home Assistant **2026.5** ou plus récent (pour la stratégie du tableau de bord ; l’intégration elle-même fonctionne depuis 2025.10)
-- [HACS](https://hacs.xyz)
+- **Marketplace** dans Home Assistant (anciennement [HACS](https://hacs.xyz))
 - Par pièce : un thermostat de radiateur comme entité `climate` et une sonde de température. Une sonde d’humidité et des contacts de fenêtre sont facultatifs mais recommandés ; une sonde de CO₂ est également facultative.
 - Pour la détection d’absence : des personnes avec la localisation de leur téléphone (application Home Assistant Companion) et une zone pour le domicile.
 
-## Installation via HACS
+## Installation via le Marketplace
 
-1. HACS → ⋮ → **Dépôts personnalisés** → `https://github.com/Goldi5/Raumklima-2`, catégorie **Intégration**.
+1. **Marketplace** → ⋮ → **Dépôts personnalisés** → `https://github.com/Goldi5/Raumklima-2`, catégorie **Intégration**.
 2. Rechercher **Raumklima** et le télécharger.
 3. Redémarrer Home Assistant.
 
@@ -127,7 +127,7 @@ Votre thermostat fonctionne (ou non) ? Merci de le signaler comme [issue](https:
 Entre les versions stables, il existe des préversions (suffixe `b1`, `b2` … – par exemple `0.60.0b1`).
 Elles contiennent les nouveautés plus tôt, mais sont moins testées.
 
-1. HACS → **Raumklima** → ⋮ → **Télécharger à nouveau**
+1. **Marketplace** → **Raumklima** → ⋮ → **Télécharger à nouveau**
 2. Activer **Afficher les versions bêta**, choisir la préversion
 3. Redémarrer Home Assistant
 
@@ -135,7 +135,7 @@ Les préversions sont marquées « pre-release » sur GitHub : elles restent mas
 `releases/latest` (le lien du manuel dans la carte) continue de pointer vers la dernière version stable.
 Le retour se fait à tout moment via **Télécharger à nouveau** sans la case.
 
-HACS affiche les nouvelles versions. Après le téléchargement, redémarrez Home Assistant. Les modifications des cartes seules sont visibles après un rechargement de la page.
+Le Marketplace affiche les nouvelles versions. Après le téléchargement, redémarrez Home Assistant. Les modifications des cartes seules sont visibles après un rechargement de la page.
 
 ## Migration depuis 0.2.x
 

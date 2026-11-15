@@ -6,7 +6,7 @@
 |---|---|
 | `custom_components/raumklima/` | intégration (Python) |
 | `frontend/src/` | cartes du tableau de bord (modules JavaScript) |
-| `custom_components/raumklima/www/raumklima-card.js` | carte compilée – versionnée pour que HACS puisse la livrer sans compilation |
+| `custom_components/raumklima/www/raumklima-card.js` | carte compilée – versionnée pour que le Marketplace (HACS) puisse la livrer sans compilation |
 | `tests/` | tests sans Home Assistant (logique) |
 | `tests/ha/` | tests d’intégration avec Home Assistant (thermostat simulé) |
 

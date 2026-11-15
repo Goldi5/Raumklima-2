@@ -33,7 +33,7 @@ Dieses Handbuch erklärt Schritt für Schritt, wie du Raumklima einrichtest und 
 
 ## Was du brauchst
 
-- **Home Assistant** (Version 2025.10 oder neuer) mit **HACS**
+- **Home Assistant** (Version 2025.10 oder neuer) mit dem **Marketplace** (früher HACS)
 - pro Raum ein (oder mehrere) **Heizkörperthermostat**, das in Home Assistant erscheint – egal ob Zigbee, Shelly, Matter oder Cloud
 - pro Raum einen **Temperaturfühler** (am besten mit Luftfeuchte)
 - optional: **Fensterkontakte**, ein **CO₂-Sensor**, ein **Feinstaubfühler** (PM2,5)
@@ -43,10 +43,10 @@ Dieses Handbuch erklärt Schritt für Schritt, wie du Raumklima einrichtest und 
 
 ## Schritt 1: Installieren
 
-1. Öffne in Home Assistant **HACS**.
+1. Öffne in Home Assistant den **Marketplace**.
 2. Tippe oben rechts auf **⋮ → Benutzerdefinierte Repositories**.
 3. Trage `https://github.com/Goldi5/Raumklima-2` ein, Kategorie **Integration**, und bestätige.
-4. Suche in HACS nach **Raumklima** und tippe auf **Herunterladen**.
+4. Suche im Marketplace nach **Raumklima** und tippe auf **Herunterladen**.
 5. **Starte Home Assistant neu** (*Einstellungen → System → Neu starten*).
 
 :::tip
@@ -492,7 +492,7 @@ Jahr ist egal.
 | **Taupunkt** | Ab dieser Temperatur wird Luftfeuchte zu Wasser – z. B. an kalten Wänden. |
 | **Heizgradtage** | Ein Maß dafür, wie kalt es draußen war. |
 | **Ruhezeit** | Zeit, in der Nachrichten leise ankommen. |
-| **HACS** | Der „App-Store“ für Erweiterungen in Home Assistant. |
+| **Marketplace** (früher HACS) | Der „App-Store“ für Erweiterungen in Home Assistant. |
 
 # Hilfe bekommen
 

@@ -26,7 +26,7 @@ Raumklima is a **joint effort**: ideas, real-life testing (cold feet included) a
 
 | Page | Topic |
 |---|---|
-| [Installation & setup](installation.md) | HACS, first room, general settings, Matter/Thread |
+| [Installation & setup](installation.md) | Marketplace, first room, general settings, Matter/Thread |
 | [Usage](usage.md) | Dashboard, cards, report, log, settings page |
 | [How it works](how-it-works.md) | Control, offset, windows, reliability, airing, absence, mould protection, heating season |
 | [Notifications](notifications.md) | Who gets what, quiet hours, sleep times, actions, voice |

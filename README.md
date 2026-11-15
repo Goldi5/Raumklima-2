@@ -66,7 +66,7 @@ Das sagen wir offen, weil es dazugehört. Jede Version läuft durch automatische
 
 ## Installation
 
-1. HACS → ⋮ → **Benutzerdefinierte Repositories** → `https://github.com/Goldi5/Raumklima-2` (Integration)
+1. **Marketplace** (früher HACS) → ⋮ → **Benutzerdefinierte Repositories** → `https://github.com/Goldi5/Raumklima-2` (Integration)
 2. **Raumklima** herunterladen, Home Assistant neu starten
 3. **Einstellungen → Geräte & Dienste → Integration hinzufügen → Raumklima**: Thermostat wählen, Fühler bestätigen, Raumtyp wählen – fertig. Beim ersten Raum zusätzlich Bewohner, Wohnung und Benachrichtigungen.
 4. Dashboard hinzufügen → **Raumklima** (Strategie)

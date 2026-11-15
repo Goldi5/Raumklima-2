@@ -35,7 +35,7 @@ This manual explains step by step how to set up Raumklima and use it day to day.
 
 ## What you need
 
-- **Home Assistant** (version 2025.10 or newer) with **HACS**
+- **Home Assistant** (version 2025.10 or newer) with the **Marketplace** (formerly HACS)
 - per room one (or more) **radiator thermostat** that shows up in Home Assistant – whether Zigbee, Shelly, Matter or cloud
 - per room a **temperature sensor** (ideally with humidity)
 - optional: **window contacts**, a **CO₂ sensor**, a **particulate sensor** (PM2.5)
@@ -45,10 +45,10 @@ This manual explains step by step how to set up Raumklima and use it day to day.
 
 ## Step 1: Install
 
-1. Open **HACS** in Home Assistant.
+1. Open the **Marketplace** in Home Assistant.
 2. Tap **⋮ → Custom repositories** at the top right.
 3. Enter `https://github.com/Goldi5/Raumklima-2`, category **Integration**, and confirm.
-4. Search HACS for **Raumklima** and tap **Download**.
+4. Search the Marketplace for **Raumklima** and tap **Download**.
 5. **Restart Home Assistant** (*Settings → System → Restart*).
 
 :::tip
@@ -486,7 +486,7 @@ does not matter.
 | **Dew point** | At this temperature humidity turns into water – e.g. on cold walls. |
 | **Heating degree days** | A measure of how cold it was outside. |
 | **Quiet hours** | Time during which messages arrive silently. |
-| **HACS** | The “app store” for extensions in Home Assistant. |
+| **Marketplace** (formerly HACS) | The “app store” for extensions in Home Assistant. |
 
 # Getting help
 

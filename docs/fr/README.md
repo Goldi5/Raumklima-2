@@ -28,7 +28,7 @@ Raumklima est une **œuvre commune** : les idées, les essais dans de vrais loge
 
 | Page | Sujet |
 |---|---|
-| [Installation et configuration](installation.md) | HACS, première pièce, réglages généraux, Matter/Thread |
+| [Installation et configuration](installation.md) | Marketplace, première pièce, réglages généraux, Matter/Thread |
 | [Utilisation](utilisation.md) | Tableau de bord, cartes, rapport, journal, page de réglages |
 | [Fonctionnement](fonctionnement.md) | Régulation, décalage, fenêtres, fiabilité, aération, absence, protection anti-moisissure, saison de chauffage |
 | [Notifications](notifications.md) | Qui reçoit quoi, heures calmes, heures de sommeil, actions, voix |
@@ -56,8 +56,8 @@ Raumklima est une **œuvre commune** : les idées, les essais dans de vrais loge
 
 ## Installation
 
-1. **HACS** → ⋮ → **Dépôts personnalisés** → `https://github.com/Goldi5/Raumklima-2`, catégorie **Intégration**.
-2. Chercher **Raumklima** dans HACS → **Télécharger**, puis redémarrer Home Assistant.
+1. **Marketplace** (anciennement HACS) → ⋮ → **Dépôts personnalisés** → `https://github.com/Goldi5/Raumklima-2`, catégorie **Intégration**.
+2. Chercher **Raumklima** dans le Marketplace → **Télécharger**, puis redémarrer Home Assistant.
 3. **Paramètres → Appareils et services → Ajouter une intégration → Raumklima** : choisir le thermostat, la sonde de la pièce, les fenêtres et le type de pièce.
 4. **Paramètres → Tableaux de bord → + Ajouter un tableau de bord → Raumklima** – le tableau de bord se construit tout seul.
 

@@ -109,7 +109,7 @@ in 1.1, die Verschattung in 1.2, die Fußbodenheizung in 1.3 und das Lernmodell 
 
 ## 🕓 Später
 
-- [ ] Aufnahme in die HACS-Standardliste (nach der Tester-Phase).
+- [ ] Aufnahme in die Marketplace-Standardliste (früher HACS) (nach der Tester-Phase).
 - [ ] Eigene iPhone-App – erst, wenn es viele Nutzer gibt; bis dahin Home-Assistant-App mit
       Live-Aktivität und Push.
 
@@ -137,7 +137,7 @@ sensor · direct/proportional valve control (needs devices that expose it) · mo
 heat pumps and ACs (cooling, separate targets, short-cycle protection, choose the cheaper heat source) ·
 blinds/shading · analytics with model prediction.
 **Maintenance:** backup/restore settings · demo mode · Dependabot and test coverage.
-**Later:** HACS default list · own iPhone app.
+**Later:** Marketplace default list (formerly HACS) · own iPhone app.
 **Idea (no guessing):** use window sensors that report more than open/closed – Homematic IP or Bosch
 window handles distinguish *closed / tilted / open*. Only then can the report name a tilted window;
 a plain reed contact cannot, so Raumklima keeps saying just “open” and never infers a tilt.

@@ -6,7 +6,7 @@
 |---|---|
 | `custom_components/raumklima/` | integration (Python) |
 | `frontend/src/` | dashboard cards (JavaScript modules) |
-| `custom_components/raumklima/www/raumklima-card.js` | built card – committed so HACS can ship it without a build |
+| `custom_components/raumklima/www/raumklima-card.js` | built card – committed so the Marketplace (HACS) can ship it without a build |
 | `tests/` | tests without Home Assistant (logic) |
 | `tests/ha/` | integration tests with Home Assistant (simulated thermostat) |
 

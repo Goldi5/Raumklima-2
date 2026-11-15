@@ -3,13 +3,13 @@
 ## Voraussetzungen
 
 - Home Assistant **2026.5** oder neuer (für die Dashboard-Strategie; die Integration selbst läuft ab 2025.10)
-- [HACS](https://hacs.xyz)
+- **Marketplace** in Home Assistant (früher [HACS](https://hacs.xyz))
 - Pro Raum: ein Heizkörperthermostat als `climate`-Entität und ein Temperaturfühler. Luftfeuchte-Sensor und Fensterkontakte sind optional, aber empfohlen; ein CO₂-Sensor ebenfalls optional.
 - Für Abwesenheit: Personen mit Handy-Ortung (Home-Assistant-App) und eine Zone für die Wohnung.
 
-## Installation über HACS
+## Installation über den Marketplace
 
-1. HACS → ⋮ → **Benutzerdefinierte Repositories** → `https://github.com/Goldi5/Raumklima-2`, Kategorie **Integration**.
+1. **Marketplace** → ⋮ → **Benutzerdefinierte Repositories** → `https://github.com/Goldi5/Raumklima-2`, Kategorie **Integration**.
 2. **Raumklima** suchen und herunterladen.
 3. Home Assistant neu starten.
 
@@ -126,7 +126,7 @@ Dein Thermostat läuft (oder nicht)? Bitte als [Issue](https://github.com/Goldi5
 Zwischen den stabilen Releases gibt es Vorabversionen (Kennung `b1`, `b2` … – zum Beispiel
 `0.60.0b1`). Sie enthalten neue Funktionen früher, sind aber weniger geprüft.
 
-1. HACS → **Raumklima** → ⋮ → **Neu herunterladen**
+1. **Marketplace** → **Raumklima** → ⋮ → **Neu herunterladen**
 2. **Beta-Versionen anzeigen** („Show beta versions") einschalten, dann die gewünschte Vorabversion wählen
 3. Home Assistant neu starten
 
@@ -135,7 +135,7 @@ nicht gesetzt ist, und `releases/latest` (Handbuch-Link in der Karte) zeigt weit
 Version. Zurück geht es jederzeit über **Neu herunterladen** ohne den Haken – dann wird wieder die letzte
 stabile Version installiert.
 
-HACS zeigt neue Versionen an. Nach dem Herunterladen Home Assistant neu starten. Reine Karten-Änderungen sind nach einem Neuladen der Seite sichtbar.
+Der Marketplace zeigt neue Versionen an. Nach dem Herunterladen Home Assistant neu starten. Reine Karten-Änderungen sind nach einem Neuladen der Seite sichtbar.
 
 ## Umstieg von 0.2.x
 

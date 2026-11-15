@@ -3,13 +3,13 @@
 ## Requirements
 
 - Home Assistant **2026.5** or newer (for the dashboard strategy; the integration itself runs from 2025.10)
-- [HACS](https://hacs.xyz)
+- **Marketplace** in Home Assistant (formerly [HACS](https://hacs.xyz))
 - Per room: a radiator thermostat as a `climate` entity and a temperature sensor. A humidity sensor and window contacts are optional but recommended; a CO₂ sensor is optional too.
 - For absence detection: persons with phone location (Home Assistant Companion app) and a zone for the home.
 
-## Installation via HACS
+## Installation via the Marketplace
 
-1. HACS → ⋮ → **Custom repositories** → `https://github.com/Goldi5/Raumklima-2`, category **Integration**.
+1. **Marketplace** → ⋮ → **Custom repositories** → `https://github.com/Goldi5/Raumklima-2`, category **Integration**.
 2. Search for **Raumklima** and download it.
 3. Restart Home Assistant.
 
@@ -123,7 +123,7 @@ Your thermostat works (or doesn't)? Please report it as an [issue](https://githu
 Between stable releases there are pre-releases (marked `b1`, `b2` … – for example `0.60.0b1`).
 They contain new features earlier but are tested less.
 
-1. HACS → **Raumklima** → ⋮ → **Redownload**
+1. **Marketplace** → **Raumklima** → ⋮ → **Redownload**
 2. Enable **Show beta versions**, pick the pre-release
 3. Restart Home Assistant
 
@@ -131,7 +131,7 @@ Pre-releases are flagged as "pre-release" on GitHub, so they stay hidden unless 
 `releases/latest` (the manual link in the card) keeps pointing at the last stable version. Switching back
 works any time via **Redownload** without the box.
 
-HACS shows new versions. After downloading, restart Home Assistant. Changes to the cards alone are visible after reloading the page.
+The Marketplace shows new versions. After downloading, restart Home Assistant. Changes to the cards alone are visible after reloading the page.
 
 ## Migrating from 0.2.x
 

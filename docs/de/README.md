@@ -14,7 +14,7 @@
 
 | Seite | Worum es geht |
 |---|---|
-| [Installation & Einrichtung](installation.md) | HACS, erster Raum, Allgemein |
+| [Installation & Einrichtung](installation.md) | Marketplace, erster Raum, Allgemein |
 | [Bedienung](bedienung.md) | Dashboard, Karten, Einstellungsseite |
 | [So funktioniert's](funktionsweise.md) | Regelung, Offset, Fenster, Absicherung, Lüften, Abwesenheit, Schimmelschutz, Heizsaison |
 | [Benachrichtigungen](benachrichtigungen.md) | Wer bekommt was, Ruhezeit, Aktionen, Sprachansagen |

@@ -6,7 +6,7 @@
 |---|---|
 | `custom_components/raumklima/` | Integration (Python) |
 | `frontend/src/` | Dashboard-Karten (JavaScript-Module) |
-| `custom_components/raumklima/www/raumklima-card.js` | gebaute Karte – wird mit eingecheckt, damit HACS sie ohne Build ausliefert |
+| `custom_components/raumklima/www/raumklima-card.js` | gebaute Karte – wird mit eingecheckt, damit der Marketplace (HACS) sie ohne Build ausliefert |
 | `tests/` | Tests ohne Home Assistant (Logik) |
 | `tests/ha/` | Integrationstests mit Home Assistant (simuliertes Thermostat) |
 

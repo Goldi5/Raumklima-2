@@ -35,7 +35,7 @@ Ce manuel explique pas à pas comment installer Raumklima et l’utiliser au quo
 
 ## Ce qu’il vous faut
 
-- **Home Assistant** (version 2025.10 ou plus récente) avec **HACS**
+- **Home Assistant** (version 2025.10 ou plus récente) avec le **Marketplace** (anciennement HACS)
 - par pièce, un (ou plusieurs) **thermostat de radiateur** qui apparaît dans Home Assistant – qu’il soit Zigbee, Shelly, Matter ou cloud
 - par pièce, une **sonde de température** (idéalement avec humidité)
 - en option : des **contacts de fenêtre**, une **sonde CO₂**, un **capteur de particules** (PM2,5)
@@ -45,10 +45,10 @@ Ce manuel explique pas à pas comment installer Raumklima et l’utiliser au quo
 
 ## Étape 1 : installer
 
-1. Ouvrez **HACS** dans Home Assistant.
+1. Ouvrez le **Marketplace** dans Home Assistant.
 2. Touchez **⋮ → Dépôts personnalisés** en haut à droite.
 3. Saisissez `https://github.com/Goldi5/Raumklima-2`, catégorie **Intégration**, puis validez.
-4. Recherchez **Raumklima** dans HACS et touchez **Télécharger**.
+4. Recherchez **Raumklima** dans le Marketplace et touchez **Télécharger**.
 5. **Redémarrez Home Assistant** (*Paramètres → Système → Redémarrer*).
 
 :::tip
@@ -487,7 +487,7 @@ sont enregistrés – l'année n'a pas d'importance.
 | **Point de rosée** | À cette température, l’humidité se transforme en eau – par ex. sur les murs froids. |
 | **Degrés-jours de chauffage** | Une mesure de la froideur qu’il a fait dehors. |
 | **Heures calmes** | Période pendant laquelle les messages arrivent en silence. |
-| **HACS** | Le « magasin d’applications » pour les extensions dans Home Assistant. |
+| **Marketplace** (anciennement HACS) | Le « magasin d’applications » pour les extensions dans Home Assistant. |
 
 # Obtenir de l’aide
 
