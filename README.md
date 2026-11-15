@@ -26,6 +26,8 @@ Raumklima ist ein **Gemeinschaftswerk**: Die Ideen, der Alltagstest in echten Wo
 
 Das sagen wir offen, weil es dazugehört. Jede Version läuft durch automatische Tests und wird in echten Wohnungen ausprobiert, bevor sie als stabil gilt. Trotzdem gilt: Es ist ein Hobbyprojekt, kein Produkt mit Garantie.
 
+**Fragen, Issues und Antworten – auch mit KI.** Wer ein Issue aufmacht oder eine Frage stellt, bekommt die Antwort oft mit Hilfe von Claude oder einer anderen KI geschrieben. Nicht aus Bequemlichkeit, sondern weil die KI den ganzen Code im Kopf hat und schneller und tiefer in der Materie steckt als ich. Ich lese mit, entscheide und stehe dafür gerade – versprochen. Und wenn die Antwort mal zu gründlich ausfällt: Das ist dann wohl die KI. 😉
+
 **Du entscheidest.** Ob du Raumklima nutzt, nur reinschaust, Teile davon übernimmst oder es lieber lässt – alles völlig freiwillig und völlig in Ordnung. Wenn du mitmachst: Fehlermeldungen und Wünsche sind herzlich willkommen, egal ob von Mensch oder mit Hilfe einer KI geschrieben. 😉
 
 ![Räume](docs/images/raeume.png)

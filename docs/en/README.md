@@ -18,7 +18,7 @@
 
 ## Human + AI
 
-Raumklima is a **joint effort**: ideas, real-life testing (cold feet included) and decisions come from the human behind [Goldi5](https://github.com/Goldi5); much of the code, tests and docs was written together with Anthropic's AI **Claude**. Every release runs through automated tests and real homes – but it is a hobby project, not a product with a warranty. Using it is entirely your choice. Bug reports and wishes are welcome, whether typed by a human or with a little AI help. 😉
+Raumklima is a **joint effort**: ideas, real-life testing (cold feet included) and decisions come from the human behind [Goldi5](https://github.com/Goldi5); much of the code, tests and docs was written together with Anthropic's AI **Claude**. Every release runs through automated tests and real homes – but it is a hobby project, not a product with a warranty. Using it is entirely your choice. Questions and issues are often answered with help from Claude or another AI – not out of laziness, but because the AI knows the whole code base and digs deeper and faster than I could. I read along, decide and stand behind every answer. Bug reports and wishes are welcome, whether typed by a human or with a little AI help. 😉
 
 ![Rooms](../images/raeume.png)
 

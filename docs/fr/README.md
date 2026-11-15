@@ -22,7 +22,7 @@
 
 ## Humain + IA
 
-Raumklima est une **œuvre commune** : les idées, les essais dans de vrais logements et les décisions viennent de [Goldi5](https://github.com/Goldi5) ; une grande partie du code, des tests et de la documentation a été écrite avec l’IA **Claude** d’Anthropic. Chaque version passe des tests automatiques – mais c’est un projet de loisir, sans garantie. L’utiliser ou non reste entièrement votre choix. 😉
+Raumklima est une **œuvre commune** : les idées, les essais dans de vrais logements et les décisions viennent de [Goldi5](https://github.com/Goldi5) ; une grande partie du code, des tests et de la documentation a été écrite avec l’IA **Claude** d’Anthropic. Chaque version passe des tests automatiques – mais c’est un projet de loisir, sans garantie. L’utiliser ou non reste entièrement votre choix. Les questions et les issues reçoivent souvent une réponse rédigée avec l’aide de Claude ou d’une autre IA – non par paresse, mais parce que l’IA connaît tout le code et va plus vite et plus loin que moi. Je relis, je décide et j’assume chaque réponse. 😉
 
 ## Pages
 
