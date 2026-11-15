@@ -4,6 +4,22 @@
 
 **Raumklima** turns every radiator thermostat (TRV) into a smart room thermostat: it controls by a real room sensor, pauses when a window opens, coaches you while airing, lowers the temperature when nobody is home – and doesn't heat at all in summer.
 
+![Raumklima](../images/hero.png)
+
+## Who is this for?
+
+| | |
+|---|---|
+| 🌱 **Just getting started** | A few thermostats, Home Assistant somehow running, and you mainly want it warm when you get home – plus an overview you understand without a computer science degree. Pick a thermostat, confirm the sensor, done; the dashboard builds itself. |
+| 🛠️ **You love tinkering** | More sensors than sockets, betas installed "just for a quick test": presence sensors, CO₂, calendars, your own automations, diagnostics and a "Why is the room (not) heating?" page with every single rule. Have fun – and tell us what broke. |
+| 📊 **You love numbers** | Weather-adjusted comparisons, grades A–F, mould traffic light, heating cost in euros, oil tank and heat-pump efficiency, PDF reports by mail. |
+| 🏘️ **More than one home** | Home, holiday flat, your daughter's flat in another city – each with its own residents, notifications and reports, in one Home Assistant. |
+| 🤷 **Probably not for you if …** | … you want a certified professional product with a hotline. Totally fine. |
+
+## Human + AI
+
+Raumklima is a **joint effort**: ideas, real-life testing (cold feet included) and decisions come from the human behind [Goldi5](https://github.com/Goldi5); much of the code, tests and docs was written together with Anthropic's AI **Claude**. Every release runs through automated tests and real homes – but it is a hobby project, not a product with a warranty. Using it is entirely your choice. Bug reports and wishes are welcome, whether typed by a human or with a little AI help. 😉
+
 ![Rooms](../images/raeume.png)
 
 > 📘 New here? The **[manual as PDF](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf)** explains setup and everyday use step by step.

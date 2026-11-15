@@ -8,6 +8,22 @@
 
 > Raumklima est en **version de test (early release)**. La traduction française est nouvelle – les corrections sont les bienvenues via une [issue](https://github.com/Goldi5/Raumklima-2/issues).
 
+
+![Raumklima](../images/hero.png)
+
+## Pour qui ?
+
+| | |
+|---|---|
+| 🌱 **Vous débutez** | Quelques thermostats, Home Assistant qui tourne, et surtout l’envie d’avoir chaud en rentrant – avec une vue d’ensemble claire. Choisir le thermostat, confirmer la sonde, c’est tout ; le tableau de bord se crée tout seul. |
+| 🛠️ **Vous aimez bricoler** | Plus de capteurs que de prises, des bêtas installées « juste pour voir » : détecteurs de présence, CO₂, calendriers, automatisations, diagnostics et une page « Pourquoi la pièce chauffe-t-elle (ou pas) ? ». Amusez-vous – et dites-nous ce qui a cassé. |
+| 📊 **Vous aimez les chiffres** | Comparaison corrigée de la météo, note A–F, coûts en euros, cuve de fioul, rendement de la pompe à chaleur, rapports PDF. |
+| 🏘️ **Plusieurs logements** | Maison, résidence secondaire, l’appartement de votre fille – chacun avec ses habitants, notifications et rapports. |
+
+## Humain + IA
+
+Raumklima est une **œuvre commune** : les idées, les essais dans de vrais logements et les décisions viennent de [Goldi5](https://github.com/Goldi5) ; une grande partie du code, des tests et de la documentation a été écrite avec l’IA **Claude** d’Anthropic. Chaque version passe des tests automatiques – mais c’est un projet de loisir, sans garantie. L’utiliser ou non reste entièrement votre choix. 😉
+
 ## Pages
 
 | Page | Sujet |

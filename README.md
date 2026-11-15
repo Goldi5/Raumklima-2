@@ -1,10 +1,32 @@
 # Raumklima für Home Assistant
 
+![Raumklima – Heizung, die mitdenkt](docs/images/hero.png)
+
 **Heizung, die mitdenkt.** Raumklima macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: Es regelt nach einem echten Raumfühler, pausiert bei offenem Fenster, berät beim Lüften, senkt ab, wenn niemand zu Hause ist – mit Schimmelschutz – und heizt nur, wenn es draußen wirklich kalt ist.
 
 **Aktuelle Version: 1.3.0b5** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
 
 > 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) · [Français](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manuel.pdf)
+
+## Für wen ist das?
+
+Ganz ehrlich: für ziemlich viele – aber nicht für alle. Schau, wo du dich wiederfindest.
+
+| | |
+|---|---|
+| 🌱 **Du fängst gerade an** | Ein paar Thermostate, Home Assistant läuft irgendwie, und du willst vor allem eins: dass es warm ist, wenn du heimkommst, und eine Übersicht, die man auch ohne Informatikstudium versteht. Thermostat wählen, Fühler bestätigen, fertig – das Dashboard baut sich selbst. Alles andere darf warten. |
+| 🛠️ **Du bastelst gern** | Du hast mehr Sensoren als Steckdosen, liest Changelogs zum Frühstück und probierst Betas aus, „nur mal kurz“. Für dich gibt es Präsenzmelder, CO₂, Kalender, eigene Automationen, Diagnose-Dateien und einen Reiter „Warum heizt der Raum (nicht)?“ mit jeder einzelnen Regel. Viel Spaß beim Ausprobieren – und bitte erzähl uns, was kaputtgegangen ist. |
+| 📊 **Du liebst Zahlen** | Wetterbereinigter Vergleich, Note A–F, Schimmel-Ampel, Heizkosten in Euro, Öltank und Arbeitszahl der Wärmepumpe, PDF-Bericht per Mail. Für alle, die beim Wort „Gradtage“ ein kleines bisschen glücklich werden. |
+| 🏘️ **Du kümmerst dich um mehr als eine Wohnung** | Zuhause, Ferienwohnung, die Wohnung der Tochter in einer anderen Stadt – jede mit eigenen Bewohnern, Benachrichtigungen und Berichten, alles in einer Home-Assistant-Installation. |
+| 🤷 **Eher nichts für dich, wenn …** | … du eine zertifizierte Profi-Lösung mit Hotline suchst oder deine Heizung lieber gar nicht von Software anfassen lässt. Völlig in Ordnung – ein gutes Thermostat mit Zeitplan ist auch schon was. |
+
+## Mensch + KI: wie das hier entsteht
+
+Raumklima ist ein **Gemeinschaftswerk**: Die Ideen, der Alltagstest in echten Wohnungen (inklusive kalter Füße, wenn mal was schiefging) und die Entscheidungen kommen vom Menschen hinter [Goldi5](https://github.com/Goldi5). Ein großer Teil des Codes, der Tests und der Dokumentation ist zusammen mit der KI **Claude** von Anthropic entstanden – im Gespräch, Zeile für Zeile, mit vielen Rückfragen in beide Richtungen.
+
+Das sagen wir offen, weil es dazugehört. Jede Version läuft durch automatische Tests und wird in echten Wohnungen ausprobiert, bevor sie als stabil gilt. Trotzdem gilt: Es ist ein Hobbyprojekt, kein Produkt mit Garantie.
+
+**Du entscheidest.** Ob du Raumklima nutzt, nur reinschaust, Teile davon übernimmst oder es lieber lässt – alles völlig freiwillig und völlig in Ordnung. Wenn du mitmachst: Fehlermeldungen und Wünsche sind herzlich willkommen, egal ob von Mensch oder mit Hilfe einer KI geschrieben. 😉
 
 ![Räume](docs/images/raeume.png)
 
@@ -74,4 +96,4 @@ Ausführlich: [Installation & Einrichtung](docs/de/installation.md)
 
 ## Lizenz & Mitmachen
 
-Open Source. Fehler und Wünsche gerne als [Issue](https://github.com/Goldi5/Raumklima-2/issues) – mit Diagnose-Datei (Gerät → ⋮ → Diagnose herunterladen).
+Open Source, entstanden als Gemeinschaftswerk von Mensch und KI (Claude). Nutzung auf eigene Verantwortung – und mit Freude. Fehler und Wünsche gerne als [Issue](https://github.com/Goldi5/Raumklima-2/issues) – mit Diagnose-Datei (Gerät → ⋮ → Diagnose herunterladen).
