@@ -301,7 +301,7 @@ Im Reiter **Bericht** siehst du für diese Woche oder diesen Monat: wie lange ge
 
 ### Der Bericht als PDF
 
-Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** (mehrseitig). Darin stehen unter anderem:
+Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** (mehrseitig). Seite 1 ist die Kurzfassung **„Auf einen Blick“**: was los war, in ganzen Sätzen, dazu die drei wichtigsten Tipps. Danach folgt alles im Detail:
 
 - eine **Note von A bis F** für dein Raumklima – mit Verlauf,
 - der Vergleich zum Vorzeitraum und zum **Vorjahr**,
@@ -309,7 +309,9 @@ Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** 
 - **Feuchte-Ampel**, CO₂ und eine **Lüft-Bilanz**,
 - ein **Wärmebild**, wann geheizt wird,
 - **Batteriestände**, Ausfälle und **Spartipps** mit Zahlen,
-- **Energie und Kosten:** Quelle, Zähler, Tarif, Verbrauch, Kosten, PV-Ertrag, Wärmemenge und bei Öl Tankfüllstand und Bestellhinweis.
+- **Energie und Kosten:** Kosten mit Hochrechnung, Verbrauch für Heizung und Warmwasser, Tagesbalken mit Außentemperatur, **Kosten je Raum**, Arbeitszahl der Wärmepumpe, bezahlter Strompreis, Anteil aus PV und Batterie – bei Öl Tank, Reichweite und Marktpreis.
+
+Per E-Mail steht die Kurzfassung direkt im Mailtext, der ausführliche Bericht hängt als PDF an.
 
 Trägst du unter *Einstellungen → Allgemein → Berichte → Weitere Einstellungen* deine **Heizkosten pro Jahr** ein, rechnet der Bericht die Ersparnis grob in **Euro** um.
 

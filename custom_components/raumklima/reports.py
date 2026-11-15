@@ -213,6 +213,10 @@ class PdfReports:
         data = entry.get("_data") or {}
         if message is None:
             message = summary_line(data, lang) if data else tx["mail"]
+        # E-Mail: oben die Kurzfassung in ganzen Sätzen, das ausführliche PDF hängt an
+        from .report_extra import mail_text
+
+        mail_body = mail_text(data, lang) if data else f"{message}\n\n{tx['mail']}"
         url = self.signed_url(entry["file"])
         push_data: dict[str, Any] = {"tag": f"raumklima_report_{entry['kind']}", "group": "raumklima"}
         if url:
@@ -227,7 +231,7 @@ class PdfReports:
                     self.hass,
                     str(smtp_notify),
                     title.replace("📊 ", ""),
-                    f"{message}\n\n{tx['mail']}",
+                    mail_body,
                     [path],
                 )
                 self.hub.log.add("notify", tr("PDF-Bericht per E-Mail: {file}", file=entry["file"]), str(smtp_notify))
@@ -238,7 +242,7 @@ class PdfReports:
             path = str(report_dir(self.hass) / entry["file"])
             try:
                 await self.hass.async_add_executor_job(
-                    mail_send, dict(self.hub.entry.options), title.replace("📊 ", ""), f"{message}\n\n{tx['mail']}", [path]
+                    mail_send, dict(self.hub.entry.options), title.replace("📊 ", ""), mail_body, [path]
                 )
                 self.hub.log.add("notify", tr("PDF-Bericht per E-Mail: {file}", file=entry["file"]), ", ".join(recipients(self.hub.opt("mail_to"))))
             except MailError as err:
@@ -249,7 +253,7 @@ class PdfReports:
             path = str(report_dir(self.hass) / entry["file"])
             try:
                 await self.hass.services.async_call(
-                    domain, service, {"title": title.replace("📊 ", ""), "message": f"{message}\n\n{tx['mail']}", "data": {"images": [path]}}
+                    domain, service, {"title": title.replace("📊 ", ""), "message": mail_body, "data": {"images": [path]}}
                 )
                 self.hub.log.add("notify", tr("PDF-Bericht per E-Mail: {file}", file=entry["file"]), email)
             except Exception as err:  # noqa: BLE001

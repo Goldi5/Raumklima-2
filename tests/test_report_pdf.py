@@ -94,3 +94,39 @@ def test_energy_page_data_and_pdf() -> None:
     assert data["energy"]["tank"]["current_l"] == 1200
     pdf = render(data, "Wohnung A", datetime(2026, 11, 1, 18))
     assert pdf[:4] == b"%PDF" and len(pdf) > 3000
+
+
+def _heatpump_extras():
+    daily = [
+        {"date": (TODAY - timedelta(days=i)).isoformat(), "kwh": 8.0 + i % 4, "ww": 2.0, "cost": 3.1, "outdoor": 4.0 + i % 5}
+        for i in range(29, -1, -1)
+    ]
+    return {
+        "energy": {
+            "enabled": True, "source": "heatpump", "meter": "sensor.wp_strom", "meter_unit": "kWh",
+            "kwh": 300.0, "ww_kwh": 60.0, "heat_kwh": 1230.0, "ww_heat_kwh": 198.0, "cop": 4.1, "cop_ww": 3.3,
+            "price": 0.33, "price_paid": 0.31, "price_avg": 0.34, "cheap_share": 38, "tariff_dynamic": True,
+            "cost_energy": 101.6, "self_kwh": 25.0, "house_kwh": 1300.0, "house_share": 27.7, "base": 15.0,
+            "tariff": "sensor.preis", "tariff_fallbacks": ["sensor.epex"], "ww_meter": "sensor.ww",
+            "house_entity": "sensor.haus", "grid_entity": "sensor.netz", "days": 30, "daily": daily,
+        }
+    }
+
+
+def test_heatpump_report_story_rooms_and_mail() -> None:
+    """Neuer Bericht: Kurzfassung, Kosten je Raum, Warmwasser und E-Mail-Text (de/en/fr)."""
+    from custom_components.raumklima.report_extra import mail_text
+
+    rooms, home = _data()
+    for lang in ("de", "en", "fr"):
+        data = build(rooms, home, "month", date(2026, 10, 2), TODAY, [], lang, extras=_heatpump_extras())
+        assert data["money"]["period_cost"] > 100
+        assert data["room_costs"] and abs(sum(r["share"] for r in data["room_costs"]) - 100) < 0.5
+        assert len(data["story"]) >= 3
+        text = mail_text(data, lang)
+        assert data["story"][0] in text and "PDF" in text
+        pdf = render(data, "Wohnung A", datetime(2026, 11, 1, 18))
+        assert pdf[:4] == b"%PDF" and len(pdf) > 5000
+    de = build(rooms, home, "week", TODAY - timedelta(days=6), TODAY, [], "de", extras=_heatpump_extras())
+    assert any("Warmwasser eingeschlossen" in s for s in de["story"])
+    assert any("Wärmepumpe" in s for s in de["story"])

@@ -310,6 +310,8 @@ Every week, every month and at the end of the heating season a **PDF report** (s
 - **battery levels**, failures and **saving tips** with numbers,
 - **energy and costs:** source, meter, tariff, consumption, costs, PV yield, heat output and – for oil – tank level and reorder hint.
 
+Page 1 is the summary **“At a glance”** in full sentences with the three top tips; the e-mail carries the same summary in its text, the full report is attached as PDF. The energy page now shows costs with forecast, heating and hot water, daily bars, **cost per room**, heat-pump efficiency, price paid and the share from PV and battery.
+
 If you enter your **heating costs per year** under *Settings → General → Reports → More settings*, the report roughly converts savings into **euros**.
 
 - **Download:** at the very bottom of the **Report** tab under *PDF reports* – tap **Download**. The buttons *Week*, *Month* and *Heating season* give you a report up to today right away.

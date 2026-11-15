@@ -1,3 +1,16 @@
+## 1.3.0b9 – 2026-11-15
+
+### Neu
+- **PDF-Bericht neu gedacht – oben kurz, unten lang:** Seite 1 „Auf einen Blick“ erzählt in ganzen Sätzen, was los war (Kosten, Vergleich, Wetter, wer am meisten Wärme brauchte, Arbeitszahl, günstige Stunden, Wohlfühlzeit), dazu die drei wichtigsten Tipps. Die erste Kennzahl ist jetzt die Kosten, wenn sie bekannt sind.
+- **Energie und Kosten als Seite 2:** Kosten mit Tageswert und Jahreshochrechnung, Verbrauch Heizung + Warmwasser, Arbeitszahl (Heizung und Warmwasser), bezahlter Ø-Preis gegen Mittel, Wärmepreis, Anteil aus PV und Batterie, Anteil am Hausstrom, Tagesbalken mit Außentemperatur, **Kosten je Raum**, Einzelwerte – Entitäten nur noch kleingedruckt unter „Datenquellen“.
+- **E-Mail:** Die Kurzfassung steht im Mailtext, darunter die wichtigsten Hinweise und ein Tipp; das ausführliche PDF hängt an.
+
+### Behoben
+- Feste deutsche Texte auf der Energieseite („Ölpreis“, „€/Jahr“, „30-Tage-Ø“) sind jetzt übersetzt.
+
+### Tests
+- Wärmepumpen-Bericht mit Warmwasser, Kosten je Raum, Kurzfassung und E-Mail-Text in de/en/fr.
+
 ## 1.3.0b8 – 2026-11-15
 
 ### Behoben

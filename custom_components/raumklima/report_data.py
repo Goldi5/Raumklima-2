@@ -282,6 +282,9 @@ def add_extras(data: dict[str, Any], rooms: dict[str, Any], home: dict[str, Any]
     energy = extras.get("energy") or {}
     data["energy"] = energy
     data["money"] = rx.money(cur, annual_cost, energy)
+    if data["money"] is not None and data["money"].get("period_cost"):
+        data["money"]["per_day"] = round(data["money"]["period_cost"] / max(data["days"], 1), 2)
+    data["room_costs"] = rx.room_costs(cur, data["money"], energy, data.get("metric") or "valve")
     tip_cost = annual_cost or (data["money"] or {}).get("annual")
     data["tips"] = rx.saving_tips(cur, daily, grid, tip_cost, extras.get("room_types", {}), lang)
     data["presence"] = {
@@ -307,3 +310,4 @@ def add_extras(data: dict[str, Any], rooms: dict[str, Any], home: dict[str, Any]
         "batteries": extras.get("batteries", {}),
     }
     data["co2"] = {n: {"avg": r["co2_avg"], "high_h": r["co2_high_h"]} for n, r in cur["rooms"].items() if r.get("co2_avg") is not None}
+    data["story"] = rx.story(data, lang)

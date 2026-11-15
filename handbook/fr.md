@@ -309,6 +309,8 @@ Chaque semaine, chaque mois et à la fin de la saison de chauffage, un **rapport
 - les **niveaux de pile**, les pannes et des **conseils d’économie** chiffrés,
 - **énergie et coûts :** source, compteur, tarif, consommation, coûts, rendement PV, chaleur produite et – pour le fioul – niveau du réservoir et rappel de commande.
 
+La page 1 est le résumé **« En un coup d’œil »** en phrases complètes avec les trois meilleurs conseils ; l’e-mail reprend ce résumé dans son texte, le rapport complet est joint en PDF. La page énergie montre coûts et prévision, chauffage et eau chaude, barres journalières, **coût par pièce**, rendement de la PAC, prix payé et part du PV et de la batterie.
+
 Si vous saisissez vos **frais de chauffage par an** sous *Réglages → Général → Rapports → Autres réglages*, le rapport convertit approximativement les économies en **euros**.
 
 - **Téléchargement :** tout en bas de l’onglet **Rapport** sous *Rapports PDF* – touchez **Télécharger**. Les boutons *Semaine*, *Mois* et *Saison de chauffage* vous donnent immédiatement un rapport jusqu’à aujourd’hui.

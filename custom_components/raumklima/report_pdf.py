@@ -110,6 +110,44 @@ L = {
         "src_oil": "Heizöl",
         "src_heatpump": "Wärmepumpe",
         "src_district": "Fernwärme",
+        "glance": "Auf einen Blick",
+        "top_tips": "Die wichtigsten Tipps",
+        "cost_kpi": "Kosten",
+        "per_day": "{v} € pro Tag",
+        "e_use": "Verbrauch",
+        "e_use_sub": "Heizung {h} · Warmwasser {w} kWh",
+        "e_cop": "Arbeitszahl",
+        "e_cop_sub": "Heizung, gemessen",
+        "e_cop_ww": "Warmwasser {v}",
+        "e_annual": "Hochrechnung Jahr",
+        "e_annual_sub": "nach Gradtagen",
+        "e_annual_none": "ab Heizsaison",
+        "e_paid": "Bezahlt Ø",
+        "e_paid_sub": "Mittel {m} ct · {p} % günstig",
+        "e_self": "Aus PV & Batterie",
+        "e_self_sub": "kostet nichts",
+        "e_house": "Anteil Hausstrom",
+        "e_house_sub": "{h} kWh Haus gesamt",
+        "e_daily": "Verbrauch pro Tag",
+        "e_leg_heat": "Heizung",
+        "e_leg_ww": "Warmwasser",
+        "e_leg_out": "Außen °C",
+        "e_rooms": "Wer verbraucht die Wärme?",
+        "e_rooms_note": "nach Ventilöffnung × Stunden, ohne Warmwasser und Grundgebühr",
+        "e_details": "Einzelwerte",
+        "e_sources": "Datenquellen",
+        "e_ww_heat": "Warmwasser-Wärme",
+        "e_ww": "Warmwasser",
+        "e_m3": "Gas",
+        "e_liter": "Heizöl",
+        "e_oilprice": "Ölpreis",
+        "e_30d": "Marktpreis 30-Tage-Ø",
+        "e_unit_year": " €",
+        "e_heat_price": "Wärmepreis",
+        "e_fallbacks": "Reserve-Preisquellen",
+        "e_house_meter": "Hausverbrauch",
+        "e_grid": "Netzbezug",
+        "e_ww_meter": "Warmwasser-Zähler",
         "c_trend": "Verlauf °C / %",
         "ranking": "Rangliste",
         "r_eco": "Sparsamster Raum",
@@ -250,6 +288,44 @@ L = {
         "src_oil": "Heating oil",
         "src_heatpump": "Heat pump",
         "src_district": "District heat",
+        "glance": "At a glance",
+        "top_tips": "Top tips",
+        "cost_kpi": "Costs",
+        "per_day": "{v} € per day",
+        "e_use": "Consumption",
+        "e_use_sub": "heating {h} · hot water {w} kWh",
+        "e_cop": "Efficiency",
+        "e_cop_sub": "heating, measured",
+        "e_cop_ww": "hot water {v}",
+        "e_annual": "Annual forecast",
+        "e_annual_sub": "by degree days",
+        "e_annual_none": "from heating season",
+        "e_paid": "Paid Ø",
+        "e_paid_sub": "average {m} ct · {p} % cheap",
+        "e_self": "From PV & battery",
+        "e_self_sub": "free of charge",
+        "e_house": "Share of house power",
+        "e_house_sub": "{h} kWh house total",
+        "e_daily": "Consumption per day",
+        "e_leg_heat": "Heating",
+        "e_leg_ww": "Hot water",
+        "e_leg_out": "Outdoor °C",
+        "e_rooms": "Who uses the heat?",
+        "e_rooms_note": "by valve opening × hours, without hot water and base fee",
+        "e_details": "Values",
+        "e_sources": "Data sources",
+        "e_ww_heat": "Hot water heat",
+        "e_ww": "Hot water",
+        "e_m3": "Gas",
+        "e_liter": "Heating oil",
+        "e_oilprice": "Oil price",
+        "e_30d": "Market 30-day avg.",
+        "e_unit_year": " €",
+        "e_heat_price": "Heat price",
+        "e_fallbacks": "Fallback price sources",
+        "e_house_meter": "House consumption",
+        "e_grid": "Grid import",
+        "e_ww_meter": "Hot water meter",
         "c_trend": "Trend °C / %",
         "ranking": "Ranking",
         "r_eco": "Most economical room",
@@ -390,6 +466,44 @@ L = {
         "src_oil": "Fioul",
         "src_heatpump": "Pompe à chaleur",
         "src_district": "Chaleur réseau",
+        "glance": "En un coup d’œil",
+        "top_tips": "Les meilleurs conseils",
+        "cost_kpi": "Coûts",
+        "per_day": "{v} € par jour",
+        "e_use": "Consommation",
+        "e_use_sub": "chauffage {h} · eau chaude {w} kWh",
+        "e_cop": "Rendement",
+        "e_cop_sub": "chauffage, mesuré",
+        "e_cop_ww": "eau chaude {v}",
+        "e_annual": "Prévision annuelle",
+        "e_annual_sub": "selon degrés-jours",
+        "e_annual_none": "dès la saison de chauffe",
+        "e_paid": "Payé Ø",
+        "e_paid_sub": "moyenne {m} ct · {p} % bon marché",
+        "e_self": "Du PV et de la batterie",
+        "e_self_sub": "gratuit",
+        "e_house": "Part de la maison",
+        "e_house_sub": "{h} kWh maison au total",
+        "e_daily": "Consommation par jour",
+        "e_leg_heat": "Chauffage",
+        "e_leg_ww": "Eau chaude",
+        "e_leg_out": "Extérieur °C",
+        "e_rooms": "Qui consomme la chaleur ?",
+        "e_rooms_note": "selon ouverture de vanne × heures, sans eau chaude ni abonnement",
+        "e_details": "Valeurs",
+        "e_sources": "Sources des données",
+        "e_ww_heat": "Chaleur eau chaude",
+        "e_ww": "Eau chaude",
+        "e_m3": "Gaz",
+        "e_liter": "Fioul",
+        "e_oilprice": "Prix du fioul",
+        "e_30d": "Marché moyenne 30 j",
+        "e_unit_year": " €",
+        "e_heat_price": "Prix de la chaleur",
+        "e_fallbacks": "Sources de prix de réserve",
+        "e_house_meter": "Consommation maison",
+        "e_grid": "Soutirage réseau",
+        "e_ww_meter": "Compteur eau chaude",
         "c_trend": "Évolution °C / %",
         "ranking": "Classement",
         "r_eco": "Pièce la plus économe",
@@ -648,10 +762,10 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
     pdf, has_data = _page_overview(data, home, created)
     if not has_data:
         return bytes(pdf.output())  # keine Heizstunden: nur Seite 1 mit Hinweis
+    _page_energy(pdf, data)
     _page_rooms(pdf, data)
     _page_humidity(pdf, data)
     _page_devices(pdf, data)
-    _page_energy(pdf, data)
     return bytes(pdf.output())
 
 
@@ -714,8 +828,12 @@ def _page_overview(data: dict[str, Any], home: str, created: datetime) -> tuple[
     y = pdf.get_y()
     change = data.get("change")
     money = data.get("money")
-    pdf.kpi(15, y, w, tx["heating"], num(total["heating_h"], lang, 0, " h"),
-            tx["vs_prev"].format(c=signed(change, lang)) if change is not None else tx["heating_sub"], HEAT)
+    if money and money.get("period_cost"):
+        pdf.kpi(15, y, w, tx["cost_kpi"], num(money["period_cost"], lang, 0, " €"),
+                tx["per_day"].format(v=num(money["period_cost"] / max(data["days"], 1), lang, 2)), HEAT)
+    else:
+        pdf.kpi(15, y, w, tx["heating"], num(total["heating_h"], lang, 0, " h"),
+                tx["vs_prev"].format(c=signed(change, lang)) if change is not None else tx["heating_sub"], HEAT)
     pdf.kpi(15 + (w + gap), y, w, tx["saving"], "≈ " + num(total["saving_pct"], lang, 0, " %") if total["saving_pct"] else "0 %",
             tx["money"].format(e=money["saved"]) if money else tx["saving_sub"], OK)
     pdf.kpi(15 + 2 * (w + gap), y, w, tx["comfort"], num(total["on_target_pct"], lang, 0, " %"), tx["comfort_sub"], AIR)
@@ -740,7 +858,36 @@ def _page_overview(data: dict[str, Any], home: str, created: datetime) -> tuple[
             pdf.cell(13, 6, clean(label))
         pdf.ln(6)
 
+    # ---- Auf einen Blick: was war los, und die drei besten Tipps
+    if data.get("story"):
+        pdf.heading(tx["glance"])
+        box_y = pdf.get_y()
+        pdf.set_font("Helvetica", size=10)
+        pdf.set_text_color(*NAVY)
+        pdf.set_x(19)
+        pdf.multi_cell(full - 8, 5.6, clean(" ".join(data["story"])), new_x="LMARGIN", new_y="NEXT")
+        pdf.set_fill_color(*HEAT)
+        pdf.rect(15, box_y, 1.2, pdf.get_y() - box_y, style="F")
+        pdf.ln(2)
+    if data.get("tips"):
+        pdf.heading(tx["top_tips"])
+        for i, tip in enumerate(data["tips"][:3], 1):
+            y0 = pdf.get_y()
+            pdf.set_fill_color(*OK)
+            pdf.ellipse(15, y0 + 0.4, 5, 5, style="F")
+            pdf.set_xy(15, y0 + 0.6)
+            pdf.set_font("Helvetica", "B", 8)
+            pdf.set_text_color(255, 255, 255)
+            pdf.cell(5, 4.6, str(i), align="C")
+            pdf.set_xy(23, y0)
+            pdf.set_font("Helvetica", size=9.5)
+            pdf.set_text_color(*NAVY)
+            pdf.multi_cell(full - 8, 5.2, clean(tip), new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(1)
+
     # ---- Vergleich
+    if pdf.will_page_break(80):
+        pdf.add_page()
     pdf.heading(tx["compare"])
 
     def col(s: dict[str, Any] | None, key: str, digits: int = 0, unit: str = "", where: str = "total") -> str:
@@ -781,8 +928,76 @@ def _page_overview(data: dict[str, Any], home: str, created: datetime) -> tuple[
     return pdf, True
 
 
+def _energy_chart(pdf: _Pdf, daily: list[dict[str, Any]], lang: str, tx: dict[str, str]) -> None:
+    """Tagesbalken Heizung + Warmwasser gestapelt, Außentemperatur als Linie."""
+    days = daily[-62:]
+    if len(days) < 2:
+        return
+    x0, y0 = pdf.l_margin + 8, pdf.get_y() + 2
+    w = pdf.w - pdf.l_margin - pdf.r_margin - 16
+    h = 46.0
+    top = max([float(d.get("kwh") or 0) + float(d.get("ww") or 0) for d in days] + [1.0])
+    pdf.set_draw_color(*LINE)
+    pdf.set_line_width(0.2)
+    for k in range(5):
+        yy = y0 + h - h * k / 4
+        pdf.line(x0, yy, x0 + w, yy)
+        pdf.set_font("Helvetica", size=6.5)
+        pdf.set_text_color(*GREY)
+        pdf.set_xy(x0 - 9, yy - 2)
+        pdf.cell(8, 4, num(top * k / 4, lang, 0), align="R")
+    slot = w / len(days)
+    bw = min(slot * 0.7, 12)
+    for k, d in enumerate(days):
+        heat = float(d.get("kwh") or 0)
+        ww = float(d.get("ww") or 0)
+        bx = x0 + k * slot + (slot - bw) / 2
+        hh, hw = h * heat / top, h * ww / top
+        if hh > 0:
+            pdf.set_fill_color(*HEAT)
+            pdf.rect(bx, y0 + h - hh, bw, hh, style="F")
+        if hw > 0:
+            pdf.set_fill_color(*AIR)
+            pdf.rect(bx, y0 + h - hh - hw, bw, hw, style="F")
+    temps = [(k, d["outdoor"]) for k, d in enumerate(days) if d.get("outdoor") is not None]
+    if len(temps) >= 2:
+        lo, hi = min(t for _, t in temps) - 1, max(t for _, t in temps) + 1
+        pts = [(x0 + (k + 0.5) * slot, y0 + h - h * (t - lo) / (hi - lo)) for k, t in temps]
+        pdf.set_draw_color(*NAVY)
+        pdf.set_line_width(0.5)
+        for a, b in zip(pts, pts[1:], strict=False):
+            pdf.line(a[0], a[1], b[0], b[1])
+        pdf.set_font("Helvetica", size=6.5)
+        pdf.set_text_color(*NAVY)
+        for val in (lo + 1, hi - 1):
+            pdf.set_xy(x0 + w + 1, y0 + h - h * (val - lo) / (hi - lo) - 2)
+            pdf.cell(8, 4, num(val, lang, 0, "°"))
+    step = max(1, round(len(days) / 12))
+    pdf.set_font("Helvetica", size=6.5)
+    pdf.set_text_color(*GREY)
+    for k, d in enumerate(days):
+        if k % step:
+            continue
+        dd = date.fromisoformat(d["date"])
+        pdf.set_xy(x0 + k * slot, y0 + h + 1)
+        pdf.cell(slot * step, 4, f"{dd.day}.{dd.month}." if lang != "en" else f"{dd.month}/{dd.day}")
+    # Legende
+    pdf.set_xy(x0, y0 + h + 6)
+    for label, color in ((tx["e_leg_heat"], HEAT), (tx["e_leg_ww"], AIR), (tx["e_leg_out"], NAVY)):
+        if label == tx["e_leg_ww"] and not any(d.get("ww") for d in days):
+            continue
+        if label == tx["e_leg_out"] and len(temps) < 2:
+            continue
+        xx = pdf.get_x()
+        pdf.set_fill_color(*color)
+        pdf.rect(xx, pdf.get_y() + 1.3, 3, 3, style="F")
+        pdf.set_x(xx + 4)
+        pdf.cell(pdf.get_string_width(clean(label)) + 6, 5.5, clean(label))
+    pdf.set_y(y0 + h + 13)
+
+
 def _page_energy(pdf: _Pdf, data: dict[str, Any]) -> None:
-    """Energie, Tarif, Verbrauch und Kosten – Öl/PV/Wärmemenge, wenn vorhanden."""
+    """Energie und Kosten: Kennzahlen je Energieart, Tagesverlauf, Kosten je Raum, Einzelwerte, Quellen."""
     lang = data["lang"]
     tx = L[lang]
     e = data.get("energy") or {}
@@ -795,66 +1010,157 @@ def _page_energy(pdf: _Pdf, data: dict[str, Any]) -> None:
         return
 
     money = data.get("money") or {}
+    source = e.get("source")
+    src_name = tx.get(f"src_{source}") or str(source or "–")
     kwh = e.get("kwh")
+    ww = e.get("ww_kwh") or 0
+    total = (kwh or 0) + ww if kwh is not None else None
     cost = money.get("period_cost")
     annual = money.get("annual")
-    pv = e.get("pv_kwh")
-    heat = e.get("heat_kwh")
     tank = e.get("tank") or {}
-    source = tx.get(f"src_{e.get('source')}") or str(e.get("source") or "–")
     full = pdf.w - 30
+    days = max(int(data.get("days") or 1), 1)
+    pdf.set_font("Helvetica", size=8.5)
+    pdf.set_text_color(*GREY)
+    pdf.cell(0, 5, clean(src_name), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(1)
 
-    tiles = [
-        (tx["e_kwh"], num(kwh, lang, 1) if kwh is not None else "–", "kWh", HEAT),
-        (tx["e_cost"], num(cost, lang, 2) if cost is not None else "–", " €", OK),
-        (tx["e_year"], num(annual, lang, 0) if annual is not None else "–", " €/Jahr", AIR),
+    def row(tiles: list[tuple[str, str, str, tuple[int, int, int]]]) -> None:
+        if not tiles:
+            return
+        tw = (full - 4 * (len(tiles) - 1)) / len(tiles)
+        y = pdf.get_y()
+        for k, (label, value, sub, color) in enumerate(tiles):
+            pdf.kpi(15 + k * (tw + 4), y, tw, label, value, sub, color)
+        pdf.set_y(y + 28)
+
+    first = [
+        (tx["cost_kpi"], f"{num(cost, lang, 2)} €" if cost is not None else "–",
+         tx["per_day"].format(v=num(cost / days, lang, 2)) if cost else "", HEAT),
+        (tx["e_use"], f"{num(total, lang, 0)} kWh" if total is not None else "–",
+         tx["e_use_sub"].format(h=num(kwh, lang, 0), w=num(ww, lang, 0)) if ww else "", HEAT),
     ]
-    if pv is not None:
-        tiles.append((tx["e_pv"], num(pv, lang, 1), " kWh", OK))
-    elif tank:
+    if source == "heatpump":
+        cop = e.get("cop") or (e.get("efficiency") or None)
+        sub = tx["e_cop_sub"] if e.get("cop") else ""
+        if e.get("cop_ww"):
+            sub = (sub + " · " if sub else "") + tx["e_cop_ww"].format(v=num(e["cop_ww"], lang, 1))
+        first.append((tx["e_cop"], num(cop, lang, 1) if cop else "–", sub, OK))
+    elif source == "oil" and tank:
         value = tank.get("current_percent")
-        tiles.append((tx["e_tank"], num(value, lang, 0) if value is not None else "–", " %", WARN))
-    tw = (full - 4 * (len(tiles) - 1)) / len(tiles)
-    y = pdf.get_y()
-    for i, (label, value, unit, color) in enumerate(tiles):
-        pdf.kpi(15 + i * (tw + 4), y, tw, label, f"{value}{unit}", "", color)
-    pdf.set_y(y + 30)
+        first.append((tx["e_tank"], f"{num(value, lang, 0)} %" if value is not None else f"{num(tank.get('current_l'), lang, 0)} L",
+                      tx["e_days"].format(n=tank["days_left"]) if tank.get("days_left") is not None else "", WARN))
+    elif source == "gas" and e.get("m3") is not None:
+        first.append((tx["e_m3"], f"{num(e['m3'], lang, 1)} m³", "", AIR))
+    first.append((tx["e_annual"], f"{num(annual, lang, 0)} €" if annual is not None else "–",
+                  tx["e_annual_sub"] if annual is not None else tx["e_annual_none"], AIR))
+    row(first)
 
+    second = []
+    if e.get("price_paid") is not None and e.get("tariff_dynamic"):
+        sub = tx["e_paid_sub"].format(m=num((e.get("price_avg") or 0) * 100, lang, 1), p=e.get("cheap_share") if e.get("cheap_share") is not None else "–")
+        second.append((tx["e_paid"], f"{num(e['price_paid'] * 100, lang, 1)} ct", sub, OK))
+    else:
+        second.append((tx["e_price"], f"{num((e.get('price') or 0) * 100, lang, 1)} ct", "", OK))
+    if source == "heatpump" and e.get("cop"):
+        second.append((tx["e_heat_price"], f"{num((e.get('price_paid') or e.get('price') or 0) / e['cop'] * 100, lang, 1)} ct", "", OK))
+    if e.get("self_kwh"):
+        second.append((tx["e_self"], f"{num(e['self_kwh'], lang, 0)} kWh", tx["e_self_sub"], OK))
+    if e.get("house_share") is not None:
+        second.append((tx["e_house"], num(e["house_share"], lang, 0, " %"), tx["e_house_sub"].format(h=num(e.get("house_kwh"), lang, 0)), AIR))
+    if len(second) > 1:
+        row(second)
+
+    if e.get("daily"):
+        if pdf.will_page_break(70):
+            pdf.add_page()
+        pdf.heading(tx["e_daily"])
+        _energy_chart(pdf, e["daily"], lang, tx)
+
+    rooms = data.get("room_costs") or []
+    if rooms:
+        if pdf.will_page_break(14 + 6 * min(len(rooms), 10)):
+            pdf.add_page()
+        pdf.heading(tx["e_rooms"])
+        top = rooms[0]["share"] or 1
+        for r in rooms[:10]:
+            y = pdf.get_y()
+            pdf.set_font("Helvetica", size=9)
+            pdf.set_text_color(*NAVY)
+            pdf.set_xy(15, y)
+            pdf.cell(42, 5.5, clean(r["name"])[:28])
+            pdf.set_fill_color(*LIGHT)
+            pdf.rect(58, y + 1.5, full - 70, 3, style="F", round_corners=True, corner_radius=1.5)
+            pdf.set_fill_color(*HEAT)
+            pdf.rect(58, y + 1.5, max(1.5, (full - 70) * r["share"] / top), 3, style="F", round_corners=True, corner_radius=1.5)
+            pdf.set_xy(15 + full - 12, y)
+            pdf.set_font("Helvetica", "B", 9)
+            pdf.cell(12, 5.5, f"{num(r['cost'], lang, 2)} €", align="R")
+            pdf.set_y(y + 6)
+        pdf.set_font("Helvetica", "I", 7.5)
+        pdf.set_text_color(*GREY)
+        pdf.cell(0, 5, clean(tx["e_rooms_note"]), new_x="LMARGIN", new_y="NEXT")
+
+    # ---- Einzelwerte
     rows = [
-        [tx["e_source"], source],
-        [tx["e_meter"], str(e.get("meter") or tx["none"])],
-        [tx["e_tariff"], str(e.get("tariff") or tx["e_now"])],
-        [tx["e_price"], f"{num(e.get('price'), lang, 2)} €/kWh"],
-        [tx["e_base"], f"{num(e.get('base'), lang, 2)} €"],
         [tx["e_kwh"], f"{num(kwh, lang, 1)} kWh" if kwh is not None else "–"],
-        [tx["e_cost"], f"{num(cost, lang, 2)} €" if cost is not None else "–"],
     ]
-    if pv is not None:
-        rows.append([tx["e_pv"], f"{num(pv, lang, 1)} kWh"])
-    if heat is not None:
-        rows.append([tx["e_heat"], f"{num(heat, lang, 1)} kWh"])
-    if e.get("source") == "oil":
-        rows.append(["Ölpreis", f"{num(e.get('oil_price'), lang, 2)} €/L"])
+    if ww:
+        rows.append([tx["e_ww"], f"{num(ww, lang, 1)} kWh"])
+    if e.get("heat_kwh") is not None:
+        rows.append([tx["e_heat"], f"{num(e['heat_kwh'], lang, 1)} kWh"])
+    if e.get("ww_heat_kwh") is not None:
+        rows.append([tx["e_ww_heat"], f"{num(e['ww_heat_kwh'], lang, 1)} kWh"])
+    rows.append([tx["e_price"], f"{num(e.get('price'), lang, 3)} €/kWh"])
+    rows.append([tx["e_base"], f"{num(e.get('base'), lang, 2)} €"])
+    rows.append([tx["e_cost"], f"{num(cost, lang, 2)} €" if cost is not None else "–"])
+    if e.get("pv_kwh") is not None and not e.get("self_kwh"):
+        rows.append([tx["e_pv"], f"{num(e['pv_kwh'], lang, 1)} kWh"])
+    if source == "oil":
+        rows.append([tx["e_oilprice"], f"{num(e.get('oil_price'), lang, 2)} €/L"])
         if e.get("liter") is not None:
-            rows.append(["Verbrauch", f"{num(e.get('liter'), lang, 1)} L"])
+            rows.append([tx["e_liter"], f"{num(e.get('liter'), lang, 1)} L"])
         if tank:
             if tank.get("current_l") is not None:
                 rows.append([tx["e_tank"], f"{num(tank['current_l'], lang, 0)} L"])
-            if tank.get("current_percent") is not None:
-                rows.append([tx["e_tank"], f"{num(tank['current_percent'], lang, 0)} %"])
             if tank.get("consumed_l") is not None:
                 rows.append([tx["e_tank_use"], f"{num(tank['consumed_l'], lang, 1)} L"])
             if tank.get("days_left") is not None:
                 rows.append([tx["e_reicht"], tx["e_days"].format(n=tank["days_left"])])
             rows.append([tx["e_order"], tx["e_yes"] if tank.get("order") else tx["e_no"]])
-        if e.get("oil_market"):
-            market = e["oil_market"]
-            if market.get("value") is not None:
-                rows.append([tx["e_market"], f"{num(market['value'], lang, 2)} €/L"])
-            if market.get("avg_30d") is not None:
-                rows.append(["30-Tage-Ø", f"{num(market['avg_30d'], lang, 2)} €/L"])
+        market = e.get("oil_market") or {}
+        if market.get("value") is not None:
+            rows.append([tx["e_market"], f"{num(market['value'], lang, 2)} €/L"])
+        if market.get("avg_30d") is not None:
+            rows.append([tx["e_30d"], f"{num(market['avg_30d'], lang, 2)} €/L"])
+    if pdf.will_page_break(14 + 6.5 * len(rows)):
+        pdf.add_page()
+    pdf.heading(tx["e_details"])
+    pdf.table([tx["metric"], tx["e_value"]], rows, [full * 0.55, full * 0.45])
 
-    pdf.table([tx["metric"], tx["e_value"]], rows, [full * 0.42, full * 0.58])
+    # ---- Datenquellen (kleingedruckt – nur hier stehen Entitäten)
+    sources = [
+        (tx["e_meter"], e.get("meter")),
+        (tx["e_heat"], e.get("heat_entity")),
+        (tx["e_ww_meter"], e.get("ww_meter")),
+        (tx["e_ww_heat"], e.get("ww_heat_entity")),
+        (tx["e_house_meter"], e.get("house_entity")),
+        (tx["e_grid"], e.get("grid_entity")),
+        (tx["e_tariff"], e.get("tariff")),
+        (tx["e_fallbacks"], ", ".join(e.get("tariff_fallbacks") or []) or None),
+    ]
+    sources = [(k, v) for k, v in sources if v]
+    if sources:
+        pdf.ln(3)
+        pdf.set_font("Helvetica", "B", 7.5)
+        pdf.set_text_color(*GREY)
+        pdf.cell(0, 4.5, clean(tx["e_sources"]), new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font("Helvetica", size=7)
+        for k, v in sources:
+            if pdf.will_page_break(4):
+                pdf.add_page()
+            pdf.cell(45, 4, clean(k))
+            pdf.multi_cell(full - 45, 4, clean(str(v)), new_x="LMARGIN", new_y="NEXT")
 
 
 def _page_rooms(pdf: _Pdf, data: dict[str, Any]) -> None:

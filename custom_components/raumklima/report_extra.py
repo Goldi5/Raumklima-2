@@ -421,3 +421,122 @@ def saving_tips(
     if annual_cost:
         tips.append(tx["all"].format(e=round(annual_cost * ENERGY_PER_KELVIN)))
     return tips[:6]
+
+
+# ------------------------------------------------------------------ Kosten je Raum
+def room_costs(cur: dict[str, Any], money_: dict[str, Any] | None, energy: dict[str, Any] | None, metric: str) -> list[dict[str, Any]]:
+    """Heizkosten je Raum nach Ventilöffnung × Stunden (bzw. Kennzahl) – ohne Warmwasser."""
+    if not money_ or not money_.get("period_cost"):
+        return []
+    energy = energy or {}
+    kwh = float(energy.get("kwh") or 0)
+    ww = float(energy.get("ww_kwh") or 0)
+    heat_part = kwh / (kwh + ww) if kwh + ww > 0 else 1.0
+    values = {name: metric_value(r, metric) for name, r in cur["rooms"].items()}
+    total = sum(values.values())
+    if total <= 0:
+        return []
+    heat_cost = float(money_["period_cost"]) * heat_part
+    rows = [
+        {"name": name, "share": round(100 * v / total, 1), "cost": round(heat_cost * v / total, 2)}
+        for name, v in values.items()
+        if v > 0
+    ]
+    return sorted(rows, key=lambda r: -r["share"])
+
+
+# ------------------------------------------------------------------ Kurzfassung
+STORY = {
+    "de": {
+        "cost": "Das Heizen hat in diesem Zeitraum etwa {cost} € gekostet – {day} € pro Tag{ww}.",
+        "ww": ", Warmwasser eingeschlossen",
+        "less": "Wetterbereinigt wurde {c} % weniger geheizt als im Vorzeitraum.",
+        "more": "Wetterbereinigt wurde {c} % mehr geheizt als im Vorzeitraum.",
+        "same": "Wetterbereinigt wurde etwa so viel geheizt wie im Vorzeitraum.",
+        "weather": "Draußen war es im Schnitt {t} °C ({hdd} Heizgradtage).",
+        "room": "Die meiste Wärme brauchte {room} – {share} % der Heizung.",
+        "comfort": "{p} % der Zeit lagen die Räume auf ihrer Zieltemperatur.",
+        "cop": "Die Wärmepumpe machte aus 1 kWh Strom im Schnitt {cop} kWh Wärme.",
+        "cheap": "{p} % des Stroms lief in den günstigsten Stunden des Tages.",
+        "hints": "Wichtigste Hinweise:",
+        "tip": "Tipp:",
+        "more_pdf": "Alle Räume, Diagramme und Details stehen im PDF im Anhang.",
+    },
+    "en": {
+        "cost": "Heating cost about {cost} € in this period – {day} € per day{ww}.",
+        "ww": ", hot water included",
+        "less": "Weather-adjusted, heating was {c} % lower than in the previous period.",
+        "more": "Weather-adjusted, heating was {c} % higher than in the previous period.",
+        "same": "Weather-adjusted, heating was about the same as in the previous period.",
+        "weather": "Outside it averaged {t} °C ({hdd} heating degree days).",
+        "room": "{room} needed the most heat – {share} % of the heating.",
+        "comfort": "Rooms were at their target {p} % of the time.",
+        "cop": "The heat pump turned 1 kWh of electricity into {cop} kWh of heat on average.",
+        "cheap": "{p} % of the electricity was used in the cheapest hours of the day.",
+        "hints": "Key points:",
+        "tip": "Tip:",
+        "more_pdf": "All rooms, charts and details are in the attached PDF.",
+    },
+    "fr": {
+        "cost": "Le chauffage a coûté environ {cost} € sur cette période – {day} € par jour{ww}.",
+        "ww": ", eau chaude comprise",
+        "less": "Corrigé du climat, on a chauffé {c} % de moins que la période précédente.",
+        "more": "Corrigé du climat, on a chauffé {c} % de plus que la période précédente.",
+        "same": "Corrigé du climat, on a chauffé à peu près autant que la période précédente.",
+        "weather": "Dehors, il faisait en moyenne {t} °C ({hdd} degrés-jours).",
+        "room": "{room} a demandé le plus de chaleur – {share} % du chauffage.",
+        "comfort": "Les pièces étaient à leur consigne {p} % du temps.",
+        "cop": "La pompe à chaleur a produit en moyenne {cop} kWh de chaleur pour 1 kWh d’électricité.",
+        "cheap": "{p} % de l’électricité a été consommée aux heures les moins chères.",
+        "hints": "Points importants :",
+        "tip": "Conseil :",
+        "more_pdf": "Toutes les pièces, graphiques et détails sont dans le PDF joint.",
+    },
+}
+
+
+def story(data: dict[str, Any], lang: str) -> list[str]:
+    """Drei bis fünf Sätze: was in diesem Zeitraum los war (Seite 1 und E-Mail)."""
+    tx = STORY[lang]
+    cur = data["current"]
+    total = cur["total"]
+    out: list[str] = []
+    money_ = data.get("money") or {}
+    energy = data.get("energy") or {}
+    days = max(int(data.get("days") or 1), 1)
+    if money_.get("period_cost"):
+        out.append(tx["cost"].format(
+            cost=_n(money_["period_cost"], lang, 0),
+            day=_n(money_["period_cost"] / days, lang, 2),
+            ww=tx["ww"] if energy.get("ww_kwh") else "",
+        ))
+    change = data.get("change")
+    if change is not None:
+        key = "same" if abs(change) < 3 else ("less" if change < 0 else "more")
+        out.append(tx[key].format(c=abs(round(change))))
+    if cur.get("outdoor_avg") is not None:
+        out.append(tx["weather"].format(t=_n(cur["outdoor_avg"], lang, 1), hdd=_n(cur["hdd"], lang, 0)))
+    rooms = data.get("room_costs") or []
+    if rooms:
+        out.append(tx["room"].format(room=rooms[0]["name"], share=_n(rooms[0]["share"], lang, 0)))
+    if energy.get("cop"):
+        out.append(tx["cop"].format(cop=_n(energy["cop"], lang, 1)))
+    if energy.get("cheap_share") is not None:
+        out.append(tx["cheap"].format(p=energy["cheap_share"]))
+    if total.get("on_target_pct") is not None:
+        out.append(tx["comfort"].format(p=total["on_target_pct"]))
+    return out[:6]
+
+
+def mail_text(data: dict[str, Any], lang: str) -> str:
+    """E-Mail-Text: oben die Kurzfassung, darunter die wichtigsten Hinweise – das PDF hängt an."""
+    tx = STORY[lang]
+    lines = list(data.get("story") or story(data, lang))
+    hints = [t for sev, t in data.get("findings") or [] if sev in ("alert", "warn")][:3]
+    if hints:
+        lines += ["", tx["hints"], *[f"• {h}" for h in hints]]
+    tips = data.get("tips") or []
+    if tips:
+        lines += ["", f"{tx['tip']} {tips[0]}"]
+    lines += ["", tx["more_pdf"]]
+    return "\n".join(lines)
