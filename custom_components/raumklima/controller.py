@@ -116,6 +116,7 @@ from .planning import (
     MoldGuard,
     next_schedule_window,
     setback_defaults,
+    shift_school_schedules,
 )
 from .room_apply import ApplyMixin
 from .room_const import (
@@ -123,6 +124,7 @@ from .room_const import (
     STORAGE_VERSION,
     VALVE_CARE,
 )
+from .room_dehumidify import DehumidifierManager
 from .room_extra_trvs import AcSource, ExtraTrv
 from .room_floor import FloorMixin
 from .room_health import HealthMixin
@@ -272,6 +274,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         )
 
         self.vent = VentilationManager(self, None)
+        self.dehumidifier = DehumidifierManager(self)
         # Kurve für die Diagnose-Datei (4-Minuten-Raster, zusätzlich bei Änderungen).
         self.series = RoomSeries()
         self.lights = LightSignal(self)
@@ -388,6 +391,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             self.night_since = dt_util.utcnow()
         self._ingest_sensor(self.hass.states.get(self.temp_sensor))
         await self.vent.async_start()
+        self.dehumidifier.update()
         self.track_presence()
         self.update_presence(initial=True)
 
@@ -656,6 +660,22 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         return list(self.config.get(CONF_SCHEDULES) or [])
 
     @property
+    def plan_schedules(self) -> list[dict[str, Any]]:
+        """Zeitplan für die Regelung – an Schulferien morgens nach hinten verschoben."""
+        hub = self.hub
+        shift = hub.school_holiday_shift if hub is not None else 0
+        return shift_school_schedules(self.schedules, shift)
+
+    def next_plan_window(self, local_now: datetime) -> tuple[datetime, tuple[int, int, int] | None] | None:
+        """Nächstes Zeitfenster mit der Verschiebung seines eigenen Tages."""
+        nxt = next_schedule_window(self.schedules, local_now)
+        if nxt is None:
+            return None
+        hub = self.hub
+        shift = hub.school_shift_on(nxt[0].date()) if hub is not None else 0
+        return (nxt[0] + timedelta(minutes=shift), nxt[1]) if shift else nxt
+
+    @property
     def offset(self) -> float | None:
         if not self.cal_entity:
             return None
@@ -904,7 +924,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             return
         if mode == "next":
             local_now = dt_util.now()
-            nxt = next_schedule_window(self.schedules, local_now)
+            nxt = self.next_plan_window(local_now)
             if nxt is None:
                 await self._set_boost(120)
                 return
@@ -1005,6 +1025,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
                         self.hass.async_create_task(extra.calibrate())
         if self.vent:
             self.vent.update()
+        self.dehumidifier.update()
         self._sample_series()
         self._notify()
 
@@ -1162,6 +1183,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             if state and is_valid(state.state):
                 self._last_valid_windows[entity] = window_open_state(entity, state)
         self._evaluate_windows()
+        self.dehumidifier.update()
         self._sample_series()
         self._save()
         self.hass.async_create_task(self._apply())

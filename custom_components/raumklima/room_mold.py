@@ -63,6 +63,11 @@ class MoldMixin:
             self._mold_capped = False
             return on, target, reason
         hub = self.hub
+        if self.dehumidifier_suppresses_mold:
+            # Der Entfeuchter senkt die Raumfeuchte – kein zusätzliches Heizen dagegen.
+            self._mold_raw = None
+            self._mold_capped = False
+            return on, target, reason
         if hub is None:
             return on, target, reason
         mold = self.mold_min(hub)
@@ -90,6 +95,12 @@ class MoldMixin:
         if target >= mold - 0.05:
             return on, target, reason
         return True, min(mold, self.trv_max), REASON_MOLD
+
+    @property
+    def dehumidifier_suppresses_mold(self) -> bool:
+        """Läuft ein Entfeuchter, der den Feuchte-Boden übernehmen kann?"""
+        device = getattr(self, "dehumidifier", None)
+        return bool(device is not None and device.suppresses_mold)
 
     @property
     def mold_cap(self) -> float:

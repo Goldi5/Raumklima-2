@@ -150,6 +150,10 @@ The messages have buttons: **Done**, **Remind me in 15 min** and **Not today**.
 Airing only helps when the air outside is drier. Raumklima calculates this and doesn't ask you to air the room in humid weather.
 :::
 
+### Dehumidifier
+
+A dehumidifier can be switched directly – as a smart plug/switch, fan or native dehumidifier device. Raumklima turns it on at the humidity limit and off 5% below. It stays off while a window is open. While it runs, the mold guard skips the heating boost; after three hours without improvement, the heating protects again.
+
 ### Particulate matter (PM2.5)
 
 If a room has a particulate sensor it appears as its own tile. From **35 µg/m³** Raumklima asks you to
@@ -279,6 +283,7 @@ If you come home early and it's too cool: just turn it up – the setback then p
 ## Vacation and visitors
 
 - **Vacation:** the *Vacation* switch in the settings – or a calendar event with “vacation” in the title. Vacation only counts from the configured calendar, and the word must stand on its own or end a word. Home-office events may also be in other calendars. Ends automatically when you come back.
+- **School holidays:** a separate calendar with all-day holiday events and “Later in the morning”. If an event is active today, time windows starting before 12:00 begin later by the configured amount (default 60 min). The stored times stay unchanged.
 - **Visitors:** the *Guests* switch – then there is no setback even when all residents are out.
 
 ## Heating pause in spring and autumn
@@ -326,7 +331,7 @@ Not sure? Keep the defaults. They follow the recommendations of German consumer 
 
 | Area | What you set there |
 |---|---|
-| **General → Presence** | residents, zone, when to set back, vacation, guests, calendar |
+| **General → Presence** | residents, zone, when to set back, vacation, guests, calendar, school holidays |
 | **General → Heating season** | when to heat, heat today |
 | **General → Who gets what** | recipients and which messages they get |
 | **General → Notifications** | quiet hours, reminders, weather source, PDF reports, email |

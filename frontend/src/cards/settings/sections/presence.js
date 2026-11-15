@@ -47,7 +47,11 @@ export const PresenceSectionMethods = {
         st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"),
       this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
       this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : "",
-      ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity"]),
+      this._row("Schulferien-Kalender", this._select(H, "school_calendar_entity", ch.calendars || [], this._hubOpt("school_calendar_entity"), "– keiner –"),
+        st.school_holiday ? t("gerade: „{s}“", { s: esc(st.school_holiday) }) : "an Ferientagen starten Morgen-Zeitfenster später"),
+      this._hubOpt("school_calendar_entity") ? this._row("Morgens später", this._num(H, "school_shift_minutes", this._hubOpt("school_shift_minutes")), "nur Zeitfenster, die vor 12:00 beginnen – 0 = aus") : "",
+      this._hubOpt("school_calendar_entity") ? this._row(t("Schulferien – jetzt"), this._v(st.school_holiday ? `${esc(st.school_holiday)} · ${st.school_shift_minutes ? t("morgens {n} min später", { n: st.school_shift_minutes }) : t("keine Verschiebung")}` : t("keine Schulferien"), !st.school_holiday), "") : "",
+      ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity", "school_calendar_entity", "school_shift_minutes"]),
       ...(() => {
         const cal = st.calendar;
         if (!cal) return [];

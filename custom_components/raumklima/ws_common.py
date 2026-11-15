@@ -36,6 +36,7 @@ from .const import (
     CONF_COMFORT_TEMP,
     CONF_COOL_SETPOINT,
     CONF_COOLING,
+    CONF_DEHUMIDIFIER,
     CONF_ELECTRIC_PRICE,
     CONF_ENERGY_BASE,
     CONF_ENERGY_CHEAP_PRICE,
@@ -121,6 +122,8 @@ from .const import (
     CONF_ROOM_TYPE,
     CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULES,
+    CONF_SCHOOL_CALENDAR,
+    CONF_SCHOOL_SHIFT,
     CONF_SEASON_END,
     CONF_SEASON_MODE,
     CONF_SEASON_START,
@@ -314,6 +317,8 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_CALENDAR): vol.Any(None, str),
         vol.Optional(CONF_CALENDAR_AWAY): vol.All(str, vol.Length(max=300)),
         vol.Optional(CONF_CALENDAR_HOME): vol.All(str, vol.Length(max=300)),
+        vol.Optional(CONF_SCHOOL_CALENDAR): vol.Any(None, str),
+        vol.Optional(CONF_SCHOOL_SHIFT): num_schema("school_shift_minutes"),
         vol.Optional(CONF_FROST_NIGHT): bool,
         vol.Optional(CONF_HOME_SENSORS): vol.In(HOME_SENSOR_MODES),
         vol.Optional(CONF_REPORT_PDF): [vol.In(REPORT_KINDS)],
@@ -382,6 +387,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_BOOST_SOURCES): vol.In(BOOST_SOURCE_MODES),
         vol.Optional(CONF_PREHEAT_NOT_BEFORE): vol.Match(r"^\d{1,2}:\d{2}$"),
         vol.Optional(CONF_MOLD_CAP): num_schema("mold_cap"),
+        vol.Optional(CONF_DEHUMIDIFIER): vol.Any(None, cv.entity_id),
         vol.Optional(CONF_SCHEDULE_FALLBACK): vol.In(SCHEDULE_FALLBACKS),
         vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
         vol.Optional(CONF_HOME): vol.Any(None, str),
@@ -534,6 +540,18 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
                 {"id": s.entity_id, "name": s.name}
                 for s in hass.states.async_all("sensor")
                 if s.attributes.get("device_class") == "temperature"
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "dehumidifier": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in (
+                    *hass.states.async_all("switch"),
+                    *hass.states.async_all("fan"),
+                    *hass.states.async_all("humidifier"),
+                    *hass.states.async_all("input_boolean"),
+                )
             ),
             key=lambda x: x["name"].lower(),
         ),

@@ -30,6 +30,7 @@ from rk.planning import (
     season_decision,
     season_step,
     setback_target,
+    shift_school_schedules,
     sun_expected,
     sun_on_facade,
     sun_position,
@@ -402,6 +403,23 @@ def test_schedule_target() -> None:
     assert schedule_target([{"start": "kaputt", "end": "21:00", "temperature": 22.0}], montag) is None
     assert schedule_target([{"start": "19:00", "end": "21:00"}], montag) is None  # ohne Temperatur
     assert schedule_target(["quatsch"], montag) is None
+
+
+def test_school_holiday_shift_only_morning_windows() -> None:
+    """An Schulferien wandern nur Morgenfenster nach hinten – ohne die Vorlage zu ändern."""
+    schedules = [
+        {"start": "06:00", "end": "08:00", "temperature": 22.0},
+        {"start": "17:00", "end": "22:00", "temperature": 21.0},
+    ]
+    shifted = shift_school_schedules(schedules, 60)
+    assert shifted[0]["start"] == "07:00"
+    assert shifted[0]["end"] == "09:00"
+    assert shifted[1] is schedules[1]
+    assert schedules[0]["start"] == "06:00"
+
+    assert shift_school_schedules(schedules, 0) == schedules
+    assert shift_school_schedules([], 60) == []
+    assert shift_school_schedules([{"start": "kaputt", "end": "08:00"}], 60)[0]["start"] == "kaputt"
 
 
 def test_sun_position() -> None:

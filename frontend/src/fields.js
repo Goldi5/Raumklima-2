@@ -2,6 +2,7 @@
 // (python scripts/gen_fields.py). Einheit, Schrittweite, Grenzen und Nachkommastellen der Karte.
 export const RK_NUM = {
   away_delay: { unit: " min", step: 5, min: 0, max: 240, dec: 0 },
+  school_shift_minutes: { unit: " min", step: 15, min: 0, max: 180, dec: 0 },
   long_away_hours: { unit: " h", step: 1, min: 2, max: 168, dec: 0 },
   preheat_km: { unit: " km", step: 1, min: 0, max: 200, dec: 0 },
   vacation_km: { unit: " km", step: 10, min: 0, max: 1000, dec: 0 },

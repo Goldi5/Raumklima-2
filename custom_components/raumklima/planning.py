@@ -559,6 +559,51 @@ def _minutes(value: str) -> int:
     return int(h) * 60 + int(m)
 
 
+def _hhmm(value: int) -> str:
+    value %= 24 * 60
+    return f"{value // 60:02d}:{value % 60:02d}"
+
+
+SCHOOL_MORNING_END = "12:00"
+
+
+def shift_school_schedules(
+    schedules: list[dict[str, Any]] | None,
+    minutes: int | float | None,
+    morning_end: str = SCHOOL_MORNING_END,
+) -> list[dict[str, Any]]:
+    """Morgen-Zeitfenster an Schulferien um ``minutes`` nach hinten verschieben.
+
+    Nur Fenster, die vor ``morning_end`` beginnen, werden verschoben. Die gespeicherten
+    Zeitpläne bleiben unverändert; die Regelung rechnet mit der Kopie.
+    """
+    if not schedules:
+        return []
+    try:
+        shift = int(minutes or 0)
+        cutoff = _minutes(morning_end)
+    except (TypeError, ValueError):
+        return list(schedules)
+    if shift <= 0:
+        return list(schedules)
+    out: list[dict[str, Any]] = []
+    for item in schedules:
+        if not isinstance(item, dict):
+            out.append(item)
+            continue
+        try:
+            start = _minutes(str(item.get("start") or ""))
+            end = _minutes(str(item.get("end") or ""))
+        except (TypeError, ValueError):
+            out.append(item)
+            continue
+        if start >= cutoff:
+            out.append(item)
+            continue
+        out.append({**item, "start": _hhmm(start + shift), "end": _hhmm(end + shift)})
+    return out
+
+
 def in_time_window(local: datetime, start: str, end: str) -> bool:
     """Uhrzeit im Fenster [start, end), auch über Mitternacht."""
     now = local.hour * 60 + local.minute

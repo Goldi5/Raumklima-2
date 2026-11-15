@@ -2,7 +2,7 @@
 
 **Heizung, die mitdenkt.** Raumklima macht aus jedem Heizkörperthermostat (TRV) ein intelligentes Raumthermostat: Es regelt nach einem echten Raumfühler, pausiert bei offenem Fenster, berät beim Lüften, senkt ab, wenn niemand zu Hause ist – mit Schimmelschutz – und heizt nur, wenn es draußen wirklich kalt ist.
 
-**Aktuelle Version: 1.2.3b1** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
+**Aktuelle Version: 1.3.0b1** – Änderungen siehe [CHANGELOG.md](CHANGELOG.md) · Geplant: [ROADMAP.md](ROADMAP.md) · 🇬🇧 [English documentation](docs/en/README.md) · 🇫🇷 [Documentation en français](docs/fr/README.md)
 
 > 📘 **Handbuch als PDF** – Einrichtung Schritt für Schritt, alle Funktionen, häufige Fragen: [Deutsch](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Handbuch.pdf) · [English](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manual.pdf) · [Français](https://github.com/Goldi5/Raumklima-2/releases/latest/download/Raumklima-Manuel.pdf)
 
@@ -17,9 +17,9 @@
 | 🪟 **Fensterlogik** | nach 10 s offen Pause, nach 10 s zu weiter – Einstellung bleibt erhalten; offenes Fenster auch **ohne Kontakt** am Temperatursturz erkennen |
 | 🌙 **Nachtlüften** | bei offenem Fenster schlafen: keine Lüft-Hinweise, leise Kältewarnung, Morgengruß zum Ende der Ruhezeit |
 | 🛡️ **Absicherung** | jeder Befehl wird geprüft und wiederholt – gegen Funk- und VPN-Aussetzer |
-| 💨 **Lüftungsassistent** | Feuchtegrenze je Raum, optional **CO₂-Sensor** (ab 1000 ppm) und **Feinstaub PM2,5** (ab 35 µg/m³), Lüftdauer nach Außentemperatur, „trocknet Lüften überhaupt?“, Warnung beim Auskühlen |
+| 💨 **Lüftungsassistent** | Feuchtegrenze je Raum, optional **CO₂-Sensor** (ab 1000 ppm) und **Feinstaub PM2,5** (ab 35 µg/m³), Lüftdauer nach Außentemperatur, „trocknet Lüften überhaupt?“, Warnung beim Auskühlen; optionaler **Entfeuchter** schaltet sich selbst |
 | 🏠 **Abwesenheit** | Bewohner + Wohnungs-Zone, Absenkung „kurz weg“ / „länger weg“, Urlaub & Gäste, robuste Ortung (mehrere Handys, VPN-Sprungfilter) |
-| 📅 **Kalender** | Termine wie „Urlaub“ senken ab wie der Urlaubsschalter, „Homeoffice“ verhindert das Absenken – Wörter einstellbar |
+| 📅 **Kalender** | Termine wie „Urlaub“ senken ab wie der Urlaubsschalter, „Homeoffice“ verhindert das Absenken – Wörter einstellbar; ein Schulferien-Kalender verschiebt Morgen-Zeitfenster |
 | 🚗 **Vorheizen nach Ankunftszeit** | lernt die Aufheizzeit jedes Raums und heizt so früh vor, dass es bei der Ankunft warm ist |
 | 😴 **Schlafenszeiten lernen** | aus Nachtlüften und Licht – Ruhezeit passt sich an, Wochenende und Feiertage (je Bundesland) getrennt |
 | 🧱 **Schimmelschutz** | Absenkung nach DIN 4108-2 – die kälteste Wandstelle bleibt unter 80 % Feuchte |

@@ -150,6 +150,10 @@ Les messages ont des boutons : **Terminé**, **Me rappeler dans 15 min** et **Pa
 Aérer n’aide que lorsque l’air extérieur est plus sec. Raumklima calcule cela et ne vous demande pas d’aérer par temps humide.
 :::
 
+### Déshumidificateur
+
+Un déshumidificateur peut être commandé directement – prise/interrupteur, ventilateur ou appareil natif. Raumklima l’allume au seuil d’humidité et l’éteint 5 % en dessous. Fenêtre ouverte, il reste éteint. Pendant son fonctionnement, la protection anti-moisissure renonce au coup de chauffage ; après trois heures sans amélioration, le chauffage protège à nouveau.
+
 ### Particules fines (PM2,5)
 
 Si une pièce a un capteur de particules, il apparaît comme une tuile à part. Dès **35 µg/m³** Raumklima
@@ -278,6 +282,7 @@ Si vous rentrez plus tôt et qu’il fait trop frais : montez simplement la temp
 ## Vacances et visiteurs
 
 - **Vacances :** l’interrupteur *Vacances* dans les réglages – ou un événement de calendrier avec « vacances » dans le titre. Les vacances ne comptent que depuis le calendrier choisi, et le mot doit être un mot entier ou une fin de mot. Se termine automatiquement à votre retour.
+- **Vacances scolaires :** un calendrier séparé avec des événements sur toute la journée et « Plus tard le matin ». Si un événement est actif aujourd’hui, les plages commençant avant 12:00 commencent plus tard du nombre de minutes réglé (60 min par défaut). Les horaires enregistrés restent inchangés.
 - **Visiteurs :** l’interrupteur *Invités* – dans ce cas, il n’y a pas d’abaissement même lorsque tous les habitants sont sortis.
 
 ## Pause de chauffage au printemps et en automne
@@ -325,7 +330,7 @@ Vous hésitez ? Gardez les valeurs par défaut. Elles suivent les recommandation
 
 | Domaine | Ce que vous y réglez |
 |---|---|
-| **Allgemein → Présence** | habitants, zone, quand abaisser, vacances, invités, calendrier |
+| **Allgemein → Présence** | habitants, zone, quand abaisser, vacances, invités, calendrier, vacances scolaires |
 | **Allgemein → Saison de chauffage** | quand chauffer, chauffer aujourd’hui |
 | **Allgemein → Qui reçoit quoi** | destinataires et quels messages ils reçoivent |
 | **Allgemein → Notifications** | heures calmes, rappels, source météo, rapports PDF, e-mail |

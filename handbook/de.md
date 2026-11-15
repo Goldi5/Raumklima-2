@@ -151,6 +151,10 @@ Die Nachrichten haben Knöpfe: **Erledigt**, **In 15 min erinnern** und **Heute 
 Lüften lohnt sich nur, wenn die Luft draußen trockener ist. Raumklima rechnet das aus und bittet dich bei feuchtem Wetter gar nicht erst ums Lüften.
 :::
 
+### Entfeuchter
+
+Ein Entfeuchter lässt sich direkt schalten – als Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät. Raumklima schaltet ihn ab der Feuchtegrenze ein und 5 % darunter wieder aus. Bei offenem Fenster bleibt er aus. Läuft er, verzichtet der Schimmelschutz auf den Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.
+
 ### Feinstaub (PM2,5)
 
 Hat ein Raum einen Feinstaubfühler, kommt er als eigene Kachel dazu. Ab **35 µg/m³** bittet Raumklima
@@ -280,6 +284,7 @@ Kommst du früher heim und es ist dir zu kühl: einfach hochdrehen – die Absen
 ## Urlaub und Besuch
 
 - **Urlaub:** Schalter *Urlaub* in den Einstellungen – oder ein Kalendertermin mit „Urlaub“ im Titel. Urlaub zählt nur aus dem eingestellten Kalender, das Wort muss als eigenes Wort oder Wortende stehen („Dienstreise“ ja, „Preise“ nein). Homeoffice-Termine dürfen auch in anderen Kalendern liegen. Endet automatisch, wenn ihr zurückkommt.
+- **Schulferien:** Eigener Kalender mit ganztägigen Ferienterminen und „Morgens später“. Läuft heute ein Ferientermin, starten Zeitfenster, die vor 12:00 beginnen, um die eingestellte Zeit später (Standard 60 min). Die gespeicherten Zeiten bleiben unverändert.
 - **Besuch:** Schalter *Gäste da* – dann wird nicht abgesenkt, auch wenn alle Bewohner unterwegs sind.
 
 ## Heizpause im Frühling und Herbst
@@ -327,7 +332,7 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 
 | Bereich | Was du dort einstellst |
 |---|---|
-| **Allgemein → Anwesenheit** | Bewohner, Zone, wann abgesenkt wird, Urlaub, Gäste, Kalender |
+| **Allgemein → Anwesenheit** | Bewohner, Zone, wann abgesenkt wird, Urlaub, Gäste, Kalender, Schulferien |
 | **Allgemein → Heizsaison** | wann geheizt wird, Heute heizen |
 | **Allgemein → Wer bekommt was** | Empfänger und welche Nachrichten sie bekommen |
 | **Allgemein → Benachrichtigungen** | Lüfthinweise, Sturmwarnung, Erinnerungen |
@@ -335,7 +340,7 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Allgemein → Nacht & Ruhezeit** | Raumklima lernt, wann ihr schlaft |
 | **Raum → Temperatur** | Wunschtemperatur, Absenkung; eingeklappt: Vorheizen, Nachtabsenkung, Sonnenseite |
 | **Raum → Schimmelschutz** | Stufe; eingeklappt: Deckel, Bauart des Raums |
-| **Raum → Lüften & Feuchte** | ab welcher Feuchte gelüftet werden soll |
+| **Raum → Lüften & Feuchte** | Feuchtegrenze, Entfeuchter, Mindesttemperatur beim Lüften |
 | **Raum → Fenster** | Pause bei offenem Fenster, Schlafen bei offenem Fenster |
 | **Raum → Präsenzmelder** | Melder, leeren Raum absenken |
 | **Raum → Lichtsignal** | Lampen, die bei Hinweisen blinken |

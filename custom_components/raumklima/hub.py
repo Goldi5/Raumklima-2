@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Callable
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -43,6 +43,8 @@ from .const import (
     CONF_HOME_OFFICE_TO,
     CONF_NIGHT_ENTITY,
     CONF_RESIDENTS,
+    CONF_SCHOOL_CALENDAR,
+    CONF_SCHOOL_SHIFT,
     CONF_ZONE,
     DOMAIN,
     HEAT_DEMAND_MIN,
@@ -182,6 +184,8 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self.calendar_mode: str | None = None  # laufender Termin: away / home
         self.calendar_summary: str | None = None
         self.calendar_source: str | None = None  # Kalender-Entität, die den Termin liefert
+        self.school_holiday: str | None = None  # laufender Schulferien-Termin
+        self.school_holiday_dates: set[date] = set()  # Ferientage für Zeitplan-Vorlauf
         self._calendar_fetched = None  # letzter get_events-Abruf (datetime)
         self._calendar_fetch_pending = False
         self._calendar_last_events: list[dict[str, Any]] = []
@@ -440,6 +444,8 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self._unsubscribe()
         self._filters.clear()
         self._seen.clear()
+        if CONF_CALENDAR in changed or CONF_SCHOOL_CALENDAR in changed:
+            self._calendar_fetched = None
         self._subscribe()
         self._evaluate_presence()
         self._evaluate_season()
@@ -643,6 +649,10 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             "presence_profile": self.presence_profile.summary(),
             "presence_tip": self.presence_profile.typical(),
             "calendar": self.calendar_debug() if self.opt(CONF_CALENDAR) else None,
+            "school_holiday": self.school_holiday,
+            "school_holiday_dates": sorted(d.isoformat() for d in self.school_holiday_dates),
+            "school_calendar": self.opt(CONF_SCHOOL_CALENDAR),
+            "school_shift_minutes": self.school_shift_minutes,
             "decision": self.decision,
             "heating_allowed": self.heating_allowed,
             "in_season": self.in_season,

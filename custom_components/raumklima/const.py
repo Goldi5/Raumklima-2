@@ -34,6 +34,7 @@ CONF_NAME: Final = "name"
 CONF_TRV: Final = "trv"
 CONF_TEMP_SENSOR: Final = "temperature_sensor"
 CONF_HUMIDITY_SENSOR: Final = "humidity_sensor"
+CONF_DEHUMIDIFIER: Final = "dehumidifier_entity"  # switch/fan/humidifier – Raum-Option
 CONF_CO2_SENSOR: Final = "co2_sensor"
 CONF_PM25_SENSOR: Final = "pm25_sensor"
 # Feinstaub (PM2,5): WHO-Zwischenwert 35 µg/m³, „wieder gut“ ab 15 µg/m³
@@ -177,6 +178,8 @@ PRESENCE_PREHEAT_DEFAULT: Final = 30  # min Vorlauf, solange die Aufheizzeit noc
 CONF_CALENDAR: Final = "calendar_entity"  # Termine wie „Urlaub“ / „Homeoffice“
 CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
+CONF_SCHOOL_CALENDAR: Final = "school_calendar_entity"  # Ganztägige Schulferien-Termine
+CONF_SCHOOL_SHIFT: Final = "school_shift_minutes"  # Morgen-Zeitfenster später starten
 CONF_FROST_NIGHT: Final = "frost_night"  # in Frostnächten weniger absenken
 CONF_SOLAR: Final = "solar_gain"  # pro Raum: Sonne heizt mit
 CONF_SOLAR_FACADE: Final = "solar_facade"  # pro Raum: Fassade für den Sonnenabzug ("" = nur Vorhersage)
@@ -342,6 +345,8 @@ HUB_DEFAULTS: Final = {
     CONF_CALENDAR: None,
     CONF_CALENDAR_AWAY: "Urlaub, Reise, Dienstreise, verreist, vacation, trip",
     CONF_CALENDAR_HOME: "Homeoffice, Home-Office, zu Hause, home office, wfh",
+    CONF_SCHOOL_CALENDAR: None,
+    CONF_SCHOOL_SHIFT: 60,
     CONF_FROST_NIGHT: True,
     CONF_HOME_SENSORS: "mmwave",
     "report_pdf": ["week", "month", "season"],
@@ -415,6 +420,7 @@ DEFAULTS: Final = {
     CONF_LEARN_AIRING: True,
     CONF_AIRING_MIN_MINUTES: 0,
     CONF_MOLD_MODE: "strict",
+    CONF_DEHUMIDIFIER: None,
     CONF_COOLING: False,
     CONF_AC_MIN_ON: 10,
     CONF_AC_MIN_OFF: 10,

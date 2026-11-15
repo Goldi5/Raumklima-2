@@ -106,7 +106,7 @@ class ApplyMixin:
         return [main, *self.source_cfg]
 
     def _active_window(self) -> dict[str, Any] | None:
-        return schedule_window(self.schedules, dt_util.now())
+        return schedule_window(self.plan_schedules, dt_util.now())
 
     def _selected_ids(self) -> set[str]:
         """Quellen, die im laufenden Fenster (oder außerhalb) aktiv sind."""

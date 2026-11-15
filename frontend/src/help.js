@@ -126,6 +126,16 @@ export const HELP = {
     "A calendar from Home Assistant. If an event with one of the vacation words in its title is running, it acts like the vacation switch; with one of the at-home words like “guests”.",
     "Un calendrier de Home Assistant. Si un événement contenant l’un des mots « vacances » est en cours, il agit comme l’interrupteur Vacances ; avec l’un des mots « à la maison », comme « Invités présents ».",
   ],
+  "Entfeuchter": [
+    "Ein optionaler Luftentfeuchter (Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät). Läuft ab der Feuchtegrenze des Raums und geht fünf Prozent darunter wieder aus. Bei offenem Fenster aus. Während der Entfeuchter läuft, verzichtet Raumklima auf den Schimmelschutz-Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.",
+    "An optional dehumidifier (smart plug/switch, fan or native dehumidifier device). Runs at the room humidity limit and stops 5% below. Off while a window is open. While it runs, Raumklima skips the mold-guard heating boost; after three hours without improvement, the heating protects again.",
+    "Un déshumidificateur facultatif (prise/interrupteur, ventilateur ou appareil natif). Fonctionne au seuil d’humidité de la pièce et s’arrête 5 % en dessous. Arrêt quand une fenêtre est ouverte. Pendant son fonctionnement, Raumklima renonce au coup de chauffage anti-moisissure ; après trois heures sans amélioration, le chauffage protège à nouveau.",
+  ],
+  "Schulferien-Kalender": [
+    "Ein Kalender mit ganztägigen Ferienterminen. Läuft heute ein Termin, starten Zeitfenster, die vor 12:00 beginnen, um die eingestellte Zeit später – die gespeicherten Zeiten bleiben unverändert.",
+    "A calendar with all-day school holiday events. If an event is active today, time windows starting before 12:00 begin later by the configured amount – the stored times stay unchanged.",
+    "Un calendrier avec des événements de vacances scolaires sur toute la journée. Si un événement est actif aujourd’hui, les plages commençant avant 12:00 commencent plus tard du nombre de minutes réglé – les horaires enregistrés restent inchangés.",
+  ],
   "… wie Urlaub": [
     "Wörter im Termintitel, die „verreist“ bedeuten, durch Komma getrennt. Groß-/Kleinschreibung egal.",
     "Words in the event title that mean “travelling”, separated by commas. Case doesn't matter.",

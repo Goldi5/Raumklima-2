@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import date, timedelta
+from unittest.mock import patch
 
 from homeassistant.components.device_automation import DeviceAutomationType
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.helpers import device_registry as dr
 from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_get_device_automations
 
 from custom_components.raumklima.const import DOMAIN
+from custom_components.raumklima.room_dehumidify import DehumidifierManager
 from custom_components.raumklima.planning import ForecastHour
 
 from .conftest import SENSOR, WINDOW, FakeTrv, hub_entry, room_entry
@@ -61,6 +63,43 @@ async def test_calendar_vacation_and_homeoffice(hass: HomeAssistant, trv: FakeTr
     assert h.calendar_mode == "home"
     assert h.stage == "guests"
     assert trv.setpoint == 22.0
+
+
+async def test_school_holidays_shift_morning_schedule(
+    hass: HomeAssistant, trv: FakeTrv, sensors, freezer
+) -> None:
+    """Ein ganztägiger Ferientermin verschiebt nur das Morgenfenster."""
+    from custom_components.raumklima.planning import schedule_target
+
+    freezer.move_to("2026-06-15 14:00:00+00:00")  # 07:00 Ortszeit
+    hass.states.async_set("calendar.school", "on", {"message": "Sommerferien"})
+    events: list[dict] = [{"summary": "Sommerferien", "start": "2026-06-15", "end": "2026-06-17"}]
+
+    async def _events(call):
+        return {call.data["entity_id"]: {"events": events if call.data["entity_id"] == "calendar.school" else []}}
+
+    hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
+    hub, room = await _setup(
+        hass,
+        {"school_calendar_entity": "calendar.school", "school_shift_minutes": 60},
+        schedules=[{"start": "06:00", "end": "08:00", "temperature": 24.0}],
+    )
+    h = hub.runtime_data
+    ctrl = room.runtime_data
+    await h.async_check_calendar()
+    assert h.school_holiday == "Sommerferien"
+    assert ctrl.schedules[0]["start"] == "06:00"
+    assert ctrl.plan_schedules[0]["start"] == "07:00"
+    assert ctrl.plan_schedules[0]["end"] == "09:00"
+    assert schedule_target(ctrl.plan_schedules, dt_util.now()) == 24.0
+    assert h.school_holiday_dates == {date(2026, 6, 15), date(2026, 6, 16)}
+    nxt = ctrl.next_plan_window(dt_util.now())
+    assert nxt is not None and (nxt[0].hour, nxt[0].minute) == (7, 0)
+
+    events = []
+    await h.async_check_calendar()
+    assert h.school_holiday is None
+    assert ctrl.plan_schedules[0]["start"] == "06:00"
 
 
 # ------------------------------------------------------------------ Wetter
@@ -151,3 +190,33 @@ def test_dashboard_slug() -> None:
     assert dashboard_slug("Größe") == "heizung-groesse"
     assert dashboard_slug("") == "heizung"
 
+
+
+async def test_dehumidifier_switches_at_humidity_limit(
+    hass: HomeAssistant, trv: FakeTrv, sensors, freezer
+) -> None:
+    """Entfeuchter schaltet an der Feuchtegrenze und mit Hysterese wieder aus."""
+    calls: list[str] = []
+
+    async def _fake_call(self, entity: str, on: bool) -> None:
+        calls.append("turn_on" if on else "turn_off")
+        hass.states.async_set(entity, "on" if on else "off")
+
+    _hub, room = await _setup(hass, dehumidifier_entity="switch.dehumidifier")
+    hass.states.async_set("switch.dehumidifier", "off")
+    ctrl = room.runtime_data
+    limit = ctrl.vent.humidity_limit
+
+    with patch.object(DehumidifierManager, "_call", _fake_call):
+        trv.set(current_humidity=limit + 2)
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls[-1] == "turn_on"
+        assert ctrl.dehumidifier.active
+
+        freezer.tick(timedelta(minutes=11))
+        trv.set(current_humidity=limit - 6)
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls[-1] == "turn_off"
+        assert not ctrl.dehumidifier.active

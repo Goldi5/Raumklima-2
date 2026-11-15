@@ -47,7 +47,6 @@ from .planning import (
     STAGE_AWAY_LONG,
     STAGE_AWAY_SHORT,
     frost_night_setback,
-    next_schedule_window,
     schedule_target,
     setback_target,
 )
@@ -310,7 +309,7 @@ class PlanMixin:
             return True, target, stage
         # Nichts zu senken (Wunsch liegt schon auf dem Absenkwert, z. B. Sportzimmer 18,0 °C):
         # trotzdem als „abgesenkt" melden – außer ein Zeitplanfenster gilt gerade.
-        if schedule_target(self.schedules, ctx.local_now) is None:
+        if schedule_target(self.plan_schedules, ctx.local_now) is None:
             return True, target, stage
         return None
 
@@ -331,7 +330,7 @@ class PlanMixin:
 
     def _rule_schedule(self, ctx: _PlanContext) -> PlanResult:
         """Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne."""
-        sched = schedule_target(self.schedules, ctx.local_now)
+        sched = schedule_target(self.plan_schedules, ctx.local_now)
         if sched is None:
             return None
         if ctx.manual_active and not values_match(self.target_temp, sched, 0.05):
@@ -352,7 +351,7 @@ class PlanMixin:
 
     def _rule_preheat(self, ctx: _PlanContext) -> PlanResult:
         """Vorheizen auf das nächste Zeitfenster – nur mit gelernter Aufheizzeit."""
-        nxt = next_schedule_window(self.schedules, ctx.local_now)
+        nxt = self.next_plan_window(ctx.local_now)
         cur = self.current_temperature
         if nxt is None or cur is None or not self._preheat_allowed(nxt[0], ctx.local_now):
             return None

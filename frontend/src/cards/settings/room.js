@@ -36,6 +36,8 @@ export const RoomMethods = {
     const coolSet = this._roomOpt(r, "cool_setpoint") ?? s.cool_setpoint ?? 26;
     const acCount = (a.ac_sources || []).length;
     const moldMode = this._roomOpt(r, "mold_mode") ?? s.mold_mode ?? "strict";
+    const deh = this._roomOpt(r, "dehumidifier_entity") ?? s.dehumidifier_entity ?? "";
+    const dehChoices = (this._cfg && this._cfg.choices && this._cfg.choices.dehumidifier) || [];
         const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
     const editable = this._admin && cfgRoom;
     const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
@@ -114,6 +116,17 @@ export const RoomMethods = {
       ${sub("schedule", mon ? "" : this._scheduleGroup(r, id, editable))}
       ${sub("windows", this._grp("air", "Lüften & Feuchte", "mdi:water-percent", "air", [
         sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
+        this._row("Entfeuchter",
+          editable ? this._select(scope, "dehumidifier_entity", dehChoices, deh, "– keiner –") : this._v(a.dehumidifier_entity ? esc(this._name(a.dehumidifier_entity)) : "keiner", !a.dehumidifier_entity),
+          a.dehumidifier_active
+            ? t("läuft gerade")
+            : a.dehumidifier_entity && a.dehumidifier_state === "unavailable"
+              ? t("nicht erreichbar")
+              : a.dehumidifier_maxed
+                ? t("läuft zu lange ohne Besserung – Heizung schützt weiter")
+                : t("an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster"),
+          this._srcBadge(r, "dehumidifier_entity"),
+        ),
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : ""),

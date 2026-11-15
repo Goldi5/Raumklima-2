@@ -25,6 +25,7 @@ class NumField(NamedTuple):
 
 NUM: dict[str, NumField] = {
     "away_delay": NumField(" min", 5, 0, 240, 0, 'float', 0, 600),
+    "school_shift_minutes": NumField(" min", 15, 0, 180, 0, 'int', 0, 180),
     "long_away_hours": NumField(" h", 1, 2, 168, 0, 'float', 1, 720),
     "preheat_km": NumField(" km", 1, 0, 200, 0, 'float', 0, 500),
     "vacation_km": NumField(" km", 10, 0, 1000, 0, 'float', 0, 1000),

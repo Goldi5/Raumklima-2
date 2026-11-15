@@ -1,4 +1,4 @@
-/* Raumklima 1.2.3b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.3.0b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -266,6 +266,18 @@
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} dashboard(s) created for your homes",
     "– keiner –": "– none –",
     "gerade: „{s}“": "now: “{s}”",
+    "Schulferien-Kalender": "School holiday calendar",
+    "Entfeuchter": "Dehumidifier",
+    "läuft gerade": "running now",
+    "läuft zu lange ohne Besserung – Heizung schützt weiter": "running too long without improvement – heating keeps protecting",
+    "an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster": "on at the humidity limit, off 5% below – not with the window open",
+    "an Ferientagen starten Morgen-Zeitfenster später": "on school holidays, morning time windows start later",
+    "Morgens später": "Later in the morning",
+    "nur Zeitfenster, die vor 12:00 beginnen – 0 = aus": "only time windows starting before 12:00 – 0 = off",
+    "Schulferien – jetzt": "School holidays – now",
+    "keine Schulferien": "no school holidays",
+    "morgens {n} min später": "in the morning {n} min later",
+    "keine Verschiebung": "no shift",
     "Termine mit diesen Wörtern steuern die Anwesenheit": "Events with these words control presence",
     "… wie Urlaub": "… like vacation",
     "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist": "comma-separated; set back like “away longer” as soon as nobody is home",
@@ -1615,6 +1627,18 @@
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} tableau(x) de bord créé(s) pour tes logements",
     "– keiner –": "– aucun –",
     "gerade: „{s}“": "en cours : « {s} »",
+    "Schulferien-Kalender": "Calendrier des vacances scolaires",
+    "Entfeuchter": "Déshumidificateur",
+    "läuft gerade": "en marche",
+    "läuft zu lange ohne Besserung – Heizung schützt weiter": "tourne trop longtemps sans amélioration – le chauffage continue de protéger",
+    "an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster": "en marche au seuil d’humidité, arrêt 5 % en dessous – pas fenêtre ouverte",
+    "an Ferientagen starten Morgen-Zeitfenster später": "les jours de vacances, les plages du matin commencent plus tard",
+    "Morgens später": "Plus tard le matin",
+    "nur Zeitfenster, die vor 12:00 beginnen – 0 = aus": "uniquement les plages commençant avant 12:00 – 0 = désactivé",
+    "Schulferien – jetzt": "Vacances scolaires – maintenant",
+    "keine Schulferien": "pas de vacances scolaires",
+    "morgens {n} min später": "le matin {n} min plus tard",
+    "keine Verschiebung": "aucun décalage",
     "Termine mit diesen Wörtern steuern die Anwesenheit": "Les événements contenant ces mots pilotent la présence",
     "… wie Urlaub": "… comme vacances",
     "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist": "séparés par des virgules ; abaisser comme « absent longtemps » dès que personne n’est là",
@@ -2739,7 +2763,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.2.3b1";
+  var RK_VERSION = "1.3.0b1";
 
   // src/styles.js
   var STYLES = `
@@ -4864,6 +4888,16 @@
       "A calendar from Home Assistant. If an event with one of the vacation words in its title is running, it acts like the vacation switch; with one of the at-home words like “guests”.",
       "Un calendrier de Home Assistant. Si un événement contenant l’un des mots « vacances » est en cours, il agit comme l’interrupteur Vacances ; avec l’un des mots « à la maison », comme « Invités présents »."
     ],
+    "Entfeuchter": [
+      "Ein optionaler Luftentfeuchter (Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät). Läuft ab der Feuchtegrenze des Raums und geht fünf Prozent darunter wieder aus. Bei offenem Fenster aus. Während der Entfeuchter läuft, verzichtet Raumklima auf den Schimmelschutz-Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.",
+      "An optional dehumidifier (smart plug/switch, fan or native dehumidifier device). Runs at the room humidity limit and stops 5% below. Off while a window is open. While it runs, Raumklima skips the mold-guard heating boost; after three hours without improvement, the heating protects again.",
+      "Un déshumidificateur facultatif (prise/interrupteur, ventilateur ou appareil natif). Fonctionne au seuil d’humidité de la pièce et s’arrête 5 % en dessous. Arrêt quand une fenêtre est ouverte. Pendant son fonctionnement, Raumklima renonce au coup de chauffage anti-moisissure ; après trois heures sans amélioration, le chauffage protège à nouveau."
+    ],
+    "Schulferien-Kalender": [
+      "Ein Kalender mit ganztägigen Ferienterminen. Läuft heute ein Termin, starten Zeitfenster, die vor 12:00 beginnen, um die eingestellte Zeit später – die gespeicherten Zeiten bleiben unverändert.",
+      "A calendar with all-day school holiday events. If an event is active today, time windows starting before 12:00 begin later by the configured amount – the stored times stay unchanged.",
+      "Un calendrier avec des événements de vacances scolaires sur toute la journée. Si un événement est actif aujourd’hui, les plages commençant avant 12:00 commencent plus tard du nombre de minutes réglé – les horaires enregistrés restent inchangés."
+    ],
     "… wie Urlaub": [
       "Wörter im Termintitel, die „verreist“ bedeuten, durch Komma getrennt. Groß-/Kleinschreibung egal.",
       "Words in the event title that mean “travelling”, separated by commas. Case doesn't matter.",
@@ -5470,6 +5504,7 @@
   // src/fields.js
   var RK_NUM = {
     away_delay: { unit: " min", step: 5, min: 0, max: 240, dec: 0 },
+    school_shift_minutes: { unit: " min", step: 15, min: 0, max: 180, dec: 0 },
     long_away_hours: { unit: " h", step: 1, min: 2, max: 168, dec: 0 },
     preheat_km: { unit: " km", step: 1, min: 0, max: 200, dec: 0 },
     vacation_km: { unit: " km", step: 10, min: 0, max: 1e3, dec: 0 },
@@ -5817,8 +5852,15 @@
             st.calendar && st.calendar.mode ? t("gerade: „{s}“", { s: esc(st.calendar.summary || "") }) : "Termine mit diesen Wörtern steuern die Anwesenheit"
           ),
           this._hubOpt("calendar_entity") ? this._row("… wie Urlaub", `<input class="inp" data-hubtext="calendar_away_words" value="${esc(this._hubOpt("calendar_away_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt; absenken wie „länger weg“, sobald niemand da ist") : "",
-          this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : ""
-        ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity"]),
+          this._hubOpt("calendar_entity") ? this._row("… Homeoffice / zu Hause", `<input class="inp" data-hubtext="calendar_home_words" value="${esc(this._hubOpt("calendar_home_words") || "")}" ${this._admin ? "" : "disabled"}>`, "Komma-getrennt, freie Wahl; ein Termin mit diesem Wort schaltet Homeoffice und senkt nicht ab") : "",
+          this._row(
+            "Schulferien-Kalender",
+            this._select(H, "school_calendar_entity", ch.calendars || [], this._hubOpt("school_calendar_entity"), "– keiner –"),
+            st.school_holiday ? t("gerade: „{s}“", { s: esc(st.school_holiday) }) : "an Ferientagen starten Morgen-Zeitfenster später"
+          ),
+          this._hubOpt("school_calendar_entity") ? this._row("Morgens später", this._num(H, "school_shift_minutes", this._hubOpt("school_shift_minutes")), "nur Zeitfenster, die vor 12:00 beginnen – 0 = aus") : "",
+          this._hubOpt("school_calendar_entity") ? this._row(t("Schulferien – jetzt"), this._v(st.school_holiday ? `${esc(st.school_holiday)} · ${st.school_shift_minutes ? t("morgens {n} min später", { n: st.school_shift_minutes }) : t("keine Verschiebung")}` : t("keine Schulferien"), !st.school_holiday), "") : ""
+        ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity", "school_calendar_entity", "school_shift_minutes"]),
         ...(() => {
           const cal = st.calendar;
           if (!cal) return [];
@@ -7018,6 +7060,8 @@
       const coolSet = this._roomOpt(r, "cool_setpoint") ?? s.cool_setpoint ?? 26;
       const acCount = (a.ac_sources || []).length;
       const moldMode = this._roomOpt(r, "mold_mode") ?? s.mold_mode ?? "strict";
+      const deh = this._roomOpt(r, "dehumidifier_entity") ?? s.dehumidifier_entity ?? "";
+      const dehChoices = this._cfg && this._cfg.choices && this._cfg.choices.dehumidifier || [];
       const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
       const editable = this._admin && cfgRoom;
       const push = Object.keys(this._cfg && this._cfg.hub && this._cfg.hub.options.recipients || {});
@@ -7139,6 +7183,12 @@
       ${sub("schedule", mon ? "" : this._scheduleGroup(r, id, editable))}
       ${sub("windows", this._grp("air", "Lüften & Feuchte", "mdi:water-percent", "air", [
         sib.humidity_limit ? this._row("Feuchtegrenze", this._numStepper(sib.humidity_limit, " %", 0), "ab hier: „Bitte lüften“") : this._row("Feuchtefühler", this._v("keiner", true)),
+        this._row(
+          "Entfeuchter",
+          editable ? this._select(scope, "dehumidifier_entity", dehChoices, deh, "– keiner –") : this._v(a.dehumidifier_entity ? esc(this._name(a.dehumidifier_entity)) : "keiner", !a.dehumidifier_entity),
+          a.dehumidifier_active ? t("läuft gerade") : a.dehumidifier_entity && a.dehumidifier_state === "unavailable" ? t("nicht erreichbar") : a.dehumidifier_maxed ? t("läuft zu lange ohne Besserung – Heizung schützt weiter") : t("an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster"),
+          this._srcBadge(r, "dehumidifier_entity")
+        ),
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : ""),

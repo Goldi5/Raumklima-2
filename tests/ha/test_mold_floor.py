@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from custom_components.raumklima.const import (
+    CONF_DEHUMIDIFIER,
     CONF_HUMIDITY_SENSOR,
     CONF_OUTDOOR_TEMP,
     CONF_QUIET_SETBACK,
@@ -120,3 +121,21 @@ async def test_peek_verbraucht_keinen_zustand(hass: HomeAssistant, setup, trv: F
     finally:
         ctrl._peeking = False
     assert ctrl._solar_active is False
+
+
+async def test_entfeuchter_uebernimmt_schimmelboden(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Läuft ein Entfeuchter, hebt die Heizung nicht mehr gegen die Feuchte an."""
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    _humid_bad(hass, ctrl, hub)
+    ctrl.config[CONF_DEHUMIDIFIER] = "switch.dehumidifier"
+    hass.states.async_set("switch.dehumidifier", "on")
+
+    _on, _target, reason = ctrl._mold_floor(True, 18.0, "normal")
+    assert reason == "normal"
+
+    hass.states.async_set("switch.dehumidifier", "off")
+    await hass.async_block_till_done()
+    _on, _target, reason = ctrl._mold_floor(True, 18.0, "normal")
+    assert reason == "mold"
