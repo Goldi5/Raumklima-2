@@ -14,12 +14,15 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_ENERGY_BASE,
+    CONF_ENERGY_BASE_SHARE,
     CONF_ENERGY_CHEAP_PRICE,
     CONF_ENERGY_EFFICIENCY,
     CONF_ENERGY_ENABLED,
     CONF_ENERGY_EXTRA_FEE,
     CONF_ENERGY_FACTOR,
+    CONF_ENERGY_GRID,
     CONF_ENERGY_HEAT_ENTITY,
+    CONF_ENERGY_HOUSE,
     CONF_ENERGY_METER,
     CONF_ENERGY_OIL_FACTOR,
     CONF_ENERGY_OIL_MARKET,
@@ -36,7 +39,10 @@ from .const import (
     CONF_ENERGY_TANK_MIN,
     CONF_ENERGY_TARIFF,
     CONF_ENERGY_TARIFF_DYNAMIC,
+    CONF_ENERGY_TARIFF_FALLBACKS,
     CONF_ENERGY_VAT,
+    CONF_ENERGY_WW_HEAT,
+    CONF_ENERGY_WW_METER,
     CONF_PV_ENTITY,
     CONF_PV_SELF_USE,
     CONF_RECIPIENTS,
@@ -48,10 +54,11 @@ from .const import (
     KIND_REPORT,
     REPORT_METRIC_DEFAULT,
 )
+from .energy_calc import hourly_cost, parse_forecast, ratio, self_share, step_means, tariff_to_kwh
 from .health import SEV_INFO, Issue, check_connection, check_notify_targets, check_presence_residents
 from .msg import tr
 from .oil_tank import price_per_litre, tank_summary
-from .report_extra import energy_kwh, money, pv_split
+from .report_extra import energy_kwh, metric_value, money, pv_split
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
 if TYPE_CHECKING:
@@ -325,7 +332,55 @@ class Insights:
             "oil_market_unit": market_state.attributes.get("unit_of_measurement") if market_state is not None else None,
             "pv_entity": self.hub.opt(CONF_PV_ENTITY),
             "pv_self_use": float(self.hub.opt(CONF_PV_SELF_USE) or 0),
+            "source_set": str(self.hub.opt(CONF_ENERGY_SOURCE) or "auto") != "auto",
+            "ww_meter": self.hub.opt(CONF_ENERGY_WW_METER),
+            "ww_heat_entity": self.hub.opt(CONF_ENERGY_WW_HEAT),
+            "tariff_fallbacks": list(self.hub.opt(CONF_ENERGY_TARIFF_FALLBACKS) or []),
+            "house_entity": self.hub.opt(CONF_ENERGY_HOUSE),
+            "grid_entity": self.hub.opt(CONF_ENERGY_GRID),
+            "base_share": str(self.hub.opt(CONF_ENERGY_BASE_SHARE) or "full"),
+            "price_now": self.hub.energy_price_now(),
+            "tariffs": self._tariff_list(),
         }
+
+    def _tariff_list(self) -> list[dict[str, Any]]:
+        """Alle Preisquellen mit aktuellem Preis – die erste mit Wert ist die genutzte."""
+        out: list[dict[str, Any]] = []
+        used = False
+        for i, eid in enumerate(self.hub.tariff_entities()):
+            state = self.hass.states.get(eid)
+            value = self.hub.tariff_value(eid)
+            active = value is not None and not used
+            used = used or value is not None
+            out.append({
+                "entity": eid,
+                "name": state.name if state is not None else eid,
+                "value": value,
+                "primary": i == 0,
+                "active": active,
+                "forecast": len(parse_forecast(state.attributes)) if state is not None else 0,
+            })
+        return out
+
+    def price_forecast(self, hours: int = 36) -> list[dict[str, Any]]:
+        """Preisvorschau der ersten Quelle, die eine liefert – in €/kWh brutto."""
+        now = dt_util.utcnow()
+        for eid in self.hub.tariff_entities():
+            state = self.hass.states.get(eid)
+            if state is None:
+                continue
+            points = parse_forecast(state.attributes)
+            if not points:
+                continue
+            unit = state.attributes.get("unit_of_measurement")
+            out = []
+            for start, value in points:
+                if start < now - timedelta(hours=1) or start > now + timedelta(hours=hours):
+                    continue
+                out.append({"t": start.isoformat(), "p": self._normalize_tariff(value, unit, 10.0)})
+            if out:
+                return out
+        return []
 
     async def async_energy_summary(self, days: int = 30) -> dict[str, Any]:
         """Energie für das Dashboard: Zeitraum, Zählerwerte und Euro-Schätzung."""
@@ -338,21 +393,13 @@ class Insights:
         annual = self.hub.opt("annual_cost") if self.hub is not None else None
         cost = money(cur, annual, cfg)
         if cost is None and cfg.get("kwh") and cfg.get("price"):
-            kwh = float(cfg["kwh"])
-            price = float(cfg["price"])
-            offset = 0.0
-            if cfg.get("source") in ("electric", "heatpump") and cfg.get("pv_kwh"):
-                share = max(0.0, min(100.0, float(cfg.get("pv_self_use") or 0))) / 100
-                offset = max(0.0, float(cfg["pv_kwh"])) * share
-            period = max(0.0, kwh - offset) * price + max(0.0, float(cfg.get("base") or 0)) * days / 30.44
-            if period > 0:
-                cost = {
-                    "period_cost": round(period, 2),
-                    "annual": round(period * 365 / days, 2),
-                    "basis": "meter",
-                    "source": cfg.get("source"),
-                    "kwh": round(kwh, 1),
-                }
+            # zu wenige Heiztage für eine Hochrechnung: nur die Kosten des Zeitraums
+            warm = money({**cur, "hdd": max(cur["hdd"], 3.0)}, None, cfg)
+            if warm is not None:
+                cost = {**warm, "annual": None, "per_degree_year": None, "saved": None}
+        if cost is not None and cost.get("period_cost"):
+            cost["per_day"] = round(cost["period_cost"] / days, 2)
+            cost["rooms"] = self._room_costs(cur, cost["period_cost"], cfg)
         if cost is not None and not cfg.get("meter") and cfg.get("tank"):
             cost["basis"] = "tank"
         return {
@@ -361,7 +408,28 @@ class Insights:
             "days": days,
             "energy": cfg,
             "money": cost,
+            "forecast": self.price_forecast() if cfg.get("enabled") else [],
         }
+
+    def _room_costs(self, cur: dict[str, Any], period_cost: float, cfg: dict[str, Any]) -> list[dict[str, Any]]:
+        """Heizkosten je Raum: nach Ventilöffnung × Stunden (bzw. der Bericht-Kennzahl)."""
+        kwh = float(cfg.get("kwh") or 0)
+        ww = float(cfg.get("ww_kwh") or 0)
+        heat_part = kwh / (kwh + ww) if kwh + ww > 0 else 1.0
+        metric = self.report_metric(cur)
+        values = {name: metric_value(r, metric) for name, r in cur["rooms"].items()}
+        total = sum(values.values())
+        if total <= 0:
+            return []
+        heat_cost = period_cost * heat_part
+        return sorted(
+            (
+                {"name": name, "share": round(100 * v / total, 1), "cost": round(heat_cost * v / total, 2)}
+                for name, v in values.items()
+                if v > 0
+            ),
+            key=lambda r: -r["share"],
+        )
 
     async def async_energy_extras(self, start: date, end: date) -> dict[str, Any]:
         """Zählerstände und Öltank für den Berichtszeitraum holen."""
@@ -417,9 +485,161 @@ class Insights:
                     split = pv_split(pv_kwh, cfg.get("pv_self_use"))
                     if split:
                         cfg.update(split)
+            await self._energy_more(cfg, start, end)
         except Exception:
             _LOGGER.debug("Energie-Statistik für den Bericht nicht verfügbar", exc_info=True)
         return {"energy": cfg}
+
+    async def _energy_more(self, cfg: dict[str, Any], start: date, end: date) -> None:
+        """Warmwasser, Hausstrom, Arbeitszahl und Kosten Stunde für Stunde."""
+        factor = cfg["oil_factor"] if cfg["source"] == "oil" else cfg["factor"]
+
+        async def kwh_of(entity: str | None, src: str | None = None) -> float | None:
+            if not entity:
+                return None
+            value = await self._stat_change(entity, start, end)
+            return energy_kwh(value, self._unit_of(entity), factor, src) if value is not None else None
+
+        cfg["ww_kwh"] = await kwh_of(cfg.get("ww_meter"), cfg["source"])
+        cfg["ww_heat_kwh"] = await kwh_of(cfg.get("ww_heat_entity"))
+        cfg["house_kwh"] = await kwh_of(cfg.get("house_entity"))
+        cfg["grid_kwh"] = await kwh_of(cfg.get("grid_entity"))
+        if cfg["source"] == "heatpump":
+            heat_in = cfg.get("kwh")
+            cfg["cop"] = ratio(cfg.get("heat_kwh"), heat_in)
+            cfg["cop_ww"] = ratio(cfg.get("ww_heat_kwh"), cfg.get("ww_kwh"))
+        used = (cfg.get("kwh") or 0) + (cfg.get("ww_kwh") or 0)
+        if cfg.get("house_kwh") and cfg["source"] in ("electric", "heatpump") and used:
+            cfg["house_share"] = round(100 * used / cfg["house_kwh"], 1)
+        if not cfg.get("meter"):
+            return
+        hours = await self._energy_hours(cfg, start, end, factor)
+        if not hours:
+            return
+        result = hourly_cost(hours, float(cfg.get("price") or 0))
+        daily = result.pop("daily")
+        priced = any(h.get("price") is not None for h in hours)
+        electric = cfg["source"] in ("electric", "heatpump")
+        if priced or any(h.get("self") for h in hours):
+            cfg["cost_energy"] = result["cost"]
+            cfg["price_paid"] = result["price_paid"]
+            cfg["cheap_share"] = result["cheap_share"] if electric and cfg.get("tariff_dynamic") else None
+            cfg["self_kwh"] = result["self_kwh"]
+            if result["price_avg"] is not None:
+                cfg["price_avg"] = result["price_avg"]
+        home = self.data["home"]
+        series = []
+        day = start
+        while day <= end:
+            key = day.isoformat()
+            vals = daily.get(key, {})
+            h = home.get(key) or {}
+            n = h.get("outdoor_n_s") or 0
+            series.append({
+                "date": key,
+                "kwh": vals.get("kwh", 0.0),
+                "ww": vals.get("ww", 0.0),
+                "cost": vals.get("cost", 0.0),
+                "outdoor": round(h["outdoor_s"] / n, 1) if n else None,
+            })
+            day += timedelta(days=1)
+        cfg["daily"] = series
+
+    async def _energy_hours(self, cfg: dict[str, Any], start: date, end: date, factor: float) -> list[dict[str, Any]]:
+        """Stundenwerte: Verbrauch Heizung/Warmwasser, Preis, Anteil aus PV/Batterie."""
+        meter = await self._stat_rows(cfg["meter"], start, end, "change")
+        if not meter:
+            return []
+        ww = await self._stat_rows(cfg.get("ww_meter"), start, end, "change") if cfg.get("ww_meter") else {}
+        electric = cfg["source"] in ("electric", "heatpump")
+        house = grid = {}
+        if electric and cfg.get("house_entity") and cfg.get("grid_entity"):
+            house = await self._stat_rows(cfg["house_entity"], start, end, "change")
+            grid = await self._stat_rows(cfg["grid_entity"], start, end, "change")
+        keys = sorted(set(meter) | set(ww))
+        prices: list[dict[float, float]] = []
+        for eid in self.hub.tariff_entities():
+            prices.append(await self._price_hours(eid, keys, factor))
+        unit_m = self._unit_of(cfg["meter"])
+        unit_w = self._unit_of(cfg["ww_meter"]) if cfg.get("ww_meter") else None
+        unit_h = self._unit_of(cfg["house_entity"]) if house else None
+        unit_g = self._unit_of(cfg["grid_entity"]) if grid else None
+        rows = []
+        for ts in keys:
+            price = next((p[ts] for p in prices if ts in p), None)
+            share = None
+            if ts in house and ts in grid:
+                share = self_share(energy_kwh(house[ts], unit_h, 1.0), energy_kwh(grid[ts], unit_g, 1.0))
+            rows.append({
+                "ts": ts,
+                "day": dt_util.as_local(dt_util.utc_from_timestamp(ts)).date().isoformat(),
+                "kwh": energy_kwh(meter.get(ts, 0.0), unit_m, factor, cfg["source"]) or 0.0,
+                "ww": energy_kwh(ww.get(ts, 0.0), unit_w, factor, cfg["source"]) or 0.0,
+                "price": price,
+                "self": share,
+            })
+        return rows
+
+    async def _stat_rows(self, entity_id: str | None, start: date, end: date, kind: str) -> dict[float, float]:
+        """Stundenwerte einer Entität aus der Langzeitstatistik: {Zeitstempel: Wert}."""
+        if not entity_id:
+            return {}
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        first = dt_util.as_utc(dt_util.start_of_local_day(start))
+        last = dt_util.as_utc(dt_util.start_of_local_day(end + timedelta(days=1)))
+        try:
+            result = await get_instance(self.hass).async_add_executor_job(
+                statistics_during_period, self.hass, first, last, {entity_id}, "hour", None, {kind},
+            )
+        except Exception:  # noqa: BLE001 – ohne Statistik keine Stundenwerte
+            return {}
+        out: dict[float, float] = {}
+        for row in result.get(entity_id) or []:
+            value, stamp = row.get(kind), row.get("start")
+            if value is None or stamp is None:
+                continue
+            if isinstance(stamp, datetime):
+                stamp = stamp.timestamp()
+            out[float(stamp)] = float(value)
+        return out
+
+    async def _price_hours(self, entity_id: str, keys: list[float], factor: float) -> dict[float, float]:
+        """Preis je Stunde in €/kWh brutto – aus der Statistik, sonst aus dem Verlauf."""
+        if not keys:
+            return {}
+        start = dt_util.as_local(dt_util.utc_from_timestamp(keys[0])).date()
+        end = dt_util.as_local(dt_util.utc_from_timestamp(keys[-1])).date()
+        unit = self._unit_of(entity_id)
+        means = await self._stat_rows(entity_id, start, end, "mean")
+        missing = [k for k in keys if k not in means]
+        if missing:
+            means.update(await self._history_means(entity_id, missing))
+        return {k: self._normalize_tariff(v, unit, factor) for k, v in means.items() if k in set(keys) and v > 0}
+
+    async def _history_means(self, entity_id: str, keys: list[float]) -> dict[float, float]:
+        """Preis-Sensoren ohne Statistik (z. B. ohne state_class): Mittel aus dem Verlauf."""
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.history import state_changes_during_period
+
+        first = dt_util.utc_from_timestamp(keys[0]) - timedelta(hours=1)
+        last = dt_util.utc_from_timestamp(keys[-1] + 3600)
+        try:
+            result = await get_instance(self.hass).async_add_executor_job(
+                lambda: state_changes_during_period(
+                    self.hass, first, last, entity_id, include_start_time_state=True,
+                )
+            )
+        except Exception:  # noqa: BLE001 – ohne Verlauf bleibt die Reserve-Quelle
+            return {}
+        points = []
+        for st in result.get(entity_id) or []:
+            try:
+                points.append((st.last_changed.timestamp(), float(st.state)))
+            except (TypeError, ValueError, AttributeError):
+                continue
+        return step_means(points, keys)
 
     async def _market_summary(self, cfg: dict[str, Any]) -> dict[str, Any] | None:
         """Marktpreis der optionalen Preis-Entität und der 30-Tage-Vergleich."""
@@ -520,7 +740,7 @@ class Insights:
                 None,
                 {"mean"},
             )
-        except Exception:  # noqa: BLE001 – ohne Statistik bleibt der aktuelle Füllstand
+        except Exception:
             _LOGGER.debug("Tank-Statistik nicht verfügbar", exc_info=True)
             return []
         out: list[tuple[date, float]] = []
@@ -562,24 +782,15 @@ class Insights:
         return total if rows else None
 
     def _normalize_tariff(self, value: float, unit: str | None, factor: float) -> float:
-        """Preis auf €/kWh bringen und die eingestellte Preisbasis anwenden."""
-        unit = str(unit or "").lower().replace("³", "3")
-        if "ct" in unit or "cent" in unit:
-            value /= 100
-        elif "/mwh" in unit:
-            value /= 1000
-        elif "/m3" in unit or "/m^3" in unit:
-            value /= factor or 10.0
-        elif "/l" in unit or "/liter" in unit:
-            value /= factor or 10.0
-        basis = str(self.hub.opt(CONF_ENERGY_PRICE_BASIS) or "gross")
-        vat = float(self.hub.opt(CONF_ENERGY_VAT) or 0)
-        extra = float(self.hub.opt(CONF_ENERGY_EXTRA_FEE) or 0)
-        if basis == "net":
-            value = value * (1 + vat / 100) + extra
-        else:
-            value = value + extra
-        return round(value, 4) if value > 0 else 0.0
+        """Preis auf €/kWh brutto – dieselbe Rechnung wie in der Steuerung (hub.tariff_value)."""
+        return tariff_to_kwh(
+            value,
+            unit,
+            factor,
+            str(self.hub.opt(CONF_ENERGY_PRICE_BASIS) or "gross"),
+            float(self.hub.opt(CONF_ENERGY_VAT) or 0),
+            float(self.hub.opt(CONF_ENERGY_EXTRA_FEE) or 0),
+        )
 
     def _tariff_price(self, entity_id: str | None, fallback: float, factor: float) -> float:
         """Tarif-Entität lesen und auf €/kWh normalisieren."""

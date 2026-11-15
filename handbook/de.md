@@ -317,6 +317,17 @@ Trägst du unter *Einstellungen → Allgemein → Berichte → Weitere Einstellu
 - **Aufs Handy:** Die Push-Nachricht hat einen Knopf **PDF öffnen**.
 - **Per E-Mail:** *Einstellungen → Allgemein → Berichte → PDF per E-Mail* → darunter auf **E-Mail einrichten** tippen, deinen Anbieter wählen (z. B. GMX oder Gmail), Benutzer, Passwort und Empfänger eintragen, mit **Zugang prüfen** testen und dann **Speichern & Test-Mail senden** tippen. Bei Gmail, iCloud und Outlook brauchst du ein App-Passwort.
 
+### Energie & Tarife
+
+Unter *Einstellungen → Allgemein → Energie & Tarife* führen vier Schritte durch die Einrichtung – jeder mit einer aufklappbaren **Anleitung**, jede Zeile mit einem **?**. Raumklima rechnet dabei nur aus: es steuert weder Wärmepumpe noch Kessel.
+
+1. **Wie heizt ihr?** Wärmepumpe, Gas, Heizöl, Fernwärme oder Strom direkt (Infrarot, Nachtspeicher). Die Wahl blendet nur die passenden Felder ein.
+2. **Was wird gemessen?** Immer Gesamtzähler, die nur steigen. Bei einer Wärmepumpe Strom *und* – wenn vorhanden – erzeugte Wärme: dann ist die **Arbeitszahl gemessen**. **Warmwasser** kann einen eigenen Zähler bekommen und zählt zu den Kosten, erscheint aber als eigener Balken. Mit **Hausverbrauch** und **Netzbezug** rechnet Raumklima jede Stunde, wie viel Strom aus PV und Batterie kam – dieser Anteil kostet nichts.
+3. **Was kostet die kWh?** Eine **Preisquelle** (am besten der Sensor deines Anbieters, z. B. 1KOMMA5°, Tibber) und beliebig viele **Reserven** (z. B. EPEX Spot), die einspringen, wenn die Hauptquelle nichts liefert. Bei dynamischem Tarif zählt jede Stunde mit ihrem eigenen Preis. Liefert der Sensor nur den Börsenpreis: unter *Preis ohne Steuern und Netzentgelt?* auf netto stellen und Netzentgelt & Abgaben eintragen – Netzentgelte ändern sich jedes Jahr zum 1. Januar.
+4. **Vergleich mit Klimagerät:** nur die Leistungszahl (COP); der Strompreis kommt aus Schritt 3.
+
+Das Dashboard *Energie* zeigt Kosten mit Hochrechnung, Verbrauch (Heizung + Warmwasser), Arbeitszahl, bezahlten Durchschnittspreis, Tagesbalken mit Außentemperatur, die Strompreis-Kurve, Kosten je Raum, die Preisquellen und kleine Hinweise zur Datenqualität. Die Sensor-Details liegen eingeklappt darunter.
+
 ### Heizöl und Tank
 
 Unter *Einstellungen → Allgemein → Heizung & Energie* lässt sich als Quelle **Heizöl** wählen. Ein Ölzähler in Litern wird über den Energieinhalt (Standard 10 kWh/L) umgerechnet, der Preis wird je Liter eingetragen. Optional zeigt ein **Tankfüllstandsfühler** die Restmenge; Raumklima schätzt aus dem sinkenden Füllstand Verbrauch und Resttage, ignoriert Nachfüllungen und mahnt zum Bestellen, wenn die eingestellte Restmenge oder eine Restlaufzeit von 14 Tagen erreicht ist. Kurzes Prellen des Füllstands zählt nicht als Verbrauch: gerechnet wird die Netto-Differenz zwischen zwei Tankfüllungen. Unter „Letzter Winter“ lassen sich Liter und Tage nachtragen; der Ölpreis wird beim Ändern mit Datum im Preisverlauf notiert. Optional lässt sich eine Marktpreis-Entität in €/L wählen; die Karte zeigt den aktuellen Marktpreis, den 30-Tage-Vergleich und die Differenz zu deinem Preis.
@@ -471,7 +482,7 @@ Jahr ist egal.
 - **Direkte Ventilsteuerung:** für Thermostate mit `number`-Stellglied, z. B. SONOFF TRVZB.
 - **Klimaanlagen:** kühlen und heizen mit getrennten Zielen und Takt-Schutz; günstigere Quelle nach COP/Gaspreis. Misst der Zähler Gas oder Fernwärme, unter *Energie & Tarife* den Strompreis eintragen – sonst wird nicht verglichen.
 - **Wärmeanforderung:** Sensor `sensor.raumklima_allgemein_warmeanforderung` bündelt alle Räume.
-- **Dynamische Tarife/PV:** Preisgrenze, günstig vorheizen, PV-Überschuss.
+- **Dynamische Tarife/PV:** Preisquelle mit Reserven, Kosten Stunde für Stunde, PV und Batterie über Hausverbrauch und Netzbezug.
 - **Handverstellung:** Knopf „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ auf der Raumkarte.
 
 # Häufige Fragen

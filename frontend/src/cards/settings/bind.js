@@ -259,6 +259,15 @@ export const BindMethods = {
       this._setHub({ guests_rooms: next }, 300);
       this._flash(t("Gespeichert"));
     });
+    on("click", "[data-tarfb]", (el) => () => {
+      const id = el.dataset.tarfb;
+      const cur = [...(this._hubOpt("energy_tariff_fallbacks") || [])];
+      const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
+      this._local = this._local || {};
+      this._local["hub:energy_tariff_fallbacks"] = next;
+      this._setHub({ energy_tariff_fallbacks: next }, 300);
+      this._flash(t("Gespeichert"));
+    });
     on("click", "[data-workzone]", (el) => () => {
       const zid = el.dataset.workzone;
       const cur = [...(this._hubOpt("work_zones") || [])];

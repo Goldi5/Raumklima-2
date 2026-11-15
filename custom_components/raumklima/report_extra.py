@@ -279,6 +279,15 @@ def energy_kwh(
     return amount
 
 
+def base_cost(energy: dict[str, Any], kwh: float, days: int) -> float:
+    """Grundgebühr für den Zeitraum – ganz oder nach Anteil am Hausverbrauch."""
+    base = max(0.0, float(energy.get("base") or 0)) * days / 30.44
+    house = energy.get("house_kwh")
+    if energy.get("base_share") == "usage" and house:
+        base *= max(0.0, min(1.0, kwh / float(house)))
+    return base
+
+
 def money(
     cur: dict[str, Any],
     annual_cost: float | None,
@@ -303,18 +312,28 @@ def money(
         price = energy.get("price")
         if kwh is None or float(kwh) <= 0 or price is None or float(price) <= 0:
             return None
-        kwh = float(kwh)
+        kwh = float(kwh) + max(0.0, float(energy.get("ww_kwh") or 0))  # Warmwasser zählt mit
         price = float(price)
-        offset = 0.0
-        if energy.get("source") in ("electric", "heatpump") and energy.get("pv_kwh"):
-            share = max(0.0, min(100.0, float(energy.get("pv_self_use") or 0))) / 100
-            offset = max(0.0, float(energy["pv_kwh"])) * share
-        billed = max(0.0, kwh - offset)
         days = max(int(energy.get("days") or 1), 1)
-        period_cost = billed * price + max(0.0, float(energy.get("base") or 0)) * days / 30.44
+        if energy.get("cost_energy") is not None:
+            # Stunde für Stunde: kWh × Preis dieser Stunde, PV/Batterie schon abgezogen
+            energy_cost = float(energy["cost_energy"])
+        else:
+            offset = 0.0
+            if energy.get("source") in ("electric", "heatpump") and energy.get("pv_kwh"):
+                share = max(0.0, min(100.0, float(energy.get("pv_self_use") or 0))) / 100
+                offset = max(0.0, float(energy["pv_kwh"])) * share
+            energy_cost = max(0.0, kwh - offset) * price
+        base = base_cost(energy, kwh, days)
+        period_cost = energy_cost + base
         if period_cost <= 0:
             return None
-        annual = period_cost * REF_HDD / cur["hdd"]
+        # Hochrechnung: Heizung nach Gradtagen, Warmwasser und Grundgebühr nach Tagen
+        ww_part = max(0.0, float(energy.get("ww_kwh") or 0)) / kwh if kwh > 0 else 0.0
+        annual = (
+            energy_cost * (1 - ww_part) * REF_HDD / cur["hdd"]
+            + (energy_cost * ww_part + base) * 365 / days
+        )
         basis = "meter"
     s = cur["total"]["saving_pct"]
     saved = period_cost * s / max(100 - s, 1)

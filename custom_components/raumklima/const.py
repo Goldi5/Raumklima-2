@@ -368,6 +368,12 @@ HUB_DEFAULTS: Final = {
     "energy_price": 0.3,
     "energy_factor": 10.0,
     "energy_heat_entity": None,
+    "energy_ww_meter": None,
+    "energy_ww_heat_entity": None,
+    "energy_tariff_fallbacks": [],
+    "energy_house_entity": None,
+    "energy_grid_entity": None,
+    "energy_base_share": "full",
     "energy_efficiency": 0.0,
     "energy_oil_price": 1.10,
     "energy_oil_factor": 10.0,
@@ -543,6 +549,13 @@ CONF_ENERGY_TANK_ENTITY: Final = "energy_tank_entity"
 CONF_ENERGY_TANK_CAPACITY: Final = "energy_tank_capacity"
 CONF_ENERGY_TANK_MIN: Final = "energy_tank_min"
 CONF_PV_SELF_USE: Final = "pv_self_use"
+CONF_ENERGY_WW_METER: Final = "energy_ww_meter"  # Zähler (Strom/Gas) nur für Warmwasser
+CONF_ENERGY_WW_HEAT: Final = "energy_ww_heat_entity"  # erzeugte Warmwasser-Wärme (Wärmepumpe)
+CONF_ENERGY_TARIFF_FALLBACKS: Final = "energy_tariff_fallbacks"  # Reserve-Preisquellen in Reihenfolge
+CONF_ENERGY_HOUSE: Final = "energy_house_entity"  # Hausverbrauch gesamt (kWh)
+CONF_ENERGY_GRID: Final = "energy_grid_entity"  # Strombezug aus dem Netz (kWh)
+CONF_ENERGY_BASE_SHARE: Final = "energy_base_share"  # Grundgebühr: full = ganz Heizung, usage = nach Anteil
+ENERGY_BASE_SHARES: Final = ("full", "usage")
 ENERGY_SOURCES: Final = ("auto", "electric", "gas", "heatpump", "district", "oil")
 REPORT_METRICS: Final = ["auto", "valve", "deficit", "hours"]  # auto = Ventil, sonst Gradstunden
 REPORT_METRIC_DEFAULT: Final = "auto"

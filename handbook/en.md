@@ -316,6 +316,17 @@ If you enter your **heating costs per year** under *Settings → General → Rep
 - **On your phone:** the push message has an **Open PDF** button.
 - **By email:** *Settings → General → Reports → PDF by email* → tap **Set up email** right below, pick your provider (e.g. Gmail), enter user, password and recipients, test them with **Check login** and then tap **Save & send test email**. Gmail, iCloud and Outlook need an app password.
 
+### Energy & tariffs
+
+Under *Settings → General → Energy & tariffs* four steps guide you through the setup – each with an expandable **guide**, each row with a **?**. Raumklima only calculates: it controls neither heat pump nor boiler.
+
+1. **How do you heat?** Heat pump, gas, heating oil, district heating or direct electric (infrared, storage heaters). Only the matching fields are shown.
+2. **What is measured?** Always total meters that only rise. For a heat pump, electricity *and* – if available – heat produced: the **efficiency is then measured**. **Hot water** can have its own meter and counts towards costs, shown as its own bar. With **house consumption** and **grid import**, Raumklima works out every hour how much came from PV and battery – that share is free.
+3. **What does a kWh cost?** One **price source** (ideally your supplier’s sensor, e.g. 1KOMMA5°, Tibber) plus any number of **fallbacks** (e.g. EPEX Spot) that step in when the main source delivers nothing. With a dynamic tariff every hour counts at its own price. If the sensor only delivers the exchange price, set net under *Price without taxes and grid fees?* and enter grid fee & levies – grid fees change every 1 January.
+4. **Comparison with air conditioner:** only the COP; the electricity price comes from step 3.
+
+The *Energy* dashboard shows costs with forecast, consumption (heating + hot water), efficiency, average price paid, daily bars with outdoor temperature, the price curve, cost per room, the price sources and data-quality hints. Sensor details are collapsed below.
+
 ### Heating oil and tank
 
 Under *Settings → General → Heating & Energy* choose **Heating oil** as the source. An oil meter in litres is converted via its energy content (default 10 kWh/L), and the price is entered per litre. Optionally an **oil tank level sensor** shows the remaining amount; Raumklima estimates consumption and remaining days from a falling level, ignores refills and asks you to order when the configured remaining amount or 14 days of supply is reached. Short jitter in the level is not counted as consumption: the net difference between two refills is used. Under “Last winter” you can enter litres and days; the oil price is recorded with its date in the price history. Optionally select a market price entity in €/L; the card shows the current market price, the 30-day comparison and the difference to your price.
@@ -465,7 +476,7 @@ does not matter.
 - **Direct valve control:** for thermostats with a `number` actuator, e.g. SONOFF TRVZB.
 - **Air conditioning:** cools and heats with separate targets and anti-cycling; cheaper source by COP/gas price. If the meter measures gas or district heat, enter the electricity price under *Energy & tariffs* – otherwise no comparison is made.
 - **Heat demand:** sensor `sensor.raumklima_allgemein_warmeanforderung` aggregates all rooms.
-- **Dynamic tariffs/PV:** price limit, preheat when cheap, PV surplus.
+- **Dynamic tariffs/PV:** price source with fallbacks, costs hour by hour, PV and battery via house consumption and grid import.
 - **Manual override:** “Resume schedule” or “Resume desired temperature” button on the room card.
 
 # Frequently asked questions

@@ -1400,7 +1400,127 @@
     "Live-Verbindung zur Integration": "live connection to the integration",
     "Selbsttest, Diagnose-Datei oder Fehlerbericht öffnen": "open self-test, diagnostics file or bug report",
     "aktiv": "active",
-    "nicht aktiv": "not active"
+    "nicht aktiv": "not active",
+    "Warmwasser": "Hot water",
+    "Außen °C": "Outdoor °C",
+    "Spanne": "Range",
+    "Am günstigsten": "Cheapest",
+    "Wärmezähler": "Heat meter",
+    "Warmwasser-Zähler": "Hot water meter",
+    "Hausverbrauch": "House consumption",
+    "Netzbezug": "Grid import",
+    "Warmwasser-Wärme": "Hot water heat",
+    "Zähler liefert": "Meter delivers",
+    "Zähler ohne Statistik": "Meter without statistics",
+    "Arbeitszahl gemessen": "Efficiency measured",
+    "Wärmezähler ohne Werte": "Heat meter without values",
+    "Arbeitszahl geschätzt – Wärmezähler fehlt": "Efficiency estimated – heat meter missing",
+    "Preis aus {s}": "Price from {s}",
+    "keine Preisquelle liefert – fester Preis": "no price source delivers – fixed price",
+    "Preisvorschau da": "Price forecast available",
+    "keine Preisvorschau": "no price forecast",
+    "Energiequelle bitte in den Einstellungen wählen": "Please choose the energy source in the settings",
+    "Jahr ≈ {v} €": "Year ≈ {v} €",
+    "Jahresprognose ab Heizsaison": "Annual forecast from heating season",
+    "Heizung {h} · Warmwasser {w} kWh": "Heating {h} · hot water {w} kWh",
+    "Arbeitszahl": "Efficiency (COP)",
+    "Heizung, gemessen": "heating, measured",
+    "geschätzt (Datenblatt)": "estimated (data sheet)",
+    "Wärmezähler fehlt": "heat meter missing",
+    "Warmwasser {v}": "hot water {v}",
+    "Wärme": "Heat",
+    "Bezahlt Ø": "Paid Ø",
+    "Mittel {v} ct": "average {v} ct",
+    "{p} % in günstigen Stunden": "{p} % in cheap hours",
+    "Preis": "Price",
+    "Wärme {v} ct/kWh": "heat {v} ct/kWh",
+    "je kWh, brutto": "per kWh, gross",
+    "Aus PV & Batterie": "From PV & battery",
+    "kostet nichts – schon abgezogen": "free – already deducted",
+    "Verbrauch pro Tag": "Consumption per day",
+    "Wer verbraucht die Wärme?": "Who uses the heat?",
+    "nach Ventilöffnung × Stunden – ohne Warmwasser und Grundgebühr": "by valve opening × hours – without hot water and base fee",
+    "Preisquellen": "Price sources",
+    "Hauptquelle": "Main source",
+    "Reserve": "Fallback",
+    "liefert nichts": "no value",
+    "Details und Sensoren": "Details and sensors",
+    "{v} € pro Tag": "{v} € per day",
+    "{p} % des Hausstroms": "{p} % of house electricity",
+    "Zähler und Preise auswerten – Raumklima rechnet nur aus und steuert die Heizung nicht": "Analyse meters and prices – Raumklima only calculates and does not control the heating system",
+    "Wie heizt ihr?": "How do you heat?",
+    "bestimmt, welche Zähler und Preise abgefragt werden": "decides which meters and prices are asked for",
+    "Strom direkt": "Direct electric",
+    "bitte wählen – bisher automatisch erkannt": "please choose – detected automatically so far",
+    "Anleitung: Welche Energiequelle passt?": "Guide: which energy source fits?",
+    "Wärmepumpe: Luft-, Sole- oder Wasser-Wärmepumpe – auch mit Heizstab, der läuft über denselben Stromzähler.": "Heat pump: air, ground or water source – also with a backup heater, which runs on the same electricity meter.",
+    "Strom direkt: Infrarotplatten, Nachtspeicher, Elektroheizkörper – eine kWh Strom ist eine kWh Wärme.": "Direct electric: infrared panels, storage heaters, electric radiators – one kWh of electricity is one kWh of heat.",
+    "Gas: Brennwert- oder Heizwerttherme, auch Gasetagenheizung.": "Gas: condensing or standard boiler, including flat-level gas heating.",
+    "Fernwärme: Übergabestation im Keller, abgerechnet nach Wärmemenge.": "District heating: transfer station in the basement, billed by heat delivered.",
+    "Die Wahl ändert nichts an der Heizung selbst – sie legt nur fest, wie gerechnet wird.": "The choice does not change the heating system – it only defines how things are calculated.",
+    "Strom der Wärmepumpe fürs Heizen – Gesamtzähler in kWh": "heat pump electricity for heating – total meter in kWh",
+    "Strom der Heizung – Gesamtzähler in kWh": "heating electricity – total meter in kWh",
+    "Gaszähler in m³ oder kWh – Gesamtzähler": "gas meter in m³ or kWh – total meter",
+    "Liter-Zähler des Brenners – oder leer lassen und den Tank wählen": "burner litre meter – or leave empty and choose the tank",
+    "Wärmemengenzähler der Übergabestation in kWh oder MWh": "heat meter of the transfer station in kWh or MWh",
+    "Was wird gemessen?": "What is measured?",
+    "immer Gesamtzähler, die nur steigen – keine Tages- oder Wochenwerte": "always total meters that only rise – no daily or weekly values",
+    "erzeugte Heizwärme – damit wird die Arbeitszahl gemessen statt geschätzt": "heat produced – this measures the efficiency instead of estimating it",
+    "kWh je m³ – steht auf der Gasrechnung": "kWh per m³ – shown on the gas bill",
+    "nur wenn Warmwasser getrennt gemessen wird – zählt dann mit zu den Kosten": "only if hot water is metered separately – it is then included in the costs",
+    "erzeugte Warmwasser-Wärme – für die Arbeitszahl beim Warmwasser": "hot water heat produced – for the hot water efficiency",
+    "Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis": "level in %, L or m³ – shows what is left and when to order",
+    "Energieinhalt – 10 kWh/L ist typisch": "energy content – 10 kWh/L is typical",
+    "aus der letzten Lieferung oder dem Tankbuch": "from the last delivery or the tank log",
+    "über wie viele Tage diese Liter reichten": "how many days these litres lasted",
+    "optional: Stromverbrauch des ganzen Hauses in kWh": "optional: electricity use of the whole house in kWh",
+    "optional: Strom aus dem Netz in kWh – mit Hausverbrauch zählt PV und Batterie Stunde für Stunde": "optional: electricity from the grid in kWh – together with house consumption, PV and battery are counted hour by hour",
+    "nur ohne Hausverbrauch und Netzbezug: grobe Schätzung über den Eigenverbrauch": "only without house consumption and grid import: rough estimate via self-consumption",
+    "Anteil des PV-Ertrags, der die Heizung deckt": "share of PV yield that covers the heating",
+    "Anleitung: Den richtigen Zähler finden": "Guide: finding the right meter",
+    "Einstellungen → Geräte & Dienste → deine Heizung öffnen (z. B. Stiebel Eltron, Vaillant, Viessmann, Shelly am Heizungszähler).": "Settings → Devices & services → open your heating system (e.g. Stiebel Eltron, Vaillant, Viessmann, a Shelly on the heating meter).",
+    "Den Sensor nehmen, der „gesamt“ oder „total“ heißt und in kWh, m³ oder L zählt. Nicht „heute“ oder „letzte 24 h“ – die springen zurück.": "Pick the sensor called “total” that counts in kWh, m³ or L. Not “today” or “last 24 h” – those reset.",
+    "Wärmepumpe: Strom fürs Heizen und – wenn vorhanden – die erzeugte Heizwärme. Meldet sie Warmwasser getrennt, beides auch dort eintragen; Warmwasser zählt zu den Kosten.": "Heat pump: electricity for heating and – if available – the heat produced. If it reports hot water separately, enter both there too; hot water counts towards the costs.",
+    "Hausverbrauch und Netzbezug: z. B. vom Smart Meter, Energiemanager oder Wechselrichter. Damit rechnet Raumklima jede Stunde, wie viel Strom aus PV und Batterie kam.": "House consumption and grid import: e.g. from a smart meter, energy manager or inverter. Raumklima then calculates every hour how much electricity came from PV and battery.",
+    "Kein Zähler? Dann unter „Berichte“ die Heizkosten pro Jahr laut Abrechnung eintragen.": "No meter? Then enter the annual heating cost from your bill under “Reports”.",
+    "€/kWh oder €/m³": "€/kWh or €/m³",
+    "Was kostet die kWh?": "What does a kWh cost?",
+    "ein Preis für alles – Dashboard, Bericht und Vergleich rechnen gleich": "one price for everything – dashboard, report and comparison calculate the same",
+    "Preis je Liter der letzten Lieferung – wird mit Datum notiert": "price per litre of the last delivery – noted with the date",
+    "Preisquelle": "Price source",
+    "Sensor mit dem Arbeitspreis in {u} – oder fester Preis darunter": "sensor with the energy price in {u} – or a fixed price below",
+    "Reserve-Preisquellen": "Fallback price sources",
+    "keine weiteren Preis-Sensoren": "no other price sensors",
+    "Reihenfolge: {l}": "Order: {l}",
+    "springen ein, wenn die Hauptquelle nichts liefert – z. B. EPEX Spot": "step in when the main source delivers nothing – e.g. EPEX Spot",
+    "fester Preis je kWh, brutto – steht auf der Rechnung": "fixed price per kWh, gross – shown on the bill",
+    "optionaler Heizöl-Marktpreis in €/L – für den Vergleich": "optional heating oil market price in €/L – for comparison",
+    "monatliche Grundgebühr in €, brutto": "monthly base fee in €, gross",
+    "Grundgebühr-Anteil": "Base fee share",
+    "ganz": "all",
+    "nach Verbrauch": "by usage",
+    "ganz = eigener Wärmepumpen-Zähler; nach Verbrauch = gemeinsamer Hauszähler": "all = separate heat pump meter; by usage = shared house meter",
+    "Preis wechselt stündlich – Dashboard zeigt Preiskurve und günstige Stunden": "price changes hourly – the dashboard shows the price curve and cheap hours",
+    "Preis ohne Steuern und Netzentgelt?": "Price without taxes and grid fees?",
+    "netto = der Sensor liefert nur den Börsen- oder Nettopreis": "net = the sensor only delivers the exchange or net price",
+    "€/kWh, die im Sensor fehlen: Netzentgelt, Umlagen, Stromsteuer, Aufschlag": "€/kWh missing from the sensor: grid fee, levies, electricity tax, surcharge",
+    "kommt auf Preis und Abgaben drauf": "added to price and levies",
+    "Preis jetzt": "Price now",
+    "aus {s}": "from {s}",
+    "Ölpreis je Liter umgerechnet auf kWh": "oil price per litre converted to kWh",
+    "gleicher Wert wie im Dashboard und im Bericht": "same value as in the dashboard and report",
+    "Anleitung: Welcher Preis ist der richtige?": "Guide: which price is right?",
+    "Am besten der Preis-Sensor deines Anbieters (z. B. 1KOMMA5°, Tibber, Octopus, Rabot): er kennt dein Netzentgelt und die MwSt – nichts weiter eintragen.": "Best: your supplier’s price sensor (e.g. 1KOMMA5°, Tibber, Octopus, Rabot): it knows your grid fee and VAT – nothing else to enter.",
+    "Zweitbeste Quelle: die Integration „EPEX Spot“ aus dem Marketplace. Der Börsenpreis ist überall in Deutschland gleich; regional verschieden ist das Netzentgelt.": "Second best: the “EPEX Spot” integration from the Marketplace. The exchange price is the same across Germany; what differs by region is the grid fee.",
+    "Den Sensor „Total Price“ von EPEX Spot wählen, wenn dort Aufschlag und MwSt eingetragen sind. Sonst „Market Price“ wählen und hier unter „Preis ohne Steuern und Netzentgelt?“ auf netto stellen und die Abgaben eintragen.": "Pick EPEX Spot’s “Total Price” sensor if surcharge and VAT are set there. Otherwise pick “Market Price”, set net under “Price without taxes and grid fees?” here and enter the levies.",
+    "Netzentgelt finden: Netzbetreiber steht auf der Stromrechnung. Auf dessen Website „Preisblatt Netzentgelte Strom“, Zeile Haushalt / ohne Leistungsmessung, Arbeitspreis in ct/kWh.": "Finding the grid fee: the grid operator is named on your electricity bill. On its website, open the grid fee price sheet, household line without power metering, energy price in ct/kWh.",
+    "Netzentgelte ändern sich jedes Jahr zum 1. Januar – dann den Wert prüfen. Eine amtliche Tabelle zum Abrufen gibt es nicht.": "Grid fees change every 1 January – check the value then. There is no official table to fetch them automatically.",
+    "Mehrere Quellen: die erste ist die Hauptquelle, Reserven springen ein, wenn sie nichts liefert. Fester Arbeitspreis: Preis je kWh von der Rechnung, brutto.": "Several sources: the first is the main source, fallbacks step in when it delivers nothing. Fixed energy price: price per kWh from the bill, gross.",
+    "Vergleich mit Klimagerät": "Comparison with air conditioner",
+    "nur wenn ein Klimagerät auch heizen darf": "only if an air conditioner may also heat",
+    "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)": "heating COP from the data sheet (at +7 °C)",
+    "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon": "€/kWh gross – the heating does not run on electricity, the air conditioner does",
+    "– fester Preis –": "– fixed price –"
   };
 
   // src/i18n/fr.js
@@ -2803,7 +2923,127 @@
     "Live-Verbindung zur Integration": "connexion en direct à l’intégration",
     "Selbsttest, Diagnose-Datei oder Fehlerbericht öffnen": "ouvrir l’auto-test, le fichier de diagnostic ou le rapport de bug",
     "aktiv": "actif",
-    "nicht aktiv": "inactif"
+    "nicht aktiv": "inactif",
+    "Warmwasser": "Eau chaude",
+    "Außen °C": "Extérieur °C",
+    "Spanne": "Écart",
+    "Am günstigsten": "Le moins cher",
+    "Wärmezähler": "Compteur de chaleur",
+    "Warmwasser-Zähler": "Compteur eau chaude",
+    "Hausverbrauch": "Consommation de la maison",
+    "Netzbezug": "Soutirage réseau",
+    "Warmwasser-Wärme": "Chaleur eau chaude",
+    "Zähler liefert": "Le compteur fournit",
+    "Zähler ohne Statistik": "Compteur sans statistiques",
+    "Arbeitszahl gemessen": "Rendement mesuré",
+    "Wärmezähler ohne Werte": "Compteur de chaleur sans valeurs",
+    "Arbeitszahl geschätzt – Wärmezähler fehlt": "Rendement estimé – compteur de chaleur manquant",
+    "Preis aus {s}": "Prix de {s}",
+    "keine Preisquelle liefert – fester Preis": "aucune source de prix – prix fixe",
+    "Preisvorschau da": "Prévision de prix disponible",
+    "keine Preisvorschau": "pas de prévision de prix",
+    "Energiequelle bitte in den Einstellungen wählen": "Veuillez choisir la source d’énergie dans les réglages",
+    "Jahr ≈ {v} €": "Année ≈ {v} €",
+    "Jahresprognose ab Heizsaison": "Prévision annuelle dès la saison de chauffe",
+    "Heizung {h} · Warmwasser {w} kWh": "Chauffage {h} · eau chaude {w} kWh",
+    "Arbeitszahl": "Rendement (COP)",
+    "Heizung, gemessen": "chauffage, mesuré",
+    "geschätzt (Datenblatt)": "estimé (fiche technique)",
+    "Wärmezähler fehlt": "compteur de chaleur manquant",
+    "Warmwasser {v}": "eau chaude {v}",
+    "Wärme": "Chaleur",
+    "Bezahlt Ø": "Payé Ø",
+    "Mittel {v} ct": "moyenne {v} ct",
+    "{p} % in günstigen Stunden": "{p} % aux heures bon marché",
+    "Preis": "Prix",
+    "Wärme {v} ct/kWh": "chaleur {v} ct/kWh",
+    "je kWh, brutto": "par kWh, TTC",
+    "Aus PV & Batterie": "Du PV et de la batterie",
+    "kostet nichts – schon abgezogen": "gratuit – déjà déduit",
+    "Verbrauch pro Tag": "Consommation par jour",
+    "Wer verbraucht die Wärme?": "Qui consomme la chaleur ?",
+    "nach Ventilöffnung × Stunden – ohne Warmwasser und Grundgebühr": "selon ouverture de vanne × heures – sans eau chaude ni abonnement",
+    "Preisquellen": "Sources de prix",
+    "Hauptquelle": "Source principale",
+    "Reserve": "Réserve",
+    "liefert nichts": "aucune valeur",
+    "Details und Sensoren": "Détails et capteurs",
+    "{v} € pro Tag": "{v} € par jour",
+    "{p} % des Hausstroms": "{p} % de l’électricité de la maison",
+    "Zähler und Preise auswerten – Raumklima rechnet nur aus und steuert die Heizung nicht": "Analyser compteurs et prix – Raumklima calcule seulement et ne pilote pas le chauffage",
+    "Wie heizt ihr?": "Comment chauffez-vous ?",
+    "bestimmt, welche Zähler und Preise abgefragt werden": "détermine quels compteurs et prix sont demandés",
+    "Strom direkt": "Électrique direct",
+    "bitte wählen – bisher automatisch erkannt": "veuillez choisir – détecté automatiquement jusqu’ici",
+    "Anleitung: Welche Energiequelle passt?": "Guide : quelle source d’énergie choisir ?",
+    "Wärmepumpe: Luft-, Sole- oder Wasser-Wärmepumpe – auch mit Heizstab, der läuft über denselben Stromzähler.": "Pompe à chaleur : air, sol ou eau – aussi avec résistance d’appoint, qui passe par le même compteur électrique.",
+    "Strom direkt: Infrarotplatten, Nachtspeicher, Elektroheizkörper – eine kWh Strom ist eine kWh Wärme.": "Électrique direct : panneaux infrarouges, accumulateurs, radiateurs électriques – un kWh d’électricité donne un kWh de chaleur.",
+    "Gas: Brennwert- oder Heizwerttherme, auch Gasetagenheizung.": "Gaz : chaudière à condensation ou classique, y compris chauffage d’étage.",
+    "Fernwärme: Übergabestation im Keller, abgerechnet nach Wärmemenge.": "Chauffage urbain : sous-station au sous-sol, facturée à la chaleur livrée.",
+    "Die Wahl ändert nichts an der Heizung selbst – sie legt nur fest, wie gerechnet wird.": "Ce choix ne modifie pas le chauffage – il définit seulement le mode de calcul.",
+    "Strom der Wärmepumpe fürs Heizen – Gesamtzähler in kWh": "électricité de la PAC pour le chauffage – compteur total en kWh",
+    "Strom der Heizung – Gesamtzähler in kWh": "électricité du chauffage – compteur total en kWh",
+    "Gaszähler in m³ oder kWh – Gesamtzähler": "compteur de gaz en m³ ou kWh – compteur total",
+    "Liter-Zähler des Brenners – oder leer lassen und den Tank wählen": "compteur de litres du brûleur – ou laisser vide et choisir la cuve",
+    "Wärmemengenzähler der Übergabestation in kWh oder MWh": "compteur de chaleur de la sous-station en kWh ou MWh",
+    "Was wird gemessen?": "Que mesure-t-on ?",
+    "immer Gesamtzähler, die nur steigen – keine Tages- oder Wochenwerte": "toujours des compteurs totaux croissants – pas de valeurs journalières ou hebdomadaires",
+    "erzeugte Heizwärme – damit wird die Arbeitszahl gemessen statt geschätzt": "chaleur produite – le rendement est alors mesuré et non estimé",
+    "kWh je m³ – steht auf der Gasrechnung": "kWh par m³ – indiqué sur la facture de gaz",
+    "nur wenn Warmwasser getrennt gemessen wird – zählt dann mit zu den Kosten": "seulement si l’eau chaude est mesurée à part – elle compte alors dans les coûts",
+    "erzeugte Warmwasser-Wärme – für die Arbeitszahl beim Warmwasser": "chaleur produite pour l’eau chaude – pour son rendement",
+    "Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis": "niveau en %, L ou m³ – affiche le reste et quand commander",
+    "Energieinhalt – 10 kWh/L ist typisch": "contenu énergétique – 10 kWh/L est typique",
+    "aus der letzten Lieferung oder dem Tankbuch": "de la dernière livraison ou du carnet de cuve",
+    "über wie viele Tage diese Liter reichten": "combien de jours ces litres ont duré",
+    "optional: Stromverbrauch des ganzen Hauses in kWh": "optionnel : consommation électrique de toute la maison en kWh",
+    "optional: Strom aus dem Netz in kWh – mit Hausverbrauch zählt PV und Batterie Stunde für Stunde": "optionnel : électricité soutirée du réseau en kWh – avec la consommation de la maison, PV et batterie sont comptés heure par heure",
+    "nur ohne Hausverbrauch und Netzbezug: grobe Schätzung über den Eigenverbrauch": "seulement sans consommation et soutirage : estimation grossière via l’autoconsommation",
+    "Anteil des PV-Ertrags, der die Heizung deckt": "part du rendement PV qui couvre le chauffage",
+    "Anleitung: Den richtigen Zähler finden": "Guide : trouver le bon compteur",
+    "Einstellungen → Geräte & Dienste → deine Heizung öffnen (z. B. Stiebel Eltron, Vaillant, Viessmann, Shelly am Heizungszähler).": "Paramètres → Appareils et services → ouvrir votre chauffage (p. ex. Stiebel Eltron, Vaillant, Viessmann, un Shelly sur le compteur).",
+    "Den Sensor nehmen, der „gesamt“ oder „total“ heißt und in kWh, m³ oder L zählt. Nicht „heute“ oder „letzte 24 h“ – die springen zurück.": "Prendre le capteur « total » qui compte en kWh, m³ ou L. Pas « aujourd’hui » ni « dernières 24 h » – ils se remettent à zéro.",
+    "Wärmepumpe: Strom fürs Heizen und – wenn vorhanden – die erzeugte Heizwärme. Meldet sie Warmwasser getrennt, beides auch dort eintragen; Warmwasser zählt zu den Kosten.": "Pompe à chaleur : électricité du chauffage et – si disponible – la chaleur produite. Si l’eau chaude est indiquée à part, renseigner aussi les deux ; elle compte dans les coûts.",
+    "Hausverbrauch und Netzbezug: z. B. vom Smart Meter, Energiemanager oder Wechselrichter. Damit rechnet Raumklima jede Stunde, wie viel Strom aus PV und Batterie kam.": "Consommation et soutirage : p. ex. compteur communicant, gestionnaire d’énergie ou onduleur. Raumklima calcule alors chaque heure la part venant du PV et de la batterie.",
+    "Kein Zähler? Dann unter „Berichte“ die Heizkosten pro Jahr laut Abrechnung eintragen.": "Pas de compteur ? Indiquez alors le coût annuel de la facture sous « Rapports ».",
+    "€/kWh oder €/m³": "€/kWh ou €/m³",
+    "Was kostet die kWh?": "Combien coûte le kWh ?",
+    "ein Preis für alles – Dashboard, Bericht und Vergleich rechnen gleich": "un seul prix pour tout – tableau de bord, rapport et comparaison calculent pareil",
+    "Preis je Liter der letzten Lieferung – wird mit Datum notiert": "prix au litre de la dernière livraison – noté avec la date",
+    "Preisquelle": "Source de prix",
+    "Sensor mit dem Arbeitspreis in {u} – oder fester Preis darunter": "capteur avec le prix de l’énergie en {u} – ou prix fixe ci-dessous",
+    "Reserve-Preisquellen": "Sources de prix de réserve",
+    "keine weiteren Preis-Sensoren": "aucun autre capteur de prix",
+    "Reihenfolge: {l}": "Ordre : {l}",
+    "springen ein, wenn die Hauptquelle nichts liefert – z. B. EPEX Spot": "prennent le relais si la source principale ne fournit rien – p. ex. EPEX Spot",
+    "fester Preis je kWh, brutto – steht auf der Rechnung": "prix fixe par kWh, TTC – indiqué sur la facture",
+    "optionaler Heizöl-Marktpreis in €/L – für den Vergleich": "prix du marché du fioul en €/L (optionnel) – pour comparer",
+    "monatliche Grundgebühr in €, brutto": "abonnement mensuel en €, TTC",
+    "Grundgebühr-Anteil": "Part de l’abonnement",
+    "ganz": "entier",
+    "nach Verbrauch": "selon consommation",
+    "ganz = eigener Wärmepumpen-Zähler; nach Verbrauch = gemeinsamer Hauszähler": "entier = compteur PAC séparé ; selon consommation = compteur commun de la maison",
+    "Preis wechselt stündlich – Dashboard zeigt Preiskurve und günstige Stunden": "le prix change chaque heure – le tableau de bord montre la courbe et les heures bon marché",
+    "Preis ohne Steuern und Netzentgelt?": "Prix sans taxes ni frais de réseau ?",
+    "netto = der Sensor liefert nur den Börsen- oder Nettopreis": "HT = le capteur ne fournit que le prix de bourse ou HT",
+    "€/kWh, die im Sensor fehlen: Netzentgelt, Umlagen, Stromsteuer, Aufschlag": "€/kWh absents du capteur : frais de réseau, taxes, contributions, marge",
+    "kommt auf Preis und Abgaben drauf": "s’ajoute au prix et aux taxes",
+    "Preis jetzt": "Prix actuel",
+    "aus {s}": "de {s}",
+    "Ölpreis je Liter umgerechnet auf kWh": "prix du fioul au litre converti en kWh",
+    "gleicher Wert wie im Dashboard und im Bericht": "même valeur que dans le tableau de bord et le rapport",
+    "Anleitung: Welcher Preis ist der richtige?": "Guide : quel est le bon prix ?",
+    "Am besten der Preis-Sensor deines Anbieters (z. B. 1KOMMA5°, Tibber, Octopus, Rabot): er kennt dein Netzentgelt und die MwSt – nichts weiter eintragen.": "Le mieux : le capteur de prix de votre fournisseur (p. ex. 1KOMMA5°, Tibber, Octopus, Rabot) : il connaît vos frais de réseau et la TVA – rien d’autre à saisir.",
+    "Zweitbeste Quelle: die Integration „EPEX Spot“ aus dem Marketplace. Der Börsenpreis ist überall in Deutschland gleich; regional verschieden ist das Netzentgelt.": "Deuxième choix : l’intégration « EPEX Spot » du Marketplace. Le prix de bourse est identique partout ; ce qui varie selon la région, ce sont les frais de réseau.",
+    "Den Sensor „Total Price“ von EPEX Spot wählen, wenn dort Aufschlag und MwSt eingetragen sind. Sonst „Market Price“ wählen und hier unter „Preis ohne Steuern und Netzentgelt?“ auf netto stellen und die Abgaben eintragen.": "Choisir le capteur « Total Price » d’EPEX Spot si la marge et la TVA y sont saisies. Sinon choisir « Market Price », passer en HT sous « Prix sans taxes ni frais de réseau ? » et saisir les taxes.",
+    "Netzentgelt finden: Netzbetreiber steht auf der Stromrechnung. Auf dessen Website „Preisblatt Netzentgelte Strom“, Zeile Haushalt / ohne Leistungsmessung, Arbeitspreis in ct/kWh.": "Trouver les frais de réseau : le gestionnaire figure sur la facture d’électricité. Sur son site, grille tarifaire réseau, ligne ménage sans mesure de puissance, prix en ct/kWh.",
+    "Netzentgelte ändern sich jedes Jahr zum 1. Januar – dann den Wert prüfen. Eine amtliche Tabelle zum Abrufen gibt es nicht.": "Les frais de réseau changent chaque 1er janvier – vérifiez alors la valeur. Il n’existe pas de tableau officiel à récupérer.",
+    "Mehrere Quellen: die erste ist die Hauptquelle, Reserven springen ein, wenn sie nichts liefert. Fester Arbeitspreis: Preis je kWh von der Rechnung, brutto.": "Plusieurs sources : la première est la principale, les réserves prennent le relais si elle ne fournit rien. Prix fixe : prix par kWh de la facture, TTC.",
+    "Vergleich mit Klimagerät": "Comparaison avec la climatisation",
+    "nur wenn ein Klimagerät auch heizen darf": "seulement si une climatisation peut aussi chauffer",
+    "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)": "COP en chauffage selon la fiche technique (à +7 °C)",
+    "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon": "€/kWh TTC – le chauffage n’est pas électrique, la climatisation oui",
+    "– fester Preis –": "– prix fixe –"
   };
 
   // src/i18n.js
@@ -2985,6 +3225,18 @@
   .tleg i { width:14px; height:10px; border-radius:3px; background: var(--c); }
 `;
   var SETTINGS_STYLES = `
+  .estep { display:flex; gap:12px; align-items:flex-start; padding:14px 4px 6px; margin-top:6px; border-top:1px solid var(--divider-color, rgba(127,127,127,.2)); }
+  .estep:first-of-type { border-top:0; }
+  .estep .en { flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:#fff; background: var(--g, var(--rk-warn)); }
+  .estep b { display:block; font-size:1rem; }
+  .estep small { display:block; color: var(--secondary-text-color); font-size:.82rem; margin-top:2px; }
+  .eguide { margin:6px 0 10px; border-radius:12px; background: color-mix(in srgb, var(--g, var(--rk-warn)) 7%, transparent); padding:0 14px; }
+  .eguide summary { cursor:pointer; padding:11px 0; font-weight:600; font-size:.9rem; color: var(--primary-text-color); display:flex; align-items:center; gap:8px; list-style:none; }
+  .eguide summary::-webkit-details-marker { display:none; }
+  .eguide summary ha-icon { --mdc-icon-size:18px; color: var(--g, var(--rk-warn)); }
+  .eguide ul { margin:0 0 12px; padding-left:20px; font-size:.86rem; line-height:1.55; color: var(--primary-text-color); }
+  .eguide li { margin:3px 0; }
+
   .sub { font-weight:600; font-size:.82rem; margin:12px 0 4px; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing:.03em; }
   .whyrules { display:flex; flex-direction:column; gap:5px; }
   .whyrule { display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:.9rem; }
@@ -4856,13 +5108,9 @@
     "Klimaanlage zum Heizen": ["Erlaubt der Klimaanlage, den Raum auch zu heizen. Raumklima vergleicht dafür COP und Gaspreis; nur wenn die Klimaanlage günstiger ist, übernimmt sie.", "Allows the AC to heat the room. Raumklima compares COP and gas price; it only takes over when the AC is cheaper.", "Autorise la climatisation à chauffer la pièce. Raumklima compare le COP et le prix du gaz ; elle ne prend le relais que si elle est moins chère."],
     "Sollwert am Gerät": ["Der Sollwert, der tatsächlich am Thermostat oder Stellglied steht – kann durch Handbedienung oder Geräte-Zeitplan abweichen.", "The setpoint actually present on the thermostat or actuator – can differ due to manual control or the device schedule.", "La consigne réellement présente sur le thermostat ou l’actionneur – peut différer en cas de commande manuelle ou de programme de l’appareil."],
     "COP": ["Jahresarbeitszahl der Klimaanlage als Wärmepumpe. 3 bedeutet: 1 kWh Strom liefert 3 kWh Wärme. Höher ist besser.", "Seasonal performance factor of the AC as a heat pump. 3 means 1 kWh of electricity delivers 3 kWh of heat. Higher is better.", "Coefficient de performance annuel de la climatisation comme pompe à chaleur. 3 signifie que 1 kWh d’électricité fournit 3 kWh de chaleur. Plus haut est mieux."],
-    "Gaspreis": ["Preis je kWh Gas für den Vergleich mit der Klimaanlage. 0,10 €/kWh ist ein typischer Richtwert.", "Gas price per kWh for the comparison with the AC. 0.10 €/kWh is a typical reference value.", "Prix du gaz par kWh pour la comparaison avec la climatisation. 0,10 €/kWh est une valeur de référence typique."],
     "Kühlgrenze": ["Oberhalb dieser Temperatur kühlt die Klimaanlage.", "Above this temperature the air conditioning cools.", "Au-delà de cette température, la climatisation refroidit."],
     "Mindestlaufzeit": ["So lange bleibt die Klimaanlage nach dem Einschalten mindestens an. Größere Werte verhindern häufiges Takten, kosten aber Komfort.", "The air conditioner stays on for at least this long after switching on. Larger values prevent frequent cycling but cost comfort.", "La climatisation reste allumée au moins ce temps après la mise en marche. Des valeurs plus élevées évitent les cycles fréquents, mais coûtent du confort."],
     "Mindestpause": ["So lange bleibt die Klimaanlage nach dem Ausschalten mindestens aus. Das schützt den Kompressor und reduziert unnötige Starts.", "The air conditioner stays off for at least this long after switching off. This protects the compressor and reduces unnecessary starts.", "La climatisation reste éteinte au moins ce temps après l’arrêt. Cela protège le compresseur et réduit les démarrages inutiles."],
-    "Dynamischer Tarif": ["Der Tarif-Sensor liefert einen wechselnden Preis. Die Karte zeigt den aktuellen Wert; die Kostenschätzung rechnet damit.", "The tariff sensor provides a changing price. The card shows the current value; the cost estimate uses it.", "Le capteur de tarif fournit un prix variable. La carte affiche la valeur actuelle ; l’estimation des coûts l’utilise."],
-    "Preisgrenze": ["Bis zu diesem Preis gilt Strom als günstig. Nur dann wird bei „Bei günstigem Strom vorheizen“ früher gestartet.", "Electricity counts as cheap up to this price. Only then does “Preheat on cheap electricity” start earlier.", "L’électricité est considérée comme bon marché jusqu’à ce prix. Ce n’est qu’alors que « Préchauffer en cas d’électricité bon marché » démarre plus tôt."],
-    "Bei günstigem Strom vorheizen": ["Startet bis zu 60 Minuten vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt. Der Rest der Regelung bleibt unverändert.", "Starts up to 60 minutes before a schedule window when the current price is below the limit. The rest of the control remains unchanged.", "Démarre jusqu’à 60 minutes avant une plage horaire lorsque le prix actuel est sous la limite. Le reste de la régulation reste inchangé."],
     "Energie-Erfassung": ["Zähler, Tarife und PV-Ertrag auswerten.", "Analyse meters, tariffs and PV yield.", "Analyse compteurs, tarifs et rendement PV."],
     "Energiequelle": [
       "Legt fest, wie der Zähler gelesen wird: Gas in m³ über Brennwert und Zustandszahl, Heizöl in Litern über den Energieinhalt, Wärmepumpen zählen Strom und optional die erzeugte Wärme, Fernwärme zählt kWh.",
@@ -4874,11 +5122,7 @@
       "How many kWh are in one m³ of gas? Calorific value × correction factor; 10 kWh/m³ is a typical approximation. Both are shown on the gas bill.",
       "Combien de kWh contient un m³ de gaz ? Pouvoir calorifique × facteur de correction ; 10 kWh/m³ est une approximation typique. Les deux figurent sur la facture de gaz."
     ],
-    "Wärmemenge": [
-      "Optionaler Wärmemengenzähler der Wärmepumpe (kWh thermisch, dauerhaft steigend). Der Hauptzähler bleibt der Stromzähler; die Wärmemenge dient nur zur Anzeige und zum Vergleich.",
-      "Optional heat meter for the heat pump (thermal kWh, continuously increasing). The main meter stays the electricity meter; heat output is only for display and comparison.",
-      "Compteur de chaleur optionnel de la pompe à chaleur (kWh thermiques, croissant en continu). Le compteur principal reste le compteur électrique ; la chaleur produite sert seulement à l’affichage et à la comparaison."
-    ],
+    "Wärmemenge": ["Erzeugte Heizwärme der Wärmepumpe als Gesamtzähler in kWh (z. B. „Erzeugte Heizwärme gesamt“). Zusammen mit dem Stromzähler ergibt das die gemessene Arbeitszahl – und damit, was eine kWh Wärme wirklich kostet.", "Heat produced by the heat pump as a total meter in kWh (e.g. “heat produced total”). Together with the electricity meter this gives the measured efficiency – and what a kWh of heat really costs.", "Chaleur produite par la PAC en compteur total kWh (p. ex. « chaleur produite totale »). Avec le compteur électrique, cela donne le rendement mesuré – et le vrai coût d’un kWh de chaleur."],
     "Jahresarbeitszahl": [
       "Wie viel Wärme die Wärmepumpe aus einer kWh Strom macht. 3,0 ist ein guter Richtwert; 0 lässt die Angabe offen und rechnet nur mit Strom.",
       "How much heat the heat pump makes from one kWh of electricity. 3.0 is a good reference; 0 leaves it open and counts electricity only.",
@@ -4890,7 +5134,6 @@
       "Part du rendement PV couvrant votre propre consommation. À renseigner uniquement si le compteur mesure la consommation totale – avec un compteur de soutirage réseau, la part PV est déjà déduite."
     ],
     "Zähler": ["Verbrauchsquelle. Bei einer Wärmepumpe den Stromzähler der Wärmepumpe wählen (kWh, dauerhaft steigend); Tages- oder Wochenwerte mit Reset sind ungeeignet. Die Wärmemenge kommt separat in ihr eigenes Feld.", "Consumption source. For a heat pump, choose the heat pump electricity meter (kWh, continuously increasing); daily or weekly values that reset are unsuitable. Heat output goes in its own field.", "Source de consommation. Pour une pompe à chaleur, choisissez le compteur électrique de la PAC (kWh, croissant en continu) ; les valeurs journalières ou hebdomadaires qui se réinitialisent ne conviennent pas. La chaleur produite va dans son propre champ."],
-    "Tarif": ["Preis-Entität für Arbeitspreis und Grundgebühr. Bei Öl €/L, bei Gas €/m³, bei Strom €/kWh. Ohne Entität gilt der feste Preis.", "Price entity for the energy price and base fee. Oil in €/L, gas in €/m³, electricity in €/kWh. Without an entity the fixed price applies.", "Entité de prix pour le prix de l’énergie et les frais fixes. Fioul en €/L, gaz en €/m³, électricité en €/kWh. Sans entité, le prix fixe s’applique."],
     "PV-Ertrag": ["PV-Erzeugung oder Einspeisung als Gesamtzähler, der immer weiter steigt (kWh, `total_increasing`). Tages- oder Wochenwerte mit Reset sind ungeeignet.", "PV yield or feed-in as a lifetime total that keeps increasing (kWh, `total_increasing`). Daily or weekly values that reset are unsuitable.", "Rendement PV ou injection en compteur cumulé qui augmente en continu (kWh, `total_increasing`). Les valeurs journalières ou hebdomadaires qui se réinitialisent ne conviennent pas."],
     "Aktuell": ["Aktueller Messwert der gewählten Entität.", "Current reading of the selected entity.", "Valeur actuelle de l’entité choisie."],
     "Entitäten": ["Anzahl aller Entitäten in Home Assistant.", "Number of all entities in Home Assistant.", "Nombre de toutes les entités dans Home Assistant."],
@@ -4903,13 +5146,13 @@
     "Zeitzone": ["Zeitzone von Home Assistant.", "Home Assistant time zone.", "Fuseau horaire de Home Assistant."],
     "Preisbasis": ["Ob der Tarif-Sensor brutto oder netto liefert.", "Whether the tariff sensor reports gross or net.", "Si le capteur de tarif indique brut ou net."],
     "MwSt.": ["Mehrwertsteuer für den Nettopreis.", "VAT for the net price.", "TVA pour le prix net."],
-    "Zusätzliche Abgaben": ["€/kWh für Netzentgelte oder Abgaben, die der Sensor nicht enthält.", "€/kWh for network charges or levies the sensor does not include.", "€/kWh pour les charges réseau ou taxes non incluses dans le capteur."],
+    "Zusätzliche Abgaben": ["Nur nötig, wenn der Preis-Sensor den reinen Börsenpreis liefert: Netzentgelt, Umlagen, Stromsteuer, Konzessionsabgabe und Aufschlag des Anbieters in €/kWh. Bei „netto“ kommt die MwSt auf beides drauf. Netzentgelte ändern sich jedes Jahr zum 1. Januar.", "Only needed if the price sensor delivers the bare exchange price: grid fee, levies, electricity tax, concession fee and supplier surcharge in €/kWh. With “net”, VAT is added to both. Grid fees change every 1 January.", "Seulement si le capteur fournit le prix de bourse brut : frais de réseau, contributions, taxe, redevance et marge du fournisseur en €/kWh. En « HT », la TVA s’ajoute aux deux. Les frais de réseau changent chaque 1er janvier."],
     "Feuchte": ["Relative Luftfeuchte aus der Wetterquelle.", "Relative humidity from the weather source.", "Humidité relative de la source météo."],
     "Sonne": ["Stand der Sonne über/unter dem Horizont.", "Sun position above/below the horizon.", "Position du soleil au-dessus/en dessous de l’horizon."],
     "Kälteeinbruch": ["Schwelle für die Kälteeinbruch-Warnung.", "Threshold for the cold-snap warning.", "Seuil d’alerte de vague de froid."],
     "Räume": ["Anzahl der Raumklima-Räume.", "Number of Raumklima rooms.", "Nombre de pièces Raumklima."],
-    "Grundpreis": ["Monatliche Grundgebühr in €.", "Monthly base fee in €.", "Frais fixes mensuels en €."],
-    "Arbeitspreis": ["Preis pro kWh – für die Euro-Schätzung.", "Price per kWh – for the euro estimate.", "Prix par kWh – pour l’estimation en euros."],
+    "Grundpreis": ["Monatliche Grundgebühr in € brutto, wie auf der Rechnung. Zählt anteilig zu den Kosten des Zeitraums.", "Monthly base fee in € gross, as on the bill. Counted pro rata in the period’s costs.", "Abonnement mensuel en € TTC, comme sur la facture. Compté au prorata dans les coûts de la période."],
+    "Arbeitspreis": ["Fester Preis je kWh brutto von der Rechnung. Gilt, wenn keine Preisquelle gewählt ist oder keine einen Wert liefert.", "Fixed price per kWh gross from the bill. Used when no price source is chosen or none delivers a value.", "Prix fixe par kWh TTC de la facture. Utilisé si aucune source de prix n’est choisie ou n’en fournit."],
     "Ölpreis": ["Preis je Liter Heizöl. Raumklima rechnet ihn über den Energieinhalt auf kWh um.", "Price per litre of heating oil. Raumklima converts it to kWh via the energy content.", "Prix du litre de fioul. Raumklima le convertit en kWh via le contenu énergétique."],
     "kWh je Liter": ["Energieinhalt eines Liters Heizöl. 10 kWh/L ist ein typischer Näherungswert; genau steht er auf der Lieferung.", "Energy content of one litre of heating oil. 10 kWh/L is a typical approximation; the exact value is on the delivery note.", "Contenu énergétique d’un litre de fioul. 10 kWh/L est une approximation typique ; la valeur exacte figure sur la livraison."],
     "Tankfüllstand": ["Optionaler Fühler für den Öltank. Aus sinkendem Füllstand schätzt Raumklima Verbrauch und Resttage; Nachfüllungen werden ignoriert.", "Optional oil tank sensor. From a falling level Raumklima estimates consumption and remaining days; refills are ignored.", "Capteur facultatif du réservoir de fioul. À partir du niveau qui baisse, Raumklima estime la consommation et les jours restants ; les remplissages sont ignorés."],
@@ -5594,7 +5837,17 @@
       "Vorlauf minus Rücklauf unter diesem Wert deutet auf zu wenig Durchfluss hin. Dann Pumpe, Ventile und hydraulischen Abgleich prüfen.",
       "Flow minus return below this value suggests too little flow. Then check the pump, valves and hydraulic balancing.",
       "Départ moins retour sous cette valeur indique un débit trop faible. Vérifier alors la pompe, les vannes et l’équilibrage hydraulique."
-    ]
+    ],
+    "Dynamischer Tarif": ["Der Preis wechselt jede Stunde oder Viertelstunde. Raumklima rechnet dann jede Stunde mit ihrem eigenen Preis und zeigt im Dashboard Preiskurve, günstige Stunden und den im Schnitt bezahlten Preis. Gesteuert wird nichts.", "The price changes every hour or quarter hour. Raumklima then charges each hour at its own price and shows the price curve, cheap hours and the average price paid on the dashboard. Nothing is controlled.", "Le prix change chaque heure ou quart d’heure. Raumklima calcule alors chaque heure à son propre prix et affiche la courbe, les heures bon marché et le prix moyen payé. Rien n’est piloté."],
+    "Warmwasser-Zähler": ["Zähler, der nur das Warmwasser misst (bei Wärmepumpen oft „Verbrauchte Warmwasserenergie gesamt“). Warmwasser zählt zu den Kosten, erscheint im Dashboard aber als eigener Balken – die Raumkosten zeigen nur das Heizen.", "Meter that measures hot water only (for heat pumps often “consumed hot water energy total”). Hot water counts towards the costs but shows as its own bar on the dashboard – room costs only cover heating.", "Compteur qui ne mesure que l’eau chaude (pour les PAC souvent « énergie eau chaude consommée totale »). L’eau chaude compte dans les coûts mais apparaît à part – les coûts par pièce ne couvrent que le chauffage."],
+    "Warmwasser-Wärme": ["Erzeugte Wärme fürs Warmwasser in kWh. Zusammen mit dem Warmwasser-Zähler ergibt das die Arbeitszahl beim Warmwasser – meist niedriger als beim Heizen, weil das Wasser heißer wird.", "Heat produced for hot water in kWh. Together with the hot water meter this gives the hot water efficiency – usually lower than for heating because the water gets hotter.", "Chaleur produite pour l’eau chaude en kWh. Avec le compteur d’eau chaude, cela donne le rendement pour l’eau chaude – souvent plus bas qu’en chauffage car l’eau est plus chaude."],
+    "Hausverbrauch": ["Stromverbrauch des ganzen Hauses als Gesamtzähler in kWh – vom Smart Meter, Energiemanager oder Wechselrichter. Damit zeigt das Dashboard, welchen Anteil die Heizung am Hausstrom hat.", "Electricity use of the whole house as a total meter in kWh – from a smart meter, energy manager or inverter. The dashboard then shows the heating’s share of house electricity.", "Consommation électrique de toute la maison en compteur total kWh – compteur communicant, gestionnaire d’énergie ou onduleur. Le tableau de bord montre alors la part du chauffage."],
+    "Netzbezug": ["Strom, der aus dem Netz kam (Gesamtzähler in kWh). Mit dem Hausverbrauch rechnet Raumklima jede Stunde aus, wie viel Strom aus PV und Batterie kam – dieser Anteil kostet nichts und wird von den Heizkosten abgezogen.", "Electricity drawn from the grid (total meter in kWh). Together with house consumption, Raumklima works out every hour how much came from PV and battery – that share is free and is deducted from the heating cost.", "Électricité soutirée du réseau (compteur total en kWh). Avec la consommation de la maison, Raumklima calcule chaque heure la part du PV et de la batterie – gratuite et déduite du coût du chauffage."],
+    "Preisquelle": ["Sensor mit dem Arbeitspreis. Am besten der Sensor deines Anbieters, weil er Netzentgelt und MwSt schon enthält. Ohne Sensor gilt der feste Arbeitspreis. Einheit egal: €/kWh, ct/kWh, €/MWh, €/m³ oder €/L werden umgerechnet.", "Sensor with the energy price. Ideally your supplier’s sensor, as it already includes grid fee and VAT. Without a sensor the fixed price applies. Any unit works: €/kWh, ct/kWh, €/MWh, €/m³ or €/L are converted.", "Capteur du prix de l’énergie. Idéalement celui de votre fournisseur, qui inclut déjà frais de réseau et TVA. Sans capteur, le prix fixe s’applique. Toute unité convient : €/kWh, ct/kWh, €/MWh, €/m³ ou €/L sont convertis."],
+    "Reserve-Preisquellen": ["Weitere Preis-Sensoren, z. B. EPEX Spot von Energy-Charts, SMARD oder Awattar. Liefert die Hauptquelle nichts – Ausfall oder fehlender Verlauf –, nimmt Raumklima die nächste in der angetippten Reihenfolge.", "Further price sensors, e.g. EPEX Spot from Energy-Charts, SMARD or Awattar. If the main source delivers nothing – outage or missing history – Raumklima uses the next one in the order you tapped.", "Autres capteurs de prix, p. ex. EPEX Spot via Energy-Charts, SMARD ou Awattar. Si la source principale ne fournit rien – panne ou historique manquant –, Raumklima prend la suivante dans l’ordre choisi."],
+    "Grundgebühr-Anteil": ["„Ganz“, wenn die Heizung einen eigenen Zähler mit eigener Grundgebühr hat (typisch Wärmepumpentarif). „Nach Verbrauch“ bei einem gemeinsamen Hauszähler: dann zählt nur der Anteil der Heizung am Hausverbrauch.", "“All” if the heating has its own meter with its own base fee (typical for heat pump tariffs). “By usage” for a shared house meter: then only the heating’s share of house consumption counts.", "« Entier » si le chauffage a son propre compteur et abonnement (typique des tarifs PAC). « Selon consommation » pour un compteur commun : seule la part du chauffage compte."],
+    "Preis jetzt": ["Der Preis je kWh, mit dem Raumklima gerade rechnet – brutto, nach Umrechnung. Derselbe Wert gilt für Dashboard, Bericht und den Vergleich mit dem Klimagerät.", "The price per kWh Raumklima is using right now – gross, after conversion. The same value is used by the dashboard, the report and the air conditioner comparison.", "Le prix par kWh utilisé actuellement par Raumklima – TTC, après conversion. La même valeur sert au tableau de bord, au rapport et à la comparaison avec la climatisation."],
+    "Strompreis": ["Nur bei Gas, Öl oder Fernwärme: der Strompreis je kWh brutto. Er wird für den Vergleich gebraucht, ob ein Klimagerät günstiger heizt als die Hauptheizung.", "Only for gas, oil or district heating: the electricity price per kWh, gross. It is needed to compare whether an air conditioner heats more cheaply than the main heating.", "Uniquement pour gaz, fioul ou chauffage urbain : le prix de l’électricité par kWh TTC. Il sert à comparer si une climatisation chauffe moins cher que le chauffage principal."]
   };
 
   // src/fields.js
@@ -6092,94 +6345,179 @@
     },
     _groupEnergy() {
       const H = this._hubOpt.bind(this);
-      const source = H("energy_source") || "auto";
+      const raw = H("energy_source") || "auto";
+      const source = raw === "auto" ? "" : raw;
       const choices = this._cfg && this._cfg.choices || {};
-      const meters = source === "oil" ? [...new Map([...choices.energy || [], ...choices.oil || []].map((x) => [x.id, x])).values()] : choices.energy || [];
-      const heat = choices.heat || [];
-      const advanced = [
-        this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), t("monatliche Grundgebühr in €")),
-        this._row("Arbeitspreis", this._num("hub", "energy_price", H("energy_price") ?? 0.3), t("Preis pro kWh in € – gilt, wenn kein Tarif-Sensor gewählt ist")),
-        this._row("Preisbasis", this._select("hub", "energy_price_basis", [{ id: "gross", name: t("brutto") }, { id: "net", name: t("netto") }], H("energy_price_basis") || "gross"), t("brutto = inkl. MwSt./Netzentgelte; netto = der Sensor liefert den Nettopreis")),
-        this._row("MwSt.", this._num("hub", "energy_vat", H("energy_vat") ?? 19), t("nur bei netto – wird auf den Nettopreis addiert")),
-        this._row("Zusätzliche Abgaben", this._num("hub", "energy_extra_fee", H("energy_extra_fee") ?? 0), t("€/kWh – z. B. Netzentgelte, die der Sensor nicht enthält")),
-        source === "gas" || source === "auto" ? this._row("Gas-Umrechnung", this._num("hub", "energy_factor", H("energy_factor") ?? 10), t("kWh je m³ – Brennwert × Zustandszahl; 10 ist ein typischer Näherungswert")) : "",
-        source === "heatpump" ? this._row("Wärmemenge", this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– wählen –"), t("optionaler Wärmezähler der Wärmepumpe – sonst zählt nur der Strom")) : "",
-        source === "heatpump" ? this._row("Jahresarbeitszahl", this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0), t("optional: Wärme je kWh Strom (JAZ); 0 = unbekannt")) : "",
-        H("pv_entity") ? this._row("PV-Eigenverbrauch", this._num("hub", "pv_self_use", H("pv_self_use") ?? 0), t("Anteil des PV-Ertrags, der den Verbrauch deckt – nur bei Gesamtverbrauchszähler")) : "",
-        this._row(
-          "Dynamischer Tarif",
-          `<button class="tgl ${H("energy_tariff_dynamic") ? "on" : ""}" data-optbool="hub" data-key="energy_tariff_dynamic" data-val="${H("energy_tariff_dynamic") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-          t("der Tarif-Sensor liefert einen wechselnden Preis – die Karte zeigt ihn; die Kostenschätzung nutzt den aktuellen Wert")
+      const energy = choices.energy || [];
+      const meters = source === "oil" ? [...new Map([...energy, ...choices.oil || []].map((x) => [x.id, x])).values()] : energy;
+      const heat = choices.heat || energy;
+      const tariffs = choices.tariff || [];
+      const electric = source === "heatpump" || source === "electric";
+      const now = (id, empty) => id ? t("aktuell {v}", { v: this._sensorInfo(id) }) : t(empty);
+      const step = (n, title, sub) => `<div class="estep"><span class="en">${n}</span><div><b>${t(title)}</b>${sub ? `<small>${t(sub)}</small>` : ""}</div></div>`;
+      const guide = (title, lines) => `<details class="eguide"><summary><ha-icon icon="mdi:book-open-variant"></ha-icon>${t(title)}</summary><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></details>`;
+      const on = !!H("energy_enabled");
+      const head = this._row(
+        "Energie-Erfassung",
+        this._optToggle("hub", "energy_enabled", on),
+        "Zähler und Preise auswerten – Raumklima rechnet nur aus und steuert die Heizung nicht"
+      );
+      if (!on) return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", head);
+      const s1 = [
+        step(1, "Wie heizt ihr?", "bestimmt, welche Zähler und Preise abgefragt werden"),
+        this._row("Energiequelle", this._segs("hub", "energy_source", {
+          heatpump: t("Wärmepumpe"),
+          gas: t("Gas"),
+          oil: t("Heizöl"),
+          district: t("Fernwärme"),
+          electric: t("Strom direkt")
+        }, source), source ? "" : "bitte wählen – bisher automatisch erkannt"),
+        guide("Anleitung: Welche Energiequelle passt?", [
+          t("Wärmepumpe: Luft-, Sole- oder Wasser-Wärmepumpe – auch mit Heizstab, der läuft über denselben Stromzähler."),
+          t("Strom direkt: Infrarotplatten, Nachtspeicher, Elektroheizkörper – eine kWh Strom ist eine kWh Wärme."),
+          t("Gas: Brennwert- oder Heizwerttherme, auch Gasetagenheizung."),
+          t("Fernwärme: Übergabestation im Keller, abgerechnet nach Wärmemenge."),
+          t("Die Wahl ändert nichts an der Heizung selbst – sie legt nur fest, wie gerechnet wird.")
+        ])
+      ];
+      if (!source) {
+        return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [head, ...s1].join(""));
+      }
+      const meterHint = {
+        heatpump: "Strom der Wärmepumpe fürs Heizen – Gesamtzähler in kWh",
+        electric: "Strom der Heizung – Gesamtzähler in kWh",
+        gas: "Gaszähler in m³ oder kWh – Gesamtzähler",
+        oil: "Liter-Zähler des Brenners – oder leer lassen und den Tank wählen",
+        district: "Wärmemengenzähler der Übergabestation in kWh oder MWh"
+      }[source];
+      const s2 = [
+        step(2, "Was wird gemessen?", "immer Gesamtzähler, die nur steigen – keine Tages- oder Wochenwerte"),
+        this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"), now(H("energy_meter"), meterHint)),
+        source === "heatpump" ? this._row(
+          "Wärmemenge",
+          this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– keiner –"),
+          now(H("energy_heat_entity"), "erzeugte Heizwärme – damit wird die Arbeitszahl gemessen statt geschätzt")
+        ) : "",
+        source === "heatpump" && !H("energy_heat_entity") ? this._row(
+          "Jahresarbeitszahl",
+          this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0),
+          "nur ohne Wärmezähler: Wert aus dem Datenblatt, 0 = unbekannt"
+        ) : "",
+        source === "gas" ? this._row("Gas-Umrechnung", this._num("hub", "energy_factor", H("energy_factor") ?? 10), "kWh je m³ – steht auf der Gasrechnung") : "",
+        source !== "oil" ? this._row(
+          "Warmwasser-Zähler",
+          this._select("hub", "energy_ww_meter", meters, H("energy_ww_meter"), "– keiner –"),
+          now(H("energy_ww_meter"), "nur wenn Warmwasser getrennt gemessen wird – zählt dann mit zu den Kosten")
+        ) : "",
+        source === "heatpump" ? this._row(
+          "Warmwasser-Wärme",
+          this._select("hub", "energy_ww_heat_entity", heat, H("energy_ww_heat_entity"), "– keiner –"),
+          now(H("energy_ww_heat_entity"), "erzeugte Warmwasser-Wärme – für die Arbeitszahl beim Warmwasser")
+        ) : "",
+        ...source === "oil" ? [
+          this._row(
+            "Tankfüllstand",
+            this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– keiner –"),
+            now(H("energy_tank_entity"), "Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis")
+          ),
+          H("energy_tank_entity") ? this._row("Tankinhalt", this._num("hub", "energy_tank_capacity", H("energy_tank_capacity") ?? 0), "Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet") : "",
+          H("energy_tank_entity") ? this._row("Öl bestellen ab", this._num("hub", "energy_tank_min", H("energy_tank_min") ?? 20), "Restmenge in Prozent – darunter erscheint der Bestellhinweis") : "",
+          this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), "Energieinhalt – 10 kWh/L ist typisch"),
+          this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), "aus der letzten Lieferung oder dem Tankbuch"),
+          this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), "über wie viele Tage diese Liter reichten")
+        ] : [],
+        electric ? this._row(
+          "Hausverbrauch",
+          this._select("hub", "energy_house_entity", energy, H("energy_house_entity"), "– keiner –"),
+          now(H("energy_house_entity"), "optional: Stromverbrauch des ganzen Hauses in kWh")
+        ) : "",
+        electric ? this._row(
+          "Netzbezug",
+          this._select("hub", "energy_grid_entity", energy, H("energy_grid_entity"), "– keiner –"),
+          now(H("energy_grid_entity"), "optional: Strom aus dem Netz in kWh – mit Hausverbrauch zählt PV und Batterie Stunde für Stunde")
+        ) : "",
+        electric && !(H("energy_house_entity") && H("energy_grid_entity")) ? this._row(
+          "PV-Ertrag",
+          this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– keiner –"),
+          now(H("pv_entity"), "nur ohne Hausverbrauch und Netzbezug: grobe Schätzung über den Eigenverbrauch")
+        ) : "",
+        electric && H("pv_entity") && !(H("energy_house_entity") && H("energy_grid_entity")) ? this._row("PV-Eigenverbrauch", this._num("hub", "pv_self_use", H("pv_self_use") ?? 0), "Anteil des PV-Ertrags, der die Heizung deckt") : "",
+        guide("Anleitung: Den richtigen Zähler finden", [
+          t("Einstellungen → Geräte & Dienste → deine Heizung öffnen (z. B. Stiebel Eltron, Vaillant, Viessmann, Shelly am Heizungszähler)."),
+          t("Den Sensor nehmen, der „gesamt“ oder „total“ heißt und in kWh, m³ oder L zählt. Nicht „heute“ oder „letzte 24 h“ – die springen zurück."),
+          t("Wärmepumpe: Strom fürs Heizen und – wenn vorhanden – die erzeugte Heizwärme. Meldet sie Warmwasser getrennt, beides auch dort eintragen; Warmwasser zählt zu den Kosten."),
+          t("Hausverbrauch und Netzbezug: z. B. vom Smart Meter, Energiemanager oder Wechselrichter. Damit rechnet Raumklima jede Stunde, wie viel Strom aus PV und Batterie kam."),
+          t("Kein Zähler? Dann unter „Berichte“ die Heizkosten pro Jahr laut Abrechnung eintragen.")
+        ])
+      ];
+      const fb = H("energy_tariff_fallbacks") || [];
+      const primary = H("energy_tariff");
+      const others = tariffs.filter((x) => x.id !== primary);
+      const priceUnit = source === "oil" ? "€/L" : source === "gas" ? "€/kWh oder €/m³" : "€/kWh";
+      const s3 = [
+        step(3, "Was kostet die kWh?", "ein Preis für alles – Dashboard, Bericht und Vergleich rechnen gleich"),
+        source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.1), "Preis je Liter der letzten Lieferung – wird mit Datum notiert") : this._row(
+          "Preisquelle",
+          this._select("hub", "energy_tariff", tariffs, primary, "– fester Preis –"),
+          primary ? now(primary, "") : t("Sensor mit dem Arbeitspreis in {u} – oder fester Preis darunter", { u: priceUnit })
         ),
-        this._row("Preisgrenze", this._num("hub", "energy_cheap_price", H("energy_cheap_price") ?? 0.2), t("bis zu diesem Preis gilt Strom als günstig")),
-        this._row(
-          "Bei günstigem Strom vorheizen",
-          `<button class="tgl ${H("energy_preheat_cheap") ? "on" : ""}" data-optbool="hub" data-key="energy_preheat_cheap" data-val="${H("energy_preheat_cheap") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-          t("startet bis zu 60 min vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt")
-        ),
-        this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), t("Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert")),
-        this._row("Gaspreis", this._num("hub", "gas_price", H("gas_price") ?? 0.1), t("€/kWh – nur für den Vergleich „Klimaanlage oder Gas“")),
-        source === "gas" || source === "district" || source === "auto" ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), t("€/kWh – der Zähler misst Gas/Fernwärme; für „Klimaanlage oder Gas“ und günstiges Vorheizen")) : ""
-      ].join("");
-      return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [
-        this._row(
-          "Energie-Erfassung",
-          `<button class="tgl ${H("energy_enabled") ? "on" : ""}" data-optbool="hub" data-key="energy_enabled" data-val="${H("energy_enabled") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-          t("Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht")
-        ),
-        this._row(
-          "Energiequelle",
-          this._select("hub", "energy_source", [
-            { id: "auto", name: t("automatisch") },
-            { id: "gas", name: t("Gas") },
-            { id: "oil", name: t("Heizöl") },
-            { id: "heatpump", name: t("Wärmepumpe") },
-            { id: "district", name: t("Fernwärme") },
-            { id: "electric", name: t("Strom") }
-          ], source),
-          t("bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird")
-        ),
-        this._row(
-          "Zähler",
-          this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-          H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.")
-        ),
-        source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.1), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
-        source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
-        source === "oil" ? this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), t("Liter aus dem letzten Winter – für die grobe Planung")) : "",
-        source === "oil" ? this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), t("Zeitraum des letzten Winters")) : "",
+        electric && primary ? this._row(
+          "Reserve-Preisquellen",
+          `<div class="chips">${others.map((x) => {
+            const chosen = fb.includes(x.id);
+            return `<button class="chip2 ${chosen ? "" : "off"}" data-tarfb="${esc(x.id)}" title="${esc(x.id)}" ${this._admin ? "" : "disabled"}><i></i>${esc(x.name)}</button>`;
+          }).join("") || `<span class="v mute">${t("keine weiteren Preis-Sensoren")}</span>`}</div>`,
+          fb.length ? t("Reihenfolge: {l}", { l: esc(fb.map((id) => (tariffs.find((x) => x.id === id) || { name: id }).name).join(" → ")) }) : "springen ein, wenn die Hauptquelle nichts liefert – z. B. EPEX Spot"
+        ) : "",
+        source !== "oil" && !primary ? this._row("Arbeitspreis", this._num("hub", "energy_price", H("energy_price") ?? 0.3), "fester Preis je kWh, brutto – steht auf der Rechnung") : "",
         source === "oil" ? this._row(
           "Marktpreis-Entität",
-          this._select("hub", "energy_oil_market_entity", choices.oil_market || [], H("energy_oil_market_entity"), "– wählen –"),
-          H("energy_oil_market_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_oil_market_entity")) }) : t("optionaler Börsen-/Marktpreis in €/L – für den Vergleich")
+          this._select("hub", "energy_oil_market_entity", choices.oil_market || [], H("energy_oil_market_entity"), "– keiner –"),
+          now(H("energy_oil_market_entity"), "optionaler Heizöl-Marktpreis in €/L – für den Vergleich")
         ) : "",
-        source === "oil" ? this._row("Preisverlauf", this._v(
-          (() => {
-            const h = H("energy_oil_price_history") || [];
-            const last = h[h.length - 1];
-            return last ? `${esc(last.date)} · ${fmt(last.price, 2)} €/L` : t("noch kein Preis geändert");
-          })(),
-          !(H("energy_oil_price_history") || []).length
-        ), t("wird beim Ändern des Ölpreises automatisch notiert")) : "",
-        source === "oil" ? this._row(
-          "Tankfüllstand",
-          this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– wählen –"),
-          H("energy_tank_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tank_entity")) }) : t("optionaler Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis")
+        source === "oil" ? this._row("Preisverlauf", this._v((() => {
+          const h = H("energy_oil_price_history") || [];
+          const last = h[h.length - 1];
+          return last ? `${esc(last.date)} · ${fmt(last.price, 2)} €/L` : t("noch kein Preis geändert");
+        })(), !(H("energy_oil_price_history") || []).length), "wird beim Ändern des Ölpreises automatisch notiert") : "",
+        this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), "monatliche Grundgebühr in €, brutto"),
+        electric && H("energy_house_entity") ? this._row(
+          "Grundgebühr-Anteil",
+          this._segs("hub", "energy_base_share", { full: t("ganz"), usage: t("nach Verbrauch") }, H("energy_base_share") || "full"),
+          "ganz = eigener Wärmepumpen-Zähler; nach Verbrauch = gemeinsamer Hauszähler"
         ) : "",
-        source === "oil" && H("energy_tank_entity") ? this._row("Tankinhalt", this._num("hub", "energy_tank_capacity", H("energy_tank_capacity") ?? 0), t("Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet")) : "",
-        source === "oil" && H("energy_tank_entity") ? this._row("Öl bestellen ab", this._num("hub", "energy_tank_min", H("energy_tank_min") ?? 20), t("Restmenge in Prozent – darunter erscheint der Bestellhinweis")) : "",
-        this._row(
-          "Tarif",
-          this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
-          H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis")
-        ),
-        this._row(
-          "PV-Ertrag",
-          this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
-          H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – Gesamtzähler ohne Reset; optional für den Eigenverbrauch bei Strom und Wärmepumpe")
-        ),
-        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "energy_oil_factor", "energy_oil_price", "energy_tank_capacity", "energy_tank_min", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"])
-      ].join(""));
+        electric && primary ? this._row("Dynamischer Tarif", this._optToggle("hub", "energy_tariff_dynamic", !!H("energy_tariff_dynamic")), "Preis wechselt stündlich – Dashboard zeigt Preiskurve und günstige Stunden") : "",
+        this._more("energy-price", "Preis ohne Steuern und Netzentgelt?", [
+          primary ? this._row("Preisbasis", this._segs("hub", "energy_price_basis", { gross: t("brutto"), net: t("netto") }, H("energy_price_basis") || "gross"), "netto = der Sensor liefert nur den Börsen- oder Nettopreis") : "",
+          primary ? this._row("Zusätzliche Abgaben", this._num("hub", "energy_extra_fee", H("energy_extra_fee") ?? 0), "€/kWh, die im Sensor fehlen: Netzentgelt, Umlagen, Stromsteuer, Aufschlag") : "",
+          primary && H("energy_price_basis") === "net" ? this._row("MwSt.", this._num("hub", "energy_vat", H("energy_vat") ?? 19), "kommt auf Preis und Abgaben drauf") : ""
+        ].join(""), "hub", ["energy_price_basis", "energy_extra_fee", "energy_vat"]),
+        this._row("Preis jetzt", this._v(`${fmt(this._energyPriceNow(), 3)} €/kWh`, false), this._energyPriceSub(source)),
+        guide("Anleitung: Welcher Preis ist der richtige?", [
+          t("Am besten der Preis-Sensor deines Anbieters (z. B. 1KOMMA5°, Tibber, Octopus, Rabot): er kennt dein Netzentgelt und die MwSt – nichts weiter eintragen."),
+          t("Zweitbeste Quelle: die Integration „EPEX Spot“ aus dem Marketplace. Der Börsenpreis ist überall in Deutschland gleich; regional verschieden ist das Netzentgelt."),
+          t("Den Sensor „Total Price“ von EPEX Spot wählen, wenn dort Aufschlag und MwSt eingetragen sind. Sonst „Market Price“ wählen und hier unter „Preis ohne Steuern und Netzentgelt?“ auf netto stellen und die Abgaben eintragen."),
+          t("Netzentgelt finden: Netzbetreiber steht auf der Stromrechnung. Auf dessen Website „Preisblatt Netzentgelte Strom“, Zeile Haushalt / ohne Leistungsmessung, Arbeitspreis in ct/kWh."),
+          t("Netzentgelte ändern sich jedes Jahr zum 1. Januar – dann den Wert prüfen. Eine amtliche Tabelle zum Abrufen gibt es nicht."),
+          t("Mehrere Quellen: die erste ist die Hauptquelle, Reserven springen ein, wenn sie nichts liefert. Fester Arbeitspreis: Preis je kWh von der Rechnung, brutto.")
+        ])
+      ];
+      const s4 = [
+        step(4, "Vergleich mit Klimagerät", "nur wenn ein Klimagerät auch heizen darf"),
+        this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)"),
+        !electric ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon") : ""
+      ];
+      const rows = [head, ...s1, ...s2, ...s3, this._more("energy-ac", "Vergleich mit Klimagerät", s4.join(""), "hub", ["ac_cop", "electric_price"])].join("");
+      return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", rows);
+    },
+    _energyPriceNow() {
+      const e = (this._cfg && this._cfg.hub && this._cfg.hub.state || {}).energy || {};
+      return e.price ?? 0;
+    },
+    _energyPriceSub(source) {
+      const e = (this._cfg && this._cfg.hub && this._cfg.hub.state || {}).energy || {};
+      if (e.source_name) return t("aus {s}", { s: esc(e.source_name) });
+      return source === "oil" ? "Ölpreis je Liter umgerechnet auf kWh" : "gleicher Wert wie im Dashboard und im Bericht";
     },
     _groupWeather() {
       const H = this._hubOpt.bind(this);
@@ -8260,6 +8598,15 @@
         this._local = this._local || {};
         this._local["hub:guests_rooms"] = next;
         this._setHub({ guests_rooms: next }, 300);
+        this._flash(t("Gespeichert"));
+      });
+      on("click", "[data-tarfb]", (el) => () => {
+        const id = el.dataset.tarfb;
+        const cur = [...this._hubOpt("energy_tariff_fallbacks") || []];
+        const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
+        this._local = this._local || {};
+        this._local["hub:energy_tariff_fallbacks"] = next;
+        this._setHub({ energy_tariff_fallbacks: next }, 300);
         this._flash(t("Gespeichert"));
       });
       on("click", "[data-workzone]", (el) => () => {
@@ -10458,6 +10805,40 @@
     district: "Fernwärme",
     oil: "Heizöl"
   };
+  var ENERGY_STYLES = `
+  .equal { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .eq { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:.76rem; font-weight:600; }
+  .eq ha-icon { --mdc-icon-size:14px; }
+  .eq.ok { background:color-mix(in srgb, var(--rk-ok) 14%, transparent); color:color-mix(in srgb, var(--rk-ok) 70%, var(--primary-text-color)); }
+  .eq.warn { background:color-mix(in srgb, var(--rk-warn) 14%, transparent); color:color-mix(in srgb, var(--rk-warn) 70%, var(--primary-text-color)); }
+  .egrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:10px; margin-top:12px; }
+  .ebox { border-radius:16px; padding:12px 14px; background:color-mix(in srgb, var(--primary-text-color) 4%, transparent); min-width:0; }
+  .ebox:first-child { grid-column:1 / -1; }
+  .ebox .eh { display:flex; align-items:center; gap:7px; font-size:.9rem; margin-bottom:8px; }
+  .ebox .eh ha-icon { --mdc-icon-size:18px; color:var(--tone); }
+  .echart { width:100%; height:150px; display:block; }
+  .echart .bheat, .eleg i.bheat { fill:var(--rk-heat); background:var(--rk-heat); }
+  .echart .bww, .eleg i.bww { fill:var(--rk-air); background:var(--rk-air); }
+  .echart .ltemp { fill:none; stroke:var(--rk-cold); stroke-width:2; vector-effect:non-scaling-stroke; }
+  .eleg i.ltemp { height:2px !important; background:var(--rk-cold); }
+  .eleg { display:flex; gap:14px; flex-wrap:wrap; font-size:.76rem; color:var(--secondary-text-color); margin-top:4px; }
+  .eleg span { display:inline-flex; align-items:center; gap:5px; }
+  .eleg i { display:inline-block; width:10px; height:10px; border-radius:2px; }
+  .eaxis { display:flex; justify-content:space-between; font-size:.72rem; color:var(--secondary-text-color); margin-top:2px; }
+  .estrip { display:flex; align-items:flex-end; gap:1px; height:90px; }
+  .estrip i { flex:1; border-radius:2px 2px 0 0; background:color-mix(in srgb, var(--primary-text-color) 18%, transparent); }
+  .estrip i.cheap { background:var(--rk-ok); }
+  .estrip i.dear { background:var(--rk-warn); }
+  .estrip i.now { outline:2px solid var(--primary-text-color); outline-offset:1px; }
+  .erooms { display:grid; gap:7px; }
+  .eroom { display:grid; grid-template-columns:minmax(70px,120px) 1fr auto; gap:10px; align-items:center; font-size:.84rem; }
+  .eroom span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .eroom .trk { height:8px; border-radius:4px; background:color-mix(in srgb, var(--primary-text-color) 8%, transparent); overflow:hidden; }
+  .eroom .trk i { display:block; height:100%; background:var(--rk-heat); border-radius:4px; }
+  .enote { font-size:.74rem; color:var(--secondary-text-color); margin-top:8px; }
+  .eraw { margin-top:12px; }
+  .eraw summary { cursor:pointer; font-size:.86rem; font-weight:600; color:var(--secondary-text-color); padding:6px 2px; }
+`;
   var RaumklimaEnergyCard = class extends HTMLElement {
     set _html(html) {
       rkPaint(this, html);
@@ -10527,6 +10908,112 @@
     _empty(icon, text) {
       return `<div class="dempty"><ha-icon icon="${icon}"></ha-icon><div>${t(text)}</div></div>`;
     }
+    _box(title, icon, body, extra = "") {
+      return `<section class="ebox"><div class="eh"><ha-icon icon="${icon}"></ha-icon><b>${t(title)}</b>${extra}</div>${body}</section>`;
+    }
+    // Tagesbalken: Heizung + Warmwasser gestapelt, Außentemperatur als Linie
+    _dailyChart(daily) {
+      const days = (daily || []).slice(-60);
+      if (days.length < 2 || !days.some((d) => d.kwh + d.ww > 0)) return "";
+      const W = 600, Hh = 150, pad = 4;
+      const max = Math.max(...days.map((d) => d.kwh + d.ww), 0.1);
+      const bw = (W - pad * 2) / days.length;
+      const bars = days.map((d, i) => {
+        const x = pad + i * bw + bw * 0.12;
+        const w = bw * 0.76;
+        const hk = d.kwh / max * (Hh - 10);
+        const hw = d.ww / max * (Hh - 10);
+        return `<rect x="${x.toFixed(1)}" y="${(Hh - hk - hw).toFixed(1)}" width="${w.toFixed(1)}" height="${hw.toFixed(1)}" rx="2" class="bww"><title>${esc(d.date)} · ${t("Warmwasser")} ${fmt(d.ww, 1)} kWh</title></rect><rect x="${x.toFixed(1)}" y="${(Hh - hk).toFixed(1)}" width="${w.toFixed(1)}" height="${hk.toFixed(1)}" rx="2" class="bheat"><title>${esc(d.date)} · ${t("Heizung")} ${fmt(d.kwh, 1)} kWh · ${fmt(d.cost, 2)} €</title></rect>`;
+      }).join("");
+      const temps = days.map((d) => d.outdoor).filter((v) => v != null);
+      let line = "";
+      if (temps.length >= 2) {
+        const lo = Math.min(...temps) - 1, hi = Math.max(...temps) + 1;
+        const pts = days.map((d, i) => d.outdoor == null ? null : `${(pad + (i + 0.5) * bw).toFixed(1)},${(Hh - 6 - (d.outdoor - lo) / (hi - lo) * (Hh - 16)).toFixed(1)}`).filter(Boolean);
+        line = `<polyline points="${pts.join(" ")}" class="ltemp"/>`;
+      }
+      const hasWw = days.some((d) => d.ww > 0);
+      const legend = `<div class="eleg"><span><i class="bheat"></i>${t("Heizung")}</span>${hasWw ? `<span><i class="bww"></i>${t("Warmwasser")}</span>` : ""}${line ? `<span><i class="ltemp"></i>${t("Außen °C")}</span>` : ""}</div>`;
+      return `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" class="echart" role="img" aria-label="${t("Verbrauch pro Tag")}">${bars}${line}</svg>
+      <div class="eaxis"><span>${esc(days[0].date.slice(5))}</span><span>${esc(days[days.length - 1].date.slice(5))}</span></div>${legend}`;
+    }
+    // Preiskurve: günstigstes Viertel grün, teuerstes Viertel orange, jetzt markiert
+    _priceStrip(points) {
+      if (!points || points.length < 4) return "";
+      const vals = points.map((p) => p.p);
+      const sorted = [...vals].sort((a, b) => a - b);
+      const lo = sorted[Math.floor(sorted.length * 0.25)], hi = sorted[Math.floor(sorted.length * 0.75)];
+      const max = Math.max(...vals), min = Math.min(...vals);
+      const now = Date.now();
+      let cur = null;
+      const bars = points.map((p) => {
+        const tms = new Date(p.t).getTime();
+        const isNow = cur == null && tms <= now && now < tms + 3600 * 1e3 && (cur = p);
+        const h = 18 + (p.p - min) / Math.max(max - min, 1e-3) * 82;
+        const cls = p.p <= lo ? "cheap" : p.p >= hi ? "dear" : "mid";
+        return `<i class="${cls}${isNow ? " now" : ""}" style="height:${h.toFixed(0)}%" title="${esc(new Date(p.t).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" }))} · ${fmt(p.p * 100, 1)} ct"></i>`;
+      }).join("");
+      const cheapest = points.reduce((a, b) => b.p < a.p && new Date(b.t).getTime() > now ? b : a, points[points.length - 1]);
+      const first = new Date(points[0].t), last = new Date(points[points.length - 1].t);
+      const hm = (d) => d.toLocaleTimeString([], { weekday: "short", hour: "2-digit", minute: "2-digit" });
+      return `<div class="estrip">${bars}</div><div class="eaxis"><span>${esc(hm(first))}</span><span>${esc(hm(last))}</span></div>
+      <div class="drows">
+        ${cur ? this._row("Jetzt", "mdi:clock-outline", `${fmt(cur.p * 100, 1)} ct/kWh`) : ""}
+        ${this._row("Spanne", "mdi:arrow-expand-vertical", `${fmt(min * 100, 1)} – ${fmt(max * 100, 1)} ct`)}
+        ${cheapest ? this._row("Am günstigsten", "mdi:leaf", `${esc(hm(new Date(cheapest.t)))} · ${fmt(cheapest.p * 100, 1)} ct`) : ""}
+      </div>`;
+    }
+    _rawRows(d, e) {
+      const tank = e.tank || null;
+      const market = e.oil_market || null;
+      const tankValue = tank ? tank.current_percent != null ? fmt(tank.current_percent, 0) : tank.current_l != null ? fmt(tank.current_l, 0) : "–" : "–";
+      const tankUnit = tank && tank.current_percent != null ? " %" : " L";
+      const ent = (id) => `<span data-more="${esc(id)}" style="cursor:pointer">${esc(id)}</span>`;
+      return [
+        this._row("Quelle", "mdi:transmission-tower", esc(this._source(e))),
+        e.meter ? this._row("Zähler", "mdi:counter", ent(e.meter)) : "",
+        e.heat_entity ? this._row("Wärmezähler", "mdi:radiator", ent(e.heat_entity)) : "",
+        e.ww_meter ? this._row("Warmwasser-Zähler", "mdi:water-boiler", ent(e.ww_meter)) : "",
+        e.house_entity ? this._row("Hausverbrauch", "mdi:home-lightning-bolt-outline", ent(e.house_entity)) : "",
+        e.grid_entity ? this._row("Netzbezug", "mdi:transmission-tower-import", ent(e.grid_entity)) : "",
+        e.source === "oil" ? this._row("Ölpreis", "mdi:oil", `${fmt(e.oil_price, 2)} €/L`) : "",
+        tank ? this._row("Tankverbrauch", "mdi:chart-timeline-variant", tank.consumed_l != null ? `${fmt(tank.consumed_l, 1)} L` : "–") : "",
+        tank ? this._row("Reicht noch", "mdi:calendar-clock", tank.days_left != null ? t("{n} Tage", { n: tank.days_left }) : t("lernt noch")) : "",
+        tank ? this._row("Ölbestellung", "mdi:truck-delivery-outline", tank.order ? t("jetzt bestellen") : t("noch Zeit")) : "",
+        tank ? this._row("Tank", "mdi:oil-level", `${tankValue}${tankUnit}${tank.threshold_l != null ? ` · ${t("Schwelle {v} L", { v: fmt(tank.threshold_l, 0) })}` : ""}`) : "",
+        e.winter_liters ? this._row("Letzter Winter", "mdi:snowflake", `${fmt(e.winter_liters, 0)} L${e.winter_days ? ` · ${t("{n} Tage", { n: e.winter_days })}` : ""}`) : "",
+        e.winter_avg_l_day != null ? this._row("Ø Verbrauch", "mdi:chart-timeline-variant", `${fmt(e.winter_avg_l_day, 1)} L/Tag`) : "",
+        market ? this._row("Marktpreis", "mdi:chart-line", market.value != null ? `${fmt(market.value, 2)} €/L` : "–") : "",
+        market && market.vs_your_price != null ? this._row("Markt vs. deinem Preis", "mdi:scale-balance", `${market.vs_your_price > 0 ? "+" : ""}${fmt(market.vs_your_price, 2)} €/L`) : "",
+        e.oil_price_history && e.oil_price_history.length ? this._row("Preisverlauf", "mdi:tag-history", (() => {
+          const last = e.oil_price_history[e.oil_price_history.length - 1] || {};
+          return `${esc(last.date || "–")} · ${fmt(last.price, 2)} €/L${e.oil_price_avg != null ? ` · Ø ${fmt(e.oil_price_avg, 2)}` : ""}`;
+        })()) : "",
+        this._row("Tarif", "mdi:tag-outline", e.tariff ? `${ent(e.tariff)}${e.tariff_dynamic ? ` · ${t("dynamisch")}` : ""}` : t("fester Preis")),
+        this._row("Arbeitspreis", "mdi:currency-eur", `${fmt(e.price, 3)} €/kWh`),
+        this._row("Grundpreis", "mdi:calendar-month-outline", `${fmt(e.base, 2)} €/${t("Monat")}`),
+        e.heat_kwh != null ? this._row("Wärmemenge", "mdi:radiator", `${fmt(e.heat_kwh, 1)} kWh`) : "",
+        e.ww_heat_kwh != null ? this._row("Warmwasser-Wärme", "mdi:water-boiler", `${fmt(e.ww_heat_kwh, 1)} kWh`) : "",
+        e.efficiency > 0 ? this._row("Jahresarbeitszahl", "mdi:gauge", fmt(e.efficiency, 1)) : "",
+        e.pv_entity ? this._row("PV-Ertrag", "mdi:solar-power", `${fmt(e.pv_kwh, 1)} kWh${e.pv_self_use ? ` · ${t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) })}` : ""}`) : "",
+        e.surplus_kwh != null ? this._row("PV-Überschuss", "mdi:solar-power-variant", `${fmt(e.surplus_kwh, 1)} kWh`) : "",
+        this._row("Zeitraum", "mdi:calendar-range", `${d.start} – ${d.end}`)
+      ].join("");
+    }
+    _quality(e) {
+      const chips = [];
+      const ok = (txt) => chips.push(`<span class="eq ok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${txt}</span>`);
+      const warn = (txt) => chips.push(`<span class="eq warn"><ha-icon icon="mdi:alert-circle-outline"></ha-icon>${txt}</span>`);
+      if (e.meter) (e.kwh != null ? ok : warn)(t(e.kwh != null ? "Zähler liefert" : "Zähler ohne Statistik"));
+      if (e.source === "heatpump") (e.heat_entity ? e.cop != null ? ok : warn : warn)(t(e.heat_entity ? e.cop != null ? "Arbeitszahl gemessen" : "Wärmezähler ohne Werte" : "Arbeitszahl geschätzt – Wärmezähler fehlt"));
+      if (e.tariff) {
+        const active = (e.tariffs || []).find((x) => x.active);
+        (active ? ok : warn)(active ? t("Preis aus {s}", { s: esc(active.name) }) : t("keine Preisquelle liefert – fester Preis"));
+        if (e.tariff_dynamic) (active && active.forecast ? ok : warn)(t(active && active.forecast ? "Preisvorschau da" : "keine Preisvorschau"));
+      }
+      if (e.source_set === false) warn(t("Energiequelle bitte in den Einstellungen wählen"));
+      return chips.length ? `<div class="equal">${chips.join("")}</div>` : "";
+    }
     _body(d) {
       const e = d.energy || {};
       if (!e.enabled) {
@@ -10536,54 +11023,102 @@
         return this._empty("mdi:counter", "Noch kein Zähler, Tank oder Marktpreis gewählt. In den Einstellungen unter „Heizung & Energie“ eine Quelle auswählen.");
       }
       const money = d.money || {};
-      const kwh = e.kwh == null ? money.kwh : e.kwh;
+      const kwhHeat = e.kwh == null ? money.kwh : e.kwh;
+      const ww = e.ww_kwh || 0;
+      const total = kwhHeat == null ? null : kwhHeat + ww;
       const cost = money.period_cost;
-      const annual = money.annual;
       const basis = money.basis === "bill" ? "Abrechnung" : money.basis === "tank" ? "Tank" : money.basis === "meter" ? "Zähler" : "";
-      const meterInfo = e.liter != null ? `${fmt(e.liter, 1)} L → ${fmt(e.kwh, 1)} kWh` : e.m3 != null ? `${fmt(e.m3, 1)} m³ → ${fmt(e.kwh, 1)} kWh` : e.meter_unit || "";
       const tank = e.tank || null;
-      const tankValue = tank ? tank.current_percent != null ? fmt(tank.current_percent, 0) : tank.current_l != null ? fmt(tank.current_l, 0) : "–" : "–";
-      const tankUnit = tank && tank.current_percent != null ? " %" : " L";
-      const tankDetail = tank ? [
-        tank.current_l != null ? `${fmt(tank.current_l, 0)} L` : "",
-        tank.days_left != null ? t("reicht noch ~{d} Tage", { d: tank.days_left }) : tank.order ? t("jetzt bestellen") : t("lernt noch")
-      ].filter(Boolean).join(" · ") : "";
       const market = e.oil_market || null;
-      const marketDetail = market && market.avg_30d != null ? t("30-Tage-Ø {v} €/L", { v: fmt(market.avg_30d, 2) }) : "";
-      const pvDetail = e.pv_entity ? `${t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) })}` + (e.surplus_kwh != null ? ` · ${t("{n} kWh Überschuss", { n: fmt(e.surplus_kwh, 1) })}` : "") : "";
-      const rows = [
-        this._row("Quelle", "mdi:transmission-tower", esc(this._source(e))),
-        e.meter ? this._row("Zähler", "mdi:counter", `<span data-more="${esc(e.meter)}" style="cursor:pointer">${esc(e.meter)}</span>`) : "",
-        e.source === "oil" ? this._row("Ölpreis", "mdi:oil", `${fmt(e.oil_price, 2)} €/L`) : "",
-        e.tank ? this._row("Tank", "mdi:oil-level", `${tankValue}${tankUnit}${tank.threshold_l != null ? ` · ${t("Schwelle {v} L", { v: fmt(tank.threshold_l, 0) })}` : ""}`) : "",
-        e.tank ? this._row("Tankverbrauch", "mdi:chart-timeline-variant", tank.consumed_l != null ? `${fmt(tank.consumed_l, 1)} L` : "–") : "",
-        e.tank ? this._row("Reicht noch", "mdi:calendar-clock", tank.days_left != null ? t("{n} Tage", { n: tank.days_left }) : t("lernt noch")) : "",
-        e.tank ? this._row("Ölbestellung", "mdi:truck-delivery-outline", tank.order ? t("jetzt bestellen") : t("noch Zeit")) : "",
-        e.winter_liters ? this._row("Letzter Winter", "mdi:snowflake", `${fmt(e.winter_liters, 0)} L${e.winter_days ? ` · ${t("{n} Tage", { n: e.winter_days })}` : ""}`) : "",
-        e.winter_avg_l_day != null ? this._row("Ø Verbrauch", "mdi:chart-timeline-variant", `${fmt(e.winter_avg_l_day, 1)} L/Tag`) : "",
-        market ? this._row("Marktpreis", "mdi:chart-line", market.value != null ? `${fmt(market.value, 2)} €/L` : "–") : "",
-        market && market.vs_your_price != null ? this._row("Markt vs. deinem Preis", "mdi:scale-balance", `${market.vs_your_price > 0 ? "+" : ""}${fmt(market.vs_your_price, 2)} €/L`) : "",
-        e.oil_price_history && e.oil_price_history.length ? this._row("Preisverlauf", "mdi:tag-history", (() => {
-          const last = e.oil_price_history[e.oil_price_history.length - 1] || {};
-          return `${esc(last.date || "–")} · ${fmt(last.price, 2)} €/L${e.oil_price_avg != null ? ` · Ø ${fmt(e.oil_price_avg, 2)}` : ""}`;
-        })()) : "",
-        this._row("Tarif", "mdi:tag-outline", e.tariff ? `<span data-more="${esc(e.tariff)}" style="cursor:pointer">${esc(e.tariff)}</span>${e.tariff_dynamic ? ` · ${t("dynamisch")}` : ""}` : t("fester Preis")),
-        e.surplus_kwh != null ? this._row("PV-Überschuss", "mdi:solar-power-variant", `${fmt(e.surplus_kwh, 1)} kWh`) : "",
-        this._row("Arbeitspreis", "mdi:currency-eur", `${fmt(e.price, 2)} €/kWh`),
-        this._row("Grundpreis", "mdi:calendar-month-outline", `${fmt(e.base, 2)} €/${t("Monat")}`),
-        e.heat_kwh != null ? this._row("Wärmemenge", "mdi:radiator", `${fmt(e.heat_kwh, 1)} kWh`) : "",
-        e.efficiency > 0 ? this._row("Jahresarbeitszahl", "mdi:gauge", fmt(e.efficiency, 1)) : "",
-        e.pv_entity ? this._row("PV-Ertrag", "mdi:solar-power", `${fmt(e.pv_kwh, 1)} kWh`) : "",
-        this._row("Zeitraum", "mdi:calendar-range", `${d.start} – ${d.end}`)
-      ].join("");
-      return `<div class="dtiles">
-        ${this._tile("Verbrauch", "mdi:lightning-bolt", kwh == null ? "–" : fmt(kwh, 1), " kWh", meterInfo)}
-        ${this._tile("Kosten", "mdi:currency-eur", cost == null ? "–" : fmt(cost, 2), " €", basis ? t("Basis: {b}", { b: t(basis) }) : t("noch keine Schätzung"), "heat")}
-        ${this._tile("Jahr", "mdi:chart-timeline-variant", annual == null ? "–" : fmt(annual, 0), " €", t("Schätzung"), "ok")}
-        ${e.tank ? this._tile("Tank", "mdi:oil-level", tankValue, tankUnit, tankDetail, tank.order ? "warn" : "ok") : ""}
-        ${market ? this._tile("Markt", "mdi:chart-line", market.value != null ? fmt(market.value, 2) : "–", " €/L", marketDetail, market.delta_avg != null && market.delta_avg <= 0 ? "ok" : "warn") : ""}
-        ${this._tile("PV", "mdi:solar-power", e.pv_kwh == null ? "–" : fmt(e.pv_kwh, 1), " kWh", pvDetail, "ok")}
-      </div><div class="drows">${rows}</div>`;
+      const costDetail = [
+        money.per_day != null ? t("{v} € pro Tag", { v: fmt(money.per_day, 2) }) : "",
+        money.annual != null ? t("Jahr ≈ {v} €", { v: fmt(money.annual, 0) }) : money.period_cost != null ? t("Jahresprognose ab Heizsaison") : "",
+        basis ? t("Basis: {b}", { b: t(basis) }) : t("noch keine Schätzung")
+      ].filter(Boolean).join(" · ");
+      const useDetail = [
+        ww > 0 ? t("Heizung {h} · Warmwasser {w} kWh", { h: fmt(kwhHeat, 0), w: fmt(ww, 0) }) : "",
+        e.liter != null ? `${fmt(e.liter, 1)} L` : e.m3 != null ? `${fmt(e.m3, 1)} m³` : "",
+        e.house_share != null ? t("{p} % des Hausstroms", { p: fmt(e.house_share, 0) }) : ""
+      ].filter(Boolean).join(" · ");
+      const tiles = [
+        this._tile("Kosten", "mdi:currency-eur", cost == null ? "–" : fmt(cost, 2), " €", costDetail, "heat"),
+        this._tile("Verbrauch", "mdi:lightning-bolt", total == null ? "–" : fmt(total, 1), " kWh", useDetail)
+      ];
+      if (e.source === "heatpump") {
+        tiles.push(this._tile(
+          "Arbeitszahl",
+          "mdi:gauge",
+          e.cop != null ? fmt(e.cop, 1) : e.efficiency > 0 ? fmt(e.efficiency, 1) : "–",
+          "",
+          [e.cop != null ? t("Heizung, gemessen") : e.efficiency > 0 ? t("geschätzt (Datenblatt)") : t("Wärmezähler fehlt"), e.cop_ww != null ? t("Warmwasser {v}", { v: fmt(e.cop_ww, 1) }) : ""].filter(Boolean).join(" · "),
+          "ok"
+        ));
+      } else if (e.source === "district" && e.heat_kwh != null) {
+        tiles.push(this._tile("Wärme", "mdi:radiator", fmt(e.heat_kwh, 0), " kWh", "", "ok"));
+      }
+      if (e.price_paid != null && e.tariff_dynamic) {
+        tiles.push(this._tile("Bezahlt Ø", "mdi:tag-outline", fmt(e.price_paid * 100, 1), " ct", [
+          e.price_avg != null ? t("Mittel {v} ct", { v: fmt(e.price_avg * 100, 1) }) : "",
+          e.cheap_share != null ? t("{p} % in günstigen Stunden", { p: e.cheap_share }) : ""
+        ].filter(Boolean).join(" · "), e.price_avg != null && e.price_paid <= e.price_avg ? "ok" : "warn"));
+      } else {
+        tiles.push(this._tile(
+          "Preis",
+          "mdi:tag-outline",
+          fmt((e.price_now ?? e.price) * 100, 1),
+          " ct/kWh",
+          e.source === "heatpump" && e.cop ? t("Wärme {v} ct/kWh", { v: fmt((e.price_now ?? e.price) / e.cop * 100, 1) }) : t("je kWh, brutto")
+        ));
+      }
+      if (tank) {
+        const tv = tank.current_percent != null ? fmt(tank.current_percent, 0) : tank.current_l != null ? fmt(tank.current_l, 0) : "–";
+        tiles.push(this._tile(
+          "Tank",
+          "mdi:oil-level",
+          tv,
+          tank.current_percent != null ? " %" : " L",
+          [tank.current_l != null ? `${fmt(tank.current_l, 0)} L` : "", tank.days_left != null ? t("reicht noch ~{d} Tage", { d: tank.days_left }) : tank.order ? t("jetzt bestellen") : t("lernt noch")].filter(Boolean).join(" · "),
+          tank.order ? "warn" : "ok"
+        ));
+      }
+      if (market) {
+        tiles.push(this._tile(
+          "Markt",
+          "mdi:chart-line",
+          market.value != null ? fmt(market.value, 2) : "–",
+          " €/L",
+          market.avg_30d != null ? t("30-Tage-Ø {v} €/L", { v: fmt(market.avg_30d, 2) }) : "",
+          market.delta_avg != null && market.delta_avg <= 0 ? "ok" : "warn"
+        ));
+      }
+      if (e.self_kwh) {
+        tiles.push(this._tile("Aus PV & Batterie", "mdi:solar-power", fmt(e.self_kwh, 1), " kWh", t("kostet nichts – schon abgezogen"), "ok"));
+      } else if (e.pv_entity && e.pv_kwh != null) {
+        tiles.push(this._tile("PV", "mdi:solar-power", fmt(e.pv_kwh, 1), " kWh", t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) }), "ok"));
+      }
+      const boxes = [];
+      const chart = this._dailyChart(e.daily);
+      if (chart) boxes.push(this._box("Verbrauch pro Tag", "mdi:chart-bar", chart));
+      const strip = this._priceStrip(d.forecast);
+      if (strip) boxes.push(this._box("Strompreis", "mdi:chart-timeline-variant", strip));
+      const rooms = money.rooms || [];
+      if (rooms.length) {
+        const top = rooms[0].share || 1;
+        boxes.push(this._box("Wer verbraucht die Wärme?", "mdi:home-thermometer-outline", `<div class="erooms">${rooms.slice(0, 8).map((r) => `<div class="eroom"><span>${esc(r.name)}</span><div class="trk"><i style="width:${Math.max(4, 100 * r.share / top).toFixed(0)}%"></i></div><b>${fmt(r.cost, 2)} €</b></div>`).join("")}</div>
+        <div class="enote">${t("nach Ventilöffnung × Stunden – ohne Warmwasser und Grundgebühr")}</div>`));
+      }
+      const srcs = e.tariffs || [];
+      if (srcs.length > 1) {
+        boxes.push(this._box("Preisquellen", "mdi:swap-vertical", `<div class="drows">${srcs.map((x) => this._row(
+          x.primary ? "Hauptquelle" : "Reserve",
+          x.active ? "mdi:check-circle" : "mdi:circle-outline",
+          `${esc(x.name)} · ${x.value != null ? `${fmt(x.value * 100, 1)} ct` : t("liefert nichts")}`
+        )).join("")}</div>`));
+      }
+      return `<div class="dtiles">${tiles.join("")}</div>
+      ${this._quality(e)}
+      ${boxes.length ? `<div class="egrid">${boxes.join("")}</div>` : ""}
+      <details class="eraw"><summary>${t("Details und Sensoren")}</summary><div class="drows">${this._rawRows(d, e)}</div></details>`;
     }
     _render() {
       if (!this._hass) return;
@@ -10594,7 +11129,7 @@
       else body = this._body(d);
       const title = this._config.title || t("Energie");
       const sub = d ? `${t("Letzte {n} Tage", { n: d.days })} · ${d.start} – ${d.end}` : t("Zähler, Tarif und Kosten");
-      this._html = `<style>${STYLES}${DASH_STYLES}</style>
+      this._html = `<style>${STYLES}${DASH_STYLES}${ENERGY_STYLES}</style>
       <ha-card class="dashcard" style="--tone:${toneVar("warn")}">
         <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:lightning-bolt-outline"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div>
           <div class="dseg">${[1, 7, 30, 90, 180, 365].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${n === 1 ? t("Heute") : t("{n} Tage", { n })}</button>`).join("")}</div>

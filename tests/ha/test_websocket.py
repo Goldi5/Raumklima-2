@@ -144,6 +144,53 @@ async def test_energy_meter_config(hass: HomeAssistant, setup, hass_ws_client) -
     assert energy["meter_unit"] == "kWh"
 
 
+async def test_energy_price_sources_and_hot_water(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    """Neue Felder: Warmwasser, Hausstrom, Reserve-Preisquellen und Preisvorschau."""
+    hub, _room = setup
+    kwh = {"unit_of_measurement": "kWh", "device_class": "energy", "state_class": "total_increasing"}
+    for eid in ("sensor.wp_strom", "sensor.wp_waerme", "sensor.ww_strom", "sensor.ww_waerme", "sensor.haus", "sensor.netz"):
+        hass.states.async_set(eid, "100", kwh)
+    hass.states.async_set("sensor.anbieter", "unavailable", {"unit_of_measurement": "€/kWh"})
+    hass.states.async_set(
+        "sensor.epex_total",
+        "0.32",
+        {
+            "unit_of_measurement": "€/kWh",
+            "data": [{"start_time": "2099-01-01T00:00:00+00:00", "end_time": "2099-01-01T01:00:00+00:00", "price_per_kwh": 0.3}],
+        },
+    )
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({
+        "type": "raumklima/hub/update",
+        "changes": {
+            "energy_enabled": True,
+            "energy_source": "heatpump",
+            "energy_meter": "sensor.wp_strom",
+            "energy_heat_entity": "sensor.wp_waerme",
+            "energy_ww_meter": "sensor.ww_strom",
+            "energy_ww_heat_entity": "sensor.ww_waerme",
+            "energy_house_entity": "sensor.haus",
+            "energy_grid_entity": "sensor.netz",
+            "energy_tariff": "sensor.anbieter",
+            "energy_tariff_fallbacks": ["sensor.epex_total"],
+            "energy_tariff_dynamic": True,
+            "energy_base_share": "usage",
+        },
+    })
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    await client.send_json_auto_id({"type": "raumklima/energy", "days": 7})
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    energy = msg["result"]["energy"]
+    assert energy["ww_meter"] == "sensor.ww_strom" and energy["grid_entity"] == "sensor.netz"
+    assert energy["base_share"] == "usage"
+    assert energy["price_now"] == 0.32  # Hauptquelle liefert nichts → Reserve
+    sources = {s["entity"]: s for s in energy["tariffs"]}
+    assert sources["sensor.anbieter"]["primary"] and not sources["sensor.anbieter"]["active"]
+    assert sources["sensor.epex_total"]["active"] and sources["sensor.epex_total"]["forecast"] == 1
+
+
 async def test_energy_market_price(hass: HomeAssistant, setup, hass_ws_client) -> None:
     hub, _room = setup
     hass.states.async_set("sensor.oelmarkt", "1.05", {"unit_of_measurement": "€/L"})

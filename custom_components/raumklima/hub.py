@@ -28,15 +28,19 @@ from .const import (
     CONF_CALENDAR,
     CONF_ELECTRIC_PRICE,
     CONF_ENERGY_CHEAP_PRICE,
+    CONF_ENERGY_EXTRA_FEE,
     CONF_ENERGY_FACTOR,
     CONF_ENERGY_METER,
     CONF_ENERGY_OIL_FACTOR,
     CONF_ENERGY_OIL_PRICE,
     CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_PRICE,
+    CONF_ENERGY_PRICE_BASIS,
     CONF_ENERGY_SOURCE,
     CONF_ENERGY_TARIFF,
     CONF_ENERGY_TARIFF_DYNAMIC,
+    CONF_ENERGY_TARIFF_FALLBACKS,
+    CONF_ENERGY_VAT,
     CONF_FROST_FLOOR,
     CONF_GAS_PRICE,
     CONF_HOME_OFFICE_CHECK,
@@ -47,7 +51,6 @@ from .const import (
     CONF_NIGHT_ENTITY,
     CONF_RESIDENTS,
     CONF_SCHOOL_CALENDAR,
-    CONF_SCHOOL_SHIFT,
     CONF_ZONE,
     DOMAIN,
     HEAT_DEMAND_MIN,
@@ -62,6 +65,7 @@ from .decision_log import (
     SECRET_KEYS,
     DecisionLog,
 )
+from .energy_calc import tariff_to_kwh
 from .hub_notify import NotifyMixin
 from .hub_presence import PresenceMixin
 from .hub_season import SeasonMixin
@@ -550,31 +554,59 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
 
 
     # ------------------------------------------------------------ Energie
-    def energy_price_now(self) -> float:
-        """Aktuellen Arbeitspreis in €/kWh lesen (Tarif-Sensor oder fester Preis)."""
-        entity = self.opt(CONF_ENERGY_TARIFF)
+    def tariff_entities(self) -> list[str]:
+        """Preisquellen in Reihenfolge: Hauptquelle, dann die Reserven."""
+        out: list[str] = []
+        for eid in [self.opt(CONF_ENERGY_TARIFF), *(self.opt(CONF_ENERGY_TARIFF_FALLBACKS) or [])]:
+            if eid and eid not in out:
+                out.append(eid)
+        return out
+
+    def tariff_value(self, entity: str | None) -> float | None:
+        """Preis einer Quelle in €/kWh brutto – oder None, wenn sie gerade nichts liefert."""
         state = self.hass.states.get(entity) if entity else None
-        if state is not None:
-            try:
-                value = float(state.state)
-            except (TypeError, ValueError):
-                value = 0.0
-            if value > 0:
-                unit = str(state.attributes.get("unit_of_measurement") or "").lower().replace("³", "3")
-                if "ct" in unit or "cent" in unit:
-                    value /= 100
-                elif "/mwh" in unit:
-                    value /= 1000
-                elif "/m3" in unit or "/m^3" in unit:
-                    value /= float(self.opt(CONF_ENERGY_FACTOR) or 10.0)
-                elif "/l" in unit or "/liter" in unit:
-                    value /= float(self.opt(CONF_ENERGY_OIL_FACTOR) or 10.0)
+        if state is None:
+            return None
+        try:
+            value = float(state.state)
+        except (TypeError, ValueError):
+            return None
+        if value <= 0:
+            return None
+        factor = float(
+            self.opt(CONF_ENERGY_OIL_FACTOR) if self.energy_source() == "oil" else self.opt(CONF_ENERGY_FACTOR)
+        ) or 10.0
+        return tariff_to_kwh(
+            value,
+            state.attributes.get("unit_of_measurement"),
+            factor,
+            str(self.opt(CONF_ENERGY_PRICE_BASIS) or "gross"),
+            float(self.opt(CONF_ENERGY_VAT) or 0),
+            float(self.opt(CONF_ENERGY_EXTRA_FEE) or 0),
+        ) or None
+
+    def energy_price_now(self) -> float:
+        """Aktuellen Arbeitspreis in €/kWh – gleiche Rechnung wie im Bericht.
+
+        Erste Preisquelle, die einen Wert liefert; sonst der feste Preis (Öl: €/L umgerechnet).
+        """
+        for entity in self.tariff_entities():
+            value = self.tariff_value(entity)
+            if value is not None:
                 return round(value, 4)
         if self.energy_source() == "oil":
             oil = float(self.opt(CONF_ENERGY_OIL_PRICE) or 0)
             factor = float(self.opt(CONF_ENERGY_OIL_FACTOR) or 10.0)
             return round(oil / factor, 4) if oil > 0 and factor > 0 else 0.0
         return float(self.opt(CONF_ENERGY_PRICE) or 0)
+
+    def _price_source_name(self) -> str | None:
+        """Name der Preisquelle, die gerade den Preis liefert (None = fester Preis)."""
+        for entity in self.tariff_entities():
+            if self.tariff_value(entity) is not None:
+                state = self.hass.states.get(entity)
+                return state.name if state is not None else entity
+        return None
 
     def energy_cheap_now(self) -> bool:
         """Ist der Strom gerade günstig genug für Vorheizen?"""
@@ -612,7 +644,11 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
 
     def ac_heat_cheaper(self) -> bool:
         """Klimaanlage als Wärmepumpe günstiger als Gas? (COP, Gas- und Strompreis nötig)"""
-        fuel = self.energy_price_now() if self.energy_source() == "oil" else float(self.opt(CONF_GAS_PRICE) or 0)
+        source = self.energy_source()
+        if source in ("gas", "oil", "district"):
+            fuel = self.energy_price_now()  # ein Preis für alles – kein doppelter Gaspreis mehr
+        else:
+            fuel = float(self.opt(CONF_GAS_PRICE) or 0)
         cop = float(self.opt(CONF_AC_COP) or 0)
         electric = self.electric_price_now()
         return fuel > 0 and cop > 0 and electric > 0 and (electric / cop) < fuel
@@ -683,6 +719,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             "heat": self.heat_summary(),
             "energy": {
                 "price": self.energy_price_now(),
+                "source_name": self._price_source_name(),
                 "cheap": self.energy_cheap_now(),
                 "dynamic": bool(self.opt(CONF_ENERGY_TARIFF_DYNAMIC)),
                 "preheat_cheap": bool(self.opt(CONF_ENERGY_PREHEAT_CHEAP)),

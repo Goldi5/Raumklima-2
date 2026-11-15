@@ -12,69 +12,150 @@ export const EnergySectionMethods = {
 
   _groupEnergy() {
     const H = this._hubOpt.bind(this);
-    const source = H("energy_source") || "auto";
+    const raw = H("energy_source") || "auto";
+    const source = raw === "auto" ? "" : raw;
     const choices = (this._cfg && this._cfg.choices) || {};
+    const energy = choices.energy || [];
     const meters = source === "oil"
-      ? [...new Map([...(choices.energy || []), ...(choices.oil || [])].map((x) => [x.id, x])).values()]
-      : choices.energy || [];
-    const heat = choices.heat || [];
-    const advanced = [
-      this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), t("monatliche Grundgebühr in €")),
-      this._row("Arbeitspreis", this._num("hub", "energy_price", H("energy_price") ?? 0.3), t("Preis pro kWh in € – gilt, wenn kein Tarif-Sensor gewählt ist")),
-      this._row("Preisbasis", this._select("hub", "energy_price_basis", [{id:"gross",name:t("brutto")},{id:"net",name:t("netto")}], H("energy_price_basis") || "gross"), t("brutto = inkl. MwSt./Netzentgelte; netto = der Sensor liefert den Nettopreis")),
-      this._row("MwSt.", this._num("hub", "energy_vat", H("energy_vat") ?? 19), t("nur bei netto – wird auf den Nettopreis addiert")),
-      this._row("Zusätzliche Abgaben", this._num("hub", "energy_extra_fee", H("energy_extra_fee") ?? 0), t("€/kWh – z. B. Netzentgelte, die der Sensor nicht enthält")),
-      (source === "gas" || source === "auto") ? this._row("Gas-Umrechnung", this._num("hub", "energy_factor", H("energy_factor") ?? 10), t("kWh je m³ – Brennwert × Zustandszahl; 10 ist ein typischer Näherungswert")) : "",
-      source === "heatpump" ? this._row("Wärmemenge", this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– wählen –"), t("optionaler Wärmezähler der Wärmepumpe – sonst zählt nur der Strom")) : "",
-      source === "heatpump" ? this._row("Jahresarbeitszahl", this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0), t("optional: Wärme je kWh Strom (JAZ); 0 = unbekannt")) : "",
-      H("pv_entity") ? this._row("PV-Eigenverbrauch", this._num("hub", "pv_self_use", H("pv_self_use") ?? 0), t("Anteil des PV-Ertrags, der den Verbrauch deckt – nur bei Gesamtverbrauchszähler")) : "",
-      this._row("Dynamischer Tarif", `<button class="tgl ${H("energy_tariff_dynamic") ? "on" : ""}" data-optbool="hub" data-key="energy_tariff_dynamic" data-val="${H("energy_tariff_dynamic") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-        t("der Tarif-Sensor liefert einen wechselnden Preis – die Karte zeigt ihn; die Kostenschätzung nutzt den aktuellen Wert")),
-      this._row("Preisgrenze", this._num("hub", "energy_cheap_price", H("energy_cheap_price") ?? 0.2), t("bis zu diesem Preis gilt Strom als günstig")),
-      this._row("Bei günstigem Strom vorheizen", `<button class="tgl ${H("energy_preheat_cheap") ? "on" : ""}" data-optbool="hub" data-key="energy_preheat_cheap" data-val="${H("energy_preheat_cheap") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-        t("startet bis zu 60 min vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt")),
-      this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), t("Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert")),
-      this._row("Gaspreis", this._num("hub", "gas_price", H("gas_price") ?? 0.10), t("€/kWh – nur für den Vergleich „Klimaanlage oder Gas“")),
-      (source === "gas" || source === "district" || source === "auto") ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), t("€/kWh – der Zähler misst Gas/Fernwärme; für „Klimaanlage oder Gas“ und günstiges Vorheizen")) : "",
-    ].join("");
-    return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [
-      this._row("Energie-Erfassung", `<button class="tgl ${H("energy_enabled") ? "on" : ""}" data-optbool="hub" data-key="energy_enabled" data-val="${H("energy_enabled") ? 1 : 0}" ${this._admin ? "" : "disabled"} aria-label="${t("umschalten")}"></button>`,
-        t("Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht")),
-      this._row("Energiequelle", this._select("hub", "energy_source", [
-        { id: "auto", name: t("automatisch") },
-        { id: "gas", name: t("Gas") },
-        { id: "oil", name: t("Heizöl") },
-        { id: "heatpump", name: t("Wärmepumpe") },
-        { id: "district", name: t("Fernwärme") },
-        { id: "electric", name: t("Strom") },
-      ], source),
-        t("bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird")),
-      this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-        H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Bei Wärmepumpe den Stromzähler der WP wählen; Wärmemenge separat. Keine Tages-/Wochenwerte mit Reset.")),
-      source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.10), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
-      source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
-      source === "oil" ? this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), t("Liter aus dem letzten Winter – für die grobe Planung")) : "",
-      source === "oil" ? this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), t("Zeitraum des letzten Winters")) : "",
-      source === "oil" ? this._row("Marktpreis-Entität", this._select("hub", "energy_oil_market_entity", choices.oil_market || [], H("energy_oil_market_entity"), "– wählen –"),
-        H("energy_oil_market_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_oil_market_entity")) }) : t("optionaler Börsen-/Marktpreis in €/L – für den Vergleich")) : "",
-      source === "oil" ? this._row("Preisverlauf", this._v(
-        (() => {
-          const h = H("energy_oil_price_history") || [];
-          const last = h[h.length - 1];
-          return last ? `${esc(last.date)} · ${fmt(last.price, 2)} €/L` : t("noch kein Preis geändert");
-        })(),
-        !(H("energy_oil_price_history") || []).length,
-      ), t("wird beim Ändern des Ölpreises automatisch notiert")) : "",
-      source === "oil" ? this._row("Tankfüllstand", this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– wählen –"),
-        H("energy_tank_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tank_entity")) }) : t("optionaler Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis")) : "",
-      source === "oil" && H("energy_tank_entity") ? this._row("Tankinhalt", this._num("hub", "energy_tank_capacity", H("energy_tank_capacity") ?? 0), t("Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet")) : "",
-      source === "oil" && H("energy_tank_entity") ? this._row("Öl bestellen ab", this._num("hub", "energy_tank_min", H("energy_tank_min") ?? 20), t("Restmenge in Prozent – darunter erscheint der Bestellhinweis")) : "",
-      this._row("Tarif", this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
-        H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis")),
-      this._row("PV-Ertrag", this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
-        H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – Gesamtzähler ohne Reset; optional für den Eigenverbrauch bei Strom und Wärmepumpe")),
-      this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "energy_oil_factor", "energy_oil_price", "energy_tank_capacity", "energy_tank_min", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"]),
-    ].join(""));
+      ? [...new Map([...energy, ...(choices.oil || [])].map((x) => [x.id, x])).values()]
+      : energy;
+    const heat = choices.heat || energy;
+    const tariffs = choices.tariff || [];
+    const electric = source === "heatpump" || source === "electric";
+    const now = (id, empty) => (id ? t("aktuell {v}", { v: this._sensorInfo(id) }) : t(empty));
+    const step = (n, title, sub) => `<div class="estep"><span class="en">${n}</span><div><b>${t(title)}</b>${sub ? `<small>${t(sub)}</small>` : ""}</div></div>`;
+    const guide = (title, lines) => `<details class="eguide"><summary><ha-icon icon="mdi:book-open-variant"></ha-icon>${t(title)}</summary><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></details>`;
+    const on = !!H("energy_enabled");
+    const head = this._row("Energie-Erfassung", this._optToggle("hub", "energy_enabled", on),
+      "Zähler und Preise auswerten – Raumklima rechnet nur aus und steuert die Heizung nicht");
+    if (!on) return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", head);
+
+    // --- 1 Wie heizt ihr?
+    const s1 = [
+      step(1, "Wie heizt ihr?", "bestimmt, welche Zähler und Preise abgefragt werden"),
+      this._row("Energiequelle", this._segs("hub", "energy_source", {
+        heatpump: t("Wärmepumpe"), gas: t("Gas"), oil: t("Heizöl"), district: t("Fernwärme"), electric: t("Strom direkt"),
+      }, source), source ? "" : "bitte wählen – bisher automatisch erkannt"),
+      guide("Anleitung: Welche Energiequelle passt?", [
+        t("Wärmepumpe: Luft-, Sole- oder Wasser-Wärmepumpe – auch mit Heizstab, der läuft über denselben Stromzähler."),
+        t("Strom direkt: Infrarotplatten, Nachtspeicher, Elektroheizkörper – eine kWh Strom ist eine kWh Wärme."),
+        t("Gas: Brennwert- oder Heizwerttherme, auch Gasetagenheizung."),
+        t("Fernwärme: Übergabestation im Keller, abgerechnet nach Wärmemenge."),
+        t("Die Wahl ändert nichts an der Heizung selbst – sie legt nur fest, wie gerechnet wird."),
+      ]),
+    ];
+    if (!source) {
+      return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [head, ...s1].join(""));
+    }
+
+    // --- 2 Was wird gemessen?
+    const meterHint = {
+      heatpump: "Strom der Wärmepumpe fürs Heizen – Gesamtzähler in kWh",
+      electric: "Strom der Heizung – Gesamtzähler in kWh",
+      gas: "Gaszähler in m³ oder kWh – Gesamtzähler",
+      oil: "Liter-Zähler des Brenners – oder leer lassen und den Tank wählen",
+      district: "Wärmemengenzähler der Übergabestation in kWh oder MWh",
+    }[source];
+    const s2 = [
+      step(2, "Was wird gemessen?", "immer Gesamtzähler, die nur steigen – keine Tages- oder Wochenwerte"),
+      this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"), now(H("energy_meter"), meterHint)),
+      source === "heatpump" ? this._row("Wärmemenge", this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– keiner –"),
+        now(H("energy_heat_entity"), "erzeugte Heizwärme – damit wird die Arbeitszahl gemessen statt geschätzt")) : "",
+      source === "heatpump" && !H("energy_heat_entity") ? this._row("Jahresarbeitszahl", this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0),
+        "nur ohne Wärmezähler: Wert aus dem Datenblatt, 0 = unbekannt") : "",
+      source === "gas" ? this._row("Gas-Umrechnung", this._num("hub", "energy_factor", H("energy_factor") ?? 10), "kWh je m³ – steht auf der Gasrechnung") : "",
+      source !== "oil" ? this._row("Warmwasser-Zähler", this._select("hub", "energy_ww_meter", meters, H("energy_ww_meter"), "– keiner –"),
+        now(H("energy_ww_meter"), "nur wenn Warmwasser getrennt gemessen wird – zählt dann mit zu den Kosten")) : "",
+      source === "heatpump" ? this._row("Warmwasser-Wärme", this._select("hub", "energy_ww_heat_entity", heat, H("energy_ww_heat_entity"), "– keiner –"),
+        now(H("energy_ww_heat_entity"), "erzeugte Warmwasser-Wärme – für die Arbeitszahl beim Warmwasser")) : "",
+      ...(source === "oil" ? [
+        this._row("Tankfüllstand", this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– keiner –"),
+          now(H("energy_tank_entity"), "Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis")),
+        H("energy_tank_entity") ? this._row("Tankinhalt", this._num("hub", "energy_tank_capacity", H("energy_tank_capacity") ?? 0), "Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet") : "",
+        H("energy_tank_entity") ? this._row("Öl bestellen ab", this._num("hub", "energy_tank_min", H("energy_tank_min") ?? 20), "Restmenge in Prozent – darunter erscheint der Bestellhinweis") : "",
+        this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), "Energieinhalt – 10 kWh/L ist typisch"),
+        this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), "aus der letzten Lieferung oder dem Tankbuch"),
+        this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), "über wie viele Tage diese Liter reichten"),
+      ] : []),
+      electric ? this._row("Hausverbrauch", this._select("hub", "energy_house_entity", energy, H("energy_house_entity"), "– keiner –"),
+        now(H("energy_house_entity"), "optional: Stromverbrauch des ganzen Hauses in kWh")) : "",
+      electric ? this._row("Netzbezug", this._select("hub", "energy_grid_entity", energy, H("energy_grid_entity"), "– keiner –"),
+        now(H("energy_grid_entity"), "optional: Strom aus dem Netz in kWh – mit Hausverbrauch zählt PV und Batterie Stunde für Stunde")) : "",
+      electric && !(H("energy_house_entity") && H("energy_grid_entity")) ? this._row("PV-Ertrag", this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– keiner –"),
+        now(H("pv_entity"), "nur ohne Hausverbrauch und Netzbezug: grobe Schätzung über den Eigenverbrauch")) : "",
+      electric && H("pv_entity") && !(H("energy_house_entity") && H("energy_grid_entity")) ? this._row("PV-Eigenverbrauch", this._num("hub", "pv_self_use", H("pv_self_use") ?? 0), "Anteil des PV-Ertrags, der die Heizung deckt") : "",
+      guide("Anleitung: Den richtigen Zähler finden", [
+        t("Einstellungen → Geräte & Dienste → deine Heizung öffnen (z. B. Stiebel Eltron, Vaillant, Viessmann, Shelly am Heizungszähler)."),
+        t("Den Sensor nehmen, der „gesamt“ oder „total“ heißt und in kWh, m³ oder L zählt. Nicht „heute“ oder „letzte 24 h“ – die springen zurück."),
+        t("Wärmepumpe: Strom fürs Heizen und – wenn vorhanden – die erzeugte Heizwärme. Meldet sie Warmwasser getrennt, beides auch dort eintragen; Warmwasser zählt zu den Kosten."),
+        t("Hausverbrauch und Netzbezug: z. B. vom Smart Meter, Energiemanager oder Wechselrichter. Damit rechnet Raumklima jede Stunde, wie viel Strom aus PV und Batterie kam."),
+        t("Kein Zähler? Dann unter „Berichte“ die Heizkosten pro Jahr laut Abrechnung eintragen."),
+      ]),
+    ];
+
+    // --- 3 Was kostet die kWh?
+    const fb = H("energy_tariff_fallbacks") || [];
+    const primary = H("energy_tariff");
+    const others = tariffs.filter((x) => x.id !== primary);
+    const priceUnit = source === "oil" ? "€/L" : source === "gas" ? "€/kWh oder €/m³" : "€/kWh";
+    const s3 = [
+      step(3, "Was kostet die kWh?", "ein Preis für alles – Dashboard, Bericht und Vergleich rechnen gleich"),
+      source === "oil"
+        ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.10), "Preis je Liter der letzten Lieferung – wird mit Datum notiert")
+        : this._row("Preisquelle", this._select("hub", "energy_tariff", tariffs, primary, "– fester Preis –"),
+          primary ? now(primary, "") : t("Sensor mit dem Arbeitspreis in {u} – oder fester Preis darunter", { u: priceUnit })),
+      electric && primary ? this._row("Reserve-Preisquellen", `<div class="chips">${others.map((x) => {
+        const chosen = fb.includes(x.id);
+        return `<button class="chip2 ${chosen ? "" : "off"}" data-tarfb="${esc(x.id)}" title="${esc(x.id)}" ${this._admin ? "" : "disabled"}><i></i>${esc(x.name)}</button>`;
+      }).join("") || `<span class="v mute">${t("keine weiteren Preis-Sensoren")}</span>`}</div>`,
+        fb.length ? t("Reihenfolge: {l}", { l: esc(fb.map((id) => (tariffs.find((x) => x.id === id) || { name: id }).name).join(" → ")) }) : "springen ein, wenn die Hauptquelle nichts liefert – z. B. EPEX Spot") : "",
+      source !== "oil" && !primary ? this._row("Arbeitspreis", this._num("hub", "energy_price", H("energy_price") ?? 0.3), "fester Preis je kWh, brutto – steht auf der Rechnung") : "",
+      source === "oil" ? this._row("Marktpreis-Entität", this._select("hub", "energy_oil_market_entity", choices.oil_market || [], H("energy_oil_market_entity"), "– keiner –"),
+        now(H("energy_oil_market_entity"), "optionaler Heizöl-Marktpreis in €/L – für den Vergleich")) : "",
+      source === "oil" ? this._row("Preisverlauf", this._v((() => {
+        const h = H("energy_oil_price_history") || [];
+        const last = h[h.length - 1];
+        return last ? `${esc(last.date)} · ${fmt(last.price, 2)} €/L` : t("noch kein Preis geändert");
+      })(), !(H("energy_oil_price_history") || []).length), "wird beim Ändern des Ölpreises automatisch notiert") : "",
+      this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), "monatliche Grundgebühr in €, brutto"),
+      electric && H("energy_house_entity") ? this._row("Grundgebühr-Anteil", this._segs("hub", "energy_base_share", { full: t("ganz"), usage: t("nach Verbrauch") }, H("energy_base_share") || "full"),
+        "ganz = eigener Wärmepumpen-Zähler; nach Verbrauch = gemeinsamer Hauszähler") : "",
+      electric && primary ? this._row("Dynamischer Tarif", this._optToggle("hub", "energy_tariff_dynamic", !!H("energy_tariff_dynamic")), "Preis wechselt stündlich – Dashboard zeigt Preiskurve und günstige Stunden") : "",
+      this._more("energy-price", "Preis ohne Steuern und Netzentgelt?", [
+        primary ? this._row("Preisbasis", this._segs("hub", "energy_price_basis", { gross: t("brutto"), net: t("netto") }, H("energy_price_basis") || "gross"), "netto = der Sensor liefert nur den Börsen- oder Nettopreis") : "",
+        primary ? this._row("Zusätzliche Abgaben", this._num("hub", "energy_extra_fee", H("energy_extra_fee") ?? 0), "€/kWh, die im Sensor fehlen: Netzentgelt, Umlagen, Stromsteuer, Aufschlag") : "",
+        primary && H("energy_price_basis") === "net" ? this._row("MwSt.", this._num("hub", "energy_vat", H("energy_vat") ?? 19), "kommt auf Preis und Abgaben drauf") : "",
+      ].join(""), "hub", ["energy_price_basis", "energy_extra_fee", "energy_vat"]),
+      this._row("Preis jetzt", this._v(`${fmt(this._energyPriceNow(), 3)} €/kWh`, false), this._energyPriceSub(source)),
+      guide("Anleitung: Welcher Preis ist der richtige?", [
+        t("Am besten der Preis-Sensor deines Anbieters (z. B. 1KOMMA5°, Tibber, Octopus, Rabot): er kennt dein Netzentgelt und die MwSt – nichts weiter eintragen."),
+        t("Zweitbeste Quelle: die Integration „EPEX Spot“ aus dem Marketplace. Der Börsenpreis ist überall in Deutschland gleich; regional verschieden ist das Netzentgelt."),
+        t("Den Sensor „Total Price“ von EPEX Spot wählen, wenn dort Aufschlag und MwSt eingetragen sind. Sonst „Market Price“ wählen und hier unter „Preis ohne Steuern und Netzentgelt?“ auf netto stellen und die Abgaben eintragen."),
+        t("Netzentgelt finden: Netzbetreiber steht auf der Stromrechnung. Auf dessen Website „Preisblatt Netzentgelte Strom“, Zeile Haushalt / ohne Leistungsmessung, Arbeitspreis in ct/kWh."),
+        t("Netzentgelte ändern sich jedes Jahr zum 1. Januar – dann den Wert prüfen. Eine amtliche Tabelle zum Abrufen gibt es nicht."),
+        t("Mehrere Quellen: die erste ist die Hauptquelle, Reserven springen ein, wenn sie nichts liefert. Fester Arbeitspreis: Preis je kWh von der Rechnung, brutto."),
+      ]),
+    ];
+
+    // --- 4 Vergleich mit Klimagerät
+    const s4 = [
+      step(4, "Vergleich mit Klimagerät", "nur wenn ein Klimagerät auch heizen darf"),
+      this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)"),
+      !electric ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon") : "",
+    ];
+    const rows = [head, ...s1, ...s2, ...s3, this._more("energy-ac", "Vergleich mit Klimagerät", s4.join(""), "hub", ["ac_cop", "electric_price"])].join("");
+    return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", rows);
+  },
+
+  _energyPriceNow() {
+    const e = ((this._cfg && this._cfg.hub && this._cfg.hub.state) || {}).energy || {};
+    return e.price ?? 0;
+  },
+
+  _energyPriceSub(source) {
+    const e = ((this._cfg && this._cfg.hub && this._cfg.hub.state) || {}).energy || {};
+    if (e.source_name) return t("aus {s}", { s: esc(e.source_name) });
+    return source === "oil" ? "Ölpreis je Liter umgerechnet auf kWh" : "gleicher Wert wie im Dashboard und im Bericht";
   },
 
   _groupWeather() {

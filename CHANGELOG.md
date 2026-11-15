@@ -1,3 +1,27 @@
+## 1.3.0b6 – 2026-11-15
+
+### Neu
+- **Energie & Tarife neu aufgebaut:** vier Schritte – *Wie heizt ihr?*, *Was wird gemessen?*, *Was kostet die kWh?*, *Vergleich mit Klimagerät* – mit aufklappbarer Anleitung je Schritt und einer Erklärung hinter jedem **?**. Es erscheinen nur die Felder, die zur gewählten Heizung passen; „automatisch“ als Energiequelle entfällt.
+- **Warmwasser:** eigener Zähler für Strom und – bei Wärmepumpen – erzeugte Wärme. Warmwasser zählt zu den Kosten, erscheint aber als eigener Balken; die Kosten je Raum zeigen nur das Heizen.
+- **Hausstrom:** optional Hausverbrauch und Netzbezug. Daraus Anteil der Heizung am Hausstrom und – Stunde für Stunde – wie viel Strom aus PV und Batterie kam (kostet nichts).
+- **Preisquellen mit Reserve:** eine Hauptquelle (z. B. Sensor des Anbieters) und beliebig viele Reserven (z. B. EPEX Spot von Energy-Charts, SMARD, Awattar). Liefert die Hauptquelle nichts, springt die nächste ein – auch im Verlauf, Stunde für Stunde.
+- **Preisvorschau:** gelesen aus EPEX Spot (`data`), 1KOMMA5° (`forecast`), Nordpool (`raw_today`) und Tibber-Formaten; das Dashboard zeigt die Strompreis-Kurve mit günstigen und teuren Stunden.
+- **Energie-Dashboard neu:** Kosten mit Tageswert und Jahresprognose, Verbrauch Heizung + Warmwasser, gemessene Arbeitszahl, bezahlter Ø-Preis gegen Tagesmittel und Anteil günstiger Stunden, Tagesbalken mit Außentemperatur, Kosten je Raum, Preisquellen und Hinweise zur Datenqualität; Sensor-Details eingeklappt.
+- **Grundgebühr-Anteil:** ganz (eigener Wärmepumpen-Zähler) oder nach Anteil am Hausverbrauch.
+
+### Behoben
+- **Dynamischer Tarif:** Kosten werden jetzt als Σ kWh × Preis der jeweiligen Stunde gerechnet statt mit dem ungewichteten Durchschnittspreis.
+- **Gleicher Preis überall:** Netto/MwSt und Abgaben gelten jetzt auch für den Preis in der Steuerung (Klimagerät-Vergleich), nicht nur im Bericht. Bei netto kommt die MwSt auf Preis *und* Abgaben.
+- **Jahresprognose:** einheitlich nach Gradtagen (Warmwasser und Grundgebühr nach Tagen); zu wenige Heiztage → keine Hochrechnung statt einer linearen Schätzung.
+- **Preis-Sensoren ohne Statistik** (ohne `state_class`) werden aus dem Verlauf gemittelt.
+- Bei Gas, Öl und Fernwärme nutzt der Klimagerät-Vergleich den Preis aus *Energie & Tarife* – kein doppelter Gaspreis mehr.
+
+### Entfernt
+- Einstellungen „Preisgrenze“ und „Bei günstigem Strom vorheizen“ sind ausgeblendet: Raumklima rechnet bei der Energie nur aus und steuert nichts.
+
+### Tests
+- Preis-Umrechnung, Preisvorschau-Formate, Kosten je Stunde, PV-Anteil, Arbeitszahl, Warmwasser in der Hochrechnung, Grundgebühr-Anteil, Reserve-Preisquelle.
+
 ## 1.3.0b5 – 2026-11-15
 
 ### Neu

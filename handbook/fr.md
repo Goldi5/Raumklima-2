@@ -315,6 +315,17 @@ Si vous saisissez vos **frais de chauffage par an** sous *Réglages → Généra
 - **Sur votre téléphone :** le message push contient un bouton **Ouvrir le PDF**.
 - **Par e-mail :** *Réglages → Général → Rapports → PDF par e-mail* → touchez **Configurer l’e-mail** juste en dessous, choisissez votre fournisseur (par ex. Gmail), saisissez l’utilisateur, le mot de passe et les destinataires, testez-les avec **Vérifier la connexion**, puis touchez **Enregistrer et envoyer un e-mail de test**. Gmail, iCloud et Outlook nécessitent un mot de passe d’application.
 
+### Énergie et tarifs
+
+Sous *Réglages → Général → Énergie et tarifs*, quatre étapes guident la configuration – chacune avec un **guide** dépliable, chaque ligne avec un **?**. Raumklima ne fait que calculer : il ne pilote ni la pompe à chaleur ni la chaudière.
+
+1. **Comment chauffez-vous ?** Pompe à chaleur, gaz, fioul, chauffage urbain ou électrique direct. Seuls les champs utiles s’affichent.
+2. **Que mesure-t-on ?** Toujours des compteurs totaux croissants. Pour une PAC, l’électricité *et* – si disponible – la chaleur produite : le **rendement est alors mesuré**. L’**eau chaude** peut avoir son propre compteur et compte dans les coûts, affichée à part. Avec **consommation de la maison** et **soutirage réseau**, Raumklima calcule chaque heure la part venant du PV et de la batterie – gratuite.
+3. **Combien coûte le kWh ?** Une **source de prix** (idéalement le capteur de votre fournisseur) et des **réserves** (p. ex. EPEX Spot) qui prennent le relais. Avec un tarif dynamique, chaque heure compte à son propre prix. Si le capteur ne donne que le prix de bourse, passer en HT et saisir frais de réseau et taxes – ils changent chaque 1er janvier.
+4. **Comparaison avec la climatisation :** seulement le COP ; le prix de l’électricité vient de l’étape 3.
+
+Le tableau de bord *Énergie* affiche coûts et prévision, consommation (chauffage + eau chaude), rendement, prix moyen payé, barres journalières avec température extérieure, courbe de prix, coût par pièce, sources de prix et indications sur la qualité des données.
+
 ### Fioul et réservoir
 
 Sous *Réglages → Général → Chauffage & énergie*, choisissez **Fioul** comme source. Un compteur de fioul en litres est converti via son contenu énergétique (10 kWh/L par défaut), le prix se saisit par litre. Un **capteur de niveau du réservoir** affiche facultativement la quantité restante ; Raumklima estime la consommation et les jours restants à partir du niveau qui baisse, ignore les remplissages et rappelle de commander lorsque la quantité restante configurée ou 14 jours de réserve sont atteints. Les petites variations du niveau ne comptent pas comme consommation : c’est la différence nette entre deux remplissages qui est utilisée. Sous « Dernier hiver », saisissez les litres et les jours ; le prix du fioul est noté avec sa date dans l’historique des prix. Vous pouvez aussi choisir une entité de prix du marché en €/L ; la carte affiche le prix actuel, la comparaison sur 30 jours et l’écart avec votre prix.
@@ -466,7 +477,7 @@ sont enregistrés – l'année n'a pas d'importance.
 - **Commande directe de vanne :** pour les thermostats avec actionneur `number`, p. ex. SONOFF TRVZB.
 - **Climatisation :** refroidit et chauffe avec des consignes séparées et une protection anti-cycle ; source la moins chère selon COP/prix du gaz. Si le compteur mesure le gaz ou le réseau de chaleur, saisir le prix de l’électricité sous *Énergie & tarifs* – sinon pas de comparaison.
 - **Demande de chaleur :** le capteur `sensor.raumklima_allgemein_warmeanforderung` agrège toutes les pièces.
-- **Tarifs dynamiques/PV :** limite de prix, préchauffage si bon marché, surplus PV.
+- **Tarifs dynamiques/PV :** source de prix avec réserves, coûts heure par heure, PV et batterie via consommation et soutirage.
 - **Commande manuelle :** bouton « Reprendre le programme » ou « Reprendre la température souhaitée » sur la carte de pièce.
 
 # Questions fréquentes
