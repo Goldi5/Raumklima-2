@@ -1,3 +1,25 @@
+## 1.3.0 – 2026-11-15
+
+Die große Herbst-Version: Energie und Kosten für alle Heizungsarten, ein neuer PDF-Bericht, Heizöl mit Tank, Entfeuchter, Schulferien, Zeitplan-Helfer und Hysterese. Alle Einzelheiten stehen in den Beta-Einträgen darunter (1.2.3b1 bis 1.3.0b9).
+
+### Neu
+- **Energie & Tarife neu:** vier Schritte mit Anleitung und Erklärung bei jeder Einstellung – Wärmepumpe, Gas, Heizöl, Fernwärme oder Strom direkt. **Warmwasser** und **Hausstrom** (PV und Batterie Stunde für Stunde abgezogen), **Preisquellen mit Reserve** (z. B. Anbieter-Sensor plus EPEX Spot), Kosten bei dynamischem Tarif Stunde für Stunde. Raumklima rechnet nur aus und steuert die Heizung nicht.
+- **Energie-Dashboard neu:** Kosten mit Hochrechnung, gemessene Arbeitszahl, bezahlter Ø-Preis, Tagesbalken mit Außentemperatur, Strompreis-Kurve, Kosten je Raum, Datenqualität.
+- **PDF-Bericht neu:** Seite 1 „Auf einen Blick“ in ganzen Sätzen mit den drei besten Tipps, danach „Energie und Kosten“ und alle Details. Per E-Mail steht die Kurzfassung im Mailtext.
+- **Heizöl:** Preis je Liter, Tankfüllstand mit Reichweite und Bestellhinweis, letzter Winter, Preisverlauf, Marktpreis.
+- **Entfeuchter** je Raum, **Schulferien-Kalender** (Morgenfenster später), **Suche** in den Einstellungen.
+- **Zeitplan-Helfer** (`schedule.*`) statt eigener Zeitfenster, **Schalter und Präsenz-Sensoren** in „Gilt für Personen“, **Hysterese-Regelung** (Ventil ganz auf/zu).
+- **Gesundheitshinweis** „Thermostat heizt über dem Ziel“.
+
+### Behoben
+- Ganztägige Zeitfenster `00:00–00:00`, Abwesenheit nie wärmer als der Zeitplan, Vorheizen für zugeordnete Personen.
+- Ventil zu zählt nie als Heizen – auch im Modus „Auto“; Batteriesensoren werden nicht mehr als Ventilstellung erkannt.
+- Steuerung und Bericht rechnen mit demselben Preis (netto/MwSt/Abgaben); Jahreshochrechnung einheitlich nach Gradtagen.
+- Aufgeklappte Abschnitte bleiben beim Neuzeichnen offen; „ganztägig“ statt „00:00–00:00“ beim Lernen; ungültige Räume bei „Gäste gelten für“ werden ignoriert.
+
+### Tests
+- Backend 696 Tests, Frontend 112 Tests grün.
+
 ## 1.3.0b9 – 2026-11-15
 
 ### Neu
