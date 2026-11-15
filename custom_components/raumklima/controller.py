@@ -56,7 +56,9 @@ from .const import (
     CONF_NAME,
     CONF_OVERRIDE_MINUTES,
     CONF_PM25_SENSOR,
+    CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULE_ENTITY,
     CONF_SCHEDULE_FROM,
     CONF_SCHEDULES,
     CONF_SETBACK_LONG,
@@ -360,6 +362,9 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._unsubs.append(
             async_track_state_change_event(self.hass, tracked, self._on_state_change)
         )
+        self._aux_unsub = None
+        self.track_aux()
+        self._unsubs.append(lambda: self._aux_unsub() if self._aux_unsub else None)
         self._unsubs.append(
             async_track_time_interval(
                 self.hass, self._on_reconcile, timedelta(seconds=RECONCILE_INTERVAL)
@@ -666,8 +671,55 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         shift = hub.school_holiday_shift if hub is not None else 0
         return shift_school_schedules(self.schedules, shift)
 
+    # ------------------------------------------------------------ Zeitplan-Helfer (Issue #52)
+    @property
+    def schedule_entity(self) -> str | None:
+        """HA-Zeitplan-Helfer (schedule.*) – ersetzt die eigenen Zeitfenster, wenn gesetzt."""
+        return self.config.get(CONF_SCHEDULE_ENTITY) or None
+
+    def helper_window(self) -> tuple[bool, float | None, datetime | None] | None:
+        """(läuft gerade?, Temperatur aus dem Helfer-Block, nächster Wechsel) – None ohne Helfer."""
+        entity = self.schedule_entity
+        state = self.hass.states.get(entity) if entity else None
+        if state is None or state.state not in ("on", "off"):
+            return None
+        attrs = state.attributes
+        temp = to_float(attrs.get("temperature", attrs.get("target_temperature")))
+        nxt = attrs.get("next_event")
+        if isinstance(nxt, str):
+            nxt = dt_util.parse_datetime(nxt)
+        if isinstance(nxt, datetime):
+            nxt = dt_util.as_local(nxt)
+        else:
+            nxt = None
+        return state.state == "on", temp, nxt
+
+    @callback
+    def track_aux(self) -> None:
+        """Zeitplan-Helfer und Personen-Schalter beobachten – bei Änderung neu planen."""
+        if getattr(self, "_aux_unsub", None):
+            self._aux_unsub()
+            self._aux_unsub = None
+        watch = [e for e in (self.config.get(CONF_ROOM_PERSONS) or []) if not str(e).startswith("person.")]
+        if self.schedule_entity:
+            watch.append(self.schedule_entity)
+        if not watch:
+            return
+
+        @callback
+        def _changed(_event: Any) -> None:
+            self._notify()
+            self.hass.async_create_task(self._apply())
+
+        self._aux_unsub = async_track_state_change_event(self.hass, watch, _changed)
+
     def next_plan_window(self, local_now: datetime) -> tuple[datetime, tuple[int, int, int] | None] | None:
         """Nächstes Zeitfenster mit der Verschiebung seines eigenen Tages."""
+        if self.schedule_entity:
+            helper = self.helper_window()
+            if helper is None or helper[0] or helper[2] is None or helper[2] <= local_now:
+                return None
+            return helper[2], self.target_temp
         nxt = next_schedule_window(self.schedules, local_now)
         if nxt is None:
             return None
@@ -741,23 +793,27 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
     @property
     def hvac_action(self) -> HVACAction:
-        if self.hvac_auto:
-            action = self._trv_attr("hvac_action")
-            return action if action in (HVACAction.HEATING, HVACAction.IDLE) else HVACAction.IDLE
-        if not self.hvac_on or self.paused or not self.peek_plan()[0]:
-            return HVACAction.OFF
-        action = self._trv_attr("hvac_action")
         # Die gemeldete Ventilstellung ist das direkteste Signal. Manche Geräte (z. B. Bosch über
         # die SHC-Zentrale) melden „heizt“, solange der Modus Heizen ist – auch bei geschlossenem
-        # Ventil (Issue #34). Steht das Ventil nachweislich zu, heizt der Raum nicht.
+        # Ventil (Issue #34). Steht das Ventil nachweislich zu, heizt der Raum nicht – das gilt
+        # auch, wenn das Thermostat sein eigenes Programm fährt („Auto“).
         valve = self.valve_position
         if valve is None:
             valve = self._trv_attr("valve_position")
         try:
-            if valve is not None and float(valve) < VALVE_HEATING_MIN:
-                return HVACAction.IDLE
+            closed = valve is not None and float(valve) < VALVE_HEATING_MIN
         except (TypeError, ValueError):
-            pass
+            closed = False
+        if self.hvac_auto:
+            action = self._trv_attr("hvac_action")
+            if closed:
+                return HVACAction.IDLE
+            return action if action in (HVACAction.HEATING, HVACAction.IDLE) else HVACAction.IDLE
+        if not self.hvac_on or self.paused or not self.peek_plan()[0]:
+            return HVACAction.OFF
+        action = self._trv_attr("hvac_action")
+        if closed:
+            return HVACAction.IDLE
         if action == HVACAction.HEATING or self._trv_attr("running_state") == "heat":
             return HVACAction.HEATING
         # Manche Geräte (z. B. Homematic IP) lassen hvac_action auf "idle", obwohl das Ventil regelt.

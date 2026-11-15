@@ -335,7 +335,14 @@ class PlanMixin:
 
     def _rule_schedule(self, ctx: _PlanContext) -> PlanResult:
         """Zeitplan: eigener Wunsch für dieses Fenster, schlägt Leer-Absenkung und Sonne."""
-        sched = schedule_target(self.plan_schedules, ctx.local_now)
+        if self.schedule_entity:
+            # Zeitplan-Helfer statt eigener Zeitfenster (Issue #52)
+            helper = self.helper_window()
+            if helper is None or not helper[0]:
+                return None
+            sched = helper[1] if helper[1] is not None else self.target_temp
+        else:
+            sched = schedule_target(self.plan_schedules, ctx.local_now)
         if sched is None:
             return None
         if ctx.manual_active and not values_match(self.target_temp, sched, 0.05):
@@ -400,7 +407,7 @@ class PlanMixin:
     def _rule_schedule_fallback(self, ctx: _PlanContext) -> PlanResult:
         """Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt."""
         fb = self.config.get(CONF_SCHEDULE_FALLBACK) or SCHEDULE_FALLBACK_WISH
-        if not self.schedules or fb == SCHEDULE_FALLBACK_WISH:
+        if not (self.schedules or self.schedule_entity) or fb == SCHEDULE_FALLBACK_WISH:
             return None
         outside = {
             SCHEDULE_FALLBACK_SHORT: self.setback_short,

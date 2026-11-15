@@ -41,7 +41,7 @@ export const LearnMethods = {
     const head = `<div class="row whyhead"><div class="l"><span class="lbl">${t("Anwesenheitsprofil")}</span><small>${t("Aus diesem Profil schlägt Raumklima Absenk- und Vorheizzeiten vor.")}</small></div></div>`;
     const tip = (st && st.presence_tip) || {};
     const tipRow = tip.ready
-      ? this._row(t("Vorschlag"), this._v([tip.weekday ? t("{a} bis {b}", { a: tip.weekday.from, b: tip.weekday.to }) : "", tip.weekend ? t("Wochenende ab {a}", { a: tip.weekend.from }) : ""].filter(Boolean).join(" · ")),
+      ? this._row(t("Vorschlag"), this._v([tip.weekday ? (tip.weekday.from === tip.weekday.to ? t("ganztägig") : t("{a} bis {b}", { a: tip.weekday.from, b: tip.weekday.to })) : "", tip.weekend ? t("Wochenende ab {a}", { a: tip.weekend.from }) : ""].filter(Boolean).join(" · ")),
         t("Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft."))
       : this._row(t("Vorschlag"), this._v(t("sammelt noch"), true), t("ab einer erfassten Woche"));
     const profile = head + (hasProfile

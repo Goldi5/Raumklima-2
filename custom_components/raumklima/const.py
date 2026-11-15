@@ -109,6 +109,8 @@ CONF_AC_HEAT: Final = "ac_heat"  # Klimaanlage auch zum Heizen nutzen
 CONF_AC_COP: Final = "ac_cop"  # Jahresarbeitszahl der Klimaanlage als Wärmepumpe
 CONF_GAS_PRICE: Final = "gas_price"  # Gaspreis in €/kWh für den Quellenvergleich
 CONF_ELECTRIC_PRICE: Final = "electric_price"  # Strompreis in €/kWh, wenn der Zähler Gas/Fernwärme misst
+CONF_SCHEDULE_ENTITY: Final = "schedule_entity"  # HA-Zeitplan-Helfer (schedule.*) statt eigener Zeitfenster
+CONF_HYSTERESIS_K: Final = "hysteresis_k"  # Breite der Hysterese in K (Regelart „hysteresis“)
 CONF_SCHEDULE_FALLBACK: Final = "schedule_fallback"  # außerhalb der Zeitfenster: wish/short/long/frost
 MOLD_MODES: Final = ("strict", "wish", "off")
 SCHEDULE_FALLBACKS: Final = ("wish", "short", "long", "frost")
@@ -400,6 +402,9 @@ CAL_OFFSET: Final = "offset"
 CAL_TARGET: Final = "target"
 CAL_NONE: Final = "none"
 CALIBRATION_MODES: Final = [CAL_OFFSET, CAL_TARGET, CAL_NONE]
+CAL_HYSTERESIS: Final = "hysteresis"  # Ventil ganz auf / ganz zu nach Raumfühler (Issue #54)
+# Alle Arten für die Karte – „hysteresis“ gibt es (noch) nicht im Einrichtungsdialog
+CALIBRATION_MODES_ALL: Final = [*CALIBRATION_MODES, CAL_HYSTERESIS]
 
 # Wie das TRV ausgeschaltet wird
 OFF_AUTO: Final = "auto"
@@ -449,6 +454,8 @@ DEFAULTS: Final = {
     CONF_VACATION_HOURS: 12,
     CONF_ROOM_PERSONS: [],
     CONF_SCHEDULE_FALLBACK: "wish",
+    CONF_SCHEDULE_ENTITY: None,
+    CONF_HYSTERESIS_K: 0.5,
     CONF_GUESTS_ROOMS: [],
     CONF_FAST_POLL: False,
     CONF_OVERRIDE_MINUTES: 120,

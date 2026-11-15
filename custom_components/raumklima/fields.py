@@ -67,6 +67,7 @@ NUM: dict[str, NumField] = {
     "cool_setpoint": NumField(" °C", 0.5, 18, 30, 1, 'float', 16, 32),
     "ac_min_on": NumField(" min", 1, 1, 120, 0, 'int', 1, 360),
     "ac_min_off": NumField(" min", 1, 1, 120, 0, 'int', 1, 360),
+    "hysteresis_k": NumField(" K", 0.1, 0.2, 2, 1, 'float', 0.1, 3),
     "ac_cop": NumField("", 0.1, 1, 6, 1, 'float', 1, 8),
     "gas_price": NumField(" €/kWh", 0.01, 0, 1, 2, 'float', 0, 2),
     "electric_price": NumField(" €/kWh", 0.01, 0, 2, 2, 'float', 0, 2),

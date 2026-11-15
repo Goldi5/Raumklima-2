@@ -44,6 +44,7 @@ export const RK_NUM = {
   cool_setpoint: { unit: " °C", step: 0.5, min: 18, max: 30, dec: 1 },
   ac_min_on: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
   ac_min_off: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
+  hysteresis_k: { unit: " K", step: 0.1, min: 0.2, max: 2, dec: 1 },
   ac_cop: { unit: "", step: 0.1, min: 1, max: 6, dec: 1 },
   gas_price: { unit: " €/kWh", step: 0.01, min: 0, max: 1, dec: 2 },
   electric_price: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },

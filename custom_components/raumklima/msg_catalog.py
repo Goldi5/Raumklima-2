@@ -184,6 +184,12 @@ _ROWS: list[tuple[str, str, str]] = [
         "Valve {valve} % open for 2 h, temperature only {rise} K. Bleed the radiator, check the valve pin or flow temperature.",
         "Vanne ouverte à {valve} % depuis 2 h, température seulement {rise} K. Purger le radiateur, vérifier la tige de vanne ou le départ.",
     ),
+    ("Thermostat heizt über dem Ziel", "Thermostat heats above the target", "Le thermostat chauffe au-dessus de la consigne"),
+    (
+        "Seit 30 min {temp} °C bei Ziel {target} °C, das Thermostat heizt trotzdem. Eigenes Programm, Boost oder Fenstermodus am Gerät prüfen – oder ob es den Sollwert übernimmt.",
+        "{temp} °C for 30 min with a target of {target} °C, yet the thermostat keeps heating. Check its own schedule, boost or window mode – or whether it accepts the setpoint.",
+        "{temp} °C depuis 30 min pour une consigne de {target} °C, et le thermostat chauffe quand même. Vérifier son programme, le boost ou le mode fenêtre – ou s’il accepte la consigne.",
+    ),
     ("Raumfühler meldet sich nicht", "Room sensor not reporting", "Le capteur de la pièce ne répond pas"),
     (
         "Seit {hours} h keine Werte – geregelt wird solange mit dem Fühler am Thermostat. Batterie und Funk des Fühlers prüfen.",

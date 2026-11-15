@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from rk.health import (
     HistoryPoint,
     check_battery,
+    check_heating_above_target,
     check_not_warming,
     check_radio,
     check_sensor_frozen,
@@ -92,6 +93,25 @@ def test_not_warming():
     assert check_not_warming(short, T0 + timedelta(minutes=45)) is None
     window = [HistoryPoint(p.when, p.valve, p.temp, p.target, False) for p in hist]
     assert check_not_warming(window, T0 + timedelta(minutes=120)) is None
+
+
+def test_heating_above_target():
+    """Issue #51: Gerät heizt eine halbe Stunde lang, obwohl der Raum 2 K über dem Ziel liegt."""
+    now = T0 + timedelta(minutes=35)
+    hist = [HistoryPoint(T0 + timedelta(minutes=m), 40.0, 22.0, 20.0, True, heating=True) for m in range(0, 36, 5)]
+    issue = check_heating_above_target(hist, now)
+    assert issue is not None and issue.code == "heating_above"
+    # knapp über dem Ziel ist normal (Nachlauf)
+    near = [HistoryPoint(p.when, p.valve, 20.6, 20.0, True, heating=True) for p in hist]
+    assert check_heating_above_target(near, now) is None
+    # heizt nicht → kein Hinweis
+    idle = [HistoryPoint(p.when, 0.0, 22.0, 20.0, True, heating=False) for p in hist]
+    assert check_heating_above_target(idle, now) is None
+    # Fenster offen / Pause → kein Hinweis
+    paused = [HistoryPoint(p.when, p.valve, 22.0, 20.0, False, heating=True) for p in hist]
+    assert check_heating_above_target(paused, now) is None
+    # noch keine halbe Stunde Daten
+    assert check_heating_above_target(hist[:3], T0 + timedelta(minutes=10)) is None
 
 
 def test_sensor_radio_window():

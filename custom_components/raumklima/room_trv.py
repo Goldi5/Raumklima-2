@@ -13,9 +13,11 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CAL_HYSTERESIS,
     CAL_OFFSET,
     CAL_TARGET,
     CONF_FOLLOW_TRV,
+    CONF_HYSTERESIS_K,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
     CONF_OFFSET_MIN_INTERVAL,
@@ -156,6 +158,8 @@ class TrvMixin:
         if not self.trv:
             return None
         target = self.effective_target
+        if self.cal_mode == CAL_HYSTERESIS:
+            return self._hysteresis_setpoint(target, update=False)
         if self.cal_mode == CAL_TARGET:
             # Denselben Abgleich benutzen wie der Schreibpfad: solange der Raum unter dem Ziel
             # liegt, wird kein negativer Abschlag angewandt – dann darf er auch nicht erwartet
@@ -454,6 +458,8 @@ class TrvMixin:
         target = self.effective_target
         if self.floor_mode:
             return clamp(self.floor_setpoint(target), self.trv_min, self.trv_max)
+        if self.cal_mode == CAL_HYSTERESIS:
+            return self._hysteresis_setpoint(target)
         pre_stop = self._prestop_amount(target)
         if pre_stop:
             target = max(self.trv_min, target - pre_stop)
@@ -555,6 +561,28 @@ class TrvMixin:
             )
 
     # ================================================================ Offset
+    def _hysteresis_setpoint(self, target: float, update: bool = True) -> float:
+        """Zweipunkt-Regelung nach dem Raumfühler (Issue #54).
+
+        Unter Ziel − h/2: Sollwert ganz hoch → Ventil auf. Über Ziel + h/2: ganz runter → zu.
+        Dazwischen bleibt der letzte Zustand – so bewegt sich das Ventil nur zweimal je Zyklus.
+        """
+        band = max(0.1, float(self.config.get(CONF_HYSTERESIS_K) or 0.5))
+        cur = self.current_temperature
+        state = getattr(self, "_hyst_open", None)
+        if cur is not None:
+            if cur <= target - band / 2:
+                state = True
+            elif cur >= target + band / 2:
+                state = False
+            elif state is None:
+                state = cur < target
+        if update:
+            self._hyst_open = state
+        if state is None:
+            return clamp(target, self.trv_min, self.trv_max)
+        return self.trv_max if state else self.trv_min
+
     def _cal_interval_passed(self) -> bool:
         if self._last_cal_send is None:
             return True
@@ -571,6 +599,10 @@ class TrvMixin:
 
     async def _calibrate_main(self, force: bool = False) -> None:
         """Automatischen Offset berechnen und senden."""
+        if self.cal_mode == CAL_HYSTERESIS:
+            # Kein Offset: neuer Messwert → prüfen, ob die Schaltgrenze erreicht ist
+            await self._apply(from_measurement=True)
+            return
         if self.cal_mode != CAL_OFFSET or not self.cal_entity:
             if self.cal_mode == CAL_TARGET and force:
                 self._last_cal_send = None

@@ -60,6 +60,7 @@ class HistoryPoint:
     target: float
     regulating: bool  # Heizung soll arbeiten (an, kein Fenster, keine Heizpause)
     mold_capped: bool = False  # Ziel kommt vom gedeckelten Schimmelschutz
+    heating: bool = False  # Gerät heizt (gemeldet oder Ventil offen)
 
 
 def check_battery(levels: dict[str, float]) -> list[Issue]:
@@ -206,6 +207,39 @@ def check_not_warming(history: list[HistoryPoint], now: datetime) -> Issue | Non
             "Ventil seit 2 h zu {valve} % offen, Temperatur nur {rise} K. Heizkörper entlüften, Ventilstift oder Vorlauf prüfen.",
             valve=f"{sum(valves) / len(valves):.0f}",
             rise=sdec(last.temp - first.temp),
+        ),
+    )
+
+
+ABOVE_WINDOW = timedelta(minutes=30)
+ABOVE_K = 1.0  # so weit über dem Ziel, dass Heizen sicher nicht gewollt ist
+
+
+def check_heating_above_target(history: list[HistoryPoint], now: datetime) -> Issue | None:
+    """Gerät heizt, obwohl der Raum schon deutlich über dem Ziel liegt (Issue #51).
+
+    Typisch: eigenes Programm oder Boost am Thermostat, Sollwert nicht übernommen, oder die
+    Kalibrierung hängt an der Untergrenze. Raumklima zeigt dann ehrlich „heizt“ – dieser
+    Hinweis erklärt, warum.
+    """
+    window = [p for p in history if now - p.when <= ABOVE_WINDOW]
+    if not window or now - window[0].when < ABOVE_WINDOW - timedelta(minutes=5):
+        return None  # noch keine halbe Stunde Daten
+    if not all(p.regulating and p.temp is not None for p in window):
+        return None
+    if not all(p.temp >= p.target + ABOVE_K for p in window):
+        return None
+    if sum(1 for p in window if p.heating) < 0.8 * len(window):
+        return None
+    last = window[-1]
+    return Issue(
+        "heating_above",
+        SEV_WARN,
+        tr("Thermostat heizt über dem Ziel"),
+        tr(
+            "Seit 30 min {temp} °C bei Ziel {target} °C, das Thermostat heizt trotzdem. Eigenes Programm, Boost oder Fenstermodus am Gerät prüfen – oder ob es den Sollwert übernimmt.",
+            temp=sdec(last.temp),
+            target=sdec(last.target),
         ),
     )
 

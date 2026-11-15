@@ -1520,7 +1520,19 @@
     "nur wenn ein Klimagerät auch heizen darf": "only if an air conditioner may also heat",
     "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)": "heating COP from the data sheet (at +7 °C)",
     "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon": "€/kWh gross – the heating does not run on electricity, the air conditioner does",
-    "– fester Preis –": "– fixed price –"
+    "– fester Preis –": "– fixed price –",
+    "ganztägig": "all day",
+    "Breite des Schaltbereichs – 0,5 K heißt: auf bei Ziel −0,25 K, zu bei Ziel +0,25 K": "width of the switching band – 0.5 K means open at target −0.25 K, closed at target +0.25 K",
+    "HA-Zeitplan-Helfer (schedule.*) statt der Zeitfenster hier – z. B. einen je Plan anlegen und per Automation umschalten": "HA schedule helper (schedule.*) instead of the windows here – e.g. create one per plan and switch via automation",
+    "Hysterese": "Hysteresis",
+    "Hysterese (auf/zu)": "Hysteresis (open/closed)",
+    "Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung": "Raumklima opens the valve fully below target − ½ hysteresis and closes it fully above target + ½ – fewer valve movements, a little more fluctuation",
+    "Zeitplan-Helfer": "Schedule helper",
+    "eigene Zeitfenster": "own time windows",
+    "– eigene Zeitfenster –": "– own time windows –",
+    "keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar": "no selection = the room belongs to all residents; switches (e.g. guest) and presence sensors can be chosen too",
+    "nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt": "only if one of these persons is home or a chosen switch is on – otherwise the room is set back",
+    "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "“on” in the helper = window active; a temperature in the block’s data field is used – the windows above no longer apply"
   };
 
   // src/i18n/fr.js
@@ -3043,7 +3055,19 @@
     "nur wenn ein Klimagerät auch heizen darf": "seulement si une climatisation peut aussi chauffer",
     "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)": "COP en chauffage selon la fiche technique (à +7 °C)",
     "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon": "€/kWh TTC – le chauffage n’est pas électrique, la climatisation oui",
-    "– fester Preis –": "– prix fixe –"
+    "– fester Preis –": "– prix fixe –",
+    "ganztägig": "toute la journée",
+    "Breite des Schaltbereichs – 0,5 K heißt: auf bei Ziel −0,25 K, zu bei Ziel +0,25 K": "largeur de la plage – 0,5 K signifie ouvert à consigne −0,25 K, fermé à consigne +0,25 K",
+    "HA-Zeitplan-Helfer (schedule.*) statt der Zeitfenster hier – z. B. einen je Plan anlegen und per Automation umschalten": "assistant de planification HA (schedule.*) au lieu des plages ici – p. ex. un par programme, commuté par automatisation",
+    "Hysterese": "Hystérésis",
+    "Hysterese (auf/zu)": "Hystérésis (ouvert/fermé)",
+    "Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung": "Raumklima ouvre entièrement la vanne sous consigne − ½ hystérésis et la ferme au-dessus de consigne + ½ – moins de mouvements, un peu plus de variation",
+    "Zeitplan-Helfer": "Assistant de planification",
+    "eigene Zeitfenster": "plages propres",
+    "– eigene Zeitfenster –": "– plages propres –",
+    "keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar": "aucune sélection = la pièce est à tous ; interrupteurs (p. ex. invité) et capteurs de présence possibles aussi",
+    "nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt": "seulement si une de ces personnes est là ou un interrupteur choisi est activé – sinon la pièce est abaissée",
+    "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "« activé » dans l’assistant = plage active ; une température dans le champ de données du bloc est reprise – les plages ci-dessus ne s’appliquent plus"
   };
 
   // src/i18n.js
@@ -4101,7 +4125,7 @@
     return mine;
   }
   var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
-  var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich" });
+  var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich", hysteresis: "Hysterese (auf/zu)" });
   var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
   var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
   var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
@@ -5847,7 +5871,9 @@
     "Reserve-Preisquellen": ["Weitere Preis-Sensoren, z. B. EPEX Spot von Energy-Charts, SMARD oder Awattar. Liefert die Hauptquelle nichts – Ausfall oder fehlender Verlauf –, nimmt Raumklima die nächste in der angetippten Reihenfolge.", "Further price sensors, e.g. EPEX Spot from Energy-Charts, SMARD or Awattar. If the main source delivers nothing – outage or missing history – Raumklima uses the next one in the order you tapped.", "Autres capteurs de prix, p. ex. EPEX Spot via Energy-Charts, SMARD ou Awattar. Si la source principale ne fournit rien – panne ou historique manquant –, Raumklima prend la suivante dans l’ordre choisi."],
     "Grundgebühr-Anteil": ["„Ganz“, wenn die Heizung einen eigenen Zähler mit eigener Grundgebühr hat (typisch Wärmepumpentarif). „Nach Verbrauch“ bei einem gemeinsamen Hauszähler: dann zählt nur der Anteil der Heizung am Hausverbrauch.", "“All” if the heating has its own meter with its own base fee (typical for heat pump tariffs). “By usage” for a shared house meter: then only the heating’s share of house consumption counts.", "« Entier » si le chauffage a son propre compteur et abonnement (typique des tarifs PAC). « Selon consommation » pour un compteur commun : seule la part du chauffage compte."],
     "Preis jetzt": ["Der Preis je kWh, mit dem Raumklima gerade rechnet – brutto, nach Umrechnung. Derselbe Wert gilt für Dashboard, Bericht und den Vergleich mit dem Klimagerät.", "The price per kWh Raumklima is using right now – gross, after conversion. The same value is used by the dashboard, the report and the air conditioner comparison.", "Le prix par kWh utilisé actuellement par Raumklima – TTC, après conversion. La même valeur sert au tableau de bord, au rapport et à la comparaison avec la climatisation."],
-    "Strompreis": ["Nur bei Gas, Öl oder Fernwärme: der Strompreis je kWh brutto. Er wird für den Vergleich gebraucht, ob ein Klimagerät günstiger heizt als die Hauptheizung.", "Only for gas, oil or district heating: the electricity price per kWh, gross. It is needed to compare whether an air conditioner heats more cheaply than the main heating.", "Uniquement pour gaz, fioul ou chauffage urbain : le prix de l’électricité par kWh TTC. Il sert à comparer si une climatisation chauffe moins cher que le chauffage principal."]
+    "Strompreis": ["Nur bei Gas, Öl oder Fernwärme: der Strompreis je kWh brutto. Er wird für den Vergleich gebraucht, ob ein Klimagerät günstiger heizt als die Hauptheizung.", "Only for gas, oil or district heating: the electricity price per kWh, gross. It is needed to compare whether an air conditioner heats more cheaply than the main heating.", "Uniquement pour gaz, fioul ou chauffage urbain : le prix de l’électricité par kWh TTC. Il sert à comparer si une climatisation chauffe moins cher que le chauffage principal."],
+    "Hysterese": ["Breite des Schaltbereichs in K. Unter Ziel minus die Hälfte öffnet Raumklima das Ventil ganz (Sollwert am Thermostat ganz hoch), über Ziel plus die Hälfte schließt es ganz. Größer = seltener Ventilbewegungen, aber mehr Temperaturschwankung.", "Width of the switching band in K. Below target minus half of it Raumklima opens the valve fully (setpoint all the way up), above target plus half it closes it fully. Larger = fewer valve movements but more temperature swing.", "Largeur de la plage en K. Sous la consigne moins la moitié, Raumklima ouvre la vanne entièrement (consigne au maximum), au-dessus de la consigne plus la moitié il la ferme. Plus grand = moins de mouvements mais plus de variation."],
+    "Zeitplan-Helfer": ["Ein Zeitplan-Helfer aus Home Assistant (Einstellungen → Geräte & Dienste → Helfer → Zeitplan) statt der eigenen Zeitfenster. Ist er „an“, gilt das Zeitfenster; steht im Datenfeld des Blocks „temperature: 21“, wird diese Temperatur genommen, sonst die Wunschtemperatur. Vorgeheizt wird auf den nächsten Start.", "A Home Assistant schedule helper (Settings → Devices & services → Helpers → Schedule) instead of the room’s own windows. While it is “on” the window applies; if the block’s data field holds “temperature: 21” that temperature is used, otherwise the wish temperature. Preheating aims at the next start.", "Un assistant de planification Home Assistant (Paramètres → Appareils et services → Entrées → Planification) à la place des plages propres. Tant qu’il est « activé », la plage s’applique ; si le champ de données du bloc contient « temperature: 21 », cette température est reprise, sinon la température souhaitée. Le préchauffage vise le prochain début."]
   };
 
   // src/fields.js
@@ -5895,6 +5921,7 @@
     cool_setpoint: { unit: " °C", step: 0.5, min: 18, max: 30, dec: 1 },
     ac_min_on: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
     ac_min_off: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
+    hysteresis_k: { unit: " K", step: 0.1, min: 0.2, max: 2, dec: 1 },
     ac_cop: { unit: "", step: 0.1, min: 1, max: 6, dec: 1 },
     gas_price: { unit: " €/kWh", step: 0.01, min: 0, max: 1, dec: 2 },
     electric_price: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },
@@ -7309,7 +7336,15 @@
           t("danach gilt wieder Zeitplan bzw. Automatik")
         )
       ];
+      const helpers = (this._cfg && this._cfg.choices || {}).schedules || [];
+      const helper = this._roomOpt(r, "schedule_entity") ?? s.schedule_entity ?? "";
+      const helperRow = helpers.length || helper ? this._row(
+        "Zeitplan-Helfer",
+        editable ? this._select(scope, "schedule_entity", helpers, helper, "– eigene Zeitfenster –") : this._v(helper || t("eigene Zeitfenster")),
+        helper ? t("„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht") : t("HA-Zeitplan-Helfer (schedule.*) statt der Zeitfenster hier – z. B. einen je Plan anlegen und per Automation umschalten")
+      ) : "";
       const moreRows = [
+        helperRow,
         shareRow,
         this._row(
           "Außerhalb der Zeitfenster",
@@ -7355,7 +7390,7 @@
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
       }
       rows.push(...boostRows);
-      rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
+      rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
       return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
     },
     // ---------------------------------------------------------------- Lüften ohne Erinnerung
@@ -7659,13 +7694,14 @@
             );
           })(),
           (() => {
-            const persons = this._cfg && this._cfg.choices && this._cfg.choices.persons || [];
+            const ch = this._cfg && this._cfg.choices || {};
+            const persons = [...ch.persons || [], ...ch.room_switches || []];
             if (!persons.length) return "";
             const cur = this._roomOpt(r, "room_persons") ?? s.room_persons ?? [];
             return this._row(
               "Gilt für Personen",
               `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
-              cur.length ? t("nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern"),
+              cur.length ? t("nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar"),
               this._srcBadge(r, "room_persons")
             );
           })()
@@ -7882,9 +7918,14 @@
           ),
           mon ? "" : this._row(
             "Kalibrierung",
-            editable ? this._segs(scope, "calibration_mode", s.calibration_entity ? RK_CAL : { target: RK_CAL.target, none: RK_CAL.none }, s.calibration_mode || "target") : this._v(RK_CAL[s.calibration_mode] || "–"),
-            s.calibration_mode === "target" ? t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat") : offTxt
+            editable ? this._segs(scope, "calibration_mode", s.calibration_entity ? RK_CAL : { target: RK_CAL.target, none: RK_CAL.none, hysteresis: RK_CAL.hysteresis }, s.calibration_mode || "target") : this._v(RK_CAL[s.calibration_mode] || "–"),
+            s.calibration_mode === "target" ? t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat") : s.calibration_mode === "hysteresis" ? t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung") : offTxt
           ),
+          !mon && s.calibration_mode === "hysteresis" ? this._row(
+            "Hysterese",
+            editable ? this._num(scope, "hysteresis_k", this._roomOpt(r, "hysteresis_k") ?? s.hysteresis_k ?? 0.5) : this._v(`${fmt(this._roomOpt(r, "hysteresis_k") ?? s.hysteresis_k ?? 0.5, 1)} K`),
+            t("Breite des Schaltbereichs – 0,5 K heißt: auf bei Ziel −0,25 K, zu bei Ziel +0,25 K")
+          ) : "",
           mon ? "" : this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
           mon ? "" : this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
           mon ? "" : this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? t("ja") : t("nein")))
@@ -8129,7 +8170,7 @@
       const tip = st && st.presence_tip || {};
       const tipRow = tip.ready ? this._row(
         t("Vorschlag"),
-        this._v([tip.weekday ? t("{a} bis {b}", { a: tip.weekday.from, b: tip.weekday.to }) : "", tip.weekend ? t("Wochenende ab {a}", { a: tip.weekend.from }) : ""].filter(Boolean).join(" · ")),
+        this._v([tip.weekday ? tip.weekday.from === tip.weekday.to ? t("ganztägig") : t("{a} bis {b}", { a: tip.weekday.from, b: tip.weekday.to }) : "", tip.weekend ? t("Wochenende ab {a}", { a: tip.weekend.from }) : ""].filter(Boolean).join(" · ")),
         t("Vorheizen beginnt 30 Minuten vorher, Absenken endet mit der Ankunft – so bleibt es beim Wunsch, ohne dass die Heizung leer läuft.")
       ) : this._row(t("Vorschlag"), this._v(t("sammelt noch"), true), t("ab einer erfassten Woche"));
       const profile = head + (hasProfile ? [bars(pp.weekday, "Werktags"), bars(pp.weekend, "Wochenende")].join("") : this._row(t("Anwesenheit am Tag"), this._v(t("sammelt noch"), true), t("wird ab der ersten Woche sichtbar – nur ja/nein, nie wer")));
@@ -10878,7 +10919,8 @@
       this._hass = hass;
       setLang(hass);
       if (first) this._load();
-      else if (this._data) this._render();
+      else if (this._data && hass.language !== this._lang) this._render();
+      this._lang = hass.language;
     }
     _home() {
       const id = this._config.home || rkHomeId(this._hass, this._config);
@@ -11118,7 +11160,7 @@
       return `<div class="dtiles">${tiles.join("")}</div>
       ${this._quality(e)}
       ${boxes.length ? `<div class="egrid">${boxes.join("")}</div>` : ""}
-      <details class="eraw"><summary>${t("Details und Sensoren")}</summary><div class="drows">${this._rawRows(d, e)}</div></details>`;
+      <details class="eraw"${this._rawOpen ? " open" : ""}><summary>${t("Details und Sensoren")}</summary><div class="drows">${this._rawRows(d, e)}</div></details>`;
     }
     _render() {
       if (!this._hass) return;
@@ -11140,6 +11182,10 @@
         this._days = Number(b.dataset.days);
         this._load();
       }));
+      const raw = this.shadowRoot.querySelector("details.eraw");
+      if (raw) raw.addEventListener("toggle", () => {
+        this._rawOpen = raw.open;
+      });
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
     }
   };
@@ -11220,7 +11266,8 @@
     _tip() {
       const tip = this._hub && this._hub.presence_tip || {};
       if (!tip.ready) return "";
-      const part = (key, label) => tip[key] ? `${t(label)} ${tip[key].from}–${tip[key].to}` : "";
+      const span = (x) => x.from === x.to ? t("ganztägig") : `${x.from}–${x.to}`;
+      const part = (key, label) => tip[key] ? `${t(label)} ${span(tip[key])}` : "";
       return [part("weekday", "Wochentags"), part("weekend", "Wochenende")].filter(Boolean).join(" · ");
     }
     _sleep() {

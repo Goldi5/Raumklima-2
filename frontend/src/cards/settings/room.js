@@ -103,12 +103,13 @@ export const RoomMethods = {
           );
         })(),
         (() => {
-          const persons = ((this._cfg && this._cfg.choices && this._cfg.choices.persons) || []);
+          const ch = (this._cfg && this._cfg.choices) || {};
+          const persons = [...(ch.persons || []), ...(ch.room_switches || [])];
           if (!persons.length) return "";
           const cur = this._roomOpt(r, "room_persons") ?? s.room_persons ?? [];
           return this._row("Gilt für Personen",
             `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
-            cur.length ? t("nur wenn eine dieser Personen zu Hause ist – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern"), this._srcBadge(r, "room_persons"));
+            cur.length ? t("nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar"), this._srcBadge(r, "room_persons"));
         })(),
         ].join(""), r, ["preheat_mode", "quiet_mode", "solar_gain", "solar_facade", "room_persons"]),
       ].join("")))}
@@ -297,11 +298,16 @@ export const RoomMethods = {
         mon ? "" : this._row("Kalibrierung", editable
           ? this._segs(scope, "calibration_mode", s.calibration_entity
               ? RK_CAL
-              : { target: RK_CAL.target, none: RK_CAL.none }, s.calibration_mode || "target")
+              : { target: RK_CAL.target, none: RK_CAL.none, hysteresis: RK_CAL.hysteresis }, s.calibration_mode || "target")
           : this._v(RK_CAL[s.calibration_mode] || "–"),
         s.calibration_mode === "target"
           ? t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat")
-          : offTxt),
+          : s.calibration_mode === "hysteresis"
+            ? t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung")
+            : offTxt),
+        !mon && s.calibration_mode === "hysteresis" ? this._row("Hysterese",
+          editable ? this._num(scope, "hysteresis_k", this._roomOpt(r, "hysteresis_k") ?? s.hysteresis_k ?? 0.5) : this._v(`${fmt(this._roomOpt(r, "hysteresis_k") ?? s.hysteresis_k ?? 0.5, 1)} K`),
+          t("Breite des Schaltbereichs – 0,5 K heißt: auf bei Ziel −0,25 K, zu bei Ziel +0,25 K")) : "",
         mon ? "" : this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
         mon ? "" : this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
         mon ? "" : this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? t("ja") : t("nein"))),

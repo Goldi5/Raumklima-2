@@ -11,6 +11,7 @@ from typing import Any
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CAL_HYSTERESIS,
     CAL_TARGET,
     CONF_BOOST_SOURCES,
     CONF_HEAT_SOURCES,
@@ -352,7 +353,7 @@ class ApplyMixin:
                 setpoint - self._last_target_setpoint
             ) < 0.5:
                 return False
-            if not self._cal_interval_passed():
+            if self.cal_mode != CAL_HYSTERESIS and not self._cal_interval_passed():
                 return False
         if self.target_via == "comfort_temperature" and getattr(self.sync, "verify_delay", 20) < 120:
             # Batteriegeräte melden selten – nicht nach 5 Minuten „nicht bestätigt" rufen.

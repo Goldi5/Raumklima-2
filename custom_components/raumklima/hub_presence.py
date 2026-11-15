@@ -364,6 +364,13 @@ class PresenceMixin:
             )
             self._save()
 
+    def room_person_present(self, entity_id: str) -> bool:
+        """Zählt für „Gilt für Personen“: Person zu Hause – oder Schalter/Präsenz-Sensor an (#53)."""
+        if entity_id.startswith("person."):
+            return bool(self.persons.get(entity_id, {}).get("present"))
+        state = self.hass.states.get(entity_id)
+        return state is not None and state.state in ("on", "home")
+
     def stage_for_room(self, entry_id: str) -> str:
         """Stufe für einen Raum – „Gäste da" kann auf ausgewählte Räume begrenzt sein.
 
@@ -374,7 +381,7 @@ class PresenceMixin:
         room = self.rooms.get(entry_id)
         if room is not None and not self.guests:
             persons = list(room.config.get(CONF_ROOM_PERSONS) or [])
-            if persons and not any(self.persons.get(p, {}).get("present") for p in persons):
+            if persons and not any(self.room_person_present(p) for p in persons):
                 # Fährt eine zugeordnete Person heran, wird auch ihr Raum vorgeheizt.
                 if self.stage == STAGE_PREHEAT and any(
                     self.persons.get(p, {}).get("approaching") for p in persons

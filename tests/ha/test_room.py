@@ -1877,6 +1877,30 @@ async def test_geschlossenes_ventil_heizt_nicht(hass: HomeAssistant, setup, trv:
     assert hass.states.get("climate.bad").attributes.get("hvac_action") == "heating"
 
 
+async def test_geschlossenes_ventil_heizt_auch_im_auto_modus_nicht(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Issue #34: Im Karten-Modus „Auto“ (Gerät fährt sein Programm) gilt die Ventil-Prüfung auch."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    trv.attrs["preset_modes"] = ["manual", "auto", "off"]
+    trv.push()
+    await hass.services.async_call(
+        "climate", "set_hvac_mode", {"entity_id": "climate.bad", "hvac_mode": "auto"}, blocking=True
+    )
+    await hass.async_block_till_done()
+    assert ctrl.hvac_auto is True
+    trv.attrs["hvac_action"] = "heating"
+    trv.attrs["valve_position"] = 0
+    trv.push()
+    await hass.async_block_till_done()
+    assert ctrl.hvac_action == "idle"
+    trv.attrs["valve_position"] = 60
+    trv.push()
+    await hass.async_block_till_done()
+    assert ctrl.hvac_action == "heating"
+
+
 async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
     """Ganztags-Treffer zählt auch, wenn ein anderer Termin die message stellt."""
     from custom_components.raumklima.const import (

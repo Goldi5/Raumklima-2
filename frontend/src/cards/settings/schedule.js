@@ -129,7 +129,16 @@ export const ScheduleMethods = {
         t("danach gilt wieder Zeitplan bzw. Automatik")
       ),
     ];
+    const helpers = ((this._cfg && this._cfg.choices) || {}).schedules || [];
+    const helper = this._roomOpt(r, "schedule_entity") ?? s.schedule_entity ?? "";
+    const helperRow = helpers.length || helper ? this._row("Zeitplan-Helfer",
+      editable ? this._select(scope, "schedule_entity", helpers, helper, "– eigene Zeitfenster –") : this._v(helper || t("eigene Zeitfenster")),
+      helper
+        ? t("„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht")
+        : t("HA-Zeitplan-Helfer (schedule.*) statt der Zeitfenster hier – z. B. einen je Plan anlegen und per Automation umschalten")
+    ) : "";
     const moreRows = [
+      helperRow,
       shareRow,
       this._row(
         "Außerhalb der Zeitfenster",
@@ -183,7 +192,7 @@ export const ScheduleMethods = {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
     }
     rows.push(...boostRows);
-    rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
+    rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
     return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
   },
 

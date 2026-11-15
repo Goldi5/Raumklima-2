@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import logging
 from typing import Any
 
+from homeassistant.components.climate import HVACAction
 from homeassistant.const import ATTR_TEMPERATURE
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.util import dt as dt_util
@@ -30,6 +31,7 @@ from .health import (
     HistoryPoint,
     Issue,
     check_battery,
+    check_heating_above_target,
     check_hydraulic,
     check_not_warming,
     check_radio,
@@ -369,6 +371,7 @@ class HealthMixin:
                 target=target,
                 regulating=on and self.hvac_on and not self.paused and self.trv_available(),
                 mold_capped=self.mold_capped,
+                heating=self.hvac_action == HVACAction.HEATING,
             )
         )
 
@@ -412,6 +415,7 @@ class HealthMixin:
         trv_state = self.hass.states.get(self.trv)
         for check in (
             check_not_warming(list(self.health_hist), now),
+            check_heating_above_target(list(self.health_hist), now),
             check_hydraulic(list(self.health_hist), now) if self.valve_sensor else None,
             check_sensor_frozen(
                 (now - self._ext_changed_at).total_seconds() / 3600 if self._ext_changed_at else None,

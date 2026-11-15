@@ -77,7 +77,10 @@ export class RaumklimaEnergyCard extends HTMLElement {
     this._hass = hass;
     setLang(hass);
     if (first) this._load();
-    else if (this._data) this._render();
+    // Daten kommen alle 10 min neu – bei jedem HA-Zustandswechsel neu zu zeichnen ist unnötig
+    // und klappte „Details und Sensoren“ sofort wieder zu. Nur bei Sprachwechsel neu zeichnen.
+    else if (this._data && hass.language !== this._lang) this._render();
+    this._lang = hass.language;
   }
 
   _home() {
@@ -309,7 +312,7 @@ export class RaumklimaEnergyCard extends HTMLElement {
     return `<div class="dtiles">${tiles.join("")}</div>
       ${this._quality(e)}
       ${boxes.length ? `<div class="egrid">${boxes.join("")}</div>` : ""}
-      <details class="eraw"><summary>${t("Details und Sensoren")}</summary><div class="drows">${this._rawRows(d, e)}</div></details>`;
+      <details class="eraw"${this._rawOpen ? " open" : ""}><summary>${t("Details und Sensoren")}</summary><div class="drows">${this._rawRows(d, e)}</div></details>`;
   }
 
   _render() {
@@ -332,6 +335,9 @@ export class RaumklimaEnergyCard extends HTMLElement {
       this._days = Number(b.dataset.days);
       this._load();
     }));
+    // Aufgeklappt bleibt aufgeklappt – die Karte zeichnet bei jedem HA-Update neu.
+    const raw = this.shadowRoot.querySelector("details.eraw");
+    if (raw) raw.addEventListener("toggle", () => { this._rawOpen = raw.open; });
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () =>
       this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
   }

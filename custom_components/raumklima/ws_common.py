@@ -13,7 +13,7 @@ import voluptuous as vol
 from .const import (
     BOOST_SOURCE_MODES,
     BUILDING_TYPES,
-    CALIBRATION_MODES,
+    CALIBRATION_MODES_ALL,
     CO2_LIMIT_OPTIONS,
     CONF_AC_COP,
     CONF_AC_HEAT,
@@ -89,6 +89,7 @@ from .const import (
     CONF_HOME_OFFICE_ROOMS,
     CONF_HOME_OFFICE_TO,
     CONF_HOME_SENSORS,
+    CONF_HYSTERESIS_K,
     CONF_LATITUDE,
     CONF_LEARN_AIRING,
     CONF_LEARN_SHIFT,
@@ -134,6 +135,7 @@ from .const import (
     CONF_ROOM_ECO_DROP,
     CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULE_ENTITY,
     CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULES,
     CONF_SCHOOL_CALENDAR,
@@ -369,7 +371,9 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_COMFORT_TEMP): num_schema("comfort_temperature"),
         vol.Optional(CONF_FROST_TEMP): num_schema("frost_temperature"),
         vol.Optional(CONF_ROOM_TYPE): vol.In(ROOM_TYPE_OPTIONS),
-        vol.Optional(CONF_CALIBRATION_MODE): vol.In(CALIBRATION_MODES),
+        vol.Optional(CONF_CALIBRATION_MODE): vol.In(CALIBRATION_MODES_ALL),
+        vol.Optional(CONF_HYSTERESIS_K): num_schema("hysteresis_k"),
+        vol.Optional(CONF_SCHEDULE_ENTITY): vol.Any(None, vol.Match(r"^schedule\.\w+$")),
         vol.Optional(CONF_TRV_INTERVAL): vol.Any(None, vol.All(vol.Coerce(float), vol.Range(0, 60))),
         vol.Optional(CONF_VALVE_CONTROL): vol.In(VALVE_CONTROL_MODES),
         vol.Optional(CONF_CO2_LIMIT): vol.All(vol.Coerce(int), vol.In(CO2_LIMIT_OPTIONS)),
@@ -388,7 +392,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_AC_MIN_OFF): num_schema("ac_min_off"),
         vol.Optional(CONF_AC_HEAT): bool,
         vol.Optional(CONF_QUIET_MODE): vol.In(QUIET_MODES),
-        vol.Optional(CONF_ROOM_PERSONS): vol.All([str], vol.Length(max=20)),
+        vol.Optional(CONF_ROOM_PERSONS): vol.All([cv.entity_id], vol.Length(max=20)),
         vol.Optional(CONF_PREHEAT_MODE): vol.In(PREHEAT_MODES),
         vol.Optional(CONF_PREHEAT_LEAD): num_schema("preheat_lead_min"),
         vol.Optional(CONF_PRESENCE_TARGET): num_schema("presence_target"),
@@ -549,6 +553,16 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
     return {
         "notify": notify,
         "persons": ents("person"),
+        # „Gilt für Personen“ auch mit Schaltern und Präsenz-Sensoren (Issue #53)
+        "room_switches": ents("input_boolean") + sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("binary_sensor")
+                if s.attributes.get("device_class") in ("presence", "occupancy")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "schedules": ents("schedule"),
         "zones": ents("zone"),
         "weather": ents("weather"),
         "climate": climates(),

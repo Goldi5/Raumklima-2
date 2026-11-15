@@ -73,7 +73,9 @@ export class RaumklimaLearningCard extends HTMLElement {
   _tip() {
     const tip = (this._hub && this._hub.presence_tip) || {};
     if (!tip.ready) return "";
-    const part = (key, label) => tip[key] ? `${t(label)} ${tip[key].from}–${tip[key].to}` : "";
+    // gleiche Uhrzeit vorn und hinten = rund um die Uhr jemand da (nicht „00:00–00:00“)
+    const span = (x) => (x.from === x.to ? t("ganztägig") : `${x.from}–${x.to}`);
+    const part = (key, label) => tip[key] ? `${t(label)} ${span(tip[key])}` : "";
     return [part("weekday", "Wochentags"), part("weekend", "Wochenende")].filter(Boolean).join(" · ");
   }
 
