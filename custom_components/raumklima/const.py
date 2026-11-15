@@ -371,6 +371,9 @@ HUB_DEFAULTS: Final = {
     "energy_efficiency": 0.0,
     "energy_oil_price": 1.10,
     "energy_oil_factor": 10.0,
+    "energy_oil_price_history": [],
+    "energy_oil_winter_liters": 0.0,
+    "energy_oil_winter_days": 0,
     "energy_tank_entity": None,
     "energy_tank_capacity": 0.0,
     "energy_tank_min": 20.0,
@@ -531,6 +534,9 @@ CONF_ENERGY_HEAT_ENTITY: Final = "energy_heat_entity"
 CONF_ENERGY_EFFICIENCY: Final = "energy_efficiency"
 CONF_ENERGY_OIL_PRICE: Final = "energy_oil_price"
 CONF_ENERGY_OIL_FACTOR: Final = "energy_oil_factor"
+CONF_ENERGY_OIL_PRICE_HISTORY: Final = "energy_oil_price_history"
+CONF_ENERGY_OIL_WINTER_LITERS: Final = "energy_oil_winter_liters"
+CONF_ENERGY_OIL_WINTER_DAYS: Final = "energy_oil_winter_days"
 CONF_ENERGY_TANK_ENTITY: Final = "energy_tank_entity"
 CONF_ENERGY_TANK_CAPACITY: Final = "energy_tank_capacity"
 CONF_ENERGY_TANK_MIN: Final = "energy_tank_min"

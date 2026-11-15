@@ -91,3 +91,28 @@ def test_unsupported_unit_does_not_invent_numbers() -> None:
     assert out["supported"] is False
     assert out["current_l"] is None
     assert out["current_percent"] is None
+
+
+def test_tank_jitter_is_not_consumption() -> None:
+    """±20 l Auf/Ab am Tag dürfen nicht als Verbrauch gezählt werden."""
+    today = date(2026, 2, 1)
+    history = [
+        (date(2026, 1, 25), 3000),
+        (date(2026, 1, 26), 3020),
+        (date(2026, 1, 27), 2980),
+        (date(2026, 1, 28), 3010),
+        (date(2026, 1, 29), 2990),
+    ]
+    out = tank_summary(
+        history,
+        2950,
+        "L",
+        capacity_l=3000,
+        min_percent=20,
+        factor_kwh_per_l=10,
+        oil_price_per_l=1.10,
+        today=today,
+    )
+    assert out is not None
+    assert out["consumed_l"] == 50
+    assert out["consumed_kwh"] == 500

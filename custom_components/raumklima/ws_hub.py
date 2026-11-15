@@ -7,10 +7,13 @@ from typing import Any
 
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
 from .const import (
     CONF_CO2_SENSOR,
+    CONF_ENERGY_OIL_PRICE,
+    CONF_ENERGY_OIL_PRICE_HISTORY,
     CONF_ENTRY_TYPE,
     CONF_HUMIDITY_SENSOR,
     CONF_PM25_SENSOR,
@@ -118,6 +121,13 @@ def ws_hub_update(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
     if not changes.get("mail_password"):
         changes.pop("mail_password", None)  # leer = altes Passwort behalten (wird nie an die Karte geschickt)
     entry = hub.entry
+    if CONF_ENERGY_OIL_PRICE in changes:
+        old_price = float(entry.options.get(CONF_ENERGY_OIL_PRICE) or 0)
+        new_price = float(changes[CONF_ENERGY_OIL_PRICE] or 0)
+        if new_price != old_price:
+            history = list(entry.options.get(CONF_ENERGY_OIL_PRICE_HISTORY) or [])
+            history.append({"date": dt_util.now().date().isoformat(), "price": new_price})
+            changes[CONF_ENERGY_OIL_PRICE_HISTORY] = history[-12:]
     hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
     connection.send_result(msg["id"], {"ok": True})
 

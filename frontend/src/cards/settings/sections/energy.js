@@ -53,6 +53,16 @@ export const EnergySectionMethods = {
         H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas-, Öl- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")),
       source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.10), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
       source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
+      source === "oil" ? this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), t("Liter aus dem letzten Winter – für die grobe Planung")) : "",
+      source === "oil" ? this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), t("Zeitraum des letzten Winters")) : "",
+      source === "oil" ? this._row("Preisverlauf", this._v(
+        (() => {
+          const h = H("energy_oil_price_history") || [];
+          const last = h[h.length - 1];
+          return last ? `${esc(last.date)} · ${fmt(last.price, 2)} €/L` : t("noch kein Preis geändert");
+        })(),
+        !(H("energy_oil_price_history") || []).length,
+      ), t("wird beim Ändern des Ölpreises automatisch notiert")) : "",
       source === "oil" ? this._row("Tankfüllstand", this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– wählen –"),
         H("energy_tank_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tank_entity")) }) : t("optionaler Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis")) : "",
       source === "oil" && H("energy_tank_entity") ? this._row("Tankinhalt", this._num("hub", "energy_tank_capacity", H("energy_tank_capacity") ?? 0), t("Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet")) : "",

@@ -58,6 +58,8 @@ NUM: dict[str, NumField] = {
     "energy_factor": NumField(" kWh/m³", 0.5, 0, 20, 1, 'float', 0, 20),
     "energy_efficiency": NumField("", 0.1, 0, 6, 1, 'float', 0, 6),
     "energy_oil_price": NumField(" €/L", 0.01, 0, 3, 2, 'float', 0, 3),
+    "energy_oil_winter_liters": NumField(" L", 10, 0, 100000, 0, 'int', 0, 100000),
+    "energy_oil_winter_days": NumField(" Tage", 1, 0, 365, 0, 'int', 0, 365),
     "energy_oil_factor": NumField(" kWh/L", 0.1, 5, 15, 1, 'float', 0, 20),
     "energy_tank_capacity": NumField(" L", 10, 0, 50000, 0, 'int', 0, 100000),
     "energy_tank_min": NumField(" %", 1, 0, 100, 0, 'int', 0, 100),

@@ -78,6 +78,24 @@ test("Energiekarte zeigt Öltank und Bestellhinweis", () => {
   assert.match(html, /Basis: Tank/);
 });
 
+test("Energiekarte zeigt Winterverbrauch und Preisverlauf", () => {
+  const html = energyCard({
+    start: "2026-11-08", end: "2026-11-14", days: 7,
+    energy: {
+      enabled: true, source: "oil", meter: "sensor.oil", meter_unit: "L", kwh: 500, liter: 50, price: 0.11,
+      winter_liters: 1800, winter_days: 150, winter_avg_l_day: 12,
+      oil_price_history: [{ date: "2025-10-01", price: 1.02 }, { date: "2026-01-15", price: 1.10 }],
+      oil_price_avg: 1.06,
+    },
+    money: { period_cost: 55, annual: 2860, basis: "meter", kwh: 500 },
+  });
+  assert.match(html, /Letzter Winter/);
+  assert.match(html, /1.800/);
+  assert.match(html, /12,0 L\/Tag/);
+  assert.match(html, /Preisverlauf/);
+  assert.match(html, /1,10/);
+});
+
 test("Lernkarte zeigt Aufheizrate, Nutzung und Lüften", () => {
   setLang(hass);
   const card = new RaumklimaLearningCard();

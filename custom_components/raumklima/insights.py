@@ -23,6 +23,9 @@ from .const import (
     CONF_ENERGY_METER,
     CONF_ENERGY_OIL_FACTOR,
     CONF_ENERGY_OIL_PRICE,
+    CONF_ENERGY_OIL_PRICE_HISTORY,
+    CONF_ENERGY_OIL_WINTER_DAYS,
+    CONF_ENERGY_OIL_WINTER_LITERS,
     CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_PRICE,
     CONF_ENERGY_PRICE_BASIS,
@@ -283,6 +286,10 @@ class Insights:
                 source = "electric"
         tank = self.hub.opt(CONF_ENERGY_TANK_ENTITY)
         tank_state = self.hass.states.get(tank) if tank else None
+        winter_liters = float(self.hub.opt(CONF_ENERGY_OIL_WINTER_LITERS) or 0)
+        winter_days = int(self.hub.opt(CONF_ENERGY_OIL_WINTER_DAYS) or 0)
+        price_history = list(self.hub.opt(CONF_ENERGY_OIL_PRICE_HISTORY) or [])
+        prices = [float(item.get("price") or 0) for item in price_history if isinstance(item, dict)]
         return {
             "enabled": bool(self.hub.opt(CONF_ENERGY_ENABLED)),
             "source": source,
@@ -306,6 +313,11 @@ class Insights:
             "tank_unit": tank_state.attributes.get("unit_of_measurement") if tank_state is not None else None,
             "tank_capacity": float(self.hub.opt(CONF_ENERGY_TANK_CAPACITY) or 0),
             "tank_min": float(self.hub.opt(CONF_ENERGY_TANK_MIN) or 20),
+            "winter_liters": winter_liters,
+            "winter_days": winter_days,
+            "winter_avg_l_day": winter_liters / winter_days if winter_days > 0 and winter_liters > 0 else None,
+            "oil_price_history": price_history[-6:],
+            "oil_price_avg": round(sum(prices) / len(prices), 2) if prices else None,
             "pv_entity": self.hub.opt(CONF_PV_ENTITY),
             "pv_self_use": float(self.hub.opt(CONF_PV_SELF_USE) or 0),
         }

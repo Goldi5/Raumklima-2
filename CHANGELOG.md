@@ -1,3 +1,16 @@
+## Unreleased
+
+### Behoben
+- **Öltank:** Kurzes Prellen des Füllstands (z. B. ±20 l/Tag) wird nicht mehr als Verbrauch gezählt. Der Verbrauch wird jetzt als Netto-Differenz pro Segment zwischen zwei Tankfüllungen berechnet.
+
+### Neu
+- **Letzter Winter:** Liter und Tage aus dem letzten Winter manuell eintragen; Raumklima zeigt daraus den durchschnittlichen Tagesverbrauch.
+- **Preisverlauf:** Beim Ändern des Ölpreises wird der Preis mit Datum automatisch notiert; die letzten Werte erscheinen in der Energie-Karte.
+- **Energie-Zeitraum:** Die Energie-Karte kann jetzt auch 180 und 365 Tage zeigen.
+
+### Tests
+- Tank-Jitter, Netto-Verbrauch pro Segment und echte Nachfüllungen.
+
 ## 1.3.0b2 – 2026-11-15
 
 ### Behoben

@@ -35,6 +35,8 @@ export const RK_NUM = {
   energy_factor: { unit: " kWh/m³", step: 0.5, min: 0, max: 20, dec: 1 },
   energy_efficiency: { unit: "", step: 0.1, min: 0, max: 6, dec: 1 },
   energy_oil_price: { unit: " €/L", step: 0.01, min: 0, max: 3, dec: 2 },
+  energy_oil_winter_liters: { unit: " L", step: 10, min: 0, max: 100000, dec: 0 },
+  energy_oil_winter_days: { unit: " Tage", step: 1, min: 0, max: 365, dec: 0 },
   energy_oil_factor: { unit: " kWh/L", step: 0.1, min: 5, max: 15, dec: 1 },
   energy_tank_capacity: { unit: " L", step: 10, min: 0, max: 50000, dec: 0 },
   energy_tank_min: { unit: " %", step: 1, min: 0, max: 100, dec: 0 },

@@ -268,6 +268,15 @@
     "gerade: „{s}“": "now: “{s}”",
     "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Energy price sensor in €/kWh, ct/kWh, €/m³ or €/L – optional, otherwise the fixed price applies",
     "Auch in": "Also in",
+    "Letzter Winter": "Last winter",
+    "Ø Verbrauch": "Ø consumption",
+    "Letzter Winter (Liter)": "Last winter (litres)",
+    "Letzter Winter (Tage)": "Last winter (days)",
+    "Preisverlauf": "Price history",
+    "noch kein Preis geändert": "no price changed yet",
+    "wird beim Ändern des Ölpreises automatisch notiert": "recorded automatically when the oil price changes",
+    "Liter aus dem letzten Winter – für die grobe Planung": "litres from last winter – for rough planning",
+    "Zeitraum des letzten Winters": "period of last winter",
     "Heizöl": "Heating oil",
     "Ölpreis": "Oil price",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",
@@ -1652,6 +1661,15 @@
     "gerade: „{s}“": "en cours : « {s} »",
     "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Capteur de prix en €/kWh, ct/kWh, €/m³ ou €/L – facultatif, sinon le prix fixe s’applique",
     "Auch in": "Aussi dans",
+    "Letzter Winter": "Dernier hiver",
+    "Ø Verbrauch": "Consommation Ø",
+    "Letzter Winter (Liter)": "Dernier hiver (litres)",
+    "Letzter Winter (Tage)": "Dernier hiver (jours)",
+    "Preisverlauf": "Historique des prix",
+    "noch kein Preis geändert": "aucun prix modifié pour l’instant",
+    "wird beim Ändern des Ölpreises automatisch notiert": "noté automatiquement lors du changement du prix du fioul",
+    "Liter aus dem letzten Winter – für die grobe Planung": "litres du dernier hiver – pour une planification approximative",
+    "Zeitraum des letzten Winters": "période du dernier hiver",
     "Heizöl": "Fioul",
     "Ölpreis": "Prix du fioul",
     "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",
@@ -4939,6 +4957,9 @@
       "A calendar from Home Assistant. If an event with one of the vacation words in its title is running, it acts like the vacation switch; with one of the at-home words like “guests”.",
       "Un calendrier de Home Assistant. Si un événement contenant l’un des mots « vacances » est en cours, il agit comme l’interrupteur Vacances ; avec l’un des mots « à la maison », comme « Invités présents »."
     ],
+    "Letzter Winter (Liter)": ["Liter aus dem letzten Winter. Raumklima rechnet daraus einen groben Tagesverbrauch für die Planung.", "Litres from last winter. Raumklima derives a rough daily consumption for planning.", "Litres du dernier hiver. Raumklima en déduit une consommation journalière approximative pour la planification."],
+    "Letzter Winter (Tage)": ["Zeitraum des letzten Winters in Tagen, damit der Tagesverbrauch stimmt.", "Period of last winter in days so the daily consumption is right.", "Période du dernier hiver en jours pour que la consommation journalière soit correcte."],
+    "Preisverlauf": ["Preise, die beim Ändern des Ölpreises automatisch notiert werden. Der letzte Wert gilt für die Kostenschätzung.", "Prices recorded automatically when the oil price changes. The latest value is used for the cost estimate.", "Prix notés automatiquement lors du changement du prix du fioul. La dernière valeur sert à l’estimation des coûts."],
     "Entfeuchter": [
       "Ein optionaler Luftentfeuchter (Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät). Läuft ab der Feuchtegrenze des Raums und geht fünf Prozent darunter wieder aus. Bei offenem Fenster aus. Während der Entfeuchter läuft, verzichtet Raumklima auf den Schimmelschutz-Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.",
       "An optional dehumidifier (smart plug/switch, fan or native dehumidifier device). Runs at the room humidity limit and stops 5% below. Off while a window is open. While it runs, Raumklima skips the mold-guard heating boost; after three hours without improvement, the heating protects again.",
@@ -5588,6 +5609,8 @@
     energy_factor: { unit: " kWh/m³", step: 0.5, min: 0, max: 20, dec: 1 },
     energy_efficiency: { unit: "", step: 0.1, min: 0, max: 6, dec: 1 },
     energy_oil_price: { unit: " €/L", step: 0.01, min: 0, max: 3, dec: 2 },
+    energy_oil_winter_liters: { unit: " L", step: 10, min: 0, max: 1e5, dec: 0 },
+    energy_oil_winter_days: { unit: " Tage", step: 1, min: 0, max: 365, dec: 0 },
     energy_oil_factor: { unit: " kWh/L", step: 0.1, min: 5, max: 15, dec: 1 },
     energy_tank_capacity: { unit: " L", step: 10, min: 0, max: 5e4, dec: 0 },
     energy_tank_min: { unit: " %", step: 1, min: 0, max: 100, dec: 0 },
@@ -6099,6 +6122,16 @@
         ),
         source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.1), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
         source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
+        source === "oil" ? this._row("Letzter Winter (Liter)", this._num("hub", "energy_oil_winter_liters", H("energy_oil_winter_liters") ?? 0), t("Liter aus dem letzten Winter – für die grobe Planung")) : "",
+        source === "oil" ? this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), t("Zeitraum des letzten Winters")) : "",
+        source === "oil" ? this._row("Preisverlauf", this._v(
+          (() => {
+            const h = H("energy_oil_price_history") || [];
+            const last = h[h.length - 1];
+            return last ? `${esc(last.date)} · ${fmt(last.price, 2)} €/L` : t("noch kein Preis geändert");
+          })(),
+          !(H("energy_oil_price_history") || []).length
+        ), t("wird beim Ändern des Ölpreises automatisch notiert")) : "",
         source === "oil" ? this._row(
           "Tankfüllstand",
           this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– wählen –"),
@@ -10480,6 +10513,12 @@
         e.tank ? this._row("Tankverbrauch", "mdi:chart-timeline-variant", tank.consumed_l != null ? `${fmt(tank.consumed_l, 1)} L` : "–") : "",
         e.tank ? this._row("Reicht noch", "mdi:calendar-clock", tank.days_left != null ? t("{n} Tage", { n: tank.days_left }) : t("lernt noch")) : "",
         e.tank ? this._row("Ölbestellung", "mdi:truck-delivery-outline", tank.order ? t("jetzt bestellen") : t("noch Zeit")) : "",
+        e.winter_liters ? this._row("Letzter Winter", "mdi:snowflake", `${fmt(e.winter_liters, 0)} L${e.winter_days ? ` · ${t("{n} Tage", { n: e.winter_days })}` : ""}`) : "",
+        e.winter_avg_l_day != null ? this._row("Ø Verbrauch", "mdi:chart-timeline-variant", `${fmt(e.winter_avg_l_day, 1)} L/Tag`) : "",
+        e.oil_price_history && e.oil_price_history.length ? this._row("Preisverlauf", "mdi:tag-history", (() => {
+          const last = e.oil_price_history[e.oil_price_history.length - 1] || {};
+          return `${esc(last.date || "–")} · ${fmt(last.price, 2)} €/L${e.oil_price_avg != null ? ` · Ø ${fmt(e.oil_price_avg, 2)}` : ""}`;
+        })()) : "",
         this._row("Tarif", "mdi:tag-outline", e.tariff ? `<span data-more="${esc(e.tariff)}" style="cursor:pointer">${esc(e.tariff)}</span>${e.tariff_dynamic ? ` · ${t("dynamisch")}` : ""}` : t("fester Preis")),
         e.surplus_kwh != null ? this._row("PV-Überschuss", "mdi:solar-power-variant", `${fmt(e.surplus_kwh, 1)} kWh`) : "",
         this._row("Arbeitspreis", "mdi:currency-eur", `${fmt(e.price, 2)} €/kWh`),
@@ -10509,7 +10548,7 @@
       this._html = `<style>${STYLES}${DASH_STYLES}</style>
       <ha-card class="dashcard" style="--tone:${toneVar("warn")}">
         <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:lightning-bolt-outline"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div>
-          <div class="dseg">${[1, 7, 30, 90].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${n === 1 ? t("Heute") : t("{n} Tage", { n })}</button>`).join("")}</div>
+          <div class="dseg">${[1, 7, 30, 90, 180, 365].map((n) => `<button class="${n === this._days ? "on" : ""}" data-days="${n}">${n === 1 ? t("Heute") : t("{n} Tage", { n })}</button>`).join("")}</div>
         </div>
         ${body}
       </ha-card>`;

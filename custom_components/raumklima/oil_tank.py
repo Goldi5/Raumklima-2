@@ -92,12 +92,34 @@ def tank_summary(
         points = [p for p in points if p[0] >= first]
 
     span = max(1, (points[-1][0] - points[0][0]).days) if len(points) > 1 else 1
+
+    # Verbrauch pro Segment zwischen zwei Tankfüllungen. Ein Segment endet nur bei
+    # einem echten Füllstandssprung; normales Prellen (±20 l) hebt sich in der
+    # Netto-Differenz auf.
+    segments: list[list[tuple[date, float | None, float | None]]] = []
+    for point in points:
+        if not segments:
+            segments.append([point])
+            continue
+        prev = segments[-1][-1]
+        refill = False
+        if prev[1] is not None and point[1] is not None:
+            refill = point[1] > prev[1] + max(50.0, capacity * 0.03)
+        elif prev[2] is not None and point[2] is not None:
+            refill = point[2] > prev[2] + 3.0
+        if refill:
+            segments.append([point])
+        else:
+            segments[-1].append(point)
+
     consumed_l = None
     consumed_pct = None
-    if len(points) > 1 and all(p[1] is not None for p in points):
-        consumed_l = sum(max(0.0, prev[1] - cur[1]) for prev, cur in zip(points, points[1:]))
-    if len(points) > 1 and all(p[2] is not None for p in points):
-        consumed_pct = sum(max(0.0, prev[2] - cur[2]) for prev, cur in zip(points, points[1:]))
+    liter_segments = [seg for seg in segments if all(p[1] is not None for p in seg)]
+    if len(points) > 1 and liter_segments:
+        consumed_l = sum(max(0.0, seg[0][1] - seg[-1][1]) for seg in liter_segments)
+    pct_segments = [seg for seg in segments if all(p[2] is not None for p in seg)]
+    if len(points) > 1 and pct_segments:
+        consumed_pct = sum(max(0.0, seg[0][2] - seg[-1][2]) for seg in pct_segments)
 
     avg_l_day = consumed_l / span if consumed_l is not None else None
     avg_pct_day = consumed_pct / span if consumed_pct is not None else None

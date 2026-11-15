@@ -317,7 +317,7 @@ If you enter your **heating costs per year** under *Settings → General → Rep
 
 ### Heating oil and tank
 
-Under *Settings → General → Heating & Energy* choose **Heating oil** as the source. An oil meter in litres is converted via its energy content (default 10 kWh/L), and the price is entered per litre. Optionally an **oil tank level sensor** shows the remaining amount; Raumklima estimates consumption and remaining days from a falling level, ignores refills and asks you to order when the configured remaining amount or 14 days of supply is reached.
+Under *Settings → General → Heating & Energy* choose **Heating oil** as the source. An oil meter in litres is converted via its energy content (default 10 kWh/L), and the price is entered per litre. Optionally an **oil tank level sensor** shows the remaining amount; Raumklima estimates consumption and remaining days from a falling level, ignores refills and asks you to order when the configured remaining amount or 14 days of supply is reached. Short jitter in the level is not counted as consumption: the net difference between two refills is used. Under “Last winter” you can enter litres and days; the oil price is recorded with its date in the price history.
 
 :::tip
 The report follows the Home Assistant language: German, French, English for every other language. Push messages, the log and notices do the same.

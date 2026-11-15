@@ -78,6 +78,19 @@ async def test_hub_update_and_log(hass: HomeAssistant, setup, hass_ws_client) ->
     assert "Einstellungen geändert" in titles
 
 
+async def test_oil_price_is_recorded(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    hub, _room = setup
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/hub/update", "changes": {"energy_oil_price": 1.2}})
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    await hass.async_block_till_done()
+    options = hass.config_entries.async_get_entry(hub.entry_id).options
+    history = options["energy_oil_price_history"]
+    assert history[-1]["price"] == 1.2
+    assert history[-1]["date"]
+
+
 async def test_hub_action_heat_today(hass: HomeAssistant, setup, hass_ws_client) -> None:
     client = await hass_ws_client(hass)
     await client.send_json_auto_id({"type": "raumklima/hub/action", "action": "heat_today"})
