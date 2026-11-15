@@ -13,8 +13,8 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_get_device_automations
 
 from custom_components.raumklima.const import DOMAIN
-from custom_components.raumklima.room_dehumidify import DehumidifierManager
 from custom_components.raumklima.planning import ForecastHour
+from custom_components.raumklima.room_dehumidify import DehumidifierManager
 
 from .conftest import SENSOR, WINDOW, FakeTrv, hub_entry, room_entry
 

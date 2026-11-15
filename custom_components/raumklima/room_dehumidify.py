@@ -171,9 +171,7 @@ class DehumidifierManager:
         """Kompressorschutz: nach dem Ausgehen erst einmal pausieren."""
         if self._last_cmd_at and now - self._last_cmd_at < timedelta(seconds=60):
             return False
-        if self._off_since and now - self._off_since < timedelta(minutes=MIN_OFF):
-            return False
-        return True
+        return not (self._off_since and now - self._off_since < timedelta(minutes=MIN_OFF))
 
     def _command(self, on: bool, now: datetime, reason: str) -> None:
         """Befehl senden und die erwartete Bestätigung vormerken."""
