@@ -154,6 +154,13 @@ export const BindMethods = {
       this._moreOpen.set(d.dataset.more, !d.open); // der Klick schaltet gleich um
       d.dataset.open = d.open ? "0" : "1";
     });
+    on("click", "details.eguide > summary", (el) => () => {
+      // Anleitung bleibt offen, auch wenn die Karte neu zeichnet (jede HA-Zustandsänderung)
+      const d = el.parentElement;
+      this._guideOpen = this._guideOpen || new Set();
+      if (d.open) this._guideOpen.delete(d.dataset.guide);
+      else this._guideOpen.add(d.dataset.guide);
+    });
     on("click", "details.sched-collapse > summary", (el) => () => {
       const d = el.parentElement;
       this._schedOpen = this._schedOpen || new Map();

@@ -1,3 +1,8 @@
+## 1.3.0b8 – 2026-11-15
+
+### Behoben
+- **Aufgeklappte Abschnitte bleiben offen:** Anleitungen in *Energie & Tarife*, „Details und Sensoren“, Entscheidungen im Protokoll und ähnliche Aufklapper gingen nach Sekunden wieder zu – die Karten zeichnen bei jeder Zustandsänderung in Home Assistant neu. Jetzt merkt sich jede Karte, was offen ist.
+
 ## 1.3.0b7 – 2026-11-15
 
 ### Neu

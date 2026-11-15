@@ -24,7 +24,7 @@ export const EnergySectionMethods = {
     const electric = source === "heatpump" || source === "electric";
     const now = (id, empty) => (id ? t("aktuell {v}", { v: this._sensorInfo(id) }) : t(empty));
     const step = (n, title, sub) => `<div class="estep"><span class="en">${n}</span><div><b>${t(title)}</b>${sub ? `<small>${t(sub)}</small>` : ""}</div></div>`;
-    const guide = (title, lines) => `<details class="eguide"><summary><ha-icon icon="mdi:book-open-variant"></ha-icon>${t(title)}</summary><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></details>`;
+    const guide = (title, lines) => `<details class="eguide" data-guide="${esc(title)}"${this._guideOpen && this._guideOpen.has(title) ? " open" : ""}><summary><ha-icon icon="mdi:book-open-variant"></ha-icon>${t(title)}</summary><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></details>`;
     const on = !!H("energy_enabled");
     const head = this._row("Energie-Erfassung", this._optToggle("hub", "energy_enabled", on),
       "Zähler und Preise auswerten – Raumklima rechnet nur aus und steuert die Heizung nicht");

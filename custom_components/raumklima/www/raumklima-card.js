@@ -3998,7 +3998,20 @@
       if (el.scrollTop) scrollers.push([el, el.scrollTop]);
     }
     if (h) host.style.minHeight = `${h}px`;
+    const own = (d) => d.hasAttribute("data-more") || d.hasAttribute("data-schedcollapse") || d.hasAttribute("data-mailbox");
+    const keyOf = (d) => d.dataset.guide || d.dataset.keep || `${d.className}|${((d.querySelector("summary") || {}).textContent || "").trim().slice(0, 80)}`;
+    const opened = /* @__PURE__ */ new Map();
+    if (root.querySelectorAll) root.querySelectorAll("details").forEach((d) => {
+      if (!own(d)) opened.set(keyOf(d), d.open);
+    });
     root.innerHTML = html;
+    if (opened.size) {
+      root.querySelectorAll("details").forEach((d) => {
+        if (own(d)) return;
+        const k = keyOf(d);
+        if (opened.has(k) && d.open !== opened.get(k)) d.open = opened.get(k);
+      });
+    }
     if (window.scrollY !== y) window.scrollTo(0, y);
     for (const [el, top] of scrollers) if (el.scrollTop !== top) el.scrollTop = top;
     clearTimeout(host._rkHold);
@@ -6382,7 +6395,7 @@
       const electric = source === "heatpump" || source === "electric";
       const now = (id, empty) => id ? t("aktuell {v}", { v: this._sensorInfo(id) }) : t(empty);
       const step = (n, title, sub) => `<div class="estep"><span class="en">${n}</span><div><b>${t(title)}</b>${sub ? `<small>${t(sub)}</small>` : ""}</div></div>`;
-      const guide = (title, lines) => `<details class="eguide"><summary><ha-icon icon="mdi:book-open-variant"></ha-icon>${t(title)}</summary><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></details>`;
+      const guide = (title, lines) => `<details class="eguide" data-guide="${esc(title)}"${this._guideOpen && this._guideOpen.has(title) ? " open" : ""}><summary><ha-icon icon="mdi:book-open-variant"></ha-icon>${t(title)}</summary><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></details>`;
       const on = !!H("energy_enabled");
       const head = this._row(
         "Energie-Erfassung",
@@ -8522,6 +8535,12 @@
         const d = el.parentElement;
         this._moreOpen.set(d.dataset.more, !d.open);
         d.dataset.open = d.open ? "0" : "1";
+      });
+      on("click", "details.eguide > summary", (el) => () => {
+        const d = el.parentElement;
+        this._guideOpen = this._guideOpen || /* @__PURE__ */ new Set();
+        if (d.open) this._guideOpen.delete(d.dataset.guide);
+        else this._guideOpen.add(d.dataset.guide);
       });
       on("click", "details.sched-collapse > summary", (el) => () => {
         const d = el.parentElement;

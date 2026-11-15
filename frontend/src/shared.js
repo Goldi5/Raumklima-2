@@ -318,7 +318,22 @@ export function rkPaint(host, html) {
     if (el.scrollTop) scrollers.push([el, el.scrollTop]);
   }
   if (h) host.style.minHeight = `${h}px`;
+  // Aufgeklappte Abschnitte (Anleitungen, Details, Entscheidungen …) bleiben beim Neuzeichnen offen:
+  // die Karten zeichnen bei jeder Zustandsänderung in Home Assistant neu.
+  // Abschnitte mit eigener Merk-Logik („Weitere Einstellungen“, Zeitfenster, Mailbox) bleiben außen vor.
+  const own = (d) => d.hasAttribute("data-more") || d.hasAttribute("data-schedcollapse") || d.hasAttribute("data-mailbox");
+  const keyOf = (d) => d.dataset.guide || d.dataset.keep
+    || `${d.className}|${((d.querySelector("summary") || {}).textContent || "").trim().slice(0, 80)}`;
+  const opened = new Map();
+  if (root.querySelectorAll) root.querySelectorAll("details").forEach((d) => { if (!own(d)) opened.set(keyOf(d), d.open); });
   root.innerHTML = html;
+  if (opened.size) {
+    root.querySelectorAll("details").forEach((d) => {
+      if (own(d)) return;
+      const k = keyOf(d);
+      if (opened.has(k) && d.open !== opened.get(k)) d.open = opened.get(k);
+    });
+  }
   if (window.scrollY !== y) window.scrollTo(0, y);
   for (const [el, top] of scrollers) if (el.scrollTop !== top) el.scrollTop = top;
   clearTimeout(host._rkHold);
