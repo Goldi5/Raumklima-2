@@ -312,6 +312,10 @@ Si vous saisissez vos **frais de chauffage par an** sous *Réglages → Généra
 - **Sur votre téléphone :** le message push contient un bouton **Ouvrir le PDF**.
 - **Par e-mail :** *Réglages → Général → Rapports → PDF par e-mail* → touchez **Configurer l’e-mail** juste en dessous, choisissez votre fournisseur (par ex. Gmail), saisissez l’utilisateur, le mot de passe et les destinataires, testez-les avec **Vérifier la connexion**, puis touchez **Enregistrer et envoyer un e-mail de test**. Gmail, iCloud et Outlook nécessitent un mot de passe d’application.
 
+### Fioul et réservoir
+
+Sous *Réglages → Général → Chauffage & énergie*, choisissez **Fioul** comme source. Un compteur de fioul en litres est converti via son contenu énergétique (10 kWh/L par défaut), le prix se saisit par litre. Un **capteur de niveau du réservoir** affiche facultativement la quantité restante ; Raumklima estime la consommation et les jours restants à partir du niveau qui baisse, ignore les remplissages et rappelle de commander lorsque la quantité restante configurée ou 14 jours de réserve sont atteints.
+
 :::tip
 Le rapport suit la langue de Home Assistant : allemand, français, anglais pour toute autre langue. Les messages push, le journal et les notifications font de même.
 :::
@@ -334,6 +338,7 @@ Vous hésitez ? Gardez les valeurs par défaut. Elles suivent les recommandation
 | **Allgemein → Saison de chauffage** | quand chauffer, chauffer aujourd’hui |
 | **Allgemein → Qui reçoit quoi** | destinataires et quels messages ils reçoivent |
 | **Allgemein → Notifications** | heures calmes, rappels, source météo, rapports PDF, e-mail |
+| **Allgemein → Chauffage & énergie** | source, compteur, tarif, prix du fioul, niveau du réservoir |
 | **Général → Nuit et heures calmes** | Raumklima apprend quand vous dormez |
 | **Pièce → Température** | température souhaitée, abaissement, côté ensoleillé |
 | **Pièce → Aération et humidité** | à partir de quelle humidité demander une aération |

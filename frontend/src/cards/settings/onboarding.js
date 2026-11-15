@@ -38,7 +38,7 @@ const STEPS = [
   },
   {
     id: "energy", title: "Energie & Tarif", fields: [
-      { key: "energy_source", label: "Quelle", type: "select", options: [["auto","Automatisch"],["electric","Strom"],["gas","Gas"],["heatpump","Wärmepumpe"],["district","Fernwärme"]] },
+      { key: "energy_source", label: "Quelle", type: "select", options: [["auto","Automatisch"],["electric","Strom"],["gas","Gas"],["oil","Heizöl"],["heatpump","Wärmepumpe"],["district","Fernwärme"]] },
       { key: "energy_meter", label: "Zähler", type: "select", choices: "energy", allowEmpty: true },
       { key: "energy_tariff", label: "Tarif", type: "select", choices: "tariff", allowEmpty: true },
       { key: "energy_price", label: "Arbeitspreis", type: "number", unit: " €/kWh", min: 0, max: 2, step: 0.01 },

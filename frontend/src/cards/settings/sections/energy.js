@@ -14,7 +14,9 @@ export const EnergySectionMethods = {
     const H = this._hubOpt.bind(this);
     const source = H("energy_source") || "auto";
     const choices = (this._cfg && this._cfg.choices) || {};
-    const meters = choices.energy || [];
+    const meters = source === "oil"
+      ? [...new Map([...(choices.energy || []), ...(choices.oil || [])].map((x) => [x.id, x])).values()]
+      : choices.energy || [];
     const heat = choices.heat || [];
     const advanced = [
       this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), t("monatliche Grundgebühr in €")),
@@ -41,18 +43,25 @@ export const EnergySectionMethods = {
       this._row("Energiequelle", this._select("hub", "energy_source", [
         { id: "auto", name: t("automatisch") },
         { id: "gas", name: t("Gas") },
+        { id: "oil", name: t("Heizöl") },
         { id: "heatpump", name: t("Wärmepumpe") },
         { id: "district", name: t("Fernwärme") },
         { id: "electric", name: t("Strom") },
       ], source),
         t("bestimmt, wie der Zähler umgerechnet und welcher Tarif erwartet wird")),
       this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-        H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")),
+        H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas-, Öl- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")),
+      source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.10), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
+      source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
+      source === "oil" ? this._row("Tankfüllstand", this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– wählen –"),
+        H("energy_tank_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tank_entity")) }) : t("optionaler Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis")) : "",
+      source === "oil" && H("energy_tank_entity") ? this._row("Tankinhalt", this._num("hub", "energy_tank_capacity", H("energy_tank_capacity") ?? 0), t("Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet")) : "",
+      source === "oil" && H("energy_tank_entity") ? this._row("Öl bestellen ab", this._num("hub", "energy_tank_min", H("energy_tank_min") ?? 20), t("Restmenge in Prozent – darunter erscheint der Bestellhinweis")) : "",
       this._row("Tarif", this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
-        H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")),
+        H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis")),
       this._row("PV-Ertrag", this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
         H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")),
-      this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"]),
+      this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "energy_oil_factor", "energy_oil_price", "energy_tank_capacity", "energy_tank_min", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"]),
     ].join(""));
   },
 

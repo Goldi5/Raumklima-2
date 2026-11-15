@@ -369,6 +369,11 @@ HUB_DEFAULTS: Final = {
     "energy_factor": 10.0,
     "energy_heat_entity": None,
     "energy_efficiency": 0.0,
+    "energy_oil_price": 1.10,
+    "energy_oil_factor": 10.0,
+    "energy_tank_entity": None,
+    "energy_tank_capacity": 0.0,
+    "energy_tank_min": 20.0,
     "ac_cop": 3.0,
     "gas_price": 0.10,
     "electric_price": 0.0,
@@ -524,8 +529,13 @@ CONF_ENERGY_SOURCE: Final = "energy_source"
 CONF_ENERGY_FACTOR: Final = "energy_factor"
 CONF_ENERGY_HEAT_ENTITY: Final = "energy_heat_entity"
 CONF_ENERGY_EFFICIENCY: Final = "energy_efficiency"
+CONF_ENERGY_OIL_PRICE: Final = "energy_oil_price"
+CONF_ENERGY_OIL_FACTOR: Final = "energy_oil_factor"
+CONF_ENERGY_TANK_ENTITY: Final = "energy_tank_entity"
+CONF_ENERGY_TANK_CAPACITY: Final = "energy_tank_capacity"
+CONF_ENERGY_TANK_MIN: Final = "energy_tank_min"
 CONF_PV_SELF_USE: Final = "pv_self_use"
-ENERGY_SOURCES: Final = ("auto", "electric", "gas", "heatpump", "district")
+ENERGY_SOURCES: Final = ("auto", "electric", "gas", "heatpump", "district", "oil")
 REPORT_METRICS: Final = ["auto", "valve", "deficit", "hours"]  # auto = Ventil, sonst Gradstunden
 REPORT_METRIC_DEFAULT: Final = "auto"
 ON_PRESET_AUTO: Final = "auto_detect"

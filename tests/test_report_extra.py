@@ -93,6 +93,9 @@ def test_money_and_tips():
 def test_energy_kwh_and_meter_money():
     assert rx.energy_kwh(120, "m³", 10) == 1200
     assert rx.energy_kwh(1500, "Wh", 10) == 1.5
+    assert rx.energy_kwh(500, "L", 10, "oil") == 5000
+    assert rx.energy_kwh(1, "m³", 10, "oil") == 10000
+    assert rx.energy_kwh(50, "%", 10, "oil") is None
     rooms, home = _rooms(warm=True, night_heat=True)
     cur = summarize(rooms, home, TODAY - timedelta(days=6), TODAY)
     meter = rx.money(cur, None, {"source": "gas", "kwh": 1000, "price": 0.12, "base": 10, "days": 7})

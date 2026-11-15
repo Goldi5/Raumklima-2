@@ -244,8 +244,17 @@ def pv_split(pv_kwh: float | None, self_use_pct: float | None) -> dict[str, floa
     return {"pv_kwh": round(pv, 1), "self_kwh": round(self_kwh, 1), "surplus_kwh": round(pv - self_kwh, 1)}
 
 
-def energy_kwh(value: float | None, unit: str | None, factor: float = 10.0) -> float | None:
-    """Zählerstand in kWh umrechnen – Gas in m³ über Brennwert/Zustandszahl."""
+def energy_kwh(
+    value: float | None,
+    unit: str | None,
+    factor: float = 10.0,
+    source: str | None = None,
+) -> float | None:
+    """Zählerstand in kWh umrechnen.
+
+    Gas in m³ über Brennwert/Zustandszahl. Heizöl in Litern über kWh je Liter;
+    ein Öl-Tank in m³ wird zuerst in Liter umgerechnet.
+    """
     if value is None:
         return None
     try:
@@ -253,8 +262,16 @@ def energy_kwh(value: float | None, unit: str | None, factor: float = 10.0) -> f
     except (TypeError, ValueError):
         return None
     u = (unit or "").strip().lower().replace("³", "3")
+    factor = factor or 10.0
+    if source == "oil":
+        if u in ("l", "liter", "liters", "litre", "litres"):
+            return amount * factor
+        if u in ("m3", "m^3"):
+            return amount * 1000.0 * factor
+        if u in ("%", "percent"):
+            return None  # Füllstand ist kein Verbrauchszähler
     if u in ("m3", "m^3"):
-        return amount * (factor or 10.0)
+        return amount * factor
     if u == "wh":
         return amount / 1000
     if u == "mwh":

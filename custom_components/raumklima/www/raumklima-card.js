@@ -266,6 +266,28 @@
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} dashboard(s) created for your homes",
     "– keiner –": "– none –",
     "gerade: „{s}“": "now: “{s}”",
+    "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Energy price sensor in €/kWh, ct/kWh, €/m³ or €/L – optional, otherwise the fixed price applies",
+    "Heizöl": "Heating oil",
+    "Ölpreis": "Oil price",
+    "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Price per litre of heating oil – used for costs and the tank",
+    "kWh je Liter": "kWh per litre",
+    "Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert": "Energy content of one litre of heating oil; 10 kWh/L is typical",
+    "Tankfüllstand": "Tank level",
+    "optionaler Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis": "optional level in %, L or m³ – shows the remaining amount and reorder hint",
+    "Tankinhalt": "Tank capacity",
+    "Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet": "nominal capacity in litres – needed when the sensor reports percent",
+    "Öl bestellen ab": "Order oil below",
+    "Restmenge in Prozent – darunter erscheint der Bestellhinweis": "remaining amount in percent – below this the reorder hint appears",
+    "Strom-, Gas-, Öl- oder Wärmezähler – wird beim PDF-Bericht ausgewertet": "electricity, gas, oil or heat meter – evaluated for the PDF report",
+    "Noch kein Zähler oder Tank gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas-, Öl- oder Wärmezähler auswählen.": "No meter or tank selected yet. Choose an electricity, gas, oil or heat meter in Settings under “Heating & Energy”.",
+    "reicht noch ~{d} Tage": "lasts about {d} more days",
+    "Tank": "Tank",
+    "Tankverbrauch": "Tank consumption",
+    "Reicht noch": "Lasts",
+    "Ölbestellung": "Oil order",
+    "jetzt bestellen": "order now",
+    "noch Zeit": "still time",
+    "Schwelle {v} L": "threshold {v} L",
     "Schulferien-Kalender": "School holiday calendar",
     "Entfeuchter": "Dehumidifier",
     "läuft gerade": "running now",
@@ -1627,6 +1649,28 @@
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} tableau(x) de bord créé(s) pour tes logements",
     "– keiner –": "– aucun –",
     "gerade: „{s}“": "en cours : « {s} »",
+    "Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis": "Capteur de prix en €/kWh, ct/kWh, €/m³ ou €/L – facultatif, sinon le prix fixe s’applique",
+    "Heizöl": "Fioul",
+    "Ölpreis": "Prix du fioul",
+    "Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt": "Prix du litre de fioul – utilisé pour les coûts et le réservoir",
+    "kWh je Liter": "kWh par litre",
+    "Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert": "Contenu énergétique d’un litre de fioul ; 10 kWh/L est une valeur typique",
+    "Tankfüllstand": "Niveau du réservoir",
+    "optionaler Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis": "niveau facultatif en %, L ou m³ – affiche la quantité restante et le rappel de commande",
+    "Tankinhalt": "Capacité du réservoir",
+    "Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet": "capacité nominale en litres – nécessaire si le capteur indique un pourcentage",
+    "Öl bestellen ab": "Commander le fioul sous",
+    "Restmenge in Prozent – darunter erscheint der Bestellhinweis": "quantité restante en pourcentage – en dessous, le rappel de commande apparaît",
+    "Strom-, Gas-, Öl- oder Wärmezähler – wird beim PDF-Bericht ausgewertet": "compteur d’électricité, de gaz, de fioul ou de chaleur – évalué pour le rapport PDF",
+    "Noch kein Zähler oder Tank gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas-, Öl- oder Wärmezähler auswählen.": "Aucun compteur ou réservoir sélectionné. Choisissez un compteur d’électricité, de gaz, de fioul ou de chaleur dans les réglages sous « Chauffage & énergie ».",
+    "reicht noch ~{d} Tage": "dure encore environ {d} jours",
+    "Tank": "Réservoir",
+    "Tankverbrauch": "Consommation du réservoir",
+    "Reicht noch": "Dure encore",
+    "Ölbestellung": "Commande de fioul",
+    "jetzt bestellen": "commander maintenant",
+    "noch Zeit": "encore le temps",
+    "Schwelle {v} L": "seuil {v} L",
     "Schulferien-Kalender": "Calendrier des vacances scolaires",
     "Entfeuchter": "Déshumidificateur",
     "läuft gerade": "en marche",
@@ -4778,9 +4822,9 @@
     "Bei günstigem Strom vorheizen": ["Startet bis zu 60 Minuten vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt. Der Rest der Regelung bleibt unverändert.", "Starts up to 60 minutes before a schedule window when the current price is below the limit. The rest of the control remains unchanged.", "Démarre jusqu’à 60 minutes avant une plage horaire lorsque le prix actuel est sous la limite. Le reste de la régulation reste inchangé."],
     "Energie-Erfassung": ["Zähler, Tarife und PV-Ertrag auswerten.", "Analyse meters, tariffs and PV yield.", "Analyse compteurs, tarifs et rendement PV."],
     "Energiequelle": [
-      "Legt fest, wie der Zähler gelesen wird: Gas in m³ wird über Brennwert und Zustandszahl in kWh umgerechnet, Wärmepumpen zählen Strom und optional die erzeugte Wärme, Fernwärme zählt kWh.",
-      "Defines how the meter is read: gas in m³ is converted to kWh via calorific value and correction factor, heat pumps count electricity and optionally the heat produced, district heating counts kWh.",
-      "Définit la lecture du compteur : le gaz en m³ est converti en kWh via le pouvoir calorifique et le facteur de correction, les pompes à chaleur comptent l’électricité et éventuellement la chaleur produite, le chauffage urbain compte les kWh."
+      "Legt fest, wie der Zähler gelesen wird: Gas in m³ über Brennwert und Zustandszahl, Heizöl in Litern über den Energieinhalt, Wärmepumpen zählen Strom und optional die erzeugte Wärme, Fernwärme zählt kWh.",
+      "Defines how the meter is read: gas in m³ via calorific value and correction factor, heating oil in litres via its energy content, heat pumps count electricity and optionally the heat produced, district heating counts kWh.",
+      "Définit la lecture du compteur : le gaz en m³ via le pouvoir calorifique et le facteur de correction, le fioul en litres via son contenu énergétique, les pompes à chaleur comptent l’électricité et éventuellement la chaleur produite, le chauffage urbain compte les kWh."
     ],
     "Gas-Umrechnung": [
       "Wie viele kWh stecken in einem m³ Gas? Brennwert × Zustandszahl; 10 kWh/m³ ist ein typischer Näherungswert. Genau steht beides auf der Gasabrechnung.",
@@ -4802,7 +4846,7 @@
       "Which share of PV yield covers your own consumption. Only enter this if the meter measures total consumption – with a grid-import-only meter the PV share is already deducted.",
       "Part du rendement PV couvrant votre propre consommation. À renseigner uniquement si le compteur mesure la consommation totale – avec un compteur de soutirage réseau, la part PV est déjà déduite."
     ],
-    "Zähler": ["Strom- oder Gaszähler als Verbrauchsquelle.", "Electricity or gas meter as consumption source.", "Compteur électrique ou gaz comme source de consommation."],
+    "Zähler": ["Strom-, Gas-, Öl- oder Wärmezähler als Verbrauchsquelle.", "Electricity, gas, oil or heat meter as consumption source.", "Compteur d’électricité, de gaz, de fioul ou de chaleur comme source de consommation."],
     "Tarif": ["Arbeitspreis und Grundgebühr.", "Energy price and base fee.", "Prix de l’énergie et frais fixes."],
     "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
     "Aktuell": ["Aktueller Messwert der gewählten Entität.", "Current reading of the selected entity.", "Valeur actuelle de l’entité choisie."],
@@ -4823,6 +4867,11 @@
     "Räume": ["Anzahl der Raumklima-Räume.", "Number of Raumklima rooms.", "Nombre de pièces Raumklima."],
     "Grundpreis": ["Monatliche Grundgebühr in €.", "Monthly base fee in €.", "Frais fixes mensuels en €."],
     "Arbeitspreis": ["Preis pro kWh – für die Euro-Schätzung.", "Price per kWh – for the euro estimate.", "Prix par kWh – pour l’estimation en euros."],
+    "Ölpreis": ["Preis je Liter Heizöl. Raumklima rechnet ihn über den Energieinhalt auf kWh um.", "Price per litre of heating oil. Raumklima converts it to kWh via the energy content.", "Prix du litre de fioul. Raumklima le convertit en kWh via le contenu énergétique."],
+    "kWh je Liter": ["Energieinhalt eines Liters Heizöl. 10 kWh/L ist ein typischer Näherungswert; genau steht er auf der Lieferung.", "Energy content of one litre of heating oil. 10 kWh/L is a typical approximation; the exact value is on the delivery note.", "Contenu énergétique d’un litre de fioul. 10 kWh/L est une approximation typique ; la valeur exacte figure sur la livraison."],
+    "Tankfüllstand": ["Optionaler Fühler für den Öltank. Aus sinkendem Füllstand schätzt Raumklima Verbrauch und Resttage; Nachfüllungen werden ignoriert.", "Optional oil tank sensor. From a falling level Raumklima estimates consumption and remaining days; refills are ignored.", "Capteur facultatif du réservoir de fioul. À partir du niveau qui baisse, Raumklima estime la consommation et les jours restants ; les remplissages sont ignorés."],
+    "Tankinhalt": ["Nenninhalt des Tanks in Litern. Nötig, wenn der Fühler Prozent statt Liter meldet.", "Nominal tank capacity in litres. Needed when the sensor reports percent instead of litres.", "Capacité nominale du réservoir en litres. Nécessaire si le capteur indique des pourcentages au lieu de litres."],
+    "Öl bestellen ab": ["Restmenge in Prozent, ab der der Bestellhinweis erscheint. Zusätzlich warnt Raumklima, wenn der Vorrat weniger als 14 Tage reicht.", "Remaining amount in percent at which the reorder hint appears. Raumklima also warns when the supply lasts less than 14 days.", "Quantité restante en pourcentage à partir de laquelle le rappel de commande apparaît. Raumklima avertit aussi si la réserve dure moins de 14 jours."],
     "Feinstaubfühler": [
       "PM2,5-Fühler im Raum. Ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.",
       "PM2.5 sensor in the room. From 35 µg/m³ Raumklima suggests airing; below 15 µg/m³ the air counts as exchanged.",
@@ -5536,6 +5585,10 @@
     energy_extra_fee: { unit: " €", step: 0.01, min: 0, max: 1, dec: 2 },
     energy_factor: { unit: " kWh/m³", step: 0.5, min: 0, max: 20, dec: 1 },
     energy_efficiency: { unit: "", step: 0.1, min: 0, max: 6, dec: 1 },
+    energy_oil_price: { unit: " €/L", step: 0.01, min: 0, max: 3, dec: 2 },
+    energy_oil_factor: { unit: " kWh/L", step: 0.1, min: 5, max: 15, dec: 1 },
+    energy_tank_capacity: { unit: " L", step: 10, min: 0, max: 5e4, dec: 0 },
+    energy_tank_min: { unit: " %", step: 1, min: 0, max: 100, dec: 0 },
     pv_self_use: { unit: " %", step: 5, min: 0, max: 100, dec: 0 },
     cool_setpoint: { unit: " °C", step: 0.5, min: 18, max: 30, dec: 1 },
     ac_min_on: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
@@ -5992,7 +6045,7 @@
       const H = this._hubOpt.bind(this);
       const source = H("energy_source") || "auto";
       const choices = this._cfg && this._cfg.choices || {};
-      const meters = choices.energy || [];
+      const meters = source === "oil" ? [...new Map([...choices.energy || [], ...choices.oil || []].map((x) => [x.id, x])).values()] : choices.energy || [];
       const heat = choices.heat || [];
       const advanced = [
         this._row("Grundpreis", this._num("hub", "energy_base", H("energy_base") ?? 0), t("monatliche Grundgebühr in €")),
@@ -6030,6 +6083,7 @@
           this._select("hub", "energy_source", [
             { id: "auto", name: t("automatisch") },
             { id: "gas", name: t("Gas") },
+            { id: "oil", name: t("Heizöl") },
             { id: "heatpump", name: t("Wärmepumpe") },
             { id: "district", name: t("Fernwärme") },
             { id: "electric", name: t("Strom") }
@@ -6039,19 +6093,28 @@
         this._row(
           "Zähler",
           this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"),
-          H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")
+          H("energy_meter") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_meter")) }) : t("Strom-, Gas-, Öl- oder Wärmezähler – wird beim PDF-Bericht ausgewertet")
         ),
+        source === "oil" ? this._row("Ölpreis", this._num("hub", "energy_oil_price", H("energy_oil_price") ?? 1.1), t("Preis je Liter Heizöl – wird für die Kosten und den Tank genutzt")) : "",
+        source === "oil" ? this._row("kWh je Liter", this._num("hub", "energy_oil_factor", H("energy_oil_factor") ?? 10), t("Energieinhalt von einem Liter Heizöl; 10 kWh/L ist ein typischer Wert")) : "",
+        source === "oil" ? this._row(
+          "Tankfüllstand",
+          this._select("hub", "energy_tank_entity", choices.tank || [], H("energy_tank_entity"), "– wählen –"),
+          H("energy_tank_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tank_entity")) }) : t("optionaler Füllstand in %, L oder m³ – zeigt Restmenge und Bestellhinweis")
+        ) : "",
+        source === "oil" && H("energy_tank_entity") ? this._row("Tankinhalt", this._num("hub", "energy_tank_capacity", H("energy_tank_capacity") ?? 0), t("Nenninhalt in Litern – nötig, wenn der Fühler Prozent meldet")) : "",
+        source === "oil" && H("energy_tank_entity") ? this._row("Öl bestellen ab", this._num("hub", "energy_tank_min", H("energy_tank_min") ?? 20), t("Restmenge in Prozent – darunter erscheint der Bestellhinweis")) : "",
         this._row(
           "Tarif",
           this._select("hub", "energy_tariff", choices.tariff || [], H("energy_tariff"), "– wählen –"),
-          H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh oder €/m³ – optional, sonst gilt der feste Preis")
+          H("energy_tariff") ? t("aktuell {v}", { v: this._sensorInfo(H("energy_tariff")) }) : t("Arbeitspreis-Sensor in €/kWh, ct/kWh, €/m³ oder €/L – optional, sonst gilt der feste Preis")
         ),
         this._row(
           "PV-Ertrag",
           this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
           H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")
         ),
-        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"])
+        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "energy_oil_factor", "energy_oil_price", "energy_tank_capacity", "energy_tank_min", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"])
       ].join(""));
     },
     _groupWeather() {
@@ -8757,7 +8820,7 @@
       id: "energy",
       title: "Energie & Tarif",
       fields: [
-        { key: "energy_source", label: "Quelle", type: "select", options: [["auto", "Automatisch"], ["electric", "Strom"], ["gas", "Gas"], ["heatpump", "Wärmepumpe"], ["district", "Fernwärme"]] },
+        { key: "energy_source", label: "Quelle", type: "select", options: [["auto", "Automatisch"], ["electric", "Strom"], ["gas", "Gas"], ["oil", "Heizöl"], ["heatpump", "Wärmepumpe"], ["district", "Fernwärme"]] },
         { key: "energy_meter", label: "Zähler", type: "select", choices: "energy", allowEmpty: true },
         { key: "energy_tariff", label: "Tarif", type: "select", choices: "tariff", allowEmpty: true },
         { key: "energy_price", label: "Arbeitspreis", type: "number", unit: " €/kWh", min: 0, max: 2, step: 0.01 },
@@ -10286,7 +10349,8 @@
     electric: "Strom",
     gas: "Gas",
     heatpump: "Wärmepumpe",
-    district: "Fernwärme"
+    district: "Fernwärme",
+    oil: "Heizöl"
   };
   var RaumklimaEnergyCard = class extends HTMLElement {
     set _html(html) {
@@ -10362,19 +10426,31 @@
       if (!e.enabled) {
         return this._empty("mdi:lightning-bolt-off", "Energie-Erfassung ist aus. In den Einstellungen unter „Heizung & Energie“ aktivieren.");
       }
-      if (!e.meter) {
-        return this._empty("mdi:counter", "Noch kein Zähler gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas- oder Wärmezähler auswählen.");
+      if (!e.meter && !e.tank) {
+        return this._empty("mdi:counter", "Noch kein Zähler oder Tank gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas-, Öl- oder Wärmezähler auswählen.");
       }
       const money = d.money || {};
       const kwh = e.kwh == null ? money.kwh : e.kwh;
       const cost = money.period_cost;
       const annual = money.annual;
-      const basis = money.basis === "bill" ? "Abrechnung" : money.basis === "meter" ? "Zähler" : "";
-      const meterInfo = e.m3 != null ? `${fmt(e.m3, 1)} m³ → ${fmt(e.kwh, 1)} kWh` : e.meter_unit || "";
+      const basis = money.basis === "bill" ? "Abrechnung" : money.basis === "tank" ? "Tank" : money.basis === "meter" ? "Zähler" : "";
+      const meterInfo = e.liter != null ? `${fmt(e.liter, 1)} L → ${fmt(e.kwh, 1)} kWh` : e.m3 != null ? `${fmt(e.m3, 1)} m³ → ${fmt(e.kwh, 1)} kWh` : e.meter_unit || "";
+      const tank = e.tank || null;
+      const tankValue = tank ? tank.current_percent != null ? fmt(tank.current_percent, 0) : tank.current_l != null ? fmt(tank.current_l, 0) : "–" : "–";
+      const tankUnit = tank && tank.current_percent != null ? " %" : " L";
+      const tankDetail = tank ? [
+        tank.current_l != null ? `${fmt(tank.current_l, 0)} L` : "",
+        tank.days_left != null ? t("reicht noch ~{d} Tage", { d: tank.days_left }) : tank.order ? t("jetzt bestellen") : t("lernt noch")
+      ].filter(Boolean).join(" · ") : "";
       const pvDetail = e.pv_entity ? `${t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) })}` + (e.surplus_kwh != null ? ` · ${t("{n} kWh Überschuss", { n: fmt(e.surplus_kwh, 1) })}` : "") : "";
       const rows = [
         this._row("Quelle", "mdi:transmission-tower", esc(this._source(e))),
-        this._row("Zähler", "mdi:counter", `<span data-more="${esc(e.meter)}" style="cursor:pointer">${esc(e.meter)}</span>`),
+        e.meter ? this._row("Zähler", "mdi:counter", `<span data-more="${esc(e.meter)}" style="cursor:pointer">${esc(e.meter)}</span>`) : "",
+        e.source === "oil" ? this._row("Ölpreis", "mdi:oil", `${fmt(e.oil_price, 2)} €/L`) : "",
+        e.tank ? this._row("Tank", "mdi:oil-level", `${tankValue}${tankUnit}${tank.threshold_l != null ? ` · ${t("Schwelle {v} L", { v: fmt(tank.threshold_l, 0) })}` : ""}`) : "",
+        e.tank ? this._row("Tankverbrauch", "mdi:chart-timeline-variant", tank.consumed_l != null ? `${fmt(tank.consumed_l, 1)} L` : "–") : "",
+        e.tank ? this._row("Reicht noch", "mdi:calendar-clock", tank.days_left != null ? t("{n} Tage", { n: tank.days_left }) : t("lernt noch")) : "",
+        e.tank ? this._row("Ölbestellung", "mdi:truck-delivery-outline", tank.order ? t("jetzt bestellen") : t("noch Zeit")) : "",
         this._row("Tarif", "mdi:tag-outline", e.tariff ? `<span data-more="${esc(e.tariff)}" style="cursor:pointer">${esc(e.tariff)}</span>${e.tariff_dynamic ? ` · ${t("dynamisch")}` : ""}` : t("fester Preis")),
         e.surplus_kwh != null ? this._row("PV-Überschuss", "mdi:solar-power-variant", `${fmt(e.surplus_kwh, 1)} kWh`) : "",
         this._row("Arbeitspreis", "mdi:currency-eur", `${fmt(e.price, 2)} €/kWh`),
@@ -10388,6 +10464,7 @@
         ${this._tile("Verbrauch", "mdi:lightning-bolt", kwh == null ? "–" : fmt(kwh, 1), " kWh", meterInfo)}
         ${this._tile("Kosten", "mdi:currency-eur", cost == null ? "–" : fmt(cost, 2), " €", basis ? t("Basis: {b}", { b: t(basis) }) : t("noch keine Schätzung"), "heat")}
         ${this._tile("Jahr", "mdi:chart-timeline-variant", annual == null ? "–" : fmt(annual, 0), " €", t("Schätzung"), "ok")}
+        ${e.tank ? this._tile("Tank", "mdi:oil-level", tankValue, tankUnit, tankDetail, tank.order ? "warn" : "ok") : ""}
         ${this._tile("PV", "mdi:solar-power", e.pv_kwh == null ? "–" : fmt(e.pv_kwh, 1), " kWh", pvDetail, "ok")}
       </div><div class="drows">${rows}</div>`;
     }

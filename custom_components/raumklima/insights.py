@@ -21,10 +21,15 @@ from .const import (
     CONF_ENERGY_FACTOR,
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_METER,
+    CONF_ENERGY_OIL_FACTOR,
+    CONF_ENERGY_OIL_PRICE,
     CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_PRICE,
     CONF_ENERGY_PRICE_BASIS,
     CONF_ENERGY_SOURCE,
+    CONF_ENERGY_TANK_CAPACITY,
+    CONF_ENERGY_TANK_ENTITY,
+    CONF_ENERGY_TANK_MIN,
     CONF_ENERGY_TARIFF,
     CONF_ENERGY_TARIFF_DYNAMIC,
     CONF_ENERGY_VAT,
@@ -41,6 +46,7 @@ from .const import (
 )
 from .health import SEV_INFO, Issue, check_connection, check_notify_targets, check_presence_residents
 from .msg import tr
+from .oil_tank import tank_summary
 from .report_extra import energy_kwh, money, pv_split
 from .stats import add_home_sample, add_room_sample, compare, export_rows, prune, rows_to_csv, summarize, week_message
 
@@ -266,9 +272,17 @@ class Insights:
         meter = self.hub.opt(CONF_ENERGY_METER)
         state = self.hass.states.get(meter) if meter else None
         attrs = state.attributes if state is not None else {}
+        unit = str(attrs.get("unit_of_measurement") or "").strip().lower().replace("³", "3")
         source = str(self.hub.opt(CONF_ENERGY_SOURCE) or "auto")
         if source == "auto":
-            source = "gas" if attrs.get("device_class") == "gas" else "electric"
+            if attrs.get("device_class") == "gas":
+                source = "gas"
+            elif unit in ("l", "liter", "liters", "litre", "litres"):
+                source = "oil"
+            else:
+                source = "electric"
+        tank = self.hub.opt(CONF_ENERGY_TANK_ENTITY)
+        tank_state = self.hass.states.get(tank) if tank else None
         return {
             "enabled": bool(self.hub.opt(CONF_ENERGY_ENABLED)),
             "source": source,
@@ -286,6 +300,12 @@ class Insights:
             "factor": float(self.hub.opt(CONF_ENERGY_FACTOR) or 10.0),
             "heat_entity": self.hub.opt(CONF_ENERGY_HEAT_ENTITY),
             "efficiency": float(self.hub.opt(CONF_ENERGY_EFFICIENCY) or 0),
+            "oil_price": float(self.hub.opt(CONF_ENERGY_OIL_PRICE) or 0),
+            "oil_factor": float(self.hub.opt(CONF_ENERGY_OIL_FACTOR) or 10),
+            "tank_entity": tank,
+            "tank_unit": tank_state.attributes.get("unit_of_measurement") if tank_state is not None else None,
+            "tank_capacity": float(self.hub.opt(CONF_ENERGY_TANK_CAPACITY) or 0),
+            "tank_min": float(self.hub.opt(CONF_ENERGY_TANK_MIN) or 20),
             "pv_entity": self.hub.opt(CONF_PV_ENTITY),
             "pv_self_use": float(self.hub.opt(CONF_PV_SELF_USE) or 0),
         }
@@ -316,6 +336,8 @@ class Insights:
                     "source": cfg.get("source"),
                     "kwh": round(kwh, 1),
                 }
+        if cost is not None and not cfg.get("meter") and cfg.get("tank"):
+            cost["basis"] = "tank"
         return {
             "start": start.isoformat(),
             "end": today.isoformat(),
@@ -325,26 +347,44 @@ class Insights:
         }
 
     async def async_energy_extras(self, start: date, end: date) -> dict[str, Any]:
-        """Zählerstände für den Berichtszeitraum holen – nur wenn Energie-Erfassung an ist."""
+        """Zählerstände und Öltank für den Berichtszeitraum holen."""
         cfg = self.energy_config()
-        if not cfg["enabled"] or not cfg["meter"]:
+        if not cfg["enabled"] or (not cfg["meter"] and not cfg["tank_entity"]):
             return {"energy": cfg}
         cfg["days"] = (end - start).days + 1
+        if cfg["source"] == "oil":
+            cfg["price"] = self._oil_price_kwh(cfg)
         try:
-            value = await self._stat_change(cfg["meter"], start, end)
-            if value is not None:
-                cfg["meter_value"] = value
-                cfg["kwh"] = energy_kwh(value, cfg["meter_unit"], cfg["factor"])
-                if (cfg["meter_unit"] or "").strip().lower().replace("³", "3") in ("m3", "m^3"):
-                    cfg["m3"] = value
-                cfg["price"] = self._tariff_price(cfg["tariff"], cfg["price"], cfg["factor"])
-                avg = await self._tariff_average(cfg["tariff"], start, end, cfg["factor"])
-                if avg is not None:
-                    cfg["price"] = avg
-                    cfg["price_avg"] = round(avg, 4)
-                    cfg["price_source"] = "history"
-                else:
-                    cfg["price_source"] = "current"
+            tank = await self._tank_summary(cfg["tank_entity"], cfg)
+            if tank is not None:
+                cfg["tank"] = tank
+            if cfg["meter"]:
+                value = await self._stat_change(cfg["meter"], start, end)
+                if value is not None:
+                    cfg["meter_value"] = value
+                    factor = cfg["oil_factor"] if cfg["source"] == "oil" else cfg["factor"]
+                    cfg["kwh"] = energy_kwh(value, cfg["meter_unit"], factor, cfg["source"])
+                    unit = (cfg["meter_unit"] or "").strip().lower().replace("³", "3")
+                    if unit in ("m3", "m^3"):
+                        cfg["m3"] = value
+                    if cfg["source"] == "oil":
+                        if unit in ("l", "liter", "liters", "litre", "litres"):
+                            cfg["liter"] = value
+                        elif unit in ("m3", "m^3"):
+                            cfg["liter"] = value * 1000.0
+                    t_factor = cfg["oil_factor"] if cfg["source"] == "oil" else cfg["factor"]
+                    cfg["price"] = self._tariff_price(cfg["tariff"], cfg["price"], t_factor)
+                    avg = await self._tariff_average(cfg["tariff"], start, end, t_factor)
+                    if avg is not None:
+                        cfg["price"] = avg
+                        cfg["price_avg"] = round(avg, 4)
+                        cfg["price_source"] = "history"
+                    else:
+                        cfg["price_source"] = "current"
+            elif tank is not None and tank.get("consumed_l") is not None:
+                cfg["liter"] = tank["consumed_l"]
+                cfg["kwh"] = tank.get("consumed_kwh")
+                cfg["price_source"] = "tank"
             if cfg["heat_entity"]:
                 heat = await self._stat_change(cfg["heat_entity"], start, end)
                 if heat is not None:
@@ -360,6 +400,72 @@ class Insights:
         except Exception:
             _LOGGER.debug("Energie-Statistik für den Bericht nicht verfügbar", exc_info=True)
         return {"energy": cfg}
+
+    def _oil_price_kwh(self, cfg: dict[str, Any]) -> float:
+        """Ölpreis von €/Liter auf €/kWh umrechnen."""
+        factor = float(cfg.get("oil_factor") or 10.0)
+        oil = float(cfg.get("oil_price") or 0)
+        return round(oil / factor, 4) if oil > 0 and factor > 0 else 0.0
+
+    async def _tank_summary(self, entity_id: str | None, cfg: dict[str, Any]) -> dict[str, Any] | None:
+        """Aktuellen Tankfüllstand und die tägliche Historie auswerten."""
+        if not entity_id:
+            return None
+        state = self.hass.states.get(entity_id)
+        current = None
+        unit = cfg.get("tank_unit")
+        if state is not None:
+            unit = state.attributes.get("unit_of_measurement") or unit
+            try:
+                current = float(state.state)
+            except (TypeError, ValueError):
+                current = None
+        today = dt_util.now().date()
+        history = await self._tank_history(entity_id, today - timedelta(days=15))
+        return tank_summary(
+            history,
+            current,
+            unit,
+            capacity_l=cfg.get("tank_capacity") or 0,
+            min_percent=cfg.get("tank_min") or 20,
+            factor_kwh_per_l=cfg.get("oil_factor") or 10,
+            oil_price_per_l=cfg.get("oil_price") or 0,
+            today=today,
+        )
+
+    async def _tank_history(self, entity_id: str, start: date) -> list[tuple[date, float]]:
+        """Tägliche Mittelwerte des Tankfüllstands aus der Statistik."""
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        first = dt_util.as_utc(dt_util.start_of_local_day(start))
+        last = dt_util.as_utc(dt_util.start_of_local_day(dt_util.now().date() + timedelta(days=1)))
+        try:
+            result = await get_instance(self.hass).async_add_executor_job(
+                statistics_during_period,
+                self.hass,
+                first,
+                last,
+                {entity_id},
+                "day",
+                None,
+                {"mean"},
+            )
+        except Exception:  # noqa: BLE001 – ohne Statistik bleibt der aktuelle Füllstand
+            _LOGGER.debug("Tank-Statistik nicht verfügbar", exc_info=True)
+            return []
+        out: list[tuple[date, float]] = []
+        for row in result.get(entity_id) or []:
+            mean = row.get("mean")
+            stamp = row.get("start")
+            if mean is None or stamp is None:
+                continue
+            try:
+                day = dt_util.as_local(dt_util.utc_from_timestamp(float(stamp))).date()
+            except (TypeError, ValueError, OSError):
+                continue
+            out.append((day, float(mean)))
+        return out
 
     def _unit_of(self, entity_id: str) -> str | None:
         state = self.hass.states.get(entity_id)
@@ -394,6 +500,8 @@ class Insights:
         elif "/mwh" in unit:
             value /= 1000
         elif "/m3" in unit or "/m^3" in unit:
+            value /= factor or 10.0
+        elif "/l" in unit or "/liter" in unit:
             value /= factor or 10.0
         basis = str(self.hub.opt(CONF_ENERGY_PRICE_BASIS) or "gross")
         vat = float(self.hub.opt(CONF_ENERGY_VAT) or 0)

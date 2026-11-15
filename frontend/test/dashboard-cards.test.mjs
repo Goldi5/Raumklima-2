@@ -58,8 +58,24 @@ test("Energiekarte zeigt Zähler, Tarif und Kosten", () => {
 
 test("Energiekarte erklärt fehlende Zähler", () => {
   const html = energyCard({ start: "2026-11-08", end: "2026-11-14", days: 7, energy: { enabled: true }, money: null });
-  assert.match(html, /Noch kein Zähler gewählt/);
+  assert.match(html, /Noch kein Zähler oder Tank/);
   assert.doesNotMatch(html, /konnte nicht gezeichnet/);
+});
+
+test("Energiekarte zeigt Öltank und Bestellhinweis", () => {
+  const html = energyCard({
+    start: "2026-11-08", end: "2026-11-14", days: 7,
+    energy: {
+      enabled: true, source: "oil", oil_price: 1.1, price: 0.11, kwh: 500, liter: 50,
+      tank: { current_l: 1200, current_percent: 40, days_left: 21, order: false, consumed_l: 50, threshold_l: 600 },
+    },
+    money: { period_cost: 55, annual: 2860, basis: "tank", kwh: 500 },
+  });
+  assert.match(html, /Ölpreis/);
+  assert.match(html, /Tank/);
+  assert.match(html, /Ölbestellung/);
+  assert.match(html, /21 Tage/);
+  assert.match(html, /Basis: Tank/);
 });
 
 test("Lernkarte zeigt Aufheizrate, Nutzung und Lüften", () => {

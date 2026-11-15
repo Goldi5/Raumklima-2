@@ -28,7 +28,10 @@ from .const import (
     CONF_CALENDAR,
     CONF_ELECTRIC_PRICE,
     CONF_ENERGY_CHEAP_PRICE,
+    CONF_ENERGY_FACTOR,
     CONF_ENERGY_METER,
+    CONF_ENERGY_OIL_FACTOR,
+    CONF_ENERGY_OIL_PRICE,
     CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_PRICE,
     CONF_ENERGY_SOURCE,
@@ -563,8 +566,14 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
                 elif "/mwh" in unit:
                     value /= 1000
                 elif "/m3" in unit or "/m^3" in unit:
-                    value /= float(self.opt("energy_factor") or 10.0)
+                    value /= float(self.opt(CONF_ENERGY_FACTOR) or 10.0)
+                elif "/l" in unit or "/liter" in unit:
+                    value /= float(self.opt(CONF_ENERGY_OIL_FACTOR) or 10.0)
                 return round(value, 4)
+        if self.energy_source() == "oil":
+            oil = float(self.opt(CONF_ENERGY_OIL_PRICE) or 0)
+            factor = float(self.opt(CONF_ENERGY_OIL_FACTOR) or 10.0)
+            return round(oil / factor, 4) if oil > 0 and factor > 0 else 0.0
         return float(self.opt(CONF_ENERGY_PRICE) or 0)
 
     def energy_cheap_now(self) -> bool:
@@ -582,7 +591,14 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             return source
         meter = self.opt(CONF_ENERGY_METER)
         state = self.hass.states.get(meter) if meter else None
-        return "gas" if state is not None and state.attributes.get("device_class") == "gas" else "electric"
+        if state is None:
+            return "electric"
+        if state.attributes.get("device_class") == "gas":
+            return "gas"
+        unit = str(state.attributes.get("unit_of_measurement") or "").strip().lower().replace("³", "3")
+        if unit in ("l", "liter", "liters", "litre", "litres"):
+            return "oil"
+        return "electric"
 
     def electric_price_now(self) -> float:
         """Strompreis in €/kWh – bei Gas/Fernwärme ist der Tarif-Sensor *nicht* Strom.
@@ -590,16 +606,16 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         Früher wurde immer der Tarif-Sensor genommen: in Gas-Haushalten also der Gaspreis,
         und die Klimaanlage galt bei jedem COP über 1 als günstiger.
         """
-        if self.energy_source() in ("gas", "district"):
+        if self.energy_source() in ("gas", "district", "oil"):
             return float(self.opt(CONF_ELECTRIC_PRICE) or 0)
         return self.energy_price_now()
 
     def ac_heat_cheaper(self) -> bool:
         """Klimaanlage als Wärmepumpe günstiger als Gas? (COP, Gas- und Strompreis nötig)"""
-        gas = float(self.opt(CONF_GAS_PRICE) or 0)
+        fuel = self.energy_price_now() if self.energy_source() == "oil" else float(self.opt(CONF_GAS_PRICE) or 0)
         cop = float(self.opt(CONF_AC_COP) or 0)
         electric = self.electric_price_now()
-        return gas > 0 and cop > 0 and electric > 0 and (electric / cop) < gas
+        return fuel > 0 and cop > 0 and electric > 0 and (electric / cop) < fuel
 
     # ------------------------------------------------------------ Wärmeanforderung
     def heat_summary(self) -> dict[str, Any]:

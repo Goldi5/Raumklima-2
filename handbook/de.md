@@ -314,6 +314,10 @@ Trägst du unter *Einstellungen → Allgemein → Berichte → Weitere Einstellu
 - **Aufs Handy:** Die Push-Nachricht hat einen Knopf **PDF öffnen**.
 - **Per E-Mail:** *Einstellungen → Allgemein → Berichte → PDF per E-Mail* → darunter auf **E-Mail einrichten** tippen, deinen Anbieter wählen (z. B. GMX oder Gmail), Benutzer, Passwort und Empfänger eintragen, mit **Zugang prüfen** testen und dann **Speichern & Test-Mail senden** tippen. Bei Gmail, iCloud und Outlook brauchst du ein App-Passwort.
 
+### Heizöl und Tank
+
+Unter *Einstellungen → Allgemein → Heizung & Energie* lässt sich als Quelle **Heizöl** wählen. Ein Ölzähler in Litern wird über den Energieinhalt (Standard 10 kWh/L) umgerechnet, der Preis wird je Liter eingetragen. Optional zeigt ein **Tankfüllstandsfühler** die Restmenge; Raumklima schätzt aus dem sinkenden Füllstand Verbrauch und Resttage, ignoriert Nachfüllungen und mahnt zum Bestellen, wenn die eingestellte Restmenge oder eine Restlaufzeit von 14 Tagen erreicht ist.
+
 :::tip
 Der Bericht kommt in der Sprache von Home Assistant: auf Deutsch, Französisch oder – bei jeder anderen Sprache – auf Englisch. Push-Nachrichten, Protokoll und Hinweise ebenso.
 :::
@@ -337,6 +341,7 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Allgemein → Wer bekommt was** | Empfänger und welche Nachrichten sie bekommen |
 | **Allgemein → Benachrichtigungen** | Lüfthinweise, Sturmwarnung, Erinnerungen |
 | **Allgemein → Berichte** | PDF-Berichte, E-Mail, Heizkosten |
+| **Allgemein → Heizung & Energie** | Quelle, Zähler, Tarif, Ölpreis, Tankfüllstand |
 | **Allgemein → Nacht & Ruhezeit** | Raumklima lernt, wann ihr schlaft |
 | **Raum → Temperatur** | Wunschtemperatur, Absenkung; eingeklappt: Vorheizen, Nachtabsenkung, Sonnenseite |
 | **Raum → Schimmelschutz** | Stufe; eingeklappt: Deckel, Bauart des Raums |

@@ -6,6 +6,7 @@ const SOURCES = {
   gas: "Gas",
   heatpump: "Wärmepumpe",
   district: "Fernwärme",
+  oil: "Heizöl",
 };
 
 export class RaumklimaEnergyCard extends HTMLElement {
@@ -81,22 +82,40 @@ export class RaumklimaEnergyCard extends HTMLElement {
     if (!e.enabled) {
       return this._empty("mdi:lightning-bolt-off", "Energie-Erfassung ist aus. In den Einstellungen unter „Heizung & Energie“ aktivieren.");
     }
-    if (!e.meter) {
-      return this._empty("mdi:counter", "Noch kein Zähler gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas- oder Wärmezähler auswählen.");
+    if (!e.meter && !e.tank) {
+      return this._empty("mdi:counter", "Noch kein Zähler oder Tank gewählt. In den Einstellungen unter „Heizung & Energie“ einen Strom-, Gas-, Öl- oder Wärmezähler auswählen.");
     }
     const money = d.money || {};
     const kwh = e.kwh == null ? money.kwh : e.kwh;
     const cost = money.period_cost;
     const annual = money.annual;
-    const basis = money.basis === "bill" ? "Abrechnung" : money.basis === "meter" ? "Zähler" : "";
-    const meterInfo = e.m3 != null ? `${fmt(e.m3, 1)} m³ → ${fmt(e.kwh, 1)} kWh` : e.meter_unit || "";
+    const basis = money.basis === "bill" ? "Abrechnung" : money.basis === "tank" ? "Tank" : money.basis === "meter" ? "Zähler" : "";
+    const meterInfo = e.liter != null
+      ? `${fmt(e.liter, 1)} L → ${fmt(e.kwh, 1)} kWh`
+      : e.m3 != null ? `${fmt(e.m3, 1)} m³ → ${fmt(e.kwh, 1)} kWh` : e.meter_unit || "";
+    const tank = e.tank || null;
+    const tankValue = tank
+      ? (tank.current_percent != null ? fmt(tank.current_percent, 0) : tank.current_l != null ? fmt(tank.current_l, 0) : "–")
+      : "–";
+    const tankUnit = tank && tank.current_percent != null ? " %" : " L";
+    const tankDetail = tank
+      ? [
+          tank.current_l != null ? `${fmt(tank.current_l, 0)} L` : "",
+          tank.days_left != null ? t("reicht noch ~{d} Tage", { d: tank.days_left }) : tank.order ? t("jetzt bestellen") : t("lernt noch"),
+        ].filter(Boolean).join(" · ")
+      : "";
     const pvDetail = e.pv_entity
       ? `${t("{n} % Eigenverbrauch", { n: fmt(e.pv_self_use, 0) })}`
         + (e.surplus_kwh != null ? ` · ${t("{n} kWh Überschuss", { n: fmt(e.surplus_kwh, 1) })}` : "")
       : "";
     const rows = [
       this._row("Quelle", "mdi:transmission-tower", esc(this._source(e))),
-      this._row("Zähler", "mdi:counter", `<span data-more="${esc(e.meter)}" style="cursor:pointer">${esc(e.meter)}</span>`),
+      e.meter ? this._row("Zähler", "mdi:counter", `<span data-more="${esc(e.meter)}" style="cursor:pointer">${esc(e.meter)}</span>`) : "",
+      e.source === "oil" ? this._row("Ölpreis", "mdi:oil", `${fmt(e.oil_price, 2)} €/L`) : "",
+      e.tank ? this._row("Tank", "mdi:oil-level", `${tankValue}${tankUnit}${tank.threshold_l != null ? ` · ${t("Schwelle {v} L", { v: fmt(tank.threshold_l, 0) })}` : ""}`) : "",
+      e.tank ? this._row("Tankverbrauch", "mdi:chart-timeline-variant", tank.consumed_l != null ? `${fmt(tank.consumed_l, 1)} L` : "–") : "",
+      e.tank ? this._row("Reicht noch", "mdi:calendar-clock", tank.days_left != null ? t("{n} Tage", { n: tank.days_left }) : t("lernt noch")) : "",
+      e.tank ? this._row("Ölbestellung", "mdi:truck-delivery-outline", tank.order ? t("jetzt bestellen") : t("noch Zeit")) : "",
       this._row("Tarif", "mdi:tag-outline", e.tariff ? `<span data-more="${esc(e.tariff)}" style="cursor:pointer">${esc(e.tariff)}</span>${e.tariff_dynamic ? ` · ${t("dynamisch")}` : ""}` : t("fester Preis")),
       e.surplus_kwh != null ? this._row("PV-Überschuss", "mdi:solar-power-variant", `${fmt(e.surplus_kwh, 1)} kWh`) : "",
       this._row("Arbeitspreis", "mdi:currency-eur", `${fmt(e.price, 2)} €/kWh`),
@@ -110,6 +129,7 @@ export class RaumklimaEnergyCard extends HTMLElement {
         ${this._tile("Verbrauch", "mdi:lightning-bolt", kwh == null ? "–" : fmt(kwh, 1), " kWh", meterInfo)}
         ${this._tile("Kosten", "mdi:currency-eur", cost == null ? "–" : fmt(cost, 2), " €", basis ? t("Basis: {b}", { b: t(basis) }) : t("noch keine Schätzung"), "heat")}
         ${this._tile("Jahr", "mdi:chart-timeline-variant", annual == null ? "–" : fmt(annual, 0), " €", t("Schätzung"), "ok")}
+        ${e.tank ? this._tile("Tank", "mdi:oil-level", tankValue, tankUnit, tankDetail, tank.order ? "warn" : "ok") : ""}
         ${this._tile("PV", "mdi:solar-power", e.pv_kwh == null ? "–" : fmt(e.pv_kwh, 1), " kWh", pvDetail, "ok")}
       </div><div class="drows">${rows}</div>`;
   }

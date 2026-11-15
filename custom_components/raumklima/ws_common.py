@@ -46,10 +46,15 @@ from .const import (
     CONF_ENERGY_FACTOR,
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_METER,
+    CONF_ENERGY_OIL_FACTOR,
+    CONF_ENERGY_OIL_PRICE,
     CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_PRICE,
     CONF_ENERGY_PRICE_BASIS,
     CONF_ENERGY_SOURCE,
+    CONF_ENERGY_TANK_CAPACITY,
+    CONF_ENERGY_TANK_ENTITY,
+    CONF_ENERGY_TANK_MIN,
     CONF_ENERGY_TARIFF,
     CONF_ENERGY_TARIFF_DYNAMIC,
     CONF_ENERGY_VAT,
@@ -307,6 +312,11 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_ELECTRIC_PRICE): num_schema("electric_price"),
         vol.Optional(CONF_ENERGY_FACTOR): num_schema("energy_factor"),
         vol.Optional(CONF_ENERGY_EFFICIENCY): num_schema("energy_efficiency"),
+        vol.Optional(CONF_ENERGY_OIL_PRICE): num_schema("energy_oil_price"),
+        vol.Optional(CONF_ENERGY_OIL_FACTOR): num_schema("energy_oil_factor"),
+        vol.Optional(CONF_ENERGY_TANK_ENTITY): vol.Any(None, cv.entity_id),
+        vol.Optional(CONF_ENERGY_TANK_CAPACITY): num_schema("energy_tank_capacity"),
+        vol.Optional(CONF_ENERGY_TANK_MIN): num_schema("energy_tank_min"),
         vol.Optional(CONF_PV_SELF_USE): num_schema("pv_self_use"),
         vol.Optional(CONF_COLD_SNAP_TEMP): num_schema("cold_snap_temp"),
         vol.Optional(CONF_FROST_FLOOR): num_schema("frost_floor"),
@@ -543,6 +553,15 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
             ),
             key=lambda x: x["name"].lower(),
         ),
+        "tank": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("sensor")
+                if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("³", "3")
+                in ("l", "liter", "liters", "%", "m3", "m^3")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
         "dehumidifier": sorted(
             (
                 {"id": s.entity_id, "name": s.name}
@@ -587,6 +606,16 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
                 {"id": s.entity_id, "name": s.name}
                 for s in hass.states.async_all("sensor")
                 if s.attributes.get("device_class") in ("energy", "gas")
+                and s.attributes.get("state_class") in ("total", "total_increasing")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "oil": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("sensor")
+                if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("³", "3")
+                in ("l", "liter", "liters", "m3", "m^3")
                 and s.attributes.get("state_class") in ("total", "total_increasing")
             ),
             key=lambda x: x["name"].lower(),

@@ -14,9 +14,9 @@ export const HELP = {
   "Bei günstigem Strom vorheizen": ["Startet bis zu 60 Minuten vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt. Der Rest der Regelung bleibt unverändert.", "Starts up to 60 minutes before a schedule window when the current price is below the limit. The rest of the control remains unchanged.", "Démarre jusqu’à 60 minutes avant une plage horaire lorsque le prix actuel est sous la limite. Le reste de la régulation reste inchangé."],
   "Energie-Erfassung": ["Zähler, Tarife und PV-Ertrag auswerten.", "Analyse meters, tariffs and PV yield.", "Analyse compteurs, tarifs et rendement PV."],
   "Energiequelle": [
-    "Legt fest, wie der Zähler gelesen wird: Gas in m³ wird über Brennwert und Zustandszahl in kWh umgerechnet, Wärmepumpen zählen Strom und optional die erzeugte Wärme, Fernwärme zählt kWh.",
-    "Defines how the meter is read: gas in m³ is converted to kWh via calorific value and correction factor, heat pumps count electricity and optionally the heat produced, district heating counts kWh.",
-    "Définit la lecture du compteur : le gaz en m³ est converti en kWh via le pouvoir calorifique et le facteur de correction, les pompes à chaleur comptent l’électricité et éventuellement la chaleur produite, le chauffage urbain compte les kWh.",
+    "Legt fest, wie der Zähler gelesen wird: Gas in m³ über Brennwert und Zustandszahl, Heizöl in Litern über den Energieinhalt, Wärmepumpen zählen Strom und optional die erzeugte Wärme, Fernwärme zählt kWh.",
+    "Defines how the meter is read: gas in m³ via calorific value and correction factor, heating oil in litres via its energy content, heat pumps count electricity and optionally the heat produced, district heating counts kWh.",
+    "Définit la lecture du compteur : le gaz en m³ via le pouvoir calorifique et le facteur de correction, le fioul en litres via son contenu énergétique, les pompes à chaleur comptent l’électricité et éventuellement la chaleur produite, le chauffage urbain compte les kWh.",
   ],
   "Gas-Umrechnung": [
     "Wie viele kWh stecken in einem m³ Gas? Brennwert × Zustandszahl; 10 kWh/m³ ist ein typischer Näherungswert. Genau steht beides auf der Gasabrechnung.",
@@ -38,7 +38,7 @@ export const HELP = {
     "Which share of PV yield covers your own consumption. Only enter this if the meter measures total consumption – with a grid-import-only meter the PV share is already deducted.",
     "Part du rendement PV couvrant votre propre consommation. À renseigner uniquement si le compteur mesure la consommation totale – avec un compteur de soutirage réseau, la part PV est déjà déduite.",
   ],
-  "Zähler": ["Strom- oder Gaszähler als Verbrauchsquelle.", "Electricity or gas meter as consumption source.", "Compteur électrique ou gaz comme source de consommation."],
+  "Zähler": ["Strom-, Gas-, Öl- oder Wärmezähler als Verbrauchsquelle.", "Electricity, gas, oil or heat meter as consumption source.", "Compteur d’électricité, de gaz, de fioul ou de chaleur comme source de consommation."],
   "Tarif": ["Arbeitspreis und Grundgebühr.", "Energy price and base fee.", "Prix de l’énergie et frais fixes."],
   "PV-Ertrag": ["PV-Ertrag oder Einspeisung – für die Eigenverbrauchs-Schätzung.", "PV yield or feed-in – for the self-consumption estimate.", "Rendement PV ou injection – pour l’estimation de l’autoconsommation."],
   "Aktuell": ["Aktueller Messwert der gewählten Entität.", "Current reading of the selected entity.", "Valeur actuelle de l’entité choisie."],
@@ -59,6 +59,11 @@ export const HELP = {
   "Räume": ["Anzahl der Raumklima-Räume.", "Number of Raumklima rooms.", "Nombre de pièces Raumklima."],
   "Grundpreis": ["Monatliche Grundgebühr in €.", "Monthly base fee in €.", "Frais fixes mensuels en €."],
   "Arbeitspreis": ["Preis pro kWh – für die Euro-Schätzung.", "Price per kWh – for the euro estimate.", "Prix par kWh – pour l’estimation en euros."],
+  "Ölpreis": ["Preis je Liter Heizöl. Raumklima rechnet ihn über den Energieinhalt auf kWh um.", "Price per litre of heating oil. Raumklima converts it to kWh via the energy content.", "Prix du litre de fioul. Raumklima le convertit en kWh via le contenu énergétique."],
+  "kWh je Liter": ["Energieinhalt eines Liters Heizöl. 10 kWh/L ist ein typischer Näherungswert; genau steht er auf der Lieferung.", "Energy content of one litre of heating oil. 10 kWh/L is a typical approximation; the exact value is on the delivery note.", "Contenu énergétique d’un litre de fioul. 10 kWh/L est une approximation typique ; la valeur exacte figure sur la livraison."],
+  "Tankfüllstand": ["Optionaler Fühler für den Öltank. Aus sinkendem Füllstand schätzt Raumklima Verbrauch und Resttage; Nachfüllungen werden ignoriert.", "Optional oil tank sensor. From a falling level Raumklima estimates consumption and remaining days; refills are ignored.", "Capteur facultatif du réservoir de fioul. À partir du niveau qui baisse, Raumklima estime la consommation et les jours restants ; les remplissages sont ignorés."],
+  "Tankinhalt": ["Nenninhalt des Tanks in Litern. Nötig, wenn der Fühler Prozent statt Liter meldet.", "Nominal tank capacity in litres. Needed when the sensor reports percent instead of litres.", "Capacité nominale du réservoir en litres. Nécessaire si le capteur indique des pourcentages au lieu de litres."],
+  "Öl bestellen ab": ["Restmenge in Prozent, ab der der Bestellhinweis erscheint. Zusätzlich warnt Raumklima, wenn der Vorrat weniger als 14 Tage reicht.", "Remaining amount in percent at which the reorder hint appears. Raumklima also warns when the supply lasts less than 14 days.", "Quantité restante en pourcentage à partir de laquelle le rappel de commande apparaît. Raumklima avertit aussi si la réserve dure moins de 14 jours."],
 
   "Feinstaubfühler": [
     "PM2,5-Fühler im Raum. Ab 35 µg/m³ schlägt Raumklima Lüften vor, unter 15 µg/m³ gilt die Luft als ausgetauscht.",

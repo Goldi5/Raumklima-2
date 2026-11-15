@@ -313,6 +313,10 @@ If you enter your **heating costs per year** under *Settings → General → Rep
 - **On your phone:** the push message has an **Open PDF** button.
 - **By email:** *Settings → General → Reports → PDF by email* → tap **Set up email** right below, pick your provider (e.g. Gmail), enter user, password and recipients, test them with **Check login** and then tap **Save & send test email**. Gmail, iCloud and Outlook need an app password.
 
+### Heating oil and tank
+
+Under *Settings → General → Heating & Energy* choose **Heating oil** as the source. An oil meter in litres is converted via its energy content (default 10 kWh/L), and the price is entered per litre. Optionally an **oil tank level sensor** shows the remaining amount; Raumklima estimates consumption and remaining days from a falling level, ignores refills and asks you to order when the configured remaining amount or 14 days of supply is reached.
+
 :::tip
 The report follows the Home Assistant language: German, French, English for every other language. Push messages, the log and notices do the same.
 :::
@@ -335,6 +339,7 @@ Not sure? Keep the defaults. They follow the recommendations of German consumer 
 | **General → Heating season** | when to heat, heat today |
 | **General → Who gets what** | recipients and which messages they get |
 | **General → Notifications** | quiet hours, reminders, weather source, PDF reports, email |
+| **General → Heating & Energy** | source, meter, tariff, oil price, tank level |
 | **General → Night & quiet time** | Raumklima learns when you sleep |
 | **Room → Temperature** | desired temperature, setback, sunny side |
 | **Room → Airing & humidity** | from which humidity to ask for airing |
