@@ -1,4 +1,4 @@
-## Unreleased
+## 1.3.0b3 – 2026-11-15
 
 ### Behoben
 - **Öltank:** Kurzes Prellen des Füllstands (z. B. ±20 l/Tag) wird nicht mehr als Verbrauch gezählt. Der Verbrauch wird jetzt als Netto-Differenz pro Segment zwischen zwei Tankfüllungen berechnet.
