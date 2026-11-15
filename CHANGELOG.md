@@ -1,4 +1,4 @@
-## Unreleased
+## 1.3.0b2 – 2026-11-15
 
 ### Behoben
 - **Ganztägige Zeitfenster:** `00:00–00:00` gilt jetzt als ganzer Tag statt als leeres Fenster.
