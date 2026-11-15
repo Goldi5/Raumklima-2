@@ -308,7 +308,8 @@ Jede Woche, jeden Monat und am Ende der Heizsaison entsteht ein **PDF-Bericht** 
 - jeder Raum mit kleiner **Verlaufskurve**, eine **Rangliste** und **Werktag gegen Wochenende**,
 - **Feuchte-Ampel**, CO₂ und eine **Lüft-Bilanz**,
 - ein **Wärmebild**, wann geheizt wird,
-- **Batteriestände**, Ausfälle und **Spartipps** mit Zahlen.
+- **Batteriestände**, Ausfälle und **Spartipps** mit Zahlen,
+- **Energie und Kosten:** Quelle, Zähler, Tarif, Verbrauch, Kosten, PV-Ertrag, Wärmemenge und bei Öl Tankfüllstand und Bestellhinweis.
 
 Trägst du unter *Einstellungen → Allgemein → Berichte → Weitere Einstellungen* deine **Heizkosten pro Jahr** ein, rechnet der Bericht die Ersparnis grob in **Euro** um.
 

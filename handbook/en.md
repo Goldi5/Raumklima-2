@@ -307,7 +307,8 @@ Every week, every month and at the end of the heating season a **PDF report** (s
 - every room with a small **trend line**, a **ranking** and **weekdays vs. weekend**,
 - a **humidity traffic light**, CO₂ and an **airing summary**,
 - a **heat map** of when it heats,
-- **battery levels**, failures and **saving tips** with numbers.
+- **battery levels**, failures and **saving tips** with numbers,
+- **energy and costs:** source, meter, tariff, consumption, costs, PV yield, heat output and – for oil – tank level and reorder hint.
 
 If you enter your **heating costs per year** under *Settings → General → Reports → More settings*, the report roughly converts savings into **euros**.
 

@@ -62,3 +62,35 @@ def test_render_pdf_de_en_and_empty():
 def test_clean_keeps_german_and_replaces_rest():
     assert clean("Bäder – „ok“ 21,5 °C €") == "Bäder – „ok“ 21,5 °C €"
     assert clean("CO₂ → ≈ 5 % 📊") == "CO2 -> ~ 5 %"
+
+
+def test_energy_page_data_and_pdf() -> None:
+    rooms, home = _data()
+    extras = {
+        "energy": {
+            "enabled": True,
+            "source": "oil",
+            "meter": "sensor.oil",
+            "meter_unit": "L",
+            "kwh": 5000,
+            "liter": 500,
+            "price": 0.11,
+            "base": 10,
+            "oil_price": 1.10,
+            "tank": {
+                "current_l": 1200,
+                "current_percent": 40,
+                "days_left": 21,
+                "order": False,
+                "consumed_l": 50,
+                "threshold_l": 600,
+            },
+            "pv_kwh": 100,
+            "heat_kwh": 200,
+        }
+    }
+    data = build(rooms, home, "week", TODAY - timedelta(days=6), TODAY, [], "de", extras=extras)
+    assert data["energy"]["source"] == "oil"
+    assert data["energy"]["tank"]["current_l"] == 1200
+    pdf = render(data, "Wohnung A", datetime(2026, 11, 1, 18))
+    assert pdf[:4] == b"%PDF" and len(pdf) > 3000

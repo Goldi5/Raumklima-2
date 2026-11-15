@@ -82,6 +82,34 @@ L = {
         "score_sub": "{p} von 100 Punkten",
         "score_hist": "Verlauf",
         "money": "≈ {e} € gespart (Schätzung)",
+        "energy": "Energie und Kosten",
+        "e_value": "Wert",
+        "e_source": "Quelle",
+        "e_meter": "Zähler",
+        "e_tariff": "Tarif",
+        "e_price": "Arbeitspreis",
+        "e_base": "Grundpreis",
+        "e_kwh": "Verbrauch",
+        "e_cost": "Kosten",
+        "e_year": "Jahr",
+        "e_pv": "PV-Ertrag",
+        "e_heat": "Wärmemenge",
+        "e_tank": "Tank",
+        "e_tank_use": "Tankverbrauch",
+        "e_reicht": "Reicht noch",
+        "e_order": "Ölbestellung",
+        "e_market": "Marktpreis",
+        "e_none": "Keine Energie-Erfassung eingerichtet.",
+        "e_now": "gerade",
+        "e_today": "heute",
+        "e_days": "{n} Tage",
+        "e_yes": "ja",
+        "e_no": "nein",
+        "src_electric": "Strom",
+        "src_gas": "Gas",
+        "src_oil": "Heizöl",
+        "src_heatpump": "Wärmepumpe",
+        "src_district": "Fernwärme",
         "c_trend": "Verlauf °C / %",
         "ranking": "Rangliste",
         "r_eco": "Sparsamster Raum",
@@ -194,6 +222,34 @@ L = {
         "score_sub": "{p} of 100 points",
         "score_hist": "History",
         "money": "≈ {e} € saved (estimate)",
+        "energy": "Energy and costs",
+        "e_value": "Value",
+        "e_source": "Source",
+        "e_meter": "Meter",
+        "e_tariff": "Tariff",
+        "e_price": "Unit price",
+        "e_base": "Base price",
+        "e_kwh": "Consumption",
+        "e_cost": "Costs",
+        "e_year": "Year",
+        "e_pv": "PV yield",
+        "e_heat": "Heat output",
+        "e_tank": "Tank",
+        "e_tank_use": "Tank consumption",
+        "e_reicht": "Lasts",
+        "e_order": "Oil order",
+        "e_market": "Market price",
+        "e_none": "No energy tracking configured.",
+        "e_now": "now",
+        "e_today": "today",
+        "e_days": "{n} days",
+        "e_yes": "yes",
+        "e_no": "no",
+        "src_electric": "Electricity",
+        "src_gas": "Gas",
+        "src_oil": "Heating oil",
+        "src_heatpump": "Heat pump",
+        "src_district": "District heat",
         "c_trend": "Trend °C / %",
         "ranking": "Ranking",
         "r_eco": "Most economical room",
@@ -306,6 +362,34 @@ L = {
         "score_sub": "{p} points sur 100",
         "score_hist": "Évolution",
         "money": "≈ {e} € économisés (estimation)",
+        "energy": "Énergie et coûts",
+        "e_value": "Valeur",
+        "e_source": "Source",
+        "e_meter": "Compteur",
+        "e_tariff": "Tarif",
+        "e_price": "Prix unitaire",
+        "e_base": "Frais fixes",
+        "e_kwh": "Consommation",
+        "e_cost": "Coûts",
+        "e_year": "Année",
+        "e_pv": "Rendement PV",
+        "e_heat": "Chaleur produite",
+        "e_tank": "Réservoir",
+        "e_tank_use": "Consommation du réservoir",
+        "e_reicht": "Dure encore",
+        "e_order": "Commande de fioul",
+        "e_market": "Prix du marché",
+        "e_none": "Aucun suivi d’énergie configuré.",
+        "e_now": "maintenant",
+        "e_today": "aujourd’hui",
+        "e_days": "{n} jours",
+        "e_yes": "oui",
+        "e_no": "non",
+        "src_electric": "Électricité",
+        "src_gas": "Gaz",
+        "src_oil": "Fioul",
+        "src_heatpump": "Pompe à chaleur",
+        "src_district": "Chaleur réseau",
         "c_trend": "Évolution °C / %",
         "ranking": "Classement",
         "r_eco": "Pièce la plus économe",
@@ -567,6 +651,7 @@ def render(data: dict[str, Any], home: str, created: datetime) -> bytes:
     _page_rooms(pdf, data)
     _page_humidity(pdf, data)
     _page_devices(pdf, data)
+    _page_energy(pdf, data)
     return bytes(pdf.output())
 
 
@@ -694,6 +779,82 @@ def _page_overview(data: dict[str, Any], home: str, created: datetime) -> tuple[
     pdf.heading(tx["chart_season" if data["kind"] == "season" else "chart"])
     pdf.chart(points, labels)
     return pdf, True
+
+
+def _page_energy(pdf: _Pdf, data: dict[str, Any]) -> None:
+    """Energie, Tarif, Verbrauch und Kosten – Öl/PV/Wärmemenge, wenn vorhanden."""
+    lang = data["lang"]
+    tx = L[lang]
+    e = data.get("energy") or {}
+    pdf.add_page()
+    pdf.heading(tx["energy"])
+    if not e or not e.get("enabled"):
+        pdf.set_font("Helvetica", size=10)
+        pdf.set_text_color(*GREY)
+        pdf.cell(0, 8, clean(tx["e_none"]), new_x="LMARGIN", new_y="NEXT")
+        return
+
+    money = data.get("money") or {}
+    kwh = e.get("kwh")
+    cost = money.get("period_cost")
+    annual = money.get("annual")
+    pv = e.get("pv_kwh")
+    heat = e.get("heat_kwh")
+    tank = e.get("tank") or {}
+    source = tx.get(f"src_{e.get('source')}") or str(e.get("source") or "–")
+    full = pdf.w - 30
+
+    tiles = [
+        (tx["e_kwh"], num(kwh, lang, 1) if kwh is not None else "–", "kWh", HEAT),
+        (tx["e_cost"], num(cost, lang, 2) if cost is not None else "–", " €", OK),
+        (tx["e_year"], num(annual, lang, 0) if annual is not None else "–", " €/Jahr", AIR),
+    ]
+    if pv is not None:
+        tiles.append((tx["e_pv"], num(pv, lang, 1), " kWh", OK))
+    elif tank:
+        value = tank.get("current_percent")
+        tiles.append((tx["e_tank"], num(value, lang, 0) if value is not None else "–", " %", WARN))
+    tw = (full - 4 * (len(tiles) - 1)) / len(tiles)
+    y = pdf.get_y()
+    for i, (label, value, unit, color) in enumerate(tiles):
+        pdf.kpi(15 + i * (tw + 4), y, tw, label, f"{value}{unit}", "", color)
+    pdf.set_y(y + 30)
+
+    rows = [
+        [tx["e_source"], source],
+        [tx["e_meter"], str(e.get("meter") or tx["none"])],
+        [tx["e_tariff"], str(e.get("tariff") or tx["e_now"])],
+        [tx["e_price"], f"{num(e.get('price'), lang, 2)} €/kWh"],
+        [tx["e_base"], f"{num(e.get('base'), lang, 2)} €"],
+        [tx["e_kwh"], f"{num(kwh, lang, 1)} kWh" if kwh is not None else "–"],
+        [tx["e_cost"], f"{num(cost, lang, 2)} €" if cost is not None else "–"],
+    ]
+    if pv is not None:
+        rows.append([tx["e_pv"], f"{num(pv, lang, 1)} kWh"])
+    if heat is not None:
+        rows.append([tx["e_heat"], f"{num(heat, lang, 1)} kWh"])
+    if e.get("source") == "oil":
+        rows.append(["Ölpreis", f"{num(e.get('oil_price'), lang, 2)} €/L"])
+        if e.get("liter") is not None:
+            rows.append(["Verbrauch", f"{num(e.get('liter'), lang, 1)} L"])
+        if tank:
+            if tank.get("current_l") is not None:
+                rows.append([tx["e_tank"], f"{num(tank['current_l'], lang, 0)} L"])
+            if tank.get("current_percent") is not None:
+                rows.append([tx["e_tank"], f"{num(tank['current_percent'], lang, 0)} %"])
+            if tank.get("consumed_l") is not None:
+                rows.append([tx["e_tank_use"], f"{num(tank['consumed_l'], lang, 1)} L"])
+            if tank.get("days_left") is not None:
+                rows.append([tx["e_reicht"], tx["e_days"].format(n=tank["days_left"])])
+            rows.append([tx["e_order"], tx["e_yes"] if tank.get("order") else tx["e_no"]])
+        if e.get("oil_market"):
+            market = e["oil_market"]
+            if market.get("value") is not None:
+                rows.append([tx["e_market"], f"{num(market['value'], lang, 2)} €/L"])
+            if market.get("avg_30d") is not None:
+                rows.append(["30-Tage-Ø", f"{num(market['avg_30d'], lang, 2)} €/L"])
+
+    pdf.table([tx["metric"], tx["e_value"]], rows, [full * 0.42, full * 0.58])
 
 
 def _page_rooms(pdf: _Pdf, data: dict[str, Any]) -> None:

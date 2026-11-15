@@ -306,7 +306,8 @@ Chaque semaine, chaque mois et à la fin de la saison de chauffage, un **rapport
 - chaque pièce avec une petite **courbe de tendance**, un **classement** et **jours de semaine vs week-end**,
 - un **feu tricolore de l’humidité**, le CO₂ et un **résumé d’aération**,
 - une **carte de chaleur** indiquant quand il chauffe,
-- les **niveaux de pile**, les pannes et des **conseils d’économie** chiffrés.
+- les **niveaux de pile**, les pannes et des **conseils d’économie** chiffrés,
+- **énergie et coûts :** source, compteur, tarif, consommation, coûts, rendement PV, chaleur produite et – pour le fioul – niveau du réservoir et rappel de commande.
 
 Si vous saisissez vos **frais de chauffage par an** sous *Réglages → Général → Rapports → Autres réglages*, le rapport convertit approximativement les économies en **euros**.
 
