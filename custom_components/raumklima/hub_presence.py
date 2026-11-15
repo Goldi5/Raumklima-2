@@ -63,6 +63,7 @@ _LOGGER = logging.getLogger(__name__)
 
 PREHEAT_HOLD = timedelta(minutes=90)
 CALENDAR_REFRESH = timedelta(seconds=60)
+CALENDAR_OTHER_REFRESH = timedelta(minutes=10)  # weitere Kalender seltener abfragen
 
 STAGE_TEXT = {
     STAGE_HOME: N_("jemand da"),
@@ -435,18 +436,48 @@ class PresenceMixin:
         for state in self.hass.states.async_all("calendar"):
             if state.entity_id != configured:
                 candidates.append((state.entity_id, state))
+        now = dt_util.now()
         for entity_id, state in candidates:
             summary = state.attributes.get("message")
             if not summary:
                 continue
-            # HA meldet freie/ganztägige Termine als „off“, liefert aber die message.
-            active = state.state == "on" or (state.state == "off" and bool(summary))
-            mode = calendar_mode(active, summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME))
+            # Bei „off“ zeigt HA in ``message`` den *nächsten* Termin – zählt nur, wenn seine
+            # Zeit (start_time/end_time) wirklich jetzt ist. Früher senkte ein Urlaub nächste
+            # Woche schon heute ab.
+            active = state.state == "on" or self._state_event_now(state, now)
+            mode = self._calendar_mode_for(entity_id, active, summary)
             if mode:
                 self.calendar_source = entity_id
                 return mode, summary
         self.calendar_source = None
         return None, None
+
+    def _calendar_mode_for(self, entity_id: str, active: bool, summary: str | None) -> str | None:
+        """Modus eines Termins. „Weg/Urlaub“ nur aus dem eingestellten Kalender.
+
+        Andere Kalender (geteilte Familien- oder Arbeitskalender) dürfen „zu Hause/Homeoffice“
+        melden, aber nicht die ganze Wohnung auf Urlaub schalten – „Urlaub Müller“ im
+        Teamkalender ist nicht der eigene Urlaub.
+        """
+        mode = calendar_mode(active, summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME))
+        if mode == CAL_AWAY and entity_id != self.opt(CONF_CALENDAR):
+            return calendar_mode(active, summary, "", self.opt(CONF_CALENDAR_HOME))
+        return mode
+
+    @staticmethod
+    def _state_event_now(state: Any, now: datetime) -> bool:
+        """Läuft der in ``message`` gemeldete Termin laut start_time/end_time gerade?"""
+        start, end = state.attributes.get("start_time"), state.attributes.get("end_time")
+        if not start or not end:
+            return False
+        sdt, edt = dt_util.parse_datetime(str(start)), dt_util.parse_datetime(str(end))
+        if sdt is None or edt is None:
+            return False
+        if sdt.tzinfo is None:
+            sdt = sdt.replace(tzinfo=now.tzinfo)
+        if edt.tzinfo is None:
+            edt = edt.replace(tzinfo=now.tzinfo)
+        return sdt <= now < edt
 
     def calendar_debug(self) -> dict[str, Any]:
         """Rohzustand des eingestellten Kalenders für die Diagnose."""
@@ -518,7 +549,7 @@ class PresenceMixin:
             all_events: list[dict[str, Any]] = []
             errors = 0
             for entity_id in entities:
-                events = await self._calendar_events(entity_id, start, end)
+                events = await self._calendar_events_cached(entity_id, entity_id == configured, start, end)
                 if events is None:
                     errors += 1
                     continue
@@ -530,7 +561,7 @@ class PresenceMixin:
                         "end": event.get("end"),
                         "source": entity_id,
                         "all_day": len(str(event.get("start") or "")) <= 10,
-                        "mode": calendar_mode(True, summary, self.opt(CONF_CALENDAR_AWAY), self.opt(CONF_CALENDAR_HOME)),
+                        "mode": self._calendar_mode_for(entity_id, True, summary),
                     }
                     all_events.append(item)
                     if not self._event_active(event, now):
@@ -554,6 +585,27 @@ class PresenceMixin:
         finally:
             self._calendar_fetched = dt_util.utcnow()
             self._calendar_fetch_pending = False
+
+    async def _calendar_events_cached(
+        self, entity_id: str, primary: bool, start: datetime, end: datetime
+    ) -> list[dict[str, Any]] | None:
+        """Eingestellter Kalender jede Minute, alle anderen höchstens alle 10 Minuten.
+
+        Jede Abfrage geht bei Cloud-Kalendern (Google) ins Netz – minütlich für jeden Kalender
+        im Haus wären das über 1 400 Abrufe am Tag pro Kalender.
+        """
+        if primary:
+            return await self._calendar_events(entity_id, start, end)
+        cache: dict[str, tuple[datetime, list[dict[str, Any]]]] = getattr(self, "_calendar_other_cache", None) or {}
+        self._calendar_other_cache = cache
+        now = dt_util.utcnow()
+        hit = cache.get(entity_id)
+        if hit is not None and now - hit[0] < CALENDAR_OTHER_REFRESH:
+            return hit[1]
+        events = await self._calendar_events(entity_id, start, end)
+        if events is not None:
+            cache[entity_id] = (now, events)
+        return events
 
     async def _calendar_events(self, entity_id: str, start: datetime, end: datetime) -> list[dict[str, Any]] | None:
         """Termine einer Kalender-Entität im Zeitfenster holen (None = Fehler)."""

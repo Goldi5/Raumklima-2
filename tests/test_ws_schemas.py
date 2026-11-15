@@ -82,3 +82,15 @@ def test_zeitplan_grenze_passt_zur_karte() -> None:
     bind = (FRONTEND / "cards" / "settings" / "bind.js").read_text(encoding="utf-8")
     block = bind[bind.index("[data-schedadd]"):][:400]
     assert "length >=" not in block, "Karte begrenzt Zeitfenster wieder – Schema-Grenze anpassen"
+
+
+def test_anlegen_und_wohnung_aendern_nennen_die_wohnung() -> None:
+    """Bei mehreren Wohnungen: ohne ``home`` landete ein neuer Raum in der ersten Wohnung,
+    und der Assistent änderte die Standard-Wohnung statt der gewählten."""
+    bad: list[str] = []
+    for path in FRONTEND.rglob("*.js"):
+        src = path.read_text(encoding="utf-8")
+        for match in re.finditer(r'type: "raumklima/(room/create|hub/update)"(.{0,200}?)\}\)', src, re.S):
+            if "_homeMsg" not in match.group(2):
+                bad.append(f"{path.name}: {match.group(1)}")
+    assert not bad, f"Aufruf ohne Wohnung: {bad}"

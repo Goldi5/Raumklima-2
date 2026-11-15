@@ -1,4 +1,4 @@
-/* Raumklima 1.2.1b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.2.3b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -85,6 +85,8 @@
     "Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert": "seasonal performance factor of the AC as a heat pump – 3 is a typical value",
     "Gaspreis": "Gas price",
     "€/kWh – nur für den Vergleich „Klimaanlage oder Gas“": "€/kWh – only for the “AC or gas” comparison",
+    "Strompreis": "Electricity price",
+    "€/kWh – der Zähler misst Gas/Fernwärme; für „Klimaanlage oder Gas“ und günstiges Vorheizen": "€/kWh – the meter measures gas/district heat; for “AC or gas” and cheap preheating",
     "Mindestlaufzeit": "Minimum run time",
     "Mindestpause": "Minimum pause",
     "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "the air conditioner stays on at least this long – prevents cycling",
@@ -154,6 +156,7 @@
     "darunter gilt die Heizsaison": "below this the heating season applies",
     "für die Verschattung und die Sonnenprognose": "for shading and the sun forecast",
     "gefühlte Temperatur": "feels-like temperature",
+    "gefühlt {v} °C": "feels like {v} °C",
     "Grundpreis": "Base fee",
     "Arbeitspreis": "Energy price",
     "Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht": "Analyse meters, tariffs and PV yield – prerequisite for the euro estimate in the report",
@@ -959,6 +962,7 @@
     "Abschließen": "Finish",
     "Bitte {f} ausfüllen": "Please fill in {f}",
     "Einrichtung abgeschlossen": "Setup complete",
+    "Einstellungen übernommen – kein Raum angelegt (Thermostat oder Temperaturfühler fehlt)": "Settings saved – no room created (thermostat or temperature sensor missing)",
     "Assistent": "Assistant",
     "Einrichtungsassistent": "Setup assistant",
     "Führt Schritt für Schritt durch die Einrichtung": "Guides you through setup step by step",
@@ -1322,6 +1326,7 @@
     "keine Rollläden gewählt": "no blinds selected",
     "keine Sonne erwartet": "no sun expected",
     "keine Temperaturdaten": "no temperature data",
+    "Fenster/Tür offen – fährt nicht zu": "Window/door open – not closing",
     "keine – unter „Geräte & Technik ändern“ wählen": "none – select under “Change devices & technology”",
     "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "closed after sunset, open again in the morning – protects against heat loss and light",
     "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "only these blinds or shutters are moved – window contacts stay separate",
@@ -1429,6 +1434,8 @@
     "Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert": "coefficient de performance annuel de la climatisation comme pompe à chaleur – 3 est une valeur typique",
     "Gaspreis": "Prix du gaz",
     "€/kWh – nur für den Vergleich „Klimaanlage oder Gas“": "€/kWh – seulement pour la comparaison « climatisation ou gaz »",
+    "Strompreis": "Prix de l’électricité",
+    "€/kWh – der Zähler misst Gas/Fernwärme; für „Klimaanlage oder Gas“ und günstiges Vorheizen": "€/kWh – le compteur mesure le gaz/réseau de chaleur ; pour « climatisation ou gaz » et le préchauffage bon marché",
     "Mindestlaufzeit": "Durée de marche minimale",
     "Mindestpause": "Pause minimale",
     "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "la climatisation reste allumée au moins ce temps – évite les cycles courts",
@@ -1498,6 +1505,7 @@
     "darunter gilt die Heizsaison": "en dessous, la saison de chauffe s’applique",
     "für die Verschattung und die Sonnenprognose": "pour l’ombrage et la prévision solaire",
     "gefühlte Temperatur": "température ressentie",
+    "gefühlt {v} °C": "ressenti {v} °C",
     "Grundpreis": "Frais fixes",
     "Arbeitspreis": "Prix de l’énergie",
     "Energiezähler und Tarife auswerten – Voraussetzung für die Euro-Schätzung im Bericht": "Analyser compteurs, tarifs et rendement PV – prérequis pour l’estimation en euros dans le rapport",
@@ -2303,6 +2311,7 @@
     "Abschließen": "Terminer",
     "Bitte {f} ausfüllen": "Veuillez remplir {f}",
     "Einrichtung abgeschlossen": "Configuration terminée",
+    "Einstellungen übernommen – kein Raum angelegt (Thermostat oder Temperaturfühler fehlt)": "Réglages enregistrés – aucune pièce créée (thermostat ou capteur de température manquant)",
     "Assistent": "Assistant",
     "Einrichtungsassistent": "Assistant de configuration",
     "Führt Schritt für Schritt durch die Einrichtung": "Guide pas à pas dans la configuration",
@@ -2666,6 +2675,7 @@
     "keine Rollläden gewählt": "aucun volet sélectionné",
     "keine Sonne erwartet": "aucun soleil prévu",
     "keine Temperaturdaten": "aucune donnée de température",
+    "Fenster/Tür offen – fährt nicht zu": "Fenêtre/porte ouverte – ne ferme pas",
     "keine – unter „Geräte & Technik ändern“ wählen": "aucun – à sélectionner sous « Modifier appareils et technique »",
     "nach Sonnenuntergang zu, morgens wieder auf – schützt vor Wärmeverlust und Licht": "fermé après le coucher du soleil, rouvert le matin – protège contre les pertes de chaleur et la lumière",
     "nur diese Rollläden oder Jalousien werden gefahren – Fensterkontakte bleiben getrennt": "seuls ces volets roulants ou stores sont commandés – les contacts de fenêtre restent séparés",
@@ -2729,7 +2739,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.2.1b1";
+  var RK_VERSION = "1.2.3b1";
 
   // src/styles.js
   var STYLES = `
@@ -4775,7 +4785,6 @@
     "Entitäten": ["Anzahl aller Entitäten in Home Assistant.", "Number of all entities in Home Assistant.", "Nombre de toutes les entités dans Home Assistant."],
     "Home Assistant": ["Version von Home Assistant.", "Home Assistant version.", "Version de Home Assistant."],
     "Integration": ["Version der Raumklima-Integration.", "Raumklima integration version.", "Version de l’intégration Raumklima."],
-    "Nächste Stunden": ["Auszug aus der Wettervorhersage.", "Excerpt from the weather forecast.", "Extrait de la prévision météo."],
     "Offene Hinweise": ["Anzahl der offenen Gesundheitshinweise.", "Number of open health notices.", "Nombre d’avis de santé ouverts."],
     "Python": ["Python-Version von Home Assistant.", "Python version used by Home Assistant.", "Version Python utilisée par Home Assistant."],
     "Sturm": ["Böen-Schwelle für die Sturmwarnung.", "Gust threshold for the storm warning.", "Seuil de rafales pour l’alerte tempête."],
@@ -5498,6 +5507,7 @@
     ac_min_off: { unit: " min", step: 1, min: 1, max: 120, dec: 0 },
     ac_cop: { unit: "", step: 0.1, min: 1, max: 6, dec: 1 },
     gas_price: { unit: " €/kWh", step: 0.01, min: 0, max: 1, dec: 2 },
+    electric_price: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },
     shading_position: { unit: " %", step: 5, min: 0, max: 100, dec: 0 },
     shading_min_temp: { unit: " °C", step: 0.5, min: 5, max: 30, dec: 1 },
     shading_outdoor_min: { unit: " °C", step: 1, min: 0, max: 35, dec: 0 },
@@ -5964,7 +5974,8 @@
           t("startet bis zu 60 min vor einem Zeitfenster, wenn der aktuelle Preis unter der Grenze liegt")
         ),
         this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), t("Jahresarbeitszahl der Klimaanlage als Wärmepumpe – 3 ist ein typischer Richtwert")),
-        this._row("Gaspreis", this._num("hub", "gas_price", H("gas_price") ?? 0.1), t("€/kWh – nur für den Vergleich „Klimaanlage oder Gas“"))
+        this._row("Gaspreis", this._num("hub", "gas_price", H("gas_price") ?? 0.1), t("€/kWh – nur für den Vergleich „Klimaanlage oder Gas“")),
+        source === "gas" || source === "district" || source === "auto" ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), t("€/kWh – der Zähler misst Gas/Fernwärme; für „Klimaanlage oder Gas“ und günstiges Vorheizen")) : ""
       ].join("");
       return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [
         this._row(
@@ -5998,7 +6009,7 @@
           this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– wählen –"),
           H("pv_entity") ? t("aktuell {v}", { v: this._sensorInfo(H("pv_entity")) }) : t("PV-Erzeugung in kWh – optional, nur für den Eigenverbrauch bei Strom und Wärmepumpe")
         ),
-        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price"])
+        this._more("energy-more", "Weitere Einstellungen", advanced, "hub", ["energy_base", "energy_price", "energy_price_basis", "energy_vat", "energy_extra_fee", "energy_factor", "energy_efficiency", "pv_self_use", "energy_tariff_dynamic", "energy_cheap_price", "energy_preheat_cheap", "ac_cop", "gas_price", "electric_price"])
       ].join(""));
     },
     _groupWeather() {
@@ -6007,7 +6018,6 @@
       const w = H("weather_entity") ? this._hass && this._hass.states[H("weather_entity")] : null;
       const sun = this._hass && this._hass.states["sun.sun"];
       const a = w && w.attributes || {};
-      const forecast = Array.isArray(a.forecast) ? a.forecast.slice(0, 8) : [];
       const time = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "–";
       const rows = [
         this._row(
@@ -6020,19 +6030,21 @@
           this._select("hub", "outdoor_temp_entity", choices.outdoor || [], H("outdoor_temp_entity"), "Wetterdienst"),
           t("eigene Wetterstation statt Wetterdienst – die Vorhersage kommt weiterhin vom Wetterdienst")
         ),
-        this._row("Aktuell", this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w), w ? t("gefühlte Temperatur") : ""),
+        this._row(
+          "Aktuell",
+          this._v(w ? `${esc(a.weather || w.state)} · ${fmt(a.temperature)} °C` : "–", !w),
+          w && a.apparent_temperature != null ? t("gefühlt {v} °C", { v: fmt(a.apparent_temperature) }) : ""
+        ),
         this._row("Feuchte", this._v(w && a.humidity != null ? `${fmt(a.humidity, 0)} %` : "–", !w), ""),
         this._row("Wind", this._v(w && a.wind_speed != null ? `${fmt(a.wind_speed, 1)} km/h` : "–", !w), ""),
         this._row("Sonne", this._v(sun ? t(sun.state === "above_horizon" ? "über dem Horizont" : "unter dem Horizont") : "–", !sun), t("für die Verschattung und die Sonnenprognose")),
-        this._row("Sonnenaufgang", this._v(time((sun && sun.attributes || {}).next_dawn), !sun), t("nächster Sonnenaufgang")),
-        this._row("Sonnenuntergang", this._v(time((sun && sun.attributes || {}).next_dusk), !sun), t("nächster Sonnenuntergang")),
+        // next_rising/next_setting = Sonnenauf-/-untergang (next_dawn/next_dusk wären die Dämmerung)
+        this._row("Sonnenaufgang", this._v(time((sun && sun.attributes || {}).next_rising), !sun), t("nächster Sonnenaufgang")),
+        this._row("Sonnenuntergang", this._v(time((sun && sun.attributes || {}).next_setting), !sun), t("nächster Sonnenuntergang")),
         this._row("Heizgrenze", this._v(`${fmt(this._hubOpt("heating_limit") ?? 15, 1)} °C`, false), t("darunter gilt die Heizsaison")),
         this._row("Kälteeinbruch", this._v(`${fmt(this._hubOpt("cold_snap_temp") ?? 12, 1)} °C`, false), t("Vorhersage unter diesem Wert")),
         this._row("Sturm", this._v(`${fmt(this._hubOpt("storm_gust_kmh") ?? 70, 0)} km/h`, false), t("Böen ab dieser Stärke"))
       ];
-      if (forecast.length) {
-        rows.push(this._row("Nächste Stunden", this._v(forecast.slice(0, 4).map((f) => `${f.datetime ? new Date(f.datetime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""} ${fmt(f.temperature)}°`).join(" · "), false), t("aus der Wettervorhersage")));
-      }
       return this._grp("weather", "Wetter", "mdi:weather-partly-cloudy", "air", rows.join(""), "span");
     },
     _groupReports(ctx) {
@@ -7217,7 +7229,8 @@
           sun: t("Sonne auf der Fassade"),
           no_sun: t("keine Sonne erwartet"),
           cool: t("zu kühl für Schatten"),
-          no_data: t("keine Temperaturdaten")
+          no_data: t("keine Temperaturdaten"),
+          window_open: t("Fenster/Tür offen – fährt nicht zu")
         };
         const status = [states[shade.state] || "–", reasons[shade.reason] || ""].filter(Boolean).join(" · ");
         return this._grp("shade", "Verschattung", "mdi:blinds", "ok", [
@@ -8344,7 +8357,7 @@
           return;
         }
         try {
-          const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp });
+          const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp, ...this._homeMsg() });
           this._tab = "general";
           this._section = "rooms";
           this._roomTab = "overview";
@@ -8932,7 +8945,7 @@
       }
       try {
         if (Object.keys(hubChanges).length) {
-          await this._hass.callWS({ type: "raumklima/hub/update", changes: hubChanges });
+          await this._hass.callWS({ type: "raumklima/hub/update", changes: hubChanges, ...this._homeMsg() });
         }
         const create = d.heat_type !== "monitor" ? d.trv && d.temperature_sensor : d.temperature_sensor;
         if (create) {
@@ -8945,7 +8958,6 @@
           if (d.humidity_sensor) roomChanges.humidity_sensor = d.humidity_sensor;
           if ((d.window_sensors || []).length) roomChanges.window_sensors = d.window_sensors;
           if ((d.extra_trvs || []).length) roomChanges.extra_trvs = d.extra_trvs;
-          if ((d.presence_sensors || []).length) roomChanges.presence_sensors = d.presence_sensors;
           if ((d.shading_covers || []).length) roomChanges.shading_covers = d.shading_covers;
           if (d.heat_type === "floor") {
             if (d.floor_supply) roomChanges.floor_supply = d.floor_supply;
@@ -8955,10 +8967,11 @@
           if (d.setback_short !== void 0 && d.setback_short !== null) roomChanges.setback_short = Number(d.setback_short);
           if (d.setback_long !== void 0 && d.setback_long !== null) roomChanges.setback_long = Number(d.setback_long);
           if (d.frost_temperature !== void 0 && d.frost_temperature !== null) roomChanges.frost_temperature = Number(d.frost_temperature);
-          const created = await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges });
+          const created = await this._hass.callWS({ type: "raumklima/room/create", ...roomChanges, ...this._homeMsg() });
           const extra = {};
           if (d.co2_limit !== void 0) extra.co2_limit = Number(d.co2_limit);
           if (d.presence_kind) extra.presence_kind = d.presence_kind;
+          if ((d.presence_sensors || []).length) extra.presence_sensors = d.presence_sensors;
           if (d.shading_mode) extra.shading_mode = d.shading_mode;
           if (d.heat_type === "floor") extra.floor_heating = true;
           if (created && created.entry_id && Object.keys(extra).length) {
@@ -8967,7 +8980,7 @@
         }
         this._onboardOpen = false;
         this._onboard = null;
-        this._flash(t("Einrichtung abgeschlossen"));
+        this._flash(create ? t("Einrichtung abgeschlossen") : t("Einstellungen übernommen – kein Raum angelegt (Thermostat oder Temperaturfühler fehlt)"));
         await this._load();
         this._section = "rooms";
         this._tab = "general";

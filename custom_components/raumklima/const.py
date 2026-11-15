@@ -107,6 +107,7 @@ CONF_AC_MIN_OFF: Final = "ac_min_off"  # Mindestpause der Klimaanlage in Minuten
 CONF_AC_HEAT: Final = "ac_heat"  # Klimaanlage auch zum Heizen nutzen
 CONF_AC_COP: Final = "ac_cop"  # Jahresarbeitszahl der Klimaanlage als Wärmepumpe
 CONF_GAS_PRICE: Final = "gas_price"  # Gaspreis in €/kWh für den Quellenvergleich
+CONF_ELECTRIC_PRICE: Final = "electric_price"  # Strompreis in €/kWh, wenn der Zähler Gas/Fernwärme misst
 CONF_SCHEDULE_FALLBACK: Final = "schedule_fallback"  # außerhalb der Zeitfenster: wish/short/long/frost
 MOLD_MODES: Final = ("strict", "wish", "off")
 SCHEDULE_FALLBACKS: Final = ("wish", "short", "long", "frost")
@@ -365,6 +366,7 @@ HUB_DEFAULTS: Final = {
     "energy_efficiency": 0.0,
     "ac_cop": 3.0,
     "gas_price": 0.10,
+    "electric_price": 0.0,
     "pv_entity": None,
     "pv_self_use": 0,
     "kinds_version": 2,

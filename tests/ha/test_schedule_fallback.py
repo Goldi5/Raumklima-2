@@ -45,7 +45,8 @@ async def test_frostschutz_ist_der_kalteste_wert(hass: HomeAssistant, setup, trv
     ctrl.config[CONF_SCHEDULE_FALLBACK] = "frost"
     _on, target, reason = ctrl.plan()
     assert reason == "schedule_fallback"
-    assert target == ctrl.frost_temp == 5.0
+    # wie bis 1.1: die Sicherung der Wohnung, nie unter dem Raum-Frostschutz
+    assert target == max(ctrl.frost_temp, ctrl.hub.frost_floor) == ctrl.hub.frost_floor
 
 
 async def test_im_fenster_gilt_der_zeitplan(hass: HomeAssistant, setup, trv: FakeTrv) -> None:

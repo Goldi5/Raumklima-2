@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from homeassistant.core import HomeAssistant
-from homeassistant.util import dt as dt_util
 
 from custom_components.raumklima.const import (
     CONF_FLOOR_BAND,
@@ -81,3 +80,19 @@ async def test_floor_summary_without_sensors(hass: HomeAssistant, trv, sensors) 
     summary = ctrl.floor_summary()
     assert summary["delta"] is None
     assert summary["state"] == STATE_NO_SENSORS
+
+
+async def test_floor_band_vergleicht_sollwert_nicht_raumtemperatur(hass: HomeAssistant, trv, sensors) -> None:
+    """Gesenkter Wunsch muss ankommen, auch wenn der Raum schon nahe am neuen Ziel ist.
+
+    Früher verglich das Band die Raumtemperatur mit dem neuen Ziel: 21 → 19 bei 19,3 °C im Raum
+    blieb auf 21 hängen und heizte weiter.
+    """
+    _room, ctrl = await _setup_room(hass, **{CONF_FLOOR_CYCLE_MIN: 0})
+    hass.states.async_set(ctrl.temp_sensor, "19.3", {"unit_of_measurement": "°C", "device_class": "temperature"})
+    await hass.async_block_till_done()
+    ctrl._floor_last_setpoint = 21.0
+    ctrl._floor_last_change = None
+    assert ctrl.floor_setpoint(19.0) == 19.0
+    # Kleine Änderung innerhalb des Bandes (1 K) bleibt stehen
+    assert ctrl.floor_setpoint(19.5) == 19.0

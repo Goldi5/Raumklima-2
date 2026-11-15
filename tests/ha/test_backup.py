@@ -76,3 +76,32 @@ async def test_rueckweg_erhaelt_die_werte(hass: HomeAssistant, setup) -> None:
     restored = hass.config_entries.async_get_entry(room.entry_id)
     assert restored.options["boost_minutes"] == original["rooms"][room.title]["boost_minutes"]
     assert domain_data(hass)["rooms"].get(room.entry_id) is not None
+
+
+async def test_zwei_wohnungen_werden_getrennt_gesichert(hass: HomeAssistant, setup) -> None:
+    """Zweite Wohnung: Sicherung enthält nur ihre Räume, Einspielen ändert nur sie."""
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    from custom_components.raumklima.const import CONF_ENTRY_TYPE, CONF_HOME, DOMAIN, ENTRY_HUB, HUB_DEFAULTS
+
+    default_hub, room = setup
+    second = MockConfigEntry(
+        domain=DOMAIN, title="Remscheid", unique_id="raumklima_home_remscheid",
+        data={CONF_ENTRY_TYPE: ENTRY_HUB}, options={**HUB_DEFAULTS, "name": "Remscheid", "away_delay": 30},
+    )
+    second.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(second.entry_id)
+    await hass.async_block_till_done()
+
+    own = build_backup(hass, second.entry_id)
+    assert room.title not in own["rooms"], "Raum der anderen Wohnung in der Sicherung"
+    assert own["hub"]["away_delay"] == 30
+
+    standard = build_backup(hass)
+    assert room.title in standard["rooms"]
+
+    standard["hub"]["away_delay"] = 99
+    apply_backup(hass, standard, second.entry_id)
+    assert hass.config_entries.async_get_entry(second.entry_id).options["away_delay"] == 99
+    assert hass.config_entries.async_get_entry(default_hub.entry_id).options.get("away_delay") != 99
+    assert CONF_HOME  # Raum ohne Zuordnung gehört zur Standard-Wohnung

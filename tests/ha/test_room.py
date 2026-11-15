@@ -1430,7 +1430,7 @@ async def test_einstellungen_ausserhalb_defaults_zaehlen_als_override(hass: Home
 
 def test_raum_reset_setzt_auch_ausserhalb_defaults_zurueck() -> None:
     """Der Reset darf mold_cap/wall nicht als Override stehen lassen."""
-    from custom_components.raumklima.const import CONF_MOLD_CAP, CONF_TRV, CONF_WALL, CONF_WINDOWS, CONF_WINDOW_OPEN_DELAY
+    from custom_components.raumklima.const import CONF_MOLD_CAP, CONF_TRV, CONF_WALL, CONF_WINDOW_OPEN_DELAY, CONF_WINDOWS
     from custom_components.raumklima.room_const import reset_room_options
 
     out = reset_room_options({
@@ -1450,7 +1450,11 @@ def test_raum_reset_setzt_auch_ausserhalb_defaults_zurueck() -> None:
 def test_raum_reset_deckt_false_null_und_listen_ab() -> None:
     """Die Reset-Matrix muss false, 0, leere Listen und Standard-Listen kennen."""
     from custom_components.raumklima.const import (
-        CONF_LIGHT_SIGNALS, CONF_MOLD_CAP, CONF_SCHEDULES, CONF_SOLAR, CONF_TRV_INTERVAL,
+        CONF_LIGHT_SIGNALS,
+        CONF_MOLD_CAP,
+        CONF_SCHEDULES,
+        CONF_SOLAR,
+        CONF_TRV_INTERVAL,
     )
     from custom_components.raumklima.room_const import reset_room_options
 
@@ -1852,3 +1856,47 @@ async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setu
     assert hub.home_office_active is True
     assert any(e.get("summary") == "Goldschmidt" for e in hub.calendar_debug()["events"])
     assert any(e.get("summary") == "Morgen Termin" for e in hub.calendar_debug()["upcoming"])
+
+
+async def test_urlaub_in_fremdem_kalender_schaltet_nicht_weg(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """„Urlaub Müller“ im Teamkalender ist nicht der eigene Urlaub – nur der eingestellte zählt."""
+    from custom_components.raumklima.const import CONF_CALENDAR, CONF_CALENDAR_AWAY
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 10:00:00+00:00")
+    hub = get_hub(hass, None)
+    hub.config[CONF_CALENDAR] = "calendar.main"
+    hub.config[CONF_CALENDAR_AWAY] = "Urlaub"
+    hass.states.async_set("calendar.main", "off", {"message": ""})
+    hass.states.async_set("calendar.team", "on", {"message": "Urlaub Müller"})
+
+    async def _events(call):
+        eid = call.data["entity_id"]
+        if eid == "calendar.team":
+            return {eid: {"events": [{"summary": "Urlaub Müller", "start": "2026-06-15", "end": "2026-06-20"}]}}
+        return {eid: {"events": []}}
+
+    hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
+    await hub.async_check_calendar()
+    assert hub.calendar_mode is None
+
+
+async def test_naechster_termin_bei_off_zaehlt_nicht(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Bei „off“ zeigt HA den nächsten Termin – der Urlaub nächste Woche gilt nicht heute."""
+    from custom_components.raumklima.const import CONF_CALENDAR, CONF_CALENDAR_AWAY
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 10:00:00+00:00")
+    hub = get_hub(hass, None)
+    hub.config[CONF_CALENDAR] = "calendar.main"
+    hub.config[CONF_CALENDAR_AWAY] = "Urlaub"
+    hass.states.async_set(
+        "calendar.main", "off",
+        {"message": "Urlaub Ostsee", "start_time": "2026-06-22 00:00:00", "end_time": "2026-06-29 00:00:00"},
+    )
+    assert hub.calendar_event() == (None, None)
+    hass.states.async_set(
+        "calendar.main", "off",
+        {"message": "Urlaub Ostsee", "start_time": "2026-06-15 00:00:00", "end_time": "2026-06-22 00:00:00"},
+    )
+    assert hub.calendar_event()[0] == "away"

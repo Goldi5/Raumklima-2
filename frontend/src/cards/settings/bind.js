@@ -509,7 +509,7 @@ export const BindMethods = {
       const temp = (this.shadowRoot.getElementById("newRoomTemp") || {}).value || "";
       if (!name || !temp) { this._flash(t("Name und Temperaturfühler wählen")); return; }
       try {
-        const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp });
+        const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp, ...this._homeMsg() });
         this._tab = "general"; this._section = "rooms"; this._roomTab = "overview";
         this._flash(t("Raum „{n}“ angelegt", { n: name }));
         await this._load();

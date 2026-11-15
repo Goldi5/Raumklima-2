@@ -125,21 +125,26 @@ async def send_via_ha(
     body: str,
     attachments: list[str] | None = None,
 ) -> None:
-    """Über Home Assistants SMTP-Integration senden (seit 2026.11 mit Anhängen)."""
-    data: dict[str, Any] = {
-        "target": {"entity_id": notify_entity},
-        "title": subject,
-        "message": body,
-    }
+    """Über Home Assistants SMTP-Integration senden (seit 2026.11 mit Anhängen).
+
+    ``smtp.send_message`` erwartet das Ziel als *target* des Aufrufs (nicht in den Daten) und
+    je Anhang ``media_source`` als Map mit ``media_content_id``/``media_content_type``.
+    """
+    data: dict[str, Any] = {"title": subject, "message": body}
     if attachments:
         data["attachments"] = [
             {
-                "media_source": f"media-source://media_source/local/raumklima/{Path(path).name}",
+                "media_source": {
+                    "media_content_id": f"media-source://media_source/local/raumklima/{Path(path).name}",
+                    "media_content_type": "application/pdf",
+                },
                 "filename": Path(path).name,
             }
             for path in attachments
         ]
-    await hass.services.async_call("smtp", "send_message", data, blocking=True)
+    await hass.services.async_call(
+        "smtp", "send_message", data, blocking=True, target={"entity_id": notify_entity}
+    )
 
 
 def verify(opts: dict[str, Any], timeout: float = 15.0) -> list[dict[str, Any]]:

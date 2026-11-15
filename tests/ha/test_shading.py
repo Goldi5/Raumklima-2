@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 from homeassistant.core import HomeAssistant
 
-from custom_components.raumklima.const import CONF_SHADING_COVERS, CONF_SHADING_MODE
+from custom_components.raumklima.const import CONF_SHADING_MODE
 from custom_components.raumklima.room_shading import (
     STATE_ADVISE_CLOSE,
     STATE_CLOSED,
@@ -78,3 +78,39 @@ async def test_shading_manual_move_pauses(hass: HomeAssistant, trv, sensors) -> 
     summary = ctrl.shading_summary()
     assert summary["state"] == STATE_MANUAL
     assert summary["manual_until"] is not None
+
+
+async def test_shading_faehrt_nicht_vor_offene_tuer(hass: HomeAssistant, trv, sensors) -> None:
+    """Offene Balkontür: Rollladen bleibt oben – sonst sperrt man sich aus."""
+    from .conftest import WINDOW
+
+    _room, ctrl = await _setup_room(hass)
+    hass.states.async_set(WINDOW, "on", {"device_class": "door"})
+    await hass.async_block_till_done()
+    with (
+        patch.object(ctrl, "_shading_sun_expected", return_value=True),
+        patch.object(ctrl, "_shading_is_night", return_value=False),
+        patch("homeassistant.core.ServiceRegistry.async_call", new=AsyncMock()) as call,
+    ):
+        await ctrl.async_evaluate_shading()
+    assert not [c for c in call.await_args_list if c.args[0] == "cover"]
+    assert ctrl.shading_summary()["reason"] == "window_open"
+
+
+async def test_shading_hysterese_oeffnet_nicht_sofort(hass: HomeAssistant, trv, sensors) -> None:
+    """Zu wegen Sonne: knapp unter der Grenze bleibt er zu (kein Auf/Zu alle 5 Minuten)."""
+    _room, ctrl = await _setup_room(hass, shading_min_temp=22.0, shading_outdoor_min=40.0)
+    ctrl._shading_state, ctrl._shading_reason = STATE_CLOSED, "sun"
+    with patch.object(type(ctrl), "current_temperature", new=21.5):
+        assert ctrl._shading_hot() is True
+    with patch.object(type(ctrl), "current_temperature", new=20.9):
+        assert ctrl._shading_hot() is False
+
+
+async def test_shading_ohne_position_faehrt_nicht_dauernd(hass: HomeAssistant, trv, sensors) -> None:
+    _room, ctrl = await _setup_room(hass)
+    hass.states.async_set(COVER, "closed", {"supported_features": 3})
+    await hass.async_block_till_done()
+    with patch("homeassistant.core.ServiceRegistry.async_call", new=AsyncMock()) as call:
+        assert await ctrl._shading_move(COVER, "close") is True
+    call.assert_not_awaited()

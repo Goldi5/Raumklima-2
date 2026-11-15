@@ -20,8 +20,7 @@ from homeassistant.components.http import KEY_AUTHENTICATED, HomeAssistantView
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_REPORT_METRIC, CONF_SEASON_END, CONF_SEASON_START, KIND_REPORT
-from .const import CONF_SMTP_NOTIFY
+from .const import CONF_REPORT_METRIC, CONF_SEASON_END, CONF_SEASON_START, CONF_SMTP_NOTIFY, KIND_REPORT
 from .mailer import BUILTIN, MailError, recipients, send as mail_send, send_via_ha
 from .msg import tr
 from .report_data import MONTH, SEASON, WEEK, build, period, report_lang

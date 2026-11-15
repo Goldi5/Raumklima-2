@@ -1,6 +1,9 @@
 {
   "domain": "raumklima",
   "name": "Raumklima",
+  "after_dependencies": [
+    "recorder"
+  ],
   "codeowners": [
     "@Goldi5"
   ],
@@ -17,5 +20,5 @@
   "requirements": [
     "fpdf2==2.8.9"
   ],
-  "version": "1.2.1b1"
+  "version": "1.2.3b1"
 }

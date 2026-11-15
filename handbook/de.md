@@ -279,7 +279,7 @@ Kommst du früher heim und es ist dir zu kühl: einfach hochdrehen – die Absen
 
 ## Urlaub und Besuch
 
-- **Urlaub:** Schalter *Urlaub* in den Einstellungen – oder ein Kalendertermin mit „Urlaub“ im Titel. Endet automatisch, wenn ihr zurückkommt.
+- **Urlaub:** Schalter *Urlaub* in den Einstellungen – oder ein Kalendertermin mit „Urlaub“ im Titel. Urlaub zählt nur aus dem eingestellten Kalender, das Wort muss als eigenes Wort oder Wortende stehen („Dienstreise“ ja, „Preise“ nein). Homeoffice-Termine dürfen auch in anderen Kalendern liegen. Endet automatisch, wenn ihr zurückkommt.
 - **Besuch:** Schalter *Gäste da* – dann wird nicht abgesenkt, auch wenn alle Bewohner unterwegs sind.
 
 ## Heizpause im Frühling und Herbst
@@ -452,11 +452,11 @@ Jahr ist egal.
 ## Neu in 1.1
 
 - **Dashboard:** „Räume“ ist die erste Ansicht; Energie und Lernen liegen im eigenen Reiter „Energie & Lernen“.
-- **Verschattung:** Rollläden und Jalousien fahren bei Sonne und nachts – automatisch, nur als Empfehlung oder aus.
+- **Verschattung:** Rollläden und Jalousien fahren bei Sonne und nachts – automatisch, nur als Empfehlung oder aus. Ist ein Fenster oder eine Tür des Raums offen, fährt nichts zu (Aussperren). Wegen Sonne geschlossen öffnet erst 1 K (draußen 2 K) unter den Grenzen wieder.
 - **Fußbodenheizung:** eigene, träge Regelcharakteristik mit Vor-/Rücklauf und Durchfluss-Warnung.
 - **Lernmodell 2.0:** lernt Aufheizrate, Wärmeverlust und Sonneneinfluss; stoppt früher vor dem Ziel.
 - **Direkte Ventilsteuerung:** für Thermostate mit `number`-Stellglied, z. B. SONOFF TRVZB.
-- **Klimaanlagen:** kühlen und heizen mit getrennten Zielen und Takt-Schutz; günstigere Quelle nach COP/Gaspreis.
+- **Klimaanlagen:** kühlen und heizen mit getrennten Zielen und Takt-Schutz; günstigere Quelle nach COP/Gaspreis. Misst der Zähler Gas oder Fernwärme, unter *Energie & Tarife* den Strompreis eintragen – sonst wird nicht verglichen.
 - **Wärmeanforderung:** Sensor `sensor.raumklima_allgemein_warmeanforderung` bündelt alle Räume.
 - **Dynamische Tarife/PV:** Preisgrenze, günstig vorheizen, PV-Überschuss.
 - **Handverstellung:** Knopf „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ auf der Raumkarte.

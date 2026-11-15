@@ -11,6 +11,7 @@ import voluptuous as vol
 
 from .const import (
     CONF_CO2_SENSOR,
+    CONF_ENTRY_TYPE,
     CONF_HUMIDITY_SENSOR,
     CONF_PM25_SENSOR,
     CONF_SCHEDULES,
@@ -20,6 +21,7 @@ from .const import (
     CONF_WINDOWS,
     DEFAULTS,
     DOMAIN,
+    ENTRY_HUB,
     HUB_DEFAULTS,
     KINDS,
 )
@@ -348,6 +350,8 @@ async def ws_room_template_apply(hass: HomeAssistant, connection: websocket_api.
     """Benannte Vorlage auf einen Raum anwenden."""
     hub = get_hub(hass, msg.get("home"))
     entry = hass.config_entries.async_get_entry(msg["entry_id"])
+    if entry is not None and (entry.domain != DOMAIN or entry.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB):
+        entry = None  # nur Raumklima-Räume – nie die Wohnung oder eine fremde Integration
     if hub is None or entry is None:
         connection.send_error(msg["id"], "not_found", tr("Raum oder Wohnung nicht gefunden"))
         return

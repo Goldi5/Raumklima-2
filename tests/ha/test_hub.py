@@ -35,17 +35,58 @@ async def test_raum_frostschutz_heizt_unter_5_grad(hass: HomeAssistant, trv: Fak
     """Jeder Raum hat einen eigenen Frostschutz wie das Gerät – Standard 5 °C."""
     from custom_components.raumklima.shared import domain_data
 
-    _hub, room = await _setup(hass)
+    # Heizpause mit niedriger Wohnungs-Sicherung: nur der Raum-Frostschutz darf greifen.
+    _hub, room = await _setup(hass, season_mode="pause", frost_floor=3)
     ctrl = domain_data(hass)["rooms"][room.entry_id]
     assert ctrl.frost_temp == 5.0
-    # In kleinen Schritten, sonst verwirft der Ausreißer-Schutz den Sprung von 19 auf 4 °C.
-    for value in (16.1, 13.2, 10.3, 7.4, 4.5):
-        hass.states.async_set(SENSOR, str(value), {"device_class": "temperature", "unit_of_measurement": "°C"})
-        await hass.async_block_till_done()
+    await _cool_down(hass)
     on, target, reason = ctrl.plan()
     assert on is True
     assert target == 5.0
     assert reason == "frost"
+
+
+async def _cool_down(hass: HomeAssistant, values=(16.1, 13.2, 10.3, 7.4, 4.5)) -> None:
+    # In kleinen Schritten, sonst verwirft der Ausreißer-Schutz den Sprung von 19 auf 4 °C.
+    for value in values:
+        hass.states.async_set(SENSOR, str(value), {"device_class": "temperature", "unit_of_measurement": "°C"})
+        await hass.async_block_till_done()
+
+
+async def test_raum_frostschutz_ist_untergrenze_kein_deckel(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Unter 5 °C gilt ein höherer Wunsch weiter – der Frostschutz verdrängt ihn nicht."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = await _setup(hass)
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.target_temp = 21.0
+    await _cool_down(hass)
+    on, target, reason = ctrl.plan()
+    assert on is True
+    assert target == 21.0
+    assert reason != "frost"
+
+
+async def test_raum_frostschutz_hysterese(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = await _setup(hass, season_mode="pause", frost_floor=3)
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    await _cool_down(hass)
+    assert ctrl.plan()[2] == "frost"
+    await _cool_down(hass, (5.2,))
+    assert ctrl.plan()[2] == "frost", "an der Grenze nicht sofort wieder aus"
+    await _cool_down(hass, (5.6,))
+    assert ctrl.plan()[2] != "frost"
+
+
+async def test_nacht_frostschutz_bleibt_wohnungs_sicherung(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """„Frostschutz“ in der Nachtabsenkung hieß bis 1.1 die Sicherung der Wohnung (16 °C)."""
+    from custom_components.raumklima.shared import domain_data
+
+    hub, room = await _setup(hass, frost_floor=16, night_level="frost")
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert ctrl.hub.night_target(ctrl) == 16.0
 
 
 async def test_switch_to_always_via_options(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
@@ -105,3 +146,31 @@ async def test_away_message_names_home_only_with_several_homes(hass: HomeAssista
     await hass.async_block_till_done()
     assert hub._where() == " in Allgemein"
     assert second.runtime_data._where() == " in Wohnung B"
+
+
+async def test_unwetter_merker_ueberlebt_neustart(hass: HomeAssistant, trv: FakeTrv, sensors, hass_storage) -> None:
+    """Sonst kam nach jedem Neustart dieselbe Unwetter-Warnung noch einmal."""
+    hass_storage["raumklima.hub"] = {"version": 1, "key": "raumklima.hub", "data": {"storm_notified": "2026-11-14T18|gust"}}
+    hub, _room = await _setup(hass)
+    assert hub.runtime_data._storm_notified == "2026-11-14T18|gust"
+
+
+async def test_sprachansage_nur_an_anwesende(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """„Nur wenn jemand zu Hause ist“ gilt auch für Sprachausgaben, nicht nur für Push."""
+    from unittest.mock import AsyncMock
+
+    hub, _room = await _setup(hass)
+    h = hub.runtime_data
+    h._async_send = AsyncMock()
+    h.targets = lambda kind, how="push": ["notify.alexa"] if how == "tts" else ["notify.handy"]
+    h.quiet_now = lambda: False
+    import custom_components.raumklima.hub_notify as hn
+
+    orig = hn.keep_present
+    hn.keep_present = lambda targets, persons, only: [x for x in targets if x == "notify.handy"]
+    try:
+        await h.async_notify(next(iter(hn.PRESENT_ONLY_KINDS)), "Titel", "Text")
+    finally:
+        hn.keep_present = orig
+    sent = [c.args[0] for c in h._async_send.await_args_list]
+    assert sent == ["notify.handy"], f"Sprachausgabe trotz Filter: {sent}"

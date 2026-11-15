@@ -245,8 +245,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) -
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Zentrale gelöscht → beim nächsten Raumstart neu anlegen dürfen."""
+    """Zentrale gelöscht → beim nächsten Raumstart neu anlegen dürfen; Raum gelöscht → Speicher weg."""
     if is_hub_entry(entry):
         from .shared import domain_data
 
         domain_data(hass)["hub_flow"] = False
+        return
+    # Gelernte Werte, Verlauf und Zustand des Raums liegen in .storage – sonst bliebe die
+    # Datei nach dem Löschen für immer liegen.
+    from homeassistant.helpers.storage import Store
+
+    from .room_const import STORAGE_VERSION
+
+    await Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}").async_remove()

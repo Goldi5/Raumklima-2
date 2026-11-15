@@ -62,6 +62,7 @@ NUM: dict[str, NumField] = {
     "ac_min_off": NumField(" min", 1, 1, 120, 0, 'int', 1, 360),
     "ac_cop": NumField("", 0.1, 1, 6, 1, 'float', 1, 8),
     "gas_price": NumField(" €/kWh", 0.01, 0, 1, 2, 'float', 0, 2),
+    "electric_price": NumField(" €/kWh", 0.01, 0, 2, 2, 'float', 0, 2),
     "shading_position": NumField(" %", 5, 0, 100, 0, 'int', 0, 100),
     "shading_min_temp": NumField(" °C", 0.5, 5, 30, 1, 'float', 5, 35),
     "shading_outdoor_min": NumField(" °C", 1, 0, 35, 0, 'float', 0, 40),

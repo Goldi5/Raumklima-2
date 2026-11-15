@@ -79,8 +79,10 @@ class FloorMixin:
         if last is not None and changed is not None and cycle and (now - changed).total_seconds() < cycle * 60:
             return last
         band = max(0.0, to_float(self.config.get(CONF_FLOOR_BAND)) or 0.0)
-        current = self.current_temperature
-        if last is not None and current is not None and abs(current - value) <= band:
+        # Kleine Zieländerungen innerhalb des Bandes nicht nachziehen (Trägheit). Verglichen
+        # wird das neue Ziel mit dem zuletzt gesendeten Sollwert – nicht mit der Raumtemperatur:
+        # sonst blieb ein gesenkter Wunsch (21 → 18 bei 18,3 °C im Raum) auf 21 hängen.
+        if last is not None and abs(value - last) <= band:
             return last
         rounded = round_device(value, 0.5)
         if last is None or abs(rounded - last) >= 0.01:

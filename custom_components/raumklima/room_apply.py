@@ -41,6 +41,9 @@ from .room_trv import HEAT_PRESETS
 _LOGGER = logging.getLogger(f"{__package__}.controller")  # gleicher Logger-Name wie bisher
 
 
+VALVE_MIN_STEP = 5.0  # % – kleinere Änderungen der Ventilöffnung werden nicht gefunkt
+
+
 class ApplyMixin:
     """Plan ans Gerät bringen: Ein/Aus, Sollwert, weitere Heizquellen, Bosch-Sonderfall."""
 
@@ -189,6 +192,9 @@ class ApplyMixin:
                     await self._send_off(method)
                 else:
                     await self._send_on_mode(method)
+                    # Sollwert weiter normal setzen: Das Thermostat bleibt so die obere Grenze, und
+                    # sein Sollwert steht nicht auf einem alten (Abschalt-)Wert, bei dem es zumacht.
+                    await self._send_setpoint(from_measurement)
                     opening = shadow_opening(_target, self.current_temperature, heating=True)
                     if opening is not None:
                         await self._send_valve(opening)
@@ -225,6 +231,11 @@ class ApplyMixin:
         if not self.valve_actuator:
             return
         value = round(float(opening), 1)
+        # Batterie schonen: nur nennenswerte Änderungen funken (ganz zu/ganz auf immer).
+        state = self.hass.states.get(self.valve_actuator)
+        current = to_float(state.state) if state is not None else None
+        if current is not None and value not in (0.0, 100.0) and abs(value - current) < VALVE_MIN_STEP:
+            return
         await self.sync.request(
             "valve",
             tr("Ventil {p} %", p=f"{value:.0f}"),

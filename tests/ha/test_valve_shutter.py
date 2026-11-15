@@ -65,7 +65,7 @@ async def test_rollladen_allein_bleibt_ohne_ventilanzeige(hass: HomeAssistant, s
 
 
 async def test_batteriesensor_ist_kein_ventil(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
-    """Ein Batteriesensor in % darf nicht als Ventilstellung gelten (Issue #48)."""
+    """Ein Batteriesensor in Prozent darf nicht als Ventilstellung gelten (Issue #48)."""
     from homeassistant.helpers import device_registry as dr, entity_registry as er
 
     from custom_components.raumklima.shared import domain_data

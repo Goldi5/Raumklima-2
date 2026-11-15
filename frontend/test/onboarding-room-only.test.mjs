@@ -11,6 +11,7 @@ const ctx = (calls) => ({
   _cfg: { choices: {} },
   _render() {},
   _flash() {},
+  _homeMsg() { return { home: "home-remscheid" }; },
   async _load() {},
   _hass: {
     callWS: async (msg) => {
@@ -106,4 +107,22 @@ test("Nur messen zeigt den Fühler-Schritt ohne Thermostat", () => {
   const html = c._onboardHtml();
   assert.ok(!html.includes('data-onb="trv"'), "Thermostat darf bei Nur messen fehlen");
   assert.ok(html.includes('data-onb="temperature_sensor"'), "Temperaturfühler fehlt");
+});
+
+test("Präsenzmelder gehen mit room/update, Raum landet in der gewählten Wohnung", async () => {
+  // Früher gingen presence_sensors an room/create (Schema kennt sie nicht → abgelehnt),
+  // und ohne „home“ landete der Raum in der ersten Wohnung.
+  const calls = [];
+  const c = ctx(calls);
+  c._onboard = {
+    step: 0, roomOnly: true,
+    data: { room_name: "Büro", heat_type: "trv", room_type: "office", trv: "climate.b", temperature_sensor: "sensor.b",
+      presence_sensors: ["binary_sensor.mmwave"], presence_kind: "mmwave" },
+  };
+  await c._onboardFinish();
+  const create = calls.find((x) => x.type === "raumklima/room/create");
+  const update = calls.find((x) => x.type === "raumklima/room/update");
+  assert.equal(create.home, "home-remscheid");
+  assert.ok(!("presence_sensors" in create), "presence_sensors darf nicht an room/create");
+  assert.deepEqual(update.changes.presence_sensors, ["binary_sensor.mmwave"]);
 });

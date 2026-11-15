@@ -200,6 +200,7 @@ export const RoomMethods = {
           night: t("Nacht"), night_open: t("Nacht vorbei"),
           sun: t("Sonne auf der Fassade"), no_sun: t("keine Sonne erwartet"),
           cool: t("zu kühl für Schatten"), no_data: t("keine Temperaturdaten"),
+          window_open: t("Fenster/Tür offen – fährt nicht zu"),
         };
         const status = [states[shade.state] || "–", reasons[shade.reason] || ""].filter(Boolean).join(" · ");
         return this._grp("shade", "Verschattung", "mdi:blinds", "ok", [

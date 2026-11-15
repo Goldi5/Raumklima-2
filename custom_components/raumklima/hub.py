@@ -23,12 +23,15 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    CONF_BUILDING,
     CONF_AC_COP,
+    CONF_BUILDING,
     CONF_CALENDAR,
+    CONF_ELECTRIC_PRICE,
     CONF_ENERGY_CHEAP_PRICE,
+    CONF_ENERGY_METER,
     CONF_ENERGY_PREHEAT_CHEAP,
     CONF_ENERGY_PRICE,
+    CONF_ENERGY_SOURCE,
     CONF_ENERGY_TARIFF,
     CONF_ENERGY_TARIFF_DYNAMIC,
     CONF_FROST_FLOOR,
@@ -339,7 +342,6 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self.presence_profile.load(stored.get("presence_profile"))
         sig = stored.get("signals") or {}
         self.signals.asleep = bool(sig.get("asleep", False))
-        self._storm_notified = None  # zuletzt gewarntes Unwetter-Ereignis
         self.signals.bed_at = parse_dt(sig.get("bed_at"))
         self._woke_night = sig.get("woke_night")
         self._migrate_kinds()
@@ -563,15 +565,34 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         """Ist der Strom gerade günstig genug für Vorheizen?"""
         if not self.opt(CONF_ENERGY_PREHEAT_CHEAP):
             return False
-        price = self.energy_price_now()
+        price = self.electric_price_now()
         cheap = float(self.opt(CONF_ENERGY_CHEAP_PRICE) or 0)
         return price > 0 and cheap > 0 and price <= cheap
 
+    def energy_source(self) -> str:
+        """Was der Zähler misst: gas / district / electric / heatpump („auto“ nach Geräteklasse)."""
+        source = str(self.opt(CONF_ENERGY_SOURCE) or "auto")
+        if source != "auto":
+            return source
+        meter = self.opt(CONF_ENERGY_METER)
+        state = self.hass.states.get(meter) if meter else None
+        return "gas" if state is not None and state.attributes.get("device_class") == "gas" else "electric"
+
+    def electric_price_now(self) -> float:
+        """Strompreis in €/kWh – bei Gas/Fernwärme ist der Tarif-Sensor *nicht* Strom.
+
+        Früher wurde immer der Tarif-Sensor genommen: in Gas-Haushalten also der Gaspreis,
+        und die Klimaanlage galt bei jedem COP über 1 als günstiger.
+        """
+        if self.energy_source() in ("gas", "district"):
+            return float(self.opt(CONF_ELECTRIC_PRICE) or 0)
+        return self.energy_price_now()
+
     def ac_heat_cheaper(self) -> bool:
-        """Klimaanlage als Wärmepumpe günstiger als Gas? (COP und Gaspreis nötig)"""
+        """Klimaanlage als Wärmepumpe günstiger als Gas? (COP, Gas- und Strompreis nötig)"""
         gas = float(self.opt(CONF_GAS_PRICE) or 0)
         cop = float(self.opt(CONF_AC_COP) or 0)
-        electric = self.energy_price_now()
+        electric = self.electric_price_now()
         return gas > 0 and cop > 0 and electric > 0 and (electric / cop) < gas
 
     # ------------------------------------------------------------ Wärmeanforderung
