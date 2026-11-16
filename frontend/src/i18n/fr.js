@@ -90,7 +90,6 @@ export const FR = {
   "Mindestpause": "Pause minimale",
   "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "la climatisation reste allumée au moins ce temps – évite les cycles courts",
   "so lange bleibt sie nach dem Ausgehen mindestens aus": "elle reste éteinte au moins ce temps après l’arrêt",
-  "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen": "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement – uniquement avec une source AC dans les sources de chaleur",
   "oberhalb dieser Temperatur kühlt die Klimaanlage": "au-delà de cette température, la climatisation refroidit",
   "Energie & Lernen": "Énergie et apprentissage",
   "Energie-Erfassung": "Suivi énergétique",
@@ -1690,4 +1689,7 @@ export const FR = {
   "Übernommen": "Repris",
   "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "peut rester vide : calculé à partir du soutirage, du PV, de l’injection et de la batterie",
   "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optionnel : consommation de toute la maison en kWh – ou choisis soutirage, production PV et injection, Raumklima la calcule",
+  "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement",
+  "keine Klimaanlage": "pas de climatisation",
+  "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Ajoute la climatisation dans l’onglet « Sources de chaleur » avec « Ajouter une source » – la pièce peut alors refroidir et chauffer avec elle",
 };

@@ -92,7 +92,7 @@ export const ROOM_SEARCH = [
   { terms: ["verschattung", "rollladen", "jalousie", "sonnenschutz"], tab: "windows", label: "Verschattung" },
   { terms: ["fußbodenheizung", "fussbodenheizung", "vorlauf", "rücklauf", "spreizung", "fließ"], tab: "control", label: "Fußbodenheizung" },
   { terms: ["präsenz", "anwesenheit", "melder"], tab: "presence", label: "Präsenz" },
-  { terms: ["heizquelle", "thermostat", "klimaanlage"], tab: "sources", label: "Heizquellen" },
+  { terms: ["heizquelle", "thermostat", "klimaanlage", "klimagerät", "klima", "ac", "split", "kühlen", "quelle hinzufügen"], tab: "sources", label: "Heizquellen" },
   { terms: ["ventil", "ventilsteuerung", "stellglied", "trvzb"], tab: "devices", label: "Ventilsteuerung" },
   { terms: ["sensor", "batterie", "funk", "kalibrierung"], tab: "devices", label: "Geräte & Sensoren" },
   { terms: ["meldung", "empfänger", "lichtsignal"], tab: "notify", label: "Meldungen" },

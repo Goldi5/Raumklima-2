@@ -91,7 +91,6 @@
     "Mindestpause": "Minimum pause",
     "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "the air conditioner stays on at least this long – prevents cycling",
     "so lange bleibt sie nach dem Ausgehen mindestens aus": "it stays off at least this long after switching off",
-    "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen": "Air conditioning cools when the room is above the cooling limit – only with an AC source in heat sources",
     "oberhalb dieser Temperatur kühlt die Klimaanlage": "above this temperature the air conditioning cools",
     "Energie & Lernen": "Energy & learning",
     "Energie-Erfassung": "Energy tracking",
@@ -1686,7 +1685,10 @@
     "Übernommen werden nur leere Felder – deine Auswahl bleibt.": "Only empty fields are filled – your choices stay.",
     "Übernommen": "Applied",
     "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "can stay empty: calculated from grid import, PV, feed-in and battery",
-    "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optional: power use of the whole house in kWh – or choose grid import, PV yield and feed-in and Raumklima calculates it"
+    "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optional: power use of the whole house in kWh – or choose grid import, PV yield and feed-in and Raumklima calculates it",
+    "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "Air conditioning cools when the room is above the cooling limit",
+    "keine Klimaanlage": "no air conditioner",
+    "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Add the air conditioner in the “Heat sources” tab with “Add source” – then the room can cool and heat with it"
   };
 
   // src/i18n/fr.js
@@ -1780,7 +1782,6 @@
     "Mindestpause": "Pause minimale",
     "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "la climatisation reste allumée au moins ce temps – évite les cycles courts",
     "so lange bleibt sie nach dem Ausgehen mindestens aus": "elle reste éteinte au moins ce temps après l’arrêt",
-    "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen": "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement – uniquement avec une source AC dans les sources de chaleur",
     "oberhalb dieser Temperatur kühlt die Klimaanlage": "au-delà de cette température, la climatisation refroidit",
     "Energie & Lernen": "Énergie et apprentissage",
     "Energie-Erfassung": "Suivi énergétique",
@@ -3375,7 +3376,10 @@
     "Übernommen werden nur leere Felder – deine Auswahl bleibt.": "Seuls les champs vides sont remplis – tes choix restent.",
     "Übernommen": "Repris",
     "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "peut rester vide : calculé à partir du soutirage, du PV, de l’injection et de la batterie",
-    "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optionnel : consommation de toute la maison en kWh – ou choisis soutirage, production PV et injection, Raumklima la calcule"
+    "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optionnel : consommation de toute la maison en kWh – ou choisis soutirage, production PV et injection, Raumklima la calcule",
+    "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement",
+    "keine Klimaanlage": "pas de climatisation",
+    "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Ajoute la climatisation dans l’onglet « Sources de chaleur » avec « Ajouter une source » – la pièce peut alors refroidir et chauffer avec elle"
   };
 
   // src/i18n.js
@@ -6490,7 +6494,7 @@
     { terms: ["verschattung", "rollladen", "jalousie", "sonnenschutz"], tab: "windows", label: "Verschattung" },
     { terms: ["fußbodenheizung", "fussbodenheizung", "vorlauf", "rücklauf", "spreizung", "fließ"], tab: "control", label: "Fußbodenheizung" },
     { terms: ["präsenz", "anwesenheit", "melder"], tab: "presence", label: "Präsenz" },
-    { terms: ["heizquelle", "thermostat", "klimaanlage"], tab: "sources", label: "Heizquellen" },
+    { terms: ["heizquelle", "thermostat", "klimaanlage", "klimagerät", "klima", "ac", "split", "kühlen", "quelle hinzufügen"], tab: "sources", label: "Heizquellen" },
     { terms: ["ventil", "ventilsteuerung", "stellglied", "trvzb"], tab: "devices", label: "Ventilsteuerung" },
     { terms: ["sensor", "batterie", "funk", "kalibrierung"], tab: "devices", label: "Geräte & Sensoren" },
     { terms: ["meldung", "empfänger", "lichtsignal"], tab: "notify", label: "Meldungen" },
@@ -8197,9 +8201,13 @@
           acCount ? this._row(
             "Kühlen",
             editable ? this._optToggle(scope, "cooling", cooling) : this._v(cooling ? t("ja") : t("nein")),
-            t("Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen"),
+            t("Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt"),
             this._srcBadge(r, "cooling")
-          ) : "",
+          ) : this._row(
+            "Kühlen",
+            this._v(t("keine Klimaanlage"), true),
+            t("Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen")
+          ),
           acCount && cooling ? this._row(
             "Kühlgrenze",
             editable ? this._num(scope, "cool_setpoint", coolSet) : this._v(`${fmt(coolSet)} °C`),

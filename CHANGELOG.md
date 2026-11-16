@@ -1,3 +1,8 @@
+## 1.3.12b1 – 2026-11-16
+
+### Behoben
+- **Klimaanlage leichter zu finden:** Im Reiter *Regelung* steht jetzt auch ohne Klimaanlage die Zeile „Kühlen – keine Klimaanlage“ mit dem Weg dorthin (*Heizquellen → Quelle hinzufügen*). Der missverständliche Begriff „AC-Quelle“ ist weg. Die Einstellungssuche findet die Heizquellen auch mit „AC“, „Klima“, „Klimagerät“, „Split“ und „Kühlen“.
+
 ## 1.3.11b1 – 2026-11-16
 
 ### Neu

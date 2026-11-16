@@ -91,7 +91,9 @@ export const RoomMethods = {
         this._row("Sonnenseite", editable ? this._optToggle(scope, "solar_gain", !!(this._roomOpt(r, "solar_gain") ?? s.solar_gain)) : this._v(s.solar_gain ? "ja" : "nein"),
           a.plan_reason === "solar" ? "gerade: Sonne erwartet – 1 °C weniger" : t("bei Sonne 1 °C weniger heizen – die Sonne wärmt mit"), this._srcBadge(r, "solar_gain")),
         acCount ? this._row("Kühlen", editable ? this._optToggle(scope, "cooling", cooling) : this._v(cooling ? t("ja") : t("nein")),
-          t("Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen"), this._srcBadge(r, "cooling")) : "",
+          t("Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt"), this._srcBadge(r, "cooling"))
+          : this._row("Kühlen", this._v(t("keine Klimaanlage"), true),
+            t("Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen")),
         acCount && cooling ? this._row("Kühlgrenze", editable ? this._num(scope, "cool_setpoint", coolSet) : this._v(`${fmt(coolSet)} °C`),
           t("oberhalb dieser Temperatur kühlt die Klimaanlage"), this._srcBadge(r, "cool_setpoint")) : "",
         acCount && cooling ? this._row("Mindestlaufzeit", editable ? this._num(scope, "ac_min_on", this._roomOpt(r, "ac_min_on") ?? s.ac_min_on ?? 10) : this._v(`${this._roomOpt(r, "ac_min_on") ?? s.ac_min_on ?? 10} min`),

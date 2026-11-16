@@ -90,7 +90,6 @@ export const EN = {
   "Mindestpause": "Minimum pause",
   "so lange bleibt die Klimaanlage mindestens an – gegen Takten": "the air conditioner stays on at least this long – prevents cycling",
   "so lange bleibt sie nach dem Ausgehen mindestens aus": "it stays off at least this long after switching off",
-  "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt – nur mit einer AC-Quelle in den Heizquellen": "Air conditioning cools when the room is above the cooling limit – only with an AC source in heat sources",
   "oberhalb dieser Temperatur kühlt die Klimaanlage": "above this temperature the air conditioning cools",
   "Energie & Lernen": "Energy & learning",
   "Energie-Erfassung": "Energy tracking",
@@ -1690,4 +1689,7 @@ export const EN = {
   "Übernommen": "Applied",
   "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "can stay empty: calculated from grid import, PV, feed-in and battery",
   "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optional: power use of the whole house in kWh – or choose grid import, PV yield and feed-in and Raumklima calculates it",
+  "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "Air conditioning cools when the room is above the cooling limit",
+  "keine Klimaanlage": "no air conditioner",
+  "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Add the air conditioner in the “Heat sources” tab with “Add source” – then the room can cool and heat with it",
 };

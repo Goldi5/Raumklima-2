@@ -362,10 +362,10 @@ read-only Einordnung, keine neue Regel und keine Heizlastberechnung.
 **Assist/Boost (6.8):** Das Sprachwerkzeug `raumklima_boost_room` setzt einen Boost
 für 5–480 Minuten; `0` beendet ihn. Überwachungsräume werden abgelehnt.
 
-**Kühlen/Klima 2.0 (6.5):** Ist eine AC-Quelle in den Heizquellen konfiguriert, kann
+**Kühlen/Klima 2.0 (6.5):** Ist im Reiter *Heizquellen* eine Klimaanlage eingetragen (Quelle hinzufügen, Typ „Klimaanlage“), kann
 der Raum optional kühlen: oberhalb der Kühlgrenze schaltet Raumklima die
 Heizthermostate aus und die Klimaanlage in den Kühlmodus. Die Funktion ist pro Raum
-abschaltbar; ohne AC-Quelle passiert nichts.
+abschaltbar; ohne Klimaanlage passiert nichts.
 
 **Energie, Tarife, PV (6.6):** Zähler, Tarif, PV-Ertrag, Grundpreis und Arbeitspreis
 lassen sich wählen. Die Energiequelle bestimmt die Umrechnung: Gas in m³ wird über
