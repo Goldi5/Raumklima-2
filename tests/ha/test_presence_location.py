@@ -18,8 +18,11 @@ def _zone(hass: HomeAssistant) -> None:
     hass.states.async_set("zone.home", "0", ZONE)
 
 
-async def test_handy_ohne_koordinaten_meldet_sich_zu_wort(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
-    """Kein Handy meldet einen Standort → verständlicher Hinweis statt stiller Absenkung."""
+async def test_handy_ohne_koordinaten_meldet_sich_zu_wort(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Kein Handy meldet einen Standort → verständlicher Hinweis statt stiller Absenkung.
+
+    Erst nach 15 Minuten Laufzeit – direkt nach dem Start melden sich die Handys noch.
+    """
     _zone(hass)
     hass.states.async_set("person.b", "not_home", {"device_trackers": ["device_tracker.handy"]})
     hass.states.async_set("device_tracker.handy", "not_home")  # ohne Koordinaten
@@ -27,6 +30,12 @@ async def test_handy_ohne_koordinaten_meldet_sich_zu_wort(hass: HomeAssistant, t
     live = get_hub(hass, None)
     assert hub is not None
 
+    texte = [str(entry.get("msg") or "") for entry in live.log.entries]
+    assert not any("Keine Ortung" in t for t in texte), "direkt nach dem Start noch keine Warnung"
+    from datetime import timedelta
+
+    freezer.tick(timedelta(minutes=16))
+    live._evaluate_presence()
     texte = [str(entry.get("msg") or "") for entry in live.log.entries]
     assert any("Ortung" in t for t in texte), f"Hinweis fehlt im Protokoll: {texte[:6]}"
 
