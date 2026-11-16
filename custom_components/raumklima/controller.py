@@ -721,11 +721,19 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         watch = [e for e in (self.config.get(CONF_ROOM_PERSONS) or []) if not str(e).startswith("person.")]
         helpers = {self.config.get(CONF_SCHEDULE_ENTITY), *(self.config.get(CONF_SCHEDULE_BY_PLAN) or {}).values()}
         watch += sorted(h for h in helpers if h and str(h).startswith("schedule."))
+        # Entfeuchter: Ein- und Ausschalten von außen (App, Taster, Automation) sofort auf der Karte zeigen
+        dehum = self.dehumidifier.entity_id
+        if dehum:
+            watch.append(dehum)
         if not watch:
             return
 
         @callback
-        def _changed(_event: Any) -> None:
+        def _changed(event: Any) -> None:
+            if dehum and event.data.get("entity_id") == dehum:
+                self.dehumidifier.update()
+                self._notify()
+                return
             self._notify()
             self.hass.async_create_task(self._apply())
 

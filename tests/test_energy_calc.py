@@ -104,3 +104,16 @@ def test_short_label():
     assert short_label(raw) == "Heartbeat Electricity Price"
     assert short_label("EPEX Spot Data Total Price", "Energy-Charts.info (DE-LU)") == "EPEX Spot Data Total Price · Energy-Charts.info (DE-LU)"
     assert short_label("Tibber Preis Tibber", "Tibber") == "Tibber Preis Tibber"
+
+
+def test_money_no_degree_day_forecast_with_short_outdoor_history():
+    """Zähler seit einem Jahr, Außentemperatur erst seit zwei Wochen: keine Gradtag-Hochrechnung."""
+    cur = {"hdd": 120.0, "total": {"saving_pct": 0.0}}
+    year = {"kwh": 5000.0, "price": 0.30, "cost_energy": 900.0, "days": 365, "base": 0.0, "outdoor_days": 15}
+    out = money(cur, None, year)
+    assert out["annual"] == 900.0  # ein ganzes Jahr gemessen: das ist die Jahreszahl
+    short = {**year, "days": 120}
+    out = money(cur, None, short)
+    assert out["annual"] is None and out["per_degree_year"] is None
+    good = {**year, "days": 30, "outdoor_days": 30}
+    assert money(cur, None, good)["annual"] is not None

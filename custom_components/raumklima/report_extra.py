@@ -330,18 +330,24 @@ def money(
             return None
         # Hochrechnung: Heizung nach Gradtagen, Warmwasser und Grundgebühr nach Tagen
         ww_part = max(0.0, float(energy.get("ww_kwh") or 0)) / kwh if kwh > 0 else 0.0
-        annual = (
-            energy_cost * (1 - ww_part) * REF_HDD / cur["hdd"]
-            + (energy_cost * ww_part + base) * 365 / days
-        )
+        outdoor_days = energy.get("outdoor_days")
+        if outdoor_days is not None and outdoor_days < 0.8 * days:
+            # Gradtage nur für einen Teil des Zeitraums bekannt (z. B. Zähler seit einem Jahr,
+            # Raumklima erst seit zwei Wochen): Gradtage taugen nicht zur Hochrechnung.
+            annual = period_cost * 365 / days if days >= 300 else None
+        else:
+            annual = (
+                energy_cost * (1 - ww_part) * REF_HDD / cur["hdd"]
+                + (energy_cost * ww_part + base) * 365 / days
+            )
         basis = "meter"
     s = cur["total"]["saving_pct"]
     saved = period_cost * s / max(100 - s, 1)
     out: dict[str, Any] = {
         "period_cost": round(period_cost, 2),
         "saved": round(saved),
-        "per_degree_year": round(annual * ENERGY_PER_KELVIN),
-        "annual": round(annual, 2),
+        "per_degree_year": round(annual * ENERGY_PER_KELVIN) if annual is not None else None,
+        "annual": round(annual, 2) if annual is not None else None,
         "basis": basis,
         "source": energy.get("source") if basis == "meter" else "bill",
     }

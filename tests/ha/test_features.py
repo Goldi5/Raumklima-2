@@ -270,6 +270,31 @@ async def test_dehumidifier_uses_own_on_and_off_thresholds(
         assert not ctrl.dehumidifier.active
 
 
+async def test_dehumidifier_switched_outside_shows_at_once(
+    hass: HomeAssistant, trv: FakeTrv, sensors
+) -> None:
+    """Von außen eingeschaltet (App, Taster): Raum zeigt es sofort, mit Laufzeit."""
+    hass.states.async_set("switch.dehumidifier", "off")
+    await _setup(hass, dehumidifier_entity="switch.dehumidifier")
+    assert hass.states.get("climate.bad").attributes["dehumidifier_active"] is False
+
+    async def _no_call(self, entity: str, on: bool) -> None:
+        return None
+
+    with patch.object(DehumidifierManager, "_call", _no_call):
+        hass.states.async_set("switch.dehumidifier", "on")
+        await hass.async_block_till_done()
+        attrs = hass.states.get("climate.bad").attributes
+        assert attrs["dehumidifier_active"] is True
+        assert attrs["dehumidifier_since"] is not None
+
+        hass.states.async_set("switch.dehumidifier", "off")
+        await hass.async_block_till_done()
+    attrs = hass.states.get("climate.bad").attributes
+    assert attrs["dehumidifier_active"] is False
+    assert attrs["dehumidifier_since"] is None
+
+
 def test_dehumidifier_off_threshold_never_reaches_on_threshold() -> None:
     """Eine versehentlich zu hohe Ausschaltschwelle wird auf 1 % Abstand begrenzt."""
     ctrl = type("Ctrl", (), {"config": {"dehumidifier_on": 65.0, "dehumidifier_off": 70.0}})

@@ -158,12 +158,17 @@ class DehumidifierManager:
             self._on_since = None
             return
 
+        # Laufzeit auch zählen, wenn jemand von Hand eingeschaltet hat – die Karte zeigt „seit …“
+        if is_on and self._on_since is None:
+            recent = self._last_cmd_on and self._last_cmd_at and now - self._last_cmd_at < timedelta(minutes=5)
+            self._on_since = self._last_cmd_at if recent else now
+        elif not is_on:
+            self._on_since = None
+
         if self._manual_until and now < self._manual_until:
             return
 
         if is_on:
-            if self._on_since is None:
-                self._on_since = self._last_cmd_at if self._last_cmd_on and self._last_cmd_at else now
             if (now - self._on_since) >= timedelta(minutes=MAX_RUN) and hum > self.off_limit:
                 if not self._maxed:
                     self._maxed = True

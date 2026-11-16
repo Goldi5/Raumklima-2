@@ -300,7 +300,7 @@ class SettingsMixin:
         }:
             self.track_presence()
             self.update_presence()
-        if changed.keys() & {CONF_ROOM_PERSONS, CONF_SCHEDULE_ENTITY, CONF_SCHEDULE_BY_PLAN}:
+        if changed.keys() & {CONF_ROOM_PERSONS, CONF_SCHEDULE_ENTITY, CONF_SCHEDULE_BY_PLAN, CONF_DEHUMIDIFIER}:
             self.track_aux()
         if self.virtual_open_at is not None and not self.virtual_enabled():
             self._close_virtual("off")

@@ -4370,7 +4370,7 @@
       this._hass = hass;
       setLang(hass);
       const st = hass.states[this._config.entity];
-      const ids = [this._config.entity, ...Object.values(this._siblings()), ...st && st.attributes.window_entities || []];
+      const ids = [this._config.entity, ...Object.values(this._siblings()), ...st && st.attributes.window_entities || [], ...st && st.attributes.dehumidifier_entity ? [st.attributes.dehumidifier_entity] : []];
       if (!rkChanged(this, hass, ids) && this.shadowRoot && this.shadowRoot.firstChild) return;
       if (rkScrolling()) {
         rkLater(this, () => this._render());
@@ -4641,7 +4641,7 @@
         </div>
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
-          ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}</span>` : ""}
+          ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}${a.dehumidifier_since ? ` · ${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}` : ""}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="chip" style="--tone:var(--rk-warn)" title="${esc(a.battery.name)}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon>${t("Batterie {p} %", { p: a.battery.level })}</span>` : ""}
           ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
         </div>
@@ -4846,6 +4846,7 @@
         return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
+          ${a.dehumidifier_active ? `<span class="dehum${a.dehumidifier_maxed ? " maxed" : ""}" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => {
           const s2 = rkOpenSince(this._hass, a);
           return s2 ? `<span title="${t("offen seit {c}", { c: rkClock(s2) })}">${rkDuration(Date.now() - s2)}</span>` : "";
@@ -4882,6 +4883,12 @@
       .dot ha-icon { --mdc-icon-size:20px; }
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
       .occ { color: var(--rk-ok); --mdc-icon-size:18px; margin-left:auto; margin-right:6px; }
+      .dehum { display:inline-flex; align-items:center; gap:3px; margin-left:auto; margin-right:6px; padding:1px 6px 1px 4px; border-radius:999px; background:color-mix(in srgb, var(--rk-air) 16%, transparent); color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
+      .dehum ha-icon { --mdc-icon-size:16px; animation: rkdehum 2.4s ease-in-out infinite; }
+      .dehum.maxed { color:var(--rk-warn); background:color-mix(in srgb, var(--rk-warn) 16%, transparent); }
+      .occ + .dehum { margin-left:0; }
+      @keyframes rkdehum { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+      @media (prefers-reduced-motion: reduce) { .dehum ha-icon { animation:none; } }
       .wopen { display:inline-flex; align-items:center; gap:4px; color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
       .rn { font-weight:650; color:var(--primary-text-color); }
       .rs { font-size:.78rem; color: var(--tone); font-weight:600; }

@@ -1,3 +1,14 @@
+## 1.3.8b1 – 2026-11-16
+
+### Behoben
+- **Entfeuchter von außen eingeschaltet – Karte zeigt es sofort:** Wird der Entfeuchter per App, Taster oder Automation geschaltet, beobachtet Raumklima die Entität jetzt selbst und aktualisiert den Raum sofort. Bisher erschien der Chip erst mit der nächsten Temperatur- oder Feuchte-Meldung, und „seit …“ blieb bei Handbedienung leer.
+- **Übersicht:** Die Raumkacheln zeigen einen laufenden Entfeuchter jetzt auch – als kleines Symbol mit Laufzeit (orange, wenn er ohne Besserung läuft). Bisher gab es den Chip nur auf der einzelnen Raumkarte; dort steht jetzt ebenfalls die Laufzeit.
+- **Energie – Arbeitszahl bei später eingebautem Wärmezähler:** Zeichnet die Wärmemenge (z. B. Stiebel) erst seit September auf, der Stromzähler aber seit einem Jahr, wird die Arbeitszahl nur über die gemeinsame Zeit gerechnet (vorher 0,48 statt ≈ 3). Gleiches gilt für den Warmwasser-Anteil bei „Zähler misst Heizung + Warmwasser“.
+- **Energie – Jahreshochrechnung:** Ist die Außentemperatur nur für einen kleinen Teil des Zeitraums bekannt, rechnet Raumklima nicht mehr über Gradtage hoch (vorher z. B. 17 600 € statt ≈ 1 100 €). Bei einem ganzen gemessenen Jahr gilt die gemessene Summe.
+
+### Tests
+- Entfeuchter von außen geschaltet: Raum zeigt Status und Laufzeit sofort; Hochrechnung ohne ausreichende Gradtage.
+
 ## 1.3.7b1 – 2026-11-16
 
 ### Neu

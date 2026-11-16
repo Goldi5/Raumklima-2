@@ -531,11 +531,35 @@ class Insights:
             value = await self._stat_change(entity, start, end)
             return energy_kwh(value, self._unit_of(entity), factor, src) if value is not None else None
 
+        async def kwh_since(entity: str, first: date, src: str | None = None) -> float | None:
+            value = await self._stat_change(entity, first, end)
+            return energy_kwh(value, self._unit_of(entity), factor, src) if value is not None else None
+
+        async def later_start(entity: str | None) -> date | None:
+            """Erster Messtag, falls ein Zähler erst nach dem Zeitraumbeginn aufzeichnet."""
+            first = await self._first_data_day(entity, start, end) if entity else None
+            return first if first is not None and first > start else None
+
         cfg["ww_kwh"] = await kwh_of(cfg.get("ww_meter"), cfg["source"])
-        if cfg.get("meter_scope") == "total" and cfg.get("kwh") is not None:
-            # Zähler misst Heizung + Warmwasser: Warmwasser-Zähler teilt nur auf, zählt nicht dazu
-            heat, ww = split_total(float(cfg["kwh"]), cfg.get("ww_kwh"))
-            cfg["kwh_total"] = round(float(cfg["kwh"]), 2)
+        ww_measured = cfg.get("ww_kwh")
+        total_scope = cfg.get("meter_scope") == "total" and cfg.get("kwh") is not None and bool(cfg.get("meter"))
+        ww_share: float | None = None
+        if total_scope:
+            # Zähler misst Heizung + Warmwasser: Warmwasser-Zähler teilt nur auf, zählt nicht dazu.
+            # Zeichnet er erst später auf, gilt sein Anteil aus der gemeinsamen Zeit für den ganzen Zeitraum.
+            total = float(cfg["kwh"])
+            ww_est = cfg.get("ww_kwh")
+            ww_from = await later_start(cfg.get("ww_meter"))
+            if ww_from is not None and ww_est is not None:
+                both = await kwh_since(cfg["meter"], ww_from, cfg["source"])
+                if both and both > 0:
+                    ww_share = max(0.0, min(1.0, float(ww_est) / both))
+                    ww_est = total * ww_share
+                    cfg["ww_from"] = ww_from.isoformat()
+            elif ww_est is not None and total > 0:
+                ww_share = max(0.0, min(1.0, float(ww_est) / total))
+            heat, ww = split_total(total, ww_est)
+            cfg["kwh_total"] = round(total, 2)
             cfg["kwh"] = heat
             cfg["ww_kwh"] = ww
         cfg["ww_heat_kwh"] = await kwh_of(cfg.get("ww_heat_entity"))
@@ -543,8 +567,16 @@ class Insights:
         cfg["grid_kwh"] = await kwh_of(cfg.get("grid_entity"))
         if cfg["source"] == "heatpump":
             heat_in = cfg.get("kwh")
+            heat_from = await later_start(cfg.get("heat_entity")) if cfg.get("meter") else None
+            if heat_from is not None:
+                # Wärmemenge erst seit später: Arbeitszahl nur über die gemeinsame Zeit
+                part = await kwh_since(cfg["meter"], heat_from, cfg["source"])
+                if part is not None and total_scope and ww_share is not None:
+                    part *= 1 - ww_share
+                heat_in = part
+                cfg["cop_from"] = heat_from.isoformat()
             cfg["cop"] = ratio(cfg.get("heat_kwh"), heat_in)
-            cfg["cop_ww"] = ratio(cfg.get("ww_heat_kwh"), cfg.get("ww_kwh"))
+            cfg["cop_ww"] = ratio(cfg.get("ww_heat_kwh"), ww_measured if total_scope else cfg.get("ww_kwh"))
         used = (cfg.get("kwh") or 0) + (cfg.get("ww_kwh") or 0)
         if cfg.get("house_kwh") and cfg["source"] in ("electric", "heatpump") and used:
             cfg["house_share"] = round(100 * used / cfg["house_kwh"], 1)
@@ -573,7 +605,7 @@ class Insights:
             h = home.get(key) or {}
             n = h.get("outdoor_n_s") or 0
             day_kwh, day_ww = vals.get("kwh", 0.0), vals.get("ww", 0.0)
-            if cfg.get("meter_scope") == "total" and cfg.get("kwh_total"):
+            if total_scope and cfg.get("kwh_total"):
                 share = float(cfg.get("ww_kwh") or 0) / float(cfg["kwh_total"])
                 day_kwh, day_ww = round(day_kwh * (1 - share), 2), round(day_kwh * share, 2)
             series.append({
@@ -585,6 +617,8 @@ class Insights:
             })
             day += timedelta(days=1)
         cfg["daily"] = series
+        # Für die Hochrechnung: an wie vielen Tagen die Außentemperatur bekannt ist
+        cfg["outdoor_days"] = sum(1 for d in series if d["outdoor"] is not None)
 
     async def _energy_hours(self, cfg: dict[str, Any], start: date, end: date, factor: float) -> list[dict[str, Any]]:
         """Stundenwerte: Verbrauch Heizung/Warmwasser, Preis, Anteil aus PV/Batterie."""

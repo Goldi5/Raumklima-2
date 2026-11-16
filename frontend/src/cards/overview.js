@@ -161,6 +161,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
           ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
+          ${a.dehumidifier_active ? `<span class="dehum${a.dehumidifier_maxed ? " maxed" : ""}" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => { const s = rkOpenSince(this._hass, a); return s ? `<span title="${t("offen seit {c}", { c: rkClock(s) })}">${rkDuration(Date.now() - s)}</span>` : ""; })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
         <div class="rs">${label}${trvNote}</div>
@@ -195,6 +196,12 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .dot ha-icon { --mdc-icon-size:20px; }
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
       .occ { color: var(--rk-ok); --mdc-icon-size:18px; margin-left:auto; margin-right:6px; }
+      .dehum { display:inline-flex; align-items:center; gap:3px; margin-left:auto; margin-right:6px; padding:1px 6px 1px 4px; border-radius:999px; background:color-mix(in srgb, var(--rk-air) 16%, transparent); color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
+      .dehum ha-icon { --mdc-icon-size:16px; animation: rkdehum 2.4s ease-in-out infinite; }
+      .dehum.maxed { color:var(--rk-warn); background:color-mix(in srgb, var(--rk-warn) 16%, transparent); }
+      .occ + .dehum { margin-left:0; }
+      @keyframes rkdehum { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+      @media (prefers-reduced-motion: reduce) { .dehum ha-icon { animation:none; } }
       .wopen { display:inline-flex; align-items:center; gap:4px; color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
       .rn { font-weight:650; color:var(--primary-text-color); }
       .rs { font-size:.78rem; color: var(--tone); font-weight:600; }
