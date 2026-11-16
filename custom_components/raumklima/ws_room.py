@@ -179,7 +179,8 @@ async def ws_room_resume(hass: HomeAssistant, connection: websocket_api.ActiveCo
     if room is None:
         connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
         return
-    await room.async_resume_manual()
+    user = connection.user
+    await room.async_resume_manual(by=user.name if user is not None else None)
     connection.send_result(msg["id"], {"ok": True, "override_until": None})
 
 

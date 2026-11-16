@@ -465,6 +465,42 @@ def check_battery_forecast(name: str, days_left: float | None, per_day: float | 
     )
 
 
+OWN_PROGRAM_PER_DAY = 3
+
+
+def check_own_program(count_24h: int, tado: bool) -> Issue | None:
+    """Das Thermostat springt immer wieder in seinen eingebauten Zeitplan zurück.
+
+    Raumklima stellt jedes Mal zurück – aber zwei Regler steuern dann denselben Raum, und jede
+    Korrektur kostet Funk (bzw. bei Tado Aufrufe der begrenzten Cloud-Schnittstelle).
+    """
+    if count_24h < OWN_PROGRAM_PER_DAY:
+        return None
+    if tado:
+        return Issue(
+            "own_program",
+            SEV_WARN,
+            tr("tado° stellt sich immer wieder auf den eigenen Zeitplan"),
+            tr(
+                "{n}× in 24 h – oft genau beim Kommen und Gehen. Meist ist das tados eigenes Geofencing. "
+                "In der tado-App: Geofencing/Auto-Assist (Home/Away automatisch) ausschalten und unter "
+                "„Manuelle Steuerung“ „Bis ich sie beende“ wählen. Dann regelt Raumklima allein, und die "
+                "begrenzten tado-Aufrufe werden geschont.",
+                n=count_24h,
+            ),
+        )
+    return Issue(
+        "own_program",
+        SEV_WARN,
+        tr("Thermostat springt immer wieder auf seinen eigenen Zeitplan"),
+        tr(
+            "{n}× in 24 h – Raumklima stellt jedes Mal zurück. Den Wochenplan am Gerät bzw. in dessen App "
+            "ausschalten oder dauerhaft auf „Heat“/„Manuell“ stellen.",
+            n=count_24h,
+        ),
+    )
+
+
 def check_radio_busy(per_day: float | None) -> Issue | None:
     """Sehr viele Funkbefehle je Tag – meist ein Gegeneinander (Automation, Gerätezeitplan) oder Abgleich."""
     if per_day is None or per_day < RADIO_BUSY_PER_DAY:

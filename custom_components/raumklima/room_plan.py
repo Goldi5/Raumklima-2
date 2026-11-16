@@ -638,6 +638,14 @@ class PlanMixin:
             STAGE_AWAY_SHORT: tr("alle weg – Absenkung „kurz weg“ {t}", t=fmt_temp(self.setback_short)),
             STAGE_AWAY_LONG: tr("länger weg – Absenkung {t}", t=fmt_temp(self.setback_long)),
         }.get(reason, reason)
+        missing = self.hub.room_persons_missing(self.entry.entry_id) if self.hub is not None and reason in AWAY_STAGES else []
+        if missing:
+            # Nur die zugeordneten Personen fehlen – andere sind zu Hause
+            why = tr(
+                "{who} nicht da – Absenkung {t}",
+                who=" & ".join(missing),
+                t=fmt_temp(self.setback_long if reason == STAGE_AWAY_LONG else self.setback_short),
+            )
         if self.frost_night_low is not None and reason in AWAY_STAGES:
             why += tr(", Frostnacht ({t} erwartet): nur halb so tief abgesenkt", t=fmt_temp(self.frost_night_low))
         elif reason == STAGE_AWAY_LONG and target > self.setback_long:

@@ -371,6 +371,33 @@ class PresenceMixin:
         state = self.hass.states.get(entity_id)
         return state is not None and state.state in ("on", "home")
 
+    def _person_preheats(self, entity_id: str) -> bool:
+        """Person fährt heran und ist im Vorheiz-Umkreis (wie fürs Vorheizen der Wohnung)."""
+        p = self.persons.get(entity_id) or {}
+        if not p.get("approaching") or p.get("present"):
+            return False
+        if self.stage == STAGE_PREHEAT:
+            return True
+        dist = p.get("distance_km")
+        return dist is not None and dist <= float(self.opt(CONF_PREHEAT_KM))
+
+    def room_persons_missing(self, entry_id: str) -> list[str]:
+        """Namen der zugeordneten Personen, wenn der Raum nur wegen ihnen abgesenkt ist."""
+        room = self.rooms.get(entry_id)
+        if room is None or self.guests or self.stage in AWAY_STAGES:
+            return []
+        persons = list(room.config.get(CONF_ROOM_PERSONS) or [])
+        if not persons or any(self.room_person_present(p) for p in persons):
+            return []
+        out = []
+        for p in persons:
+            name = self.persons.get(p, {}).get("name")
+            if not name:
+                state = self.hass.states.get(p)
+                name = state.name if state is not None else p
+            out.append(str(name))
+        return out
+
     def stage_for_room(self, entry_id: str) -> str:
         """Stufe für einen Raum – „Gäste da" kann auf ausgewählte Räume begrenzt sein.
 
@@ -382,10 +409,10 @@ class PresenceMixin:
         if room is not None and not self.guests:
             persons = list(room.config.get(CONF_ROOM_PERSONS) or [])
             if persons and not any(self.room_person_present(p) for p in persons):
-                # Fährt eine zugeordnete Person heran, wird auch ihr Raum vorgeheizt.
-                if self.stage == STAGE_PREHEAT and any(
-                    self.persons.get(p, {}).get("approaching") for p in persons
-                ):
+                # Fährt eine zugeordnete Person heran, wird auch ihr Raum vorgeheizt – auch wenn
+                # schon jemand anderes zu Hause ist (sonst kühlte das Kinderzimmer ab, sobald ein
+                # Elternteil vor dem Kind ankommt).
+                if not self.vacation and any(self._person_preheats(p) for p in persons):
                     return STAGE_PREHEAT
                 return STAGE_AWAY_LONG if self.stage == STAGE_AWAY_LONG else STAGE_AWAY_SHORT
         if self.stage != STAGE_GUESTS:

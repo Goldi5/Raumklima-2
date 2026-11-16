@@ -13,7 +13,7 @@ Log-Zeilen der Integration. Zugangsdaten werden redigiert.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 import platform
 import re
 from typing import Any
@@ -27,6 +27,8 @@ from homeassistant.loader import async_get_integration
 from . import RaumklimaConfigEntry
 from .const import DOMAIN
 from .debug_log import tail as debug_tail
+from .decision_log import CAT_PRESENCE
+from .insights import target_exists
 
 # Alles, was nie in einer Diagnose-Datei landen darf
 TO_REDACT = {
@@ -202,7 +204,7 @@ def _room_block(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> dict[str, A
     own = _own_entities(hass, entry.entry_id)
     entities = {eid: _dump_entity(hass, eid) for eid in sorted(set(referenced) | set(own))}
     services = {
-        sid: {"exists": hass.services.has_service(*sid.split(".", 1))}
+        sid: {"exists": target_exists(hass, sid)}
         for sid in sorted(set(_service_ids_from(config)))
     }
 
@@ -236,7 +238,72 @@ def _series_block(room: Any) -> dict[str, Any]:
         return {"error": f"{type(err).__name__}: {err}"}
 
 
-def _setpoint_events(hub: Any, limit: int = 200) -> list[dict[str, Any]]:
+# So weit reicht die Diagnose zurück (Protokoll, Verlauf). Länger als der kurze Log-Ausschnitt,
+# damit Abläufe über einen ganzen Tag (morgens weg, abends heim) zu sehen sind.
+DIAG_HOURS = 24
+# Attribute, die im Kurzverlauf eines Thermostats interessieren
+_TRV_ATTRS = ("temperature", "current_temperature", "preset_mode", "hvac_action")
+
+
+def _compact_person(state: Any) -> str:
+    """Personen-Zustand ohne Ortsnamen: zu Hause, unterwegs oder in einer anderen Zone."""
+    value = str(getattr(state, "state", ""))
+    if value in ("home", "not_home", "unknown", "unavailable"):
+        return value
+    return "zone"
+
+
+async def _history(hass: HomeAssistant, hub: Any, rooms: list[dict[str, Any]], since: datetime) -> dict[str, Any]:
+    """Kurzverlauf der letzten Stunden: Personen (ohne Orte) und Thermostate (Modus, Sollwert, Preset).
+
+    Damit lassen sich „wer kam wann“ und „was hat das Gerät selbst gemacht“ nebeneinanderlegen.
+    """
+    if "recorder" not in hass.config.components:
+        return {}
+    persons = [p for p in (getattr(hub, "config", {}) or {}).get("residents") or [] if str(p).startswith("person.")]
+    trvs: list[str] = []
+    for room in rooms:
+        cfg = room.get("config") or {}
+        for key in ("trv",):
+            if cfg.get(key):
+                trvs.append(str(cfg[key]))
+        trvs += [str(x) for x in (cfg.get("extra_trvs") or []) if x]
+    entities = sorted(set(persons + trvs))
+    if not entities:
+        return {}
+    try:
+        from homeassistant.components.recorder import get_instance, history
+
+        result = await get_instance(hass).async_add_executor_job(
+            lambda: history.get_significant_states(
+                hass, since, None, entities, None, True, False, False, False, False
+            )
+        )
+    except Exception as err:  # noqa: BLE001 – Diagnose darf nie selbst abstürzen
+        return {"error": f"{type(err).__name__}: {err}"}
+    out: dict[str, Any] = {}
+    for entity_id, states in (result or {}).items():
+        rows = []
+        last = None
+        for st in states:
+            stamp = getattr(st, "last_changed", None) or getattr(st, "last_updated", None)
+            if entity_id.startswith("person."):
+                row = {"t": stamp.isoformat() if stamp else None, "s": _compact_person(st)}
+                key = row["s"]
+            else:
+                attrs = getattr(st, "attributes", {}) or {}
+                row = {"t": stamp.isoformat() if stamp else None, "s": getattr(st, "state", None)}
+                row.update({k: attrs.get(k) for k in _TRV_ATTRS if attrs.get(k) is not None})
+                key = tuple(sorted((k, v) for k, v in row.items() if k != "t" and k != "current_temperature"))
+            if key == last:
+                continue
+            last = key
+            rows.append(row)
+        out[entity_id] = rows[-300:]
+    return out
+
+
+def _setpoint_events(hub: Any, limit: int = 600) -> list[dict[str, Any]]:
     """Sollwertwechsel mit Quelle: unser Schreibvorgang oder eine Änderung am Gerät.
 
     Die Unterscheidung ist bei „das Thermostat macht, was es will“ die entscheidende Frage –
@@ -245,7 +312,8 @@ def _setpoint_events(hub: Any, limit: int = 200) -> list[dict[str, Any]]:
     if hub is None or not hasattr(hub, "log"):
         return []
     out: list[dict[str, Any]] = []
-    for entry in hub.log.query(limit=2000):
+    since = datetime.now(UTC) - timedelta(hours=DIAG_HOURS * 2)
+    for entry in hub.log.query(limit=4000, since=since):
         cat = str(entry.get("cat") or "")
         msg = str(entry.get("msg") or "")
         if cat not in ("target", "manual", "device"):
@@ -378,13 +446,20 @@ async def async_get_config_entry_diagnostics(
         "hub_entities": _hub_entities(hass, getattr(getattr(hub, "entry", None), "entry_id", entry.entry_id)),
         "rooms": rooms,
         "services": {
-            sid: {"exists": hass.services.has_service(*sid.split(".", 1))}
+            sid: {"exists": target_exists(hass, sid)}
             for sid in sorted(
                 set(_service_ids_from(dict(hub.config))) if hub is not None and hasattr(hub, "config") else set()
             )
         },
-        "log": hub.log.query(limit=50) if hub is not None and hasattr(hub, "log") else [],
+        # Entscheidungsprotokoll der letzten 24 h (alle Kategorien, neueste zuerst)
+        "log": hub.log.query(limit=1500, since=now - timedelta(hours=DIAG_HOURS))
+        if hub is not None and hasattr(hub, "log") else [],
+        # Anwesenheitswechsel der letzten drei Tage – für „morgens abgesenkt, obwohl da?“
+        "presence_log": hub.log.query(limit=300, since=now - timedelta(hours=72), categories=[CAT_PRESENCE])
+        if hub is not None and hasattr(hub, "log") else [],
         "events": _setpoint_events(hub),
+        "history_hours": DIAG_HOURS,
+        "history": await _history(hass, hub, rooms, now - timedelta(hours=DIAG_HOURS)) if hub is not None else {},
         "debug": debug_tail(),
     }
     secrets: set[str] = set()

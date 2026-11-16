@@ -545,4 +545,4 @@ alles steht, was zur Fehlersuche nötig ist: die Versionen, deine Einstellungen,
 die Rohdaten der beteiligten Geräte samt Attributen, die letzten Entscheidungen mit Begründung und die
 letzten Log-Zeilen der Integration. Derselbe Inhalt steckt hinter *Einstellungen → Geräte → Raumklima
 → Diagnose herunterladen*. Zugangsdaten, Passwörter und Koordinaten sind unkenntlich gemacht – die
-Datei kann unverändert an ein Issue angehängt werden.
+Datei kann unverändert an ein Issue angehängt werden. Sie reicht 24 Stunden zurück (Anwesenheitswechsel 72 Stunden) und enthält einen Kurzverlauf von Personen – nur „zu Hause“ oder „unterwegs“, keine Orte – und Thermostaten. Am hilfreichsten ist sie, wenn sie bald nach dem Problem heruntergeladen wird.

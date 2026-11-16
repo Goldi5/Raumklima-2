@@ -34,6 +34,7 @@ from .health import (
     check_heating_above_target,
     check_hydraulic,
     check_not_warming,
+    check_own_program,
     check_radio,
     check_sensor_frozen,
     check_sensor_missing,
@@ -456,6 +457,10 @@ class HealthMixin:
                 self.trv_target,
                 self.trv_expected_target,
                 needed=self.setpoint_wait_minutes(),
+            ),
+            check_own_program(
+                sum(1 for t in self._own_program_events if now - t <= timedelta(hours=24)),
+                trv_state is not None and "default_overlay_type" in (trv_state.attributes or {}),
             ),
             check_window_flapping(self.window_flips_24h),
             check_window(

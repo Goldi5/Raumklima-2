@@ -1,3 +1,18 @@
+## 1.3.13b1 – 2026-11-16
+
+### Behoben
+- **Kinderzimmer kühlt beim Heimkommen nicht mehr ab:** Ist ein Raum bestimmten Personen zugeordnet und fährt eine davon heran (im Vorheiz-Umkreis), wird ihr Raum vorgeheizt – auch wenn schon jemand anderes zu Hause ist. Bisher fiel das Zimmer kurz auf „kurz weg“, wenn ein Elternteil vor dem Kind ankam.
+- **Richtiger Text:** In Räumen mit zugeordneten Personen heißt es jetzt „Lunas nicht da – Absenkung …“ statt „alle weg“, wenn andere zu Hause sind.
+- **Boost und Handverstellung enden pünktlich:** Raumklima stellt einen Wecker auf das Ende. Bisher lief ein Boost bis zum nächsten Abgleich (bis zu 10 min) weiter, und die Karte zeigte ein abgelaufenes „bis …“.
+
+### Neu
+- **„Fortsetzen“ wird protokolliert** („Handverstellung beendet – Automatik fortgesetzt“, mit Namen) – damit ist nachvollziehbar, warum eine Handverstellung endete.
+- **Gesundheit: Thermostat springt auf den eigenen Zeitplan** – ab 3× in 24 h ein Hinweis; bei tado° mit Anleitung (Geofencing/Auto-Assist aus, „Manuelle Steuerung: bis ich sie beende“).
+- **Diagnose reicht weiter zurück:** Entscheidungsprotokoll der letzten 24 h (statt 50 Zeilen), Anwesenheitswechsel der letzten 72 h, Kurzverlauf der Personen (ohne Orte) und Thermostate (Modus, Sollwert, Preset) über 24 h, Log-Puffer 12 h statt 6 h; die häufigste Debug-Zeile wird nur noch bei Änderung geschrieben. notify-Entitäten gelten als vorhanden.
+
+### Tests
+- Vorheizen bei herannahender Person trotz „jemand da“, Text mit Namen, Fortsetzen im Protokoll, Boost-Ende auf die Minute, tado-Hinweis, längere Diagnose.
+
 ## 1.3.12b1 – 2026-11-16
 
 ### Behoben

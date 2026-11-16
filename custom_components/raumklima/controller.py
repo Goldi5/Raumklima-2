@@ -248,6 +248,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         # Gesundheitscheck
         self.health_hist: deque[HistoryPoint] = deque(maxlen=150)
         self._unavail_events: deque[datetime] = deque(maxlen=50)
+        # Wann das Gerät von selbst in seinen eingebauten Zeitplan gesprungen ist (Gesundheit)
+        self._own_program_events: deque[datetime] = deque(maxlen=50)
         self._ext_changed_at: datetime | None = None
         self._trv_at_ext_change: float | None = None
         self._window_unavail_since: dict[str, datetime] = {}
@@ -379,6 +381,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
                 self.hass, self._on_cal_interval, timedelta(seconds=CALIBRATION_INTERVAL)
             )
         )
+        # Boost oder Handverstellung aus dem Speicher: Ende pünktlich wecken
+        self._schedule_expiry()
         # Träge Geräte (Homematic & Co.) melden Ventilstellungen erst spät – optional nachfragen.
         self._unsubs.append(
             async_track_time_interval(self.hass, self._on_fast_poll, timedelta(seconds=120))
@@ -421,7 +425,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._unsubs.clear()
         # Alle eigenen Timer abbrechen – sonst speichert z. B. die Bestätigung eines Handeingriffs
         # nach dem Neuladen noch den alten Zustand und überschreibt den des neuen Raums.
-        for attr in ("_window_timer", "_trv_down_cancel", "_virtual_cancel", "_manual_timer", "_valve_care_cancel"):
+        for attr in ("_window_timer", "_trv_down_cancel", "_virtual_cancel", "_manual_timer", "_valve_care_cancel", "_expiry_cancel"):
             cancel = getattr(self, attr, None)
             if cancel:
                 cancel()
@@ -463,6 +467,38 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         if getattr(self, "_stopped", False):
             return  # entladen: nicht mehr in den (dann neuen) Speicher schreiben
         self._store.async_delay_save(self._stored_data, 5)
+        self._schedule_expiry()
+
+    @callback
+    def _schedule_expiry(self) -> None:
+        """Wecker auf das Ende von Boost oder Handverstellung – damit beides auf die Minute endet.
+
+        Ohne Wecker fiel das Ende erst beim nächsten Abgleich auf (bis zu 10 min später): das
+        Thermostat blieb so lange warm, und die Karte zeigte ein abgelaufenes „bis …“.
+        """
+        if getattr(self, "_stopped", False) or getattr(self, "hass", None) is None:
+            return
+        now = dt_util.utcnow()
+        ends = [t for t in (getattr(self, "boost_until", None), getattr(self, "_manual_until", None)) if t is not None and t > now]
+        when = min(ends) if ends else None
+        if when == getattr(self, "_expiry_at", None):
+            return
+        cancel = getattr(self, "_expiry_cancel", None)
+        if cancel:
+            cancel()
+        self._expiry_cancel = None
+        self._expiry_at = when
+        if when is None:
+            return
+
+        def fire() -> None:
+            self._expiry_cancel = None
+            self._expiry_at = None
+            self._notify()
+            self.hass.async_create_task(self._apply())
+
+        # eine Sekunde nach dem Ende, damit „jetzt < Ende“ sicher nicht mehr gilt
+        self._expiry_cancel = self._schedule((when - now).total_seconds() + 1, fire)
 
     def save(self) -> None:
         """Öffentlich: Zustand speichern (z. B. vom Lüftungsassistenten)."""
@@ -888,8 +924,15 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
 
     # ================================================================ Bedienung
-    async def async_resume_manual(self) -> None:
+    async def async_resume_manual(self, by: str | None = None) -> None:
         """Handverstellung beenden: auf die in den Einstellungen hinterlegte Wunschtemperatur."""
+        if self._manual_until is not None or self.target_temp != self.comfort_temp:
+            # Mitschreiben – sonst sieht man später nicht, warum eine Handverstellung endete
+            self.log(
+                CAT_MANUAL,
+                tr("Handverstellung beendet – Automatik fortgesetzt"),
+                tr("„Fortsetzen“ getippt") + (tr(" von {who}", who=by) if by else ""),
+            )
         self.target_temp = self.comfort_temp
         self._manual_until = None
         self._manual_candidate = None

@@ -61,6 +61,10 @@ async def test_diagnostics_enthaelt_kurve_und_ereignisse(hass: HomeAssistant, se
 
     assert isinstance(data["events"], list)
     assert all("source" in e for e in data["events"])
+    # länger zurück: Protokoll 24 h, Anwesenheit 72 h, Kurzverlauf
+    assert data["history_hours"] == 24
+    assert isinstance(data["log"], list) and isinstance(data["presence_log"], list)
+    assert isinstance(data["history"], dict)
 
 
 async def test_diagnostics_room_entry_contains_hub(hass: HomeAssistant, setup) -> None:

@@ -204,6 +204,7 @@ class TrvMixin:
             # nicht von einer Hand am Thermostat – nicht als Wunsch übernehmen, sondern zurückstellen.
             new_t = to_float(new.attributes.get(ATTR_TEMPERATURE))
             if not self._device_own_program(old) or new_t != to_float(old.attributes.get(ATTR_TEMPERATURE)):
+                self._own_program_events.append(dt_util.utcnow())
                 self.log(
                     CAT_DEVICE,
                     tr("Thermostat folgt seinem eigenen Zeitplan ({t}) – zurückgestellt", t=fmt_temp(new_t) if new_t is not None else "–"),

@@ -15,12 +15,12 @@ import logging
 from typing import Any
 
 # So viele Zeilen wandern höchstens in die Diagnose-Datei
-MAX_LINES = 500
-# Warnungen und Fehler bekommen einen eigenen Platz: bei DEBUG sind 500 Zeilen nach wenigen
+MAX_LINES = 3000
+# Warnungen und Fehler bekommen einen eigenen Platz: bei DEBUG ist der Puffer nach einigen
 # Minuten voll, und ein Traceback wäre dann längst herausgedreht worden.
-MAX_WARNINGS = 200
+MAX_WARNINGS = 300
 # Ältere Zeilen interessieren in der Diagnose nicht mehr.
-MAX_AGE_HOURS = 6.0
+MAX_AGE_HOURS = 12.0
 
 _LINES: deque[dict[str, Any]] = deque(maxlen=MAX_LINES)
 _WARNINGS: deque[dict[str, Any]] = deque(maxlen=MAX_WARNINGS)

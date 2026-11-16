@@ -170,11 +170,15 @@ class ApplyMixin:
             self._log_plan(plan_on, _target, reason)
             if _LOGGER.isEnabledFor(logging.DEBUG):
                 shadow = self.valve_shadow()
-                _LOGGER.debug(
-                    "%s: Ventil-Schatten berechnet %s %%, Gerät %s %% (Ziel %s, Ist %s)",
-                    self.name, shadow["calc_pct"], shadow["device_pct"],
-                    shadow["target_c"], shadow["current_c"],
-                )
+                key = (shadow["calc_pct"], shadow["device_pct"], shadow["target_c"], shadow["current_c"])
+                # Nur bei Änderung – sonst füllt diese Zeile allein den Diagnose-Puffer
+                if key != getattr(self, "_shadow_logged", None):
+                    self._shadow_logged = key
+                    _LOGGER.debug(
+                        "%s: Ventil-Schatten berechnet %s %%, Gerät %s %% (Ziel %s, Ist %s)",
+                        self.name, shadow["calc_pct"], shadow["device_pct"],
+                        shadow["target_c"], shadow["current_c"],
+                    )
             want_on = self.hvac_on and not self.paused and plan_on
             if reason == REASON_VALVE_CARE and self.hvac_on:
                 want_on = True
