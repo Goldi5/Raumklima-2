@@ -1532,7 +1532,15 @@
     "– eigene Zeitfenster –": "– own time windows –",
     "keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar": "no selection = the room belongs to all residents; switches (e.g. guest) and presence sensors can be chosen too",
     "nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt": "only if one of these persons is home or a chosen switch is on – otherwise the room is set back",
-    "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "“on” in the helper = window active; a temperature in the block’s data field is used – the windows above no longer apply"
+    "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "“on” in the helper = window active; a temperature in the block’s data field is used – the windows above no longer apply",
+    "Plan „{p}“": "Plan “{p}”",
+    "Plan-Umschalter": "Plan switch",
+    "ganztägig Wunschtemperatur": "wish temperature all day",
+    "gerade: {p} – je Raum unter Zeitplan → Weitere Einstellungen festlegen, was in welchem Plan gilt": "now: {p} – set per room under Schedule → More settings what applies in which plan",
+    "gilt gerade": "active now",
+    "kein Zeitfenster (außerhalb gilt)": "no time window (outside rule applies)",
+    "wie sonst": "as usual",
+    "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "e.g. a dropdown helper “work / off / sick” – each room gets its own schedule per plan"
   };
 
   // src/i18n/fr.js
@@ -3067,7 +3075,15 @@
     "– eigene Zeitfenster –": "– plages propres –",
     "keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar": "aucune sélection = la pièce est à tous ; interrupteurs (p. ex. invité) et capteurs de présence possibles aussi",
     "nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt": "seulement si une de ces personnes est là ou un interrupteur choisi est activé – sinon la pièce est abaissée",
-    "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "« activé » dans l’assistant = plage active ; une température dans le champ de données du bloc est reprise – les plages ci-dessus ne s’appliquent plus"
+    "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "« activé » dans l’assistant = plage active ; une température dans le champ de données du bloc est reprise – les plages ci-dessus ne s’appliquent plus",
+    "Plan „{p}“": "Programme « {p} »",
+    "Plan-Umschalter": "Sélecteur de programme",
+    "ganztägig Wunschtemperatur": "température souhaitée toute la journée",
+    "gerade: {p} – je Raum unter Zeitplan → Weitere Einstellungen festlegen, was in welchem Plan gilt": "actuellement : {p} – définir par pièce sous Planning → Autres réglages ce qui s’applique dans chaque programme",
+    "gilt gerade": "actif maintenant",
+    "kein Zeitfenster (außerhalb gilt)": "aucune plage (la règle hors plage s’applique)",
+    "wie sonst": "comme d’habitude",
+    "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "p. ex. une liste « travail / libre / malade » – chaque pièce a son planning par programme"
   };
 
   // src/i18n.js
@@ -5886,7 +5902,8 @@
     "Preis jetzt": ["Der Preis je kWh, mit dem Raumklima gerade rechnet – brutto, nach Umrechnung. Derselbe Wert gilt für Dashboard, Bericht und den Vergleich mit dem Klimagerät.", "The price per kWh Raumklima is using right now – gross, after conversion. The same value is used by the dashboard, the report and the air conditioner comparison.", "Le prix par kWh utilisé actuellement par Raumklima – TTC, après conversion. La même valeur sert au tableau de bord, au rapport et à la comparaison avec la climatisation."],
     "Strompreis": ["Nur bei Gas, Öl oder Fernwärme: der Strompreis je kWh brutto. Er wird für den Vergleich gebraucht, ob ein Klimagerät günstiger heizt als die Hauptheizung.", "Only for gas, oil or district heating: the electricity price per kWh, gross. It is needed to compare whether an air conditioner heats more cheaply than the main heating.", "Uniquement pour gaz, fioul ou chauffage urbain : le prix de l’électricité par kWh TTC. Il sert à comparer si une climatisation chauffe moins cher que le chauffage principal."],
     "Hysterese": ["Breite des Schaltbereichs in K. Unter Ziel minus die Hälfte öffnet Raumklima das Ventil ganz (Sollwert am Thermostat ganz hoch), über Ziel plus die Hälfte schließt es ganz. Größer = seltener Ventilbewegungen, aber mehr Temperaturschwankung.", "Width of the switching band in K. Below target minus half of it Raumklima opens the valve fully (setpoint all the way up), above target plus half it closes it fully. Larger = fewer valve movements but more temperature swing.", "Largeur de la plage en K. Sous la consigne moins la moitié, Raumklima ouvre la vanne entièrement (consigne au maximum), au-dessus de la consigne plus la moitié il la ferme. Plus grand = moins de mouvements mais plus de variation."],
-    "Zeitplan-Helfer": ["Ein Zeitplan-Helfer aus Home Assistant (Einstellungen → Geräte & Dienste → Helfer → Zeitplan) statt der eigenen Zeitfenster. Ist er „an“, gilt das Zeitfenster; steht im Datenfeld des Blocks „temperature: 21“, wird diese Temperatur genommen, sonst die Wunschtemperatur. Vorgeheizt wird auf den nächsten Start.", "A Home Assistant schedule helper (Settings → Devices & services → Helpers → Schedule) instead of the room’s own windows. While it is “on” the window applies; if the block’s data field holds “temperature: 21” that temperature is used, otherwise the wish temperature. Preheating aims at the next start.", "Un assistant de planification Home Assistant (Paramètres → Appareils et services → Entrées → Planification) à la place des plages propres. Tant qu’il est « activé », la plage s’applique ; si le champ de données du bloc contient « temperature: 21 », cette température est reprise, sinon la température souhaitée. Le préchauffage vise le prochain début."]
+    "Zeitplan-Helfer": ["Ein Zeitplan-Helfer aus Home Assistant (Einstellungen → Geräte & Dienste → Helfer → Zeitplan) statt der eigenen Zeitfenster. Ist er „an“, gilt das Zeitfenster; steht im Datenfeld des Blocks „temperature: 21“, wird diese Temperatur genommen, sonst die Wunschtemperatur. Vorgeheizt wird auf den nächsten Start.", "A Home Assistant schedule helper (Settings → Devices & services → Helpers → Schedule) instead of the room’s own windows. While it is “on” the window applies; if the block’s data field holds “temperature: 21” that temperature is used, otherwise the wish temperature. Preheating aims at the next start.", "Un assistant de planification Home Assistant (Paramètres → Appareils et services → Entrées → Planification) à la place des plages propres. Tant qu’il est « activé », la plage s’applique ; si le champ de données du bloc contient « temperature: 21 », cette température est reprise, sinon la température souhaitée. Le préchauffage vise le prochain début."],
+    "Plan-Umschalter": ["Ein Auswahl-Helfer (input_select), eine Auswahl-Entität oder ein Schalter, der zwischen Plänen umschaltet – z. B. „Arbeitszeit“, „frei“, „krank“. In jedem Raum legst du unter Zeitplan → Weitere Einstellungen fest, was in welchem Plan gilt: die eigenen Zeitfenster, ein Zeitplan-Helfer, ganztägig die Wunschtemperatur oder gar kein Zeitfenster. Ein Wechsel wirkt sofort.", "A dropdown helper (input_select), a select entity or a switch that switches between plans – e.g. “work”, “off”, “sick”. In each room, under Schedule → More settings, you choose what applies in which plan: the room’s own windows, a schedule helper, the wish temperature all day or no window at all. A change takes effect immediately.", "Une liste déroulante (input_select), une entité de sélection ou un interrupteur qui change de programme – p. ex. « travail », « libre », « malade ». Dans chaque pièce, sous Planning → Autres réglages, on choisit ce qui s’applique dans chaque programme : les plages propres, un assistant de planification, la température souhaitée toute la journée ou aucune plage. Le changement est immédiat."]
   };
 
   // src/fields.js
@@ -6254,6 +6271,11 @@
             st.school_holiday ? t("gerade: „{s}“", { s: esc(st.school_holiday) }) : "an Ferientagen starten Morgen-Zeitfenster später"
           ),
           this._hubOpt("school_calendar_entity") ? this._row("Morgens später", this._num(H, "school_shift_minutes", this._hubOpt("school_shift_minutes")), "nur Zeitfenster, die vor 12:00 beginnen – 0 = aus") : "",
+          this._row(
+            "Plan-Umschalter",
+            this._select(H, "plan_selector", ch.plan_selectors || [], this._hubOpt("plan_selector"), "– keiner –"),
+            this._hubOpt("plan_selector") ? t("gerade: {p} – je Raum unter Zeitplan → Weitere Einstellungen festlegen, was in welchem Plan gilt", { p: esc((st.plan || {}).now || "–") }) : "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan"
+          ),
           this._hubOpt("school_calendar_entity") ? this._row(t("Schulferien – jetzt"), this._v(st.school_holiday ? `${esc(st.school_holiday)} · ${st.school_shift_minutes ? t("morgens {n} min später", { n: st.school_shift_minutes }) : t("keine Verschiebung")}` : t("keine Schulferien"), !st.school_holiday), "") : ""
         ].join(""), "hub", ["home_office_from", "home_office_to", "home_office_rooms", "home_office_check", "home_office_entity", "calendar_entity", "school_calendar_entity", "school_shift_minutes"]),
         ...(() => {
@@ -7356,7 +7378,23 @@
         editable ? this._select(scope, "schedule_entity", helpers, helper, "– eigene Zeitfenster –") : this._v(helper || t("eigene Zeitfenster")),
         helper ? t("„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht") : t("HA-Zeitplan-Helfer (schedule.*) statt der Zeitfenster hier – z. B. einen je Plan anlegen und per Automation umschalten")
       ) : "";
+      const plan = (this._cfg && this._cfg.hub && this._cfg.hub.state || {}).plan || {};
+      const planMap = this._roomOpt(r, "schedule_by_plan") ?? s.schedule_by_plan ?? {};
+      const planLabel = (o) => o === "on" ? t("an") : o === "off" ? t("aus") : o;
+      const planRows = (plan.options || []).map((o) => {
+        const cur = planMap[o] || "";
+        const opts = [
+          ["", t("wie sonst")],
+          ["own", t("eigene Zeitfenster")],
+          ["always", t("ganztägig Wunschtemperatur")],
+          ["never", t("kein Zeitfenster (außerhalb gilt)")],
+          ...helpers.map((h) => [h.id, h.name])
+        ];
+        const sel = editable ? `<select class="sel" data-planmap="${esc(o)}" data-scope="${scope}" data-cur="${esc(JSON.stringify(planMap))}" ${this._admin ? "" : "disabled"}>${opts.map(([v, n]) => `<option value="${esc(v)}" ${v === cur ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>` : this._v((opts.find(([v]) => v === cur) || opts[0])[1]);
+        return this._row(t("Plan „{p}“", { p: planLabel(o) }), sel, plan.now === o ? t("gilt gerade") : "");
+      }).join("");
       const moreRows = [
+        planRows,
         helperRow,
         shareRow,
         this._row(
@@ -7403,7 +7441,7 @@
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
       }
       rows.push(...boostRows);
-      rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
+      rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_by_plan", "schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
       return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
     },
     // ---------------------------------------------------------------- Lüften ohne Erinnerung
@@ -8830,6 +8868,18 @@
       on("change", "[data-sel]", (el) => () => {
         el.blur();
         apply(el.dataset.sel, { [el.dataset.key]: el.value || null });
+      });
+      on("change", "[data-planmap]", (el) => () => {
+        el.blur();
+        let map = {};
+        try {
+          map = JSON.parse(el.dataset.cur || "{}");
+        } catch (e) {
+          map = {};
+        }
+        if (el.value) map[el.dataset.planmap] = el.value;
+        else delete map[el.dataset.planmap];
+        apply(el.dataset.scope, { schedule_by_plan: map });
       });
       on("change", ".addrow select", (el) => () => el.blur());
       on("change", "[data-md]", (el) => () => {

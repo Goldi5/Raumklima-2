@@ -30,6 +30,7 @@ from .room_const import (
     MESSAGE_MOISTURE_DAMP,
     MESSAGE_MOISTURE_DRY,
     MOISTURE_COOLDOWN,
+    MOISTURE_RH_RISE,
     MOISTURE_RISE,
     MOLD_CAP_DEFAULT,
     MOLD_CAP_NIGHT,
@@ -177,6 +178,10 @@ class MoldMixin:
         if hub is None:
             return
         start, end, hours = change
+        if end - start < MOISTURE_RH_RISE:
+            # Mehr Wasserdampf, aber die relative Feuchte sinkt (Raum wird wärmer):
+            # kein Schimmelrisiko, keine Meldung (Issue #55)
+            return
         vent = self.vent
         dries = vent.dries if vent is not None else True
         title_key, body_key = MESSAGE_MOISTURE_DRY if dries else MESSAGE_MOISTURE_DAMP

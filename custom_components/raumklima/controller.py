@@ -58,6 +58,7 @@ from .const import (
     CONF_PM25_SENSOR,
     CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULE_BY_PLAN,
     CONF_SCHEDULE_ENTITY,
     CONF_SCHEDULE_FROM,
     CONF_SCHEDULES,
@@ -76,6 +77,9 @@ from .const import (
     MAX_SENSOR_JUMP,
     OFF_SOURCE_TRV,
     OFF_SOURCE_USER,
+    PLAN_ALWAYS,
+    PLAN_NEVER,
+    PLAN_OWN,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
     SLOW_RETRY_INTERVAL,
@@ -674,12 +678,26 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
     # ------------------------------------------------------------ Zeitplan-Helfer (Issue #52)
     @property
     def schedule_entity(self) -> str | None:
-        """HA-Zeitplan-Helfer (schedule.*) – ersetzt die eigenen Zeitfenster, wenn gesetzt."""
+        """Zeitplan-Quelle statt der eigenen Zeitfenster: ``schedule.*``, ``always`` oder ``never``.
+
+        Mit Plan-Umschalter (Issue #52) gilt, was für den aktuellen Plan eingetragen ist;
+        ``own`` heißt: die eigenen Zeitfenster des Raums.
+        """
+        hub = self.hub
+        plan = hub.plan_now() if hub is not None else None
+        by_plan = self.config.get(CONF_SCHEDULE_BY_PLAN) or {}
+        if plan is not None and plan in by_plan:
+            choice = by_plan[plan]
+            return None if choice == PLAN_OWN else choice
         return self.config.get(CONF_SCHEDULE_ENTITY) or None
 
     def helper_window(self) -> tuple[bool, float | None, datetime | None] | None:
         """(läuft gerade?, Temperatur aus dem Helfer-Block, nächster Wechsel) – None ohne Helfer."""
         entity = self.schedule_entity
+        if entity == PLAN_ALWAYS:
+            return True, None, None
+        if entity == PLAN_NEVER:
+            return False, None, None
         state = self.hass.states.get(entity) if entity else None
         if state is None or state.state not in ("on", "off"):
             return None
@@ -701,8 +719,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             self._aux_unsub()
             self._aux_unsub = None
         watch = [e for e in (self.config.get(CONF_ROOM_PERSONS) or []) if not str(e).startswith("person.")]
-        if self.schedule_entity:
-            watch.append(self.schedule_entity)
+        helpers = {self.config.get(CONF_SCHEDULE_ENTITY), *(self.config.get(CONF_SCHEDULE_BY_PLAN) or {}).values()}
+        watch += sorted(h for h in helpers if h and str(h).startswith("schedule."))
         if not watch:
             return
 

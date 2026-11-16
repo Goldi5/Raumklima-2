@@ -57,6 +57,7 @@ from .const import (
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
     CONF_ROOM_PERSONS,
+    CONF_SCHEDULE_BY_PLAN,
     CONF_SCHEDULE_ENTITY,
     CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULES,
@@ -109,6 +110,7 @@ MOLD_MIN_HOURS = 2.0
 MOLD_CAP_DEFAULT = 2.5
 MOLD_CAP_NIGHT = 1.5
 MOISTURE_RISE = 1.2
+MOISTURE_RH_RISE = 3  # und die relative Feuchte muss sichtbar steigen (Prozentpunkte)
 MOISTURE_COOLDOWN = timedelta(hours=12)
 REASON_SEASON = "season"
 REASON_FROST = "frost"
@@ -239,6 +241,7 @@ LIVE_OPTIONS = frozenset(
         CONF_ROOM_ECO_DROP,
         CONF_SCHEDULES,
         CONF_SCHEDULE_ENTITY,
+        CONF_SCHEDULE_BY_PLAN,
         CONF_HYSTERESIS_K,
         CONF_BOOST_TEMP,
         CONF_BOOST_MINUTES,

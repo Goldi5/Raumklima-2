@@ -242,14 +242,18 @@ class MoldGuard:
         return round(seconds / 3600, 1)
 
     def rh_change(self, now: datetime, hours: float = 6.0) -> tuple[float, float, float] | None:
-        """Relative Feuchte am Anfang und Ende des Zeitraums – für den Meldungstext."""
+        """Mittlere relative Feuchte vorher und jetzt – dieselben Fenster wie ``trend``.
+
+        Früher stand hier der allererste gegen den letzten Wert: Das passte nicht zur Prüfung
+        und ergab Meldungen wie „Feuchte steigt … von 58 auf 57 %“ (Issue #55).
+        """
         recent_from = now - timedelta(hours=hours)
         before_from = now - timedelta(hours=2 * hours)
         recent = [rh for t, _v, rh, _s in self.samples if t >= recent_from and rh > 0]
         earlier = [rh for t, _v, rh, _s in self.samples if before_from <= t < recent_from and rh > 0]
         if len(recent) < 3 or not earlier:
             return None
-        return (round(earlier[0], 0), round(recent[-1], 0), hours)
+        return (round(sum(earlier) / len(earlier), 0), round(sum(recent) / len(recent), 0), hours)
 
     def trend(self, now: datetime, hours: float = 6.0) -> float | None:
         """Zuwachs des Wasserdampfs (hPa) in den letzten `hours` gegenüber dem Abschnitt davor.

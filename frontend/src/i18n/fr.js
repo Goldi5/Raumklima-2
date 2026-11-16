@@ -1536,4 +1536,12 @@ export const FR = {
   "keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar": "aucune sélection = la pièce est à tous ; interrupteurs (p. ex. invité) et capteurs de présence possibles aussi",
   "nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt": "seulement si une de ces personnes est là ou un interrupteur choisi est activé – sinon la pièce est abaissée",
   "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "« activé » dans l’assistant = plage active ; une température dans le champ de données du bloc est reprise – les plages ci-dessus ne s’appliquent plus",
+  "Plan „{p}“": "Programme « {p} »",
+  "Plan-Umschalter": "Sélecteur de programme",
+  "ganztägig Wunschtemperatur": "température souhaitée toute la journée",
+  "gerade: {p} – je Raum unter Zeitplan → Weitere Einstellungen festlegen, was in welchem Plan gilt": "actuellement : {p} – définir par pièce sous Planning → Autres réglages ce qui s’applique dans chaque programme",
+  "gilt gerade": "actif maintenant",
+  "kein Zeitfenster (außerhalb gilt)": "aucune plage (la règle hors plage s’applique)",
+  "wie sonst": "comme d’habitude",
+  "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "p. ex. une liste « travail / libre / malade » – chaque pièce a son planning par programme",
 };

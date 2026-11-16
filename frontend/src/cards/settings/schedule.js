@@ -137,7 +137,22 @@ export const ScheduleMethods = {
         ? t("„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht")
         : t("HA-Zeitplan-Helfer (schedule.*) statt der Zeitfenster hier – z. B. einen je Plan anlegen und per Automation umschalten")
     ) : "";
+    const plan = ((this._cfg && this._cfg.hub && this._cfg.hub.state) || {}).plan || {};
+    const planMap = this._roomOpt(r, "schedule_by_plan") ?? s.schedule_by_plan ?? {};
+    const planLabel = (o) => (o === "on" ? t("an") : o === "off" ? t("aus") : o);
+    const planRows = (plan.options || []).map((o) => {
+      const cur = planMap[o] || "";
+      const opts = [
+        ["", t("wie sonst")], ["own", t("eigene Zeitfenster")], ["always", t("ganztägig Wunschtemperatur")],
+        ["never", t("kein Zeitfenster (außerhalb gilt)")], ...helpers.map((h) => [h.id, h.name]),
+      ];
+      const sel = editable
+        ? `<select class="sel" data-planmap="${esc(o)}" data-scope="${scope}" data-cur="${esc(JSON.stringify(planMap))}" ${this._admin ? "" : "disabled"}>${opts.map(([v, n]) => `<option value="${esc(v)}" ${v === cur ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>`
+        : this._v((opts.find(([v]) => v === cur) || opts[0])[1]);
+      return this._row(t("Plan „{p}“", { p: planLabel(o) }), sel, plan.now === o ? t("gilt gerade") : "");
+    }).join("");
     const moreRows = [
+      planRows,
       helperRow,
       shareRow,
       this._row(
@@ -192,7 +207,7 @@ export const ScheduleMethods = {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
     }
     rows.push(...boostRows);
-    rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
+    rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_by_plan", "schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
     return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
   },
 

@@ -77,3 +77,32 @@ async def test_hysterese_schaltet_ganz_auf_und_ganz_zu(hass: HomeAssistant, setu
     await hass.async_block_till_done()
     assert ctrl._hysteresis_setpoint(target) == ctrl.trv_min
     assert ctrl.trv_expected_target == ctrl.trv_min
+
+
+async def test_plan_umschalter_waehlt_zeitplan_je_raum(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """#52: Auswahl-Helfer „Arbeitszeit/frei/krank“ – je Plan eigene Zeitplan-Quelle pro Raum."""
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    hass.states.async_set("input_select.plan", "Arbeitszeit", {"options": ["Arbeitszeit", "frei", "krank"]})
+    hass.states.async_set("schedule.buero_arbeit", "off", {})
+    hub.config = {**hub.config, "plan_selector": "input_select.plan"}
+    ctrl.config["schedule_by_plan"] = {"Arbeitszeit": "schedule.buero_arbeit", "krank": "always", "frei": "never"}
+    assert hub.plan_options() == ["Arbeitszeit", "frei", "krank"]
+
+    assert ctrl.schedule_entity == "schedule.buero_arbeit"
+    _on, _t, reason = ctrl.plan()
+    assert reason != "schedule"  # Helfer ist aus
+
+    hass.states.async_set("input_select.plan", "krank", {"options": ["Arbeitszeit", "frei", "krank"]})
+    on, target, reason = ctrl.plan()
+    assert on and reason == "schedule" and target == ctrl.target_temp  # ganztägig Wunsch
+
+    hass.states.async_set("input_select.plan", "frei", {"options": ["Arbeitszeit", "frei", "krank"]})
+    _on, _t, reason = ctrl.plan()
+    assert reason != "schedule"
+
+    # Plan ohne Eintrag → wie sonst (hier: eigene Zeitfenster, keine vorhanden)
+    ctrl.config["schedule_by_plan"] = {"krank": "own"}
+    hass.states.async_set("input_select.plan", "krank", {"options": ["Arbeitszeit", "frei", "krank"]})
+    assert ctrl.schedule_entity is None

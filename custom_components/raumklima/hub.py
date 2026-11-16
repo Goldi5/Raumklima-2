@@ -49,6 +49,7 @@ from .const import (
     CONF_HOME_OFFICE_ROOMS,
     CONF_HOME_OFFICE_TO,
     CONF_NIGHT_ENTITY,
+    CONF_PLAN_SELECTOR,
     CONF_RESIDENTS,
     CONF_SCHOOL_CALENDAR,
     CONF_ZONE,
@@ -388,6 +389,13 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             self._unsubs.append(
                 async_track_state_change_event(self.hass, self.sleep_signals, self._on_signal_change)
             )
+        if self.opt(CONF_PLAN_SELECTOR):
+            # Plan-Umschalter (z. B. „Arbeitszeit“ / „Nicht-Arbeitszeit“): Räume neu planen
+            self._unsubs.append(
+                async_track_state_change_event(
+                    self.hass, [self.opt(CONF_PLAN_SELECTOR)], lambda _e: self._changed()
+                )
+            )
         self._unsubs.append(
             async_track_time_interval(self.hass, self._on_sample_tick, SAMPLE_INTERVAL)
         )
@@ -554,6 +562,24 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
 
 
     # ------------------------------------------------------------ Energie
+    def plan_now(self) -> str | None:
+        """Aktueller Wert des Plan-Umschalters (Issue #52) – None ohne Umschalter."""
+        entity = self.opt(CONF_PLAN_SELECTOR)
+        state = self.hass.states.get(entity) if entity else None
+        if state is None or state.state in ("unknown", "unavailable", ""):
+            return None
+        return str(state.state)
+
+    def plan_options(self) -> list[str]:
+        """Mögliche Werte des Plan-Umschalters – für die Auswahl je Raum."""
+        entity = self.opt(CONF_PLAN_SELECTOR)
+        state = self.hass.states.get(entity) if entity else None
+        if state is None:
+            return []
+        if entity.startswith("input_boolean."):
+            return ["on", "off"]
+        return [str(o) for o in (state.attributes.get("options") or [])]
+
     def tariff_entities(self) -> list[str]:
         """Preisquellen in Reihenfolge: Hauptquelle, dann die Reserven."""
         out: list[str] = []
@@ -716,6 +742,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             "issues": self.insights.all_issues(),
             "sleep": self.sleep_summary(),
             "heat": self.heat_summary(),
+            "plan": {"now": self.plan_now(), "options": self.plan_options()},
             "energy": {
                 "price": self.energy_price_now(),
                 "source_name": self._price_source_name(),

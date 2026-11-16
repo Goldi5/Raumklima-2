@@ -1536,4 +1536,12 @@ export const EN = {
   "keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar": "no selection = the room belongs to all residents; switches (e.g. guest) and presence sensors can be chosen too",
   "nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt": "only if one of these persons is home or a chosen switch is on – otherwise the room is set back",
   "„an“ im Helfer = Zeitfenster aktiv; eine Temperatur im Datenfeld des Blocks wird übernommen – die Zeitfenster oben gelten dann nicht": "“on” in the helper = window active; a temperature in the block’s data field is used – the windows above no longer apply",
+  "Plan „{p}“": "Plan “{p}”",
+  "Plan-Umschalter": "Plan switch",
+  "ganztägig Wunschtemperatur": "wish temperature all day",
+  "gerade: {p} – je Raum unter Zeitplan → Weitere Einstellungen festlegen, was in welchem Plan gilt": "now: {p} – set per room under Schedule → More settings what applies in which plan",
+  "gilt gerade": "active now",
+  "kein Zeitfenster (außerhalb gilt)": "no time window (outside rule applies)",
+  "wie sonst": "as usual",
+  "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "e.g. a dropdown helper “work / off / sick” – each room gets its own schedule per plan",
 };

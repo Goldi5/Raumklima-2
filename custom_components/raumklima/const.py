@@ -181,6 +181,11 @@ CONF_CALENDAR: Final = "calendar_entity"  # Termine wie „Urlaub“ / „Homeof
 CONF_CALENDAR_AWAY: Final = "calendar_away_words"
 CONF_CALENDAR_HOME: Final = "calendar_home_words"
 CONF_SCHOOL_CALENDAR: Final = "school_calendar_entity"  # Ganztägige Schulferien-Termine
+CONF_PLAN_SELECTOR: Final = "plan_selector"  # Plan-Umschalter (input_select/select/input_boolean) – Issue #52
+CONF_SCHEDULE_BY_PLAN: Final = "schedule_by_plan"  # je Raum: Planwert → Zeitplan-Quelle
+PLAN_OWN: Final = "own"  # eigene Zeitfenster des Raums
+PLAN_ALWAYS: Final = "always"  # ganztägig Zeitfenster (Wunschtemperatur)
+PLAN_NEVER: Final = "never"  # kein Zeitfenster (es gilt „außerhalb der Zeitfenster“)
 CONF_SCHOOL_SHIFT: Final = "school_shift_minutes"  # Morgen-Zeitfenster später starten
 CONF_FROST_NIGHT: Final = "frost_night"  # in Frostnächten weniger absenken
 CONF_SOLAR: Final = "solar_gain"  # pro Raum: Sonne heizt mit
@@ -348,6 +353,7 @@ HUB_DEFAULTS: Final = {
     CONF_CALENDAR_AWAY: "Urlaub, Reise, Dienstreise, verreist, vacation, trip",
     CONF_CALENDAR_HOME: "Homeoffice, Home-Office, zu Hause, home office, wfh",
     CONF_SCHOOL_CALENDAR: None,
+    CONF_PLAN_SELECTOR: None,
     CONF_SCHOOL_SHIFT: 60,
     CONF_FROST_NIGHT: True,
     CONF_HOME_SENSORS: "mmwave",
@@ -455,6 +461,7 @@ DEFAULTS: Final = {
     CONF_ROOM_PERSONS: [],
     CONF_SCHEDULE_FALLBACK: "wish",
     CONF_SCHEDULE_ENTITY: None,
+    CONF_SCHEDULE_BY_PLAN: {},
     CONF_HYSTERESIS_K: 0.5,
     CONF_GUESTS_ROOMS: [],
     CONF_FAST_POLL: False,

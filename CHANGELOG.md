@@ -1,3 +1,14 @@
+## 1.3.1 – 2026-11-16
+
+### Neu
+- **Plan-Umschalter (Issue #52):** Ein Auswahl-Helfer, eine Auswahl-Entität oder ein Schalter schaltet zwischen Plänen um – z. B. „Arbeitszeit“, „frei“, „krank“ (*Allgemein → Anwesenheit & Absenkung*). Je Raum legst du unter *Zeitplan → Weitere Einstellungen* fest, was in welchem Plan gilt: eigene Zeitfenster, ein Zeitplan-Helfer, ganztägig die Wunschtemperatur oder gar kein Zeitfenster. Ein Wechsel wirkt sofort.
+
+### Behoben
+- **„Feuchte steigt – lüften statt heizen“ bei sinkender Feuchte (Issue #55):** Die Meldung kam, wenn mehr Wasserdampf in der Luft war, die relative Feuchte aber sank, weil der Raum wärmer wurde („von 58 auf 57 %“). Jetzt muss auch die relative Feuchte um mindestens 3 Prozentpunkte steigen, und Anfangs- und Endwert sind Mittelwerte derselben Zeitfenster wie die Prüfung.
+
+### Tests
+- Plan-Umschalter je Raum (Helfer, ganztägig, kein Zeitfenster, wie sonst); wärmer werdender Raum löst keine Feuchte-Meldung aus.
+
 ## 1.3.0 – 2026-11-15
 
 Die große Herbst-Version: Energie und Kosten für alle Heizungsarten, ein neuer PDF-Bericht, Heizöl mit Tank, Entfeuchter, Schulferien, Zeitplan-Helfer und Hysterese. Alle Einzelheiten stehen in den Beta-Einträgen darunter (1.2.3b1 bis 1.3.0b9).

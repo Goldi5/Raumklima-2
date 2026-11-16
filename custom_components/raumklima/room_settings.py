@@ -51,6 +51,7 @@ from .const import (
     CONF_ROOM_ECO_DROP,
     CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
+    CONF_SCHEDULE_BY_PLAN,
     CONF_SCHEDULE_ENTITY,
     CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULE_FROM,
@@ -297,7 +298,7 @@ class SettingsMixin:
         }:
             self.track_presence()
             self.update_presence()
-        if changed.keys() & {CONF_ROOM_PERSONS, CONF_SCHEDULE_ENTITY}:
+        if changed.keys() & {CONF_ROOM_PERSONS, CONF_SCHEDULE_ENTITY, CONF_SCHEDULE_BY_PLAN}:
             self.track_aux()
         if self.virtual_open_at is not None and not self.virtual_enabled():
             self._close_virtual("off")

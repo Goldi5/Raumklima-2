@@ -97,6 +97,20 @@ def test_feuchteverlauf_wird_erkannt() -> None:
     assert start < end
 
 
+def test_waermer_werdender_raum_meldet_keine_steigende_feuchte() -> None:
+    """Issue #55: Mehr Dampf, aber der Raum wird wärmer – die relative Feuchte sinkt leicht."""
+    guard = MoldGuard()
+    now = dt_util.utcnow()
+    for hours in range(18, 6, -1):
+        guard.add(now - timedelta(hours=hours), 18.0, 58.0)
+    for hours in range(6, 0, -1):
+        guard.add(now - timedelta(hours=hours), 21.0, 57.0)
+    assert guard.trend(now) > 1.2  # absolut mehr Wasser in der Luft …
+    start, end, _h = guard.rh_change(now)
+    assert end <= start  # … aber relativ nicht – das darf keine Meldung auslösen
+    assert end - start < 3
+
+
 def test_ruhige_feuchte_bleibt_still() -> None:
     guard = MoldGuard()
     now = dt_util.utcnow()

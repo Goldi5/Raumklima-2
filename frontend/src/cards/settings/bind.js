@@ -435,6 +435,14 @@ export const BindMethods = {
       if ([...sel.options].some((o) => o.value === current)) sel.value = current;
     });
     on("change", "[data-sel]", (el) => () => { el.blur(); apply(el.dataset.sel, { [el.dataset.key]: el.value || null }); });
+    on("change", "[data-planmap]", (el) => () => {
+      // Zeitplan je Plan (Issue #52): leer = wie sonst, sonst own/always/never/schedule.*
+      el.blur();
+      let map = {};
+      try { map = JSON.parse(el.dataset.cur || "{}"); } catch (e) { map = {}; }
+      if (el.value) map[el.dataset.planmap] = el.value; else delete map[el.dataset.planmap];
+      apply(el.dataset.scope, { schedule_by_plan: map });
+    });
     on("change", ".addrow select", (el) => () => el.blur());
     on("change", "[data-md]", (el) => () => {
       const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(el.value.trim());
