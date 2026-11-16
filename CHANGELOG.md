@@ -1,3 +1,22 @@
+## 1.3.9b1 – 2026-11-16
+
+### Neu
+- **Energie-Dashboard ausgebaut:** Neue Blöcke „Wohin geht das Geld?“ (Heizung, Warmwasser, Grundgebühr, PV-Ersparnis), „Wann läuft die Wärmepumpe?“ (Wochentag × Stunde mit Ø-Preis), „Heizkennlinie deines Hauses“ (je 1 °C kälter, Heizgrenze), „Was kostet 1 kWh Wärme?“ (Vergleich mit Gas, Öl, Wärmepumpe; Vergleichspreise einstellbar), „PV & Akku“ und „Wärme erzeugt“. Dazu, was der dynamische Tarif gegenüber dem Börsen-Mittel gespart hat und was die günstigsten Stunden höchstens gebracht hätten. Blöcke erscheinen nur, wenn die Daten dafür da sind.
+- **Akku richtig gerechnet:** Neue Einstellungen „Akku geladen“ und „Akku entladen“. Raumklima verfolgt Stunde für Stunde, wie viel des gespeicherten Stroms aus dem Netz kam – nachts aus dem Netz geladener Akku-Strom zählt zum Ladepreis statt als kostenlos.
+- **Arbeitszahl zweimal:** Neue Einstellung „Strom laut Wärmepumpe“ – das Dashboard zeigt die Arbeitszahl laut Wärmepumpe und gemessen mit deinem Zähler (z. B. „4,3 – 5,1“).
+- **Einspeisung** als eigener Zähler für den PV-Block.
+- **„?“ an jeder Kachel und jedem Block** mit einer kurzen Erklärung, was man sieht und was ein guter Wert ist.
+- **Jahreszahl aus den letzten 12 Monaten,** wenn der Zähler so lange misst und die Außentemperatur für eine Hochrechnung fehlt. Ältere Tage holen die Außentemperatur aus der Statistik des eigenen Außenfühlers.
+- **Lernen** liegt jetzt im Reiter „Verlauf & Lernen“, der Reiter „Energie“ zeigt nur noch Energie.
+
+### Behoben
+- Einheiten an allen Zahlen (kWh, €, ct/kWh), Achsen mit Werten in kWh und °C, Datum je Woche, Tag antippen zeigt seine Werte.
+- Strompreis mit Achse in ct, „jetzt“-Strich und Legende; Preisquellen ohne überlappende Texte und doppelte Namen.
+- „Wer verbraucht die Wärme?“ zeigt die Ventilstunden und weist auf Räume hin, die deutlich mehr brauchen.
+
+### Tests
+- Akku aus dem Netz geladen kostet den Ladepreis, mit PV geladen bleibt er kostenlos; Wochenraster, Lastverschiebung, Heizkennlinie, Wärmepreis-Vergleich; Energiekarte mit Achsen, Einheiten, Erklärungen und ohne PV-Block bei Gas.
+
 ## 1.3.8b1 – 2026-11-16
 
 ### Behoben

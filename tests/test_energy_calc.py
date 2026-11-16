@@ -5,14 +5,19 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from custom_components.raumklima.energy_calc import (
+    battery_shares,
+    heat_prices,
+    heating_curve,
     hourly_cost,
     parse_forecast,
     ratio,
     self_share,
+    shift_potential,
     short_label,
     split_total,
     step_means,
     tariff_to_kwh,
+    week_grid,
 )
 from custom_components.raumklima.report_extra import money
 
@@ -104,6 +109,8 @@ def test_short_label():
     assert short_label(raw) == "Heartbeat Electricity Price"
     assert short_label("EPEX Spot Data Total Price", "Energy-Charts.info (DE-LU)") == "EPEX Spot Data Total Price · Energy-Charts.info (DE-LU)"
     assert short_label("Tibber Preis Tibber", "Tibber") == "Tibber Preis Tibber"
+    # gleicher Name, nur anders geschrieben – nicht doppelt anhängen
+    assert short_label("Heartbeat Christian - Glaser Electricity Price", "Christian Glaser") == "Heartbeat Christian - Glaser Electricity Price"
 
 
 def test_money_no_degree_day_forecast_with_short_outdoor_history():
@@ -117,3 +124,61 @@ def test_money_no_degree_day_forecast_with_short_outdoor_history():
     assert out["annual"] is None and out["per_degree_year"] is None
     good = {**year, "days": 30, "outdoor_days": 30}
     assert money(cur, None, good)["annual"] is not None
+
+
+def test_battery_charged_from_grid_is_not_free():
+    """Akku nachts aus dem Netz geladen (20 ct), morgens entladen: kostet den Ladepreis, nicht 0."""
+    hours = [
+        # Nacht: Haus 1 kWh, Netz 5 kWh, Akku lädt 4 kWh – 4 kWh aus dem Netz in den Akku
+        {"ts": 0, "house": 1.0, "grid": 5.0, "charge": 4.0, "discharge": 0.0, "price": 0.20},
+        # Morgen: Haus 2 kWh, nichts aus dem Netz, Akku entlädt 2 kWh
+        {"ts": 3600, "house": 2.0, "grid": 0.0, "charge": 0.0, "discharge": 2.0, "price": 0.40},
+    ]
+    sums = battery_shares(hours)
+    assert sums["grid_charge"] == 4.0
+    assert hours[0]["self"] == 0.0
+    assert hours[1]["batt"] == 1.0 and hours[1]["self"] == 0.0
+    assert hours[1]["batt_price"] == 0.20
+    rows = [{"ts": 3600, "day": "d", "kwh": 1.0, "price": 0.40, **{k: hours[1][k] for k in ("self", "batt", "batt_price")}}]
+    out = hourly_cost(rows, 0.30)
+    assert out["cost"] == 0.20 and out["batt_kwh"] == 1.0 and out["self_kwh"] == 0.0
+
+
+def test_battery_with_pv_stays_free():
+    """Tagsüber mit PV geladen (kein Netzbezug), abends entladen: kostenlos."""
+    hours = [
+        {"ts": 0, "house": 1.0, "grid": 0.0, "charge": 3.0, "discharge": 0.0, "price": 0.30},
+        {"ts": 3600, "house": 2.0, "grid": 0.0, "charge": 0.0, "discharge": 2.0, "price": 0.45},
+    ]
+    battery_shares(hours)
+    assert hours[1]["self"] == 1.0 and hours[1]["batt"] == 0.0
+
+
+def test_week_grid_and_shift():
+    from datetime import datetime as dt
+
+    rows = []
+    for h in range(24):
+        local = dt(2026, 11, 16, h)  # Montag
+        rows.append({"ts": h, "day": "2026-11-16", "local": local, "kwh": 1.0, "price": 0.20 if h < 6 else 0.40})
+    grid = week_grid(rows)
+    assert grid["kwh"][0][3] == 1.0 and grid["kwh"][1][3] is None
+    assert grid["price"][2] == 0.20
+    # 24 kWh: bezahlt 6×0,20 + 18×0,40 = 8,40 €; alles im günstigsten Viertel: 24×0,20 = 4,80 €
+    assert shift_potential(rows) == 3.6
+
+
+def test_heating_curve():
+    days = [{"outdoor": t, "kwh": 40 - 3 * t} for t in (2, 4, 5, 6, 7, 8, 10)]
+    curve = heating_curve(days)
+    assert curve["per_kelvin"] == 3.0 and curve["limit"] == 13.3 and curve["r2"] == 1.0
+    assert heating_curve(days[:5]) is None
+
+
+def test_heat_prices_compare():
+    out = heat_prices("heatpump", 0.05, 0.09, gas=0.11, oil_l=1.10, power=0.30)
+    ids = [x["id"] for x in out]
+    assert ids == ["own", "own_grid", "gas", "oil"]
+    assert out[2]["ct"] == 12.2
+    gas_home = heat_prices("gas", 0.12, None, gas=0.11, oil_l=1.10, power=0.30)
+    assert [x["id"] for x in gas_home] == ["own", "heatpump", "oil"]

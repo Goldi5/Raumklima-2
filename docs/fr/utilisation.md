@@ -192,7 +192,7 @@ type: custom:raumklima-settings-card   # réglages (de préférence en vue panne
 
 ## Nouveau en 1.1
 
-- **Tableau de bord :** « Pièces » d’abord, « Énergie et apprentissage » dans un onglet séparé.
+- **Tableau de bord :** « Pièces » d’abord, « Énergie » dans un onglet séparé, l’apprentissage dans « Historique et apprentissage ».
 - **Ombrage :** volets au soleil/nuit – automatique, conseil ou arrêt.
 - **Plancher chauffant :** régulation lente avec départ/retour et alerte de débit.
 - **Modèle d’apprentissage 2.0 :** vitesse de montée, perte de chaleur, apport solaire ; arrêt plus tôt.

@@ -15,12 +15,19 @@ from homeassistant.util import dt as dt_util
 from .const import (
     CONF_ENERGY_BASE,
     CONF_ENERGY_BASE_SHARE,
+    CONF_ENERGY_BATT_IN,
+    CONF_ENERGY_BATT_OUT,
     CONF_ENERGY_CHEAP_PRICE,
+    CONF_ENERGY_CMP_GAS,
+    CONF_ENERGY_CMP_OIL,
+    CONF_ENERGY_CMP_POWER,
     CONF_ENERGY_EFFICIENCY,
     CONF_ENERGY_ENABLED,
     CONF_ENERGY_EXTRA_FEE,
     CONF_ENERGY_FACTOR,
+    CONF_ENERGY_FEED,
     CONF_ENERGY_GRID,
+    CONF_ENERGY_HEAT_ELEC,
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_HOUSE,
     CONF_ENERGY_METER,
@@ -55,7 +62,21 @@ from .const import (
     KIND_REPORT,
     REPORT_METRIC_DEFAULT,
 )
-from .energy_calc import hourly_cost, parse_forecast, ratio, self_share, short_label, split_total, step_means, tariff_to_kwh
+from .energy_calc import (
+    battery_shares,
+    heat_prices,
+    heating_curve,
+    hourly_cost,
+    parse_forecast,
+    ratio,
+    self_share,
+    shift_potential,
+    short_label,
+    split_total,
+    step_means,
+    tariff_to_kwh,
+    week_grid,
+)
 from .health import SEV_INFO, Issue, check_connection, check_notify_targets, check_presence_residents
 from .msg import tr
 from .oil_tank import price_per_litre, tank_summary
@@ -341,6 +362,13 @@ class Insights:
             "grid_entity": self.hub.opt(CONF_ENERGY_GRID),
             "base_share": str(self.hub.opt(CONF_ENERGY_BASE_SHARE) or "full"),
             "meter_scope": str(self.hub.opt(CONF_ENERGY_METER_SCOPE) or "heating"),
+            "batt_in_entity": self.hub.opt(CONF_ENERGY_BATT_IN),
+            "batt_out_entity": self.hub.opt(CONF_ENERGY_BATT_OUT),
+            "feed_entity": self.hub.opt(CONF_ENERGY_FEED),
+            "heat_elec_entity": self.hub.opt(CONF_ENERGY_HEAT_ELEC),
+            "compare_gas": float(self.hub.opt(CONF_ENERGY_CMP_GAS) or 0.11),
+            "compare_oil": float(self.hub.opt(CONF_ENERGY_CMP_OIL) or 1.10),
+            "compare_power": float(self.hub.opt(CONF_ENERGY_CMP_POWER) or 0.30),
             "price_now": self.hub.energy_price_now(),
             "tariffs": self._tariff_list(),
         }
@@ -431,6 +459,13 @@ class Insights:
             cost["rooms"] = self._room_costs(cur, cost["period_cost"], cfg)
         if cost is not None and not cfg.get("meter") and cfg.get("tank"):
             cost["basis"] = "tank"
+        if cost is not None and cost.get("period_cost"):
+            cost["parts"] = self._cost_parts(cfg, cost)
+            if cost.get("annual") is None and cfg.get("meter"):
+                annual = await self._annual_from_meter(cfg, cost, today, days)
+                if annual is not None:
+                    cost["annual"] = annual
+                    cost["annual_basis"] = "12m"
         return {
             "start": start.isoformat(),
             "end": today.isoformat(),
@@ -441,6 +476,54 @@ class Insights:
             "money": cost,
             "forecast": self.price_forecast() if cfg.get("enabled") else [],
         }
+
+    def _cost_parts(self, cfg: dict[str, Any], cost: dict[str, Any]) -> dict[str, Any]:
+        """Wohin das Geld ging: Heizung, Warmwasser, Grundgebühr – und was PV/Akku erspart haben."""
+        period = float(cost["period_cost"])
+        energy = cfg.get("cost_energy")
+        kwh = float(cfg.get("kwh") or 0)
+        ww = float(cfg.get("ww_kwh") or 0)
+        used = kwh + ww
+        if energy is None:
+            energy = period - float(cost.get("base") or 0) if cost.get("base") is not None else None
+        out: dict[str, Any] = {"heat": None, "ww": None, "base": None, "pv_saved": None}
+        if energy is not None:
+            energy = float(energy)
+            ww_part = energy * ww / used if used > 0 else 0.0
+            out["heat"] = round(energy - ww_part, 2)
+            out["ww"] = round(ww_part, 2) if ww > 0 else None
+            out["base"] = round(max(0.0, period - energy), 2)
+        free = cfg.get("self_kwh")
+        ref = cfg.get("price_avg") or cfg.get("price_paid") or cfg.get("price")
+        if free and ref:
+            out["pv_saved"] = round(float(free) * float(ref), 2)
+        return out
+
+    async def _annual_from_meter(self, cfg: dict[str, Any], cost: dict[str, Any], today: date, days: int) -> float | None:
+        """Jahreskosten aus den letzten zwölf Monaten des Zählers – wenn er so lange misst.
+
+        Hilft, wenn die Außentemperatur für eine Hochrechnung nach Gradtagen noch fehlt.
+        """
+        meter = cfg["meter"]
+        year_start = today - timedelta(days=364)
+        first = await self._first_data_day(meter, year_start, today)
+        if first is None or (first - year_start).days > 35:
+            return None
+        value = await self._stat_change(meter, year_start, today)
+        if value is None:
+            return None
+        factor = cfg["oil_factor"] if cfg["source"] == "oil" else cfg["factor"]
+        year_kwh = energy_kwh(value, cfg["meter_unit"], factor, cfg["source"])
+        if not year_kwh:
+            return None
+        period_kwh = float(cfg.get("kwh_total") or ((cfg.get("kwh") or 0) + (cfg.get("ww_kwh") or 0)))
+        energy = cfg.get("cost_energy")
+        if energy is None or period_kwh <= 0:
+            return None
+        if cfg.get("meter_scope") != "total" and cfg.get("ww_kwh"):
+            year_kwh += float(cfg["ww_kwh"]) * 365 / max(days, 1)  # Warmwasser-Zähler eigens, grob aufs Jahr
+        base_part = max(0.0, float(cost["period_cost"]) - float(energy))
+        return round(year_kwh * float(energy) / period_kwh + base_part * 365 / max(days, 1), 2)
 
     def _room_costs(self, cur: dict[str, Any], period_cost: float, cfg: dict[str, Any]) -> list[dict[str, Any]]:
         """Heizkosten je Raum: nach Ventilöffnung × Stunden (bzw. der Bericht-Kennzahl)."""
@@ -455,7 +538,7 @@ class Insights:
         heat_cost = period_cost * heat_part
         return sorted(
             (
-                {"name": name, "share": round(100 * v / total, 1), "cost": round(heat_cost * v / total, 2)}
+                {"name": name, "share": round(100 * v / total, 1), "cost": round(heat_cost * v / total, 2), "value": round(v, 1), "metric": metric}
                 for name, v in values.items()
                 if v > 0
             ),
@@ -577,9 +660,20 @@ class Insights:
                 cfg["cop_from"] = heat_from.isoformat()
             cfg["cop"] = ratio(cfg.get("heat_kwh"), heat_in)
             cfg["cop_ww"] = ratio(cfg.get("ww_heat_kwh"), ww_measured if total_scope else cfg.get("ww_kwh"))
+            if cfg.get("heat_elec_entity"):
+                # Zweite Sicht: Strom fürs Heizen, wie die Wärmepumpe ihn selbst zählt
+                if heat_from is not None:
+                    vendor = await kwh_since(cfg["heat_elec_entity"], heat_from)
+                else:
+                    vendor = await kwh_of(cfg["heat_elec_entity"])
+                cfg["heat_elec_kwh"] = round(vendor, 2) if vendor is not None else None
+                cfg["cop_vendor"] = ratio(cfg.get("heat_kwh"), vendor)
         used = (cfg.get("kwh") or 0) + (cfg.get("ww_kwh") or 0)
         if cfg.get("house_kwh") and cfg["source"] in ("electric", "heatpump") and used:
             cfg["house_share"] = round(100 * used / cfg["house_kwh"], 1)
+        cfg["feed_kwh"] = await kwh_of(cfg.get("feed_entity"))
+        cfg["batt_in_kwh"] = await kwh_of(cfg.get("batt_in_entity"))
+        cfg["batt_out_kwh"] = await kwh_of(cfg.get("batt_out_entity"))
         if not cfg.get("meter"):
             return
         hours = await self._energy_hours(cfg, start, end, factor)
@@ -594,9 +688,19 @@ class Insights:
             cfg["price_paid"] = result["price_paid"]
             cfg["cheap_share"] = result["cheap_share"] if electric and cfg.get("tariff_dynamic") else None
             cfg["self_kwh"] = result["self_kwh"]
+            cfg["batt_kwh"] = result["batt_kwh"]
+            cfg["billed_kwh"] = result["billed_kwh"]
             if result["price_avg"] is not None:
                 cfg["price_avg"] = result["price_avg"]
+        if priced:
+            cfg["week"] = week_grid(hours)
+            if electric and cfg.get("tariff_dynamic"):
+                cfg["shift_eur"] = shift_potential(hours)
+                if result["price_avg"] is not None and result["price_paid"] is not None:
+                    paid_kwh = result["billed_kwh"] + result["batt_kwh"]
+                    cfg["tariff_saving"] = round((result["price_avg"] - result["price_paid"]) * paid_kwh, 2)
         home = self.data["home"]
+        outdoor_more = await self._outdoor_days(start, end)
         series = []
         day = start
         while day <= end:
@@ -604,6 +708,7 @@ class Insights:
             vals = daily.get(key, {})
             h = home.get(key) or {}
             n = h.get("outdoor_n_s") or 0
+            outdoor = round(h["outdoor_s"] / n, 1) if n else outdoor_more.get(key)
             day_kwh, day_ww = vals.get("kwh", 0.0), vals.get("ww", 0.0)
             if total_scope and cfg.get("kwh_total"):
                 share = float(cfg.get("ww_kwh") or 0) / float(cfg["kwh_total"])
@@ -613,12 +718,71 @@ class Insights:
                 "kwh": day_kwh,
                 "ww": day_ww,
                 "cost": vals.get("cost", 0.0),
-                "outdoor": round(h["outdoor_s"] / n, 1) if n else None,
+                "outdoor": outdoor,
             })
             day += timedelta(days=1)
         cfg["daily"] = series
         # Für die Hochrechnung: an wie vielen Tagen die Außentemperatur bekannt ist
         cfg["outdoor_days"] = sum(1 for d in series if d["outdoor"] is not None)
+        cfg["curve"] = heating_curve(d for d in series if d["date"] != end.isoformat())
+        self._heat_prices(cfg)
+
+    def _heat_prices(self, cfg: dict[str, Any]) -> None:
+        """Was kostet 1 kWh Wärme – eigene Heizung und Vergleich."""
+        source = cfg["source"]
+        kwh = float(cfg.get("kwh") or 0)
+        ww = float(cfg.get("ww_kwh") or 0)
+        used = kwh + ww
+        eff_price = cfg["cost_energy"] / used if cfg.get("cost_energy") is not None and used > 0 else cfg.get("price")
+        paid = cfg.get("price_paid") or cfg.get("price")
+        own = grid_only = None
+        if source == "heatpump":
+            cop, cop_ww = cfg.get("cop") or cfg.get("efficiency") or None, cfg.get("cop_ww") or cfg.get("cop")
+            if cop and used > 0:
+                mix = (kwh * cop + ww * (cop_ww or cop)) / used
+                own = eff_price / mix if eff_price else None
+                grid_only = paid / mix if paid else None
+        elif source == "electric":
+            own, grid_only = eff_price, paid
+        elif source in ("gas", "oil"):
+            own = eff_price / 0.9 if eff_price else None
+        elif source == "district":
+            own = eff_price
+        cfg["heat_prices"] = heat_prices(
+            source, own, grid_only,
+            float(cfg.get("compare_gas") or 0), float(cfg.get("compare_oil") or 0), float(cfg.get("compare_power") or 0),
+            cop_guess=3.5,
+        )
+
+    async def _outdoor_days(self, start: date, end: date) -> dict[str, float]:
+        """Tagesmittel der Außentemperatur aus der Statistik der eigenen Wetterstation (falls gewählt).
+
+        Raumklima speichert die Außentemperatur erst, seit es läuft – für ältere Tage hilft die
+        Langzeitstatistik eines Außenfühlers (Heizkennlinie, Hochrechnung).
+        """
+        entity = self.hub.opt("outdoor_temp_entity") if self.hub is not None else None
+        if not entity:
+            return {}
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        first = dt_util.as_utc(dt_util.start_of_local_day(start))
+        last = dt_util.as_utc(dt_util.start_of_local_day(end + timedelta(days=1)))
+        try:
+            result = await get_instance(self.hass).async_add_executor_job(
+                statistics_during_period, self.hass, first, last, {entity}, "day", None, {"mean"},
+            )
+        except Exception:  # noqa: BLE001 – dann eben nur Raumklimas eigene Werte
+            return {}
+        out: dict[str, float] = {}
+        for row in result.get(entity) or []:
+            value, stamp = row.get("mean"), row.get("start")
+            if value is None or stamp is None:
+                continue
+            if not isinstance(stamp, datetime):
+                stamp = dt_util.utc_from_timestamp(float(stamp))
+            out[dt_util.as_local(stamp).date().isoformat()] = round(float(value), 1)
+        return out
 
     async def _energy_hours(self, cfg: dict[str, Any], start: date, end: date, factor: float) -> list[dict[str, Any]]:
         """Stundenwerte: Verbrauch Heizung/Warmwasser, Preis, Anteil aus PV/Batterie."""
@@ -632,31 +796,59 @@ class Insights:
             else {}
         )
         electric = cfg["source"] in ("electric", "heatpump")
-        house = grid = {}
+        house = grid = charge = discharge = {}
         if electric and cfg.get("house_entity") and cfg.get("grid_entity"):
             house = await self._stat_rows(cfg["house_entity"], start, end, "change")
             grid = await self._stat_rows(cfg["grid_entity"], start, end, "change")
+            if cfg.get("batt_in_entity") and cfg.get("batt_out_entity"):
+                charge = await self._stat_rows(cfg["batt_in_entity"], start, end, "change")
+                discharge = await self._stat_rows(cfg["batt_out_entity"], start, end, "change")
         keys = sorted(set(meter) | set(ww))
+        price_keys = sorted(set(keys) | set(charge))
         prices: list[dict[float, float]] = []
         for eid in self.hub.tariff_entities():
-            prices.append(await self._price_hours(eid, keys, factor))
+            prices.append(await self._price_hours(eid, price_keys, factor))
         unit_m = self._unit_of(cfg["meter"])
         unit_w = self._unit_of(cfg["ww_meter"]) if cfg.get("ww_meter") else None
         unit_h = self._unit_of(cfg["house_entity"]) if house else None
         unit_g = self._unit_of(cfg["grid_entity"]) if grid else None
+        unit_c = self._unit_of(cfg["batt_in_entity"]) if charge else None
+        unit_d = self._unit_of(cfg["batt_out_entity"]) if discharge else None
+
+        def price_at(ts: float) -> float | None:
+            return next((p[ts] for p in prices if ts in p), None)
+
+        batt_rows: dict[float, dict[str, Any]] = {}
+        if charge or discharge:
+            # Akku: auch Stunden ohne Wärmepumpe zählen, denn dort wird geladen
+            for ts in sorted(set(house) & set(grid)):
+                batt_rows[ts] = {
+                    "ts": ts,
+                    "house": energy_kwh(house[ts], unit_h, 1.0),
+                    "grid": energy_kwh(grid[ts], unit_g, 1.0),
+                    "charge": energy_kwh(charge.get(ts, 0.0), unit_c, 1.0) or 0.0,
+                    "discharge": energy_kwh(discharge.get(ts, 0.0), unit_d, 1.0) or 0.0,
+                    "price": price_at(ts),
+                }
+            cfg["batt"] = battery_shares(list(batt_rows.values()))
         rows = []
         for ts in keys:
-            price = next((p[ts] for p in prices if ts in p), None)
-            share = None
-            if ts in house and ts in grid:
+            share = batt = batt_price = None
+            if ts in batt_rows:
+                share, batt, batt_price = batt_rows[ts]["self"], batt_rows[ts]["batt"], batt_rows[ts]["batt_price"]
+            elif ts in house and ts in grid:
                 share = self_share(energy_kwh(house[ts], unit_h, 1.0), energy_kwh(grid[ts], unit_g, 1.0))
+            local = dt_util.as_local(dt_util.utc_from_timestamp(ts))
             rows.append({
                 "ts": ts,
-                "day": dt_util.as_local(dt_util.utc_from_timestamp(ts)).date().isoformat(),
+                "day": local.date().isoformat(),
+                "local": local,
                 "kwh": energy_kwh(meter.get(ts, 0.0), unit_m, factor, cfg["source"]) or 0.0,
                 "ww": energy_kwh(ww.get(ts, 0.0), unit_w, factor, cfg["source"]) or 0.0,
-                "price": price,
+                "price": price_at(ts),
                 "self": share,
+                "batt": batt,
+                "batt_price": batt_price,
             })
         return rows
 

@@ -191,7 +191,7 @@ Fragen wie „Wie warm ist es im Bad?" oder „Muss ich lüften?" beantwortet ei
 
 ## Neu in 1.1
 
-- **Dashboard:** „Räume“ zuerst, „Energie & Lernen“ als eigener Reiter.
+- **Dashboard:** „Räume“ zuerst, „Energie“ als eigener Reiter, Lernen unter „Verlauf & Lernen“.
 - **Verschattung:** Rollläden bei Sonne/Nacht – automatisch, Empfehlung oder aus.
 - **Fußbodenheizung:** träge Regelung mit Vor-/Rücklauf und Durchfluss-Warnung.
 - **Lernmodell 2.0:** Aufheizrate, Wärmeverlust, Sonneneinfluss; früher Abstopp.

@@ -51,9 +51,63 @@ test("Energiekarte zeigt Zähler, Tarif und Kosten", () => {
   assert.match(html, /84,5/);
   assert.match(html, /27,04/);
   assert.match(html, /sensor\.strom/);
-  assert.match(html, /Basis: Zähler/);
+  assert.match(html, /Jahr ≈ 1\.280 €/);
   assert.match(html, /40 % Eigenverbrauch/);
   assert.doesNotMatch(html, /konnte nicht gezeichnet/);
+});
+
+test("Energiekarte: Wärmepumpe mit Akku, Achsen, Einheiten und Erklärungen", () => {
+  const daily = Array.from({ length: 30 }, (_, i) => ({ date: `2026-11-${String(i + 1).padStart(2, "0")}`, kwh: 15 + (i % 5), ww: 3, cost: 4.5, outdoor: 3 + (i % 6) }));
+  const data = {
+    start: "2026-11-01", end: "2026-11-30", days: 30,
+    energy: {
+      enabled: true, meter: "sensor.wp", source: "heatpump", price: 0.37, tariff: "sensor.p", tariff_dynamic: true,
+      kwh: 438, ww_kwh: 91, heat_kwh: 2250, ww_heat_kwh: 254, cop: 5.1, cop_vendor: 4.3, cop_ww: 2.8,
+      price_paid: 0.374, price_avg: 0.394, cheap_share: 36, self_kwh: 241, batt_kwh: 30,
+      pv_kwh: 558, feed_kwh: 257, batt: { charge: 120, discharge: 110, grid_charge: 40, grid_charge_cost: 10 },
+      daily, curve: { per_kelvin: 2.9, intercept: 39, limit: 13.6, r2: 0.6, n: 14, points: [{ t: 4, kwh: 28 }, { t: 7, kwh: 19 }] },
+      week: { kwh: Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => 0.8)), price: Array.from({ length: 24 }, (_, h) => 0.3 + h / 200) },
+      heat_prices: [{ id: "own", ct: 4.3 }, { id: "own_grid", ct: 8.7 }, { id: "gas", ct: 12.2 }], compare_gas: 0.11, compare_oil: 1.1,
+      tariff_saving: 5.8, shift_eur: 12,
+      tariffs: [{ entity: "sensor.p", name: "Heartbeat Electricity Price", value: 0.447, primary: true, active: true, forecast: 120 }, { entity: "sensor.e", name: "EPEX Spot · SMARD.de", value: 0.458, primary: false, active: false }],
+    },
+    money: { period_cost: 122.58, per_day: 4.09, annual: 1090, annual_basis: "12m", basis: "meter", parts: { heat: 89.25, ww: 18.55, base: 14.78, pv_saved: 90 },
+      rooms: [{ name: "Flur", share: 35, cost: 35.7, value: 120, metric: "valve" }, { name: "Bad", share: 8, cost: 7.7, value: 30, metric: "valve" }, { name: "Büro", share: 10, cost: 9, value: 35, metric: "valve" }, { name: "Küche", share: 12, cost: 11, value: 40, metric: "valve" }, { name: "Gast", share: 14, cost: 13, value: 45, metric: "valve" }, { name: "Kind", share: 21, cost: 20, value: 60, metric: "valve" }] },
+  };
+  let html = energyCard(data);
+  assert.match(html, /Heizung 438 kWh · Warmwasser 91 kWh/);
+  assert.match(html, /4,3 – 5,1/);
+  assert.match(html, /10 kWh/); // Achse
+  assert.match(html, /°C<\/span>/);
+  assert.match(html, /Wohin geht das Geld/);
+  assert.match(html, /Wann läuft die Wärmepumpe/);
+  assert.match(html, /Heizkennlinie/);
+  assert.match(html, /13,6 °C Tagesmittel/);
+  assert.match(html, /Was kostet 1 kWh Wärme/);
+  assert.match(html, /aus dem Netz geladen/);
+  assert.match(html, /Flur: 35 %/);
+  assert.match(html, /Jahr ≈ 1\.090 € \(letzte 12 Monate\)/);
+  assert.doesNotMatch(html, /class="ehelp"/);
+  // „?“ öffnet die Erklärung
+  setLang(hass);
+  const card = new RaumklimaEnergyCard();
+  card.setConfig({ days: 30 });
+  card._hass = hass; card._data = data; card._help = new Set(["cop"]); card._sel = 3;
+  card._render();
+  html = card.shadowRoot.innerHTML;
+  assert.match(html, /class="ehelp">Arbeitszahl: wie viel Wärme/);
+  assert.match(html, /class="esel"/);
+});
+
+test("Energiekarte: Gas ohne PV zeigt keine PV- und Arbeitszahl-Blöcke", () => {
+  const html = energyCard({
+    start: "2026-11-08", end: "2026-11-14", days: 7,
+    energy: { enabled: true, meter: "sensor.gas", source: "gas", price: 0.12, kwh: 300, m3: 30, heat_prices: [{ id: "own", ct: 13.3 }, { id: "heatpump", ct: 8.6 }], compare_power: 0.3 },
+    money: { period_cost: 40, basis: "meter" },
+  });
+  assert.doesNotMatch(html, /PV &amp; Akku|PV & Akku/);
+  assert.doesNotMatch(html, /Arbeitszahl/);
+  assert.match(html, /Wärmepumpe \(30 ct Strom, JAZ 3,5\)/);
 });
 
 test("Energiekarte erklärt fehlende Zähler", () => {
@@ -140,7 +194,7 @@ test("Lernkarte zeigt Aufheizrate, Nutzung und Lüften", () => {
   assert.doesNotMatch(html, /konnte nicht gezeichnet/);
 });
 
-test("Dashboard beginnt mit Räume; Energie & Lernen ist der zweite Reiter", async () => {
+test("Dashboard beginnt mit Räume; Energie ist der zweite Reiter, Lernen liegt unter Verlauf", async () => {
   const dashHass = {
     language: "de",
     locale: { language: "de", number_format: "language" },
@@ -156,5 +210,7 @@ test("Dashboard beginnt mit Räume; Energie & Lernen ist der zweite Reiter", asy
   assert.equal(insights.path, "energie-lernen");
   const insightCards = insights.sections.flatMap((s) => s.cards).map((c) => c.type);
   assert.ok(insightCards.includes("custom:raumklima-energy-card"));
-  assert.ok(insightCards.includes("custom:raumklima-learning-card"));
+  assert.ok(!insightCards.includes("custom:raumklima-learning-card"));
+  const hist = dash.views.find((v) => v.path === "verlauf");
+  assert.ok(hist.sections.flatMap((s) => s.cards).some((c) => c.type === "custom:raumklima-learning-card"));
 });

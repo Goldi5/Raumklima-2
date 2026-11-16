@@ -195,7 +195,7 @@ Questions such as “How warm is it in the bathroom?” or “Do I need to air?�
 
 ## New in 1.1
 
-- **Dashboard:** “Rooms” first, “Energy & learning” as a separate tab.
+- **Dashboard:** “Rooms” first, “Energy” as a separate tab, learning under “History & learning”.
 - **Shading:** blinds in sun/night – automatic, advice or off.
 - **Underfloor heating:** slow control with flow/return and flow warning.
 - **Learning model 2.0:** heat-up rate, heat loss, solar gain; earlier stop.

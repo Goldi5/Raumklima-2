@@ -336,7 +336,7 @@ Sous *Réglages → Général → Énergie et tarifs*, quatre étapes guident la
 3. **Combien coûte le kWh ?** Une **source de prix** (idéalement le capteur de votre fournisseur) et des **réserves** (p. ex. EPEX Spot) qui prennent le relais. Avec un tarif dynamique, chaque heure compte à son propre prix. Si le capteur ne donne que le prix de bourse, passer en HT et saisir frais de réseau et taxes – ils changent chaque 1er janvier.
 4. **Comparaison avec la climatisation :** seulement le COP ; le prix de l’électricité vient de l’étape 3.
 
-Le tableau de bord *Énergie* affiche coûts et prévision, consommation (chauffage + eau chaude), rendement, prix moyen payé, barres journalières avec température extérieure, courbe de prix, coût par pièce, sources de prix et indications sur la qualité des données.
+L’onglet *Énergie* montre en haut les chiffres clés – coûts (chiffre annuel par degrés-jours ou les 12 derniers mois du compteur), consommation, chaleur produite, rendement (mesuré et selon la PAC), prix moyen payé et électricité du PV et de la batterie. Dessous : **où va l’argent**, **consommation par jour** (par mois à partir de 60 jours) avec axes kWh et °C – touche une barre pour le jour, **prix de l’électricité aujourd’hui et demain** avec les trois heures les moins chères, **quand la PAC tourne** (jour × heure avec prix moyen), la **courbe de chauffe** de ta maison, **combien coûte 1 kWh de chaleur** comparé au gaz, au fioul ou à une PAC, **PV et batterie** – avec les capteurs « chargée »/« déchargée », l’électricité chargée la nuit sur le réseau compte au prix de charge – et le **coût par pièce** avec heures de vanne. Chaque **?** ouvre une courte explication. Les blocs n’apparaissent que si les données existent. La carte d’apprentissage se trouve maintenant dans l’onglet *Historique et apprentissage*.
 
 ### Fioul et réservoir
 
@@ -482,7 +482,7 @@ sont enregistrés – l'année n'a pas d'importance.
 
 ## Nouveau en 1.1
 
-- **Tableau de bord :** « Pièces » est la première vue ; énergie et apprentissage sont dans l’onglet « Énergie et apprentissage ».
+- **Tableau de bord :** « Pièces » est la première vue ; l’énergie a son propre onglet, l’apprentissage est dans « Historique et apprentissage ».
 - **Ombrage :** les volets bougent au soleil et la nuit – automatique, conseil seulement ou arrêt. Si une fenêtre ou porte de la pièce est ouverte, rien ne se ferme. Fermé pour le soleil, il ne rouvre que 1 K (dehors 2 K) sous les seuils.
 - **Plancher chauffant :** régulation propre, lente, avec départ/retour et alerte de débit.
 - **Modèle d’apprentissage 2.0 :** apprend la vitesse de montée, la perte de chaleur et l’apport solaire ; s’arrête plus tôt avant la consigne.

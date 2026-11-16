@@ -575,6 +575,13 @@ CONF_ENERGY_HOUSE: Final = "energy_house_entity"  # Hausverbrauch gesamt (kWh)
 CONF_ENERGY_GRID: Final = "energy_grid_entity"  # Strombezug aus dem Netz (kWh)
 CONF_ENERGY_METER_SCOPE: Final = "energy_meter_scope"  # heating = nur Heizung, total = Heizung + Warmwasser
 ENERGY_METER_SCOPES: Final = ("heating", "total")
+CONF_ENERGY_BATT_IN: Final = "energy_battery_in_entity"  # Akku geladen gesamt (kWh)
+CONF_ENERGY_BATT_OUT: Final = "energy_battery_out_entity"  # Akku entladen gesamt (kWh)
+CONF_ENERGY_FEED: Final = "energy_feed_entity"  # Einspeisung ins Netz gesamt (kWh)
+CONF_ENERGY_HEAT_ELEC: Final = "energy_heat_elec_entity"  # Strom fürs Heizen laut Wärmepumpe (kWh)
+CONF_ENERGY_CMP_GAS: Final = "energy_compare_gas"  # Vergleich: Gaspreis €/kWh
+CONF_ENERGY_CMP_OIL: Final = "energy_compare_oil"  # Vergleich: Heizölpreis €/L
+CONF_ENERGY_CMP_POWER: Final = "energy_compare_power"  # Vergleich: Strompreis €/kWh für eine Wärmepumpe
 CONF_ENERGY_BASE_SHARE: Final = "energy_base_share"  # Grundgebühr: full = ganz Heizung, usage = nach Anteil
 ENERGY_BASE_SHARES: Final = ("full", "usage")
 ENERGY_SOURCES: Final = ("auto", "electric", "gas", "heatpump", "district", "oil")

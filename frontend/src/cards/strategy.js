@@ -73,12 +73,12 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
     if (!weather) weather = Object.keys(hass.states).find((id) => id.startsWith("weather."));
 
     const overviewCard = { type: "custom:raumklima-overview-card", ...H, title: config.title || t("Heizung"), weather, strip_prefix: prefix, grid_options: { columns: "full" } };
-    // Energie und Lernen sind eigene Auswertungen – sie liegen in einem eigenen Reiter.
+    // Energie hat den Reiter für sich (der Pfad bleibt, damit Lesezeichen weiter passen).
+    // „Lernen“ beschreibt die Räume über die Zeit – es liegt jetzt unter „Verlauf“.
     const insightsView = {
-      title: t("Energie & Lernen"), path: "energie-lernen", icon: "mdi:chart-donut", type: "sections", max_columns: 3,
+      title: t("Energie"), path: "energie-lernen", icon: "mdi:lightning-bolt", type: "sections", max_columns: 3,
       sections: [
         { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-energy-card", ...H, days: config.energy_days || 30, grid_options: { columns: "full" } }] },
-        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-learning-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] },
       ],
     };
 
@@ -96,12 +96,13 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
 
     const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });
     const historyView = {
-      title: t("Verlauf"), path: "verlauf", icon: "mdi:chart-line", type: "sections", max_columns: 3,
+      title: t("Verlauf & Lernen"), path: "verlauf", icon: "mdi:chart-line", type: "sections", max_columns: 3,
       sections: [
         ...(weather ? [{ type: "grid", column_span: 3, cards: [{ type: "weather-forecast", entity: weather, forecast_type: "hourly", show_current: true, show_forecast: true, grid_options: { columns: "full" } }] }] : []),
         { type: "grid", column_span: 3, cards: [hist("temperature")] },
         { type: "grid", column_span: 3, cards: [hist("humidity")] },
         { type: "grid", column_span: 3, cards: [hist("timeline")] },
+        { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-learning-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] },
       ],
     };
 

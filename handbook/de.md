@@ -338,7 +338,18 @@ Unter *Einstellungen → Allgemein → Energie & Tarife* führen vier Schritte d
 3. **Was kostet die kWh?** Eine **Preisquelle** (am besten der Sensor deines Anbieters, z. B. 1KOMMA5°, Tibber) und beliebig viele **Reserven** (z. B. EPEX Spot), die einspringen, wenn die Hauptquelle nichts liefert. Bei dynamischem Tarif zählt jede Stunde mit ihrem eigenen Preis. Liefert der Sensor nur den Börsenpreis: unter *Preis ohne Steuern und Netzentgelt?* auf netto stellen und Netzentgelt & Abgaben eintragen – Netzentgelte ändern sich jedes Jahr zum 1. Januar.
 4. **Vergleich mit Klimagerät:** nur die Leistungszahl (COP); der Strompreis kommt aus Schritt 3.
 
-Das Dashboard *Energie* zeigt Kosten mit Hochrechnung, Verbrauch (Heizung + Warmwasser), Arbeitszahl, bezahlten Durchschnittspreis, Tagesbalken mit Außentemperatur, die Strompreis-Kurve, Kosten je Raum, die Preisquellen und kleine Hinweise zur Datenqualität. Die Sensor-Details liegen eingeklappt darunter.
+Der Reiter *Energie* zeigt oben die Kennzahlen – Kosten (mit Jahreszahl aus Gradtagen oder den letzten 12 Monaten des Zählers), Verbrauch, erzeugte Wärme, Arbeitszahl (gemessen und laut Wärmepumpe), bezahlter Ø-Preis und Strom aus PV & Akku. Darunter:
+
+- **Wohin geht das Geld?** – Heizung, Warmwasser, Grundgebühr und was PV/Akku erspart haben.
+- **Verbrauch pro Tag** (ab 60 Tagen pro Monat) mit kWh- und °C-Achse; ein Balken antippen zeigt den Tag.
+- **Strompreis heute & morgen** mit „jetzt“-Strich und den günstigsten drei Stunden.
+- **Wann läuft die Wärmepumpe?** – Wochentag × Stunde, darunter der Ø-Preis je Stunde.
+- **Heizkennlinie deines Hauses** – Verbrauch gegen Außentemperatur: was jedes Grad Kälte kostet und ab wann das Haus nicht mehr heizen müsste.
+- **Was kostet 1 kWh Wärme?** – deine Heizung im Vergleich mit Gas, Öl oder Wärmepumpe (Vergleichspreise einstellbar), dazu was der dynamische Tarif gespart hat.
+- **PV & Akku** – wohin der Solarstrom ging. Mit den Akku-Sensoren „geladen“ und „entladen“ erkennt Raumklima, wenn der Akku nachts aus dem Netz lädt; dieser Strom zählt dann zum Ladepreis und nicht als kostenlos.
+- **Wer verbraucht die Wärme?** mit Ventilstunden und Hinweis bei auffälligen Räumen, **Preisquellen**.
+
+Jedes **?** öffnet eine kurze Erklärung. Blöcke erscheinen nur, wenn die Daten da sind – ohne PV kein PV-Block, bei Öl Tank und Liter statt Strompreis. Die Lernkarte liegt jetzt im Reiter *Verlauf & Lernen*.
 
 ### Heizöl und Tank
 
@@ -487,7 +498,7 @@ Jahr ist egal.
 
 ## Neu in 1.1
 
-- **Dashboard:** „Räume“ ist die erste Ansicht; Energie und Lernen liegen im eigenen Reiter „Energie & Lernen“.
+- **Dashboard:** „Räume“ ist die erste Ansicht; Energie hat einen eigenen Reiter, „Lernen“ liegt unter „Verlauf & Lernen“.
 - **Verschattung:** Rollläden und Jalousien fahren bei Sonne und nachts – automatisch, nur als Empfehlung oder aus. Ist ein Fenster oder eine Tür des Raums offen, fährt nichts zu (Aussperren). Wegen Sonne geschlossen öffnet erst 1 K (draußen 2 K) unter den Grenzen wieder.
 - **Fußbodenheizung:** eigene, träge Regelcharakteristik mit Vor-/Rücklauf und Durchfluss-Warnung.
 - **Lernmodell 2.0:** lernt Aufheizrate, Wärmeverlust und Sonneneinfluss; stoppt früher vor dem Ziel.

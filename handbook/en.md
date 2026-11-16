@@ -337,7 +337,7 @@ Under *Settings → General → Energy & tariffs* four steps guide you through t
 3. **What does a kWh cost?** One **price source** (ideally your supplier’s sensor, e.g. 1KOMMA5°, Tibber) plus any number of **fallbacks** (e.g. EPEX Spot) that step in when the main source delivers nothing. With a dynamic tariff every hour counts at its own price. If the sensor only delivers the exchange price, set net under *Price without taxes and grid fees?* and enter grid fee & levies – grid fees change every 1 January.
 4. **Comparison with air conditioner:** only the COP; the electricity price comes from step 3.
 
-The *Energy* dashboard shows costs with forecast, consumption (heating + hot water), efficiency, average price paid, daily bars with outdoor temperature, the price curve, cost per room, the price sources and data-quality hints. Sensor details are collapsed below.
+The *Energy* tab shows the key figures at the top – costs (yearly figure from degree days or the meter’s last 12 months), consumption, heat produced, efficiency (measured and according to the heat pump), average price paid and power from PV & battery. Below: **where the money goes**, **consumption per day** (per month from 60 days) with kWh and °C axes – tap a bar for the day, **power price today & tomorrow** with the cheapest three hours, **when the heat pump runs** (weekday × hour with average price), your house’s **heating curve** (what each degree of cold costs, heating limit), **what 1 kWh of heat costs** compared with gas, oil or a heat pump, **PV & battery** – with the battery “charged”/“discharged” sensors, power charged from the grid at night counts at the charging price instead of being free – and **cost per room** with valve hours and a hint for rooms that stand out. Every **?** opens a short explanation. Blocks only appear when the data exists. The learning card now lives in the *History & learning* tab.
 
 ### Heating oil and tank
 
@@ -481,7 +481,7 @@ does not matter.
 
 ## New in 1.1
 
-- **Dashboard:** “Rooms” is the first view; energy and learning are in their own “Energy & learning” tab.
+- **Dashboard:** “Rooms” is the first view; energy has its own tab, learning is under “History & learning”.
 - **Shading:** blinds move in sun and at night – automatic, advice only or off. If a window or door of the room is open, nothing closes (no lock-out). Closed for sun, it reopens only 1 K (outside 2 K) below the limits.
 - **Underfloor heating:** own slow control characteristic with flow/return and flow warning.
 - **Learning model 2.0:** learns heat-up rate, heat loss and solar gain; stops earlier before target.
