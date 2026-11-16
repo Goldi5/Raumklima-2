@@ -130,6 +130,13 @@ class DehumidifierManager:
             self._last_seen = None
             return
 
+        # Laufzeit auch zählen, wenn jemand von Hand eingeschaltet hat – die Karte zeigt „seit …“
+        if state.state == "on" and self._on_since is None:
+            recent = self._last_cmd_on and self._last_cmd_at and now - self._last_cmd_at < timedelta(minutes=5)
+            self._on_since = self._last_cmd_at if recent else now
+        elif state.state != "on":
+            self._on_since = None
+
         # Auf eine bestätigte Änderung warten: keine Fremdbedienung vermuten.
         if self._expecting and self._expect_at and now < self._expect_at:
             if state.state == self._expecting:
@@ -157,13 +164,6 @@ class DehumidifierManager:
                 self._command(False, now, "window")
             self._on_since = None
             return
-
-        # Laufzeit auch zählen, wenn jemand von Hand eingeschaltet hat – die Karte zeigt „seit …“
-        if is_on and self._on_since is None:
-            recent = self._last_cmd_on and self._last_cmd_at and now - self._last_cmd_at < timedelta(minutes=5)
-            self._on_since = self._last_cmd_at if recent else now
-        elif not is_on:
-            self._on_since = None
 
         if self._manual_until and now < self._manual_until:
             return
