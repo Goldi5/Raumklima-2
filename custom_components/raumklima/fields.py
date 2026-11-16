@@ -50,6 +50,8 @@ NUM: dict[str, NumField] = {
     "setback_long": NumField(" °C", 0.5, 8, 22, 1, 'float', 8, 22),
     "preheat_lead_min": NumField(" min", 15, 15, 360, 0, 'int', 0, 360),
     "mold_cap": NumField(" K", 0.5, 0, 6, 1, 'float', 0, 6),
+    "dehumidifier_on": NumField(" %", 1, 30, 90, 0, 'float', 20, 95, nullable=True),
+    "dehumidifier_off": NumField(" %", 1, 20, 90, 0, 'float', 20, 95, nullable=True),
     "energy_base": NumField(" €", 1, 0, 1000, 2, 'float', 0, 1000),
     "energy_price": NumField(" €", 0.01, 0, 2, 2, 'float', 0, 2),
     "energy_cheap_price": NumField(" €", 0.01, 0, 2, 2, 'float', 0, 2),

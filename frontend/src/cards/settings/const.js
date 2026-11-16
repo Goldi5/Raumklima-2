@@ -68,7 +68,7 @@ export const ROOM_APPLY_KEYS = [
   "window_open_delay", "window_close_delay",
   "preheat_mode", "preheat_lead_min", "preheat_not_before", "quiet_mode",
   "night_airing", "virtual_window", "solar_gain",
-  "mold_mode", "mold_cap", "wall", "cooling", "cool_setpoint", "ac_min_on", "ac_min_off",
+  "mold_mode", "mold_cap", "dehumidifier_on", "dehumidifier_off", "wall", "cooling", "cool_setpoint", "ac_min_on", "ac_min_off",
   "shading_mode", "shading_position", "shading_min_temp", "shading_outdoor_min",
   "shading_night", "shading_manual_minutes",
   "floor_heating", "floor_max_temp", "floor_min_temp", "floor_band",

@@ -213,7 +213,16 @@ export const SETTINGS_STYLES = `
   .tabs.homes { margin-bottom:0; } .tabs.homes .tab { font-size:1.02rem; }
   .tabs.roomsub { margin:6px -4px 2px; }
   .tabs.roomsub .tab { padding:8px 14px; font-size:.88rem; }
-  .searching .roomsub, .searching .resetbar { display:none; }
+  .roomhead { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; margin:12px -4px 0; padding:10px 12px;
+    border-radius:14px; border-left:4px solid var(--c, var(--rk-heat));
+    background:color-mix(in srgb, var(--card-background-color, #fff) 88%, var(--c, var(--rk-heat)));
+    box-shadow:0 4px 14px color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .roomhead .dot { flex:none; width:11px; height:11px; border-radius:50%; background:var(--c, var(--rk-heat)); }
+  .roomhead small { display:block; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--secondary-text-color); }
+  .roomhead b { display:block; font-size:1.18rem; line-height:1.15; color:var(--primary-text-color); }
+  .roomhead .rhome { margin-left:auto; max-width:45%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-size:.78rem; color:var(--secondary-text-color); }
+  .searching .roomhead, .searching .roomsub, .searching .resetbar { display:none; }
   .issue[data-goto-room] { cursor:pointer; }
   .issue[data-goto-room]:focus-visible { outline:2px solid var(--rk-air); outline-offset:2px; }
   button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid var(--rk-air); outline-offset:2px; }

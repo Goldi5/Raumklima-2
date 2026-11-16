@@ -153,7 +153,7 @@ Lüften lohnt sich nur, wenn die Luft draußen trockener ist. Raumklima rechnet 
 
 ### Entfeuchter
 
-Ein Entfeuchter lässt sich direkt schalten – als Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät. Raumklima schaltet ihn ab der Feuchtegrenze ein und 5 % darunter wieder aus. Bei offenem Fenster bleibt er aus. Läuft er, verzichtet der Schimmelschutz auf den Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.
+Ein Entfeuchter lässt sich direkt schalten – als Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät. Raumklima schaltet ihn ab der eigenen Einschaltschwelle ein und unter der Ausschaltschwelle wieder aus. Beide Schwellen stehen unter **Raum → Lüften & Feuchte** und sind unabhängig vom Lüfthinweis; ohne eigene Wahl gilt die Feuchtegrenze und 5 % darunter. Bei offenem Fenster bleibt er aus. Läuft er, verzichtet der Schimmelschutz auf den Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.
 
 ### Feinstaub (PM2,5)
 
@@ -361,7 +361,7 @@ Unsicher? Lass die Standardwerte stehen. Sie folgen den Empfehlungen von Verbrau
 | **Allgemein → Nacht & Ruhezeit** | Raumklima lernt, wann ihr schlaft |
 | **Raum → Temperatur** | Wunschtemperatur, Absenkung; eingeklappt: Vorheizen, Nachtabsenkung, Sonnenseite |
 | **Raum → Schimmelschutz** | Stufe; eingeklappt: Deckel, Bauart des Raums |
-| **Raum → Lüften & Feuchte** | Feuchtegrenze, Entfeuchter, Mindesttemperatur beim Lüften |
+| **Raum → Lüften & Feuchte** | Feuchtegrenze, Entfeuchter mit eigener Ein-/Ausschaltschwelle, Mindesttemperatur beim Lüften |
 | **Raum → Fenster** | Pause bei offenem Fenster, Schlafen bei offenem Fenster |
 | **Raum → Präsenzmelder** | Melder, leeren Raum absenken |
 | **Raum → Lichtsignal** | Lampen, die bei Hinweisen blinken |

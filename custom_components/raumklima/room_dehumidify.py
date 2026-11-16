@@ -2,7 +2,8 @@
 
 Die Steuerung ist absichtlich schlau, aber nicht überladen:
 
-* an ab der Raum-Feuchtegrenze, aus fünf Prozent darunter (Hysterese)
+* an ab einer eigenen Einschaltschwelle (Standard: Raum-Feuchtegrenze)
+* aus unter einer eigenen Ausschaltschwelle (Standard: fünf Prozent darunter)
 * mindestens zehn Minuten laufen und zehn Minuten pausieren (Kompressorschutz)
 * bei offenem Fenster oder fehlendem Feuchtewert ausschalten
 * nach drei Stunden ohne Besserung den Schimmelschutz wieder zulassen (Heizung als Rückfall)
@@ -17,7 +18,7 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_DEHUMIDIFIER
+from .const import CONF_DEHUMIDIFIER, CONF_DEHUMIDIFIER_OFF, CONF_DEHUMIDIFIER_ON
 from .decision_log import CAT_DEVICE
 from .msg import tr
 
@@ -53,9 +54,28 @@ class DehumidifierManager:
         return self.c.config.get(CONF_DEHUMIDIFIER) or None
 
     @property
-    def limit(self) -> float:
+    def room_limit(self) -> float:
         """Feuchtegrenze des Raums – dieselbe Zahl wie beim Lüfthinweis."""
         return float(self.c.vent.humidity_limit)
+
+    @property
+    def on_limit(self) -> float:
+        """Einschaltschwelle; ohne eigene Wahl gilt die Raum-Feuchtegrenze."""
+        value = self.c.config.get(CONF_DEHUMIDIFIER_ON)
+        return float(value) if value is not None else self.room_limit
+
+    @property
+    def off_limit(self) -> float:
+        """Ausschaltschwelle; ohne eigene Wahl fünf Prozent unter dem Einschalten."""
+        value = self.c.config.get(CONF_DEHUMIDIFIER_OFF)
+        off = float(value) if value is not None else self.on_limit - HYSTERESIS
+        # Eine Ausschaltschwelle auf oder über dem Einschalten würde dauerhaft laufen.
+        return min(off, self.on_limit - 1.0)
+
+    @property
+    def limit(self) -> float:
+        """Bisheriger Name für die Einschaltschwelle (Karte, Protokoll)."""
+        return self.on_limit
 
     @property
     def humidity(self) -> float | None:
@@ -144,25 +164,25 @@ class DehumidifierManager:
         if is_on:
             if self._on_since is None:
                 self._on_since = self._last_cmd_at if self._last_cmd_on and self._last_cmd_at else now
-            if (now - self._on_since) >= timedelta(minutes=MAX_RUN) and hum > self.limit - HYSTERESIS:
+            if (now - self._on_since) >= timedelta(minutes=MAX_RUN) and hum > self.off_limit:
                 if not self._maxed:
                     self._maxed = True
                     self.c.log(
                         CAT_DEVICE,
                         tr("Entfeuchter läuft seit {m} min ohne Besserung – Heizung schützt weiter", m=MAX_RUN),
-                        tr("Feuchte {h} % bleibt über {l} %", h=f"{hum:.0f}", l=f"{self.limit - HYSTERESIS:.0f}"),
+                        tr("Feuchte {h} % bleibt über {l} %", h=f"{hum:.0f}", l=f"{self.off_limit:.0f}"),
                         level="warn",
                     )
             else:
                 self._maxed = False
         else:
             self._on_since = None
-            if hum < self.limit - HYSTERESIS:
+            if hum < self.off_limit:
                 self._maxed = False
 
-        if not is_on and hum >= self.limit and not self._maxed and self._ready_start(now):
+        if not is_on and hum >= self.on_limit and not self._maxed and self._ready_start(now):
             self._command(True, now, "humidity")
-        elif is_on and hum <= self.limit - HYSTERESIS and (
+        elif is_on and hum <= self.off_limit and (
             self._on_since is None or now - self._on_since >= timedelta(minutes=MIN_ON)
         ):
             self._command(False, now, "humidity")
@@ -190,9 +210,10 @@ class DehumidifierManager:
             self._off_since = now
         title = tr("Entfeuchter an") if on else tr("Entfeuchter aus")
         body = tr(
-            "Feuchte {h} % · Schwelle {l} %",
+            "Feuchte {h} % · an {on} % / aus {off} %",
             h=f"{self.humidity or 0:.0f}",
-            l=f"{self.limit:.0f}",
+            on=f"{self.on_limit:.0f}",
+            off=f"{self.off_limit:.0f}",
         )
         self.c.log(CAT_DEVICE, title, body)
         self.hass.async_create_task(self._call(entity, on))
@@ -232,5 +253,8 @@ class DehumidifierManager:
             "since": self._on_since.isoformat() if self._on_since else None,
             "maxed": self._maxed,
             "manual_until": self._manual_until.isoformat() if self._manual_until else None,
-            "limit": self.limit,
+            "room_limit": self.room_limit,
+            "on_limit": self.on_limit,
+            "off_limit": self.off_limit,
+            "limit": self.on_limit,
         }

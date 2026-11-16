@@ -1,3 +1,13 @@
+## 1.3.4b1 – 2026-11-16
+
+### Neu
+- **Entfeuchter mit eigenen Schwellen:** Einschalten und Ausschalten lassen sich je Raum getrennt einstellen – unabhängig vom Lüfthinweis. Ohne eigene Wahl gilt weiterhin die Feuchtegrenze und 5 % darunter; die Ausschaltschwelle bleibt immer mindestens 1 % unter dem Einschalten.
+- **Aktueller Raum im Kopf:** Die Raumeinstellungen zeigen oben dauerhaft Raumname und Wohnung – auch beim Scrollen.
+
+### Tests
+- Getrennte Ein-/Ausschaltschwelle 65/55, Begrenzung einer zu hohen Ausschaltschwelle und Validierung im Raum-Update.
+- Karte zeigt beide Schwellen samt Rückfallwerten und blendet den Raumkopf in der Suche aus.
+
 ## 1.3.3b1 – 2026-11-16
 
 ### Neu

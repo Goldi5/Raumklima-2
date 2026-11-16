@@ -14,6 +14,8 @@ from .const import (
     CONF_CALIBRATION_MODE,
     CONF_CO2_SENSOR,
     CONF_COMFORT_TEMP,
+    CONF_DEHUMIDIFIER_OFF,
+    CONF_DEHUMIDIFIER_ON,
     CONF_ENTRY_TYPE,
     CONF_EXTRA_TRVS,
     CONF_FLOOR_RETURN,
@@ -94,6 +96,16 @@ async def ws_room_update(hass: HomeAssistant, connection: websocket_api.ActiveCo
     except vol.Invalid as err:
         connection.send_error(msg["id"], "invalid", str(err))
         return
+    if CONF_DEHUMIDIFIER_ON in changes or CONF_DEHUMIDIFIER_OFF in changes:
+        merged = {**(entry.data or {}), **(entry.options or {}), **changes}
+        on = merged.get(CONF_DEHUMIDIFIER_ON)
+        off = merged.get(CONF_DEHUMIDIFIER_OFF)
+        controller = domain_data(hass)["rooms"].get(entry.entry_id)
+        if on is None and controller is not None:
+            on = controller.dehumidifier.room_limit
+        if on is not None and off is not None and float(off) >= float(on):
+            connection.send_error(msg["id"], "invalid", tr("Die Ausschaltschwelle muss unter der Einschaltschwelle liegen"))
+            return
     # Raumtyp geändert: Standardwerte des neuen Typs übernehmen, eigene Werte behalten
     adjusted: dict[str, float] = {}
     if CONF_ROOM_TYPE in changes:

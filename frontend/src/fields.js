@@ -27,6 +27,8 @@ export const RK_NUM = {
   setback_long: { unit: " °C", step: 0.5, min: 8, max: 22, dec: 1 },
   preheat_lead_min: { unit: " min", step: 15, min: 15, max: 360, dec: 0 },
   mold_cap: { unit: " K", step: 0.5, min: 0, max: 6, dec: 1 },
+  dehumidifier_on: { unit: " %", step: 1, min: 30, max: 90, dec: 0 },
+  dehumidifier_off: { unit: " %", step: 1, min: 20, max: 90, dec: 0 },
   energy_base: { unit: " €", step: 1, min: 0, max: 1000, dec: 2 },
   energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
   energy_cheap_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },

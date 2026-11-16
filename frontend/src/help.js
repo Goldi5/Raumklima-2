@@ -127,9 +127,19 @@ export const HELP = {
   "Letzter Winter (Tage)": ["Zeitraum des letzten Winters in Tagen, damit der Tagesverbrauch stimmt.", "Period of last winter in days so the daily consumption is right.", "Période du dernier hiver en jours pour que la consommation journalière soit correcte."],
   "Preisverlauf": ["Preise, die beim Ändern des Ölpreises automatisch notiert werden. Der letzte Wert gilt für die Kostenschätzung.", "Prices recorded automatically when the oil price changes. The latest value is used for the cost estimate.", "Prix notés automatiquement lors du changement du prix du fioul. La dernière valeur sert à l’estimation des coûts."],
   "Entfeuchter": [
-    "Ein optionaler Luftentfeuchter (Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät). Läuft ab der Feuchtegrenze des Raums und geht fünf Prozent darunter wieder aus. Bei offenem Fenster aus. Während der Entfeuchter läuft, verzichtet Raumklima auf den Schimmelschutz-Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.",
-    "An optional dehumidifier (smart plug/switch, fan or native dehumidifier device). Runs at the room humidity limit and stops 5% below. Off while a window is open. While it runs, Raumklima skips the mold-guard heating boost; after three hours without improvement, the heating protects again.",
-    "Un déshumidificateur facultatif (prise/interrupteur, ventilateur ou appareil natif). Fonctionne au seuil d’humidité de la pièce et s’arrête 5 % en dessous. Arrêt quand une fenêtre est ouverte. Pendant son fonctionnement, Raumklima renonce au coup de chauffage anti-moisissure ; après trois heures sans amélioration, le chauffage protège à nouveau.",
+    "Ein optionaler Luftentfeuchter (Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät). Er schaltet nach den beiden Schwellen darunter, nicht nach dem Lüfthinweis. Bei offenem Fenster aus. Während der Entfeuchter läuft, verzichtet Raumklima auf den Schimmelschutz-Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.",
+    "An optional dehumidifier (smart plug/switch, fan or native dehumidifier device). It switches on the two thresholds below, not on the airing notice. Off while a window is open. While it runs, Raumklima skips the mold-guard heating boost; after three hours without improvement, the heating protects again.",
+    "Un déshumidificateur facultatif (prise/interrupteur, ventilateur ou appareil natif). Il fonctionne selon les deux seuils ci-dessous, pas selon le rappel d’aération. Arrêt quand une fenêtre est ouverte. Pendant son fonctionnement, Raumklima renonce au coup de chauffage anti-moisissure ; après trois heures sans amélioration, le chauffage protège à nouveau.",
+  ],
+  "Entfeuchter an ab": [
+    "Ab dieser Luftfeuchte schaltet der Entfeuchter ein. Ohne eigenen Wert gilt die Feuchtegrenze des Raums. Unabhängig davon, wann „Bitte lüften“ kommt.",
+    "The dehumidifier switches on at this humidity. Without a value of its own, the room's humidity limit applies. Independent of when “please air” appears.",
+    "Le déshumidificateur démarre à cette humidité. Sans valeur propre, le seuil d’humidité de la pièce s’applique. Indépendamment du moment où « Merci d’aérer » apparaît.",
+  ],
+  "Entfeuchter aus unter": [
+    "Darunter schaltet der Entfeuchter wieder aus. Der Wert muss unter der Einschaltschwelle liegen; ohne eigenen Wert sind es fünf Prozent darunter. Die Differenz verhindert häufiges Ein und Aus.",
+    "Below this the dehumidifier switches off again. The value must be below the switch-on threshold; without a value of its own it is five percent below. The gap prevents frequent switching.",
+    "En dessous, le déshumidificateur s’arrête. La valeur doit être inférieure au seuil de démarrage ; sans valeur propre, elle est cinq pour cent en dessous. L’écart évite les commutations fréquentes.",
   ],
   "Schulferien-Kalender": [
     "Ein Kalender mit ganztägigen Ferienterminen. Läuft heute ein Termin, starten Zeitfenster, die vor 12:00 beginnen, um die eingestellte Zeit später – die gespeicherten Zeiten bleiben unverändert.",

@@ -1,4 +1,4 @@
-/* Raumklima 1.3.3b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.3.4b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -310,6 +310,9 @@
     "Schwelle {v} L": "threshold {v} L",
     "Schulferien-Kalender": "School holiday calendar",
     "Entfeuchter": "Dehumidifier",
+    "Entfeuchter an ab": "Dehumidifier on at",
+    "Entfeuchter aus unter": "Dehumidifier off below",
+    "schaltet nach den eigenen Schwellen – nicht bei offenem Fenster": "switches according to its own thresholds – not when a window is open",
     "läuft gerade": "running now",
     "läuft zu lange ohne Besserung – Heizung schützt weiter": "running too long without improvement – heating keeps protecting",
     "an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster": "on at the humidity limit, off 5% below – not with the window open",
@@ -1864,6 +1867,9 @@
     "Schwelle {v} L": "seuil {v} L",
     "Schulferien-Kalender": "Calendrier des vacances scolaires",
     "Entfeuchter": "Déshumidificateur",
+    "Entfeuchter an ab": "Déshumidificateur marche à",
+    "Entfeuchter aus unter": "Déshumidificateur arrêt sous",
+    "schaltet nach den eigenen Schwellen – nicht bei offenem Fenster": "commute selon ses propres seuils – pas lorsqu’une fenêtre est ouverte",
     "läuft gerade": "en marche",
     "läuft zu lange ohne Besserung – Heizung schützt weiter": "tourne trop longtemps sans amélioration – le chauffage continue de protéger",
     "an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster": "en marche au seuil d’humidité, arrêt 5 % en dessous – pas fenêtre ouverte",
@@ -3149,7 +3155,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.3.3b1";
+  var RK_VERSION = "1.3.4b1";
 
   // src/styles.js
   var STYLES = `
@@ -3362,7 +3368,16 @@
   .tabs.homes { margin-bottom:0; } .tabs.homes .tab { font-size:1.02rem; }
   .tabs.roomsub { margin:6px -4px 2px; }
   .tabs.roomsub .tab { padding:8px 14px; font-size:.88rem; }
-  .searching .roomsub, .searching .resetbar { display:none; }
+  .roomhead { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; margin:12px -4px 0; padding:10px 12px;
+    border-radius:14px; border-left:4px solid var(--c, var(--rk-heat));
+    background:color-mix(in srgb, var(--card-background-color, #fff) 88%, var(--c, var(--rk-heat)));
+    box-shadow:0 4px 14px color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+  .roomhead .dot { flex:none; width:11px; height:11px; border-radius:50%; background:var(--c, var(--rk-heat)); }
+  .roomhead small { display:block; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--secondary-text-color); }
+  .roomhead b { display:block; font-size:1.18rem; line-height:1.15; color:var(--primary-text-color); }
+  .roomhead .rhome { margin-left:auto; max-width:45%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-size:.78rem; color:var(--secondary-text-color); }
+  .searching .roomhead, .searching .roomsub, .searching .resetbar { display:none; }
   .issue[data-goto-room] { cursor:pointer; }
   .issue[data-goto-room]:focus-visible { outline:2px solid var(--rk-air); outline-offset:2px; }
   button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid var(--rk-air); outline-offset:2px; }
@@ -5303,9 +5318,19 @@
     "Letzter Winter (Tage)": ["Zeitraum des letzten Winters in Tagen, damit der Tagesverbrauch stimmt.", "Period of last winter in days so the daily consumption is right.", "Période du dernier hiver en jours pour que la consommation journalière soit correcte."],
     "Preisverlauf": ["Preise, die beim Ändern des Ölpreises automatisch notiert werden. Der letzte Wert gilt für die Kostenschätzung.", "Prices recorded automatically when the oil price changes. The latest value is used for the cost estimate.", "Prix notés automatiquement lors du changement du prix du fioul. La dernière valeur sert à l’estimation des coûts."],
     "Entfeuchter": [
-      "Ein optionaler Luftentfeuchter (Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät). Läuft ab der Feuchtegrenze des Raums und geht fünf Prozent darunter wieder aus. Bei offenem Fenster aus. Während der Entfeuchter läuft, verzichtet Raumklima auf den Schimmelschutz-Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.",
-      "An optional dehumidifier (smart plug/switch, fan or native dehumidifier device). Runs at the room humidity limit and stops 5% below. Off while a window is open. While it runs, Raumklima skips the mold-guard heating boost; after three hours without improvement, the heating protects again.",
-      "Un déshumidificateur facultatif (prise/interrupteur, ventilateur ou appareil natif). Fonctionne au seuil d’humidité de la pièce et s’arrête 5 % en dessous. Arrêt quand une fenêtre est ouverte. Pendant son fonctionnement, Raumklima renonce au coup de chauffage anti-moisissure ; après trois heures sans amélioration, le chauffage protège à nouveau."
+      "Ein optionaler Luftentfeuchter (Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät). Er schaltet nach den beiden Schwellen darunter, nicht nach dem Lüfthinweis. Bei offenem Fenster aus. Während der Entfeuchter läuft, verzichtet Raumklima auf den Schimmelschutz-Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.",
+      "An optional dehumidifier (smart plug/switch, fan or native dehumidifier device). It switches on the two thresholds below, not on the airing notice. Off while a window is open. While it runs, Raumklima skips the mold-guard heating boost; after three hours without improvement, the heating protects again.",
+      "Un déshumidificateur facultatif (prise/interrupteur, ventilateur ou appareil natif). Il fonctionne selon les deux seuils ci-dessous, pas selon le rappel d’aération. Arrêt quand une fenêtre est ouverte. Pendant son fonctionnement, Raumklima renonce au coup de chauffage anti-moisissure ; après trois heures sans amélioration, le chauffage protège à nouveau."
+    ],
+    "Entfeuchter an ab": [
+      "Ab dieser Luftfeuchte schaltet der Entfeuchter ein. Ohne eigenen Wert gilt die Feuchtegrenze des Raums. Unabhängig davon, wann „Bitte lüften“ kommt.",
+      "The dehumidifier switches on at this humidity. Without a value of its own, the room's humidity limit applies. Independent of when “please air” appears.",
+      "Le déshumidificateur démarre à cette humidité. Sans valeur propre, le seuil d’humidité de la pièce s’applique. Indépendamment du moment où « Merci d’aérer » apparaît."
+    ],
+    "Entfeuchter aus unter": [
+      "Darunter schaltet der Entfeuchter wieder aus. Der Wert muss unter der Einschaltschwelle liegen; ohne eigenen Wert sind es fünf Prozent darunter. Die Differenz verhindert häufiges Ein und Aus.",
+      "Below this the dehumidifier switches off again. The value must be below the switch-on threshold; without a value of its own it is five percent below. The gap prevents frequent switching.",
+      "En dessous, le déshumidificateur s’arrête. La valeur doit être inférieure au seuil de démarrage ; sans valeur propre, elle est cinq pour cent en dessous. L’écart évite les commutations fréquentes."
     ],
     "Schulferien-Kalender": [
       "Ein Kalender mit ganztägigen Ferienterminen. Läuft heute ein Termin, starten Zeitfenster, die vor 12:00 beginnen, um die eingestellte Zeit später – die gespeicherten Zeiten bleiben unverändert.",
@@ -5957,6 +5982,8 @@
     setback_long: { unit: " °C", step: 0.5, min: 8, max: 22, dec: 1 },
     preheat_lead_min: { unit: " min", step: 15, min: 15, max: 360, dec: 0 },
     mold_cap: { unit: " K", step: 0.5, min: 0, max: 6, dec: 1 },
+    dehumidifier_on: { unit: " %", step: 1, min: 30, max: 90, dec: 0 },
+    dehumidifier_off: { unit: " %", step: 1, min: 20, max: 90, dec: 0 },
     energy_base: { unit: " €", step: 1, min: 0, max: 1e3, dec: 2 },
     energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
     energy_cheap_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
@@ -6094,6 +6121,8 @@
     "solar_gain",
     "mold_mode",
     "mold_cap",
+    "dehumidifier_on",
+    "dehumidifier_off",
     "wall",
     "cooling",
     "cool_setpoint",
@@ -7694,6 +7723,9 @@
       const moldMode = this._roomOpt(r, "mold_mode") ?? s.mold_mode ?? "strict";
       const deh = this._roomOpt(r, "dehumidifier_entity") ?? s.dehumidifier_entity ?? "";
       const dehChoices = this._cfg && this._cfg.choices && this._cfg.choices.dehumidifier || [];
+      const ventLimit = a.humidity_limit ?? (sib.humidity_limit ? this._st(sib.humidity_limit)?.state : null);
+      const dehOn = this._roomOpt(r, "dehumidifier_on") ?? s.dehumidifier_on ?? ventLimit ?? null;
+      const dehOff = this._roomOpt(r, "dehumidifier_off") ?? s.dehumidifier_off ?? (dehOn != null ? Math.max(0, Number(dehOn) - 5) : null);
       const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
       const editable = this._admin && cfgRoom;
       const push = Object.keys(this._cfg && this._cfg.hub && this._cfg.hub.options.recipients || {});
@@ -7701,7 +7733,9 @@
       const rIssues = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).filter((i) => i.entry_id === id);
       const sub = (tab, html) => this._roomSub(tab, html);
       const tabBar = this._nav2 ? `<div class="tabs roomsub">${ROOM_TABS.map((x) => `<button class="tab ${x.id === (this._roomTab || ROOM_TAB_DEFAULT) ? "on" : ""}" data-roomtab="${x.id}"><ha-icon icon="${x.icon}"></ha-icon>${t(x.label)}</button>`).join("")}</div>` : "";
-      return `${tabBar}<div class="groups">
+      const home = a.home_name || (this._cfg && this._cfg.homes || []).find((h) => h.entry_id === a.home)?.name || "";
+      const roomHead = `<div class="roomhead" style="--c:${r.color || "var(--rk-heat)"}"><span class="dot"></span><div><small>${t("Raum")}</small><b>${esc(r.name)}</b></div>${home ? `<span class="rhome">${esc(home)}</span>` : ""}</div>`;
+      return `${roomHead}${tabBar}<div class="groups">
       ${sub("overview", rIssues.length ? this._grp("heating", "Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : "")}
       ${sub("overview", this._roomOverviewGroup(r))}
       ${sub("overview", a.monitor ? this._grp("room", "Überwachung", "mdi:eye-outline", "eco", [
@@ -7819,9 +7853,21 @@
         this._row(
           "Entfeuchter",
           editable ? this._select(scope, "dehumidifier_entity", dehChoices, deh, "– keiner –") : this._v(a.dehumidifier_entity ? esc(this._name(a.dehumidifier_entity)) : "keiner", !a.dehumidifier_entity),
-          a.dehumidifier_active ? t("läuft gerade") : a.dehumidifier_entity && a.dehumidifier_state === "unavailable" ? t("nicht erreichbar") : a.dehumidifier_maxed ? t("läuft zu lange ohne Besserung – Heizung schützt weiter") : t("an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster"),
+          a.dehumidifier_active ? t("läuft gerade") : a.dehumidifier_entity && a.dehumidifier_state === "unavailable" ? t("nicht erreichbar") : a.dehumidifier_maxed ? t("läuft zu lange ohne Besserung – Heizung schützt weiter") : t("schaltet nach den eigenen Schwellen – nicht bei offenem Fenster"),
           this._srcBadge(r, "dehumidifier_entity")
         ),
+        deh && dehOn != null ? this._row(
+          "Entfeuchter an ab",
+          editable ? this._num(scope, "dehumidifier_on", dehOn) : this._v(`${fmt(dehOn, 0)} %`),
+          "eigene Schwelle – unabhängig vom Lüfthinweis „Bitte lüften“",
+          this._srcBadge(r, "dehumidifier_on")
+        ) : "",
+        deh && dehOff != null ? this._row(
+          "Entfeuchter aus unter",
+          editable ? this._num(scope, "dehumidifier_off", dehOff) : this._v(`${fmt(dehOff, 0)} %`),
+          "darunter wieder aus – muss mindestens 1 % unter dem Einschalten liegen",
+          this._srcBadge(r, "dehumidifier_off")
+        ) : "",
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : ""),

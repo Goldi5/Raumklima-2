@@ -250,6 +250,8 @@ test("Neue Navigation: Bereiche, Räume-Liste und Raumdetails", () => {
   const detail = renderRoom((card) => { card._tab = card._rooms[0].id; }, false, true);
   assert.match(detail, /Wunschtemperatur/);
   assert.match(detail, /data-section="rooms"/);
+  assert.match(detail, /class="roomhead"/);
+  assert.match(detail, /<small>Raum<\/small><b>Bad<\/b>/);
 
   const home = renderRoom(() => {}, true, true);
   assert.match(home, /Erste Schritte/);
@@ -348,6 +350,17 @@ test("Quelle hinzufügen: liest die Auswahl neben dem Knopf und löst den Fokus"
   assert.equal(saved.changes.heat_sources[0].entity, "climate.ac");
   assert.equal(saved.changes.heat_sources[0].type, "ac");
   assert.equal(saved.delay, 700);
+});
+
+test("Entfeuchter: eigene Ein- und Ausschaltschwelle in den Raumeinstellungen", () => {
+  const html = renderRoom((card) => {
+    card._cfg.rooms[0].options.dehumidifier_entity = "switch.bad_dehumidifier";
+  });
+  assert.match(html, /Entfeuchter an ab/);
+  assert.match(html, /data-key="dehumidifier_on"/);
+  assert.match(html, /data-key="dehumidifier_on" data-step="1" data-min="30" data-max="90" data-val="75"/);
+  assert.match(html, /Entfeuchter aus unter/);
+  assert.match(html, /data-key="dehumidifier_off" data-step="1" data-min="20" data-max="90" data-val="70"/);
 });
 
 test("Raum-Unterseiten: Leiste zeigt die Bereiche und blendet die Gruppen passend aus", () => {

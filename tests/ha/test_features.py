@@ -220,3 +220,61 @@ async def test_dehumidifier_switches_at_humidity_limit(
         await hass.async_block_till_done()
         assert calls[-1] == "turn_off"
         assert not ctrl.dehumidifier.active
+
+
+async def test_dehumidifier_uses_own_on_and_off_thresholds(
+    hass: HomeAssistant, trv: FakeTrv, sensors, freezer
+) -> None:
+    """Eigene Schwellen: an ab 65 %, aus unter 55 % – unabhängig vom Lüfthinweis."""
+    calls: list[str] = []
+
+    async def _fake_call(self, entity: str, on: bool) -> None:
+        calls.append("turn_on" if on else "turn_off")
+        hass.states.async_set(entity, "on" if on else "off")
+
+    _hub, room = await _setup(
+        hass,
+        dehumidifier_entity="switch.dehumidifier",
+        dehumidifier_on=65,
+        dehumidifier_off=55,
+    )
+    hass.states.async_set("switch.dehumidifier", "off")
+    ctrl = room.runtime_data
+    assert ctrl.dehumidifier.on_limit == 65
+    assert ctrl.dehumidifier.off_limit == 55
+
+    with patch.object(DehumidifierManager, "_call", _fake_call):
+        trv.set(current_humidity=64)
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls == []
+
+        trv.set(current_humidity=66)
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls[-1] == "turn_on"
+        assert ctrl.dehumidifier.active
+
+        freezer.tick(timedelta(minutes=11))
+        trv.set(current_humidity=56)
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls[-1] == "turn_on"
+        assert ctrl.dehumidifier.active
+
+        freezer.tick(timedelta(minutes=11))
+        trv.set(current_humidity=54)
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls[-1] == "turn_off"
+        assert not ctrl.dehumidifier.active
+
+
+def test_dehumidifier_off_threshold_never_reaches_on_threshold() -> None:
+    """Eine versehentlich zu hohe Ausschaltschwelle wird auf 1 % Abstand begrenzt."""
+    ctrl = type("Ctrl", (), {"config": {"dehumidifier_on": 65.0, "dehumidifier_off": 70.0}})
+    ctrl.vent = type("Vent", (), {"humidity_limit": 75.0})()
+    manager = object.__new__(DehumidifierManager)
+    manager.c = ctrl
+    assert manager.on_limit == 65
+    assert manager.off_limit == 64

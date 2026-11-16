@@ -285,9 +285,14 @@ _ROWS: list[tuple[str, str, str]] = [
         "Déshumidificateur arrêté",
     ),
     (
-        "Feuchte {h} % · Schwelle {l} %",
-        "Humidity {h} % · threshold {l} %",
-        "Humidité {h} % · seuil {l} %",
+        "Die Ausschaltschwelle muss unter der Einschaltschwelle liegen",
+        "The switch-off threshold must be below the switch-on threshold",
+        "Le seuil d’arrêt doit être inférieur au seuil de marche",
+    ),
+    (
+        "Feuchte {h} % · an {on} % / aus {off} %",
+        "Humidity {h} % · on {on} % / off {off} %",
+        "Humidité {h} % · marche {on} % / arrêt {off} %",
     ),
     (
         "Entfeuchter läuft seit {m} min ohne Besserung – Heizung schützt weiter",

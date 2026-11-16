@@ -243,6 +243,8 @@ class SettingsMixin:
             "valve": self.valve_summary(),
             "humidity_sensor": cfg.get(CONF_HUMIDITY_SENSOR),
             "dehumidifier_entity": cfg.get(CONF_DEHUMIDIFIER),
+            "dehumidifier_on": self.dehumidifier.on_limit,
+            "dehumidifier_off": self.dehumidifier.off_limit,
             "co2_sensor": self.co2_sensor,
             "pm25_sensor": self.pm25_sensor,
             "temperature_sensor": cfg.get(CONF_TEMP_SENSOR),

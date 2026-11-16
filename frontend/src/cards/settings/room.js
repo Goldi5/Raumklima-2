@@ -38,6 +38,9 @@ export const RoomMethods = {
     const moldMode = this._roomOpt(r, "mold_mode") ?? s.mold_mode ?? "strict";
     const deh = this._roomOpt(r, "dehumidifier_entity") ?? s.dehumidifier_entity ?? "";
     const dehChoices = (this._cfg && this._cfg.choices && this._cfg.choices.dehumidifier) || [];
+    const ventLimit = a.humidity_limit ?? (sib.humidity_limit ? this._st(sib.humidity_limit)?.state : null);
+    const dehOn = this._roomOpt(r, "dehumidifier_on") ?? s.dehumidifier_on ?? ventLimit ?? null;
+    const dehOff = this._roomOpt(r, "dehumidifier_off") ?? s.dehumidifier_off ?? (dehOn != null ? Math.max(0, Number(dehOn) - 5) : null);
         const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
     const editable = this._admin && cfgRoom;
     const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
@@ -45,7 +48,9 @@ export const RoomMethods = {
     const rIssues = ((this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues) || []).filter((i) => i.entry_id === id);
     const sub = (tab, html) => this._roomSub(tab, html);
     const tabBar = this._nav2 ? `<div class="tabs roomsub">${ROOM_TABS.map((x) => `<button class="tab ${x.id === (this._roomTab || ROOM_TAB_DEFAULT) ? "on" : ""}" data-roomtab="${x.id}"><ha-icon icon="${x.icon}"></ha-icon>${t(x.label)}</button>`).join("")}</div>` : "";
-    return `${tabBar}<div class="groups">
+    const home = a.home_name || ((this._cfg && this._cfg.homes) || []).find((h) => h.entry_id === a.home)?.name || "";
+    const roomHead = `<div class="roomhead" style="--c:${r.color || "var(--rk-heat)"}"><span class="dot"></span><div><small>${t("Raum")}</small><b>${esc(r.name)}</b></div>${home ? `<span class="rhome">${esc(home)}</span>` : ""}</div>`;
+    return `${roomHead}${tabBar}<div class="groups">
       ${sub("overview", rIssues.length ? this._grp("heating", "Gesundheit", "mdi:heart-pulse", rIssues.some((i) => i.severity === "alert") ? "cold" : "warn", rkIssueList(rIssues, false), "span") : "")}
       ${sub("overview", this._roomOverviewGroup(r))}
       ${sub("overview", a.monitor ? this._grp("room", "Überwachung", "mdi:eye-outline", "eco", [
@@ -125,9 +130,17 @@ export const RoomMethods = {
               ? t("nicht erreichbar")
               : a.dehumidifier_maxed
                 ? t("läuft zu lange ohne Besserung – Heizung schützt weiter")
-                : t("an ab Feuchtegrenze, aus 5 % darunter – nicht bei offenem Fenster"),
+                : t("schaltet nach den eigenen Schwellen – nicht bei offenem Fenster"),
           this._srcBadge(r, "dehumidifier_entity"),
         ),
+        deh && dehOn != null ? this._row("Entfeuchter an ab",
+          editable ? this._num(scope, "dehumidifier_on", dehOn) : this._v(`${fmt(dehOn, 0)} %`),
+          "eigene Schwelle – unabhängig vom Lüfthinweis „Bitte lüften“",
+          this._srcBadge(r, "dehumidifier_on")) : "",
+        deh && dehOff != null ? this._row("Entfeuchter aus unter",
+          editable ? this._num(scope, "dehumidifier_off", dehOff) : this._v(`${fmt(dehOff, 0)} %`),
+          "darunter wieder aus – muss mindestens 1 % unter dem Einschalten liegen",
+          this._srcBadge(r, "dehumidifier_off")) : "",
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : ""),
