@@ -1,4 +1,4 @@
-## Unreleased
+## 1.3.3b1 – 2026-11-16
 
 ### Neu
 - **Benachrichtigungen je Wohnung:** In den Einstellungen gibt es unter „Wer bekommt was“ die Gruppe „Wohnungen je Empfänger“. Für jede Push-Nummer lässt sich pro Wohnung ein Häkchen setzen – ohne Häkchen bekommt die Person dort keine Meldungen. Die Nachrichtenarten (Lüften, Frost, Bericht …) bleiben in der jeweiligen Wohnung einstellbar.
@@ -8,6 +8,7 @@
 
 ### Tests
 - Wohnungs-Auswahl in der Karte, Umschalten schreibt nur in die gewählte Wohnung, keine Zustellung über Wohnungen hinweg.
+- Zeitraum auf jeder PDF-Seite.
 
 ## 1.3.2 – 2026-11-16
 
