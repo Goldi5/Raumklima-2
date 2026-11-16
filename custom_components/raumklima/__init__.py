@@ -61,6 +61,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     from . import debug_log
 
     debug_log.install()
+    await debug_log.async_restore(hass)
     from . import layout as layout_store
 
     await layout_store.async_setup(hass)

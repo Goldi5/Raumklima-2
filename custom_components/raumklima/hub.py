@@ -186,6 +186,8 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self._was_present: bool | None = None
         self._work_since: dict[str, Any] = {}
         self._blind_logged: datetime | None = None
+        # Kurz nach dem Start melden die Handys noch nicht – dann nicht „keine Ortung“ rufen
+        self._presence_since: datetime | None = None
         self._preheat_until: datetime | None = None
         self._preheat_by: str | None = None
         self._preheat_reason: str | None = None
@@ -766,9 +768,15 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
             },
             "samples": len(self.samples),
             "decision_log": self.log.query(limit=300),
+            # Ortungsfilter ohne Koordinaten: nur Entfernung zum Zuhause, Zeit und Genauigkeit –
+            # die Diagnose wird geteilt und darf nicht verraten, wo jemand wohnt.
             "filters": {
                 t: {
-                    "accepted": [f.accepted.lat, f.accepted.lon, iso(f.accepted.when)] if f.accepted else None,
+                    "accepted": {
+                        "km_from_home": self._km_from_home(f.accepted.lat, f.accepted.lon),
+                        "when": iso(f.accepted.when),
+                        "accuracy_m": round(f.accepted.accuracy) if f.accepted.accuracy else None,
+                    } if f.accepted else None,
                     "pending": bool(f.pending),
                 }
                 for t, f in self._filters.items()

@@ -99,6 +99,13 @@ class PresenceMixin:
         if self.sleep_signals:
             self._handle_signal(self.signals.tick(dt_util.now()))
 
+    def _km_from_home(self, lat: float, lon: float) -> float | None:
+        """Entfernung zum Zuhause (für die Diagnose statt Koordinaten)."""
+        geo = self._zone_geo()
+        if geo is None:
+            return None
+        return round(haversine_km(lat, lon, geo[0], geo[1]), 1)
+
     def _zone_geo(self) -> tuple[float, float, float] | None:
         state = self.hass.states.get(self.zone) if self.zone else None
         if state is None:
@@ -277,7 +284,10 @@ class PresenceMixin:
                 self._preheat_by = (coming or timely)[0]["name"]
             if self._preheat_until and (now > self._preheat_until or not (near or timely)):
                 self._preheat_until = None
-            if not anyone and not self.sensed and self.persons:
+            if self._presence_since is None:
+                self._presence_since = now
+            started = now - self._presence_since > timedelta(minutes=15)
+            if started and not anyone and not self.sensed and self.persons:
                 blind = [p for p in self.persons.values() if p["distance_km"] is None]
                 stale = self._blind_logged is None or now - self._blind_logged > timedelta(hours=6)
                 if len(blind) == len(self.persons) and stale:

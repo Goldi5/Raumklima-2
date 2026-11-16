@@ -525,4 +525,4 @@ find a fault: the versions, your settings, the values of every room, the raw dat
 involved with their attributes, the latest decisions with reasons and the last log lines of the
 integration. The same content is available under *Settings → Devices → Raumklima → Download
 diagnostics*. Credentials, passwords and coordinates are redacted – the file can be attached to an
-issue unchanged. It covers the last 24 hours (presence changes 72 hours) and includes a short history of persons – only “home” or “away”, no places – and thermostats. It helps most when downloaded soon after the problem.
+issue unchanged. It covers the last 24 hours (presence changes 72 hours) and includes a short history of persons – only “home” or “away”, no places – and thermostats. It helps most when downloaded soon after the problem; the log lines also survive a restart.

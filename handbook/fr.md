@@ -526,4 +526,4 @@ qu'il faut pour trouver la panne : les versions, vos réglages, les valeurs de c
 brutes des appareils concernés avec leurs attributs, les dernières décisions avec leur motif et les
 dernières lignes de journal de l'intégration. Le même contenu se trouve sous *Réglages → Appareils →
 Raumklima → Télécharger le diagnostic*. Les identifiants, mots de passe et coordonnées sont masqués –
-le fichier peut être joint tel quel à un ticket. Il couvre les dernières 24 heures (changements de présence : 72 heures) et contient un court historique des personnes – seulement « à la maison » ou « absent », sans lieux – et des thermostats. Il est le plus utile s’il est téléchargé peu après le problème.
+le fichier peut être joint tel quel à un ticket. Il couvre les dernières 24 heures (changements de présence : 72 heures) et contient un court historique des personnes – seulement « à la maison » ou « absent », sans lieux – et des thermostats. Il est le plus utile s’il est téléchargé peu après le problème ; les lignes de journal survivent aussi à un redémarrage.

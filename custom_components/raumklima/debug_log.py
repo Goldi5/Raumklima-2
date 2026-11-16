@@ -93,6 +93,45 @@ def tail(limit: int = MAX_LINES, max_age_hours: float | None = MAX_AGE_HOURS) ->
     return sorted(picked, key=lambda item: str(item.get("time")))
 
 
+STORE_KEY = "raumklima.debug_log"
+STORE_VERSION = 1
+
+
+async def async_restore(hass: Any) -> None:
+    """Puffer vom letzten Lauf zurückholen – ein Neustart löscht sonst die Vorgeschichte.
+
+    Gespeichert wird beim Beenden von Home Assistant; geladen nur, was jünger ist als
+    ``MAX_AGE_HOURS``. Fehler sind egal: dann beginnt der Puffer eben leer.
+    """
+    from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+    from homeassistant.helpers.storage import Store
+
+    store: Store = Store(hass, STORE_VERSION, STORE_KEY)
+    with suppress(Exception):
+        data = await store.async_load() or {}
+        cutoff = datetime.now(tz=UTC) - timedelta(hours=MAX_AGE_HOURS)
+
+        def young(line: Any) -> bool:
+            with suppress(Exception):
+                return isinstance(line, dict) and datetime.fromisoformat(str(line.get("time"))) >= cutoff
+            return False
+
+        old_lines = [line for line in data.get("lines") or [] if young(line)]
+        old_warn = [line for line in data.get("warnings") or [] if young(line)]
+        # vor die neuen Zeilen dieses Laufs stellen
+        current, current_w = list(_LINES), list(_WARNINGS)
+        _LINES.clear()
+        _WARNINGS.clear()
+        _LINES.extend(old_lines + [{"time": datetime.now(tz=UTC).isoformat(), "level": "INFO", "logger": "debug_log", "message": "— Neustart —"}] + current)
+        _WARNINGS.extend(old_warn + current_w)
+
+    async def _save(_event: Any = None) -> None:
+        with suppress(Exception):
+            await store.async_save({"lines": list(_LINES), "warnings": list(_WARNINGS)})
+
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _save)
+
+
 def clear() -> None:
     """Puffer leeren (für Tests)."""
     _LINES.clear()

@@ -1,3 +1,13 @@
+## 1.3.14b1 – 2026-11-16
+
+### Behoben
+- **Diagnose ohne Koordinaten:** Der Ortungsfilter stand mit Breiten- und Längengrad in der Datei – jetzt nur noch die Entfernung zum Zuhause, Zeit und Genauigkeit. Bitte ältere Diagnose-Dateien nicht öffentlich teilen.
+- **Diagnose nur mit der eigenen Wohnung:** Log-Zeilen aus Räumen anderer Wohnungen werden herausgefiltert.
+- **„Keine Ortung verfügbar“ nicht mehr direkt nach dem Start:** In den ersten 15 Minuten melden sich die Handys erst – erst danach wird gewarnt.
+
+### Neu
+- **Log-Puffer übersteht den Neustart:** Die letzten Log-Zeilen (bis 12 h) werden beim Beenden gespeichert und beim Start wieder vorangestellt, mit Markierung „— Neustart —“. Damit fehlt in der Diagnose nicht mehr alles vor einem Update.
+
 ## 1.3.13b1 – 2026-11-16
 
 ### Behoben

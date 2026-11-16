@@ -303,6 +303,22 @@ async def _history(hass: HomeAssistant, hub: Any, rooms: list[dict[str, Any]], s
     return out
 
 
+def _own_debug(hass: HomeAssistant, hub: Any) -> list[dict[str, Any]]:
+    """Log-Zeilen ohne die Räume anderer Wohnungen – die gehören nicht in diese Datei."""
+    lines = debug_tail()
+    if hub is None:
+        return lines
+    foreign: list[str] = []
+    for room_entry in hass.config_entries.async_entries(DOMAIN):
+        data = getattr(room_entry, "runtime_data", None)
+        other = getattr(data, "hub", None)
+        if other is not None and other is not hub:
+            foreign.append(f"{room_entry.title}:")
+    if not foreign:
+        return lines
+    return [line for line in lines if not any(name in str(line.get("message", "")) for name in foreign)]
+
+
 def _setpoint_events(hub: Any, limit: int = 600) -> list[dict[str, Any]]:
     """Sollwertwechsel mit Quelle: unser Schreibvorgang oder eine Änderung am Gerät.
 
@@ -460,7 +476,7 @@ async def async_get_config_entry_diagnostics(
         "events": _setpoint_events(hub),
         "history_hours": DIAG_HOURS,
         "history": await _history(hass, hub, rooms, now - timedelta(hours=DIAG_HOURS)) if hub is not None else {},
-        "debug": debug_tail(),
+        "debug": _own_debug(hass, hub),
     }
     secrets: set[str] = set()
     secrets |= _secret_values(dict(entry.data), dict(entry.options))

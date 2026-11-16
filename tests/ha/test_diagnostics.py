@@ -65,6 +65,10 @@ async def test_diagnostics_enthaelt_kurve_und_ereignisse(hass: HomeAssistant, se
     assert data["history_hours"] == 24
     assert isinstance(data["log"], list) and isinstance(data["presence_log"], list)
     assert isinstance(data["history"], dict)
+    # keine Koordinaten im Ortungsfilter
+    for flt in (data["hub"] or {}).get("filters", {}).values():
+        acc = flt.get("accepted")
+        assert acc is None or (isinstance(acc, dict) and "km_from_home" in acc)
 
 
 async def test_diagnostics_room_entry_contains_hub(hass: HomeAssistant, setup) -> None:
