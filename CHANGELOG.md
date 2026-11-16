@@ -1,3 +1,12 @@
+## 1.3.11b1 – 2026-11-16
+
+### Neu
+- **Übernehmen aus dem Energie-Dashboard von Home Assistant:** Die Energie-Einstellungen zeigen, was dort schon eingetragen ist – Netzbezug, Einspeisung mit Vergütung, Preis-Entität oder fester Preis, PV, Akku geladen/entladen, bei Gas Zähler und Preis, und ein Gerät „Wärmepumpe“ als Zähler-Vorschlag. Ein Knopf füllt nur leere Felder; die eigene Auswahl bleibt. Versteht die heutige und die ältere Form der Energie-Einstellungen.
+- **Hausverbrauch ohne eigenen Zähler:** Sind Netzbezug, PV-Ertrag und Einspeisung gewählt, rechnet Raumklima den Hausverbrauch Stunde für Stunde selbst aus (Netzbezug + PV − Einspeisung + Akku entladen − Akku geladen).
+
+### Tests
+- Vorschläge aus beiden Formen der Energie-Einstellungen, errechneter Hausverbrauch.
+
 ## 1.3.10b1 – 2026-11-16
 
 ### Neu

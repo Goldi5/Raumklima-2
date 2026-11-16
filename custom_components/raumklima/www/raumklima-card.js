@@ -1680,7 +1680,13 @@
     "Selbst versorgt (PV & Akku)": "Self-supplied (PV & battery)",
     "Einspeisevergütung": "Feed-in tariff",
     "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen": "€/kWh – as stated by your grid operator; 0 = don’t deduct",
-    "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "What electricity for the whole house cost – as the supplier bills it: each hour’s grid import × that hour’s price plus the full base fee. Battery charging from the grid is included in the import. The feed-in tariff is deducted if set in the settings."
+    "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "What electricity for the whole house cost – as the supplier bills it: each hour’s grid import × that hour’s price plus the full base fee. Battery charging from the grid is included in the import. The feed-in tariff is deducted if set in the settings.",
+    "Alles aus dem Energie-Dashboard von Home Assistant ist schon eingetragen.": "Everything from the Home Assistant energy dashboard is already set.",
+    "Im Energie-Dashboard von Home Assistant gefunden": "Found in the Home Assistant energy dashboard",
+    "Übernommen werden nur leere Felder – deine Auswahl bleibt.": "Only empty fields are filled – your choices stay.",
+    "Übernommen": "Applied",
+    "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "can stay empty: calculated from grid import, PV, feed-in and battery",
+    "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optional: power use of the whole house in kWh – or choose grid import, PV yield and feed-in and Raumklima calculates it"
   };
 
   // src/i18n/fr.js
@@ -3363,7 +3369,13 @@
     "Selbst versorgt (PV & Akku)": "Autoconsommation (PV et batterie)",
     "Einspeisevergütung": "Tarif de rachat",
     "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen": "€/kWh – selon le gestionnaire de réseau ; 0 = ne pas déduire",
-    "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "Ce qu’a coûté l’électricité de toute la maison – comme le facture le fournisseur : soutirage de chaque heure × prix de cette heure plus l’abonnement complet. La charge de la batterie sur le réseau est incluse. Le tarif de rachat est déduit s’il est renseigné dans les réglages."
+    "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "Ce qu’a coûté l’électricité de toute la maison – comme le facture le fournisseur : soutirage de chaque heure × prix de cette heure plus l’abonnement complet. La charge de la batterie sur le réseau est incluse. Le tarif de rachat est déduit s’il est renseigné dans les réglages.",
+    "Alles aus dem Energie-Dashboard von Home Assistant ist schon eingetragen.": "Tout ce qui figure dans le tableau de bord énergie de Home Assistant est déjà renseigné.",
+    "Im Energie-Dashboard von Home Assistant gefunden": "Trouvé dans le tableau de bord énergie de Home Assistant",
+    "Übernommen werden nur leere Felder – deine Auswahl bleibt.": "Seuls les champs vides sont remplis – tes choix restent.",
+    "Übernommen": "Repris",
+    "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "peut rester vide : calculé à partir du soutirage, du PV, de l’injection et de la batterie",
+    "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optionnel : consommation de toute la maison en kWh – ou choisis soutirage, production PV et injection, Raumklima la calcule"
   };
 
   // src/i18n.js
@@ -3554,6 +3566,12 @@
   .estep .en { flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:#fff; background: var(--g, var(--rk-warn)); }
   .estep b { display:block; font-size:1rem; }
   .estep small { display:block; color: var(--secondary-text-color); font-size:.82rem; margin-top:2px; }
+  .ehabox { margin:8px 0 12px; padding:10px 14px; border-radius:12px; background:color-mix(in srgb, var(--rk-ok) 10%, transparent); font-size:.86rem; }
+  .ehabox.done { display:flex; gap:8px; align-items:center; color:var(--secondary-text-color); }
+  .ehabox .eh-t { display:flex; gap:8px; align-items:center; margin-bottom:6px; } .ehabox ha-icon { --mdc-icon-size:18px; color:var(--rk-ok); }
+  .ehabox ul { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+  .ehabox li { display:flex; justify-content:space-between; gap:10px; } .ehabox li span { color:var(--secondary-text-color); } .ehabox li b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ehabox .eh-a { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px; } .ehabox small { color:var(--secondary-text-color); }
   .eguide { margin:6px 0 10px; border-radius:12px; background: color-mix(in srgb, var(--g, var(--rk-warn)) 7%, transparent); padding:0 14px; }
   .eguide summary { cursor:pointer; padding:11px 0; font-weight:600; font-size:.9rem; color: var(--primary-text-color); display:flex; align-items:center; gap:8px; list-style:none; }
   .eguide summary::-webkit-details-marker { display:none; }
@@ -6759,6 +6777,40 @@
       const unit = st.attributes.unit_of_measurement || "";
       return `${fmt(v, 2)} ${unit}`.trim();
     },
+    // Vorschläge aus dem Energie-Dashboard von Home Assistant: nur leere Felder, nur auf Knopfdruck
+    _haEnergyBanner(source) {
+      if (this._haSug === void 0 && this._hass) {
+        this._haSug = null;
+        this._hass.callWS({ type: "raumklima/energy/ha_suggest", ...this._homeMsg() }).then((r) => {
+          this._haSug = r || { items: [] };
+          this._sig = null;
+          this._render();
+        }).catch(() => {
+          this._haSug = { items: [] };
+        });
+      }
+      const sug = this._haSug;
+      if (!sug || !sug.items) return "";
+      const label = {
+        energy_grid_entity: "Netzbezug",
+        energy_feed_entity: "Einspeisung",
+        energy_feed_price: "Einspeisevergütung",
+        energy_tariff: "Preisquelle",
+        energy_price: "Arbeitspreis",
+        pv_entity: "PV-Ertrag",
+        energy_battery_in_entity: "Akku geladen",
+        energy_battery_out_entity: "Akku entladen",
+        energy_meter: "Zähler"
+      };
+      const open = sug.items.filter((x) => x.empty && this._hubOpt(x.key) in { undefined: 1, null: 1, "": 1, 0: 1 });
+      if (!open.length) {
+        return sug.items.length ? `<div class="ehabox done"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles aus dem Energie-Dashboard von Home Assistant ist schon eingetragen.")}</div>` : "";
+      }
+      const val = (x) => typeof x.value === "number" ? `${fmt(x.value, x.key === "energy_feed_price" ? 4 : 3)} €/kWh` : esc(x.name || x.value);
+      return `<div class="ehabox"><div class="eh-t"><ha-icon icon="mdi:home-lightning-bolt-outline"></ha-icon><b>${t("Im Energie-Dashboard von Home Assistant gefunden")}</b></div>
+      <ul>${open.map((x) => `<li><span>${t(label[x.key] || x.key)}</span><b>${val(x)}</b></li>`).join("")}</ul>
+      <div class="eh-a"><small>${t("Übernommen werden nur leere Felder – deine Auswahl bleibt.")}</small><button class="btn" data-haenergy>${t("Übernehmen")}</button></div></div>`;
+    },
     _groupEnergy() {
       const H = this._hubOpt.bind(this);
       const raw = H("energy_source") || "auto";
@@ -6799,6 +6851,7 @@
       if (!source) {
         return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [head, ...s1].join(""));
       }
+      const haBanner = this._haEnergyBanner(source);
       const meterHint = {
         heatpump: "Strom der Wärmepumpe fürs Heizen – Gesamtzähler in kWh",
         electric: "Strom der Heizung – Gesamtzähler in kWh",
@@ -6855,7 +6908,7 @@
         electric ? this._row(
           "Hausverbrauch",
           this._select("hub", "energy_house_entity", energy, H("energy_house_entity"), "– keiner –"),
-          now(H("energy_house_entity"), "optional: Stromverbrauch des ganzen Hauses in kWh")
+          H("energy_house_entity") ? now(H("energy_house_entity"), "") : H("energy_grid_entity") && H("pv_entity") && H("energy_feed_entity") ? t("leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet") : t("optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus")
         ) : "",
         electric ? this._row(
           "Netzbezug",
@@ -6872,12 +6925,12 @@
           this._num("hub", "energy_feed_price", H("energy_feed_price") ?? 0),
           "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen"
         ) : "",
-        electric && H("energy_house_entity") && H("energy_grid_entity") ? this._row(
+        electric && (H("energy_house_entity") || H("energy_feed_entity")) && H("energy_grid_entity") ? this._row(
           "Akku geladen",
           this._select("hub", "energy_battery_in_entity", energy, H("energy_battery_in_entity"), "– keiner –"),
           now(H("energy_battery_in_entity"), "optional: Gesamtzähler „Batterie geladen“ in kWh")
         ) : "",
-        electric && H("energy_house_entity") && H("energy_grid_entity") ? this._row(
+        electric && (H("energy_house_entity") || H("energy_feed_entity")) && H("energy_grid_entity") ? this._row(
           "Akku entladen",
           this._select("hub", "energy_battery_out_entity", energy, H("energy_battery_out_entity"), "– keiner –"),
           now(H("energy_battery_out_entity"), "optional: Gesamtzähler „Batterie entladen“ – mit beiden zählt nachts aus dem Netz geladener Akku-Strom zum Ladepreis")
@@ -6959,7 +7012,7 @@
         this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)"),
         !electric ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon") : ""
       ];
-      const rows = [head, ...s1, ...s2, ...s3, this._more("energy-ac", "Vergleich mit Klimagerät", s4.join(""), "hub", ["ac_cop", "electric_price"])].join("");
+      const rows = [head, ...s1, haBanner, ...s2, ...s3, this._more("energy-ac", "Vergleich mit Klimagerät", s4.join(""), "hub", ["ac_cop", "electric_price"])].join("");
       return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", rows);
     },
     _energyPriceNow() {
@@ -9167,6 +9220,18 @@
         this._local["hub:guests_rooms"] = next;
         this._setHub({ guests_rooms: next }, 300);
         this._flash(t("Gespeichert"));
+      });
+      on("click", "[data-haenergy]", () => () => {
+        const items = (this._haSug && this._haSug.items || []).filter((x) => x.empty);
+        const changes = {};
+        for (const x of items) {
+          const cur = this._hubOpt(x.key);
+          if (cur === void 0 || cur === null || cur === "" || cur === 0) changes[x.key] = x.value;
+        }
+        if (!Object.keys(changes).length) return;
+        this._haSug = void 0;
+        this._setHub(changes, 100);
+        this._flash(t("Übernommen"));
       });
       on("click", "[data-tarfb]", (el) => () => {
         const id = el.dataset.tarfb;

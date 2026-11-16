@@ -65,6 +65,7 @@ from .const import (
 )
 from .energy_calc import (
     battery_shares,
+    computed_house,
     heat_prices,
     heating_curve,
     hourly_cost,
@@ -76,6 +77,7 @@ from .energy_calc import (
     short_label,
     split_total,
     step_means,
+    suggest_from_ha_energy,
     tariff_to_kwh,
     week_grid,
 )
@@ -368,6 +370,9 @@ class Insights:
             "batt_out_entity": self.hub.opt(CONF_ENERGY_BATT_OUT),
             "feed_entity": self.hub.opt(CONF_ENERGY_FEED),
             "heat_elec_entity": self.hub.opt(CONF_ENERGY_HEAT_ELEC),
+            "house_computed": not self.hub.opt(CONF_ENERGY_HOUSE) and bool(
+                self.hub.opt(CONF_ENERGY_GRID) and self.hub.opt(CONF_PV_ENTITY) and self.hub.opt(CONF_ENERGY_FEED)
+            ),
             "feed_price": float(self.hub.opt(CONF_ENERGY_FEED_PRICE) or 0),
             "compare_gas": float(self.hub.opt(CONF_ENERGY_CMP_GAS) or 0.11),
             "compare_oil": float(self.hub.opt(CONF_ENERGY_CMP_OIL) or 1.10),
@@ -657,8 +662,17 @@ class Insights:
             cfg["kwh"] = heat
             cfg["ww_kwh"] = ww
         cfg["ww_heat_kwh"] = await kwh_of(cfg.get("ww_heat_entity"))
-        cfg["house_kwh"] = await kwh_of(cfg.get("house_entity"))
         cfg["grid_kwh"] = await kwh_of(cfg.get("grid_entity"))
+        cfg["feed_kwh"] = await kwh_of(cfg.get("feed_entity"))
+        cfg["batt_in_kwh"] = await kwh_of(cfg.get("batt_in_entity"))
+        cfg["batt_out_kwh"] = await kwh_of(cfg.get("batt_out_entity"))
+        cfg["house_kwh"] = await kwh_of(cfg.get("house_entity"))
+        if cfg.get("house_computed"):
+            # Kein eigener Hauszähler: aus Netzbezug, PV, Einspeisung und Akku errechnen
+            pv_kwh = await kwh_of(cfg.get("pv_entity"))
+            if cfg.get("grid_kwh") is not None and pv_kwh is not None and cfg.get("feed_kwh") is not None:
+                cfg["house_kwh"] = round(max(0.0, cfg["grid_kwh"] + pv_kwh - cfg["feed_kwh"]
+                    + (cfg.get("batt_out_kwh") or 0) - (cfg.get("batt_in_kwh") or 0)), 2)
         if cfg["source"] == "heatpump":
             heat_in = cfg.get("kwh")
             heat_from = await later_start(cfg.get("heat_entity")) if cfg.get("meter") else None
@@ -682,9 +696,6 @@ class Insights:
         used = (cfg.get("kwh") or 0) + (cfg.get("ww_kwh") or 0)
         if cfg.get("house_kwh") and cfg["source"] in ("electric", "heatpump") and used:
             cfg["house_share"] = round(100 * used / cfg["house_kwh"], 1)
-        cfg["feed_kwh"] = await kwh_of(cfg.get("feed_entity"))
-        cfg["batt_in_kwh"] = await kwh_of(cfg.get("batt_in_entity"))
-        cfg["batt_out_kwh"] = await kwh_of(cfg.get("batt_out_entity"))
         if not cfg.get("meter"):
             return
         hours = await self._energy_hours(cfg, start, end, factor)
@@ -737,6 +748,26 @@ class Insights:
         cfg["outdoor_days"] = sum(1 for d in series if d["outdoor"] is not None)
         cfg["curve"] = heating_curve(d for d in series if d["date"] != end.isoformat())
         self._heat_prices(cfg)
+
+    async def async_ha_energy_suggestions(self) -> dict[str, Any]:
+        """Was im Energie-Dashboard von Home Assistant schon eingetragen ist – als Vorschlag."""
+        try:
+            from homeassistant.components.energy.data import async_get_manager
+
+            manager = await async_get_manager(self.hass)
+            prefs = manager.data
+        except Exception:  # noqa: BLE001 – Energie-Dashboard nicht eingerichtet
+            prefs = None
+        source = self.energy_config().get("source") if self.hub is not None else None
+        items = suggest_from_ha_energy(prefs, source)
+        for item in items:
+            current = self.hub.opt(item["key"]) if self.hub is not None else None
+            item["current"] = current
+            item["empty"] = current in (None, "", 0, 0.0)
+            if isinstance(item["value"], str):
+                state = self.hass.states.get(item["value"])
+                item["name"] = state.name if state is not None else item["value"]
+        return {"found": bool(prefs), "items": items}
 
     def _heat_prices(self, cfg: dict[str, Any]) -> None:
         """Was kostet 1 kWh Wärme – eigene Heizung und Vergleich."""
@@ -808,12 +839,27 @@ class Insights:
         )
         electric = cfg["source"] in ("electric", "heatpump")
         house = grid = charge = discharge = {}
-        if electric and cfg.get("house_entity") and cfg.get("grid_entity"):
-            house = await self._stat_rows(cfg["house_entity"], start, end, "change")
+        computed = False
+        if electric and (cfg.get("house_entity") or cfg.get("house_computed")) and cfg.get("grid_entity"):
             grid = await self._stat_rows(cfg["grid_entity"], start, end, "change")
             if cfg.get("batt_in_entity") and cfg.get("batt_out_entity"):
                 charge = await self._stat_rows(cfg["batt_in_entity"], start, end, "change")
                 discharge = await self._stat_rows(cfg["batt_out_entity"], start, end, "change")
+            if cfg.get("house_entity"):
+                house = await self._stat_rows(cfg["house_entity"], start, end, "change")
+            else:
+                def in_kwh(rows: dict[float, float], entity: str) -> dict[float, float]:
+                    unit = self._unit_of(entity)
+                    return {ts: energy_kwh(v, unit, 1.0) or 0.0 for ts, v in rows.items()}
+
+                pv_rows = await self._stat_rows(cfg["pv_entity"], start, end, "change")
+                feed_rows = await self._stat_rows(cfg["feed_entity"], start, end, "change")
+                house = computed_house(
+                    in_kwh(grid, cfg["grid_entity"]), in_kwh(pv_rows, cfg["pv_entity"]), in_kwh(feed_rows, cfg["feed_entity"]),
+                    in_kwh(charge, cfg["batt_in_entity"]) if charge else None,
+                    in_kwh(discharge, cfg["batt_out_entity"]) if discharge else None,
+                )
+                computed = True
         keys = sorted(set(meter) | set(ww))
         price_keys = sorted(set(keys) | set(charge) | set(grid))
         prices: list[dict[float, float]] = []
@@ -821,7 +867,7 @@ class Insights:
             prices.append(await self._price_hours(eid, price_keys, factor))
         unit_m = self._unit_of(cfg["meter"])
         unit_w = self._unit_of(cfg["ww_meter"]) if cfg.get("ww_meter") else None
-        unit_h = self._unit_of(cfg["house_entity"]) if house else None
+        unit_h = ("kWh" if computed else self._unit_of(cfg["house_entity"])) if house else None
         unit_g = self._unit_of(cfg["grid_entity"]) if grid else None
         unit_c = self._unit_of(cfg["batt_in_entity"]) if charge else None
         unit_d = self._unit_of(cfg["batt_out_entity"]) if discharge else None

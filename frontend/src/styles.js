@@ -147,6 +147,12 @@ export const SETTINGS_STYLES = `
   .estep .en { flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:#fff; background: var(--g, var(--rk-warn)); }
   .estep b { display:block; font-size:1rem; }
   .estep small { display:block; color: var(--secondary-text-color); font-size:.82rem; margin-top:2px; }
+  .ehabox { margin:8px 0 12px; padding:10px 14px; border-radius:12px; background:color-mix(in srgb, var(--rk-ok) 10%, transparent); font-size:.86rem; }
+  .ehabox.done { display:flex; gap:8px; align-items:center; color:var(--secondary-text-color); }
+  .ehabox .eh-t { display:flex; gap:8px; align-items:center; margin-bottom:6px; } .ehabox ha-icon { --mdc-icon-size:18px; color:var(--rk-ok); }
+  .ehabox ul { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+  .ehabox li { display:flex; justify-content:space-between; gap:10px; } .ehabox li span { color:var(--secondary-text-color); } .ehabox li b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ehabox .eh-a { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px; } .ehabox small { color:var(--secondary-text-color); }
   .eguide { margin:6px 0 10px; border-radius:12px; background: color-mix(in srgb, var(--g, var(--rk-warn)) 7%, transparent); padding:0 14px; }
   .eguide summary { cursor:pointer; padding:11px 0; font-weight:600; font-size:.9rem; color: var(--primary-text-color); display:flex; align-items:center; gap:8px; list-style:none; }
   .eguide summary::-webkit-details-marker { display:none; }

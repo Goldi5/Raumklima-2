@@ -414,3 +414,76 @@ def house_bill(
         "per_day": round((bill - (feed_eur or 0.0)) / days, 2) if days > 0 else None,
     }
     return out
+
+
+_HEATPUMP_NAME = re.compile(r"w(ä|ae)rme\s*pumpe|heat\s*pump|\bwp\b|wpm", re.IGNORECASE)
+
+
+def suggest_from_ha_energy(prefs: Mapping[str, Any] | None, source: str | None = None) -> list[dict[str, Any]]:
+    """Vorschläge aus dem Energie-Dashboard von Home Assistant.
+
+    Versteht die heutige Form (``stat_energy_from``/``stat_energy_to`` direkt an der Quelle) und die
+    ältere (``flow_from``/``flow_to``-Listen). Gibt ``[{key, value, what}]`` zurück – ``key`` ist die
+    Raumklima-Option, ``what`` sagt, woher der Wert stammt.
+    """
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    def add(key: str, value: Any, what: str) -> None:
+        if value in (None, "", 0) or key in seen:
+            return
+        seen.add(key)
+        out.append({"key": key, "value": value, "what": what})
+
+    for src in (prefs or {}).get("energy_sources") or []:
+        if not isinstance(src, Mapping):
+            continue
+        kind = src.get("type")
+        if kind == "grid":
+            flows_from = src.get("flow_from") or [src]
+            flows_to = src.get("flow_to") or [src]
+            first = next((f for f in flows_from if isinstance(f, Mapping) and f.get("stat_energy_from")), None)
+            if first:
+                add("energy_grid_entity", first.get("stat_energy_from"), "grid_from")
+                if source in ("heatpump", "electric"):
+                    add("energy_tariff", first.get("entity_energy_price"), "grid_price_entity")
+                    add("energy_price", first.get("number_energy_price"), "grid_price")
+            to = next((f for f in flows_to if isinstance(f, Mapping) and f.get("stat_energy_to")), None)
+            if to:
+                add("energy_feed_entity", to.get("stat_energy_to"), "grid_to")
+                add("energy_feed_price", to.get("number_energy_price_export") or to.get("number_energy_price"), "feed_price")
+        elif kind == "solar":
+            add("pv_entity", src.get("stat_energy_from"), "solar")
+        elif kind == "battery":
+            add("energy_battery_out_entity", src.get("stat_energy_from"), "battery_out")
+            add("energy_battery_in_entity", src.get("stat_energy_to"), "battery_in")
+        elif kind == "gas" and source == "gas":
+            add("energy_meter", src.get("stat_energy_from"), "gas")
+            add("energy_tariff", src.get("entity_energy_price"), "gas_price_entity")
+            add("energy_price", src.get("number_energy_price"), "gas_price")
+    if source == "heatpump":
+        for dev in (prefs or {}).get("device_consumption") or []:
+            if not isinstance(dev, Mapping):
+                continue
+            name = f"{dev.get('name') or ''} {dev.get('stat_consumption') or ''}"
+            if _HEATPUMP_NAME.search(name):
+                add("energy_meter", dev.get("stat_consumption"), "device")
+                break
+    return out
+
+
+def computed_house(
+    grid: Mapping[float, float],
+    pv: Mapping[float, float],
+    feed: Mapping[float, float],
+    charge: Mapping[float, float] | None = None,
+    discharge: Mapping[float, float] | None = None,
+) -> dict[float, float]:
+    """Hausverbrauch je Stunde ohne eigenen Zähler: Netzbezug + PV − Einspeisung + Akku entladen − Akku geladen."""
+    charge = charge or {}
+    discharge = discharge or {}
+    out: dict[float, float] = {}
+    for ts in set(grid) | set(pv):
+        value = grid.get(ts, 0.0) + pv.get(ts, 0.0) - feed.get(ts, 0.0) + discharge.get(ts, 0.0) - charge.get(ts, 0.0)
+        out[ts] = max(0.0, value)
+    return out

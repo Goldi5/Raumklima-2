@@ -274,6 +274,18 @@ export const BindMethods = {
       this._setHub({ guests_rooms: next }, 300);
       this._flash(t("Gespeichert"));
     });
+    on("click", "[data-haenergy]", () => () => {
+      const items = ((this._haSug && this._haSug.items) || []).filter((x) => x.empty);
+      const changes = {};
+      for (const x of items) {
+        const cur = this._hubOpt(x.key);
+        if (cur === undefined || cur === null || cur === "" || cur === 0) changes[x.key] = x.value;
+      }
+      if (!Object.keys(changes).length) return;
+      this._haSug = undefined; // nach dem Speichern neu fragen
+      this._setHub(changes, 100);
+      this._flash(t("Übernommen"));
+    });
     on("click", "[data-tarfb]", (el) => () => {
       const id = el.dataset.tarfb;
       const cur = [...(this._hubOpt("energy_tariff_fallbacks") || [])];

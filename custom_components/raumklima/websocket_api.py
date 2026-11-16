@@ -26,6 +26,7 @@ from .ws_hub import (
 from .ws_report import (
     ws_diagnostics,
     ws_energy,
+    ws_energy_suggest,
     ws_export_link,
     ws_log,
     ws_log_subscribe,
@@ -49,7 +50,7 @@ from .ws_room import (
     ws_room_why,
 )
 
-HANDLERS = (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_room_resume, ws_room_create, ws_room_delete, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_boost, ws_self_test, ws_room_template_save, ws_room_template_apply, ws_room_template_delete, ws_report, ws_report_export, ws_energy, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics, ws_export_link, ws_trace, ws_trace_list, ws_room_why)
+HANDLERS = (ws_config, ws_hub_update, ws_dashboards, ws_layout_get, ws_layout_save, ws_room_update, ws_room_reset, ws_room_resume, ws_room_create, ws_room_delete, ws_notify_test, ws_mail_test, ws_light_test, ws_hub_action, ws_boost, ws_self_test, ws_room_template_save, ws_room_template_apply, ws_room_template_delete, ws_report, ws_report_export, ws_energy, ws_energy_suggest, ws_pdf_list, ws_pdf_create, ws_log, ws_log_subscribe, ws_home_create, ws_diagnostics, ws_export_link, ws_trace, ws_trace_list, ws_room_why)
 
 
 @callback

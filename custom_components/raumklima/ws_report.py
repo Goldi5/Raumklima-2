@@ -47,6 +47,16 @@ async def ws_energy(hass: HomeAssistant, connection: websocket_api.ActiveConnect
     connection.send_result(msg["id"], await hub.insights.async_energy_summary(msg["days"]))
 
 
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/energy/ha_suggest", vol.Optional("home"): vol.Any(None, str)})
+@websocket_api.async_response
+async def ws_energy_suggest(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Vorschläge aus dem Energie-Dashboard von Home Assistant (nur lesen)."""
+    hub = _hub_or_error(hass, connection, msg)
+    if hub is None:
+        return
+    connection.send_result(msg["id"], await hub.insights.async_ha_energy_suggestions())
+
+
 @websocket_api.websocket_command(
     {
         vol.Required("type"): f"{DOMAIN}/report/export",

@@ -2,6 +2,7 @@
   "domain": "raumklima",
   "name": "Raumklima",
   "after_dependencies": [
+    "energy",
     "recorder"
   ],
   "codeowners": [

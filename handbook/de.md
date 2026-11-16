@@ -350,6 +350,8 @@ Der Reiter *Energie* zeigt oben die Kennzahlen – Kosten (mit Jahreszahl aus Gr
 - **Strom im ganzen Haus** – Netzbezug × Stundenpreis plus Grundgebühr, also die Rechnung des Versorgers, aufgeteilt in Heizung und übriges Haus; mit eingetragener **Einspeisevergütung** auch „unterm Strich“.
 - **Wer verbraucht die Wärme?** mit Ventilstunden und Hinweis bei auffälligen Räumen, **Preisquellen**.
 
+Schon im **Energie-Dashboard von Home Assistant** eingerichtet? Dann zeigen die Energie-Einstellungen, was dort gefunden wurde, und **Übernehmen** füllt die leeren Felder. Ohne eigenen Hauszähler rechnet Raumklima den Hausverbrauch aus Netzbezug, PV, Einspeisung und Akku selbst.
+
 Jedes **?** öffnet eine kurze Erklärung. Blöcke erscheinen nur, wenn die Daten da sind – ohne PV kein PV-Block, bei Öl Tank und Liter statt Strompreis. Die Lernkarte liegt jetzt im Reiter *Verlauf & Lernen*.
 
 ### Heizöl und Tank

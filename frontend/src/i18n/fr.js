@@ -1684,4 +1684,10 @@ export const FR = {
   "Einspeisevergütung": "Tarif de rachat",
   "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen": "€/kWh – selon le gestionnaire de réseau ; 0 = ne pas déduire",
   "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "Ce qu’a coûté l’électricité de toute la maison – comme le facture le fournisseur : soutirage de chaque heure × prix de cette heure plus l’abonnement complet. La charge de la batterie sur le réseau est incluse. Le tarif de rachat est déduit s’il est renseigné dans les réglages.",
+  "Alles aus dem Energie-Dashboard von Home Assistant ist schon eingetragen.": "Tout ce qui figure dans le tableau de bord énergie de Home Assistant est déjà renseigné.",
+  "Im Energie-Dashboard von Home Assistant gefunden": "Trouvé dans le tableau de bord énergie de Home Assistant",
+  "Übernommen werden nur leere Felder – deine Auswahl bleibt.": "Seuls les champs vides sont remplis – tes choix restent.",
+  "Übernommen": "Repris",
+  "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "peut rester vide : calculé à partir du soutirage, du PV, de l’injection et de la batterie",
+  "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optionnel : consommation de toute la maison en kWh – ou choisis soutirage, production PV et injection, Raumklima la calcule",
 };

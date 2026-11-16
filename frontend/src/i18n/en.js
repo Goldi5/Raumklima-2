@@ -1684,4 +1684,10 @@ export const EN = {
   "Einspeisevergütung": "Feed-in tariff",
   "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen": "€/kWh – as stated by your grid operator; 0 = don’t deduct",
   "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "What electricity for the whole house cost – as the supplier bills it: each hour’s grid import × that hour’s price plus the full base fee. Battery charging from the grid is included in the import. The feed-in tariff is deducted if set in the settings.",
+  "Alles aus dem Energie-Dashboard von Home Assistant ist schon eingetragen.": "Everything from the Home Assistant energy dashboard is already set.",
+  "Im Energie-Dashboard von Home Assistant gefunden": "Found in the Home Assistant energy dashboard",
+  "Übernommen werden nur leere Felder – deine Auswahl bleibt.": "Only empty fields are filled – your choices stay.",
+  "Übernommen": "Applied",
+  "leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet": "can stay empty: calculated from grid import, PV, feed-in and battery",
+  "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optional: power use of the whole house in kWh – or choose grid import, PV yield and feed-in and Raumklima calculates it",
 };

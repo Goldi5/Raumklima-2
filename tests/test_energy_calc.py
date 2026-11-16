@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 
 from custom_components.raumklima.energy_calc import (
     battery_shares,
+    computed_house,
     heat_prices,
     heating_curve,
     hourly_cost,
@@ -17,6 +18,7 @@ from custom_components.raumklima.energy_calc import (
     short_label,
     split_total,
     step_means,
+    suggest_from_ha_energy,
     tariff_to_kwh,
     week_grid,
 )
@@ -195,3 +197,35 @@ def test_house_bill_with_feed_in():
     assert out["self_share"] == 25
     assert out["rest_cost"] == 42.5
     assert house_bill(10.0, 3.0, 1.0, 1)["feed_eur"] is None
+
+
+def test_suggest_from_ha_energy_current_and_old_format():
+    prefs = {
+        "energy_sources": [
+            {"type": "grid", "stat_energy_from": "sensor.netz_in", "entity_energy_price": "sensor.preis",
+             "stat_energy_to": "sensor.netz_out", "number_energy_price_export": 0.08},
+            {"type": "solar", "stat_energy_from": "sensor.pv"},
+            {"type": "battery", "stat_energy_from": "sensor.akku_aus", "stat_energy_to": "sensor.akku_ein"},
+        ],
+        "device_consumption": [{"stat_consumption": "sensor.kuehlschrank", "name": "Kühlschrank"},
+                               {"stat_consumption": "sensor.wp_strom", "name": "Wärmepumpe"}],
+    }
+    got = {x["key"]: x["value"] for x in suggest_from_ha_energy(prefs, "heatpump")}
+    assert got == {
+        "energy_grid_entity": "sensor.netz_in", "energy_tariff": "sensor.preis",
+        "energy_feed_entity": "sensor.netz_out", "energy_feed_price": 0.08, "pv_entity": "sensor.pv",
+        "energy_battery_out_entity": "sensor.akku_aus", "energy_battery_in_entity": "sensor.akku_ein",
+        "energy_meter": "sensor.wp_strom",
+    }
+    old = {"energy_sources": [{"type": "grid", "flow_from": [{"stat_energy_from": "sensor.a", "number_energy_price": 0.3}],
+                               "flow_to": [{"stat_energy_to": "sensor.b", "number_energy_price": 0.07}]},
+                              {"type": "gas", "stat_energy_from": "sensor.gas", "number_energy_price": 1.2}]}
+    got = {x["key"]: x["value"] for x in suggest_from_ha_energy(old, "gas")}
+    assert got == {"energy_grid_entity": "sensor.a", "energy_feed_entity": "sensor.b", "energy_feed_price": 0.07,
+                   "energy_meter": "sensor.gas", "energy_price": 1.2}
+    assert suggest_from_ha_energy(None) == []
+
+
+def test_computed_house():
+    house = computed_house({0: 1.0, 1: 0.0}, {0: 0.0, 1: 3.0}, {1: 1.0}, charge={1: 0.5}, discharge={0: 0.5})
+    assert house == {0: 1.5, 1: 1.5}

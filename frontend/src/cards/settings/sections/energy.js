@@ -10,6 +10,31 @@ export const EnergySectionMethods = {
     return `${fmt(v, 2)} ${unit}`.trim();
   },
 
+  // Vorschläge aus dem Energie-Dashboard von Home Assistant: nur leere Felder, nur auf Knopfdruck
+  _haEnergyBanner(source) {
+    if (this._haSug === undefined && this._hass) {
+      this._haSug = null;
+      this._hass.callWS({ type: "raumklima/energy/ha_suggest", ...this._homeMsg() })
+        .then((r) => { this._haSug = r || { items: [] }; this._sig = null; this._render(); })
+        .catch(() => { this._haSug = { items: [] }; });
+    }
+    const sug = this._haSug;
+    if (!sug || !sug.items) return "";
+    const label = {
+      energy_grid_entity: "Netzbezug", energy_feed_entity: "Einspeisung", energy_feed_price: "Einspeisevergütung",
+      energy_tariff: "Preisquelle", energy_price: "Arbeitspreis", pv_entity: "PV-Ertrag",
+      energy_battery_in_entity: "Akku geladen", energy_battery_out_entity: "Akku entladen", energy_meter: "Zähler",
+    };
+    const open = sug.items.filter((x) => x.empty && this._hubOpt(x.key) in { undefined: 1, null: 1, "": 1, 0: 1 });
+    if (!open.length) {
+      return sug.items.length ? `<div class="ehabox done"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles aus dem Energie-Dashboard von Home Assistant ist schon eingetragen.")}</div>` : "";
+    }
+    const val = (x) => (typeof x.value === "number" ? `${fmt(x.value, x.key === "energy_feed_price" ? 4 : 3)} €/kWh` : esc(x.name || x.value));
+    return `<div class="ehabox"><div class="eh-t"><ha-icon icon="mdi:home-lightning-bolt-outline"></ha-icon><b>${t("Im Energie-Dashboard von Home Assistant gefunden")}</b></div>
+      <ul>${open.map((x) => `<li><span>${t(label[x.key] || x.key)}</span><b>${val(x)}</b></li>`).join("")}</ul>
+      <div class="eh-a"><small>${t("Übernommen werden nur leere Felder – deine Auswahl bleibt.")}</small><button class="btn" data-haenergy>${t("Übernehmen")}</button></div></div>`;
+  },
+
   _groupEnergy() {
     const H = this._hubOpt.bind(this);
     const raw = H("energy_source") || "auto";
@@ -48,6 +73,8 @@ export const EnergySectionMethods = {
       return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", [head, ...s1].join(""));
     }
 
+    const haBanner = this._haEnergyBanner(source);
+
     // --- 2 Was wird gemessen?
     const meterHint = {
       heatpump: "Strom der Wärmepumpe fürs Heizen – Gesamtzähler in kWh",
@@ -84,16 +111,18 @@ export const EnergySectionMethods = {
         this._row("Letzter Winter (Tage)", this._num("hub", "energy_oil_winter_days", H("energy_oil_winter_days") ?? 0), "über wie viele Tage diese Liter reichten"),
       ] : []),
       electric ? this._row("Hausverbrauch", this._select("hub", "energy_house_entity", energy, H("energy_house_entity"), "– keiner –"),
-        now(H("energy_house_entity"), "optional: Stromverbrauch des ganzen Hauses in kWh")) : "",
+        H("energy_house_entity") ? now(H("energy_house_entity"), "") : H("energy_grid_entity") && H("pv_entity") && H("energy_feed_entity")
+          ? t("leer lassen geht: wird aus Netzbezug, PV, Einspeisung und Akku errechnet")
+          : t("optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus")) : "",
       electric ? this._row("Netzbezug", this._select("hub", "energy_grid_entity", energy, H("energy_grid_entity"), "– keiner –"),
         now(H("energy_grid_entity"), "optional: Strom aus dem Netz in kWh – mit Hausverbrauch zählt PV und Batterie Stunde für Stunde")) : "",
       electric ? this._row("Einspeisung", this._select("hub", "energy_feed_entity", energy, H("energy_feed_entity"), "– keiner –"),
         now(H("energy_feed_entity"), "optional: Strom ins Netz in kWh – zeigt, wohin der Solarstrom ging")) : "",
       electric && H("energy_feed_entity") ? this._row("Einspeisevergütung", this._num("hub", "energy_feed_price", H("energy_feed_price") ?? 0),
         "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen") : "",
-      electric && H("energy_house_entity") && H("energy_grid_entity") ? this._row("Akku geladen", this._select("hub", "energy_battery_in_entity", energy, H("energy_battery_in_entity"), "– keiner –"),
+      electric && (H("energy_house_entity") || H("energy_feed_entity")) && H("energy_grid_entity") ? this._row("Akku geladen", this._select("hub", "energy_battery_in_entity", energy, H("energy_battery_in_entity"), "– keiner –"),
         now(H("energy_battery_in_entity"), "optional: Gesamtzähler „Batterie geladen“ in kWh")) : "",
-      electric && H("energy_house_entity") && H("energy_grid_entity") ? this._row("Akku entladen", this._select("hub", "energy_battery_out_entity", energy, H("energy_battery_out_entity"), "– keiner –"),
+      electric && (H("energy_house_entity") || H("energy_feed_entity")) && H("energy_grid_entity") ? this._row("Akku entladen", this._select("hub", "energy_battery_out_entity", energy, H("energy_battery_out_entity"), "– keiner –"),
         now(H("energy_battery_out_entity"), "optional: Gesamtzähler „Batterie entladen“ – mit beiden zählt nachts aus dem Netz geladener Akku-Strom zum Ladepreis")) : "",
       electric && !(H("energy_house_entity") && H("energy_grid_entity")) ? this._row("PV-Ertrag", this._select("hub", "pv_entity", choices.pv || [], H("pv_entity"), "– keiner –"),
         now(H("pv_entity"), "nur ohne Hausverbrauch und Netzbezug: grobe Schätzung über den Eigenverbrauch")) : "",
@@ -163,7 +192,7 @@ export const EnergySectionMethods = {
       this._row("COP", this._num("hub", "ac_cop", H("ac_cop") ?? 3), "Leistungszahl beim Heizen laut Datenblatt (bei +7 °C)"),
       !electric ? this._row("Strompreis", this._num("hub", "electric_price", H("electric_price") ?? 0), "€/kWh brutto – die Heizung läuft nicht mit Strom, das Klimagerät schon") : "",
     ];
-    const rows = [head, ...s1, ...s2, ...s3, this._more("energy-ac", "Vergleich mit Klimagerät", s4.join(""), "hub", ["ac_cop", "electric_price"])].join("");
+    const rows = [head, ...s1, haBanner, ...s2, ...s3, this._more("energy-ac", "Vergleich mit Klimagerät", s4.join(""), "hub", ["ac_cop", "electric_price"])].join("");
     return this._grp("energy", "Energie & Tarife", "mdi:lightning-bolt", "warn", rows);
   },
 
