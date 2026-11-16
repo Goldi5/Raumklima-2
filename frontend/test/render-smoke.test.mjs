@@ -62,6 +62,14 @@ test("Raumkarte rendert mit Batterie und Abgleich", () => {
   assert.doesNotMatch(html, /konnte nicht gezeichnet/);
 });
 
+test("Raumkarte zeigt den laufenden Entfeuchter als Chip", () => {
+  const on = render({ dehumidifier_entity: "switch.bad_dehumidifier", dehumidifier_state: "on", dehumidifier_active: true });
+  assert.match(on, /Entfeuchter läuft/);
+  assert.match(on, /mdi:air-humidifier/);
+  assert.doesNotMatch(render({ dehumidifier_entity: "switch.bad_dehumidifier", dehumidifier_state: "off", dehumidifier_active: false }), /Entfeuchter läuft/);
+  assert.match(render({ dehumidifier_entity: "switch.bad_dehumidifier", dehumidifier_state: "on", dehumidifier_active: true, dehumidifier_maxed: true }), /Entfeuchter läuft ohne Besserung/);
+});
+
 test("Raumkarte rendert als Überwachungsraum", () => {
   const html = render({ monitor: true, temperature: null, wish: null });
   assert.ok(html.length > 1000);

@@ -1,3 +1,11 @@
+## 1.3.5b1 – 2026-11-16
+
+### Neu
+- **Entfeuchter-Status in der Raumkarte:** Solange der Entfeuchter läuft, erscheint in der Raumkarte ein eigener Chip. Läuft er länger als drei Stunden ohne Besserung, wird der Chip zur Warnung; beim Ausschalten verschwindet er wieder.
+
+### Tests
+- Chip erscheint nur bei laufendem Entfeuchter, zeigt den Warnzustand und wird beim Ausschalten ausgeblendet.
+
 ## 1.3.4b1 – 2026-11-16
 
 ### Neu

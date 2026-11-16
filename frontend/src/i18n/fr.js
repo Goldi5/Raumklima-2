@@ -310,6 +310,8 @@ export const FR = {
   "Schwelle {v} L": "seuil {v} L",
   "Schulferien-Kalender": "Calendrier des vacances scolaires",
   "Entfeuchter": "Déshumidificateur",
+  "Entfeuchter läuft": "Le déshumidificateur tourne",
+  "Entfeuchter läuft ohne Besserung": "Le déshumidificateur tourne sans amélioration",
   "Entfeuchter an ab": "Déshumidificateur marche à",
   "Entfeuchter aus unter": "Déshumidificateur arrêt sous",
   "schaltet nach den eigenen Schwellen – nicht bei offenem Fenster": "commute selon ses propres seuils – pas lorsqu’une fenêtre est ouverte",

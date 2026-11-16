@@ -1,4 +1,4 @@
-/* Raumklima 1.3.4b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.3.5b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -310,6 +310,8 @@
     "Schwelle {v} L": "threshold {v} L",
     "Schulferien-Kalender": "School holiday calendar",
     "Entfeuchter": "Dehumidifier",
+    "Entfeuchter läuft": "Dehumidifier is running",
+    "Entfeuchter läuft ohne Besserung": "Dehumidifier is running without improvement",
     "Entfeuchter an ab": "Dehumidifier on at",
     "Entfeuchter aus unter": "Dehumidifier off below",
     "schaltet nach den eigenen Schwellen – nicht bei offenem Fenster": "switches according to its own thresholds – not when a window is open",
@@ -1867,6 +1869,8 @@
     "Schwelle {v} L": "seuil {v} L",
     "Schulferien-Kalender": "Calendrier des vacances scolaires",
     "Entfeuchter": "Déshumidificateur",
+    "Entfeuchter läuft": "Le déshumidificateur tourne",
+    "Entfeuchter läuft ohne Besserung": "Le déshumidificateur tourne sans amélioration",
     "Entfeuchter an ab": "Déshumidificateur marche à",
     "Entfeuchter aus unter": "Déshumidificateur arrêt sous",
     "schaltet nach den eigenen Schwellen – nicht bei offenem Fenster": "commute selon ses propres seuils – pas lorsqu’une fenêtre est ouverte",
@@ -3155,7 +3159,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.3.4b1";
+  var RK_VERSION = "1.3.5b1";
 
   // src/styles.js
   var STYLES = `
@@ -4585,6 +4589,7 @@
         </div>
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
+          ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="chip" style="--tone:var(--rk-warn)" title="${esc(a.battery.name)}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon>${t("Batterie {p} %", { p: a.battery.level })}</span>` : ""}
           ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
         </div>

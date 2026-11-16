@@ -310,6 +310,8 @@ export const EN = {
   "Schwelle {v} L": "threshold {v} L",
   "Schulferien-Kalender": "School holiday calendar",
   "Entfeuchter": "Dehumidifier",
+  "Entfeuchter läuft": "Dehumidifier is running",
+  "Entfeuchter läuft ohne Besserung": "Dehumidifier is running without improvement",
   "Entfeuchter an ab": "Dehumidifier on at",
   "Entfeuchter aus unter": "Dehumidifier off below",
   "schaltet nach den eigenen Schwellen – nicht bei offenem Fenster": "switches according to its own thresholds – not when a window is open",
