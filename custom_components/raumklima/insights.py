@@ -24,6 +24,7 @@ from .const import (
     CONF_ENERGY_HEAT_ENTITY,
     CONF_ENERGY_HOUSE,
     CONF_ENERGY_METER,
+    CONF_ENERGY_METER_SCOPE,
     CONF_ENERGY_OIL_FACTOR,
     CONF_ENERGY_OIL_MARKET,
     CONF_ENERGY_OIL_PRICE,
@@ -54,7 +55,7 @@ from .const import (
     KIND_REPORT,
     REPORT_METRIC_DEFAULT,
 )
-from .energy_calc import hourly_cost, parse_forecast, ratio, self_share, step_means, tariff_to_kwh
+from .energy_calc import hourly_cost, parse_forecast, ratio, self_share, short_label, split_total, step_means, tariff_to_kwh
 from .health import SEV_INFO, Issue, check_connection, check_notify_targets, check_presence_residents
 from .msg import tr
 from .oil_tank import price_per_litre, tank_summary
@@ -339,6 +340,7 @@ class Insights:
             "house_entity": self.hub.opt(CONF_ENERGY_HOUSE),
             "grid_entity": self.hub.opt(CONF_ENERGY_GRID),
             "base_share": str(self.hub.opt(CONF_ENERGY_BASE_SHARE) or "full"),
+            "meter_scope": str(self.hub.opt(CONF_ENERGY_METER_SCOPE) or "heating"),
             "price_now": self.hub.energy_price_now(),
             "tariffs": self._tariff_list(),
         }
@@ -354,13 +356,30 @@ class Insights:
             used = used or value is not None
             out.append({
                 "entity": eid,
-                "name": state.name if state is not None else eid,
+                "name": self._source_label(eid),
                 "value": value,
                 "primary": i == 0,
                 "active": active,
                 "forecast": len(parse_forecast(state.attributes)) if state is not None else 0,
             })
         return out
+
+    def _source_label(self, entity_id: str) -> str:
+        """Kurzer Name einer Preisquelle: ohne Kennungs-Ziffern, mit dem Namen der Integration.
+
+        Aus „Heartbeat … Electricity Price 0323a81a-…“ wird „Heartbeat … Electricity Price“,
+        und dreimal „EPEX Spot Data Total Price“ wird zu „… · Energy-Charts.info (DE-LU)“ usw.
+        """
+        from homeassistant.helpers import entity_registry as er
+
+        state = self.hass.states.get(entity_id)
+        name = state.name if state is not None else entity_id
+        title = None
+        entry = er.async_get(self.hass).async_get(entity_id)
+        if entry is not None and entry.config_entry_id:
+            ce = self.hass.config_entries.async_get_entry(entry.config_entry_id)
+            title = ce.title if ce is not None else None
+        return short_label(name, title)
 
     def price_forecast(self, hours: int = 36) -> list[dict[str, Any]]:
         """Preisvorschau der ersten Quelle, die eine liefert – in €/kWh brutto."""
@@ -387,8 +406,18 @@ class Insights:
         today = dt_util.now().date()
         days = max(1, min(int(days), 365))
         start = today - timedelta(days=days - 1)
+        asked = days
+        # Erst ab dem ersten Messwert rechnen – sonst zählt z. B. „365 Tage“ zwölf Grundgebühren,
+        # obwohl der Zähler erst seit zwei Monaten aufzeichnet.
+        meter = self.hub.opt(CONF_ENERGY_METER) if self.hub is not None else None
+        first = await self._first_data_day(meter, start, today) if meter else None
+        if first is not None and first > start:
+            start = first
+            days = (today - start).days + 1
         cfg = (await self.async_energy_extras(start, today))["energy"]
         cfg["days"] = days
+        cfg["days_asked"] = asked
+        cfg["data_from"] = first.isoformat() if first is not None else None
         cur = summarize(self.rooms_by_name(), self.data["home"], start, today)
         annual = self.hub.opt("annual_cost") if self.hub is not None else None
         cost = money(cur, annual, cfg)
@@ -406,6 +435,8 @@ class Insights:
             "start": start.isoformat(),
             "end": today.isoformat(),
             "days": days,
+            "days_asked": asked,
+            "data_from": cfg["data_from"],
             "energy": cfg,
             "money": cost,
             "forecast": self.price_forecast() if cfg.get("enabled") else [],
@@ -501,6 +532,12 @@ class Insights:
             return energy_kwh(value, self._unit_of(entity), factor, src) if value is not None else None
 
         cfg["ww_kwh"] = await kwh_of(cfg.get("ww_meter"), cfg["source"])
+        if cfg.get("meter_scope") == "total" and cfg.get("kwh") is not None:
+            # Zähler misst Heizung + Warmwasser: Warmwasser-Zähler teilt nur auf, zählt nicht dazu
+            heat, ww = split_total(float(cfg["kwh"]), cfg.get("ww_kwh"))
+            cfg["kwh_total"] = round(float(cfg["kwh"]), 2)
+            cfg["kwh"] = heat
+            cfg["ww_kwh"] = ww
         cfg["ww_heat_kwh"] = await kwh_of(cfg.get("ww_heat_entity"))
         cfg["house_kwh"] = await kwh_of(cfg.get("house_entity"))
         cfg["grid_kwh"] = await kwh_of(cfg.get("grid_entity"))
@@ -535,10 +572,14 @@ class Insights:
             vals = daily.get(key, {})
             h = home.get(key) or {}
             n = h.get("outdoor_n_s") or 0
+            day_kwh, day_ww = vals.get("kwh", 0.0), vals.get("ww", 0.0)
+            if cfg.get("meter_scope") == "total" and cfg.get("kwh_total"):
+                share = float(cfg.get("ww_kwh") or 0) / float(cfg["kwh_total"])
+                day_kwh, day_ww = round(day_kwh * (1 - share), 2), round(day_kwh * share, 2)
             series.append({
                 "date": key,
-                "kwh": vals.get("kwh", 0.0),
-                "ww": vals.get("ww", 0.0),
+                "kwh": day_kwh,
+                "ww": day_ww,
                 "cost": vals.get("cost", 0.0),
                 "outdoor": round(h["outdoor_s"] / n, 1) if n else None,
             })
@@ -550,7 +591,12 @@ class Insights:
         meter = await self._stat_rows(cfg["meter"], start, end, "change")
         if not meter:
             return []
-        ww = await self._stat_rows(cfg.get("ww_meter"), start, end, "change") if cfg.get("ww_meter") else {}
+        total_scope = cfg.get("meter_scope") == "total"
+        ww = (
+            await self._stat_rows(cfg.get("ww_meter"), start, end, "change")
+            if cfg.get("ww_meter") and not total_scope
+            else {}
+        )
         electric = cfg["source"] in ("electric", "heatpump")
         house = grid = {}
         if electric and cfg.get("house_entity") and cfg.get("grid_entity"):
@@ -759,6 +805,28 @@ class Insights:
     def _unit_of(self, entity_id: str) -> str | None:
         state = self.hass.states.get(entity_id)
         return state.attributes.get("unit_of_measurement") if state is not None else None
+
+    async def _first_data_day(self, entity_id: str, start: date, end: date) -> date | None:
+        """Erster Tag mit Statistik einer Zähler-Entität im Zeitraum (None = keine Daten)."""
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        first = dt_util.as_utc(dt_util.start_of_local_day(start))
+        last = dt_util.as_utc(dt_util.start_of_local_day(end + timedelta(days=1)))
+        try:
+            result = await get_instance(self.hass).async_add_executor_job(
+                statistics_during_period, self.hass, first, last, {entity_id}, "day", None, {"change"},
+            )
+        except Exception:  # noqa: BLE001 – ohne Statistik kein Abschneiden
+            return None
+        for row in result.get(entity_id) or []:
+            stamp = row.get("start")
+            if stamp is None or row.get("change") is None:
+                continue
+            if not isinstance(stamp, datetime):
+                stamp = dt_util.utc_from_timestamp(float(stamp))
+            return dt_util.as_local(stamp).date()
+        return None
 
     async def _stat_change(self, entity_id: str, start: date, end: date) -> float | None:
         """Summierte Änderung einer Zähler-Entität im Zeitraum [start, end]."""

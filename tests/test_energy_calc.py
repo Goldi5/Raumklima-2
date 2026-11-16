@@ -9,6 +9,8 @@ from custom_components.raumklima.energy_calc import (
     parse_forecast,
     ratio,
     self_share,
+    short_label,
+    split_total,
     step_means,
     tariff_to_kwh,
 )
@@ -87,3 +89,18 @@ def test_money_base_fee_share_by_usage():
     energy = {"kwh": 100.0, "price": 0.30, "days": 30.44, "base": 20.0, "base_share": "usage", "house_kwh": 400.0}
     out = money(cur, None, energy)
     assert out["period_cost"] == round(100 * 0.30 + 20.0 * 30 / 30.44 * 0.25, 2)
+
+
+def test_split_total_meter():
+    """Zähler misst Heizung + Warmwasser: Warmwasser teilt nur auf."""
+    assert split_total(100.0, 30.0) == (70.0, 30.0)
+    assert split_total(20.0, 30.0) == (0.0, 20.0)
+    assert split_total(50.0, None) == (50.0, None)
+    assert split_total(50.0, -3.0) == (50.0, 0.0)
+
+
+def test_short_label():
+    raw = "Heartbeat Electricity Price 0323a81a-29e5-45fa-87f7-9c6e5c70c639"
+    assert short_label(raw) == "Heartbeat Electricity Price"
+    assert short_label("EPEX Spot Data Total Price", "Energy-Charts.info (DE-LU)") == "EPEX Spot Data Total Price · Energy-Charts.info (DE-LU)"
+    assert short_label("Tibber Preis Tibber", "Tibber") == "Tibber Preis Tibber"

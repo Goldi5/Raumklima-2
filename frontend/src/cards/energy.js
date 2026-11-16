@@ -323,7 +323,8 @@ export class RaumklimaEnergyCard extends HTMLElement {
     else if (!d) body = `<div class="dempty"><ha-icon icon="mdi:loading"></ha-icon><div>${t("Lade Energie …")}</div></div>`;
     else body = this._body(d);
     const title = this._config.title || t("Energie");
-    const sub = d ? `${t("Letzte {n} Tage", { n: d.days })} · ${d.start} – ${d.end}` : t("Zähler, Tarif und Kosten");
+    const clipped = d && d.data_from && d.days_asked && d.days < d.days_asked;
+    const sub = d ? `${clipped ? t("Daten ab {d}", { d: d.start }) : t("Letzte {n} Tage", { n: d.days })} · ${d.start} – ${d.end}` : t("Zähler, Tarif und Kosten");
     this._html = `<style>${STYLES}${DASH_STYLES}${ENERGY_STYLES}</style>
       <ha-card class="dashcard" style="--tone:${toneVar("warn")}">
         <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:lightning-bolt-outline"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div>

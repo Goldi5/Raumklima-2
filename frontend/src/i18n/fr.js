@@ -1544,4 +1544,10 @@ export const FR = {
   "kein Zeitfenster (außerhalb gilt)": "aucune plage (la règle hors plage s’applique)",
   "wie sonst": "comme d’habitude",
   "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "p. ex. une liste « travail / libre / malade » – chaque pièce a son planning par programme",
+  "Zähler misst": "Le compteur mesure",
+  "nur Heizung": "chauffage seul",
+  "Heizung + Warmwasser": "chauffage + eau chaude",
+  "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "le compteur d’eau chaude ne fait alors que répartir et n’est pas ajouté – idéal pour un compteur total précis (p. ex. gestionnaire d’énergie)",
+  "Warmwasser kommt über den eigenen Zähler dazu": "l’eau chaude s’ajoute via son propre compteur",
+  "Daten ab {d}": "données depuis le {d}",
 };

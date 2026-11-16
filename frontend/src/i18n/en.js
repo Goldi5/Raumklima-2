@@ -1544,4 +1544,10 @@ export const EN = {
   "kein Zeitfenster (außerhalb gilt)": "no time window (outside rule applies)",
   "wie sonst": "as usual",
   "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "e.g. a dropdown helper “work / off / sick” – each room gets its own schedule per plan",
+  "Zähler misst": "Meter measures",
+  "nur Heizung": "heating only",
+  "Heizung + Warmwasser": "heating + hot water",
+  "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "the hot water meter then only splits and is not added – ideal for a finely measuring total meter (e.g. energy manager)",
+  "Warmwasser kommt über den eigenen Zähler dazu": "hot water is added via its own meter",
+  "Daten ab {d}": "data from {d}",
 };

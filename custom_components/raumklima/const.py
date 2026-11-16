@@ -382,6 +382,7 @@ HUB_DEFAULTS: Final = {
     "energy_house_entity": None,
     "energy_grid_entity": None,
     "energy_base_share": "full",
+    "energy_meter_scope": "heating",
     "energy_efficiency": 0.0,
     "energy_oil_price": 1.10,
     "energy_oil_factor": 10.0,
@@ -568,6 +569,8 @@ CONF_ENERGY_WW_HEAT: Final = "energy_ww_heat_entity"  # erzeugte Warmwasser-Wär
 CONF_ENERGY_TARIFF_FALLBACKS: Final = "energy_tariff_fallbacks"  # Reserve-Preisquellen in Reihenfolge
 CONF_ENERGY_HOUSE: Final = "energy_house_entity"  # Hausverbrauch gesamt (kWh)
 CONF_ENERGY_GRID: Final = "energy_grid_entity"  # Strombezug aus dem Netz (kWh)
+CONF_ENERGY_METER_SCOPE: Final = "energy_meter_scope"  # heating = nur Heizung, total = Heizung + Warmwasser
+ENERGY_METER_SCOPES: Final = ("heating", "total")
 CONF_ENERGY_BASE_SHARE: Final = "energy_base_share"  # Grundgebühr: full = ganz Heizung, usage = nach Anteil
 ENERGY_BASE_SHARES: Final = ("full", "usage")
 ENERGY_SOURCES: Final = ("auto", "electric", "gas", "heatpump", "district", "oil")

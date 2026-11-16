@@ -1,3 +1,15 @@
+## 1.3.2 – 2026-11-16
+
+### Neu
+- **„Zähler misst: nur Heizung / Heizung + Warmwasser“** (*Energie → Schritt 2*): Misst ein Zähler beides zusammen – z. B. ein Energiemanager, der die Wärmepumpe stündlich misst –, teilt der Warmwasser-Zähler nur noch auf und wird nicht doppelt gezählt. So lässt sich der fein messende Zähler für die Kosten nehmen und der träge Zähler der Wärmepumpe nur für die Aufteilung.
+
+### Behoben
+- **Zeitraum ab dem ersten Messwert:** „365 Tage“ rechnete zwölf Grundgebühren, auch wenn der Zähler erst seit zwei Monaten aufzeichnet. Jetzt beginnt der Zeitraum beim ersten Messwert, das Dashboard zeigt „Daten ab …“.
+- **Kurze Namen der Preisquellen:** ohne lange Kennungs-Ziffern, dafür mit dem Namen der Integration – dreimal „EPEX Spot Data Total Price“ ist jetzt unterscheidbar.
+
+### Tests
+- Gesamtzähler aufteilen (Warmwasser nie mehr als das Ganze), kurze Quellennamen.
+
 ## 1.3.1 – 2026-11-16
 
 ### Neu

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from datetime import datetime
+import re
 from typing import Any
 
 # Schlüssel, unter denen Preis-Integrationen ihre Vorschau ablegen
@@ -149,6 +150,18 @@ def self_share(house_kwh: float | None, grid_kwh: float | None) -> float | None:
     return max(0.0, min(1.0, 1 - grid_kwh / house_kwh))
 
 
+def split_total(total: float, ww: float | None) -> tuple[float, float | None]:
+    """Gesamtzähler (Heizung + Warmwasser) aufteilen: (Heizung, Warmwasser).
+
+    Der Warmwasser-Zähler teilt nur auf – er wird nie dazugezählt und nie mehr als das Ganze.
+    """
+    total = max(0.0, float(total))
+    if ww is None:
+        return round(total, 2), None
+    part = max(0.0, min(total, float(ww)))
+    return round(total - part, 2), round(part, 2)
+
+
 def ratio(out: float | None, into: float | None) -> float | None:
     """Arbeitszahl: erzeugte Wärme je kWh Strom – erst ab einer sinnvollen Menge."""
     if out is None or into is None or into < 1.0 or out <= 0:
@@ -183,4 +196,15 @@ def step_means(points: list[tuple[float, float]], starts: Iterable[float], width
             k += 1
         if dur >= width * 0.5:
             out[s] = acc / dur
+    return out
+
+
+_UUID = re.compile(r"\s*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.IGNORECASE)
+
+
+def short_label(name: str, integration: str | None = None) -> str:
+    """Name einer Preisquelle ohne Kennungs-Ziffern, bei Bedarf mit dem Namen der Integration."""
+    out = _UUID.sub("", str(name)).strip()
+    if integration and integration.lower() not in out.lower():
+        out = f"{out} · {integration}"
     return out

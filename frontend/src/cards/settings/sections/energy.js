@@ -59,6 +59,10 @@ export const EnergySectionMethods = {
     const s2 = [
       step(2, "Was wird gemessen?", "immer Gesamtzähler, die nur steigen – keine Tages- oder Wochenwerte"),
       this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"), now(H("energy_meter"), meterHint)),
+      source !== "oil" && source !== "district" ? this._row("Zähler misst", this._segs("hub", "energy_meter_scope", { heating: t("nur Heizung"), total: t("Heizung + Warmwasser") }, H("energy_meter_scope") || "heating"),
+        (H("energy_meter_scope") || "heating") === "total"
+          ? "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)"
+          : "Warmwasser kommt über den eigenen Zähler dazu") : "",
       source === "heatpump" ? this._row("Wärmemenge", this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– keiner –"),
         now(H("energy_heat_entity"), "erzeugte Heizwärme – damit wird die Arbeitszahl gemessen statt geschätzt")) : "",
       source === "heatpump" && !H("energy_heat_entity") ? this._row("Jahresarbeitszahl", this._num("hub", "energy_efficiency", H("energy_efficiency") ?? 0),

@@ -1540,7 +1540,13 @@
     "gilt gerade": "active now",
     "kein Zeitfenster (außerhalb gilt)": "no time window (outside rule applies)",
     "wie sonst": "as usual",
-    "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "e.g. a dropdown helper “work / off / sick” – each room gets its own schedule per plan"
+    "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "e.g. a dropdown helper “work / off / sick” – each room gets its own schedule per plan",
+    "Zähler misst": "Meter measures",
+    "nur Heizung": "heating only",
+    "Heizung + Warmwasser": "heating + hot water",
+    "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "the hot water meter then only splits and is not added – ideal for a finely measuring total meter (e.g. energy manager)",
+    "Warmwasser kommt über den eigenen Zähler dazu": "hot water is added via its own meter",
+    "Daten ab {d}": "data from {d}"
   };
 
   // src/i18n/fr.js
@@ -3083,7 +3089,13 @@
     "gilt gerade": "actif maintenant",
     "kein Zeitfenster (außerhalb gilt)": "aucune plage (la règle hors plage s’applique)",
     "wie sonst": "comme d’habitude",
-    "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "p. ex. une liste « travail / libre / malade » – chaque pièce a son planning par programme"
+    "z. B. Auswahl-Helfer „Arbeitszeit / frei / krank“ – jeder Raum bekommt je Plan seinen eigenen Zeitplan": "p. ex. une liste « travail / libre / malade » – chaque pièce a son planning par programme",
+    "Zähler misst": "Le compteur mesure",
+    "nur Heizung": "chauffage seul",
+    "Heizung + Warmwasser": "chauffage + eau chaude",
+    "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "le compteur d’eau chaude ne fait alors que répartir et n’est pas ajouté – idéal pour un compteur total précis (p. ex. gestionnaire d’énergie)",
+    "Warmwasser kommt über den eigenen Zähler dazu": "l’eau chaude s’ajoute via son propre compteur",
+    "Daten ab {d}": "données depuis le {d}"
   };
 
   // src/i18n.js
@@ -5903,7 +5915,8 @@
     "Strompreis": ["Nur bei Gas, Öl oder Fernwärme: der Strompreis je kWh brutto. Er wird für den Vergleich gebraucht, ob ein Klimagerät günstiger heizt als die Hauptheizung.", "Only for gas, oil or district heating: the electricity price per kWh, gross. It is needed to compare whether an air conditioner heats more cheaply than the main heating.", "Uniquement pour gaz, fioul ou chauffage urbain : le prix de l’électricité par kWh TTC. Il sert à comparer si une climatisation chauffe moins cher que le chauffage principal."],
     "Hysterese": ["Breite des Schaltbereichs in K. Unter Ziel minus die Hälfte öffnet Raumklima das Ventil ganz (Sollwert am Thermostat ganz hoch), über Ziel plus die Hälfte schließt es ganz. Größer = seltener Ventilbewegungen, aber mehr Temperaturschwankung.", "Width of the switching band in K. Below target minus half of it Raumklima opens the valve fully (setpoint all the way up), above target plus half it closes it fully. Larger = fewer valve movements but more temperature swing.", "Largeur de la plage en K. Sous la consigne moins la moitié, Raumklima ouvre la vanne entièrement (consigne au maximum), au-dessus de la consigne plus la moitié il la ferme. Plus grand = moins de mouvements mais plus de variation."],
     "Zeitplan-Helfer": ["Ein Zeitplan-Helfer aus Home Assistant (Einstellungen → Geräte & Dienste → Helfer → Zeitplan) statt der eigenen Zeitfenster. Ist er „an“, gilt das Zeitfenster; steht im Datenfeld des Blocks „temperature: 21“, wird diese Temperatur genommen, sonst die Wunschtemperatur. Vorgeheizt wird auf den nächsten Start.", "A Home Assistant schedule helper (Settings → Devices & services → Helpers → Schedule) instead of the room’s own windows. While it is “on” the window applies; if the block’s data field holds “temperature: 21” that temperature is used, otherwise the wish temperature. Preheating aims at the next start.", "Un assistant de planification Home Assistant (Paramètres → Appareils et services → Entrées → Planification) à la place des plages propres. Tant qu’il est « activé », la plage s’applique ; si le champ de données du bloc contient « temperature: 21 », cette température est reprise, sinon la température souhaitée. Le préchauffage vise le prochain début."],
-    "Plan-Umschalter": ["Ein Auswahl-Helfer (input_select), eine Auswahl-Entität oder ein Schalter, der zwischen Plänen umschaltet – z. B. „Arbeitszeit“, „frei“, „krank“. In jedem Raum legst du unter Zeitplan → Weitere Einstellungen fest, was in welchem Plan gilt: die eigenen Zeitfenster, ein Zeitplan-Helfer, ganztägig die Wunschtemperatur oder gar kein Zeitfenster. Ein Wechsel wirkt sofort.", "A dropdown helper (input_select), a select entity or a switch that switches between plans – e.g. “work”, “off”, “sick”. In each room, under Schedule → More settings, you choose what applies in which plan: the room’s own windows, a schedule helper, the wish temperature all day or no window at all. A change takes effect immediately.", "Une liste déroulante (input_select), une entité de sélection ou un interrupteur qui change de programme – p. ex. « travail », « libre », « malade ». Dans chaque pièce, sous Planning → Autres réglages, on choisit ce qui s’applique dans chaque programme : les plages propres, un assistant de planification, la température souhaitée toute la journée ou aucune plage. Le changement est immédiat."]
+    "Plan-Umschalter": ["Ein Auswahl-Helfer (input_select), eine Auswahl-Entität oder ein Schalter, der zwischen Plänen umschaltet – z. B. „Arbeitszeit“, „frei“, „krank“. In jedem Raum legst du unter Zeitplan → Weitere Einstellungen fest, was in welchem Plan gilt: die eigenen Zeitfenster, ein Zeitplan-Helfer, ganztägig die Wunschtemperatur oder gar kein Zeitfenster. Ein Wechsel wirkt sofort.", "A dropdown helper (input_select), a select entity or a switch that switches between plans – e.g. “work”, “off”, “sick”. In each room, under Schedule → More settings, you choose what applies in which plan: the room’s own windows, a schedule helper, the wish temperature all day or no window at all. A change takes effect immediately.", "Une liste déroulante (input_select), une entité de sélection ou un interrupteur qui change de programme – p. ex. « travail », « libre », « malade ». Dans chaque pièce, sous Planning → Autres réglages, on choisit ce qui s’applique dans chaque programme : les plages propres, un assistant de planification, la température souhaitée toute la journée ou aucune plage. Le changement est immédiat."],
+    "Zähler misst": ["„Nur Heizung“: Der Zähler misst den Strom (bzw. das Gas) fürs Heizen; ein Warmwasser-Zähler wird dazugezählt. „Heizung + Warmwasser“: Der Zähler misst beides zusammen – z. B. ein Energiemanager, der den Wärmepumpen-Strom stündlich misst. Der Warmwasser-Zähler teilt dann nur auf. Tipp: Für Kosten bei dynamischem Strompreis den Zähler nehmen, der am feinsten misst (stündlich statt einmal am Tag).", "“Heating only”: the meter measures the electricity (or gas) for heating; a hot water meter is added. “Heating + hot water”: the meter measures both – e.g. an energy manager metering the heat pump hourly. The hot water meter then only splits. Tip: for costs with dynamic prices use the meter that measures most finely (hourly rather than once a day).", "« Chauffage seul » : le compteur mesure l’électricité (ou le gaz) du chauffage ; un compteur d’eau chaude s’ajoute. « Chauffage + eau chaude » : le compteur mesure les deux – p. ex. un gestionnaire d’énergie mesurant la PAC chaque heure. Le compteur d’eau chaude ne fait alors que répartir. Conseil : avec un prix dynamique, prendre le compteur le plus fin (horaire plutôt qu’une fois par jour)."]
   };
 
   // src/fields.js
@@ -6455,6 +6468,11 @@
       const s2 = [
         step(2, "Was wird gemessen?", "immer Gesamtzähler, die nur steigen – keine Tages- oder Wochenwerte"),
         this._row("Zähler", this._select("hub", "energy_meter", meters, H("energy_meter"), "– wählen –"), now(H("energy_meter"), meterHint)),
+        source !== "oil" && source !== "district" ? this._row(
+          "Zähler misst",
+          this._segs("hub", "energy_meter_scope", { heating: t("nur Heizung"), total: t("Heizung + Warmwasser") }, H("energy_meter_scope") || "heating"),
+          (H("energy_meter_scope") || "heating") === "total" ? "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)" : "Warmwasser kommt über den eigenen Zähler dazu"
+        ) : "",
         source === "heatpump" ? this._row(
           "Wärmemenge",
           this._select("hub", "energy_heat_entity", heat, H("energy_heat_entity"), "– keiner –"),
@@ -11239,7 +11257,8 @@
       else if (!d) body = `<div class="dempty"><ha-icon icon="mdi:loading"></ha-icon><div>${t("Lade Energie …")}</div></div>`;
       else body = this._body(d);
       const title = this._config.title || t("Energie");
-      const sub = d ? `${t("Letzte {n} Tage", { n: d.days })} · ${d.start} – ${d.end}` : t("Zähler, Tarif und Kosten");
+      const clipped = d && d.data_from && d.days_asked && d.days < d.days_asked;
+      const sub = d ? `${clipped ? t("Daten ab {d}", { d: d.start }) : t("Letzte {n} Tage", { n: d.days })} · ${d.start} – ${d.end}` : t("Zähler, Tarif und Kosten");
       this._html = `<style>${STYLES}${DASH_STYLES}${ENERGY_STYLES}</style>
       <ha-card class="dashcard" style="--tone:${toneVar("warn")}">
         <div class="dhead"><div class="grow"><div class="dtitle"><ha-icon icon="mdi:lightning-bolt-outline"></ha-icon><div>${esc(title)}<div class="dsub">${esc(sub)}</div></div></div></div>
