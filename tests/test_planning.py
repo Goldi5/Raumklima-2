@@ -37,7 +37,7 @@ from rk.planning import (
     sun_position,
 )
 
-BERLIN = (52.5146, 13.4986)  # Lichtenberg
+BERLIN = (52.5200, 13.4050)  # Mitte
 KOELN = (50.9375, 6.9603)
 T0 = datetime(2026, 11, 2, 12, 0)
 

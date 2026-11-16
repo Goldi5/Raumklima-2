@@ -1107,14 +1107,14 @@ async def test_sun_location_prefers_zone(hass: HomeAssistant, setup, trv: FakeTr
 
     _hub, _room = setup
     hub = get_hub(hass, None)
-    hass.states.async_set("zone.gunterstr_berlin", "1", {"latitude": 52.5, "longitude": 13.4})
-    hub.config[CONF_ZONE] = "zone.gunterstr_berlin"
+    hass.states.async_set("zone.stadtwohnung", "1", {"latitude": 52.5, "longitude": 13.4})
+    hub.config[CONF_ZONE] = "zone.stadtwohnung"
     assert hub.sun_location == (52.5, 13.4)
 
     # eigene Angabe schlägt die Zone
-    hub.config[CONF_LATITUDE] = 51.18
-    hub.config[CONF_LONGITUDE] = 7.19
-    assert hub.sun_location == (51.18, 7.19)
+    hub.config[CONF_LATITUDE] = 50.11
+    hub.config[CONF_LONGITUDE] = 8.68
+    assert hub.sun_location == (50.11, 8.68)
 
 
 async def test_climate_exposes_trv_target(hass: HomeAssistant, setup, trv: FakeTrv) -> None:

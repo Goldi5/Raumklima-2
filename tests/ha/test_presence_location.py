@@ -10,7 +10,7 @@ from custom_components.raumklima.shared import get_hub
 from .conftest import FakeTrv
 from .test_features import _setup
 
-HOME = {"latitude": 51.19, "longitude": 7.18}
+HOME = {"latitude": 50.11, "longitude": 8.68}
 ZONE = {**HOME, "radius": 100, "friendly_name": "Zuhause"}
 
 
