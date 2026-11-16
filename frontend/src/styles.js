@@ -17,6 +17,7 @@ export const STYLES = `
   .chips:empty { display:none; }
   /* Lange Statustexte dürfen im Chip umbrechen – lieber zwei Zeilen im Chip als abgeschnitten */
   .chips .chip { white-space:normal; align-items:center; line-height:1.25; }
+  .chips .sel { width:auto; max-width:100%; padding:5px 10px; font-size:.9rem; }
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
     color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .top > .wins, .top > .boostbtn { flex:none; }

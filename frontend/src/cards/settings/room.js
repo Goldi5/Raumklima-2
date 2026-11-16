@@ -109,11 +109,27 @@ export const RoomMethods = {
         })(),
         (() => {
           const ch = (this._cfg && this._cfg.choices) || {};
-          const persons = [...(ch.persons || []), ...(ch.room_switches || [])];
-          if (!persons.length) return "";
+          const groups = [
+            [t("Personen"), ch.persons || []],
+            [t("Schalter"), ch.room_switches || []],
+          ].filter(([, items]) => items.length);
+          if (!groups.some(([, items]) => items.length)) return "";
+          const all = groups.flatMap(([, items]) => items);
           const cur = this._roomOpt(r, "room_persons") ?? s.room_persons ?? [];
+          const selected = cur.map((pid) => {
+            const p = all.find((x) => x.id === pid);
+            return `<span class="chip2" style="--c:var(--rk-ok)"><i></i>${esc(p ? p.name : pid)}${editable ? `<button class="mini x" data-roomperson="${esc(pid)}" data-entry="${esc(id)}" title="${esc(t("entfernen"))}" aria-label="${esc(t("entfernen"))}">✕</button>` : ""}</span>`;
+          }).join("");
+          const rest = all.filter((p) => !cur.includes(p.id));
+          const options = groups.map(([label, items]) => {
+            const free = items.filter((p) => !cur.includes(p.id));
+            return free.length ? `<optgroup label="${esc(label)}">${free.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("")}</optgroup>` : "";
+          }).join("");
+          const add = editable && rest.length
+            ? `<select class="sel" data-roompersonadd="${esc(id)}" aria-label="${esc(t("Person oder Schalter hinzufügen …"))}"><option value="">${esc(t("Person oder Schalter hinzufügen …"))}</option>${options}</select>`
+            : "";
           return this._row("Gilt für Personen",
-            `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
+            `<div class="chips">${selected}${add}</div>`,
             cur.length ? t("nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar"), this._srcBadge(r, "room_persons"));
         })(),
         ].join(""), r, ["preheat_mode", "quiet_mode", "solar_gain", "solar_facade", "room_persons"]),

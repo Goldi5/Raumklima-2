@@ -257,6 +257,14 @@ export const BindMethods = {
       const next = cur.includes(el.dataset.roomperson) ? cur.filter((x) => x !== el.dataset.roomperson) : [...cur, el.dataset.roomperson];
       this._setRoom(entry, { room_persons: next }, 300);
     });
+    on("change", "[data-roompersonadd]", (el) => () => {
+      const entry = el.dataset.roompersonadd;
+      const value = el.value;
+      if (!value) return;
+      const cur = roomList(entry, "room_persons", []);
+      if (!cur.includes(value)) this._setRoom(entry, { room_persons: [...cur, value] }, 300);
+      el.blur();
+    });
     on("click", "[data-guestroom]", (el) => () => {
       const rid = el.dataset.guestroom;
       const cur = [...(this._hubOpt("guests_rooms") || [])];

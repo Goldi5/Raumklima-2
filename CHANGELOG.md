@@ -1,3 +1,11 @@
+## 1.3.6b1 – 2026-11-16
+
+### Behoben
+- **„Gilt für Personen“ in der Raumregelung:** Die lange Reihe aller Personen und Schalter ist jetzt eine aufgeräumte Auswahl. Nur gewählte Einträge erscheinen als entfernbare Chips; neue Personen oder Schalter (z. B. ein TV-ZDF-Schalter) lassen sich über ein Dropdown hinzufügen.
+
+### Tests
+- Dropdown enthält nur noch nicht gewählte Personen/Schalter, Auswahl bleibt erhalten und nicht gewählte Einträge bekommen keinen Chip.
+
 ## 1.3.5b1 – 2026-11-16
 
 ### Neu

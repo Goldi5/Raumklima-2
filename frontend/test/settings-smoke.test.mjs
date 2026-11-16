@@ -363,6 +363,20 @@ test("Entfeuchter: eigene Ein- und Ausschaltschwelle in den Raumeinstellungen", 
   assert.match(html, /data-key="dehumidifier_off" data-step="1" data-min="20" data-max="90" data-val="70"/);
 });
 
+test("Gilt für Personen: Auswahl per Dropdown statt aller Chips", () => {
+  const card = makeRoom((c) => {
+    c._cfg.choices.persons = [{ id: "person.anna", name: "Anna" }, { id: "person.ben", name: "Ben" }];
+    c._cfg.choices.room_switches = [{ id: "input_boolean.tv_zdf", name: "TV ZDF" }];
+    c._cfg.rooms[0].options.room_persons = ["person.anna"];
+  });
+  const html = card.shadowRoot.innerHTML;
+  assert.match(html, /data-roomperson="person.anna"/, "ausgewählte Person muss entfernbar sein");
+  assert.doesNotMatch(html, /data-roomperson="person.ben"/, "nicht ausgewählte Personen dürfen keinen Chip bekommen");
+  assert.match(html, /data-roompersonadd=/, "Dropdown zum Hinzufügen fehlt");
+  assert.match(html, /TV ZDF/, "Schalter müssen im Dropdown wählbar sein");
+  assert.match(html, /optgroup label="Schalter"/, "Schalter brauchen eine eigene Gruppe");
+});
+
 test("Raum-Unterseiten: Leiste zeigt die Bereiche und blendet die Gruppen passend aus", () => {
   const card = makeRoom(() => {});
   card._nav2 = true;

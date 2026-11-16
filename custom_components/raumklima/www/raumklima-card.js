@@ -1,4 +1,4 @@
-/* Raumklima 1.3.5b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.3.6b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1181,6 +1181,9 @@
     "läuft noch {m} min": "{m} min left",
     "läuft ohne Zeitlimit": "runs without time limit",
     "Gilt für Personen": "Applies to people",
+    "Personen": "People",
+    "Schalter": "Switches",
+    "Person oder Schalter hinzufügen …": "Add person or switch …",
     "Urlaub automatisch ab": "Vacation detected beyond",
     "… nach": "… after",
     "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)": "only after this long does being far away count as vacation (a day trip does not trigger it)",
@@ -2740,6 +2743,9 @@
     "läuft noch {m} min": "encore {m} min",
     "läuft ohne Zeitlimit": "fonctionne sans limite de temps",
     "Gilt für Personen": "Concerne les personnes",
+    "Personen": "Personnes",
+    "Schalter": "Interrupteurs",
+    "Person oder Schalter hinzufügen …": "Ajouter une personne ou un interrupteur …",
     "Urlaub automatisch ab": "Vacances détectées au-delà de",
     "… nach": "… après",
     "erst so lange weit weg zählt als Urlaub (Tagesausflug löst nicht aus)": "ce n’est qu’après ce délai qu’être loin compte comme des vacances (une excursion d’un jour ne déclenche rien)",
@@ -3159,7 +3165,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.3.5b1";
+  var RK_VERSION = "1.3.6b1";
 
   // src/styles.js
   var STYLES = `
@@ -3179,6 +3185,7 @@
   .chips:empty { display:none; }
   /* Lange Statustexte dürfen im Chip umbrechen – lieber zwei Zeilen im Chip als abgeschnitten */
   .chips .chip { white-space:normal; align-items:center; line-height:1.25; }
+  .chips .sel { width:auto; max-width:100%; padding:5px 10px; font-size:.9rem; }
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
     color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .top > .wins, .top > .boostbtn { flex:none; }
@@ -7839,12 +7846,26 @@
           })(),
           (() => {
             const ch = this._cfg && this._cfg.choices || {};
-            const persons = [...ch.persons || [], ...ch.room_switches || []];
-            if (!persons.length) return "";
+            const groups = [
+              [t("Personen"), ch.persons || []],
+              [t("Schalter"), ch.room_switches || []]
+            ].filter(([, items]) => items.length);
+            if (!groups.some(([, items]) => items.length)) return "";
+            const all = groups.flatMap(([, items]) => items);
             const cur = this._roomOpt(r, "room_persons") ?? s.room_persons ?? [];
+            const selected = cur.map((pid) => {
+              const p = all.find((x) => x.id === pid);
+              return `<span class="chip2" style="--c:var(--rk-ok)"><i></i>${esc(p ? p.name : pid)}${editable ? `<button class="mini x" data-roomperson="${esc(pid)}" data-entry="${esc(id)}" title="${esc(t("entfernen"))}" aria-label="${esc(t("entfernen"))}">✕</button>` : ""}</span>`;
+            }).join("");
+            const rest = all.filter((p) => !cur.includes(p.id));
+            const options = groups.map(([label, items]) => {
+              const free = items.filter((p) => !cur.includes(p.id));
+              return free.length ? `<optgroup label="${esc(label)}">${free.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("")}</optgroup>` : "";
+            }).join("");
+            const add = editable && rest.length ? `<select class="sel" data-roompersonadd="${esc(id)}" aria-label="${esc(t("Person oder Schalter hinzufügen …"))}"><option value="">${esc(t("Person oder Schalter hinzufügen …"))}</option>${options}</select>` : "";
             return this._row(
               "Gilt für Personen",
-              `<div class="chips">${persons.map((p) => `<button class="chip2 ${cur.includes(p.id) ? "" : "off"}" data-roomperson="${p.id}" data-entry="${id}" ${editable ? "" : "disabled"}><i></i>${esc(p.name)}</button>`).join("")}</div>`,
+              `<div class="chips">${selected}${add}</div>`,
               cur.length ? t("nur wenn eine dieser Personen zu Hause ist oder ein gewählter Schalter an – sonst wird der Raum abgesenkt") : t("keine Auswahl = der Raum gilt allen Bewohnern; auch Schalter (z. B. Gast) und Präsenz-Sensoren wählbar"),
               this._srcBadge(r, "room_persons")
             );
@@ -8793,6 +8814,14 @@
         const cur = roomList(entry, "room_persons", []);
         const next = cur.includes(el.dataset.roomperson) ? cur.filter((x) => x !== el.dataset.roomperson) : [...cur, el.dataset.roomperson];
         this._setRoom(entry, { room_persons: next }, 300);
+      });
+      on("change", "[data-roompersonadd]", (el) => () => {
+        const entry = el.dataset.roompersonadd;
+        const value = el.value;
+        if (!value) return;
+        const cur = roomList(entry, "room_persons", []);
+        if (!cur.includes(value)) this._setRoom(entry, { room_persons: [...cur, value] }, 300);
+        el.blur();
       });
       on("click", "[data-guestroom]", (el) => () => {
         const rid = el.dataset.guestroom;
