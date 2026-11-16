@@ -266,6 +266,16 @@ rafraîchie toutes les 10 minutes pour atteindre aussi les appareils qui remonte
 Sous la ligne des pièces, la version s'affiche en petit, p. ex. **« Raumklima 0.45.2 »**. Utile quand
 une modification ne semble pas arriver : vérifiez d'abord que la carte a bien chargé la nouvelle version.
 
+## Planning : quelle température et quand
+
+Comme dans d’autres intégrations de chauffage : séjour 8–20 h à 20 °C, salle de bain 6–16 h à 22 °C, plus frais entre les deux.
+
+1. *Pièce → Planning → « Ajouter une plage horaire »* : touche les jours, choisis de–à, règle la température de cette plage avec −/+.
+2. Juste en dessous, **« En dehors des plages »** : **Absence courte** ou **Absent longtemps** abaisse entre les plages, **Sécurité** ne garde que le hors-gel. Avec **température souhaitée**, la pièce continue simplement de chauffer normalement – on remarque alors à peine le planning. C’est pourquoi Raumklima passe tout seul sur « Absence courte » à la première plage d’une pièce.
+3. La carte de pièce montre sous les boutons ce qui s’applique : « Planning : 20 °C jusqu’à 20:00 · ensuite 17 °C » ou « 22 °C dès 06:00 · d’ici là 17 °C ».
+
+Si tu es signalé absent, l’abaissement d’absence passe avant le planning. Si deux plages se chevauchent, celle du bas l’emporte. Au lieu de plages propres, un assistant de planning Home Assistant et un sélecteur de plan fonctionnent aussi (voir plus haut).
+
 ## Quand tout le monde est absent
 
 Raumklima le remarque via vos téléphones dès que plus personne n’est à la maison :

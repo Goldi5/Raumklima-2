@@ -60,3 +60,33 @@ async def test_im_fenster_gilt_der_zeitplan(hass: HomeAssistant, setup, trv: Fak
     _on, target, reason = ctrl.plan()
     assert reason == "schedule"
     assert target == 21.0
+
+
+async def test_status_fuer_die_raumkarte(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Issue #52: Die Raumkarte zeigt „20 °C bis … · danach 17 °C“ bzw. das nächste Fenster."""
+    _hub, room = setup
+    ctrl = _ctrl(hass, room)
+    ctrl.config[CONF_SCHEDULES] = [{"days": [], "start": "00:00:00", "end": "23:59:00", "temperature": 20.0}]
+    ctrl.config[CONF_SCHEDULE_FALLBACK] = "long"
+    from homeassistant.util import dt as dt_util
+
+    now = dt_util.now().replace(hour=12, minute=0, second=0, microsecond=0)
+    st = ctrl.schedule_status(now)
+    assert st["active"] is True
+    assert st["temp"] == 20.0
+    assert st["until"].startswith(now.date().isoformat() + "T23:59")
+    assert st["outside"] == ctrl.setback_long
+
+    ctrl.config[CONF_SCHEDULES] = NICHT_JETZT
+    st = ctrl.schedule_status(now)
+    assert st["active"] is False and st["temp"] is None
+    assert st["next"] is not None and st["next_temp"] == 21.0
+
+
+async def test_ohne_zeitplan_kein_status(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    _hub, room = setup
+    ctrl = _ctrl(hass, room)
+    ctrl.config[CONF_SCHEDULES] = []
+    from homeassistant.util import dt as dt_util
+
+    assert ctrl.schedule_status(dt_util.now()) is None

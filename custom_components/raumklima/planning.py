@@ -676,6 +676,23 @@ def schedule_window(schedules: list[dict[str, Any]] | None, local: datetime) -> 
     return found
 
 
+def schedule_window_end(schedules: list[dict[str, Any]] | None, local: datetime) -> datetime | None:
+    """Ende des gerade laufenden Zeitfensters – None ohne Fenster oder bei „ganztägig“."""
+    item = schedule_window(schedules, local)
+    if item is None:
+        return None
+    try:
+        s, e = _minutes(str(item.get("start") or "")), _minutes(str(item.get("end") or ""))
+    except (TypeError, ValueError):
+        return None
+    if s == e:
+        return None
+    end = local.replace(hour=e // 60, minute=e % 60, second=0, microsecond=0)
+    if end <= local:
+        end += timedelta(days=1)
+    return end
+
+
 def next_schedule_window(
     schedules: list[dict[str, Any]] | None, local: datetime, horizon_minutes: int = 24 * 60
 ) -> tuple[datetime, float] | None:

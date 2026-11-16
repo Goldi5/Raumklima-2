@@ -1563,4 +1563,13 @@ export const EN = {
   "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "the hot water meter then only splits and is not added – ideal for a finely measuring total meter (e.g. energy manager)",
   "Warmwasser kommt über den eigenen Zähler dazu": "hot water is added via its own meter",
   "Daten ab {d}": "data from {d}",
+  "(Wunschtemperatur)": "(desired temperature)",
+  "Außerhalb der Fenster wäre es wärmer ({v} °C) als in {n} Fenster(n) – stelle „Außerhalb“ auf „Kurz weg“ oder „Länger weg“": "Outside the windows it would be warmer ({v} °C) than in {n} window(s) – set “Outside” to “Briefly away” or “Away longer”",
+  "Zeitplan: ab {u} {v} °C · bis dahin {o} °C": "Schedule: {v} °C from {u} · until then {o} °C",
+  "Zeitplan: kein Fenster in den nächsten 24 h · {o} °C": "Schedule: no window in the next 24 h · {o} °C",
+  "Zeitplan: {v} °C bis {u} · danach {o} °C": "Schedule: {v} °C until {u} · then {o} °C",
+  "Zeitplan: {v} °C ganztägig": "Schedule: {v} °C all day",
+  "im Zeitfenster gilt seine Temperatur, außerhalb {v} °C": "inside a window its temperature applies, outside {v} °C",
+  "morgen {t}": "tomorrow {t}",
+  "· bist du als abwesend gemeldet, gilt die Abwesenheits-Absenkung": "· when you are reported away, the away setback applies",
 };

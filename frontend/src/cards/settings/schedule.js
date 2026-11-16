@@ -151,21 +151,32 @@ export const ScheduleMethods = {
         : this._v((opts.find(([v]) => v === cur) || opts[0])[1]);
       return this._row(t("Plan „{p}“", { p: planLabel(o) }), sel, plan.now === o ? t("gilt gerade") : "");
     }).join("");
+    // Außerhalb der Zeitfenster – direkt unter den Fenstern, weil es zum Zeitplan dazugehört (Issue #52)
+    const wish = Number(this._roomOpt(r, "comfort_temperature") ?? s.comfort_temperature ?? 21);
+    const outsideVal = {
+      short: Number(this._roomOpt(r, "setback_short") ?? s.setback_short),
+      long: Number(this._roomOpt(r, "setback_long") ?? s.setback_long),
+      frost: Number(this._roomOpt(r, "frost_temperature") ?? s.frost_temperature),
+    }[fallback];
+    const outside = Number.isFinite(outsideVal) && outsideVal < wish ? outsideVal : wish;
+    const colder = list.filter((w) => Number(w.temperature) < outside - 0.05);
+    const fbHint = [
+      t("im Zeitfenster gilt seine Temperatur, außerhalb {v} °C", { v: fmt(outside, 1) }),
+      fallback === "wish" ? t("(Wunschtemperatur)") : "",
+      t("· bist du als abwesend gemeldet, gilt die Abwesenheits-Absenkung"),
+    ].filter(Boolean).join(" ");
+    const fbWarn = colder.length
+      ? `<div class="warnline"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(t("Außerhalb der Fenster wäre es wärmer ({v} °C) als in {n} Fenster(n) – stelle „Außerhalb“ auf „Kurz weg“ oder „Länger weg“", { v: fmt(outside, 1), n: colder.length }))}</div>`
+      : "";
+    const fallbackRow = this._row(
+      "Außerhalb der Zeitfenster",
+      (editable ? this._segs(scope, "schedule_fallback", RK_SCHED_FALLBACK, fallback) : this._v(RK_SCHED_FALLBACK[fallback] || "–")) + fbWarn,
+      fbHint
+    );
     const moreRows = [
       planRows,
       helperRow,
       shareRow,
-      this._row(
-        "Außerhalb der Zeitfenster",
-        editable ? this._segs(scope, "schedule_fallback", RK_SCHED_FALLBACK, fallback) : this._v(RK_SCHED_FALLBACK[fallback] || "–"),
-        fallback === "wish"
-          ? t("wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur")
-          : fallback === "short"
-            ? t("zwischen den Fenstern wird auf „kurz weg“ abgesenkt")
-            : fallback === "long"
-              ? t("zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden")
-              : t("zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert")
-      ),
       this._row(
         "Zeitplan überschreiben",
         editable ? this._num(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
@@ -206,8 +217,9 @@ export const ScheduleMethods = {
     if (!ro && !shared) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
     }
+    rows.push(fallbackRow);
     rows.push(...boostRows);
-    rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_by_plan", "schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
+    rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_by_plan", "schedule_entity", "schedule_from", "override_minutes", "boost_sources"]));
     return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
   },
 

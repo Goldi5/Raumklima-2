@@ -1,4 +1,4 @@
-import { rkDark, rkLook, rkLookStyles, STATUS, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkDark, rkLook, rkLookStyles, STATUS, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkTime, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 // Boost-Fenster: Zeitstrahl und Auswahl (eigene Styles, damit die Karte unverändert bleibt)
 const BOOST_CSS = `
@@ -90,6 +90,33 @@ export class RaumklimaCard extends HTMLElement {
 
   _moreInfo(entityId) {
     this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }));
+  }
+
+  // Zeitplan in einer Zeile: „20 °C bis 20:00 · danach 17 °C“ (Issue #52)
+  _schedLine(a) {
+    const st = a.schedule_status;
+    if (!st) return "";
+    const hm = (iso) => {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
+      const today = new Date();
+      const days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 864e5);
+      if (days === 0) return time;
+      if (days === 1) return t("morgen {t}", { t: time });
+      return `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}`;
+    };
+    let text;
+    if (st.active) {
+      text = st.until
+        ? t("Zeitplan: {v} °C bis {u} · danach {o} °C", { v: fmt(st.temp, 1), u: hm(st.until), o: fmt(st.outside, 1) })
+        : t("Zeitplan: {v} °C ganztägig", { v: fmt(st.temp, 1) });
+    } else if (st.next) {
+      text = t("Zeitplan: ab {u} {v} °C · bis dahin {o} °C", { u: hm(st.next), v: fmt(st.next_temp, 1), o: fmt(st.outside, 1) });
+    } else {
+      text = t("Zeitplan: kein Fenster in den nächsten 24 h · {o} °C", { o: fmt(st.outside, 1) });
+    }
+    return `<div class="since sched"><ha-icon icon="mdi:calendar-clock"></ha-icon><span>${esc(text)}</span></div>`;
   }
 
   _boostSheet(a) {
@@ -351,6 +378,7 @@ export class RaumklimaCard extends HTMLElement {
           <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="${t("wärmer")}"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>`}
         ${banner}
+        ${mon || isOff ? "" : this._schedLine(a)}
         <div class="stats">${stats}</div>
         ${devLine}
         ${this._boostOpen ? this._boostSheet(a) : ""}

@@ -267,6 +267,16 @@ every 10 minutes so it also reaches devices that report rarely (Livisi, Homemati
 Under the room count in the overview the version is shown in small print, e.g. **“Raumklima 0.45.2”**.
 Useful when a change does not seem to arrive: check first whether the card loaded the new build.
 
+## Schedule: which temperature when
+
+Just like other heating integrations: living room 8–20 h at 20 °C, bathroom 6–16 h at 22 °C, cooler in between.
+
+1. *Room → Schedule → “Add time window”*: tap the weekdays, pick from–to, set this window’s temperature with −/+.
+2. Right below, **“Outside the time windows”**: **Briefly away** or **Away longer** lowers the room between windows, **Safety** keeps only frost protection. With **desired temperature** the room simply keeps heating normally between windows – then you hardly notice the schedule. That’s why Raumklima switches to “Briefly away” by itself when a room gets its first window.
+3. The room card shows below the buttons what applies: “Schedule: 20 °C until 20:00 · then 17 °C” or “22 °C from 06:00 · until then 17 °C”.
+
+When you are reported away, the away setback comes before the schedule. If two windows overlap, the lower one wins. Instead of own windows you can also use a Home Assistant schedule helper and a plan selector (see above).
+
 ## When everyone is away
 
 Raumklima notices through your phones when nobody is home anymore:

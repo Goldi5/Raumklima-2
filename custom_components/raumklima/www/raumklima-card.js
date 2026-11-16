@@ -1559,7 +1559,16 @@
     "Heizung + Warmwasser": "heating + hot water",
     "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "the hot water meter then only splits and is not added – ideal for a finely measuring total meter (e.g. energy manager)",
     "Warmwasser kommt über den eigenen Zähler dazu": "hot water is added via its own meter",
-    "Daten ab {d}": "data from {d}"
+    "Daten ab {d}": "data from {d}",
+    "(Wunschtemperatur)": "(desired temperature)",
+    "Außerhalb der Fenster wäre es wärmer ({v} °C) als in {n} Fenster(n) – stelle „Außerhalb“ auf „Kurz weg“ oder „Länger weg“": "Outside the windows it would be warmer ({v} °C) than in {n} window(s) – set “Outside” to “Briefly away” or “Away longer”",
+    "Zeitplan: ab {u} {v} °C · bis dahin {o} °C": "Schedule: {v} °C from {u} · until then {o} °C",
+    "Zeitplan: kein Fenster in den nächsten 24 h · {o} °C": "Schedule: no window in the next 24 h · {o} °C",
+    "Zeitplan: {v} °C bis {u} · danach {o} °C": "Schedule: {v} °C until {u} · then {o} °C",
+    "Zeitplan: {v} °C ganztägig": "Schedule: {v} °C all day",
+    "im Zeitfenster gilt seine Temperatur, außerhalb {v} °C": "inside a window its temperature applies, outside {v} °C",
+    "morgen {t}": "tomorrow {t}",
+    "· bist du als abwesend gemeldet, gilt die Abwesenheits-Absenkung": "· when you are reported away, the away setback applies"
   };
 
   // src/i18n/fr.js
@@ -3121,7 +3130,16 @@
     "Heizung + Warmwasser": "chauffage + eau chaude",
     "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "le compteur d’eau chaude ne fait alors que répartir et n’est pas ajouté – idéal pour un compteur total précis (p. ex. gestionnaire d’énergie)",
     "Warmwasser kommt über den eigenen Zähler dazu": "l’eau chaude s’ajoute via son propre compteur",
-    "Daten ab {d}": "données depuis le {d}"
+    "Daten ab {d}": "données depuis le {d}",
+    "(Wunschtemperatur)": "(température souhaitée)",
+    "Außerhalb der Fenster wäre es wärmer ({v} °C) als in {n} Fenster(n) – stelle „Außerhalb“ auf „Kurz weg“ oder „Länger weg“": "Hors des plages il ferait plus chaud ({v} °C) que dans {n} plage(s) – règle « En dehors » sur « Absence courte » ou « Absent longtemps »",
+    "Zeitplan: ab {u} {v} °C · bis dahin {o} °C": "Planning : {v} °C dès {u} · d’ici là {o} °C",
+    "Zeitplan: kein Fenster in den nächsten 24 h · {o} °C": "Planning : aucune plage dans les prochaines 24 h · {o} °C",
+    "Zeitplan: {v} °C bis {u} · danach {o} °C": "Planning : {v} °C jusqu’à {u} · ensuite {o} °C",
+    "Zeitplan: {v} °C ganztägig": "Planning : {v} °C toute la journée",
+    "im Zeitfenster gilt seine Temperatur, außerhalb {v} °C": "dans une plage sa température s’applique, en dehors {v} °C",
+    "morgen {t}": "demain {t}",
+    "· bist du als abwesend gemeldet, gilt die Abwesenheits-Absenkung": "· si tu es signalé absent, l’abaissement d’absence s’applique"
   };
 
   // src/i18n.js
@@ -3205,6 +3223,7 @@
   .since { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:.85rem; font-weight:600; color:var(--rk-air); font-variant-numeric:tabular-nums; }
   .since ha-icon { --mdc-icon-size:16px; }
   .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
+  .since.sched { color:var(--secondary-text-color); font-weight:500; justify-content:center; text-align:center; }
   .since.occ.in { color:var(--rk-ok); }
   /* Raumfarbe: schmaler Rand oben und Hauch im Hintergrund, Status bleibt am Ring */
   .rcard { border-top: 4px solid var(--accent, transparent); }
@@ -3304,6 +3323,8 @@
   .tleg i { width:14px; height:10px; border-radius:3px; background: var(--c); }
 `;
   var SETTINGS_STYLES = `
+  .warnline { display:flex; gap:6px; align-items:flex-start; margin-top:6px; font-size:.82rem; color:var(--rk-warn, #e8a33d); }
+  .warnline ha-icon { --mdc-icon-size:16px; flex:none; }
   .estep { display:flex; gap:12px; align-items:flex-start; padding:14px 4px 6px; margin-top:6px; border-top:1px solid var(--divider-color, rgba(127,127,127,.2)); }
   .estep:first-of-type { border-top:0; }
   .estep .en { flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:#fff; background: var(--g, var(--rk-warn)); }
@@ -4390,6 +4411,30 @@
     _moreInfo(entityId) {
       this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }));
     }
+    // Zeitplan in einer Zeile: „20 °C bis 20:00 · danach 17 °C“ (Issue #52)
+    _schedLine(a) {
+      const st = a.schedule_status;
+      if (!st) return "";
+      const hm = (iso) => {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return "";
+        const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
+        const today = /* @__PURE__ */ new Date();
+        const days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 864e5);
+        if (days === 0) return time;
+        if (days === 1) return t("morgen {t}", { t: time });
+        return `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}`;
+      };
+      let text;
+      if (st.active) {
+        text = st.until ? t("Zeitplan: {v} °C bis {u} · danach {o} °C", { v: fmt(st.temp, 1), u: hm(st.until), o: fmt(st.outside, 1) }) : t("Zeitplan: {v} °C ganztägig", { v: fmt(st.temp, 1) });
+      } else if (st.next) {
+        text = t("Zeitplan: ab {u} {v} °C · bis dahin {o} °C", { u: hm(st.next), v: fmt(st.next_temp, 1), o: fmt(st.outside, 1) });
+      } else {
+        text = t("Zeitplan: kein Fenster in den nächsten 24 h · {o} °C", { o: fmt(st.outside, 1) });
+      }
+      return `<div class="since sched"><ha-icon icon="mdi:calendar-clock"></ha-icon><span>${esc(text)}</span></div>`;
+    }
     _boostSheet(a) {
       const active = !!(a.boost_until || a.boost_open);
       const until = a.boost_until ? Date.parse(a.boost_until) : null;
@@ -4616,6 +4661,7 @@
           <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="${t("wärmer")}"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>`}
         ${banner}
+        ${mon || isOff ? "" : this._schedLine(a)}
         <div class="stats">${stats}</div>
         ${devLine}
         ${this._boostOpen ? this._boostSheet(a) : ""}
@@ -7488,15 +7534,29 @@
         const sel = editable ? `<select class="sel" data-planmap="${esc(o)}" data-scope="${scope}" data-cur="${esc(JSON.stringify(planMap))}" ${this._admin ? "" : "disabled"}>${opts.map(([v, n]) => `<option value="${esc(v)}" ${v === cur ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>` : this._v((opts.find(([v]) => v === cur) || opts[0])[1]);
         return this._row(t("Plan „{p}“", { p: planLabel(o) }), sel, plan.now === o ? t("gilt gerade") : "");
       }).join("");
+      const wish = Number(this._roomOpt(r, "comfort_temperature") ?? s.comfort_temperature ?? 21);
+      const outsideVal = {
+        short: Number(this._roomOpt(r, "setback_short") ?? s.setback_short),
+        long: Number(this._roomOpt(r, "setback_long") ?? s.setback_long),
+        frost: Number(this._roomOpt(r, "frost_temperature") ?? s.frost_temperature)
+      }[fallback];
+      const outside = Number.isFinite(outsideVal) && outsideVal < wish ? outsideVal : wish;
+      const colder = list.filter((w) => Number(w.temperature) < outside - 0.05);
+      const fbHint = [
+        t("im Zeitfenster gilt seine Temperatur, außerhalb {v} °C", { v: fmt(outside, 1) }),
+        fallback === "wish" ? t("(Wunschtemperatur)") : "",
+        t("· bist du als abwesend gemeldet, gilt die Abwesenheits-Absenkung")
+      ].filter(Boolean).join(" ");
+      const fbWarn = colder.length ? `<div class="warnline"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(t("Außerhalb der Fenster wäre es wärmer ({v} °C) als in {n} Fenster(n) – stelle „Außerhalb“ auf „Kurz weg“ oder „Länger weg“", { v: fmt(outside, 1), n: colder.length }))}</div>` : "";
+      const fallbackRow = this._row(
+        "Außerhalb der Zeitfenster",
+        (editable ? this._segs(scope, "schedule_fallback", RK_SCHED_FALLBACK, fallback) : this._v(RK_SCHED_FALLBACK[fallback] || "–")) + fbWarn,
+        fbHint
+      );
       const moreRows = [
         planRows,
         helperRow,
         shareRow,
-        this._row(
-          "Außerhalb der Zeitfenster",
-          editable ? this._segs(scope, "schedule_fallback", RK_SCHED_FALLBACK, fallback) : this._v(RK_SCHED_FALLBACK[fallback] || "–"),
-          fallback === "wish" ? t("wie bisher: ohne laufendes Fenster gilt die Wunschtemperatur") : fallback === "short" ? t("zwischen den Fenstern wird auf „kurz weg“ abgesenkt") : fallback === "long" ? t("zwischen den Fenstern wird auf „länger weg“ abgesenkt – für Räume, die nur stundenweise genutzt werden") : t("zwischen den Fenstern gilt nur der Frostschutz – der kälteste erlaubte Wert")
-        ),
         this._row(
           "Zeitplan überschreiben",
           editable ? this._num(scope, "override_minutes", this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120) : this._v(`${this._roomOpt(r, "override_minutes") ?? s.override_minutes ?? 120} min`),
@@ -7535,8 +7595,9 @@
       if (!ro && !shared) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div><button class="add" data-schedadd="${id}"><ha-icon icon="mdi:plus"></ha-icon>${t("Zeitfenster hinzufügen")}</button></div></div>`);
       }
+      rows.push(fallbackRow);
       rows.push(...boostRows);
-      rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_by_plan", "schedule_entity", "schedule_from", "schedule_fallback", "override_minutes", "boost_sources"]));
+      rows.push(this._more("sched-more", "Weitere Einstellungen", moreRows.join(""), r, ["schedule_by_plan", "schedule_entity", "schedule_from", "override_minutes", "boost_sources"]));
       return this._grp("heating", "Zeitplan", "mdi:calendar-clock", "eco", rows.join(""), "span");
     },
     // ---------------------------------------------------------------- Lüften ohne Erinnerung
@@ -8884,8 +8945,13 @@
         const list = this._schedList(id, this._schedSeed(id) || []);
         const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
         const base = room ? this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22 : 22;
+        const first = list.length === 0;
         list.push({ days: [], start: "19:00", end: "21:00", temperature: Math.round(base * 2) / 2, sources: [] });
         this._pushSched(id);
+        const st = room && room.attrs.settings || {};
+        if (first && room && !(st.changed || []).includes("schedule_fallback") && this._roomOpt(room, "schedule_fallback") === void 0) {
+          this._setRoom(id, { schedule_fallback: "short" }, 700);
+        }
       });
       on("click", "[data-schedsrc]", (el) => () => {
         const [id, i, sid] = sp(el.dataset.schedsrc);

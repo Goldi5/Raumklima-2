@@ -326,8 +326,15 @@ export const BindMethods = {
       const list = this._schedList(id, this._schedSeed(id) || []);
       const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === id);
       const base = room ? (this._roomOpt(room, "comfort_temperature") ?? (room.attrs.settings || {}).comfort_temperature ?? 22) : 22;
+      const first = list.length === 0;
       list.push({ days: [], start: "19:00", end: "21:00", temperature: Math.round(base * 2) / 2, sources: [] });
       this._pushSched(id);
+      // Erstes Fenster: außerhalb absenken, sonst heizt der Raum dazwischen einfach weiter
+      // auf die Wunschtemperatur (Issue #52). Eine bewusste Wahl bleibt unangetastet.
+      const st = (room && room.attrs.settings) || {};
+      if (first && room && !(st.changed || []).includes("schedule_fallback") && this._roomOpt(room, "schedule_fallback") === undefined) {
+        this._setRoom(id, { schedule_fallback: "short" }, 700);
+      }
     });
     on("click", "[data-schedsrc]", (el) => () => {
       const [id, i, sid] = sp(el.dataset.schedsrc);

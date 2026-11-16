@@ -268,6 +268,16 @@ und alle 10 Minuten nachgeführt, damit er auch bei Geräten ankommt, die selten
 Unter der Räume-Zeile in der Übersicht steht klein die Version, z. B. **„Raumklima 0.45.2“**. Das hilft,
 wenn eine Änderung nicht anzukommen scheint: Erst prüfen, ob die Karte den neuen Stand geladen hat.
 
+## Zeitplan: wann welche Temperatur
+
+So wie bei anderen Heizungs-Integrationen: Wohnzimmer 8–20 Uhr auf 20 °C, Bad 6–16 Uhr auf 22 °C, dazwischen kühler.
+
+1. *Raum → Zeitplan → „Zeitfenster hinzufügen“*: Wochentage antippen, von–bis wählen, mit −/+ die Temperatur dieses Fensters stellen.
+2. Direkt darunter **„Außerhalb der Zeitfenster“**: **Kurz weg** oder **Länger weg** senkt zwischen den Fenstern ab, **Sicherung** hält nur den Frostschutz. Mit **Wunschtemperatur** heizt der Raum zwischen den Fenstern einfach normal weiter – dann merkt man vom Zeitplan kaum etwas. Beim ersten Zeitfenster eines Raums stellt Raumklima deshalb von selbst auf „Kurz weg“.
+3. Die Raumkarte zeigt unter den Knöpfen, was gilt: „Zeitplan: 20 °C bis 20:00 · danach 17 °C“ oder „ab 06:00 22 °C · bis dahin 17 °C“.
+
+Bist du als abwesend gemeldet, gilt die Abwesenheits-Absenkung vor dem Zeitplan. Überschneiden sich zwei Fenster, gewinnt das untere. Statt eigener Fenster gehen auch ein Zeitplan-Helfer aus Home Assistant und ein Plan-Umschalter (siehe oben).
+
 ## Wenn alle weg sind
 
 Raumklima merkt über eure Handys, wenn niemand mehr zu Hause ist:

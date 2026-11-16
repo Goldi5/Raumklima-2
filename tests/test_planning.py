@@ -26,6 +26,7 @@ from rk.planning import (
     parse_md,
     presence_stage,
     schedule_target,
+    schedule_window_end,
     season_allows_heating,
     season_decision,
     season_step,
@@ -496,3 +497,14 @@ def test_facade_options_match_planning() -> None:
     assert SOLAR_FACADE_OPTIONS[0] == ""
     assert SOLAR_FACADE_OPTIONS[1:] == list(FACADES)
 
+
+
+def test_schedule_window_end() -> None:
+    """Ende des laufenden Fensters – auch über Mitternacht, ganztägig ohne Ende."""
+    tag = [{"days": [], "start": "08:00", "end": "20:00", "temperature": 20.0}]
+    assert schedule_window_end(tag, datetime(2026, 11, 2, 12, 0)) == datetime(2026, 11, 2, 20, 0)
+    assert schedule_window_end(tag, datetime(2026, 11, 2, 21, 0)) is None
+    nacht = [{"days": [], "start": "22:00", "end": "06:00", "temperature": 18.0}]
+    assert schedule_window_end(nacht, datetime(2026, 11, 2, 23, 0)) == datetime(2026, 11, 3, 6, 0)
+    ganz = [{"days": [], "start": "00:00", "end": "00:00", "temperature": 21.0}]
+    assert schedule_window_end(ganz, datetime(2026, 11, 2, 12, 0)) is None

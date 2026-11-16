@@ -37,6 +37,7 @@ export const STYLES = `
   .since { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:.85rem; font-weight:600; color:var(--rk-air); font-variant-numeric:tabular-nums; }
   .since ha-icon { --mdc-icon-size:16px; }
   .since.occ { color:var(--secondary-text-color); margin-top:2px; font-weight:500; }
+  .since.sched { color:var(--secondary-text-color); font-weight:500; justify-content:center; text-align:center; }
   .since.occ.in { color:var(--rk-ok); }
   /* Raumfarbe: schmaler Rand oben und Hauch im Hintergrund, Status bleibt am Ring */
   .rcard { border-top: 4px solid var(--accent, transparent); }
@@ -139,6 +140,8 @@ export const HISTORY_STYLES = `
 `;
 
 export const SETTINGS_STYLES = `
+  .warnline { display:flex; gap:6px; align-items:flex-start; margin-top:6px; font-size:.82rem; color:var(--rk-warn, #e8a33d); }
+  .warnline ha-icon { --mdc-icon-size:16px; flex:none; }
   .estep { display:flex; gap:12px; align-items:flex-start; padding:14px 4px 6px; margin-top:6px; border-top:1px solid var(--divider-color, rgba(127,127,127,.2)); }
   .estep:first-of-type { border-top:0; }
   .estep .en { flex:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:#fff; background: var(--g, var(--rk-warn)); }

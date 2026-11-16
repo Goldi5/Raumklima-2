@@ -1563,4 +1563,13 @@ export const FR = {
   "der Warmwasser-Zähler teilt dann nur auf und wird nicht dazugezählt – ideal für einen fein messenden Gesamtzähler (z. B. Energiemanager)": "le compteur d’eau chaude ne fait alors que répartir et n’est pas ajouté – idéal pour un compteur total précis (p. ex. gestionnaire d’énergie)",
   "Warmwasser kommt über den eigenen Zähler dazu": "l’eau chaude s’ajoute via son propre compteur",
   "Daten ab {d}": "données depuis le {d}",
+  "(Wunschtemperatur)": "(température souhaitée)",
+  "Außerhalb der Fenster wäre es wärmer ({v} °C) als in {n} Fenster(n) – stelle „Außerhalb“ auf „Kurz weg“ oder „Länger weg“": "Hors des plages il ferait plus chaud ({v} °C) que dans {n} plage(s) – règle « En dehors » sur « Absence courte » ou « Absent longtemps »",
+  "Zeitplan: ab {u} {v} °C · bis dahin {o} °C": "Planning : {v} °C dès {u} · d’ici là {o} °C",
+  "Zeitplan: kein Fenster in den nächsten 24 h · {o} °C": "Planning : aucune plage dans les prochaines 24 h · {o} °C",
+  "Zeitplan: {v} °C bis {u} · danach {o} °C": "Planning : {v} °C jusqu’à {u} · ensuite {o} °C",
+  "Zeitplan: {v} °C ganztägig": "Planning : {v} °C toute la journée",
+  "im Zeitfenster gilt seine Temperatur, außerhalb {v} °C": "dans une plage sa température s’applique, en dehors {v} °C",
+  "morgen {t}": "demain {t}",
+  "· bist du als abwesend gemeldet, gilt die Abwesenheits-Absenkung": "· si tu es signalé absent, l’abaissement d’absence s’applique",
 };

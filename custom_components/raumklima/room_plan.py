@@ -48,6 +48,7 @@ from .planning import (
     STAGE_AWAY_SHORT,
     frost_night_setback,
     schedule_target,
+    schedule_window_end,
     setback_target,
 )
 from .room_const import (
@@ -404,21 +405,64 @@ class PlanMixin:
             return True, min(target, self.trv_max), REASON_PRESENCE_PREHEAT
         return None
 
-    def _rule_schedule_fallback(self, ctx: _PlanContext) -> PlanResult:
-        """Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt."""
+    def schedule_outside_temp(self, hub: RaumklimaHub | None) -> float:
+        """Was außerhalb der Zeitfenster gilt – nie wärmer als die Wunschtemperatur."""
         fb = self.config.get(CONF_SCHEDULE_FALLBACK) or SCHEDULE_FALLBACK_WISH
-        if not (self.schedules or self.schedule_entity) or fb == SCHEDULE_FALLBACK_WISH:
-            return None
         outside = {
             SCHEDULE_FALLBACK_SHORT: self.setback_short,
             SCHEDULE_FALLBACK_LONG: self.setback_long,
             # „Frostschutz“ außerhalb der Fenster hieß bis 1.1 die Sicherung der Wohnung
             # (Standard 16 °C) – der neue Raumwert (5 °C) darf das nicht still absenken.
-            SCHEDULE_FALLBACK_FROST: max(self.frost_temp, ctx.hub.frost_floor),
+            SCHEDULE_FALLBACK_FROST: max(self.frost_temp, hub.frost_floor if hub is not None else self.frost_temp),
         }.get(fb)
         if outside is not None and outside < self.target_temp - 0.05:
-            return True, min(outside, self.trv_max), REASON_SCHEDULE_FALLBACK
+            return min(outside, self.trv_max)
+        return min(self.target_temp, self.trv_max)
+
+    def _rule_schedule_fallback(self, ctx: _PlanContext) -> PlanResult:
+        """Zeitplan vorhanden, aber gerade kein Fenster: der gewählte Wert außerhalb gilt."""
+        fb = self.config.get(CONF_SCHEDULE_FALLBACK) or SCHEDULE_FALLBACK_WISH
+        if not (self.schedules or self.schedule_entity) or fb == SCHEDULE_FALLBACK_WISH:
+            return None
+        outside = self.schedule_outside_temp(ctx.hub)
+        if outside < self.target_temp - 0.05:
+            return True, outside, REASON_SCHEDULE_FALLBACK
         return None
+
+    def schedule_status(self, local_now: datetime) -> dict[str, Any] | None:
+        """Für die Raumkarte: „20 °C bis 20:00 · danach 17 °C“ bzw. „ab 06:00 22 °C“."""
+        hub = self.hub
+        outside = self.schedule_outside_temp(hub)
+        if self.schedule_entity:
+            helper = self.helper_window()
+            if helper is None:
+                return None
+            on, temp, change = helper
+            want = min(temp if temp is not None else self.target_temp, self.trv_max)
+            return {
+                "source": "helper",
+                "active": on,
+                "temp": want if on else None,
+                "until": change.isoformat() if on and change is not None else None,
+                "next": change.isoformat() if not on and change is not None else None,
+                "next_temp": want if not on and change is not None else None,
+                "outside": outside,
+            }
+        sched = self.plan_schedules
+        if not sched:
+            return None
+        temp = schedule_target(sched, local_now)
+        end = schedule_window_end(sched, local_now)
+        nxt = self.next_plan_window(local_now)
+        return {
+            "source": "own",
+            "active": temp is not None,
+            "temp": min(temp, self.trv_max) if temp is not None else None,
+            "until": end.isoformat() if end is not None else None,
+            "next": nxt[0].isoformat() if nxt is not None else None,
+            "next_temp": min(nxt[1], self.trv_max) if nxt is not None else None,
+            "outside": outside,
+        }
 
     def _rule_empty_room(self, ctx: _PlanContext) -> PlanResult:
         """Leerer Raum (Präsenzmelder): etwas kühler. „Anwesenheit aus" schaltet das ab (Issue #10)."""

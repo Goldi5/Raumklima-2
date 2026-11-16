@@ -1,3 +1,14 @@
+## 1.3.7b1 – 2026-11-16
+
+### Neu
+- **Zeitplan einfacher (Issue #52):** „Außerhalb der Zeitfenster“ steht jetzt direkt unter den Zeitfenstern statt unter „Weitere Einstellungen“, mit einer Zeile, was gilt („im Zeitfenster gilt seine Temperatur, außerhalb 17 °C“). Beim ersten Zeitfenster eines Raums stellt Raumklima „Außerhalb“ von selbst auf „Kurz weg“ – sonst heizt der Raum zwischen den Fenstern auf die Wunschtemperatur weiter und der Zeitplan scheint nicht zu wirken. Eine bewusste Wahl bleibt unangetastet.
+- **Warnung,** wenn es außerhalb der Fenster wärmer wäre als in einem Fenster.
+- **Raumkarte zeigt den Zeitplan:** „Zeitplan: 20 °C bis 20:00 · danach 17 °C“ bzw. „ab 06:00 22 °C · bis dahin 17 °C“ – auch mit Zeitplan-Helfer.
+- **Handbuch:** Abschnitt „Zeitplan: wann welche Temperatur“ (de/en/fr).
+
+### Tests
+- Ende des laufenden Fensters (auch über Mitternacht und ganztägig), Zeitplan-Status für die Raumkarte.
+
 ## 1.3.6b1 – 2026-11-16
 
 ### Behoben

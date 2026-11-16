@@ -43,7 +43,7 @@ Das sagen wir offen, weil es dazugehört. Jede Version läuft durch automatische
 | 🛡️ **Absicherung** | jeder Befehl wird geprüft und wiederholt – gegen Funk- und VPN-Aussetzer |
 | 💨 **Lüftungsassistent** | Feuchtegrenze je Raum, optional **CO₂-Sensor** (ab 1000 ppm) und **Feinstaub PM2,5** (ab 35 µg/m³), Lüftdauer nach Außentemperatur, „trocknet Lüften überhaupt?“, Warnung beim Auskühlen; optionaler **Entfeuchter** schaltet sich selbst |
 | 🏠 **Abwesenheit** | Bewohner + Wohnungs-Zone, Absenkung „kurz weg“ / „länger weg“, Urlaub & Gäste, robuste Ortung (mehrere Handys, VPN-Sprungfilter) |
-| 🗓️ **Zeitpläne** | eigene Zeitfenster je Raum oder ein HA-**Zeitplan-Helfer**; Räume für bestimmte Personen oder einen Gast-Schalter; auf Wunsch **Hysterese-Regelung** (Ventil ganz auf/zu) |
+| 🗓️ **Zeitpläne** | eigene Zeitfenster je Raum mit eigener Temperatur und Absenkung dazwischen, ein HA-**Zeitplan-Helfer** oder ein **Plan-Umschalter** (Arbeitszeit/frei/krank); die Raumkarte zeigt „20 °C bis 20:00 · danach 17 °C“; Räume für bestimmte Personen oder einen Gast-Schalter; auf Wunsch **Hysterese-Regelung** (Ventil ganz auf/zu) |
 | 📅 **Kalender** | Termine wie „Urlaub“ senken ab wie der Urlaubsschalter, „Homeoffice“ verhindert das Absenken – Wörter einstellbar; ein Schulferien-Kalender verschiebt Morgen-Zeitfenster |
 | 🚗 **Vorheizen nach Ankunftszeit** | lernt die Aufheizzeit jedes Raums und heizt so früh vor, dass es bei der Ankunft warm ist |
 | 😴 **Schlafenszeiten lernen** | aus Nachtlüften und Licht – Ruhezeit passt sich an, Wochenende und Feiertage (je Bundesland) getrennt |

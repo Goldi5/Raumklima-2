@@ -184,6 +184,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             **(c.vent.attributes() if c.vent else {}),
             **c.presence_attributes(),
             "settings": c.settings_summary(),
+            "schedule_status": None if c.monitor else c.schedule_status(dt_util.now()),
             **self._plan_attributes(),
         }
 
