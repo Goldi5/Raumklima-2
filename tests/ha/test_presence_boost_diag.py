@@ -73,10 +73,10 @@ async def test_boost_endet_puenktlich(hass: HomeAssistant, setup, trv: FakeTrv, 
     await ctrl.async_set_boost(minutes=5)
     await hass.async_block_till_done()
     assert ctrl.plan()[2] == "boost"
+    assert ctrl._expiry_at == ctrl.boost_until  # Wecker steht auf dem Boost-Ende
     sp_boost = trv.setpoint
-    ctrl._last_plan = None
     freezer.tick(timedelta(minutes=5, seconds=3))
-    async_fire_time_changed(hass, dt_util.utcnow())
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(minutes=6))
     await hass.async_block_till_done()
     assert not ctrl.boost_active
     assert ctrl.boost_until is None
