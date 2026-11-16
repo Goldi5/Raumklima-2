@@ -1668,7 +1668,19 @@
     "Was 1 kWh Wärme im Haus kostet – deine Heizung im Vergleich mit anderen Wegen. Bei der Wärmepumpe: Strompreis geteilt durch die Arbeitszahl. Vergleichspreise änderst du in den Einstellungen unter Energie.": "What 1 kWh of heat in the house costs – your heating compared with other options. For a heat pump: power price divided by efficiency. Change the comparison prices in the settings under Energy.",
     "Wohin der Solarstrom ging: in die Heizung, ins übrige Haus oder ins Netz. Mit Akku-Sensoren trennt Raumklima, welcher Akku-Strom vorher aus dem Netz geladen wurde – der ist nicht kostenlos.": "Where the solar power went: into the heating, the rest of the house or the grid. With battery sensors Raumklima separates battery power that was charged from the grid – it is not free.",
     "Die Heizkosten verteilt auf die Räume – nach Ventilöffnung × Stunden (oder Heizstunden, wenn kein Ventil meldet). Fällt ein Raum stark heraus, steht ein Hinweis darunter.": "Heating costs split across rooms – by valve opening × hours (or heating hours if no valve reports). If a room stands out strongly, a note appears below.",
-    "Woher der Preis kommt: die Hauptquelle und Reserven, die einspringen, wenn sie nichts liefert. „Mit Vorschau“ heißt: die Quelle kennt auch die Preise der nächsten Stunden.": "Where the price comes from: the main source and backups that step in when it delivers nothing. “With forecast” means the source also knows the prices of the coming hours."
+    "Woher der Preis kommt: die Hauptquelle und Reserven, die einspringen, wenn sie nichts liefert. „Mit Vorschau“ heißt: die Quelle kennt auch die Preise der nächsten Stunden.": "Where the price comes from: the main source and backups that step in when it delivers nothing. “With forecast” means the source also knows the prices of the coming hours.",
+    "Strom im ganzen Haus": "Electricity for the whole house",
+    "übriges Haus": "rest of the house",
+    "Heizung inkl. Warmwasser": "heating incl. hot water",
+    "Rechnung Versorger": "Supplier bill",
+    "Einspeisevergütung ({k} kWh × {p} ct)": "Feed-in tariff ({k} kWh × {p} ct)",
+    "Unterm Strich": "Bottom line",
+    "Pro Tag": "Per day",
+    "Ø Netzstrom": "Avg grid power",
+    "Selbst versorgt (PV & Akku)": "Self-supplied (PV & battery)",
+    "Einspeisevergütung": "Feed-in tariff",
+    "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen": "€/kWh – as stated by your grid operator; 0 = don’t deduct",
+    "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "What electricity for the whole house cost – as the supplier bills it: each hour’s grid import × that hour’s price plus the full base fee. Battery charging from the grid is included in the import. The feed-in tariff is deducted if set in the settings."
   };
 
   // src/i18n/fr.js
@@ -3339,7 +3351,19 @@
     "Was 1 kWh Wärme im Haus kostet – deine Heizung im Vergleich mit anderen Wegen. Bei der Wärmepumpe: Strompreis geteilt durch die Arbeitszahl. Vergleichspreise änderst du in den Einstellungen unter Energie.": "Ce que coûte 1 kWh de chaleur dans la maison – ton chauffage comparé à d’autres solutions. Pour une PAC : prix de l’électricité divisé par le rendement. Modifie les prix de comparaison dans les réglages sous Énergie.",
     "Wohin der Solarstrom ging: in die Heizung, ins übrige Haus oder ins Netz. Mit Akku-Sensoren trennt Raumklima, welcher Akku-Strom vorher aus dem Netz geladen wurde – der ist nicht kostenlos.": "Où est allé le solaire : dans le chauffage, le reste de la maison ou le réseau. Avec les capteurs de batterie, Raumklima sépare l’électricité de batterie chargée sur le réseau – elle n’est pas gratuite.",
     "Die Heizkosten verteilt auf die Räume – nach Ventilöffnung × Stunden (oder Heizstunden, wenn kein Ventil meldet). Fällt ein Raum stark heraus, steht ein Hinweis darunter.": "Coûts de chauffage répartis par pièce – selon ouverture de vanne × heures (ou heures de chauffe si aucune vanne ne remonte). Si une pièce se distingue fortement, une remarque apparaît dessous.",
-    "Woher der Preis kommt: die Hauptquelle und Reserven, die einspringen, wenn sie nichts liefert. „Mit Vorschau“ heißt: die Quelle kennt auch die Preise der nächsten Stunden.": "D’où vient le prix : la source principale et les réserves qui prennent le relais si elle ne fournit rien. « Avec prévision » : la source connaît aussi les prix des prochaines heures."
+    "Woher der Preis kommt: die Hauptquelle und Reserven, die einspringen, wenn sie nichts liefert. „Mit Vorschau“ heißt: die Quelle kennt auch die Preise der nächsten Stunden.": "D’où vient le prix : la source principale et les réserves qui prennent le relais si elle ne fournit rien. « Avec prévision » : la source connaît aussi les prix des prochaines heures.",
+    "Strom im ganzen Haus": "Électricité de toute la maison",
+    "übriges Haus": "reste de la maison",
+    "Heizung inkl. Warmwasser": "chauffage avec eau chaude",
+    "Rechnung Versorger": "Facture fournisseur",
+    "Einspeisevergütung ({k} kWh × {p} ct)": "Tarif de rachat ({k} kWh × {p} ct)",
+    "Unterm Strich": "Au final",
+    "Pro Tag": "Par jour",
+    "Ø Netzstrom": "Moy. électricité réseau",
+    "Selbst versorgt (PV & Akku)": "Autoconsommation (PV et batterie)",
+    "Einspeisevergütung": "Tarif de rachat",
+    "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen": "€/kWh – selon le gestionnaire de réseau ; 0 = ne pas déduire",
+    "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.": "Ce qu’a coûté l’électricité de toute la maison – comme le facture le fournisseur : soutirage de chaque heure × prix de cette heure plus l’abonnement complet. La charge de la batterie sur le réseau est incluse. Le tarif de rachat est déduit s’il est renseigné dans les réglages."
   };
 
   // src/i18n.js
@@ -6224,7 +6248,8 @@
     "Gaspreis zum Vergleich": ["Gaspreis je kWh, brutto, inklusive Netzentgelt – nur für die Karte „Was kostet 1 kWh Wärme?“. Gerechnet wird mit 90 % Wirkungsgrad der Therme.", "Gas price per kWh, gross, incl. network charges – only for the card “What does 1 kWh of heat cost?”. Calculated with 90 % boiler efficiency.", "Prix du gaz par kWh, TTC, acheminement compris – uniquement pour la carte « Combien coûte 1 kWh de chaleur ? ». Calcul avec un rendement de chaudière de 90 %."],
     "Ölpreis zum Vergleich": ["Heizölpreis je Liter, brutto – nur für den Vergleich „Was kostet 1 kWh Wärme?“. Gerechnet mit 10 kWh je Liter und 90 % Wirkungsgrad.", "Heating oil price per litre, gross – only for the comparison “What does 1 kWh of heat cost?”. Calculated with 10 kWh per litre and 90 % efficiency.", "Prix du fioul par litre, TTC – uniquement pour la comparaison « Combien coûte 1 kWh de chaleur ? ». Calcul avec 10 kWh par litre et 90 % de rendement."],
     "Strompreis zum Vergleich": ["Strompreis je kWh, brutto – zeigt bei Gas-, Öl- oder Fernwärme-Häusern, was dieselbe Wärme mit einer Wärmepumpe kosten würde (Jahresarbeitszahl 3,5).", "Power price per kWh, gross – for gas, oil or district-heating homes this shows what the same heat would cost with a heat pump (seasonal efficiency 3.5).", "Prix de l’électricité par kWh, TTC – pour les maisons au gaz, fioul ou réseau de chaleur, montre ce que coûterait la même chaleur avec une PAC (rendement saisonnier 3,5)."],
-    "Morgens später": ["Läuft heute ein Ferientermin im Schulferien-Kalender, beginnen Zeitfenster, die vor 12 Uhr starten, um diese Zeit später – z. B. 60 Minuten. Die gespeicherten Zeiten bleiben unverändert.", "If a school-holiday entry runs today, time windows starting before noon begin this much later – e.g. 60 minutes. The stored times stay unchanged.", "Si un jour de vacances scolaires figure aujourd’hui dans le calendrier, les plages qui commencent avant midi débutent d’autant plus tard – p. ex. 60 minutes. Les heures enregistrées ne changent pas."]
+    "Morgens später": ["Läuft heute ein Ferientermin im Schulferien-Kalender, beginnen Zeitfenster, die vor 12 Uhr starten, um diese Zeit später – z. B. 60 Minuten. Die gespeicherten Zeiten bleiben unverändert.", "If a school-holiday entry runs today, time windows starting before noon begin this much later – e.g. 60 minutes. The stored times stay unchanged.", "Si un jour de vacances scolaires figure aujourd’hui dans le calendrier, les plages qui commencent avant midi débutent d’autant plus tard – p. ex. 60 minutes. Les heures enregistrées ne changent pas."],
+    "Einspeisevergütung": ["Was du je eingespeister kWh bekommst, in €/kWh – steht im Bescheid des Netzbetreibers. Bei Anlagen mit Teileinspeisung zählt der Mischsatz: z. B. 17 kWp, in Betrieb seit Dezember 2024 = (10 × 8,03 + 7 × 6,95) / 17 ≈ 0,0758 €/kWh. Der Block „Strom im ganzen Haus“ zieht die Vergütung von der Rechnung ab.", "What you get per kWh fed into the grid, in €/kWh – as stated by your grid operator. With partial feed-in the blended rate applies: e.g. 17 kWp commissioned December 2024 in Germany = (10 × 8.03 + 7 × 6.95) / 17 ≈ 0.0758 €/kWh. The block “Electricity for the whole house” deducts it from the bill.", "Ce que tu reçois par kWh injecté, en €/kWh – selon le gestionnaire de réseau. En injection partielle, c’est le taux mixte : p. ex. 17 kWc mis en service en décembre 2024 en Allemagne = (10 × 8,03 + 7 × 6,95) / 17 ≈ 0,0758 €/kWh. Le bloc « Électricité de toute la maison » le déduit de la facture."]
   };
 
   // src/fields.js
@@ -6259,6 +6284,7 @@
     dehumidifier_off: { unit: " %", step: 1, min: 20, max: 90, dec: 0 },
     energy_base: { unit: " €", step: 1, min: 0, max: 1e3, dec: 2 },
     energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
+    energy_feed_price: { unit: " €/kWh", step: 1e-4, min: 0, max: 1, dec: 4 },
     energy_compare_gas: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },
     energy_compare_oil: { unit: " €/L", step: 0.05, min: 0, max: 5, dec: 2 },
     energy_compare_power: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },
@@ -6840,6 +6866,11 @@
           "Einspeisung",
           this._select("hub", "energy_feed_entity", energy, H("energy_feed_entity"), "– keiner –"),
           now(H("energy_feed_entity"), "optional: Strom ins Netz in kWh – zeigt, wohin der Solarstrom ging")
+        ) : "",
+        electric && H("energy_feed_entity") ? this._row(
+          "Einspeisevergütung",
+          this._num("hub", "energy_feed_price", H("energy_feed_price") ?? 0),
+          "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen"
         ) : "",
         electric && H("energy_house_entity") && H("energy_grid_entity") ? this._row(
           "Akku geladen",
@@ -11401,6 +11432,7 @@
     heatprice: "Was 1 kWh Wärme im Haus kostet – deine Heizung im Vergleich mit anderen Wegen. Bei der Wärmepumpe: Strompreis geteilt durch die Arbeitszahl. Vergleichspreise änderst du in den Einstellungen unter Energie.",
     pv: "Wohin der Solarstrom ging: in die Heizung, ins übrige Haus oder ins Netz. Mit Akku-Sensoren trennt Raumklima, welcher Akku-Strom vorher aus dem Netz geladen wurde – der ist nicht kostenlos.",
     rooms: "Die Heizkosten verteilt auf die Räume – nach Ventilöffnung × Stunden (oder Heizstunden, wenn kein Ventil meldet). Fällt ein Raum stark heraus, steht ein Hinweis darunter.",
+    house: "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.",
     sources: "Woher der Preis kommt: die Hauptquelle und Reserven, die einspringen, wenn sie nichts liefert. „Mit Vorschau“ heißt: die Quelle kennt auch die Preise der nächsten Stunden."
   };
   var HK = Object.fromEntries(Object.keys(HELP_E).map((k) => [k, k]));
@@ -11469,6 +11501,7 @@
   .emoney { display:flex; height:28px; border-radius:8px; overflow:hidden; margin:4px 0 8px; gap:2px; }
   .emoney div { display:flex; align-items:center; justify-content:center; min-width:0; overflow:hidden; white-space:nowrap; font-size:.76rem; font-weight:650; color:#111; padding:0 6px; }
   .s-heat { background:var(--rk-heat); } .s-ww { background:var(--rk-air); } .s-base { background:var(--rk-off); }
+  .s-house2 { background:#c9a227; } .eleg i.s-house2 { background:#c9a227; }
   .s-pv { background:var(--rk-ok); } .s-house { background:color-mix(in srgb, var(--rk-ok) 55%, #fff); } .s-feed { background:#38506a; color:#dde !important; }
   .ewk { display:grid; gap:2px; overflow-x:auto; }
   .ewk-h, .ewk-r { display:grid; grid-template-columns:26px repeat(24, minmax(9px,1fr)); gap:2px; align-items:center; }
@@ -11784,6 +11817,23 @@
       ].join("");
       return parts.join("") + `<div class="ekvs">${rows}</div>`;
     }
+    _houseBox(h, e) {
+      if (!h || h.grid_kwh == null) return "";
+      const seg = (v, cls, label) => v > 0 ? `<div class="${cls}" style="flex:${v.toFixed(2)}" title="${label}">${label}</div>` : "";
+      const heat = h.heat_cost != null ? h.heat_cost : 0;
+      const bar = `<div class="emoney">${seg(heat, "s-heat", `${t("Heizung")} ${fmt(heat, 2)} €`)}${seg(h.rest_cost != null ? h.rest_cost : h.grid_cost, "s-house2", `${t("übriges Haus")} ${fmt(h.rest_cost != null ? h.rest_cost : h.grid_cost, 2)} €`)}${seg(h.base, "s-base", `${t("Grundgebühr")} ${fmt(h.base, 2)} €`)}</div>
+      <div class="eleg"><span><i class="bheat"></i>${t("Heizung inkl. Warmwasser")}</span><span><i class="s-house2"></i>${t("übriges Haus")}</span><span><i class="s-base"></i>${t("Grundgebühr")}</span></div>`;
+      const rows = [
+        this._kv(t("Netzbezug"), `${fmt(h.grid_kwh, 0)} kWh · ${fmt(h.grid_cost, 2)} €`),
+        this._kv(t("Grundgebühr"), `${fmt(h.base, 2)} €`),
+        this._kv(`<b>${t("Rechnung Versorger")}</b>`, `${fmt(h.bill, 2)} €`),
+        h.feed_eur != null ? this._kv(t("Einspeisevergütung ({k} kWh × {p} ct)", { k: fmt(h.feed_kwh, 0), p: fmt((e.feed_price || 0) * 100, 2) }), `<span class="c-ok">− ${fmt(h.feed_eur, 2)} €</span>`) : "",
+        h.feed_eur != null ? this._kv(`<b>${t("Unterm Strich")}</b>`, `${fmt(h.net, 2)} € · ${t("{v} € pro Tag", { v: fmt(h.per_day, 2) })}`) : this._kv(t("Pro Tag"), `${fmt(h.per_day, 2)} €`),
+        h.price_avg != null ? this._kv(t("Ø Netzstrom"), `${fmt(h.price_avg * 100, 1)} ct/kWh`) : "",
+        h.self_share != null ? this._kv(t("Selbst versorgt (PV & Akku)"), `${fmt(h.self_share, 0)} % ${t("von")} ${fmt(h.house_kwh, 0)} kWh`) : ""
+      ].join("");
+      return bar + `<div class="ekvs">${rows}</div>`;
+    }
     _roomsBox(rooms) {
       if (!rooms.length) return "";
       const top = rooms[0].share || 1;
@@ -11971,6 +12021,8 @@
       if (curve) boxes.push(this._box("Heizkennlinie deines Hauses", "mdi:thermometer-lines", curve, HK.curve));
       const hp = this._heatPrices(e);
       if (hp) boxes.push(this._box("Was kostet 1 kWh Wärme?", "mdi:cash", hp, HK.heatprice));
+      const house = electric ? this._houseBox(e.house, e) : "";
+      if (house) boxes.push(this._box("Strom im ganzen Haus", "mdi:home-lightning-bolt-outline", house, HK.house));
       const pv = electric ? this._pvBox(e) : "";
       if (pv) boxes.push(this._box("PV & Akku", "mdi:solar-power-variant", pv, HK.pv));
       const rooms = this._roomsBox(money.rooms || []);

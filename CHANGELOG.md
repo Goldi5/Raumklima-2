@@ -1,3 +1,15 @@
+## 1.3.10b1 – 2026-11-16
+
+### Neu
+- **Strom im ganzen Haus:** Neuer Block im Energie-Dashboard – Netzbezug je Stunde × Stundenpreis plus volle Grundgebühr, also das, was der Versorger abrechnet. Aufgeteilt in Heizung und übriges Haus, mit Ø-Preis des Netzstroms und Anteil Selbstversorgung. Akku-Ladung aus dem Netz ist enthalten.
+- **Einspeisevergütung** (*Energie → Schritt 3*, sobald ein Einspeise-Zähler gewählt ist): wird von der Hausrechnung abgezogen („unterm Strich“). Die Hilfe erklärt den Mischsatz bei Teileinspeisung.
+
+### Behoben
+- **Jahreszahl:** Misst der Zähler schon zwölf Monate, gilt immer diese Summe – auch bei „7 Tage“ oder „30 Tage“. Vorher wurde aus einer kalten Novemberwoche über die Außentemperatur hochgerechnet (z. B. 2.150 € statt ≈ 1.100 €).
+
+### Tests
+- Hausrechnung mit Grundgebühr und Einspeisevergütung.
+
 ## 1.3.9b1 – 2026-11-16
 
 ### Neu

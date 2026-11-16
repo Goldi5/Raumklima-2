@@ -29,6 +29,7 @@ const HELP_E = {
   heatprice: "Was 1 kWh Wärme im Haus kostet – deine Heizung im Vergleich mit anderen Wegen. Bei der Wärmepumpe: Strompreis geteilt durch die Arbeitszahl. Vergleichspreise änderst du in den Einstellungen unter Energie.",
   pv: "Wohin der Solarstrom ging: in die Heizung, ins übrige Haus oder ins Netz. Mit Akku-Sensoren trennt Raumklima, welcher Akku-Strom vorher aus dem Netz geladen wurde – der ist nicht kostenlos.",
   rooms: "Die Heizkosten verteilt auf die Räume – nach Ventilöffnung × Stunden (oder Heizstunden, wenn kein Ventil meldet). Fällt ein Raum stark heraus, steht ein Hinweis darunter.",
+  house: "Was der Strom im ganzen Haus gekostet hat – so wie es der Versorger abrechnet: jede Stunde Netzbezug × Preis dieser Stunde plus die volle Grundgebühr. Akku-Ladung aus dem Netz ist im Netzbezug enthalten. Die Einspeisevergütung wird abgezogen, wenn sie in den Einstellungen eingetragen ist.",
   sources: "Woher der Preis kommt: die Hauptquelle und Reserven, die einspringen, wenn sie nichts liefert. „Mit Vorschau“ heißt: die Quelle kennt auch die Preise der nächsten Stunden.",
 };
 
@@ -100,6 +101,7 @@ const ENERGY_STYLES = `
   .emoney { display:flex; height:28px; border-radius:8px; overflow:hidden; margin:4px 0 8px; gap:2px; }
   .emoney div { display:flex; align-items:center; justify-content:center; min-width:0; overflow:hidden; white-space:nowrap; font-size:.76rem; font-weight:650; color:#111; padding:0 6px; }
   .s-heat { background:var(--rk-heat); } .s-ww { background:var(--rk-air); } .s-base { background:var(--rk-off); }
+  .s-house2 { background:#c9a227; } .eleg i.s-house2 { background:#c9a227; }
   .s-pv { background:var(--rk-ok); } .s-house { background:color-mix(in srgb, var(--rk-ok) 55%, #fff); } .s-feed { background:#38506a; color:#dde !important; }
   .ewk { display:grid; gap:2px; overflow-x:auto; }
   .ewk-h, .ewk-r { display:grid; grid-template-columns:26px repeat(24, minmax(9px,1fr)); gap:2px; align-items:center; }
@@ -435,6 +437,24 @@ export class RaumklimaEnergyCard extends HTMLElement {
     return parts.join("") + `<div class="ekvs">${rows}</div>`;
   }
 
+  _houseBox(h, e) {
+    if (!h || h.grid_kwh == null) return "";
+    const seg = (v, cls, label) => v > 0 ? `<div class="${cls}" style="flex:${v.toFixed(2)}" title="${label}">${label}</div>` : "";
+    const heat = h.heat_cost != null ? h.heat_cost : 0;
+    const bar = `<div class="emoney">${seg(heat, "s-heat", `${t("Heizung")} ${fmt(heat, 2)} €`)}${seg(h.rest_cost != null ? h.rest_cost : h.grid_cost, "s-house2", `${t("übriges Haus")} ${fmt(h.rest_cost != null ? h.rest_cost : h.grid_cost, 2)} €`)}${seg(h.base, "s-base", `${t("Grundgebühr")} ${fmt(h.base, 2)} €`)}</div>
+      <div class="eleg"><span><i class="bheat"></i>${t("Heizung inkl. Warmwasser")}</span><span><i class="s-house2"></i>${t("übriges Haus")}</span><span><i class="s-base"></i>${t("Grundgebühr")}</span></div>`;
+    const rows = [
+      this._kv(t("Netzbezug"), `${fmt(h.grid_kwh, 0)} kWh · ${fmt(h.grid_cost, 2)} €`),
+      this._kv(t("Grundgebühr"), `${fmt(h.base, 2)} €`),
+      this._kv(`<b>${t("Rechnung Versorger")}</b>`, `${fmt(h.bill, 2)} €`),
+      h.feed_eur != null ? this._kv(t("Einspeisevergütung ({k} kWh × {p} ct)", { k: fmt(h.feed_kwh, 0), p: fmt((e.feed_price || 0) * 100, 2) }), `<span class="c-ok">− ${fmt(h.feed_eur, 2)} €</span>`) : "",
+      h.feed_eur != null ? this._kv(`<b>${t("Unterm Strich")}</b>`, `${fmt(h.net, 2)} € · ${t("{v} € pro Tag", { v: fmt(h.per_day, 2) })}`) : this._kv(t("Pro Tag"), `${fmt(h.per_day, 2)} €`),
+      h.price_avg != null ? this._kv(t("Ø Netzstrom"), `${fmt(h.price_avg * 100, 1)} ct/kWh`) : "",
+      h.self_share != null ? this._kv(t("Selbst versorgt (PV & Akku)"), `${fmt(h.self_share, 0)} % ${t("von")} ${fmt(h.house_kwh, 0)} kWh`) : "",
+    ].join("");
+    return bar + `<div class="ekvs">${rows}</div>`;
+  }
+
   _roomsBox(rooms) {
     if (!rooms.length) return "";
     const top = rooms[0].share || 1;
@@ -598,6 +618,8 @@ export class RaumklimaEnergyCard extends HTMLElement {
     if (curve) boxes.push(this._box("Heizkennlinie deines Hauses", "mdi:thermometer-lines", curve, HK.curve));
     const hp = this._heatPrices(e);
     if (hp) boxes.push(this._box("Was kostet 1 kWh Wärme?", "mdi:cash", hp, HK.heatprice));
+    const house = electric ? this._houseBox(e.house, e) : "";
+    if (house) boxes.push(this._box("Strom im ganzen Haus", "mdi:home-lightning-bolt-outline", house, HK.house));
     const pv = electric ? this._pvBox(e) : "";
     if (pv) boxes.push(this._box("PV & Akku", "mdi:solar-power-variant", pv, HK.pv));
     const rooms = this._roomsBox(money.rooms || []);

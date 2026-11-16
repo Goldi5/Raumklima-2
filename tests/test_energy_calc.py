@@ -8,6 +8,7 @@ from custom_components.raumklima.energy_calc import (
     battery_shares,
     heat_prices,
     heating_curve,
+    house_bill,
     hourly_cost,
     parse_forecast,
     ratio,
@@ -182,3 +183,15 @@ def test_heat_prices_compare():
     assert out[2]["ct"] == 12.2
     gas_home = heat_prices("gas", 0.12, None, gas=0.11, oil_l=1.10, power=0.30)
     assert [x["id"] for x in gas_home] == ["own", "heatpump", "oil"]
+
+
+def test_house_bill_with_feed_in():
+    """Ganzes Haus: Netzbezug × Stundenpreis + Grundgebühr − Einspeisevergütung."""
+    out = house_bill(240.0, 90.0, 3.45, 7, house_kwh=320.0, feed_kwh=40.0, feed_price=0.0758, heat_cost=47.5)
+    assert out["bill"] == 93.45
+    assert out["feed_eur"] == 3.03
+    assert out["net"] == 90.42
+    assert out["price_avg"] == 0.375
+    assert out["self_share"] == 25
+    assert out["rest_cost"] == 42.5
+    assert house_bill(10.0, 3.0, 1.0, 1)["feed_eur"] is None

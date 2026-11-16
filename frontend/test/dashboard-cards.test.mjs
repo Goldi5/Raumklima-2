@@ -68,7 +68,8 @@ test("Energiekarte: Wärmepumpe mit Akku, Achsen, Einheiten und Erklärungen", (
       daily, curve: { per_kelvin: 2.9, intercept: 39, limit: 13.6, r2: 0.6, n: 14, points: [{ t: 4, kwh: 28 }, { t: 7, kwh: 19 }] },
       week: { kwh: Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => 0.8)), price: Array.from({ length: 24 }, (_, h) => 0.3 + h / 200) },
       heat_prices: [{ id: "own", ct: 4.3 }, { id: "own_grid", ct: 8.7 }, { id: "gas", ct: 12.2 }], compare_gas: 0.11, compare_oil: 1.1,
-      tariff_saving: 5.8, shift_eur: 12,
+      tariff_saving: 5.8, shift_eur: 12, feed_price: 0.0758,
+      house: { grid_kwh: 240, grid_cost: 90, base: 3.45, bill: 93.45, feed_kwh: 40, feed_eur: 3.03, net: 90.42, price_avg: 0.375, house_kwh: 320, self_share: 25, heat_cost: 47.5, rest_cost: 42.5, per_day: 12.92 },
       tariffs: [{ entity: "sensor.p", name: "Heartbeat Electricity Price", value: 0.447, primary: true, active: true, forecast: 120 }, { entity: "sensor.e", name: "EPEX Spot · SMARD.de", value: 0.458, primary: false, active: false }],
     },
     money: { period_cost: 122.58, per_day: 4.09, annual: 1090, annual_basis: "12m", basis: "meter", parts: { heat: 89.25, ww: 18.55, base: 14.78, pv_saved: 90 },
@@ -86,6 +87,9 @@ test("Energiekarte: Wärmepumpe mit Akku, Achsen, Einheiten und Erklärungen", (
   assert.match(html, /Was kostet 1 kWh Wärme/);
   assert.match(html, /aus dem Netz geladen/);
   assert.match(html, /Flur: 35 %/);
+  assert.match(html, /Strom im ganzen Haus/);
+  assert.match(html, /Rechnung Versorger/);
+  assert.match(html, /− 3,03 €/);
   assert.match(html, /Jahr ≈ 1\.090 € \(letzte 12 Monate\)/);
   assert.doesNotMatch(html, /class="ehelp"/);
   // „?“ öffnet die Erklärung

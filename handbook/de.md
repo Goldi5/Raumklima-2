@@ -347,6 +347,7 @@ Der Reiter *Energie* zeigt oben die Kennzahlen – Kosten (mit Jahreszahl aus Gr
 - **Heizkennlinie deines Hauses** – Verbrauch gegen Außentemperatur: was jedes Grad Kälte kostet und ab wann das Haus nicht mehr heizen müsste.
 - **Was kostet 1 kWh Wärme?** – deine Heizung im Vergleich mit Gas, Öl oder Wärmepumpe (Vergleichspreise einstellbar), dazu was der dynamische Tarif gespart hat.
 - **PV & Akku** – wohin der Solarstrom ging. Mit den Akku-Sensoren „geladen“ und „entladen“ erkennt Raumklima, wenn der Akku nachts aus dem Netz lädt; dieser Strom zählt dann zum Ladepreis und nicht als kostenlos.
+- **Strom im ganzen Haus** – Netzbezug × Stundenpreis plus Grundgebühr, also die Rechnung des Versorgers, aufgeteilt in Heizung und übriges Haus; mit eingetragener **Einspeisevergütung** auch „unterm Strich“.
 - **Wer verbraucht die Wärme?** mit Ventilstunden und Hinweis bei auffälligen Räumen, **Preisquellen**.
 
 Jedes **?** öffnet eine kurze Erklärung. Blöcke erscheinen nur, wenn die Daten da sind – ohne PV kein PV-Block, bei Öl Tank und Liter statt Strompreis. Die Lernkarte liegt jetzt im Reiter *Verlauf & Lernen*.

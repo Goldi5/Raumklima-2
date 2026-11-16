@@ -31,6 +31,7 @@ export const RK_NUM = {
   dehumidifier_off: { unit: " %", step: 1, min: 20, max: 90, dec: 0 },
   energy_base: { unit: " €", step: 1, min: 0, max: 1000, dec: 2 },
   energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
+  energy_feed_price: { unit: " €/kWh", step: 0.0001, min: 0, max: 1, dec: 4 },
   energy_compare_gas: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },
   energy_compare_oil: { unit: " €/L", step: 0.05, min: 0, max: 5, dec: 2 },
   energy_compare_power: { unit: " €/kWh", step: 0.01, min: 0, max: 2, dec: 2 },

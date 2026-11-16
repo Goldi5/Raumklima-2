@@ -382,3 +382,35 @@ def short_label(name: str, integration: str | None = None) -> str:
         if flat and flat not in re.sub(r"[^0-9a-zäöüß]", "", out.lower()):
             out = f"{out} · {integration}"
     return out
+
+
+def house_bill(
+    grid_kwh: float,
+    grid_cost: float,
+    base_eur: float,
+    days: int,
+    house_kwh: float | None = None,
+    feed_kwh: float | None = None,
+    feed_price: float = 0.0,
+    heat_cost: float | None = None,
+) -> dict[str, Any]:
+    """Strom im ganzen Haus: was an den Versorger geht (Netzbezug × Stundenpreis + Grundgebühr)
+    und was die Einspeisung zurückbringt. ``heat_cost`` ist der Energieanteil der Heizung."""
+    feed_eur = round(max(0.0, feed_kwh or 0.0) * max(0.0, feed_price), 2) if feed_kwh is not None and feed_price > 0 else None
+    bill = grid_cost + base_eur
+    out: dict[str, Any] = {
+        "grid_kwh": round(grid_kwh, 2),
+        "grid_cost": round(grid_cost, 2),
+        "base": round(base_eur, 2),
+        "bill": round(bill, 2),
+        "feed_kwh": round(feed_kwh, 2) if feed_kwh is not None else None,
+        "feed_eur": feed_eur,
+        "net": round(bill - (feed_eur or 0.0), 2),
+        "price_avg": round(grid_cost / grid_kwh, 4) if grid_kwh > 0 else None,
+        "house_kwh": round(house_kwh, 2) if house_kwh is not None else None,
+        "self_share": round(100 * max(0.0, min(1.0, 1 - grid_kwh / house_kwh))) if house_kwh else None,
+        "heat_cost": round(heat_cost, 2) if heat_cost is not None else None,
+        "rest_cost": round(max(0.0, grid_cost - heat_cost), 2) if heat_cost is not None else None,
+        "per_day": round((bill - (feed_eur or 0.0)) / days, 2) if days > 0 else None,
+    }
+    return out

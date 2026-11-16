@@ -89,6 +89,8 @@ export const EnergySectionMethods = {
         now(H("energy_grid_entity"), "optional: Strom aus dem Netz in kWh – mit Hausverbrauch zählt PV und Batterie Stunde für Stunde")) : "",
       electric ? this._row("Einspeisung", this._select("hub", "energy_feed_entity", energy, H("energy_feed_entity"), "– keiner –"),
         now(H("energy_feed_entity"), "optional: Strom ins Netz in kWh – zeigt, wohin der Solarstrom ging")) : "",
+      electric && H("energy_feed_entity") ? this._row("Einspeisevergütung", this._num("hub", "energy_feed_price", H("energy_feed_price") ?? 0),
+        "€/kWh – steht im Bescheid des Netzbetreibers; 0 = nicht abziehen") : "",
       electric && H("energy_house_entity") && H("energy_grid_entity") ? this._row("Akku geladen", this._select("hub", "energy_battery_in_entity", energy, H("energy_battery_in_entity"), "– keiner –"),
         now(H("energy_battery_in_entity"), "optional: Gesamtzähler „Batterie geladen“ in kWh")) : "",
       electric && H("energy_house_entity") && H("energy_grid_entity") ? this._row("Akku entladen", this._select("hub", "energy_battery_out_entity", energy, H("energy_battery_out_entity"), "– keiner –"),

@@ -26,6 +26,7 @@ from .const import (
     CONF_ENERGY_EXTRA_FEE,
     CONF_ENERGY_FACTOR,
     CONF_ENERGY_FEED,
+    CONF_ENERGY_FEED_PRICE,
     CONF_ENERGY_GRID,
     CONF_ENERGY_HEAT_ELEC,
     CONF_ENERGY_HEAT_ENTITY,
@@ -67,6 +68,7 @@ from .energy_calc import (
     heat_prices,
     heating_curve,
     hourly_cost,
+    house_bill,
     parse_forecast,
     ratio,
     self_share,
@@ -366,6 +368,7 @@ class Insights:
             "batt_out_entity": self.hub.opt(CONF_ENERGY_BATT_OUT),
             "feed_entity": self.hub.opt(CONF_ENERGY_FEED),
             "heat_elec_entity": self.hub.opt(CONF_ENERGY_HEAT_ELEC),
+            "feed_price": float(self.hub.opt(CONF_ENERGY_FEED_PRICE) or 0),
             "compare_gas": float(self.hub.opt(CONF_ENERGY_CMP_GAS) or 0.11),
             "compare_oil": float(self.hub.opt(CONF_ENERGY_CMP_OIL) or 1.10),
             "compare_power": float(self.hub.opt(CONF_ENERGY_CMP_POWER) or 0.30),
@@ -461,11 +464,19 @@ class Insights:
             cost["basis"] = "tank"
         if cost is not None and cost.get("period_cost"):
             cost["parts"] = self._cost_parts(cfg, cost)
-            if cost.get("annual") is None and cfg.get("meter"):
+            if cfg.get("meter"):
+                # Zwölf gemessene Monate schlagen jede Hochrechnung aus wenigen Wochen
                 annual = await self._annual_from_meter(cfg, cost, today, days)
                 if annual is not None:
                     cost["annual"] = annual
                     cost["annual_basis"] = "12m"
+        if cfg.get("grid_hours_kwh") is not None and cfg["source"] in ("heatpump", "electric"):
+            base_full = max(0.0, float(cfg.get("base") or 0)) * days / 30.44
+            cfg["house"] = house_bill(
+                cfg["grid_hours_kwh"], cfg["grid_hours_cost"], base_full, days,
+                house_kwh=cfg.get("house_kwh"), feed_kwh=cfg.get("feed_kwh"),
+                feed_price=float(cfg.get("feed_price") or 0), heat_cost=cfg.get("cost_energy"),
+            )
         return {
             "start": start.isoformat(),
             "end": today.isoformat(),
@@ -804,7 +815,7 @@ class Insights:
                 charge = await self._stat_rows(cfg["batt_in_entity"], start, end, "change")
                 discharge = await self._stat_rows(cfg["batt_out_entity"], start, end, "change")
         keys = sorted(set(meter) | set(ww))
-        price_keys = sorted(set(keys) | set(charge))
+        price_keys = sorted(set(keys) | set(charge) | set(grid))
         prices: list[dict[float, float]] = []
         for eid in self.hub.tariff_entities():
             prices.append(await self._price_hours(eid, price_keys, factor))
@@ -831,6 +842,18 @@ class Insights:
                     "price": price_at(ts),
                 }
             cfg["batt"] = battery_shares(list(batt_rows.values()))
+        if house and grid:
+            # Strom im ganzen Haus: jede Stunde Netzbezug × Preis dieser Stunde
+            g_kwh = g_cost = 0.0
+            for ts, raw in grid.items():
+                kwh_g = energy_kwh(raw, unit_g, 1.0) or 0.0
+                if kwh_g <= 0:
+                    continue
+                p = price_at(ts)
+                g_kwh += kwh_g
+                g_cost += kwh_g * (p if p is not None else float(cfg.get("price") or 0))
+            cfg["grid_hours_kwh"] = round(g_kwh, 2)
+            cfg["grid_hours_cost"] = round(g_cost, 2)
         rows = []
         for ts in keys:
             share = batt = batt_price = None

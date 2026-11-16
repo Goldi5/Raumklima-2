@@ -581,6 +581,7 @@ CONF_ENERGY_FEED: Final = "energy_feed_entity"  # Einspeisung ins Netz gesamt (k
 CONF_ENERGY_HEAT_ELEC: Final = "energy_heat_elec_entity"  # Strom fürs Heizen laut Wärmepumpe (kWh)
 CONF_ENERGY_CMP_GAS: Final = "energy_compare_gas"  # Vergleich: Gaspreis €/kWh
 CONF_ENERGY_CMP_OIL: Final = "energy_compare_oil"  # Vergleich: Heizölpreis €/L
+CONF_ENERGY_FEED_PRICE: Final = "energy_feed_price"  # Einspeisevergütung €/kWh
 CONF_ENERGY_CMP_POWER: Final = "energy_compare_power"  # Vergleich: Strompreis €/kWh für eine Wärmepumpe
 CONF_ENERGY_BASE_SHARE: Final = "energy_base_share"  # Grundgebühr: full = ganz Heizung, usage = nach Anteil
 ENERGY_BASE_SHARES: Final = ("full", "usage")

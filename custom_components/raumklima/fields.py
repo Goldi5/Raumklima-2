@@ -54,6 +54,7 @@ NUM: dict[str, NumField] = {
     "dehumidifier_off": NumField(" %", 1, 20, 90, 0, 'float', 20, 95, nullable=True),
     "energy_base": NumField(" €", 1, 0, 1000, 2, 'float', 0, 1000),
     "energy_price": NumField(" €", 0.01, 0, 2, 2, 'float', 0, 2),
+    "energy_feed_price": NumField(" €/kWh", 0.0001, 0, 1, 4, 'float', 0, 1),
     "energy_compare_gas": NumField(" €/kWh", 0.01, 0, 2, 2, 'float', 0, 2),
     "energy_compare_oil": NumField(" €/L", 0.05, 0, 5, 2, 'float', 0, 5),
     "energy_compare_power": NumField(" €/kWh", 0.01, 0, 2, 2, 'float', 0, 2),
