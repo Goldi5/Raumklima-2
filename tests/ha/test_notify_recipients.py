@@ -57,7 +57,7 @@ async def test_unavailable_ziel_wird_gemeldet(hass: HomeAssistant, setup) -> Non
 
 
 async def test_zwei_wohnungen_senden_nur_an_eigene_empfaenger(hass: HomeAssistant, setup) -> None:
-    """Berlin und Remscheid teilen keine Empfänger: jede Wohnung sendet nur an ihre eigene Liste."""
+    """Zwei Wohnungen teilen keine Empfänger: jede Wohnung sendet nur an ihre eigene Liste."""
     from homeassistant.config_entries import SOURCE_IMPORT
 
     from custom_components.raumklima.const import DOMAIN
@@ -67,11 +67,11 @@ async def test_zwei_wohnungen_senden_nur_an_eigene_empfaenger(hass: HomeAssistan
         hub, options={**hub.options, "recipients": {"notify.berlin": ["health"]}}
     )
     result = await hass.config_entries.flow.async_init(
-        DOMAIN, context={"source": SOURCE_IMPORT}, data={"home_name": "Remscheid"}
+        DOMAIN, context={"source": SOURCE_IMPORT}, data={"home_name": "Musterstadt"}
     )
     second = hass.config_entries.async_get_entry(result["result"].entry_id)
     hass.config_entries.async_update_entry(
-        second, options={**second.options, "recipients": {"notify.remscheid": ["health"]}}
+        second, options={**second.options, "recipients": {"notify.zweite": ["health"]}}
     )
     await hass.async_block_till_done()
 
@@ -81,9 +81,9 @@ async def test_zwei_wohnungen_senden_nur_an_eigene_empfaenger(hass: HomeAssistan
         sent.append((call.service, call.data["message"]))
 
     hass.services.async_register("notify", "berlin", _send)
-    hass.services.async_register("notify", "remscheid", _send)
+    hass.services.async_register("notify", "zweite", _send)
 
     await hub.runtime_data.async_notify("health", "Test", "berlin")
-    await second.runtime_data.async_notify("health", "Test", "remscheid")
+    await second.runtime_data.async_notify("health", "Test", "zweite")
 
-    assert sent == [("berlin", "berlin"), ("remscheid", "remscheid")]
+    assert sent == [("berlin", "berlin"), ("zweite", "zweite")]

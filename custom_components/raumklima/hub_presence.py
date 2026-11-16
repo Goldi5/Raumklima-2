@@ -601,7 +601,7 @@ class PresenceMixin:
         """Alle laufenden Termine prüfen – auch überlappende und ganztägige.
 
         Der Zustand einer Kalender-Entität liefert nur **eine** `message`. Bei
-        überlappenden Terminen (z. B. Ganztags „Goldschmidt“ + „Test HA“) geht der
+        überlappenden Terminen (z. B. Ganztags „Büro“ + „Test HA“) geht der
         Homeoffice-Termin sonst unter. Deshalb werden die Termine über
         ``calendar.get_events`` im Zeitfenster abgefragt und einzeln geprüft.
         """

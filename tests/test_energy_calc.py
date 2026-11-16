@@ -113,7 +113,7 @@ def test_short_label():
     assert short_label("EPEX Spot Data Total Price", "Energy-Charts.info (DE-LU)") == "EPEX Spot Data Total Price · Energy-Charts.info (DE-LU)"
     assert short_label("Tibber Preis Tibber", "Tibber") == "Tibber Preis Tibber"
     # gleicher Name, nur anders geschrieben – nicht doppelt anhängen
-    assert short_label("Heartbeat Christian - Glaser Electricity Price", "Christian Glaser") == "Heartbeat Christian - Glaser Electricity Price"
+    assert short_label("Heartbeat Max - Mustermann Electricity Price", "Max Mustermann") == "Heartbeat Max - Mustermann Electricity Price"
 
 
 def test_money_no_degree_day_forecast_with_short_outdoor_history():

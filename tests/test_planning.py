@@ -38,7 +38,7 @@ from rk.planning import (
 )
 
 BERLIN = (52.5146, 13.4986)  # Lichtenberg
-REMSCHEID = (51.1787, 7.1897)
+KOELN = (50.9375, 6.9603)
 T0 = datetime(2026, 11, 2, 12, 0)
 
 
@@ -97,23 +97,23 @@ def test_setback_respects_mold_guard_but_not_above_wish():
 
 
 # ------------------------------------------------------------ Ortung
-def test_haversine_berlin_remscheid():
-    assert 440 < haversine_km(*BERLIN, *REMSCHEID) < 470
+def test_haversine_berlin_koeln():
+    assert 460 < haversine_km(*BERLIN, *KOELN) < 495
 
 
 def test_filter_rejects_vpn_jump():
     f = TrackerFilter()
     assert f.feed(Fix(*BERLIN, T0, 20))
-    assert not f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=2), 50))
+    assert not f.feed(Fix(*KOELN, T0 + timedelta(minutes=2), 50))
     assert f.accepted.lat == BERLIN[0]
 
 
 def test_filter_accepts_persistent_real_travel():
     f = TrackerFilter()
     f.feed(Fix(*BERLIN, T0))
-    assert not f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=5)))
-    assert not f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=20)))
-    assert f.feed(Fix(*REMSCHEID, T0 + timedelta(minutes=40)))
+    assert not f.feed(Fix(*KOELN, T0 + timedelta(minutes=5)))
+    assert not f.feed(Fix(*KOELN, T0 + timedelta(minutes=20)))
+    assert f.feed(Fix(*KOELN, T0 + timedelta(minutes=40)))
 
 
 def test_filter_accepts_normal_motion():

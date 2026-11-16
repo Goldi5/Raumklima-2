@@ -291,16 +291,16 @@ test("Wohnungen je Empfänger: pro Wohnung wählbar", () => {
     const berlin = card._cfg.homes[0];
     card._cfg.hub.entry_id = "hub1";
     card._cfg.homes = [
-      { ...berlin, entry_id: "hub1", name: "Berlin", recipients: { "notify.christian": ["health"], "notify.finja": ["vent_open"] } },
-      { entry_id: "hub2", name: "Remscheid", default: false, dashboard: "", rooms: [], recipients: { "notify.christian": ["health"], "notify.antje": ["health"] } },
+      { ...berlin, entry_id: "hub1", name: "Berlin", recipients: { "notify.handy_a": ["health"], "notify.handy_c": ["vent_open"] } },
+      { entry_id: "hub2", name: "Musterstadt", default: false, dashboard: "", rooms: [], recipients: { "notify.handy_a": ["health"], "notify.handy_b": ["health"] } },
     ];
     card._cfg.hub.options.recipients = card._cfg.homes[0].recipients;
     card._section = "notify";
   }, true, true);
   assert.match(html, /Wohnungen je Empfänger/);
-  assert.match(html, /data-recipient-home="notify\.finja" data-home-id="hub1"/);
-  assert.match(html, /data-recipient-home="notify\.finja" data-home-id="hub2"/);
-  assert.match(html, /data-recipient-home="notify\.antje" data-home-id="hub1"/);
+  assert.match(html, /data-recipient-home="notify\.handy_c" data-home-id="hub1"/);
+  assert.match(html, /data-recipient-home="notify\.handy_c" data-home-id="hub2"/);
+  assert.match(html, /data-recipient-home="notify\.handy_b" data-home-id="hub1"/);
   assert.match(html, /alle Wohnungen/);
   assert.match(html, /1 von 2 Wohnungen/);
 });
@@ -309,8 +309,8 @@ test("Wohnungen je Empfänger: Klick schreibt in die gewählte Wohnung", async (
   const card = makeRoom((c) => {
     const berlin = c._cfg.homes[0];
     c._cfg.homes = [
-      { ...berlin, name: "Berlin", recipients: { "notify.finja": ["vent_open"] } },
-      { entry_id: "hub2", name: "Remscheid", default: false, dashboard: "", rooms: [], recipients: {} },
+      { ...berlin, name: "Berlin", recipients: { "notify.handy_c": ["vent_open"] } },
+      { entry_id: "hub2", name: "Musterstadt", default: false, dashboard: "", rooms: [], recipients: {} },
     ];
     c._cfg.hub.options.recipients = c._cfg.homes[0].recipients;
   }, true, true);
@@ -318,9 +318,9 @@ test("Wohnungen je Empfänger: Klick schreibt in die gewählte Wohnung", async (
   card._setHubAt = async (home, changes) => { saved = { home, changes }; };
   BindMethods._bind.call(card);
   const handler = card._handlers.find((h) => h.type === "click" && h.sel === "[data-recipient-home]");
-  await handler.make({ dataset: { homeId: "hub2", recipientHome: "notify.finja" } })();
+  await handler.make({ dataset: { homeId: "hub2", recipientHome: "notify.handy_c" } })();
   assert.equal(saved.home, "hub2");
-  assert.deepEqual(saved.changes.recipients["notify.finja"], ["vent_open"]);
+  assert.deepEqual(saved.changes.recipients["notify.handy_c"], ["vent_open"]);
 });
 
 test("Quelle hinzufügen: liest die Auswahl neben dem Knopf und löst den Fokus", () => {

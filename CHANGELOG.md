@@ -2,7 +2,7 @@
 
 ### Behoben
 - **Kinderzimmer kühlt beim Heimkommen nicht mehr ab:** Ist ein Raum bestimmten Personen zugeordnet und fährt eine davon heran (im Vorheiz-Umkreis), wird ihr Raum vorgeheizt – auch wenn schon jemand anderes zu Hause ist. Bisher fiel das Zimmer kurz auf „kurz weg“, wenn ein Elternteil vor dem Kind ankam.
-- **Richtiger Text:** In Räumen mit zugeordneten Personen heißt es jetzt „Lunas nicht da – Absenkung …“ statt „alle weg“, wenn andere zu Hause sind.
+- **Richtiger Text:** In Räumen mit zugeordneten Personen heißt es jetzt „Kim nicht da – Absenkung …“ statt „alle weg“, wenn andere zu Hause sind.
 - **Boost und Handverstellung enden pünktlich:** Raumklima stellt einen Wecker auf das Ende. Bisher lief ein Boost bis zum nächsten Abgleich (bis zu 10 min) weiter, und die Karte zeigte ein abgelaufenes „bis …“.
 
 ### Neu
@@ -535,7 +535,7 @@ Details: Einträge 0.62.31–0.62.46rc10.
 ## 0.62.46rc9 – 2026-11-13
 
 ### Behoben
-- **Homeoffice bei überlappenden Terminen:** Raumklima fragt jetzt per `calendar.get_events` alle laufenden Termine im Zeitfenster ab und prüft jeden Text – nicht mehr nur die eine `message` der Kalender-Entität. Damit zählt „Goldschmidt“ auch, wenn gleichzeitig „Test HA“ läuft oder der Termin ganztägig ist.
+- **Homeoffice bei überlappenden Terminen:** Raumklima fragt jetzt per `calendar.get_events` alle laufenden Termine im Zeitfenster ab und prüft jeden Text – nicht mehr nur die eine `message` der Kalender-Entität. Damit zählt „Büro“ auch, wenn gleichzeitig „Test HA“ läuft oder der Termin ganztägig ist.
 - **Diagnose:** Der Kalenderblock zeigt die erkannten laufenden Termine (`events`) und den Abrufzeitpunkt (`fetched`).
 - Kalenderänderungen verwerfen den 60-Sekunden-Cache und lesen sofort neu.
 

@@ -9905,7 +9905,7 @@
       id: "home",
       title: "Wohnung",
       fields: [
-        { key: "home_name", label: "Name der Wohnung", type: "text", placeholder: "z. B. Remscheid", required: true },
+        { key: "home_name", label: "Name der Wohnung", type: "text", placeholder: "z. B. Zuhause", required: true },
         { key: "zone", label: "Zone", type: "select", choices: "zones", allowEmpty: true },
         { key: "weather_entity", label: "Wetterquelle", type: "select", choices: "weather", allowEmpty: true }
       ]

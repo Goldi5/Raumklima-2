@@ -472,9 +472,9 @@ async def test_homeoffice_kalender_nur_mit_anwesenheit(hass: HomeAssistant, setu
     await hass.async_block_till_done()
 
     # Anwesenheit konfiguriert (Bewohner + Zone), aber niemand da
-    hub.config[CONF_RESIDENTS] = ["basti"]
+    hub.config[CONF_RESIDENTS] = ["alex"]
     hub.config[CONF_ZONE] = "home"
-    hub.persons = {"basti": {"present": False}}
+    hub.persons = {"alex": {"present": False}}
     hub.sensed = False
     hub.calendar_mode = "home"
 
@@ -482,12 +482,12 @@ async def test_homeoffice_kalender_nur_mit_anwesenheit(hass: HomeAssistant, setu
     assert ctrl.plan()[2] != "home_office"
 
     # Person ist da → Kalender greift
-    hub.persons = {"basti": {"present": True}}
+    hub.persons = {"alex": {"present": True}}
     assert hub.home_office_active is True
     assert ctrl.plan()[2] == "home_office"
 
     # Prüfung aus → Kalender gilt auch ohne Anwesenheit
-    hub.persons = {"basti": {"present": False}}
+    hub.persons = {"alex": {"present": False}}
     hub.config[CONF_HOME_OFFICE_CHECK] = False
     assert hub.home_office_active is True
 
@@ -514,17 +514,17 @@ async def test_homeoffice_findet_termin_in_anderem_kalender(hass: HomeAssistant,
     freezer.move_to("2026-06-15 10:00:00+00:00")
     hub = get_hub(hass, None)
     hub.config[CONF_CALENDAR] = "calendar.main"
-    hub.config[CONF_CALENDAR_HOME] = "Goldschmidt"
+    hub.config[CONF_CALENDAR_HOME] = "Büro"
     hub.config[CONF_HOME_OFFICE_FROM] = "00:00"
     hub.config[CONF_HOME_OFFICE_TO] = "23:59"
     hub.config[CONF_HOME_OFFICE_CHECK] = False
     hass.states.async_set("calendar.main", "off", {"message": ""})
-    hass.states.async_set("calendar.birthdays", "on", {"message": "Goldschmidt"})
+    hass.states.async_set("calendar.birthdays", "on", {"message": "Büro"})
 
     async def _events(call):
         eid = call.data["entity_id"]
         if eid == "calendar.birthdays":
-            return {eid: {"events": [{"summary": "Goldschmidt", "start": "2026-06-15", "end": "2026-06-16"}]}}
+            return {eid: {"events": [{"summary": "Büro", "start": "2026-06-15", "end": "2026-06-16"}]}}
         return {eid: {"events": []}}
 
     hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
@@ -548,15 +548,15 @@ async def test_homeoffice_freier_termin_im_eingestellten_kalender(hass: HomeAssi
     freezer.move_to("2026-06-15 10:00:00+00:00")
     hub = get_hub(hass, None)
     hub.config[CONF_CALENDAR] = "calendar.main"
-    hub.config[CONF_CALENDAR_HOME] = "Goldschmidt"
+    hub.config[CONF_CALENDAR_HOME] = "Büro"
     hub.config[CONF_HOME_OFFICE_FROM] = "00:00"
     hub.config[CONF_HOME_OFFICE_TO] = "23:59"
     hub.config[CONF_HOME_OFFICE_CHECK] = False
-    hass.states.async_set("calendar.main", "off", {"message": "Goldschmidt"})
+    hass.states.async_set("calendar.main", "off", {"message": "Büro"})
 
     async def _events(call):
         eid = call.data["entity_id"]
-        return {eid: {"events": [{"summary": "Goldschmidt", "start": "2026-06-15", "end": "2026-06-16"}] if eid == "calendar.main" else []}}
+        return {eid: {"events": [{"summary": "Büro", "start": "2026-06-15", "end": "2026-06-16"}] if eid == "calendar.main" else []}}
 
     hass.services.async_register("calendar", "get_events", _events, supports_response=SupportsResponse.ONLY)
     await hub.async_check_calendar()
@@ -1711,7 +1711,7 @@ async def test_ventilsensor_aus_anderer_wohnung_wird_nicht_genommen(hass: HomeAs
         config_entry_id=room.entry_id, identifiers={("demo", "vrcc-a")}, name="Haus A", suggested_area="Haus A"
     )
     devs.async_update_device(trv_dev.id, area_id=eigen.id)
-    regs.async_get_or_create("climate", "demo", "vrcc-c", suggested_object_id="finja", device_id=trv_dev.id)
+    regs.async_get_or_create("climate", "demo", "vrcc-c", suggested_object_id="kind", device_id=trv_dev.id)
 
     fremd_dev = devs.async_get_or_create(
         config_entry_id=room.entry_id,
@@ -1719,12 +1719,12 @@ async def test_ventilsensor_aus_anderer_wohnung_wird_nicht_genommen(hass: HomeAs
         name="Haus A Nord - Wohnzimmer Thermostat",
     )
     devs.async_update_device(fremd_dev.id, area_id=fremd.id)
-    regs.async_get_or_create("climate", "demo", "berlin-c", suggested_object_id="finja_berlin_wz", device_id=fremd_dev.id)
+    regs.async_get_or_create("climate", "demo", "berlin-c", suggested_object_id="zweitwohnung_wz", device_id=fremd_dev.id)
     regs.async_get_or_create(
-        "sensor", "demo", "berlin-p", suggested_object_id="finja_berlin_wohnzimmer_thermostat_position", device_id=fremd_dev.id
+        "sensor", "demo", "berlin-p", suggested_object_id="zweitwohnung_wohnzimmer_thermostat_position", device_id=fremd_dev.id
     )
-    hass.states.async_set("sensor.finja_berlin_wohnzimmer_thermostat_position", "14", {"unit_of_measurement": "%"})
-    ctrl.trv = "climate.finja"
+    hass.states.async_set("sensor.zweitwohnung_wohnzimmer_thermostat_position", "14", {"unit_of_measurement": "%"})
+    ctrl.trv = "climate.kind"
 
     assert ctrl._find_valve_sensor() is None
 
@@ -1915,7 +1915,7 @@ async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setu
     freezer.move_to("2026-06-15 10:00:00+00:00")
     hub = get_hub(hass, None)
     hub.config[CONF_CALENDAR] = "calendar.main"
-    hub.config[CONF_CALENDAR_HOME] = "Goldschmidt"
+    hub.config[CONF_CALENDAR_HOME] = "Büro"
     hub.config[CONF_HOME_OFFICE_FROM] = "00:00"
     hub.config[CONF_HOME_OFFICE_TO] = "23:59"
     hub.config[CONF_HOME_OFFICE_CHECK] = False
@@ -1925,7 +1925,7 @@ async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setu
         eid = call.data["entity_id"]
         return {eid: {"events": [
             {"summary": "Test HA", "start": "2026-06-15T00:00:00+00:00", "end": "2026-06-15T23:59:00+00:00"},
-            {"summary": "Goldschmidt", "start": "2026-06-15", "end": "2026-06-16"},
+            {"summary": "Büro", "start": "2026-06-15", "end": "2026-06-16"},
             {"summary": "Morgen Termin", "start": "2026-11-16", "end": "2026-11-17"},
         ] if eid == "calendar.main" else []}}
 
@@ -1935,7 +1935,7 @@ async def test_homeoffice_prueft_ueberlappende_termine(hass: HomeAssistant, setu
     assert hub.calendar_mode == "home"
     assert hub.calendar_source == "calendar.main"
     assert hub.home_office_active is True
-    assert any(e.get("summary") == "Goldschmidt" for e in hub.calendar_debug()["events"])
+    assert any(e.get("summary") == "Büro" for e in hub.calendar_debug()["events"])
     assert any(e.get("summary") == "Morgen Termin" for e in hub.calendar_debug()["upcoming"])
 
 

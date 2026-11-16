@@ -86,8 +86,8 @@ async def test_zwei_wohnungen_werden_getrennt_gesichert(hass: HomeAssistant, set
 
     default_hub, room = setup
     second = MockConfigEntry(
-        domain=DOMAIN, title="Remscheid", unique_id="raumklima_home_remscheid",
-        data={CONF_ENTRY_TYPE: ENTRY_HUB}, options={**HUB_DEFAULTS, "name": "Remscheid", "away_delay": 30},
+        domain=DOMAIN, title="Musterstadt", unique_id="raumklima_home_musterstadt",
+        data={CONF_ENTRY_TYPE: ENTRY_HUB}, options={**HUB_DEFAULTS, "name": "Musterstadt", "away_delay": 30},
     )
     second.add_to_hass(hass)
     assert await hass.config_entries.async_setup(second.entry_id)
