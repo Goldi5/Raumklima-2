@@ -594,6 +594,11 @@
     "Was wann warum entschieden wurde – live, mit Filtern": "What was decided when and why – live, with filters",
     "Weiter nach": "Resume after",
     "Wer bekommt was": "Who gets what",
+    "Wohnungen je Empfänger": "Homes per recipient",
+    "alle Wohnungen": "all homes",
+    "keine Wohnung": "no home",
+    "{n} von {m} Wohnungen": "{n} of {m} homes",
+    "Ein Häkchen heißt: Diese Person bekommt die Meldungen dieser Wohnung. Welche Arten (Lüften, Frost, Bericht …) sie bekommt, steht in den Benachrichtigungen der jeweiligen Wohnung – hier oben für die aktuelle Wohnung.": "A check mark means this person receives messages from that home. Which kinds (airing, frost, report …) they receive is set in the notifications for the respective home – above for the current home.",
     "Wer wohnt hier?": "Who lives here?",
     "Werktags": "Weekdays",
     "Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.": "Values changed with + / − are saved after a short pause and applied by the room right away. Change devices (thermostat, sensors, contacts) and technical settings under “Change devices & technical settings” → cog next to room “{r}”.",
@@ -2143,6 +2148,11 @@
     "Was wann warum entschieden wurde – live, mit Filtern": "Ce qui a été décidé, quand et pourquoi – en direct, avec filtres",
     "Weiter nach": "Reprendre après",
     "Wer bekommt was": "Qui reçoit quoi",
+    "Wohnungen je Empfänger": "Logements par destinataire",
+    "alle Wohnungen": "tous les logements",
+    "keine Wohnung": "aucun logement",
+    "{n} von {m} Wohnungen": "{n} sur {m} logements",
+    "Ein Häkchen heißt: Diese Person bekommt die Meldungen dieser Wohnung. Welche Arten (Lüften, Frost, Bericht …) sie bekommt, steht in den Benachrichtigungen der jeweiligen Wohnung – hier oben für die aktuelle Wohnung.": "Une coche signifie que cette personne reçoit les messages de ce logement. Les types (aérer, gel, rapport …) se règlent dans les notifications du logement concerné – ci-dessus pour le logement actuel.",
     "Wer wohnt hier?": "Qui habite ici ?",
     "Werktags": "En semaine",
     "Werte mit + / − werden nach kurzer Pause gespeichert; der Raum übernimmt sie sofort. Geräte (Thermostat, Fühler, Kontakte) und Technik änderst du unter „Geräte & Technik ändern“ → Zahnrad beim Raum „{r}“.": "Les valeurs modifiées avec + / − sont enregistrées après une courte pause et appliquées aussitôt par la pièce. Les appareils (thermostat, sondes, contacts) et la technique se modifient sous « Modifier appareils & réglages techniques » → roue dentée de la pièce « {r} ».",
@@ -6692,7 +6702,33 @@
         <select class="sel" id="addTarget">${avail.map((tg) => `<option value="${esc(tg)}">${esc(rkPretty(tg))} (${esc(tg)})</option>`).join("")}</select>
         <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
         <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
-      return this._grp("notify", "Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span");
+      return this._grp("notify", "Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span") + this._groupRecipientHomes();
+    },
+    _groupRecipientHomes() {
+      const current = this._cfg && this._cfg.hub && this._cfg.hub.entry_id || null;
+      const homes = (this._cfg && this._cfg.homes || []).map((h) => ({
+        ...h,
+        recipients: h.recipients || (h.entry_id === current ? this._hubOpt("recipients") || {} : {})
+      }));
+      if (homes.length < 2) return "";
+      const targets = [...new Set(homes.flatMap((h) => Object.keys(h.recipients || {})))].sort();
+      if (!targets.length) return "";
+      const rows = targets.map((target) => {
+        const chips = homes.map((h) => {
+          const on = Object.prototype.hasOwnProperty.call(h.recipients || {}, target);
+          return `<button class="chip2 ${on ? "" : "off"}" data-recipient-home="${esc(target)}" data-home-id="${esc(h.entry_id)}" title="${esc(h.name)}" ${this._admin ? "" : "disabled"}>${esc(h.name)}</button>`;
+        }).join("");
+        const count = homes.filter((h) => Object.prototype.hasOwnProperty.call(h.recipients || {}, target)).length;
+        const summary = count === homes.length ? t("alle Wohnungen") : count === 0 ? t("keine Wohnung") : t("{n} von {m} Wohnungen", { n: count, m: homes.length });
+        return `<div class="row"><div class="l"><span class="lbl">${esc(rkPretty(target))}</span><small>${summary} · ${esc(target)}</small></div><div class="chips">${chips}</div></div>`;
+      }).join("");
+      return this._grp(
+        "notify",
+        "Wohnungen je Empfänger",
+        "mdi:home-group",
+        "air",
+        `<div class="hint">${t("Ein Häkchen heißt: Diese Person bekommt die Meldungen dieser Wohnung. Welche Arten (Lüften, Frost, Bericht …) sie bekommt, steht in den Benachrichtigungen der jeweiligen Wohnung – hier oben für die aktuelle Wohnung.")}</div>${rows}`
+      );
     },
     _groupNotify(ctx) {
       const { H } = ctx;
@@ -9282,6 +9318,21 @@
         delete table[el.dataset.remove];
         this._setHub({ [key]: table }, 100);
       });
+      on("click", "[data-recipient-home]", (el) => async () => {
+        if (!this._admin) return;
+        const homeId = el.dataset.homeId;
+        const home = (this._cfg.homes || []).find((h) => h.entry_id === homeId);
+        if (!home) return;
+        const target = el.dataset.recipientHome;
+        const table = JSON.parse(JSON.stringify(home.recipients || {}));
+        if (Object.prototype.hasOwnProperty.call(table, target)) {
+          delete table[target];
+        } else {
+          const known = (this._cfg.homes || []).map((h) => (h.recipients || {})[target]).find((list) => Array.isArray(list) && list.length);
+          table[target] = known ? [...known] : [...RK_DEFAULT_PUSH];
+        }
+        await this._setHubAt(homeId, { recipients: table });
+      });
       on("click", "[data-add]", (el) => () => {
         const sel = this.shadowRoot.getElementById("addTarget");
         if (!sel || !sel.value) return;
@@ -9842,6 +9893,15 @@
       }
       await this._load();
       for (const k of Object.keys(changes)) delete this._local["hub:" + k];
+    }
+    async _setHubAt(home, changes) {
+      try {
+        await this._hass.callWS({ type: "raumklima/hub/update", home: home || this._homeMsg().home, changes });
+        this._flash("Gespeichert");
+      } catch (e) {
+        this._flash(t("Fehler: {e}", { e: e.message || e }));
+      }
+      await this._load();
     }
     _setRoom(entryId, changes, delay = 1500) {
       for (const [k, v] of Object.entries(changes)) this._local[`room:${entryId}:${k}`] = v;

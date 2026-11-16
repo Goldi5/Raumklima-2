@@ -158,6 +158,13 @@ export class RaumklimaSettingsCard extends HTMLElement {
     await this._load();
     for (const k of Object.keys(changes)) delete this._local["hub:" + k];
   }
+  async _setHubAt(home, changes) {
+    try {
+      await this._hass.callWS({ type: "raumklima/hub/update", home: home || this._homeMsg().home, changes });
+      this._flash("Gespeichert");
+    } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
+    await this._load();
+  }
   _setRoom(entryId, changes, delay = 1500) {
     for (const [k, v] of Object.entries(changes)) this._local[`room:${entryId}:${k}`] = v;
     this._pendingRoom = this._pendingRoom || {};

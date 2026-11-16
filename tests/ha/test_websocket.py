@@ -21,6 +21,30 @@ async def test_config(hass: HomeAssistant, setup, hass_ws_client) -> None:
     assert result["admin"] is True
 
 
+async def test_config_empfaenger_je_wohnung(hass: HomeAssistant, setup, hass_ws_client) -> None:
+    """Die Karte braucht die Empfänger aller Wohnungen für die Wohnungs-Auswahl."""
+    hub, _room = setup
+    hass.config_entries.async_update_entry(
+        hub, options={**hub.options, "recipients": {"notify.a": ["health"]}}
+    )
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/home/create", "name": "Ferienwohnung"})
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    second = hass.config_entries.async_get_entry(msg["result"]["entry_id"])
+    hass.config_entries.async_update_entry(
+        second, options={**second.options, "recipients": {"notify.b": ["report"]}}
+    )
+    await hass.async_block_till_done()
+
+    await client.send_json_auto_id({"type": "raumklima/config"})
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    homes = {h["name"]: h["recipients"] for h in msg["result"]["homes"]}
+    assert homes["Allgemein"] == {"notify.a": ["health"]}
+    assert homes["Ferienwohnung"] == {"notify.b": ["report"]}
+
+
 async def test_room_update_live_without_reload(hass: HomeAssistant, setup, hass_ws_client, trv: FakeTrv) -> None:
     _hub, room = setup
     controller = hass.data[DOMAIN]["rooms"][room.entry_id]

@@ -23,7 +23,38 @@ export const NotifySectionMethods = {
         <select class="sel" id="addTarget">${avail.map((tg) => `<option value="${esc(tg)}">${esc(rkPretty(tg))} (${esc(tg)})</option>`).join("")}</select>
         <button class="btn" data-add="push" style="--c:var(--rk-air)"><ha-icon icon="mdi:cellphone-message"></ha-icon>${t("Als Push hinzufügen")}</button>
         <button class="btn" data-add="tts" style="--c:var(--rk-eco)"><ha-icon icon="mdi:speaker-message"></ha-icon>${t("Als Sprachansage")}</button></div>` : "";
-    return this._grp("notify", "Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span");
+    return this._grp("notify", "Wer bekommt was", "mdi:account-voice", "air", `${cards}${addRow}`, "span") + this._groupRecipientHomes();
+  },
+
+  _groupRecipientHomes() {
+    const current = (this._cfg && this._cfg.hub && this._cfg.hub.entry_id) || null;
+    const homes = ((this._cfg && this._cfg.homes) || []).map((h) => ({
+      ...h,
+      recipients: h.recipients || (h.entry_id === current ? this._hubOpt("recipients") || {} : {}),
+    }));
+    if (homes.length < 2) return "";
+    const targets = [...new Set(homes.flatMap((h) => Object.keys(h.recipients || {})))].sort();
+    if (!targets.length) return "";
+    const rows = targets.map((target) => {
+      const chips = homes.map((h) => {
+        const on = Object.prototype.hasOwnProperty.call(h.recipients || {}, target);
+        return `<button class="chip2 ${on ? "" : "off"}" data-recipient-home="${esc(target)}" data-home-id="${esc(h.entry_id)}" title="${esc(h.name)}" ${this._admin ? "" : "disabled"}>${esc(h.name)}</button>`;
+      }).join("");
+      const count = homes.filter((h) => Object.prototype.hasOwnProperty.call(h.recipients || {}, target)).length;
+      const summary = count === homes.length
+        ? t("alle Wohnungen")
+        : count === 0
+          ? t("keine Wohnung")
+          : t("{n} von {m} Wohnungen", { n: count, m: homes.length });
+      return `<div class="row"><div class="l"><span class="lbl">${esc(rkPretty(target))}</span><small>${summary} · ${esc(target)}</small></div><div class="chips">${chips}</div></div>`;
+    }).join("");
+    return this._grp(
+      "notify",
+      "Wohnungen je Empfänger",
+      "mdi:home-group",
+      "air",
+      `<div class="hint">${t("Ein Häkchen heißt: Diese Person bekommt die Meldungen dieser Wohnung. Welche Arten (Lüften, Frost, Bericht …) sie bekommt, steht in den Benachrichtigungen der jeweiligen Wohnung – hier oben für die aktuelle Wohnung.")}</div>${rows}`,
+    );
   },
 
   _groupNotify(ctx) {

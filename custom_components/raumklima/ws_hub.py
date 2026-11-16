@@ -17,8 +17,10 @@ from .const import (
     CONF_ENTRY_TYPE,
     CONF_HUMIDITY_SENSOR,
     CONF_PM25_SENSOR,
+    CONF_RECIPIENTS,
     CONF_SCHEDULES,
     CONF_SMTP_NOTIFY,
+    CONF_TTS,
     CONF_TEMP_SENSOR,
     CONF_TRV,
     CONF_WINDOWS,
@@ -88,8 +90,15 @@ def ws_config(hass: HomeAssistant, connection: websocket_api.ActiveConnection, m
             "rooms": rooms,
             "room_defaults": DEFAULTS,
             "homes": [
-                {"entry_id": h.entry.entry_id, "name": h.name, "default": h.is_default, "dashboard": h.dashboard,
-                 "rooms": list(h.rooms)}
+                {
+                    "entry_id": h.entry.entry_id,
+                    "name": h.name,
+                    "default": h.is_default,
+                    "dashboard": h.dashboard,
+                    "rooms": list(h.rooms),
+                    "recipients": dict({**h.entry.data, **h.entry.options}.get(CONF_RECIPIENTS) or {}),
+                    "tts": dict({**h.entry.data, **h.entry.options}.get(CONF_TTS) or {}),
+                }
                 for h in all_hubs(hass)
             ],
             "dashboards": _known_dashboards(hass),

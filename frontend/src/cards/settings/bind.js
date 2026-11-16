@@ -744,6 +744,23 @@ export const BindMethods = {
       delete table[el.dataset.remove];
       this._setHub({ [key]: table }, 100);
     });
+    on("click", "[data-recipient-home]", (el) => async () => {
+      if (!this._admin) return;
+      const homeId = el.dataset.homeId;
+      const home = (this._cfg.homes || []).find((h) => h.entry_id === homeId);
+      if (!home) return;
+      const target = el.dataset.recipientHome;
+      const table = JSON.parse(JSON.stringify(home.recipients || {}));
+      if (Object.prototype.hasOwnProperty.call(table, target)) {
+        delete table[target];
+      } else {
+        const known = (this._cfg.homes || [])
+          .map((h) => (h.recipients || {})[target])
+          .find((list) => Array.isArray(list) && list.length);
+        table[target] = known ? [...known] : [...RK_DEFAULT_PUSH];
+      }
+      await this._setHubAt(homeId, { recipients: table });
+    });
     on("click", "[data-add]", (el) => () => {
       const sel = this.shadowRoot.getElementById("addTarget");
       if (!sel || !sel.value) return;
