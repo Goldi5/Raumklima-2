@@ -1,3 +1,15 @@
+## 1.3.16b2 – 2026-11-17
+
+### Behoben
+- **Nachtlüften übersteht einen Neustart:** War ein Fenster im Nachtlüften offen, ging diese Einstufung bei einem Neustart verloren. Der Raum galt dann als „Dauerlüftung“, und es kamen Fenster-Meldungen. Jetzt wird Nachtlüften gespeichert und übernommen, solange das Fenster noch offen ist.
+- **Keine Fenster-Fehlalarme beim Start:** Direkt nach dem Neustart liefern die Handys oft noch keine Koordinaten. Für einen Moment galt deshalb „niemand zu Hause“, und es kam „Fenster offen – niemand ist zu Hause“ (dringend, auch in der Ruhezeit). Jetzt zählt in den ersten 10 Minuten der Zustand der Person, solange noch keine Ortung da ist. Die Meldung kommt außerdem frühestens 5 Minuten nach dem Start.
+- **Fenster-Meldungen nicht doppelt:** „Fenster bleibt offen – ich erinnere nicht mehr“ und die Spät-Erinnerung merken sich die Öffnung über einen Neustart.
+- **Heimkommen:** Kommt jemand nach Hause, wird ein offenes Fenster sofort neu geprüft und gegebenenfalls als Nachtlüften gewertet, nicht erst beim nächsten Abgleich.
+
+### Tests
+- Nachtlüften bleibt nach dem Neustart erhalten, ohne Fenster-Meldungen.
+- Person „home“ ohne Koordinaten zählt in der Startphase als anwesend, danach nicht mehr.
+
 ## 1.3.16b1 – 2026-11-17
 
 ### Neu
