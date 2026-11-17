@@ -158,6 +158,8 @@ class TrvMixin:
         if not self.trv:
             return None
         target = self.effective_target
+        if self.floor_mode:
+            return clamp(self.floor_setpoint(target, commit=False), self.trv_min, self.trv_max)
         if self.cal_mode == CAL_HYSTERESIS:
             return self._hysteresis_setpoint(target, update=False)
         if self.cal_mode == CAL_TARGET:

@@ -69,7 +69,7 @@ class FloorMixin:
         high = max(self.floor_min_temp, self.floor_max_temp)
         return clamp(float(target), low, high)
 
-    def floor_setpoint(self, target: float) -> float:
+    def floor_setpoint(self, target: float, *, commit: bool = True) -> float:
         """Sollwert mit Trägheit: nur im Takt nachziehen, innerhalb des Bandes halten."""
         value = self.floor_target(target)
         now = dt_util.utcnow()
@@ -84,8 +84,11 @@ class FloorMixin:
         # sonst blieb ein gesenkter Wunsch (21 → 18 bei 18,3 °C im Raum) auf 21 hängen.
         if last is not None and abs(value - last) <= band:
             return last
-        rounded = round_device(value, 0.5)
-        if last is None or abs(rounded - last) >= 0.01:
+        # Fußboden bleibt in 0,5-K-Schritten, darf aber nie feiner sein als das Gerät.
+        # Viessmann/ViCare meldet z. B. `target_temp_step: 1` und lehnt 21,5 °C mit 400 ab.
+        step = max(float(self.trv_step or 0.5), 0.5)
+        rounded = round_device(value, step)
+        if commit and (last is None or abs(rounded - last) >= 0.01):
             self._floor_last_setpoint = rounded
             self._floor_last_change = now
         return rounded
