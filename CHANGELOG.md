@@ -1,3 +1,13 @@
+## 1.3.16b1 – 2026-11-17
+
+### Neu
+- **Einschaltverzögerung für den Entfeuchter:** Pro Raum einstellbar von 0 = sofort bis 120 Minuten. Die Feuchte muss so lange dauerhaft über der Einschaltschwelle bleiben; kurze Duschspitzen starten das Gerät nicht mehr. Fällt die Feuchte vorher oder geht ein Fenster auf, beginnt die Zeit neu.
+- **Optionale Verbrauchsanzeige:** Wenn der Entfeuchter an einer messenden Steckdose hängt, lassen sich Leistungs- und kWh-Sensor zuordnen. Die Raumeinstellungen zeigen dann aktuelle Leistung, Gesamtverbrauch, Starts und Laufzeit; mit hinterlegtem Strompreis auch die Kosten.
+
+### Tests
+- Einschaltverzögerung startet erst nach Ablauf, kurze Spitzen starten nicht.
+- kWh-Zähler wird mitgezählt; Leistung/Verbrauch bleiben ohne Sensor ausgeblendet.
+
 ## 1.3.15b1 – 2026-11-17
 
 ### Behoben

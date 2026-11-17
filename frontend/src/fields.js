@@ -29,6 +29,7 @@ export const RK_NUM = {
   mold_cap: { unit: " K", step: 0.5, min: 0, max: 6, dec: 1 },
   dehumidifier_on: { unit: " %", step: 1, min: 30, max: 90, dec: 0 },
   dehumidifier_off: { unit: " %", step: 1, min: 20, max: 90, dec: 0 },
+  dehumidifier_delay: { unit: " min", step: 1, min: 0, max: 120, dec: 0 },
   energy_base: { unit: " €", step: 1, min: 0, max: 1000, dec: 2 },
   energy_price: { unit: " €", step: 0.01, min: 0, max: 2, dec: 2 },
   energy_feed_price: { unit: " €/kWh", step: 0.0001, min: 0, max: 1, dec: 4 },

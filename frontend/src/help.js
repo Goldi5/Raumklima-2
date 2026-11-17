@@ -141,6 +141,41 @@ export const HELP = {
     "Below this the dehumidifier switches off again. The value must be below the switch-on threshold; without a value of its own it is five percent below. The gap prevents frequent switching.",
     "En dessous, le déshumidificateur s’arrête. La valeur doit être inférieure au seuil de démarrage ; sans valeur propre, elle est cinq pour cent en dessous. L’écart évite les commutations fréquentes.",
   ],
+  "Einschaltverzögerung": [
+    "So lange muss die Feuchte dauerhaft über der Einschaltschwelle bleiben, bevor der Entfeuchter startet. 0 = sofort. Gegen kurze Duschspitzen, die sonst ein und kurz darauf wieder aus schalten.",
+    "How long humidity must stay above the switch-on threshold before the dehumidifier starts. 0 = immediately. Prevents short shower spikes from switching it on and off again.",
+    "Durée pendant laquelle l’humidité doit rester au-dessus du seuil de démarrage avant que le déshumidificateur démarre. 0 = immédiat. Évite que de courtes pointes de douche le fassent démarrer puis arrêter.",
+  ],
+  "Strommessung (W)": [
+    "Optionaler Leistungssensor der schaltbaren Steckdose, z. B. `sensor.…_power` in Watt. Er zeigt die aktuelle Leistung an; ohne Zähler wird kein Verbrauch berechnet.",
+    "Optional power sensor of the switched plug, e.g. `sensor.…_power` in watts. Shows current draw; without an energy meter no consumption is calculated.",
+    "Capteur de puissance facultatif de la prise commutable, p. ex. `sensor.…_power` en watts. Affiche la puissance actuelle ; sans compteur d’énergie, la consommation n’est pas calculée.",
+  ],
+  "Stromzähler (kWh)": [
+    "Optionaler kWh-Zähler der Steckdose. Raumklima zählt die Differenz mit und rechnet mit dem Strompreis der Wohnung die Kosten aus.",
+    "Optional kWh meter of the plug. Raumklima counts the difference and calculates cost using the home's electricity price.",
+    "Compteur d’énergie kWh facultatif de la prise. Raumklima additionne la différence et calcule le coût avec le prix de l’électricité du foyer.",
+  ],
+  "Leistung gerade": [
+    "Aktuelle Leistung des Entfeuchters in Watt, wenn ein Leistungssensor hinterlegt ist.",
+    "Current dehumidifier draw in watts when a power sensor is configured.",
+    "Puissance actuelle du déshumidificateur en watts lorsqu’un capteur de puissance est configuré.",
+  ],
+  "Verbrauch gesamt": [
+    "Gesamter Verbrauch des Entfeuchters aus dem optionalen kWh-Zähler. Die Kosten erscheinen, wenn unter Allgemein → Energie & Tarife ein Strompreis hinterlegt ist.",
+    "Total dehumidifier consumption from the optional kWh meter. Cost appears when an electricity price is set under Settings → Energy & tariffs.",
+    "Consommation totale du déshumidificateur depuis le compteur kWh facultatif. Le coût apparaît si un prix de l’électricité est défini sous Réglages → Énergie et tarifs.",
+  ],
+  "Starts": [
+    "Wie oft der Entfeuchter seit dem letzten Speichern eingeschaltet wurde.",
+    "How often the dehumidifier has been switched on since the last save.",
+    "Nombre de démarrages du déshumidificateur depuis la dernière sauvegarde.",
+  ],
+  "Laufzeit gesamt": [
+    "Summe aller Laufphasen des Entfeuchters.",
+    "Sum of all dehumidifier run phases.",
+    "Somme de toutes les phases de marche du déshumidificateur.",
+  ],
   "Schulferien-Kalender": [
     "Ein Kalender mit ganztägigen Ferienterminen. Läuft heute ein Termin, starten Zeitfenster, die vor 12:00 beginnen, um die eingestellte Zeit später – die gespeicherten Zeiten bleiben unverändert.",
     "A calendar with all-day school holiday events. If an event is active today, time windows starting before 12:00 begin later by the configured amount – the stored times stay unchanged.",

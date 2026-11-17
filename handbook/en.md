@@ -152,7 +152,7 @@ Airing only helps when the air outside is drier. Raumklima calculates this and d
 
 ### Dehumidifier
 
-A dehumidifier can be switched directly – as a smart plug/switch, fan or native dehumidifier device. Raumklima turns it on at its own switch-on threshold and off below the switch-off threshold. Both thresholds live under **Room → Airing & humidity** and are independent of the airing reminder; without a custom choice, the humidity limit and 5% below apply. It stays off while a window is open. While it runs, the mold guard skips the heating boost; after three hours without improvement, the heating protects again.
+A dehumidifier can be switched directly – as a smart plug/switch, fan or native dehumidifier device. Raumklima turns it on at its own switch-on threshold and off below the switch-off threshold. An optional **start delay** (0 = immediately, up to 120 minutes) prevents short shower spikes from starting it. If it runs on a metered plug, a power and kWh sensor can be assigned; the room settings then show consumption, starts, runtime and – with an electricity price – cost. Both thresholds live under **Room → Airing & humidity** and are independent of the airing reminder; without a custom choice, the humidity limit and 5% below apply. It stays off while a window is open. While it runs, the mold guard skips the heating boost; after three hours without improvement, the heating protects again.
 
 ### Particulate matter (PM2.5)
 

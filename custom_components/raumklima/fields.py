@@ -52,6 +52,7 @@ NUM: dict[str, NumField] = {
     "mold_cap": NumField(" K", 0.5, 0, 6, 1, 'float', 0, 6),
     "dehumidifier_on": NumField(" %", 1, 30, 90, 0, 'float', 20, 95, nullable=True),
     "dehumidifier_off": NumField(" %", 1, 20, 90, 0, 'float', 20, 95, nullable=True),
+    "dehumidifier_delay": NumField(" min", 1, 0, 120, 0, 'int', 0, 120),
     "energy_base": NumField(" €", 1, 0, 1000, 2, 'float', 0, 1000),
     "energy_price": NumField(" €", 0.01, 0, 2, 2, 'float', 0, 2),
     "energy_feed_price": NumField(" €/kWh", 0.0001, 0, 1, 4, 'float', 0, 1),

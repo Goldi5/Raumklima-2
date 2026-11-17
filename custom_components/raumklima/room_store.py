@@ -40,6 +40,7 @@ class StoreMixin:
             "battery_hist": self._battery_hist,
             "shading_closed": sorted(self._shading_closed),
             "shading_manual_until": iso(self._shading_manual_until),
+            "dehumidifier": self.dehumidifier.dump() if hasattr(self, "dehumidifier") else None,
         }
 
     def _load_stored(self, stored: dict[str, Any]) -> None:
@@ -80,3 +81,5 @@ class StoreMixin:
             str(entity_id) for entity_id in (stored.get("shading_closed") or []) if entity_id
         }
         self._shading_manual_until = parse_dt(stored.get("shading_manual_until"))
+        if hasattr(self, "dehumidifier"):
+            self.dehumidifier.load(stored.get("dehumidifier"))

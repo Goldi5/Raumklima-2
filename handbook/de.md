@@ -153,7 +153,7 @@ Lüften lohnt sich nur, wenn die Luft draußen trockener ist. Raumklima rechnet 
 
 ### Entfeuchter
 
-Ein Entfeuchter lässt sich direkt schalten – als Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät. Raumklima schaltet ihn ab der eigenen Einschaltschwelle ein und unter der Ausschaltschwelle wieder aus. Beide Schwellen stehen unter **Raum → Lüften & Feuchte** und sind unabhängig vom Lüfthinweis; ohne eigene Wahl gilt die Feuchtegrenze und 5 % darunter. Bei offenem Fenster bleibt er aus. Läuft er, verzichtet der Schimmelschutz auf den Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.
+Ein Entfeuchter lässt sich direkt schalten – als Steckdose/Schalter, Ventilator oder natives Entfeuchter-Gerät. Raumklima schaltet ihn ab der eigenen Einschaltschwelle ein und unter der Ausschaltschwelle wieder aus. Eine optionale **Einschaltverzögerung** (0 = sofort bis 120 min) verhindert, dass kurze Duschspitzen das Gerät starten. Hängt der Entfeuchter an einer messenden Steckdose, lassen sich Leistungs- und kWh-Sensor zuordnen; die Raumeinstellungen zeigen dann Verbrauch, Starts, Laufzeit und mit Strompreis auch die Kosten. Beide Schwellen stehen unter **Raum → Lüften & Feuchte** und sind unabhängig vom Lüfthinweis; ohne eigene Wahl gilt die Feuchtegrenze und 5 % darunter. Bei offenem Fenster bleibt er aus. Läuft er, verzichtet der Schimmelschutz auf den Heizboost; nach drei Stunden ohne Besserung schützt die Heizung wieder.
 
 ### Feinstaub (PM2,5)
 

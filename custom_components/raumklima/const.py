@@ -37,6 +37,9 @@ CONF_HUMIDITY_SENSOR: Final = "humidity_sensor"
 CONF_DEHUMIDIFIER: Final = "dehumidifier_entity"  # switch/fan/humidifier – Raum-Option
 CONF_DEHUMIDIFIER_ON: Final = "dehumidifier_on"  # eigene Einschaltschwelle; leer = Feuchtegrenze
 CONF_DEHUMIDIFIER_OFF: Final = "dehumidifier_off"  # eigene Ausschaltschwelle; leer = 5 % darunter
+CONF_DEHUMIDIFIER_DELAY: Final = "dehumidifier_delay"  # Minuten über der Schwelle, bevor eingeschaltet wird
+CONF_DEHUMIDIFIER_POWER: Final = "dehumidifier_power"  # optionaler Leistungssensor (W)
+CONF_DEHUMIDIFIER_ENERGY: Final = "dehumidifier_energy"  # optionaler Zähler (kWh)
 CONF_CO2_SENSOR: Final = "co2_sensor"
 CONF_PM25_SENSOR: Final = "pm25_sensor"
 # Feinstaub (PM2,5): WHO-Zwischenwert 35 µg/m³, „wieder gut“ ab 15 µg/m³
@@ -452,6 +455,9 @@ DEFAULTS: Final = {
     CONF_DEHUMIDIFIER: None,
     CONF_DEHUMIDIFIER_ON: None,
     CONF_DEHUMIDIFIER_OFF: None,
+    CONF_DEHUMIDIFIER_DELAY: 0,
+    CONF_DEHUMIDIFIER_POWER: None,
+    CONF_DEHUMIDIFIER_ENERGY: None,
     CONF_COOLING: False,
     CONF_AC_MIN_ON: 10,
     CONF_AC_MIN_OFF: 10,

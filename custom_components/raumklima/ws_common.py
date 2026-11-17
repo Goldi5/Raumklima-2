@@ -37,8 +37,11 @@ from .const import (
     CONF_COOL_SETPOINT,
     CONF_COOLING,
     CONF_DEHUMIDIFIER,
+    CONF_DEHUMIDIFIER_DELAY,
+    CONF_DEHUMIDIFIER_ENERGY,
     CONF_DEHUMIDIFIER_OFF,
     CONF_DEHUMIDIFIER_ON,
+    CONF_DEHUMIDIFIER_POWER,
     CONF_ELECTRIC_PRICE,
     CONF_ENERGY_BASE,
     CONF_ENERGY_BASE_SHARE,
@@ -449,8 +452,11 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_PREHEAT_NOT_BEFORE): vol.Match(r"^\d{1,2}:\d{2}$"),
         vol.Optional(CONF_MOLD_CAP): num_schema("mold_cap"),
         vol.Optional(CONF_DEHUMIDIFIER): vol.Any(None, cv.entity_id),
+        vol.Optional(CONF_DEHUMIDIFIER_POWER): vol.Any(None, cv.entity_id),
+        vol.Optional(CONF_DEHUMIDIFIER_ENERGY): vol.Any(None, cv.entity_id),
         vol.Optional(CONF_DEHUMIDIFIER_ON): num_schema("dehumidifier_on"),
         vol.Optional(CONF_DEHUMIDIFIER_OFF): num_schema("dehumidifier_off"),
+        vol.Optional(CONF_DEHUMIDIFIER_DELAY): num_schema("dehumidifier_delay"),
         vol.Optional(CONF_SCHEDULE_FALLBACK): vol.In(SCHEDULE_FALLBACKS),
         vol.Optional(CONF_VIRTUAL_WINDOW): vol.In(VIRT_MODES),
         vol.Optional(CONF_HOME): vol.Any(None, str),
@@ -644,6 +650,24 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
                     *hass.states.async_all("humidifier"),
                     *hass.states.async_all("input_boolean"),
                 )
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "dehumidifier_power": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("sensor")
+                if s.attributes.get("device_class") == "power"
+                or str(s.attributes.get("unit_of_measurement") or "").lower() in ("w", "kw")
+            ),
+            key=lambda x: x["name"].lower(),
+        ),
+        "dehumidifier_energy": sorted(
+            (
+                {"id": s.entity_id, "name": s.name}
+                for s in hass.states.async_all("sensor")
+                if s.attributes.get("device_class") == "energy"
+                or str(s.attributes.get("unit_of_measurement") or "").lower() in ("kwh", "wh")
             ),
             key=lambda x: x["name"].lower(),
         ),

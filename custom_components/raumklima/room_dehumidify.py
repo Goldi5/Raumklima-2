@@ -18,8 +18,16 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_DEHUMIDIFIER, CONF_DEHUMIDIFIER_OFF, CONF_DEHUMIDIFIER_ON
+from .const import (
+    CONF_DEHUMIDIFIER,
+    CONF_DEHUMIDIFIER_DELAY,
+    CONF_DEHUMIDIFIER_ENERGY,
+    CONF_DEHUMIDIFIER_OFF,
+    CONF_DEHUMIDIFIER_ON,
+    CONF_DEHUMIDIFIER_POWER,
+)
 from .decision_log import CAT_DEVICE
+from .logic import to_float
 from .msg import tr
 
 _LOGGER = logging.getLogger(f"{__package__}.dehumidifier")
@@ -47,6 +55,11 @@ class DehumidifierManager:
         self._expect_at: datetime | None = None
         self._manual_until: datetime | None = None
         self._maxed = False
+        self._high_since: datetime | None = None
+        self._runs = 0
+        self._runtime_s = 0.0
+        self._energy_kwh = 0.0
+        self._energy_last: float | None = None
 
     @property
     def entity_id(self) -> str | None:
@@ -71,6 +84,59 @@ class DehumidifierManager:
         off = float(value) if value is not None else self.on_limit - HYSTERESIS
         # Eine Ausschaltschwelle auf oder über dem Einschalten würde dauerhaft laufen.
         return min(off, self.on_limit - 1.0)
+
+    @property
+    def delay_minutes(self) -> float:
+        """So lange muss die Feuchte über der Einschaltschwelle bleiben (0 = sofort)."""
+        value = to_float(self.c.config.get(CONF_DEHUMIDIFIER_DELAY))
+        return max(0.0, value or 0.0)
+
+    @property
+    def power_entity(self) -> str | None:
+        return str(self.c.config.get(CONF_DEHUMIDIFIER_POWER) or "") or None
+
+    @property
+    def energy_entity(self) -> str | None:
+        return str(self.c.config.get(CONF_DEHUMIDIFIER_ENERGY) or "") or None
+
+    def _sensor_value(self, entity: str | None) -> float | None:
+        state = self.hass.states.get(entity) if entity else None
+        return to_float(state.state) if state is not None else None
+
+    @property
+    def power(self) -> float | None:
+        """Aktuelle Leistung in Watt – nur mit Leistungssensor."""
+        entity = self.power_entity
+        state = self.hass.states.get(entity) if entity else None
+        value = to_float(state.state) if state is not None else None
+        if value is None:
+            return None
+        return round(value * 1000.0, 1) if str(state.attributes.get("unit_of_measurement") or "").lower() == "kw" else round(value, 1)
+
+    @property
+    def energy(self) -> float | None:
+        """Zählerstand in kWh – nur mit passendem Zähler."""
+        entity = self.energy_entity
+        state = self.hass.states.get(entity) if entity else None
+        value = to_float(state.state) if state is not None else None
+        if value is None:
+            return None
+        return round(value / 1000.0, 4) if str(state.attributes.get("unit_of_measurement") or "").lower() == "wh" else round(value, 4)
+
+    @property
+    def runs(self) -> int:
+        return self._runs
+
+    @property
+    def runtime_min(self) -> float:
+        seconds = self._runtime_s
+        if self._on_since is not None:
+            seconds += max(0.0, (dt_util.utcnow() - self._on_since).total_seconds())
+        return round(seconds / 60.0, 1)
+
+    @property
+    def energy_kwh(self) -> float:
+        return round(self._energy_kwh, 3)
 
     @property
     def limit(self) -> float:
@@ -123,6 +189,7 @@ class DehumidifierManager:
         if state is None:
             self._last_seen = None
             return
+        self._track_energy()
         available = state.state not in UNAVAILABLE_STATES
         if not available:
             if state.state == "on":
@@ -130,12 +197,16 @@ class DehumidifierManager:
             self._last_seen = None
             return
 
-        # Laufzeit auch zählen, wenn jemand von Hand eingeschaltet hat – die Karte zeigt „seit …“
+        # Laufzeit und Starts zählen – auch bei manueller Bedienung.
         if state.state == "on" and self._on_since is None:
             recent = self._last_cmd_on and self._last_cmd_at and now - self._last_cmd_at < timedelta(minutes=5)
             self._on_since = self._last_cmd_at if recent else now
-        elif state.state != "on":
+            self._runs += 1
+            self._save_stats()
+        elif state.state != "on" and self._on_since is not None:
+            self._runtime_s += max(0.0, (now - self._on_since).total_seconds())
             self._on_since = None
+            self._save_stats()
 
         # Auf eine bestätigte Änderung warten: keine Fremdbedienung vermuten.
         if self._expecting and self._expect_at and now < self._expect_at:
@@ -155,11 +226,13 @@ class DehumidifierManager:
         is_on = state.state == "on"
         hum = self.humidity
         if hum is None:
+            self._high_since = None
             if is_on:
                 self._command(False, now, "sensor")
             return
 
         if self.window_open:
+            self._high_since = None
             if is_on:
                 self._command(False, now, "window")
             self._on_since = None
@@ -169,6 +242,7 @@ class DehumidifierManager:
             return
 
         if is_on:
+            self._high_since = None
             if (now - self._on_since) >= timedelta(minutes=MAX_RUN) and hum > self.off_limit:
                 if not self._maxed:
                     self._maxed = True
@@ -181,16 +255,67 @@ class DehumidifierManager:
             else:
                 self._maxed = False
         else:
-            self._on_since = None
             if hum < self.off_limit:
                 self._maxed = False
 
-        if not is_on and hum >= self.on_limit and not self._maxed and self._ready_start(now):
-            self._command(True, now, "humidity")
-        elif is_on and hum <= self.off_limit and (
+        if not is_on and hum >= self.on_limit and not self._maxed:
+            if self._high_since is None:
+                self._high_since = now
+            if (now - self._high_since) >= timedelta(minutes=self.delay_minutes):
+                if self._ready_start(now):
+                    self._command(True, now, "humidity")
+        elif hum < self.on_limit:
+            self._high_since = None
+
+        if is_on and hum <= self.off_limit and (
             self._on_since is None or now - self._on_since >= timedelta(minutes=MIN_ON)
         ):
             self._command(False, now, "humidity")
+
+    def _track_energy(self) -> None:
+        """Zählerstand mitzählen – ohne Zähler bleibt der Verbrauch unbekannt."""
+        value = self.energy
+        if value is None:
+            return
+        if self._energy_last is None:
+            self._energy_last = value
+            return
+        delta = value - self._energy_last
+        # Gegen Zähler-Reset/Sprünge absichern: nur plausible positive Differenzen zählen.
+        if 0 < delta < 10:
+            self._energy_kwh += delta
+            self._save_stats()
+        self._energy_last = value
+
+    def _save_stats(self) -> None:
+        save = getattr(self.c, "_save", None)
+        if callable(save):
+            save()
+
+    def dump(self) -> dict[str, Any]:
+        """Verbrauchswerte für den Speicher."""
+        return {
+            "entity": self.entity_id,
+            "runs": self._runs,
+            "runtime_s": round(self._runtime_s, 1),
+            "energy_kwh": round(self._energy_kwh, 4),
+            "energy_last": self._energy_last,
+        }
+
+    def load(self, data: Any) -> None:
+        """Verbrauchswerte aus dem Speicher laden."""
+        if not isinstance(data, dict):
+            return
+        if data.get("entity") and data.get("entity") != self.entity_id:
+            return
+        try:
+            self._runs = max(0, int(data.get("runs") or 0))
+            self._runtime_s = max(0.0, float(data.get("runtime_s") or 0.0))
+            self._energy_kwh = max(0.0, float(data.get("energy_kwh") or 0.0))
+            last = to_float(data.get("energy_last"))
+            self._energy_last = last
+        except (TypeError, ValueError):
+            return
 
     def _ready_start(self, now: datetime) -> bool:
         """Kompressorschutz: nach dem Ausgehen erst einmal pausieren."""
@@ -209,6 +334,7 @@ class DehumidifierManager:
         self._last_cmd_on = on
         self._expecting = "on" if on else "off"
         self._expect_at = now + timedelta(seconds=30)
+        self._high_since = None
         if on:
             self._off_since = None
         else:
@@ -247,6 +373,7 @@ class DehumidifierManager:
         self._expect_at = None
         self._manual_until = None
         self._maxed = False
+        self._high_since = None
 
     def summary(self) -> dict[str, Any]:
         """Kompakter Zustand für Karte, Diagnose und Protokoll."""
@@ -262,4 +389,10 @@ class DehumidifierManager:
             "on_limit": self.on_limit,
             "off_limit": self.off_limit,
             "limit": self.on_limit,
+            "delay": self.delay_minutes,
+            "power": self.power,
+            "energy": self.energy,
+            "energy_kwh": self.energy_kwh,
+            "runs": self.runs,
+            "runtime_min": self.runtime_min,
         }

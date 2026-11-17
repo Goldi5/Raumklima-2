@@ -41,6 +41,13 @@ export const RoomMethods = {
     const ventLimit = a.humidity_limit ?? (sib.humidity_limit ? this._st(sib.humidity_limit)?.state : null);
     const dehOn = this._roomOpt(r, "dehumidifier_on") ?? s.dehumidifier_on ?? ventLimit ?? null;
     const dehOff = this._roomOpt(r, "dehumidifier_off") ?? s.dehumidifier_off ?? (dehOn != null ? Math.max(0, Number(dehOn) - 5) : null);
+    const dehDelay = this._roomOpt(r, "dehumidifier_delay") ?? s.dehumidifier_delay ?? 0;
+    const dehPower = this._roomOpt(r, "dehumidifier_power") ?? s.dehumidifier_power ?? "";
+    const dehEnergy = this._roomOpt(r, "dehumidifier_energy") ?? s.dehumidifier_energy ?? "";
+    const dehPowerChoices = (this._cfg && this._cfg.choices && this._cfg.choices.dehumidifier_power) || [];
+    const dehEnergyChoices = (this._cfg && this._cfg.choices && this._cfg.choices.dehumidifier_energy) || [];
+    const dehPrice = this._cfg && this._cfg.hub && this._cfg.hub.options ? this._cfg.hub.options.electric_price : null;
+    const dehCost = dehPrice != null && a.dehumidifier_energy != null ? a.dehumidifier_energy * Number(dehPrice) : null;
         const virtMode = this._roomOpt(r, "virtual_window") ?? s.virtual_window ?? "auto";
     const editable = this._admin && cfgRoom;
     const push = Object.keys((this._cfg && this._cfg.hub && this._cfg.hub.options.recipients) || {});
@@ -159,6 +166,24 @@ export const RoomMethods = {
           editable ? this._num(scope, "dehumidifier_off", dehOff) : this._v(`${fmt(dehOff, 0)} %`),
           "darunter wieder aus – muss mindestens 1 % unter dem Einschalten liegen",
           this._srcBadge(r, "dehumidifier_off")) : "",
+        deh ? this._row("Einschaltverzögerung",
+          editable ? this._num(scope, "dehumidifier_delay", dehDelay) : this._v(dehDelay ? `${fmt(dehDelay, 0)} min` : t("sofort")),
+          "0 = sofort; so lange muss die Feuchte dauerhaft über der Einschaltschwelle bleiben – gegen kurze Duschspitzen",
+          this._srcBadge(r, "dehumidifier_delay")) : "",
+        deh ? this._row("Strommessung (W)",
+          editable ? this._select(scope, "dehumidifier_power", dehPowerChoices, dehPower, "– keine –") : this._v(dehPower ? esc(this._name(dehPower)) : "–", !dehPower),
+          "optionaler Leistungssensor der schaltbaren Steckdose",
+          this._srcBadge(r, "dehumidifier_power")) : "",
+        deh ? this._row("Stromzähler (kWh)",
+          editable ? this._select(scope, "dehumidifier_energy", dehEnergyChoices, dehEnergy, "– keiner –") : this._v(dehEnergy ? esc(this._name(dehEnergy)) : "–", !dehEnergy),
+          "optionaler kWh-Zähler für Verbrauch und Kosten",
+          this._srcBadge(r, "dehumidifier_energy")) : "",
+        deh && a.dehumidifier_power != null ? this._row("Leistung gerade", this._v(`${fmt(a.dehumidifier_power, 0)} W`), "aktueller Verbrauch des Entfeuchters") : "",
+        deh && a.dehumidifier_energy != null ? this._row("Verbrauch gesamt",
+          this._v(`${fmt(a.dehumidifier_energy, 2)} kWh${dehCost != null ? ` · ca. ${fmt(dehCost, 2)} €` : ""}`),
+          dehCost != null ? "gerechnet mit dem Strompreis der Wohnung" : "Strompreis unter Allgemein → Energie & Tarife hinterlegen") : "",
+        deh && a.dehumidifier_runs ? this._row("Starts", this._v(`${a.dehumidifier_runs}`), "wie oft der Entfeuchter seit dem Speichern eingeschaltet wurde") : "",
+        deh && a.dehumidifier_runtime_min != null ? this._row("Laufzeit gesamt", this._v(`${fmt(a.dehumidifier_runtime_min, 0)} min`), "Summe aller Laufphasen") : "",
         this._row("Mindesttemperatur beim Lüften", this._numStepper(sib.min_temp, " °C", 1), "darunter: „Raum kühlt aus“"),
         this._row("Jetzt", this._v(a.current_humidity != null ? t("{h} % · Taupunkt {d} °C", { h: fmt(a.current_humidity, 0), d: fmt(a.dew_point) }) : "–")),
         this._row("Empfohlene Lüftdauer", this._v(a.recommended_minutes ? `${a.recommended_minutes} min` : "–"), a.outdoor_temperature != null ? t("bei {v} °C draußen", { v: fmt(a.outdoor_temperature) }) : ""),

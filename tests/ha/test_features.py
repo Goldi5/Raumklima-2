@@ -270,6 +270,63 @@ async def test_dehumidifier_uses_own_on_and_off_thresholds(
         assert not ctrl.dehumidifier.active
 
 
+async def test_dehumidifier_waits_for_delay(
+    hass: HomeAssistant, trv: FakeTrv, sensors, freezer
+) -> None:
+    """Eine kurze Feuchtespitze darf den Entfeuchter nicht sofort starten."""
+    calls: list[str] = []
+
+    async def _fake_call(self, entity: str, on: bool) -> None:
+        calls.append("turn_on" if on else "turn_off")
+        hass.states.async_set(entity, "on" if on else "off")
+
+    _hub, room = await _setup(
+        hass,
+        dehumidifier_entity="switch.dehumidifier",
+        dehumidifier_on=65,
+        dehumidifier_off=55,
+        dehumidifier_delay=10,
+    )
+    hass.states.async_set("switch.dehumidifier", "off")
+    ctrl = room.runtime_data
+    with patch.object(DehumidifierManager, "_call", _fake_call):
+        trv.set(current_humidity=66)
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls == []
+        freezer.tick(timedelta(minutes=9))
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls == []
+        freezer.tick(timedelta(minutes=2))
+        ctrl.dehumidifier.update()
+        await hass.async_block_till_done()
+        assert calls[-1] == "turn_on"
+        assert ctrl.dehumidifier.active
+
+
+async def test_dehumidifier_counts_energy(
+    hass: HomeAssistant, trv: FakeTrv, sensors
+) -> None:
+    """Ein kWh-Zähler wird mitgezählt; ohne Zähler bleibt der Verbrauch 0."""
+    hass.states.async_set("sensor.dehumidifier_energy", "100.0", {"unit_of_measurement": "kWh", "device_class": "energy"})
+    _hub, room = await _setup(
+        hass,
+        dehumidifier_entity="switch.dehumidifier",
+        dehumidifier_energy="sensor.dehumidifier_energy",
+    )
+    hass.states.async_set("switch.dehumidifier", "off")
+    ctrl = room.runtime_data
+    ctrl.dehumidifier.update()
+    assert ctrl.dehumidifier.energy_kwh == 0
+    hass.states.async_set("sensor.dehumidifier_energy", "100.5", {"unit_of_measurement": "kWh", "device_class": "energy"})
+    ctrl.dehumidifier.update()
+    assert ctrl.dehumidifier.energy_kwh == 0.5
+    hass.states.async_set("sensor.dehumidifier_energy", "101.0", {"unit_of_measurement": "kWh", "device_class": "energy"})
+    ctrl.dehumidifier.update()
+    assert ctrl.dehumidifier.energy_kwh == 1.0
+
+
 async def test_dehumidifier_switched_outside_shows_at_once(
     hass: HomeAssistant, trv: FakeTrv, sensors
 ) -> None:

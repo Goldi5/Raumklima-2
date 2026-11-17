@@ -377,6 +377,22 @@ test("Gilt für Personen: Auswahl per Dropdown statt aller Chips", () => {
   assert.match(html, /optgroup label="Schalter"/, "Schalter brauchen eine eigene Gruppe");
 });
 
+test("Entfeuchter: Verzögerung und Strommessung sind einstellbar", () => {
+  const card = makeRoom((c) => {
+    c._cfg.rooms[0].options.dehumidifier_entity = "switch.bad_dehumidifier";
+    c._cfg.rooms[0].options.dehumidifier_delay = 10;
+    c._cfg.choices.dehumidifier_power = [{ id: "sensor.bad_power", name: "Bad Strom" }];
+    c._cfg.choices.dehumidifier_energy = [{ id: "sensor.bad_energy", name: "Bad Zähler" }];
+  });
+  const html = card.shadowRoot.innerHTML;
+  assert.match(html, /Einschaltverzögerung/);
+  assert.match(html, /data-key="dehumidifier_delay" data-step="1" data-min="0" data-max="120" data-val="10"/);
+  assert.match(html, /Strommessung \(W\)/);
+  assert.match(html, /data-key="dehumidifier_power"/);
+  assert.match(html, /Stromzähler \(kWh\)/);
+  assert.match(html, /data-key="dehumidifier_energy"/);
+});
+
 test("Raum-Unterseiten: Leiste zeigt die Bereiche und blendet die Gruppen passend aus", () => {
   const card = makeRoom(() => {});
   card._nav2 = true;
