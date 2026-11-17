@@ -1,4 +1,4 @@
-/* Raumklima 1.3.6b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 1.3.7b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -3165,7 +3165,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.3.6b1";
+  var RK_VERSION = "1.3.7b1";
 
   // src/styles.js
   var STYLES = `
@@ -4868,7 +4868,10 @@
         <span class="chip" style="--tone:${toneVar(allSync ? "ok" : "warn")}"><ha-icon icon="mdi:sync"></ha-icon>${allSync ? t("synchron") : t("sendet …")}</span>
         ${pres && presSt.attributes.configured ? people.map(([id, p]) => {
         const place = p.place === "home" ? t("Zuhause") : p.place === "away" ? t("unterwegs") : p.place && p.place !== "unknown" ? p.place : t("unbekannt");
-        return `<span class="chip" data-more="${esc(id)}" style="--tone:${toneVar(p.present ? "ok" : pres.tone)};cursor:pointer"><ha-icon icon="${p.present ? "mdi:home-account" : "mdi:account-arrow-right"}"></ha-icon>${esc(p.name)} · ${esc(place)}</span>`;
+        const isHome = p.present === true || p.place === "home";
+        const tone = isHome ? "ok" : p.approaching ? "warn" : p.place === "away" ? "cold" : p.place && p.place !== "unknown" ? "air" : "off";
+        const icon = isHome ? "mdi:home-account" : p.approaching ? "mdi:car-arrow-right" : p.place === "away" ? "mdi:home-export-outline" : p.place && p.place !== "unknown" ? "mdi:map-marker-outline" : "mdi:account-question-outline";
+        return `<span class="chip" data-more="${esc(id)}" style="--tone:${toneVar(tone)};cursor:pointer"><ha-icon icon="${icon}"></ha-icon>${esc(p.name)} · ${esc(place)}</span>`;
       }).join("") : ""}
         ${pres && presSt.attributes.configured && presSt.state === "preheat" && presSt.attributes.preheat_by ? `<span class="chip" data-more="${hubIds.presence}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-clock"></ha-icon>${t("Vorheizen")} · ${esc(presSt.attributes.preheat_by)}</span>` : ""}
         ${seas ? `<span class="chip" data-more="${hubIds.heating_mode}" style="--tone:${toneVar(seas.tone)};cursor:pointer"><ha-icon icon="${seas.icon}"></ha-icon>${seas.label}${seasSt.attributes.mean_combined != null ? ` · Ø ${fmt(seasSt.attributes.mean_combined)}°` : ""}</span>` : ""}
