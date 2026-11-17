@@ -41,3 +41,16 @@ async def test_no_close_notice_while_sleeping_with_window_open(hass: HomeAssista
     await hass.async_block_till_done()
     c.vent.update()
     assert not c.night_airing
+
+
+async def test_offenes_fenster_wird_nachtlueften_wenn_eingeschaltet(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Fenster schon offen, Nachtlüften erst danach eingeschaltet: sofort umstufen."""
+    freezer.move_to(datetime(2026, 11, 2, 22, 0, tzinfo=dt_util.get_default_time_zone()))
+    _hub, room = await _setup(hass, room_type="living", night_airing="off")
+    c = room.runtime_data
+    hass.states.async_set(WINDOW, "on", {"device_class": "window"})
+    await hass.async_block_till_done()
+    assert not c.night_airing
+    assert c.apply_live_options({"night_airing": "on"})
+    await hass.async_block_till_done()
+    assert c.night_airing

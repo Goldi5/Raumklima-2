@@ -1,3 +1,17 @@
+## 1.3.14b2 – 2026-11-17
+
+### Behoben
+- **Vorheizen bei lückenlosem Zeitplan:** Ist jede Stunde des Tages mit einem Block belegt (z. B. 00:00–05:30 17,5 °C, dann 05:30–07:45 22 °C), gewann bisher immer der laufende Block – das Vorheizen auf den nächsten, wärmeren Block kam nie zum Zug, obwohl die Aufheizzeit gelernt war. Jetzt wird der wärmere Block rechtzeitig vorgezogen. „Vorheizen aus“, „frühestens um …“ und „höchstens … min vorher“ gelten weiter; ein kühlerer nächster Block wird nicht vorgezogen.
+- **Zeitplanwechsel auf die Minute:** Ein neuer Block (und der berechnete Vorheizbeginn) wurde erst beim nächsten 10-Minuten-Abgleich übernommen – z. B. 05:52 statt 05:45. Jetzt stellt jeder Raum einen Wecker auf den nächsten Wechsel.
+- **Nachtlüften für ein schon offenes Fenster:** Wird Nachtlüften eingeschaltet oder beginnt das Nachtfenster, während das Fenster bereits offen ist, gilt es jetzt sofort als Nachtlüften. Bisher blieb es bis zum Schließen „normales Lüften“ – mit „Raum kühlt aus“-Meldungen die ganze Nacht.
+- **Diagnose:** Im Thermostat-Verlauf trägt jede Änderung (Sollwert, heizt/heizt nicht) ihren eigenen Zeitstempel statt den des letzten Moduswechsels.
+
+### Neu
+- **Status „Wartet auf Wärme“:** Liegt ein Raum mindestens 0,5 K unter dem Ziel, das Thermostat meldet aber „heizt nicht“ (z. B. verzögerte Cloud-Meldung oder die Heizungsanlage ist noch in ihrer eigenen Nachtabsenkung), zeigt die Karte das statt „Temperatur erreicht“.
+
+### Tests
+- Vorheizen bei lückenlosem Zeitplan (wärmer/kühler/aus), Wecker auf den Blockwechsel, Status „Wartet auf Wärme“, Nachtlüften nach nachträglichem Einschalten.
+
 ## 1.3.14b1 – 2026-11-16
 
 ### Behoben

@@ -565,6 +565,8 @@ export const EN = {
   "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)": "Daily outdoor mean; above it heating pauses (after 2 mild days)",
   "Taupunkt": "Dew point",
   "Temperatur": "Temperature",
+  "Wartet auf Wärme": "Waiting for heat",
+  "Wartet": "Waiting",
   "Temperatur erreicht": "Temperature reached",
   "Temperatur, Luftfeuchte oder Zeitleiste aller Räume": "Temperature, humidity or timeline of all rooms",
   "Temperaturfühler": "Temperature sensor",

@@ -34,6 +34,7 @@ from .const import (
     CONF_LOOK_DARK,
     CONF_MOLD_MODE,
     CONF_NAME,
+    CONF_NIGHT_AIRING,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
     CONF_ON_PRESET,
@@ -282,6 +283,8 @@ class SettingsMixin:
             tr("Einstellungen geändert"),
             ", ".join(_change_text(k, old_values[k], v) for k, v in changed.items()),
         )
+        if CONF_NIGHT_AIRING in changed:
+            self._recheck_night_airing()
         # Wunschtemperatur aus den Einstellungen muss den laufenden Sollwert nachziehen –
         # sonst heizt der Raum weiter auf den alten Wert, bis er neu geladen wird (Issue #22).
         if changed.keys() & {CONF_COMFORT_TEMP, CONF_ROOM_TYPE}:
@@ -315,6 +318,7 @@ class SettingsMixin:
                 if hub is not None:
                     hub.notify_entities()
         self._notify()
+        self._schedule_plan_wake()
         self.hass.async_create_task(self._apply())
         return True
 

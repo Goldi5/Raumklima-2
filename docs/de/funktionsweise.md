@@ -73,6 +73,8 @@ Die Werte stammen aus den Empfehlungen der Verbraucherzentrale bzw. des vzbv: be
 
 Wer nur Heizphasen einträgt („morgens 6–8, abends 17–22"), will dazwischen nicht auf der Wunschtemperatur heizen. Die Raum-Einstellung **Außerhalb der Zeitfenster** legt das fest: Wunschtemperatur (Standard), kurz weg, länger weg oder Frostschutz (die Sicherung der Wohnung, Standard 16 °C – nie unter dem Raum-Frostschutz). Das Vorheizen vor einem Fenster bleibt bestehen, und der Schimmelschutz bleibt als Boden darüber.
 
+**Lückenloser Zeitplan:** Wer den ganzen Tag in Blöcke teilt (z. B. 00:00–05:30 17,5 °C, 05:30–07:45 22 °C), bekommt das Vorheizen trotzdem: Ist der nächste Block wärmer und die Aufheizzeit gelernt, wird er rechtzeitig vorgezogen. Blockwechsel greifen auf die Minute. Meldet das Thermostat bei deutlich zu kalter Luft noch „heizt nicht“, zeigt die Karte **Wartet auf Wärme** – häufigster Grund: Die Heizungsanlage selbst ist noch in ihrer eigenen Nachtabsenkung. Dann deren Heizzeit vorziehen, sonst kann kein Thermostat vorheizen.
+
 ## 6. Schimmelschutz
 
 Bei **längerer Abwesenheit** rechnet Raumklima aus, wie weit die Temperatur sinken darf, ohne dass die kälteste Wandstelle (Außenecke) zu feucht wird – nach dem Kriterium der **DIN 4108-2**: höchstens 80 % relative Feuchte an der Oberfläche.

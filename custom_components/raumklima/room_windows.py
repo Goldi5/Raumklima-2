@@ -89,6 +89,26 @@ class WindowMixin:
             )
         return applies, why
 
+    def _recheck_night_airing(self, why_prefix: str | None = None) -> None:
+        """Schon offenes Fenster nachträglich als Nachtlüften werten.
+
+        Die Einstufung fiel bisher nur beim Öffnen: Wurde Nachtlüften erst danach eingeschaltet
+        oder begann das Nachtfenster später, galt das Fenster die ganze Nacht als normales
+        Lüften – mit „Raum kühlt aus“-Meldungen bis zum Morgen.
+        """
+        if not self._window_raw or self._raw_virtual or self.night_since is not None:
+            return
+        night, why = self.night_reason()
+        if not night:
+            return
+        self.night_since = dt_util.utcnow()
+        self.log(
+            CAT_WINDOW,
+            tr("Fenster offen – jetzt Nachtlüften"),
+            tr("{why}: keine Lüft-Hinweise, Heizung wartet bis zum Schließen", why=why_prefix or why),
+        )
+        self._notify()
+
     @property
     def night_airing(self) -> bool:
         """Fenster offen, weil bei offenem Fenster geschlafen wird."""

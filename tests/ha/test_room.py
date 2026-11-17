@@ -1981,3 +1981,85 @@ async def test_naechster_termin_bei_off_zaehlt_nicht(hass: HomeAssistant, setup,
         {"message": "Urlaub Ostsee", "start_time": "2026-06-15 00:00:00", "end_time": "2026-06-22 00:00:00"},
     )
     assert hub.calendar_event()[0] == "away"
+
+
+async def test_preheat_bei_lueckenlosem_zeitplan(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Jede Stunde belegt: der laufende kühle Block darf das Vorheizen auf den nächsten nicht verdrängen."""
+    from homeassistant.util import dt as dt_util
+
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    freezer.move_to("2026-06-15 12:00:00+00:00")
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.heatup.episodes = [{"rate": 1.0, "outdoor": 5.0, "minutes": 60, "rise": 1.0}] * 3
+    now = dt_util.now()
+    split = (now + timedelta(minutes=60)).strftime("%H:%M")
+    ctrl.apply_live_options({CONF_SCHEDULES: [
+        {"days": [], "start": "00:00", "end": split, "temperature": 16.0},
+        {"days": [], "start": split, "end": "00:00", "temperature": 26.0},
+    ]})
+    await hass.async_block_till_done()
+    assert ctrl.plan()[1:] == (26.0, "schedule_preheat")
+    # kälterer nächster Block: der laufende Block gilt weiter (kein vorgezogenes Absenken)
+    ctrl.apply_live_options({CONF_SCHEDULES: [
+        {"days": [], "start": "00:00", "end": split, "temperature": 22.0},
+        {"days": [], "start": split, "end": "00:00", "temperature": 16.0},
+    ]})
+    assert ctrl.plan()[1:] == (22.0, "schedule")
+    # Vorheizen aus: der laufende Block bleibt
+    ctrl.apply_live_options({CONF_SCHEDULES: [
+        {"days": [], "start": "00:00", "end": split, "temperature": 16.0},
+        {"days": [], "start": split, "end": "00:00", "temperature": 26.0},
+    ]})
+    ctrl.config["preheat_mode"] = "off"
+    assert ctrl.plan()[1:] == (16.0, "schedule")
+
+
+async def test_zeitplan_wechselt_auf_die_minute(hass: HomeAssistant, setup, trv: FakeTrv, freezer) -> None:
+    """Neuer Block wird mit eigenem Wecker übernommen, nicht erst beim 10-Minuten-Abgleich."""
+    from homeassistant.util import dt as dt_util
+    from pytest_homeassistant_custom_component.common import async_fire_time_changed
+
+    from custom_components.raumklima.const import CONF_SCHEDULES
+    from custom_components.raumklima.shared import domain_data
+
+    freezer.move_to("2026-06-15 12:03:00+00:00")
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.heatup.episodes = []
+    split = (dt_util.now() + timedelta(minutes=4)).strftime("%H:%M")
+    ctrl.apply_live_options({CONF_SCHEDULES: [
+        {"days": [], "start": "00:00", "end": split, "temperature": 17.0},
+        {"days": [], "start": split, "end": "00:00", "temperature": 22.0},
+    ]})
+    await hass.async_block_till_done()
+    assert ctrl._plan_wake_at is not None
+    assert abs((ctrl._plan_wake_at - dt_util.utcnow()).total_seconds() - 240) < 61
+    assert ctrl.effective_target == 17.0
+    freezer.tick(timedelta(minutes=4, seconds=5))
+    async_fire_time_changed(hass, dt_util.utcnow())
+    await hass.async_block_till_done()
+    assert ctrl.effective_target == 22.0
+    assert hass.states.get(trv.entity_id).attributes.get("temperature") == 22.0
+
+
+async def test_status_wartet_auf_waerme(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Deutlich unter dem Ziel, Thermostat meldet „idle“: nicht „Temperatur erreicht“."""
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.peek_plan = lambda: (True, 22.5, "schedule")
+    type(ctrl).hvac_action  # noqa: B018 – Eigenschaft existiert
+    from unittest.mock import PropertyMock, patch
+
+    from homeassistant.components.climate import HVACAction
+
+    with patch.object(type(ctrl), "hvac_action", new_callable=PropertyMock, return_value=HVACAction.IDLE), \
+         patch.object(type(ctrl), "current_temperature", new_callable=PropertyMock, return_value=19.1):
+        assert ctrl.status == "waiting"
+    with patch.object(type(ctrl), "hvac_action", new_callable=PropertyMock, return_value=HVACAction.IDLE), \
+         patch.object(type(ctrl), "current_temperature", new_callable=PropertyMock, return_value=22.3):
+        assert ctrl.status == "idle"

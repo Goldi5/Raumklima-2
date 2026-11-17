@@ -93,8 +93,10 @@ from .const import (
     STATUS_SENSOR,
     STATUS_SETBACK,
     STATUS_TRV,
+    STATUS_WAIT,
     STATUS_WINDOW,
     VALVE_HEATING_MIN,
+    WAIT_GAP,
 )
 from .decision_log import (
     CAT_DEVICE,
@@ -411,6 +413,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         domain_data(self.hass)["rooms"][self.entry.entry_id] = self
         self.shading_start()
         self._started = True
+        self._schedule_plan_wake()
         self.hass.async_create_task(self._apply())
         self.hass.async_create_task(self.async_calibrate())
         self.hass.async_create_task(self.async_evaluate_shading())
@@ -425,7 +428,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._unsubs.clear()
         # Alle eigenen Timer abbrechen – sonst speichert z. B. die Bestätigung eines Handeingriffs
         # nach dem Neuladen noch den alten Zustand und überschreibt den des neuen Raums.
-        for attr in ("_window_timer", "_trv_down_cancel", "_virtual_cancel", "_manual_timer", "_valve_care_cancel", "_expiry_cancel"):
+        for attr in ("_window_timer", "_trv_down_cancel", "_virtual_cancel", "_manual_timer", "_valve_care_cancel", "_expiry_cancel", "_plan_wake_cancel"):
             cancel = getattr(self, attr, None)
             if cancel:
                 cancel()
@@ -468,6 +471,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             return  # entladen: nicht mehr in den (dann neuen) Speicher schreiben
         self._store.async_delay_save(self._stored_data, 5)
         self._schedule_expiry()
+        self._schedule_plan_wake()
 
     @callback
     def _schedule_expiry(self) -> None:
@@ -499,6 +503,40 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
         # eine Sekunde nach dem Ende, damit „jetzt < Ende“ sicher nicht mehr gilt
         self._expiry_cancel = self._schedule((when - now).total_seconds() + 1, fire)
+
+    @callback
+    def _schedule_plan_wake(self) -> None:
+        """Wecker auf den nächsten Zeitplanwechsel bzw. Vorheizbeginn.
+
+        Vorher wurde ein neuer Block erst beim nächsten Abgleich übernommen – bis zu 10 min zu spät.
+        """
+        if getattr(self, "_stopped", False) or getattr(self, "hass", None) is None or not getattr(self, "_started", False):
+            return
+        try:
+            local = self.next_plan_change(dt_util.now())
+        except Exception:
+            _LOGGER.debug("%s: Zeitplan-Wecker nicht berechenbar", self.name, exc_info=True)
+            local = None
+        when = dt_util.as_utc(local) if local is not None else None
+        if when == getattr(self, "_plan_wake_at", None):
+            return
+        cancel = getattr(self, "_plan_wake_cancel", None)
+        if cancel:
+            cancel()
+        self._plan_wake_cancel = None
+        self._plan_wake_at = when
+        if when is None:
+            return
+
+        def fire() -> None:
+            self._plan_wake_cancel = None
+            self._plan_wake_at = None
+            self._notify()
+            self.hass.async_create_task(self._apply())
+            self._schedule_plan_wake()
+
+        delay = max(1.0, (when - dt_util.utcnow()).total_seconds() + 1)
+        self._plan_wake_cancel = self._schedule(delay, fire)
 
     def save(self) -> None:
         """Öffentlich: Zustand speichern (z. B. vom Lüftungsassistenten)."""
@@ -916,6 +954,11 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             return STATUS_SETBACK
         if self.hvac_action == HVACAction.HEATING:
             return STATUS_HEATING
+        cur = self.current_temperature
+        if on and cur is not None and _target is not None and float(_target) - cur >= WAIT_GAP:
+            # Deutlich unter dem Ziel, das Thermostat meldet aber „heizt nicht“ (tado-Cloud,
+            # Heizung noch in der Nachtabsenkung) – nicht als „Temperatur erreicht“ zeigen.
+            return STATUS_WAIT
         return STATUS_IDLE
 
 
@@ -1308,6 +1351,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             if state and is_valid(state.state):
                 self._last_valid_windows[entity] = window_open_state(entity, state)
         self._evaluate_windows()
+        self._recheck_night_airing()
         self.dehumidifier.update()
         self._sample_series()
         self._save()

@@ -286,7 +286,7 @@ async def _history(hass: HomeAssistant, hub: Any, rooms: list[dict[str, Any]], s
         rows = []
         last = None
         for st in states:
-            stamp = getattr(st, "last_changed", None) or getattr(st, "last_updated", None)
+            stamp = getattr(st, "last_updated", None) or getattr(st, "last_changed", None)
             if entity_id.startswith("person."):
                 row = {"t": stamp.isoformat() if stamp else None, "s": _compact_person(st)}
                 key = row["s"]

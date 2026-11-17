@@ -595,6 +595,8 @@ INVALID_STATES: Final = ("unavailable", "unknown", None)
 
 STATUS_HEATING: Final = "heating"
 STATUS_IDLE: Final = "idle"
+STATUS_WAIT: Final = "waiting"  # will heizen, Thermostat meldet aber noch nichts
+WAIT_GAP: Final = 0.5  # K unter dem Ziel, ab denen „idle“ als „wartet auf Wärme“ gilt
 STATUS_WINDOW: Final = "window_open"
 STATUS_OFF: Final = "off"
 STATUS_OFF_TRV: Final = "off_trv"  # aus, weil das Thermostat selbst abgeschaltet hat
@@ -613,6 +615,7 @@ STATUS_NIGHT: Final = "night_airing"
 STATUSES: Final = [
     STATUS_HEATING,
     STATUS_IDLE,
+    STATUS_WAIT,
     STATUS_WINDOW,
     STATUS_OFF,
     STATUS_OFF_TRV,

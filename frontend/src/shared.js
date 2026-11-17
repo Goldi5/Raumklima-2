@@ -51,6 +51,7 @@ export const escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 export const STATUS = tmap({
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
   idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
+  waiting: { label: "Wartet auf Wärme", icon: "mdi:timer-sand", tone: "heat" },
   window_open: { label: "Pausiert – Fenster offen", icon: "mdi:window-open-variant", tone: "air" },
   off: { label: "Aus", icon: "mdi:power", tone: "off" },
   off_trv: { label: "Aus – am Thermostat abgeschaltet", icon: "mdi:power-plug-off", tone: "off" },
@@ -391,6 +392,7 @@ export const SEG = tmap({
   setback: { c: "var(--rk-eco)", l: "Abgesenkt" },
   heating: { c: "var(--rk-heat)", l: "Heizt" },
   idle: { c: "var(--rk-ok)", l: "Erreicht" },
+  waiting: { c: "color-mix(in srgb, var(--rk-heat) 45%, transparent)", l: "Wartet" },
   window_open: { c: "var(--rk-air)", l: "Fenster offen" },
   night_airing: { c: "color-mix(in srgb, var(--rk-air) 55%, #1e2a5a)", l: "Nachtlüften" },
   off: { c: "color-mix(in srgb, var(--rk-off) 45%, transparent)", l: "Aus" },

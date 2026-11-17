@@ -153,6 +153,43 @@ class PlanMixin:
             return now >= allowed
         return True
 
+    def next_plan_change(self, local_now: datetime) -> datetime | None:
+        """Nächster Zeitpunkt, an dem sich das Ziel laut Zeitplan ändert (lokal).
+
+        Beginn des nächsten Fensters, Ende des laufenden und der berechnete Vorheizbeginn –
+        damit der Raum auf die Minute umschaltet statt erst beim nächsten 10-Minuten-Abgleich.
+        """
+        if self.schedule_entity:
+            return None  # Helfer melden ihre Wechsel selbst
+        times: list[datetime] = []
+        end = schedule_window_end(self.plan_schedules, local_now)
+        if end is not None:
+            times.append(end)
+        nxt = self.next_plan_window(local_now)
+        if nxt is not None:
+            start, want = nxt
+            times.append(start)
+            hub = self.hub
+            cur = self.current_temperature
+            mode = str(self.config.get(CONF_PREHEAT_MODE) or "auto")
+            if hub is not None and cur is not None and want is not None and mode != "off":
+                need = self.heatup.minutes_needed(float(want) - cur, hub.outdoor_temp())
+                if need:
+                    at = start - timedelta(minutes=need + PREHEAT_MARGIN_MINUTES)
+                    if mode == "lead":
+                        lead = max(0, int(self.config.get(CONF_PREHEAT_LEAD) or 90))
+                        at = max(at, start - timedelta(minutes=lead))
+                    elif mode == "clock":
+                        hour, _sep, minute = str(self.config.get(CONF_PREHEAT_NOT_BEFORE) or "05:00").partition(":")
+                        try:
+                            allowed = at.replace(hour=int(hour), minute=int(minute or 0), second=0, microsecond=0)
+                        except (TypeError, ValueError):
+                            allowed = at
+                        at = max(at, allowed)
+                    times.append(at)
+        future = [t for t in times if t > local_now]
+        return min(future) if future else None
+
     def _night_setback_applies(self, hub: Any) -> bool:
         """Gilt die Nachtabsenkung für diesen Raum?
 
@@ -349,6 +386,11 @@ class PlanMixin:
         if ctx.manual_active and not values_match(self.target_temp, sched, 0.05):
             # Von Hand gestellt: der Zeitplan pausiert bis override_minutes abgelaufen sind
             return True, min(self.target_temp, self.trv_max), REASON_MANUAL
+        # Lückenloser Zeitplan (jede Stunde belegt): ohne diese Prüfung gewinnt immer der
+        # laufende Block, und das Vorheizen auf den nächsten, wärmeren Block käme nie dran.
+        pre = self._rule_preheat(ctx)
+        if pre is not None and pre[1] > min(sched, self.trv_max) + 0.05:
+            return pre
         return True, min(sched, self.trv_max), REASON_SCHEDULE
 
     def _rule_night(self, ctx: _PlanContext) -> PlanResult:

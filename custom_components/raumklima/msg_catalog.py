@@ -486,6 +486,7 @@ _ROWS: list[tuple[str, str, str]] = [
     ("{what}, {time} im Fenster {start}–{end}, jemand da", "{what}, {time} within {start}–{end}, someone home", "{what}, {time} dans la plage {start}–{end}, quelqu’un est là"),
     (", draußen {t}", ", outside {t}", ", dehors {t}"),
     ("Fenster auf – Nachtlüften", "Window open – night airing", "Fenêtre ouverte – aération nocturne"),
+    ("Fenster offen – jetzt Nachtlüften", "Window open – now night airing", "Fenêtre ouverte – désormais aération nocturne"),
     ("{why}: keine Lüft-Hinweise, Heizung wartet bis zum Schließen", "{why}: no airing notices, heating waits until closed", "{why} : pas d’avis d’aération, le chauffage attend la fermeture"),
     ("Fenster auf", "Window open", "Fenêtre ouverte"),
     ("Heizung pausiert", "heating paused", "chauffage en pause"),

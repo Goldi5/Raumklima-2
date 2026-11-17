@@ -565,6 +565,8 @@ export const FR = {
   "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)": "Moyenne extérieure journalière ; au-dessus, le chauffage se met en pause (après 2 jours doux)",
   "Taupunkt": "Point de rosée",
   "Temperatur": "Température",
+  "Wartet auf Wärme": "En attente de chaleur",
+  "Wartet": "En attente",
   "Temperatur erreicht": "Température atteinte",
   "Temperatur, Luftfeuchte oder Zeitleiste aller Räume": "Température, humidité ou chronologie de toutes les pièces",
   "Temperaturfühler": "Sonde de température",
