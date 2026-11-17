@@ -214,6 +214,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._window_flips: deque[datetime] = deque(maxlen=400)
         self._window_raw = False
         self.night_since: datetime | None = None  # Schlafen bei offenem Fenster seit
+        self._restored_night: datetime | None = None  # aus dem Speicher, einmalig zu übernehmen
         self._last_valid_windows: dict[str, str | None] = {}
         self._window_timer: Callable[[], None] | None = None
         self._ext_value: float | None = None
@@ -402,7 +403,10 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             # Neustart „Fenster auf“, pausiert erneut und schreibt kurz den Sollwert ans Gerät.
             self._window_raw = True
         self.window_paused = self._window_raw
-        if self._window_raw and self.night_applies():
+        restored_night, self._restored_night = self._restored_night, None
+        if self._window_raw and restored_night is not None and self.vent.restored_open is not None and self.vent.restored_open <= restored_night <= dt_util.utcnow():
+            self.night_since = restored_night  # vor dem Neustart schon Nachtlüften
+        elif self._window_raw and self.night_applies():
             self.night_since = dt_util.utcnow()
         self._ingest_sensor(self.hass.states.get(self.temp_sensor))
         await self.vent.async_start()

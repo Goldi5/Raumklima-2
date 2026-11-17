@@ -25,6 +25,7 @@ class StoreMixin:
             "boost_open": self.boost_open,
             "boost_temperature": self.boost_temperature,
             "window_logic": self.window_logic,
+            "night_since": iso(self.night_since),
             "trv_on_preset": self.trv_on_preset,
             "preset_learned": self.preset_learned,
             "shift": self.shift,
@@ -53,6 +54,8 @@ class StoreMixin:
         self.boost_open = bool(stored.get("boost_open") or False)
         self.boost_temperature = stored.get("boost_temperature")
         self.window_logic = bool(stored.get("window_logic", self.window_logic))
+        # Nachtlüften überlebt einen Neustart – übernommen wird es nur, wenn das Fenster noch offen ist.
+        self._restored_night = parse_dt(stored.get("night_since"))
         self.trv_on_preset = stored.get("trv_on_preset")
         self.preset_learned = stored.get("preset_learned")
         if stored.get("shift") is not None:

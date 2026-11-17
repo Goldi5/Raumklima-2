@@ -54,3 +54,27 @@ async def test_offenes_fenster_wird_nachtlueften_wenn_eingeschaltet(hass: HomeAs
     assert c.apply_live_options({"night_airing": "on"})
     await hass.async_block_till_done()
     assert c.night_airing
+
+
+async def test_nachtlueften_ueberlebt_neustart(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Fenster offen im Nachtlüften, dann Neustart: bleibt Nachtlüften, keine Fenster-Meldungen."""
+    tz = dt_util.get_default_time_zone()
+    freezer.move_to(datetime(2026, 11, 2, 21, 40, tzinfo=tz))
+    _hub, room = await _setup(hass, room_type="children", night_airing="on")
+    c = room.runtime_data
+    hass.states.async_set(WINDOW, "on", {"device_class": "window"})
+    await hass.async_block_till_done()
+    assert c.night_airing
+    since = c.night_since
+
+    # Neustart erst am Morgen – dann würde ein frisch geöffnetes Fenster nicht mehr als Nachtlüften zählen
+    freezer.move_to(datetime(2026, 11, 3, 6, 30, tzinfo=tz))
+    calls: list = []
+    assert await hass.config_entries.async_reload(room.entry_id)
+    await hass.async_block_till_done()
+    c = room.runtime_data
+    c.hub.notify = lambda *a, **k: calls.append(a)  # type: ignore[method-assign]
+    c.vent.update()
+    assert c.night_airing
+    assert c.night_since == since
+    assert not calls  # weder „Fenster bleibt offen“ noch „niemand zu Hause“

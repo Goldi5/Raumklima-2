@@ -85,6 +85,7 @@ TOO_COLD_LOUD = 3  # so oft „kühlt aus“ laut, danach leise
 TOO_COLD_QUIET_REPEAT = 30  # min zwischen leisen Erinnerungen
 WINDOW_AWAY_AFTER = 2  # min offen, während niemand da ist
 WINDOW_AWAY_REPEAT = 30  # min
+WINDOW_AWAY_STARTUP = timedelta(minutes=5)  # nach dem Start erst abwarten, bis die Anwesenheit steht
 KIND_OF = {
     VENT_PLEASE_OPEN: KIND_VENT_OPEN,
     VENT_PLEASE_CLOSE: KIND_VENT_CLOSE,
@@ -161,6 +162,10 @@ class VentilationManager:
         self.enabled = bool(stored.get("enabled", self.enabled))
         # Seit wann das Fenster offen ist, überlebt einen Neustart (Issue #9)
         self._restored_since = dt_util.parse_datetime(stored.get("window_open_since") or "")
+        # Schon gesendete Fenster-Meldungen dieser Öffnung: nach dem Neustart nicht noch einmal
+        self._long_notice_for = dt_util.parse_datetime(stored.get("long_notice_for") or "")
+        self._late_notice_for = dt_util.parse_datetime(stored.get("late_notice_for") or "")
+        self._window_away_sent = dt_util.parse_datetime(stored.get("window_away_sent") or "")
         self.snooze_until = dt_util.parse_datetime(stored.get("snoozed_until") or "")
         self.muted_until = dt_util.parse_datetime(stored.get("muted_until") or "")
         raw = stored.get("sent_today") or {}
@@ -381,6 +386,9 @@ class VentilationManager:
             "max_drop": self.max_drop,
             "enabled": self.enabled,
             "window_open_since": self.window_open_since.isoformat() if self.window_open_since else None,
+            "long_notice_for": self._long_notice_for.isoformat() if self._long_notice_for else None,
+            "late_notice_for": self._late_notice_for.isoformat() if self._late_notice_for else None,
+            "window_away_sent": self._window_away_sent.isoformat() if self._window_away_sent else None,
             "snoozed_until": self.snooze_until.isoformat() if self.snooze_until else None,
             "muted_until": self.muted_until.isoformat() if self.muted_until else None,
             "airing_reason": self._airing_reason,
@@ -684,6 +692,9 @@ class VentilationManager:
             return
         if self.open_minutes < WINDOW_AWAY_AFTER:
             return
+        started = getattr(self.c, "_started_at", None)
+        if started is not None and dt_util.utcnow() - started < WINDOW_AWAY_STARTUP:
+            return  # direkt nach dem Start ist die Anwesenheit noch nicht sicher
         now = dt_util.utcnow()
         if self._window_away_sent and now - self._window_away_sent < timedelta(minutes=WINDOW_AWAY_REPEAT):
             return

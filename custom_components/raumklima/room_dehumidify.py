@@ -261,9 +261,8 @@ class DehumidifierManager:
         if not is_on and hum >= self.on_limit and not self._maxed:
             if self._high_since is None:
                 self._high_since = now
-            if (now - self._high_since) >= timedelta(minutes=self.delay_minutes):
-                if self._ready_start(now):
-                    self._command(True, now, "humidity")
+            if (now - self._high_since) >= timedelta(minutes=self.delay_minutes) and self._ready_start(now):
+                self._command(True, now, "humidity")
         elif hum < self.on_limit:
             self._high_since = None
 

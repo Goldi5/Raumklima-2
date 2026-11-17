@@ -48,3 +48,21 @@ async def test_tracker_direkt_als_bewohner(hass: HomeAssistant, trv: FakeTrv, se
     live = get_hub(hass, None)
     live._evaluate_presence()
     assert live.persons["device_tracker.handy"]["present"] is True
+
+
+async def test_nach_dem_start_zaehlt_der_personen_zustand(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Direkt nach dem Neustart fehlen oft noch Koordinaten: „home“ der Person zählt, statt kurz „niemand da“."""
+    from datetime import timedelta
+
+    _zone(hass)
+    hass.states.async_set("person.b", "home", {"device_trackers": ["device_tracker.handy"]})
+    hass.states.async_set("device_tracker.handy", "home")  # noch ohne Koordinaten
+    await _setup(hass, {CONF_RESIDENTS: ["person.b"], CONF_ZONE: "zone.home"})
+    live = get_hub(hass, None)
+    live._evaluate_presence()
+    assert live.persons["person.b"]["present"] is True
+    assert not live.nobody_home
+
+    freezer.tick(timedelta(minutes=11))  # nach der Startphase zählt wieder nur die Ortung
+    live._evaluate_presence()
+    assert live.persons["person.b"]["present"] is False

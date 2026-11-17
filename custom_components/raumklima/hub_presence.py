@@ -64,6 +64,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 PREHEAT_HOLD = timedelta(minutes=90)
+PRESENCE_STARTUP_GRACE = timedelta(minutes=10)  # so lange gilt nach dem Start der Zustand der Person-Entität
 CALENDAR_REFRESH = timedelta(seconds=60)
 CALENDAR_OTHER_REFRESH = timedelta(minutes=10)  # weitere Kalender seltener abfragen
 
@@ -194,6 +195,17 @@ class PresenceMixin:
             if dist * 1000 <= geo[2] + min(fix.accuracy, 100.0):
                 present = True
             distance = dist if distance is None else min(distance, dist)
+        if (
+            not present
+            and distance is None
+            and state is not None
+            and state.state == "home"
+            and (self._presence_since is None or now - self._presence_since < PRESENCE_STARTUP_GRACE)
+        ):
+            # Direkt nach dem Start liefern die Handys oft noch keine Koordinaten. Ohne diese
+            # Zeile gilt dann kurz „niemand zu Hause“: Absenkung, Fenster-Alarm, Nachtlüften weg.
+            # Die Person-Entität kennt ihren letzten Zustand schon – den bis dahin übernehmen.
+            present = True
         hist = self._history.setdefault(person, deque(maxlen=60))
         if distance is not None and (not hist or abs(hist[-1][1] - distance) > 0.05):
             hist.append((now, distance))
@@ -313,6 +325,10 @@ class PresenceMixin:
                     preheat=self._preheat_until is not None,
                 )
             )
+        if anyone and self._was_present is False and not initial:
+            # Jemand ist (wieder) da: offene Fenster nachträglich als Nachtlüften werten.
+            for room in list(self.rooms.values()):
+                room._recheck_night_airing()
         self._was_present = anyone
         # Anwesenheitsprofil: nur „jemand da“ oder nicht – keine Namen.
         self.presence_profile.mark(dt_util.now(), anyone and not self.vacation)
