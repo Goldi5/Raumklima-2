@@ -565,6 +565,8 @@ export const FR = {
   "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)": "Moyenne extérieure journalière ; au-dessus, le chauffage se met en pause (après 2 jours doux)",
   "Taupunkt": "Point de rosée",
   "Temperatur": "Température",
+  "Schimmelschutz hält {v}° (statt {u}°)": "La protection anti-moisissure maintient {v}° (au lieu de {u}°)",
+  "Schimmelschutz hält {v}°": "La protection anti-moisissure maintient {v}°",
   "Wartet auf Wärme": "En attente de chaleur",
   "Wartet": "En attente",
   "Temperatur erreicht": "Température atteinte",

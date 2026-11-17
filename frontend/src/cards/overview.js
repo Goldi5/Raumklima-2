@@ -1,4 +1,4 @@
-import { rkDark, rkLook, rkLookStyles, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkDark, rkLook, rkLookStyles, moldBadge, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -164,7 +164,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
           ${a.dehumidifier_active ? `<span class="dehum${a.dehumidifier_maxed ? " maxed" : ""}" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => { const s = rkOpenSince(this._hass, a); return s ? `<span title="${t("offen seit {c}", { c: rkClock(s) })}">${rkDuration(Date.now() - s)}</span>` : ""; })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
-        <div class="rs">${label}${trvNote}</div>
+        <div class="rs">${label}${mon ? "" : moldBadge(a)}${trvNote}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
           <div class="rmeta">${targetText}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>

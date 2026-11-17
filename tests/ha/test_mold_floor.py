@@ -66,6 +66,8 @@ async def test_zeitplan_haelt_schimmelboden(hass: HomeAssistant, setup, trv: Fak
     assert on is True
     assert reason == "mold"
     assert target > 16.0
+    # Die Karte erfährt, was ohne den Boden gälte (Schild „hält … statt 16°“)
+    assert ctrl._mold_under == {"reason": "schedule", "target": 16.0}
 
 
 async def test_trockene_luft_bleibt_beim_zeitplan(hass: HomeAssistant, setup, trv: FakeTrv) -> None:

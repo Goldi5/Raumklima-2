@@ -1,4 +1,4 @@
-import { rkDark, rkLook, rkLookStyles, STATUS, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkTime, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkDark, rkLook, rkLookStyles, moldBadge, STATUS, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkTime, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 // Boost-Fenster: Zeitstrahl und Auswahl (eigene Styles, damit die Karte unverändert bleibt)
 const BOOST_CSS = `
@@ -109,7 +109,7 @@ export class RaumklimaCard extends HTMLElement {
     let text;
     if (st.active) {
       text = st.until
-        ? t("Zeitplan: {v} °C bis {u} · danach {o} °C", { v: fmt(st.temp, 1), u: hm(st.until), o: fmt(st.outside, 1) })
+        ? t("Zeitplan: {v} °C bis {u} · danach {o} °C", { v: fmt(st.temp, 1), u: hm(st.until), o: fmt(st.after != null ? st.after : st.outside, 1) })
         : t("Zeitplan: {v} °C ganztägig", { v: fmt(st.temp, 1) });
     } else if (st.next) {
       text = t("Zeitplan: ab {u} {v} °C · bis dahin {o} °C", { u: hm(st.next), v: fmt(st.next_temp, 1), o: fmt(st.outside, 1) });
@@ -354,7 +354,7 @@ export class RaumklimaCard extends HTMLElement {
           ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until || a.boost_open ? "on" : ""}" data-boostopen title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : t("Boost")}</button>` : ""}
         </div>
         <div class="chips">
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
           ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}${a.dehumidifier_since ? ` · ${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}` : ""}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="chip" style="--tone:var(--rk-warn)" title="${esc(a.battery.name)}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon>${t("Batterie {p} %", { p: a.battery.level })}</span>` : ""}
           ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}

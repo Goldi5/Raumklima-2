@@ -16,6 +16,9 @@ export const STYLES = `
   .chips { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:7px; min-width:0; }
   .chips:empty { display:none; }
   /* Lange Statustexte dürfen im Chip umbrechen – lieber zwei Zeilen im Chip als abgeschnitten */
+  .moldb { display:inline-flex; align-items:center; gap:2px; margin-left:6px; padding:1px 6px; border-radius:999px; font-size:.72rem; font-weight:600;
+    color:var(--rk-ok); background:color-mix(in srgb, var(--rk-ok) 14%, transparent); vertical-align:middle; }
+  .moldb ha-icon { --mdc-icon-size:13px; }
   .chips .chip { white-space:normal; align-items:center; line-height:1.25; }
   .chips .sel { width:auto; max-width:100%; padding:5px 10px; font-size:.9rem; }
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;

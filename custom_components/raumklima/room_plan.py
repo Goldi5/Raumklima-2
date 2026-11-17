@@ -101,7 +101,15 @@ class PlanMixin:
         auch Zeitplan und Ruhezeit, die ihn vorher nicht geprüft haben.
         """
         on, target, reason = self._plan_rules()
+        under = (on, target, reason)
         on, target, reason = self._mold_floor(on, target, reason)
+        # Was ohne Schimmelschutz gegolten hätte – die Karte zeigt dann beides
+        # („Abgesenkt – niemand da“ + Schild „hält 17,5° statt 16,5°“).
+        self._mold_under = (
+            {"reason": under[2], "target": under[1] if under[0] else None}
+            if reason == REASON_MOLD and under[2] != REASON_MOLD
+            else None
+        )
         return self._frost_floor(on, target, reason)
 
     def _frost_floor(self, on: bool, target: float, reason: str) -> tuple[bool, float, str]:
@@ -496,7 +504,13 @@ class PlanMixin:
         temp = schedule_target(sched, local_now)
         end = schedule_window_end(sched, local_now)
         nxt = self.next_plan_window(local_now)
+        # „danach“: schließt der nächste Block direkt an, gilt dessen Temperatur –
+        # nur bei einer Lücke der Wert außerhalb der Zeitfenster.
+        after = outside
+        if end is not None and nxt is not None and abs((nxt[0] - end).total_seconds()) <= 120:
+            after = min(nxt[1], self.trv_max)
         return {
+            "after": after if end is not None else None,
             "source": "own",
             "active": temp is not None,
             "temp": min(temp, self.trv_max) if temp is not None else None,

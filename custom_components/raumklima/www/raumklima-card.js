@@ -565,6 +565,8 @@
     "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)": "Daily outdoor mean; above it heating pauses (after 2 mild days)",
     "Taupunkt": "Dew point",
     "Temperatur": "Temperature",
+    "Schimmelschutz hält {v}° (statt {u}°)": "Mould protection holds {v}° (instead of {u}°)",
+    "Schimmelschutz hält {v}°": "Mould protection holds {v}°",
     "Wartet auf Wärme": "Waiting for heat",
     "Wartet": "Waiting",
     "Temperatur erreicht": "Temperature reached",
@@ -2258,6 +2260,8 @@
     "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)": "Moyenne extérieure journalière ; au-dessus, le chauffage se met en pause (après 2 jours doux)",
     "Taupunkt": "Point de rosée",
     "Temperatur": "Température",
+    "Schimmelschutz hält {v}° (statt {u}°)": "La protection anti-moisissure maintient {v}° (au lieu de {u}°)",
+    "Schimmelschutz hält {v}°": "La protection anti-moisissure maintient {v}°",
     "Wartet auf Wärme": "En attente de chaleur",
     "Wartet": "En attente",
     "Temperatur erreicht": "Température atteinte",
@@ -3446,6 +3450,9 @@
   .chips { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:7px; min-width:0; }
   .chips:empty { display:none; }
   /* Lange Statustexte dürfen im Chip umbrechen – lieber zwei Zeilen im Chip als abgeschnitten */
+  .moldb { display:inline-flex; align-items:center; gap:2px; margin-left:6px; padding:1px 6px; border-radius:999px; font-size:.72rem; font-weight:600;
+    color:var(--rk-ok); background:color-mix(in srgb, var(--rk-ok) 14%, transparent); vertical-align:middle; }
+  .moldb ha-icon { --mdc-icon-size:13px; }
   .chips .chip { white-space:normal; align-items:center; line-height:1.25; }
   .chips .sel { width:auto; max-width:100%; padding:5px 10px; font-size:.9rem; }
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
@@ -4204,6 +4211,12 @@
     for (const e of reg) if (e.device_id === pres.device_id && e.translation_key) out[e.translation_key] = e.entity_id;
     return out;
   }
+  function moldBadge(a) {
+    const u = a && a.mold_under;
+    if (!u || a.plan_reason !== "mold" || a.effective_target == null) return "";
+    const tip = u.target != null ? t("Schimmelschutz hält {v}° (statt {u}°)", { v: fmt(a.effective_target), u: fmt(u.target) }) : t("Schimmelschutz hält {v}°", { v: fmt(a.effective_target) });
+    return `<span class="moldb" title="${esc(tip)}"><ha-icon icon="mdi:shield-half-full"></ha-icon>${esc(fmt(a.effective_target))}°</span>`;
+  }
   function planTag(a) {
     const r = a && a.plan_reason;
     if (!r || r === "normal" || r === "manual" || r === "monitor") return "";
@@ -4679,7 +4692,7 @@
       };
       let text;
       if (st.active) {
-        text = st.until ? t("Zeitplan: {v} °C bis {u} · danach {o} °C", { v: fmt(st.temp, 1), u: hm(st.until), o: fmt(st.outside, 1) }) : t("Zeitplan: {v} °C ganztägig", { v: fmt(st.temp, 1) });
+        text = st.until ? t("Zeitplan: {v} °C bis {u} · danach {o} °C", { v: fmt(st.temp, 1), u: hm(st.until), o: fmt(st.after != null ? st.after : st.outside, 1) }) : t("Zeitplan: {v} °C ganztägig", { v: fmt(st.temp, 1) });
       } else if (st.next) {
         text = t("Zeitplan: ab {u} {v} °C · bis dahin {o} °C", { u: hm(st.next), v: fmt(st.next_temp, 1), o: fmt(st.outside, 1) });
       } else {
@@ -4892,7 +4905,7 @@
           ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until || a.boost_open ? "on" : ""}" data-boostopen title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : t("Boost")}</button>` : ""}
         </div>
         <div class="chips">
-          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}</span>
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
           ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}${a.dehumidifier_since ? ` · ${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}` : ""}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="chip" style="--tone:var(--rk-warn)" title="${esc(a.battery.name)}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon>${t("Batterie {p} %", { p: a.battery.level })}</span>` : ""}
           ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
@@ -5104,7 +5117,7 @@
           return s2 ? `<span title="${t("offen seit {c}", { c: rkClock(s2) })}">${rkDuration(Date.now() - s2)}</span>` : "";
         })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
-        <div class="rs">${label}${trvNote}</div>
+        <div class="rs">${label}${mon ? "" : moldBadge(a)}${trvNote}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
           <div class="rmeta">${targetText}${a.humidity_sensor ? `<b style="--st:${toneVar(humTone(a.current_humidity))}">${fmt(a.current_humidity, 0)} %</b>` : ""}</div>

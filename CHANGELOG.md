@@ -1,3 +1,14 @@
+## 1.3.14b3 – 2026-11-17
+
+### Behoben
+- **„danach“ in der Zeitplan-Zeile:** Die Raumkarte zeigte bei „Zeitplan: 17,5 °C bis 18:00 · danach …“ immer den Wert außerhalb der Zeitfenster (z. B. die Wunschtemperatur). Schließt der nächste Block direkt an, steht jetzt dessen Temperatur dort – nur bei einer Lücke der Wert außerhalb.
+
+### Neu
+- **Absenkung bleibt sichtbar, wenn der Schimmelschutz anhebt:** Hebt der Schimmelschutz eine Absenkung an (z. B. niemand da → 16,5 °C, Schimmelschutz hält 17,5 °C), zeigt die Karte weiter „Abgesenkt – niemand da“ statt „Temperatur erreicht“, dazu ein kleines Schild mit dem gehaltenen Wert („Schimmelschutz hält 17,5° (statt 16,5°)“ beim Darüberfahren). Das Schild erscheint auch, wenn Zeitplan oder Ruhezeit angehoben werden; heizt der Raum deswegen, bleibt „Heizt“ mit Schild.
+
+### Tests
+- „danach“ mit lückenlosem Zeitplan und mit Lücke, ursprüngliche Regel unter dem Schimmelschutz.
+
 ## 1.3.14b2 – 2026-11-17
 
 ### Behoben

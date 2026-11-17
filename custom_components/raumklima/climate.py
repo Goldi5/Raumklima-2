@@ -195,6 +195,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
         return {
             "effective_target": target if on else None,
             "plan_reason": reason,
+            "mold_under": getattr(c, "_mold_under", None),
             "presence": hub.stage if hub else None,
             "night_airing": c.night_airing,
             "home": hub.entry.entry_id if hub else None,

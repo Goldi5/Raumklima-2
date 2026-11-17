@@ -952,7 +952,13 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             return STATUS_SENSOR
         if reason in AWAY_STAGES:
             return STATUS_SETBACK
-        if self.hvac_action == HVACAction.HEATING:
+        heating = self.hvac_action == HVACAction.HEATING
+        under = getattr(self, "_mold_under", None)
+        if not heating and under and under.get("reason") in AWAY_STAGES:
+            # Schimmelschutz hebt die Absenkung an, der Raum heizt aber nicht: die Absenkung
+            # ist weiterhin der eigentliche Zustand (Schild-Symbol zeigt den Boden).
+            return STATUS_SETBACK
+        if heating:
             return STATUS_HEATING
         cur = self.current_temperature
         if on and cur is not None and _target is not None and float(_target) - cur >= WAIT_GAP:

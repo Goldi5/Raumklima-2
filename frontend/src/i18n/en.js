@@ -565,6 +565,8 @@ export const EN = {
   "Tagesmittel außen, darüber Heizpause (nach 2 milden Tagen)": "Daily outdoor mean; above it heating pauses (after 2 mild days)",
   "Taupunkt": "Dew point",
   "Temperatur": "Temperature",
+  "Schimmelschutz hält {v}° (statt {u}°)": "Mould protection holds {v}° (instead of {u}°)",
+  "Schimmelschutz hält {v}°": "Mould protection holds {v}°",
   "Wartet auf Wärme": "Waiting for heat",
   "Wartet": "Waiting",
   "Temperatur erreicht": "Temperature reached",

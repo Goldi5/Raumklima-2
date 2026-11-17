@@ -171,6 +171,17 @@ export function rkHub(hass, home) {
   return out;
 }
 
+// Schimmelschutz hebt eine Absenkung/Zeitplan an: kleines Schild „hält 17,5° (statt 16,5°)“,
+// damit sichtbar bleibt, was eigentlich gälte. Leer, wenn der Boden nichts anhebt.
+export function moldBadge(a) {
+  const u = a && a.mold_under;
+  if (!u || a.plan_reason !== "mold" || a.effective_target == null) return "";
+  const tip = u.target != null
+    ? t("Schimmelschutz hält {v}° (statt {u}°)", { v: fmt(a.effective_target), u: fmt(u.target) })
+    : t("Schimmelschutz hält {v}°", { v: fmt(a.effective_target) });
+  return `<span class="moldb" title="${esc(tip)}"><ha-icon icon="mdi:shield-half-full"></ha-icon>${esc(fmt(a.effective_target))}°</span>`;
+}
+
 // Kurzname der Regel, die das Ziel gerade setzt (leer = Wunschtemperatur gilt)
 export function planTag(a) {
   const r = a && a.plan_reason;
