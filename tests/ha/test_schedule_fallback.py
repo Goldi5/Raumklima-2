@@ -76,7 +76,7 @@ async def test_status_fuer_die_raumkarte(hass: HomeAssistant, setup, trv: FakeTr
     assert st["temp"] == 20.0
     assert st["until"].startswith(now.date().isoformat() + "T23:59")
     assert st["outside"] == ctrl.setback_long
-    assert st["after"] == ctrl.setback_long  # Lücke danach → Wert außerhalb der Zeitfenster
+    assert st["after"] == 20.0  # 23:59 → morgen 00:00 derselbe Block: keine echte Lücke
 
     # Lückenlos: „danach“ ist der nächste Block, nicht der Wert außerhalb
     ctrl.config[CONF_SCHEDULES] = [
@@ -85,6 +85,9 @@ async def test_status_fuer_die_raumkarte(hass: HomeAssistant, setup, trv: FakeTr
     ]
     st = ctrl.schedule_status(now)
     assert st["temp"] == 17.5 and st["after"] == 21.5
+    # Danach eine Lücke (20:00–00:00) → Wert außerhalb der Zeitfenster
+    st = ctrl.schedule_status(now.replace(hour=19))
+    assert st["temp"] == 21.5 and st["after"] == ctrl.setback_long
 
     ctrl.config[CONF_SCHEDULES] = NICHT_JETZT
     st = ctrl.schedule_status(now)
