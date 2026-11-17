@@ -61,6 +61,16 @@ async def test_floor_clamps_setpoint_and_holds_within_cycle(hass: HomeAssistant,
     assert ctrl.floor_setpoint(24.0) == 22.0
 
 
+async def test_floor_setpoint_respects_device_step(hass: HomeAssistant, trv, sensors) -> None:
+    """Ein Gerät mit 1-K-Schritten darf keinen 0,5-K-Sollwert bekommen (Viessmann/ViCare)."""
+    trv.set(target_temp_step=1.0)
+    _room, ctrl = await _setup_room(hass, **{CONF_FLOOR_CYCLE_MIN: 0})
+    ctrl._floor_last_setpoint = None
+    ctrl._floor_last_change = None
+    assert ctrl.floor_setpoint(21.5) == 22.0
+    assert ctrl.trv_expected_target == 22.0
+    assert ctrl._desired_setpoint() == 22.0
+
 async def test_floor_summary_reports_flow_and_delta(hass: HomeAssistant, trv, sensors) -> None:
     _room, ctrl = await _setup_room(hass)
     summary = ctrl.floor_summary()

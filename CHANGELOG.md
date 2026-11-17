@@ -1,3 +1,13 @@
+## 1.3.15b1 – 2026-11-17
+
+### Behoben
+- **Anwesenheits-Chips auf dem Dashboard:** Die Farbe richtet sich jetzt nach der Person, nicht mehr nach dem Status der Wohnung. Grün nur, wenn die Person zu Hause ist; gelb für „kommend“, rot für unterwegs, grau für unbekannt. Damit ist ein abwesender Bewohner nicht mehr grün, nur weil jemand anderes da ist.
+- **Fußbodenheizung mit Viessmann/ViCare (#58):** Raumklima runden den Sollwert jetzt auf die Schrittweite des Geräts. Ein Gerät mit 1-K-Schritten bekommt 22 °C statt abgelehnter 21,5 °C; die Gegenprobe nutzt denselben Wert und meldet keine falschen „Sollwert nicht übernommen“-Warnungen.
+
+### Tests
+- Personen-Chips: grün nur zu Hause, gelb bei „approaching“, rot bei „away“, grau bei „unknown“.
+- Fußbodenheizung: 1-K-Gerät erhält keinen 0,5-K-Sollwert.
+
 ## 1.3.14b3 – 2026-11-17
 
 ### Behoben
