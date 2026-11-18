@@ -35,23 +35,28 @@ As above, without step 4 – recipients, presence and heating season apply to al
 ## Dashboard
 
 - **Ready-made in four steps:**
-  1. *Settings → Dashboards → **Add dashboard*** – title e.g. “Heating”. The name is free; it does not have
-     to be “Raumklima” (and that name may already be taken).
-  2. The new dashboard first shows **Home Assistant’s usual default dashboard** – that is normal, the
-     strategy only comes next.
-  3. Top right **Edit** (pencil) → **three-dot menu → Edit raw configuration** → replace the whole content
-     with:
-
-     ```yaml
-     strategy:
-       type: custom:raumklima
-     ```
-
-  4. **Save** – done: the tabs *Rooms*, *History*, *Messages* and *Settings* are built automatically and
-     grow as rooms are added.
+  1. *Settings → Dashboards → **Add dashboard***.
+  2. Choose **Raumklima** in the list and tap **Next**.
+  3. Give it a name (e.g. “Heating”) and an icon, then **Create**. The name is free; it does not have to be
+     “Raumklima” (and that name may already be taken).
+  4. Done: the tabs *Rooms*, *Energy*, *History & learning*, *Report*, *Log* and *Settings* are built
+     automatically and grow as rooms are added.
 
   The card is registered as a resource automatically; an existing older resource is switched to the new
   version.
+
+  > **Raumklima isn't in the list?** Reload the page (on a computer **Ctrl + F5**, in the app: *Settings →
+  > Companion app → Reset frontend cache*). The cards are loaded when Home Assistant starts – restart once
+  > after installation or update.
+- **Switch an existing dashboard:** Top right **Edit** (pencil) → **three-dot menu → Edit raw
+  configuration** → replace the whole content with:
+
+  ```yaml
+  strategy:
+    type: custom:raumklima
+  ```
+
+  **Save** – the views are rebuilt.
 - **Second home:** *Create home* also creates its dashboard (path `heizung-<name>`, Raumklima strategy,
   filtered to that home). The switcher at the top then jumps straight there.
 

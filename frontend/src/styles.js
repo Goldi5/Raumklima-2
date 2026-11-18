@@ -1,10 +1,15 @@
 // Gemeinsame Styles aller Karten (reines CSS, ohne Logik). shared.js reicht sie weiter.
 
 export const STYLES = `
-  .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 12px; border-radius:999px; font-weight:600; font-size:.84rem;
+  .boostwrap { display:inline-flex; align-items:center; flex:none; border-radius:999px; overflow:hidden;
     background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); color: var(--secondary-text-color); }
+  .boostwrap.on { background: var(--rk-heat); color:#fff; }
+  .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 4px 5px 12px; border-radius:0; font-weight:600; font-size:.84rem;
+    background: transparent; color: inherit; }
   .boostbtn ha-icon { --mdc-icon-size:16px; }
-  .boostbtn.on { background: var(--rk-heat); color:#fff; }
+  .boostbtn.on { background: transparent; color:#fff; }
+  .boostmore { all:unset; cursor:pointer; display:inline-flex; align-items:center; padding:5px 9px 5px 0; color:inherit; }
+  .boostmore ha-icon { --mdc-icon-size:16px; }
   :host { --rk-heat:#ff7a45; --rk-ok:#2ec4a6; --rk-air:#4f9dff; --rk-warn:#ffb020; --rk-cold:#ff4d6d; --rk-off:#8a94a6; --rk-eco:#8b7cf6; }
   ha-card { display:block; position:relative; box-sizing:border-box; overflow:hidden; border-radius:28px; padding:20px; isolation:isolate;
     background: var(--ha-card-background, var(--card-background-color)); transition: box-shadow .3s; }
@@ -23,7 +28,7 @@ export const STYLES = `
   .chips .sel { width:auto; max-width:100%; padding:5px 10px; font-size:.9rem; }
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
     color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .top > .wins, .top > .boostbtn { flex:none; }
+  .top > .wins, .top > .boostwrap { flex:none; }
   .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.82rem; font-weight:600;
     color:var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); white-space:nowrap;
     flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }

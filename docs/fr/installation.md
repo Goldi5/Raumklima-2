@@ -35,23 +35,28 @@ Comme ci-dessus, sans l’étape 4 – les destinataires, la présence et la sai
 ## Tableau de bord
 
 - **Prêt à l’emploi en quatre étapes :**
-  1. *Réglages → Tableaux de bord → **Ajouter un tableau de bord*** – titre p. ex. « Chauffage ». Le nom est
-     libre ; il n’a pas besoin d’être « Raumklima » (et ce nom est peut-être déjà pris).
-  2. Le nouveau tableau de bord affiche d’abord **le tableau de bord standard** de Home Assistant – c’est
-     normal, la stratégie vient à l’étape suivante.
-  3. En haut à droite **Modifier** (crayon) → **menu à trois points → Modifier la configuration brute** →
-     remplacer tout le contenu par :
-
-     ```yaml
-     strategy:
-       type: custom:raumklima
-     ```
-
-  4. **Enregistrer** – terminé : les onglets *Pièces*, *Historique*, *Messages* et *Réglages* sont construits
-     automatiquement et s’enrichissent quand des pièces sont ajoutées.
+  1. *Réglages → Tableaux de bord → **Ajouter un tableau de bord***.
+  2. Choisissez **Raumklima** dans la liste et touchez **Suivant**.
+  3. Donnez-lui un nom (p. ex. « Chauffage ») et une icône, puis **Créer**. Le nom est libre ; il n’a pas
+     besoin d’être « Raumklima » (et ce nom est peut-être déjà pris).
+  4. Terminé : les onglets *Pièces*, *Énergie*, *Historique et apprentissage*, *Rapport*, *Journal* et
+     *Réglages* sont construits automatiquement et s’enrichissent quand des pièces sont ajoutées.
 
   La carte est enregistrée automatiquement comme ressource ; une ancienne ressource est basculée sur la
   nouvelle version.
+
+  > **Raumklima n’apparaît pas dans la liste ?** Rechargez la page (sur ordinateur **Ctrl + F5**, dans
+  > l’app : *Réglages → Application Companion → Réinitialiser le cache de l’interface*). Les cartes sont
+  > chargées au démarrage de Home Assistant – redémarrez une fois après l’installation ou la mise à jour.
+- **Convertir un tableau de bord existant :** En haut à droite **Modifier** (crayon) → **menu à trois points
+  → Modifier la configuration brute** → remplacez tout le contenu par :
+
+  ```yaml
+  strategy:
+    type: custom:raumklima
+  ```
+
+  **Enregistrer** – les vues sont reconstruites.
 - **Second logement :** *Créer un logement* crée aussi son tableau de bord (chemin `heizung-<nom>`,
   stratégie Raumklima, filtré sur ce logement). Le sélecteur en haut y mène directement.
 

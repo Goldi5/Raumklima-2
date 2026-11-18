@@ -35,23 +35,28 @@ Wie oben, nur ohne Schritt 4 – Empfänger, Anwesenheit und Heizsaison gelten a
 ## Dashboard
 
 - **Fertig in vier Schritten:**
-  1. *Einstellungen → Dashboards → **Dashboard hinzufügen*** – als Titel z. B. „Heizung". Der Name ist frei
-     wählbar, „Raumklima" muss es nicht heißen (und ist vielleicht schon vergeben).
-  2. Das neue Dashboard zeigt zunächst das **übliche Standard-Dashboard** von Home Assistant – das ist
-     normal, die Strategie kommt erst im nächsten Schritt.
-  3. Oben rechts **Bearbeiten** (Stift) → **Dreipunkte-Menü → Rohe Konfiguration bearbeiten** → den
-     gesamten Inhalt ersetzen durch:
-
-     ```yaml
-     strategy:
-       type: custom:raumklima
-     ```
-
-  4. **Speichern** – fertig: die Reiter *Räume*, *Verlauf*, *Meldungen* und *Einstellungen* werden
-     automatisch aufgebaut und wachsen mit, wenn Räume dazukommen.
+  1. *Einstellungen → Dashboards → **Dashboard hinzufügen***.
+  2. Wähle in der Liste **Raumklima** und tippe auf **Weiter**.
+  3. Gib ihm einen Namen (z. B. „Heizung") und ein Symbol, dann **Erstellen**. Der Name ist frei wählbar,
+     „Raumklima" muss es nicht heißen (und ist vielleicht schon vergeben).
+  4. Fertig: Die Reiter *Räume*, *Energie*, *Verlauf & Lernen*, *Bericht*, *Protokoll* und *Einstellungen*
+     werden automatisch aufgebaut und wachsen mit, wenn Räume dazukommen.
 
   Die Karte wird als Ressource automatisch eingetragen; eine vorhandene ältere Ressource wird auf die
   neue Version umgestellt.
+
+  > **Raumklima steht nicht in der Liste?** Lade die Seite neu (am Computer **Strg + F5**, in der App:
+  > *Einstellungen → Companion App → Frontend-Cache zurücksetzen*). Die Karten werden beim Start von
+  > Home Assistant geladen – nach Installation oder Update einmal neu starten.
+- **Bestehendes Dashboard umstellen:** Oben rechts **Bearbeiten** (Stift) → **Dreipunkte-Menü → Rohe
+  Konfiguration bearbeiten** → den gesamten Inhalt ersetzen durch:
+
+  ```yaml
+  strategy:
+    type: custom:raumklima
+  ```
+
+  **Speichern** – die Ansichten werden neu aufgebaut.
 - **Zweite Wohnung:** *Wohnung anlegen* erzeugt das passende Dashboard gleich mit (Pfad `heizung-<name>`,
   Raumklima-Strategie, auf diese Wohnung gefiltert). Der Umschalter oben springt dann direkt dorthin.
 

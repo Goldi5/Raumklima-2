@@ -82,4 +82,32 @@ test("Boost bleibt in der Kopfzeile", () => {
   const html = render();
   const top = html.slice(html.indexOf('<div class="top">'), html.indexOf('<div class="chips"'));
   assert.ok(top.includes("boostbtn"), "Boost-Knopf muss bei Name und Fenstersymbol bleiben");
+  assert.ok(top.includes("boostmore"), "Pfeil für die Auswahl muss daneben stehen");
+});
+
+test("Boost-Knopf zeigt die eingestellte Dauer", () => {
+  const deviceId = fixture.entities["climate.bad"].device_id;
+  fixture.entities["button.bad_warmer_boost"] = {
+    entity_id: "button.bad_warmer_boost",
+    platform: "raumklima",
+    translation_key: "boost",
+    device_id: deviceId,
+  };
+  const base = fixture.states["climate.bad"].attributes;
+  const html = render({ settings: { ...base.settings, boost_minutes: 45 } });
+  assert.match(html, /Boost 45 min/);
+  assert.match(html, /Dauer des Boosts: 45 min/);
+});
+
+test("Boost ohne Minuten nutzt die Einstellung", async () => {
+  const card = new RaumklimaCard();
+  card.setConfig({ entity: "climate.bad" });
+  const sent = [];
+  card._hass = {
+    states: { "climate.bad": { attributes: { room: "entry-1" } } },
+    connection: { sendMessagePromise: async (payload) => { sent.push(payload); } },
+  };
+  card._render = () => {};
+  await card._boost("minutes");
+  assert.deepEqual(sent, [{ type: "raumklima/boost", entry_id: "entry-1", mode: "minutes" }]);
 });

@@ -1,3 +1,28 @@
+## 2.0.0 – 2026-11-18
+
+**Stabile Version:** bündelt alle Änderungen seit 1.3.2 – von Entfeuchter und Anwesenheit über das Energie-Dashboard bis zu Boost und Fußbodenheizung.
+
+### Neu
+- **Boost mit Standarddauer:** Die in den Einstellungen gewählte Dauer gilt jetzt sofort beim Klick auf „Boost“. Der Pfeil daneben öffnet weiterhin die Auswahl (15/30/60/120 min, bis Zeitfenster, ohne Limit) für einen einzelnen Boost.
+- **Entfeuchter:** Eigene Ein-/Ausschaltschwellen, Status-Chip in Raum- und Übersichtskarte, Einschaltverzögerung von 0–120 Minuten sowie optionale Leistungs- und kWh-Sensoren mit Verbrauch, Starts, Laufzeit und Kosten.
+- **Anwesenheit:** Personen-Chips färben sich nach der Person (zu Hause, kommend, unterwegs, unbekannt); „Gilt für Personen“ ist ein aufgeräumtes Dropdown; Kinderzimmer werden vorgeheizt, wenn ihr Bewohner heranfährt.
+- **Zeitplan und Vorheizen:** „Außerhalb der Zeitfenster“ direkt beim Zeitplan, Warnung bei unlogischen Temperaturen, Zeitplan-Zeile auf der Raumkarte, Vorheizen auch bei lückenlosem Zeitplan, Wechsel auf die Minute, Status „Wartet auf Wärme“.
+- **Fußbodenheizung:** Sollwerte werden auf die Schrittweite des Geräts gerundet (z. B. 1-K-Gerät statt 21,5 °C); keine falschen „Sollwert nicht übernommen“-Warnungen mehr.
+- **Energie-Dashboard:** Neue Blöcke für Geldfluss, Wärmepumpen-Laufzeiten, Heizkennlinie, Wärmepreis, PV/Akku, Hausstrom mit Grundgebühr und Einspeisung; Jahreszahl aus zwölf Monaten; Übernahme aus dem HA-Energie-Dashboard; Arbeitszahl laut Wärmepumpe und gemessen; „?“-Erklärungen an den Kacheln.
+- **Dashboard:** Die Raumklima-Strategie lässt sich direkt beim Anlegen eines Dashboards auswählen; Handbuch und Installationsanleitung sind in Deutsch, Englisch und Französisch angeglichen.
+
+### Behoben
+- **Nachtlüften übersteht einen Neustart:** War ein Fenster im Nachtlüften offen, blieb diese Einstufung nach einem Neustart erhalten – keine falschen Fenster-Meldungen mehr.
+- **Keine Fenster-Fehlalarme beim Start:** In den ersten Minuten nach dem Neustart zählt der Personenstatus, solange noch keine Ortung vorliegt; die Meldung kommt frühestens fünf Minuten nach dem Start.
+- **Boost und Handverstellung enden pünktlich:** Raumklima stellt einen Wecker auf das Ende, statt bis zum nächsten Abgleich zu warten.
+- **Diagnose:** Keine Koordinaten mehr, nur Log-Zeilen der eigenen Wohnung, Log-Puffer übersteht den Neustart, Entscheidungsprotokoll und Kurzverlauf über 24 Stunden.
+- **Energie:** Arbeitszahl bei später eingebautem Wärmezähler über die gemeinsame Messzeit, keine Jahreshochrechnung ohne ausreichende Gradtage, Zeitraum ab dem ersten Messwert, Datum auf jeder PDF-Seite.
+- **Bericht:** Der Zeitraum steht auf jeder Seite des PDF-Berichts.
+
+### Tests
+- Frontend: 123 Tests grün, inklusive Boost-Standarddauer, Personen-Chips, Entfeuchter und Fußbodenheizung.
+- Backend: 731 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 730 grün, ein bekannter Test zum Automatik-Modus ist noch offen.
+
 ## 1.3.16b2 – 2026-11-17
 
 ### Behoben

@@ -1,4 +1,4 @@
-/* Raumklima 1.3.16b2 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -3447,14 +3447,19 @@
   }
 
   // src/version.js
-  var RK_VERSION = "1.3.16b2";
+  var RK_VERSION = "2.0.0";
 
   // src/styles.js
   var STYLES = `
-  .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 12px; border-radius:999px; font-weight:600; font-size:.84rem;
+  .boostwrap { display:inline-flex; align-items:center; flex:none; border-radius:999px; overflow:hidden;
     background: color-mix(in srgb, var(--primary-text-color) 7%, transparent); color: var(--secondary-text-color); }
+  .boostwrap.on { background: var(--rk-heat); color:#fff; }
+  .boostbtn { all:unset; cursor:pointer; display:inline-flex; gap:5px; align-items:center; padding:5px 4px 5px 12px; border-radius:0; font-weight:600; font-size:.84rem;
+    background: transparent; color: inherit; }
   .boostbtn ha-icon { --mdc-icon-size:16px; }
-  .boostbtn.on { background: var(--rk-heat); color:#fff; }
+  .boostbtn.on { background: transparent; color:#fff; }
+  .boostmore { all:unset; cursor:pointer; display:inline-flex; align-items:center; padding:5px 9px 5px 0; color:inherit; }
+  .boostmore ha-icon { --mdc-icon-size:16px; }
   :host { --rk-heat:#ff7a45; --rk-ok:#2ec4a6; --rk-air:#4f9dff; --rk-warn:#ffb020; --rk-cold:#ff4d6d; --rk-off:#8a94a6; --rk-eco:#8b7cf6; }
   ha-card { display:block; position:relative; box-sizing:border-box; overflow:hidden; border-radius:28px; padding:20px; isolation:isolate;
     background: var(--ha-card-background, var(--card-background-color)); transition: box-shadow .3s; }
@@ -3473,7 +3478,7 @@
   .chips .sel { width:auto; max-width:100%; padding:5px 10px; font-size:.9rem; }
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
     color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .top > .wins, .top > .boostbtn { flex:none; }
+  .top > .wins, .top > .boostwrap { flex:none; }
   .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.82rem; font-weight:600;
     color:var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); white-space:nowrap;
     flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
@@ -4611,6 +4616,10 @@
 .bschip{border:1px solid rgba(120,120,120,.35);background:transparent;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:inherit}
 .bschip:hover{border-color:var(--rk-heat,#e8590c)}
 `;
+  function boostMinutes(a) {
+    const n = Number(a && a.settings && a.settings.boost_minutes);
+    return Number.isFinite(n) && n > 0 ? Math.max(5, Math.min(240, n)) : 30;
+  }
   var RaumklimaCard = class extends HTMLElement {
     // Neu zeichnen ohne Springen der Seite
     set _html(html) {
@@ -4727,6 +4736,7 @@
         return `<span style="left:${h / 6 * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc(), { hour: "2-digit" })}</span>`;
       }).join("");
       const chip = (mode, min, label) => `<button class="bschip" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
+      const def = boostMinutes(a);
       return `<style>${BOOST_CSS}</style>
       <div class="bsheet">
         <div class="bshead"><ha-icon icon="mdi:fire"></ha-icon><span>${t("Wärmer für kurze Zeit")}</span><button class="bsx" data-bsclose aria-label="${t("schließen")}">×</button></div>
@@ -4736,6 +4746,7 @@
         </div>
         <div class="bslabel">${active ? mins == null ? t("läuft ohne Zeitlimit") : t("läuft noch {m} min", { m: mins }) : t("Wie lange soll es wärmer sein?")}</div>
         <div class="bschips">
+          ${chip("minutes", null, `${t("Dauer des Boosts")}: ${t("{n} min", { n: def })}`)}
           ${chip("minutes", 15, t("15 min"))}${chip("minutes", 30, t("30 min"))}${chip("minutes", 60, t("1 h"))}${chip("minutes", 120, t("2 h"))}
           ${chip("next", null, t("Bis Zeitfenster"))}${chip("unlimited", null, t("Ohne Limit"))}
           ${active ? chip("off", null, t("Beenden")) : ""}
@@ -4913,12 +4924,18 @@
       const trvNote = !mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? calOff != null && Math.abs(calOff) >= 0.1 ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) }) : t("Thermostat {v}°", { v: fmt(a.trv_target) }) : "";
       const look = rkLook(this._config);
       const dark = look !== "classic" && rkDark(this._hass, this._config, a.settings || {});
+      const boostMin = boostMinutes(a);
+      const boostLabel = t("{n} min", { n: boostMin });
+      const boostOn = !!(a.boost_until || a.boost_open);
       this._html = `<style>${STYLES}${rkLookStyles(look)}</style>
       <ha-card class="rcard ${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until || a.boost_open ? "on" : ""}" data-boostopen title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : t("Boost")}</button>` : ""}
+          ${!mon && sib.boost ? `<span class="boostwrap ${boostOn ? "on" : ""}">
+            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
+            <button class="boostmore" data-boostopen title="${t("Dauer des Boosts")}" aria-label="${t("Dauer des Boosts")}"><ha-icon icon="mdi:chevron-down"></ha-icon></button>
+          </span>` : ""}
         </div>
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
@@ -4962,6 +4979,17 @@
         ev.stopPropagation();
         this._resume();
       });
+      this.shadowRoot.querySelectorAll("[data-boostmain]").forEach((b) => b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const st2 = this._hass.states[this._config.entity];
+        const attrs = st2 && st2.attributes;
+        if (attrs && (attrs.boost_until || attrs.boost_open)) {
+          this._boostOpen = true;
+          this._render();
+        } else {
+          this._boost("minutes");
+        }
+      }));
       this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => {
         ev.stopPropagation();
         this._boostOpen = !this._boostOpen;

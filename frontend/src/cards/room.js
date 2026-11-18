@@ -18,6 +18,11 @@ const BOOST_CSS = `
 .bschip:hover{border-color:var(--rk-heat,#e8590c)}
 `;
 
+function boostMinutes(a) {
+  const n = Number(a && a.settings && a.settings.boost_minutes);
+  return Number.isFinite(n) && n > 0 ? Math.max(5, Math.min(240, n)) : 30;
+}
+
 export class RaumklimaCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
   set _html(html) { rkPaint(this, html); }
@@ -130,6 +135,7 @@ export class RaumklimaCard extends HTMLElement {
       return `<span style="left:${(h / 6) * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc(), { hour: "2-digit" })}</span>`;
     }).join("");
     const chip = (mode, min, label) => `<button class="bschip" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
+    const def = boostMinutes(a);
     return `<style>${BOOST_CSS}</style>
       <div class="bsheet">
         <div class="bshead"><ha-icon icon="mdi:fire"></ha-icon><span>${t("Wärmer für kurze Zeit")}</span><button class="bsx" data-bsclose aria-label="${t("schließen")}">×</button></div>
@@ -139,6 +145,7 @@ export class RaumklimaCard extends HTMLElement {
         </div>
         <div class="bslabel">${active ? (mins == null ? t("läuft ohne Zeitlimit") : t("läuft noch {m} min", { m: mins })) : t("Wie lange soll es wärmer sein?")}</div>
         <div class="bschips">
+          ${chip("minutes", null, `${t("Dauer des Boosts")}: ${t("{n} min", { n: def })}`)}
           ${chip("minutes", 15, t("15 min"))}${chip("minutes", 30, t("30 min"))}${chip("minutes", 60, t("1 h"))}${chip("minutes", 120, t("2 h"))}
           ${chip("next", null, t("Bis Zeitfenster"))}${chip("unlimited", null, t("Ohne Limit"))}
           ${active ? chip("off", null, t("Beenden")) : ""}
@@ -346,12 +353,18 @@ export class RaumklimaCard extends HTMLElement {
       : "";
     const look = rkLook(this._config);
     const dark = look !== "classic" && rkDark(this._hass, this._config, a.settings || {});
+    const boostMin = boostMinutes(a);
+    const boostLabel = t("{n} min", { n: boostMin });
+    const boostOn = !!(a.boost_until || a.boost_open);
     this._html = `<style>${STYLES}${rkLookStyles(look)}</style>
       <ha-card class="rcard ${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
         <div class="top">
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
-          ${!mon && sib.boost ? `<button class="boostbtn ${a.boost_until || a.boost_open ? "on" : ""}" data-boostopen title="${t("Wärmer für kurze Zeit")}" aria-label="${t("Wärmer für kurze Zeit")}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : t("Boost")}</button>` : ""}
+          ${!mon && sib.boost ? `<span class="boostwrap ${boostOn ? "on" : ""}">
+            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
+            <button class="boostmore" data-boostopen title="${t("Dauer des Boosts")}" aria-label="${t("Dauer des Boosts")}"><ha-icon icon="mdi:chevron-down"></ha-icon></button>
+          </span>` : ""}
         </div>
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
@@ -396,6 +409,17 @@ export class RaumklimaCard extends HTMLElement {
     this.shadowRoot.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call("switch", "toggle", { entity_id: b.dataset.toggle })));
     const resume = this.shadowRoot.querySelector("[data-resume]");
     if (resume) resume.addEventListener("click", (ev) => { ev.stopPropagation(); this._resume(); });
+    this.shadowRoot.querySelectorAll("[data-boostmain]").forEach((b) => b.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const st = this._hass.states[this._config.entity];
+      const attrs = st && st.attributes;
+      if (attrs && (attrs.boost_until || attrs.boost_open)) {
+        this._boostOpen = true;
+        this._render();
+      } else {
+        this._boost("minutes");
+      }
+    }));
     this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boostOpen = !this._boostOpen; this._render(); }));
     this.shadowRoot.querySelectorAll("[data-bs]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boost(b.dataset.bs, b.dataset.min); }));
     this.shadowRoot.querySelectorAll("[data-bsclose]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boostOpen = false; this._render(); }));
