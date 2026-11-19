@@ -236,6 +236,7 @@ class PresenceMixin:
         cal = self.calendar_mode
         now = dt_util.utcnow()
         geo = self._zone_geo()
+        self._work_bypass = False
         # Harter Schalter: keine Auswertung, keine Absenkung, kein Vorheizen (Issue #10)
         if self.opt(CONF_PRESENCE_OFF) or not self.presence_configured or geo is None:
             self.persons = {}
@@ -250,6 +251,10 @@ class PresenceMixin:
             anyone = phones or bool(self.sensed)
             # Arbeitsplatz: dort ist niemand „auf dem Weg nach Hause“
             at_work = [p for p in self.persons if self._work_zone_hold(p, now)]
+            # Erst wenn wirklich alle Bewohner am Arbeitsplatz sind, ist keine Rückkehr
+            # zu erwarten. Steht nur eine Person dort und die andere ist gerade kurz weg,
+            # muss die normale Wartezeit weiter laufen (Issue #61).
+            self._work_bypass = bool(at_work) and not anyone and len(at_work) == len(self.persons)
             for p in at_work:
                 self.persons[p]["approaching"] = False
                 self.persons[p]["eta_min"] = None
@@ -310,7 +315,7 @@ class PresenceMixin:
                     anyone_present=anyone,
                     minutes_since_present=minutes,
                     # Am Arbeitsplatz wartet niemand auf eine Rückkehr: sofort „weg“
-                    away_delay_min=0.0 if (at_work and not anyone) else float(self.opt(CONF_AWAY_DELAY)),
+                    away_delay_min=0.0 if self._work_bypass else float(self.opt(CONF_AWAY_DELAY)),
                     long_away_hours=float(self.opt(CONF_LONG_AWAY_HOURS)),
                     vacation=self.vacation or cal == CAL_AWAY,
                     guests=self.guests or cal == CAL_HOME,
@@ -829,10 +834,13 @@ class PresenceMixin:
             else:
                 parts.append(tr("{name}: Ort unbekannt", name=p["name"]))
         if stage in AWAY_STAGES and self.last_present:
-            mins = (dt_util.utcnow() - self.last_present).total_seconds() / 60
-            parts.append(
-                tr("seit {h} h niemand da", h=f"{mins / 60:.0f}") if mins >= 120 else tr("seit {m} min niemand da (Wartezeit {w} min)", m=f"{mins:.0f}", w=f"{float(self.opt(CONF_AWAY_DELAY)):.0f}")
-            )
+            if stage == STAGE_AWAY_SHORT and self._work_bypass:
+                parts.append(tr("alle am Arbeitsplatz – keine Wartezeit"))
+            else:
+                mins = (dt_util.utcnow() - self.last_present).total_seconds() / 60
+                parts.append(
+                    tr("seit {h} h niemand da", h=f"{mins / 60:.0f}") if mins >= 120 else tr("seit {m} min niemand da (Wartezeit {w} min)", m=f"{mins:.0f}", w=f"{float(self.opt(CONF_AWAY_DELAY)):.0f}")
+                )
         if self.sensed:
             parts.append(tr("Präsenzmelder: jemand in {rooms}", rooms=", ".join(self.sensed)))
         if not self.presence_configured:

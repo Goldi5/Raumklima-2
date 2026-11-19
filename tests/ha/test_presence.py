@@ -225,6 +225,44 @@ async def test_arbeitsplatz_zone_hebt_wartezeit_auf(hass: HomeAssistant, setup, 
     hub._evaluate_presence()
     assert hub.stage == "away_short"
     assert hub.persons["person.a"]["approaching"] is False
+    assert any("alle am Arbeitsplatz" in str(e.get("why") or "") for e in hub.log.entries)
+
+
+async def test_arbeitsplatz_hebt_wartezeit_nicht_fuer_andere_auf(hass: HomeAssistant, setup, freezer) -> None:
+    """Nur wenn alle Bewohner am Arbeitsplatz sind, entfällt die Wartezeit.
+
+    Steht eine Person am Arbeitsplatz und die andere ist gerade erst kurz weg, muss die
+    normale Wartezeit weiter gelten – sonst wird sofort abgesenkt (Issue #61).
+    """
+    from custom_components.raumklima.const import (
+        CONF_AWAY_DELAY,
+        CONF_RESIDENTS,
+        CONF_WORK_ZONE_MINUTES,
+        CONF_WORK_ZONES,
+        CONF_ZONE,
+    )
+    from custom_components.raumklima.shared import get_hub
+
+    freezer.move_to("2026-06-15 09:00:00+00:00")
+    hub = get_hub(hass, None)
+    hass.states.async_set("zone.home", "1", {"latitude": 51.0, "longitude": 7.0, "radius": 34})
+    hass.states.async_set("zone.schule", "0", {"friendly_name": "Schule", "latitude": 51.02, "longitude": 7.02, "radius": 60})
+    hass.states.async_set("device_tracker.a", "Schule", {"latitude": 51.02, "longitude": 7.02})
+    hass.states.async_set("person.a", "Schule", {"device_trackers": ["device_tracker.a"]})
+    hass.states.async_set("device_tracker.b", "not_home")
+    hass.states.async_set("person.b", "not_home", {"device_trackers": ["device_tracker.b"]})
+    await hass.async_block_till_done()
+
+    hub.config[CONF_RESIDENTS] = ["person.a", "person.b"]
+    hub.config[CONF_ZONE] = "zone.home"
+    hub.config[CONF_AWAY_DELAY] = 30
+    hub.config[CONF_WORK_ZONES] = ["zone.schule"]
+    hub.config[CONF_WORK_ZONE_MINUTES] = 5
+    hub._work_since["person.a"] = dt_util.utcnow() - timedelta(minutes=10)
+    hub.last_present = dt_util.utcnow() - timedelta(minutes=1)
+
+    hub._evaluate_presence()
+    assert hub.stage == "home", "Person B ist nicht am Arbeitsplatz – die Wartezeit läuft noch"
 
 
 async def test_anwesenheit_erst_nach_wartezeit(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:

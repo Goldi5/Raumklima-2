@@ -185,6 +185,7 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         self._history: dict[str, deque[tuple[datetime, float]]] = {}
         self._was_present: bool | None = None
         self._work_since: dict[str, Any] = {}
+        self._work_bypass = False
         self._blind_logged: datetime | None = None
         # Kurz nach dem Start melden die Handys noch nicht – dann nicht „keine Ortung“ rufen
         self._presence_since: datetime | None = None

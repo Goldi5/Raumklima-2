@@ -326,6 +326,7 @@ _ROWS: list[tuple[str, str, str]] = [
     ),
     ("Schalter „Gäste da“ ist an", "Switch “Guests” is on", "L’interrupteur « Invités » est activé"),
     ("Urlaub ist an", "Vacation is on", "Vacances activées"),
+    ("alle am Arbeitsplatz – keine Wartezeit", "everyone at work – no waiting time", "tout le monde au travail – aucun délai"),
     ("Präsenzmelder: jemand in {rooms}", "Presence sensor: someone in {rooms}", "Détecteur de présence : quelqu’un dans {rooms}"),
     ("Anwesenheit nicht eingerichtet – gilt als da", "Presence not set up – treated as home", "Présence non configurée – considéré comme présent"),
     ("🏠 Alle weg", "🏠 Everyone away", "🏠 Tout le monde est parti"),

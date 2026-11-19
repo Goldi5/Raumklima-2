@@ -1,3 +1,14 @@
+## 2.0.1b3 – 2026-11-19
+
+### Behoben
+- **Wartezeit bei mehreren Bewohnern (#61):** Steht eine Person an einem Arbeitsplatz und eine andere ist gerade erst kurz weg, gilt wieder die normale Wartezeit. Die Arbeitsplatz-Ausnahme greift nur noch, wenn alle Bewohner am Arbeitsplatz sind. Bisher wurde die Wartezeit schon übersprungen, sobald irgendeine Person dort war.
+- **Klareres Protokoll:** Bei der Arbeitsplatz-Ausnahme steht jetzt „alle am Arbeitsplatz – keine Wartezeit“ statt der irreführenden Angabe „Wartezeit 30 min“.
+
+### Tests
+- Regressionstest für eine Person am Arbeitsplatz und eine Person, die gerade erst weg ist.
+- Backend: 734 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 733 grün, ein bekannter Test zum Automatik-Modus bleibt offen.
+- Frontend: 124 Tests grün.
+
 ## 2.0.1b2 – 2026-11-19
 
 ### Behoben
