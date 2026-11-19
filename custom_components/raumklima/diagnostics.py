@@ -220,6 +220,7 @@ def _room_block(hass: HomeAssistant, entry: RaumklimaConfigEntry) -> dict[str, A
         "learned": _learned_room(room),
         "values": values,
         "series": _series_block(room),
+        "setpoint_history": list(getattr(room, "setpoint_history", []) or []),
         "entities": entities,
         "services": services,
         "unavailable": unavailable,

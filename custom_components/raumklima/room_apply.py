@@ -20,6 +20,7 @@ from .const import (
     OFF_PRESET,
 )
 from .decision_log import (
+    CAT_DEVICE,
     fmt_temp,
 )
 from .logic import (
@@ -199,7 +200,7 @@ class ApplyMixin:
                     await self._send_on_mode(method)
                     # Sollwert weiter normal setzen: Das Thermostat bleibt so die obere Grenze, und
                     # sein Sollwert steht nicht auf einem alten (Abschalt-)Wert, bei dem es zumacht.
-                    await self._send_setpoint(from_measurement)
+                    await self._send_setpoint(from_measurement, reason)
                     opening = shadow_opening(_target, self.current_temperature, heating=True)
                     if opening is not None:
                         await self._send_valve(opening)
@@ -212,7 +213,7 @@ class ApplyMixin:
                 await self._apply_extras(want_on, method, _target, boosting)
                 return
             await self._send_on_mode(method)
-            if not await self._send_setpoint(from_measurement):
+            if not await self._send_setpoint(from_measurement, reason):
                 return
             await self._apply_extras(want_on, method, _target, boosting)
 
@@ -348,9 +349,21 @@ class ApplyMixin:
                 lambda: self.trv_available() and not self._device_own_program(self._trv_state()),
             )
 
-    async def _send_setpoint(self, from_measurement: bool) -> bool:
+    async def _send_setpoint(self, from_measurement: bool, reason: str | None = None) -> bool:
         """Einschalten, Teil 2: Sollwert senden. False, wenn es nichts zu senden gab."""
         setpoint = self._desired_setpoint()
+        expected = self.trv_expected_target
+        guarded = self.guard_setpoint(setpoint)
+        if guarded is None:
+            self.record_setpoint(setpoint, expected, blocked=True)
+            self.log(
+                CAT_DEVICE,
+                tr("Sollwert {t} passt nicht zum Ziel {e} – nicht gesendet", t=fmt_temp(setpoint), e=fmt_temp(expected)),
+                tr("Der Wert wäre mehr als 2 K über dem Erwarteten. Gerät, Kalibrierung oder Zeitplan prüfen."),
+                level="warn",
+            )
+            return False
+        setpoint = guarded
         if from_measurement:
             # Bei Kalibrierart "target" nur bei echter Änderung senden
             if self._last_target_setpoint is not None and abs(
@@ -367,11 +380,13 @@ class ApplyMixin:
         self._last_target_setpoint = setpoint
         if self.cal_mode == CAL_TARGET:
             self._last_cal_send = dt_util.utcnow()
+        self.record_setpoint(setpoint, expected)
         await self.sync.request(
             "setpoint",
             tr("Sollwert {t}", t=fmt_temp(setpoint)),
             lambda: self._write_setpoint(setpoint),
             lambda: self._setpoint_matches(setpoint),
+            why=tr("Ziel {t} · {r}", t=fmt_temp(self.effective_target), r=reason or self.peek_plan()[2]),
         )
         return True
 

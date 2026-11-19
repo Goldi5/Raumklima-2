@@ -262,6 +262,7 @@ export const EN = {
   "Zeitfenster": "Time window",
   "Wärmer für kurze Zeit (Boost)": "Warmer for a short while (boost)",
   "Wärmer für kurze Zeit": "Warmer for a short while",
+  "Boost beenden": "End boost",
   "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} dashboard(s) created for your homes",
   "– keiner –": "– none –",
   "gerade: „{s}“": "now: “{s}”",

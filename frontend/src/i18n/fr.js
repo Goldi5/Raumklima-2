@@ -262,6 +262,7 @@ export const FR = {
   "Zeitfenster": "Plage horaire",
   "Wärmer für kurze Zeit (Boost)": "Plus chaud un moment (boost)",
   "Wärmer für kurze Zeit": "Plus chaud un moment",
+  "Boost beenden": "Terminer le boost",
   "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} tableau(x) de bord créé(s) pour tes logements",
   "– keiner –": "– aucun –",
   "gerade: „{s}“": "en cours : « {s} »",

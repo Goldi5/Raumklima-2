@@ -1,3 +1,15 @@
+## 2.0.1b4 – 2026-11-19
+
+### Behoben
+- **Boost lässt sich wieder ausschalten (#65):** Ein zweiter Klick auf den aktiven Boost-Knopf beendet den Boost jetzt direkt. Bisher öffnete er nur das Auswahlblatt; Beenden war dort zwar möglich, aber nicht offensichtlich.
+- **Sollwert-Ausreißer werden nicht mehr gesendet (#64):** Weicht ein Sollwert um mehr als 2 K vom erwarteten Gerätewert ab, schreibt Raumklima ihn nicht mehr. Das verhindert, dass ein Thermostat, der einen alten hohen Wert hält, immer wieder mit 26 °C überschrieben wird. Der Vorgang wird als Warnung protokolliert.
+- **Ziel-History in der Diagnose (#64):** Je Raum enthält die Diagnose jetzt die letzten Sollwert-Wechsel mit Zeit, Sollwert, Plan-Ziel, Erwartwert und Grund. Damit ist im Nachhinein sichtbar, warum ein Wert geschrieben wurde.
+
+### Tests
+- Regressionstests für Guard und Ziel-History.
+- Frontend: 125 Tests grün.
+- Backend: 736 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 735 grün, ein bekannter Test zum Automatik-Modus bleibt offen.
+
 ## 2.0.1b3 – 2026-11-19
 
 ### Behoben

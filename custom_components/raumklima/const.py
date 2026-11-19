@@ -512,6 +512,8 @@ OFFSET_MATCH_TOLERANCE: Final = 0.15
 # Höchster Abgleich, den ein Gerätefühler auslösen darf (Zusatz-Thermostat, Issue #38).
 SETPOINT_SHIFT_LIMIT: Final = 2.0
 SETPOINT_MATCH_TOLERANCE: Final = 0.25
+# Schutz gegen Sollwert-Ausreißer: mehr Abstand zum erwarteten Gerätewert wird nicht gesendet.
+SETPOINT_GUARD_K: Final = 2.0
 MAX_SENSOR_JUMP: Final = 3.0  # °C – größere Sprünge gelten als Ausreißer
 SENSOR_JUMP_WINDOW: Final = 300  # s
 RECONCILE_INTERVAL: Final = 600  # s – regelmäßiger Abgleich

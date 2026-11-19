@@ -111,3 +111,32 @@ test("Boost ohne Minuten nutzt die Einstellung", async () => {
   await card._boost("minutes");
   assert.deepEqual(sent, [{ type: "raumklima/boost", entry_id: "entry-1", mode: "minutes" }]);
 });
+
+test("Aktiver Boost wird über den Hauptknopf beendet", async () => {
+  const card = new RaumklimaCard();
+  card.setConfig({ entity: "climate.bad" });
+  const sent = [];
+  card._hass = {
+    states: {
+      "climate.bad": {
+        attributes: {
+          room: "entry-1",
+          boost_until: new Date(Date.now() + 30 * 60000).toISOString(),
+          boost_open: false,
+        },
+      },
+    },
+    connection: { sendMessagePromise: async (payload) => { sent.push(payload); } },
+  };
+  card._render = () => {};
+  const btn = {
+    addEventListener: (event, fn) => { if (event === "click") btn._click = fn; },
+  };
+  card.shadowRoot = {
+    querySelectorAll: (selector) => (selector === "[data-boostmain]" ? [btn] : []),
+    querySelector: () => null,
+  };
+  card._bind(false);
+  await btn._click({ stopPropagation() {} });
+  assert.deepEqual(sent, [{ type: "raumklima/boost", entry_id: "entry-1", mode: "off" }]);
+});

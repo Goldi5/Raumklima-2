@@ -272,6 +272,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._preset_flips: deque[tuple[datetime, str]] = deque(maxlen=20)
         self._restore_paused_until: datetime | None = None
         self._sends: deque[datetime] = deque(maxlen=200)
+        # Letzte Sollwerte mit Plan-Ziel – für die Diagnose (#64: „warum 26 °C?“).
+        self._setpoint_history: list[dict[str, Any]] = []
         self.throttled_until: datetime | None = None
         self._trv_down_cancel: Callable[[], None] | None = None
         self.heatup = HeatupTracker()
@@ -992,6 +994,41 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._save()
         self._notify()
         await self._apply()
+
+    @property
+    def setpoint_history(self) -> list[dict[str, Any]]:
+        """Letzte Sollwerte für die Diagnose (max. 24 h, newest last)."""
+        return list(self._setpoint_history)
+
+    def record_setpoint(
+        self,
+        setpoint: float,
+        expected: float | None,
+        *,
+        blocked: bool = False,
+    ) -> None:
+        """Sollwert-Wechsel mit Plan-Ziel protokollieren (Diagnose, #64)."""
+        now = dt_util.utcnow()
+        try:
+            _, target, reason = self.peek_plan()
+        except Exception:  # noqa: BLE001 – Diagnose darf nie selbst abstürzen
+            target, reason = self.effective_target, None
+        self._setpoint_history.append(
+            {
+                "t": now.isoformat(),
+                "setpoint": round(float(setpoint), 1),
+                "target": round(float(target), 1),
+                "expected": round(float(expected), 1) if expected is not None else None,
+                "reason": reason,
+                "blocked": blocked,
+            }
+        )
+        cutoff = now - timedelta(hours=24)
+        self._setpoint_history = [
+            entry
+            for entry in self._setpoint_history
+            if datetime.fromisoformat(str(entry.get("t"))) >= cutoff
+        ][-500:]
 
     async def async_set_target(self, temperature: float, by: str | None = None) -> None:
         new = clamp(float(temperature), self.trv_min, self.trv_max)

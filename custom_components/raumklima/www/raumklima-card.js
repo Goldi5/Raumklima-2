@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b3 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -262,6 +262,7 @@
     "Zeitfenster": "Time window",
     "Wärmer für kurze Zeit (Boost)": "Warmer for a short while (boost)",
     "Wärmer für kurze Zeit": "Warmer for a short while",
+    "Boost beenden": "End boost",
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} dashboard(s) created for your homes",
     "– keiner –": "– none –",
     "gerade: „{s}“": "now: “{s}”",
@@ -1969,6 +1970,7 @@
     "Zeitfenster": "Plage horaire",
     "Wärmer für kurze Zeit (Boost)": "Plus chaud un moment (boost)",
     "Wärmer für kurze Zeit": "Plus chaud un moment",
+    "Boost beenden": "Terminer le boost",
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} tableau(x) de bord créé(s) pour tes logements",
     "– keiner –": "– aucun –",
     "gerade: „{s}“": "en cours : « {s} »",
@@ -3455,7 +3457,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b3";
+  var RK_VERSION = "2.0.1b4";
 
   // src/styles.js
   var STYLES = `
@@ -5019,7 +5021,7 @@
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           ${!mon && sib.boost ? `<span class="boostwrap ${boostOn ? "on" : ""}">
-            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
+            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
             <button class="boostmore" data-boostopen title="${t("Dauer des Boosts")}" aria-label="${t("Dauer des Boosts")}"><ha-icon icon="mdi:chevron-down"></ha-icon></button>
           </span>` : ""}
         </div>
@@ -5073,8 +5075,7 @@
         const st = this._hass.states[this._config.entity];
         const attrs = st && st.attributes;
         if (attrs && (attrs.boost_until || attrs.boost_open)) {
-          this._boostOpen = true;
-          this._render();
+          this._boost("off");
         } else {
           this._boost("minutes");
         }

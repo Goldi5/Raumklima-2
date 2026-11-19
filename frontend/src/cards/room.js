@@ -420,7 +420,7 @@ export class RaumklimaCard extends HTMLElement {
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           ${!mon && sib.boost ? `<span class="boostwrap ${boostOn ? "on" : ""}">
-            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Wärmer für kurze Zeit") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
+            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
             <button class="boostmore" data-boostopen title="${t("Dauer des Boosts")}" aria-label="${t("Dauer des Boosts")}"><ha-icon icon="mdi:chevron-down"></ha-icon></button>
           </span>` : ""}
         </div>
@@ -476,8 +476,7 @@ export class RaumklimaCard extends HTMLElement {
       const st = this._hass.states[this._config.entity];
       const attrs = st && st.attributes;
       if (attrs && (attrs.boost_until || attrs.boost_open)) {
-        this._boostOpen = true;
-        this._render();
+        this._boost("off");
       } else {
         this._boost("minutes");
       }

@@ -41,6 +41,7 @@ from .const import (
     ON_PRESET_AVOID,
     ON_PRESET_CANDIDATES,
     PRESET_GRACE_SECONDS,
+    SETPOINT_GUARD_K,
     SETPOINT_MATCH_TOLERANCE,
     SLOW_RETRY_INTERVAL,
 )
@@ -467,11 +468,26 @@ class TrvMixin:
         if pre_stop:
             target = max(self.trv_min, target - pre_stop)
         if self.cal_mode == CAL_TARGET:
-            # Gelernten Abgleich immer anwenden – nicht nur, wenn gerade ein Messwert eintrifft.
+            # Gelernten Abgleich immer anwenden – nicht nur, wenn gerade ein Messwert anliegt.
             return clamp(
                 round_device(target + self._shift_for(target), self.trv_step), self.trv_min, self.trv_max
             )
         return clamp(target, self.trv_min, self.trv_max)
+
+    def guard_setpoint(self, setpoint: float) -> float | None:
+        """Sollwert gegen den erwarteten Gerätewert prüfen.
+
+        Ein Wert, der mehr als ``SETPOINT_GUARD_K`` über ``trv_expected_target`` liegt,
+        passt nicht zum Plan (Ziel, Boost, Kalibrierung). Das ist genau der Fall, wenn ein
+        Gerät einen alten/hohen Wert hält und Raumklima ihn immer wieder schreiben würde.
+        Dann wird nicht gesendet – der Aufrufer protokolliert das und meldet den Zustand.
+        """
+        expected = self.trv_expected_target
+        if expected is None:
+            return setpoint
+        if setpoint - expected > SETPOINT_GUARD_K:
+            return None
+        return setpoint
 
     async def _call_climate(self, service: str, **data: Any) -> None:
         self._mark_own_write()
