@@ -19,11 +19,11 @@ def test_unbekannte_felder_werden_ignoriert() -> None:
 def test_groesse_und_farbe_werden_geprueft() -> None:
     out = sanitize(
         {
-            "size": {"climate.a": "big", "climate.b": "riesig"},
+            "size": {"climate.a": "big", "climate.b": "riesig", "climate.c": "medium"},
             "color": {"climate.a": "#12ab34", "climate.b": "rot"},
         }
     )
-    assert out["size"] == {"climate.a": "big"}
+    assert out["size"] == {"climate.a": "big", "climate.c": "medium"}
     assert out["color"] == {"climate.a": "#12ab34"}
 
 

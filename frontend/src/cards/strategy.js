@@ -90,7 +90,10 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
         // sie erscheinen nur als Kachel in der Übersicht.
         // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
         // blendet Bedienung und Sollwert selbst aus und zeigt nur Messwerte und Hinweise.
-        ...shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, grid_options: { columns: "full" } }] })),
+        ...shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile").map((r) => {
+          const size = rkLayoutSize(layout, r.id);
+          return { type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, variant: size === "medium" ? "medium" : "full", grid_options: { columns: "full" } }] };
+        }),
       ],
     };
 

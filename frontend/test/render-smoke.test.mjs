@@ -20,12 +20,12 @@ globalThis.HTMLElement = class {
 };
 globalThis.CustomEvent = class { constructor(type, options) { this.type = type; this.detail = options?.detail; } };
 
-const { RaumklimaCard } = await import("../src/cards/room.js");
+const { RaumklimaCard, RaumklimaMediumCard } = await import("../src/cards/room.js");
 const { setLang } = await import("../src/shared.js");
 
 const fixture = JSON.parse(readFileSync(new URL("./fixture.json", import.meta.url), "utf8"));
 
-function render(attributes, overrides = {}) {
+function render(attributes, overrides = {}, config = {}) {
   const hass = {
     language: "de",
     locale: { language: "de", number_format: "language" },
@@ -43,7 +43,7 @@ function render(attributes, overrides = {}) {
 
   setLang(hass);
   const card = new RaumklimaCard();
-  card.setConfig({ entity: "climate.bad" });
+  card.setConfig({ entity: "climate.bad", ...config });
   card._hass = hass;
   card._render();
   return card.shadowRoot.innerHTML;
@@ -80,4 +80,19 @@ test("Raumkarte rendert mit offenem Fenster und Boost", () => {
   const html = render({ window_open: true, window_open_since: new Date().toISOString(), boost_until: null, ventilation: "please_close" });
   assert.ok(html.length > 2000);
   assert.doesNotMatch(html, /konnte nicht gezeichnet/);
+});
+
+test("Mittlere Raumkarte rendert kompakt ohne Regler und Boost-Auswahl", () => {
+  const html = render({ humidity_sensor: true, current_humidity: 61, valve_position: 32, outdoor_temperature: 7.4 }, {}, { variant: "medium" });
+  assert.match(html, /class="rcard medium/);
+  assert.match(html, /class="mmain"/);
+  assert.match(html, /data-step="0.5"/);
+  assert.doesNotMatch(html, /class="dial"/);
+  assert.doesNotMatch(html, /data-boostopen/);
+  assert.doesNotMatch(html, /konnte nicht gezeichnet/);
+
+  const card = new RaumklimaMediumCard();
+  card.setConfig({ entity: "climate.bad" });
+  assert.equal(card._config.variant, "medium");
+  assert.equal(card.getCardSize(), 3);
 });

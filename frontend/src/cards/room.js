@@ -43,14 +43,14 @@ export class RaumklimaCard extends HTMLElement {
 
   setConfig(config) {
     if (!config.entity) throw new Error(t("Bitte ein Raumklima-Thermostat (entity) angeben"));
-    this._config = config;
+    this._config = { ...config, variant: config.variant === "medium" ? "medium" : "full" };
     this._pending = null;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() { this._timer = setInterval(() => this._tick(), 1000); }
   disconnectedCallback() { clearInterval(this._timer); }
-  getCardSize() { return 6; }
+  getCardSize() { return this._config && this._config.variant === "medium" ? 3 : 6; }
   getGridOptions() { return { columns: 6, min_columns: 4, rows: "auto" }; }
 
   set hass(hass) {
@@ -237,6 +237,59 @@ export class RaumklimaCard extends HTMLElement {
     }
   }
 
+  _renderMedium({ a, sib, mon, status, target, isOff, name, accent, winOpen }) {
+    const cfgS = a.settings || {};
+    const boostMin = boostMinutes(a);
+    const boostOn = !!(a.boost_until || a.boost_open);
+    const calOff = a.offset != null ? a.offset : a.offset_auto;
+    const trvNote = !mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3
+      ? (calOff != null && Math.abs(calOff) >= 0.1
+        ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) })
+        : t("Thermostat {v}°", { v: fmt(a.trv_target) }))
+      : "";
+    const targetText = mon
+      ? (a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : t("nur Messen"))
+      : this._pending != null
+        ? t("Ziel <b>{v} °C</b>", { v: fmt(target) })
+        : planText(a, isOff, true);
+    const meta = [
+      a.humidity_sensor && !mon ? `<span><ha-icon icon="mdi:water-percent"></ha-icon>${fmt(a.current_humidity, 0)} %</span>` : "",
+      a.valve_position != null ? `<span class="${a.hvac_action === "heating" ? "heat" : ""}"><ha-icon icon="mdi:valve"></ha-icon>${t("Ventil")} ${fmt(a.valve_position, 0)} %</span>` : "",
+      a.outdoor_temperature != null ? `<span><ha-icon icon="mdi:weather-partly-cloudy"></ha-icon>${t("außen")} ${fmt(a.outdoor_temperature)}°</span>` : "",
+    ].join("");
+    const look = rkLook(this._config);
+    const dark = look !== "classic" && rkDark(this._hass, this._config, cfgS);
+    this._html = `<style>${STYLES}${rkLookStyles(look)}</style>
+      <ha-card class="rcard medium ${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
+        <div class="mtop">
+          <div class="mname" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
+          <div class="mflags">
+            ${a.window_open !== undefined ? `<span class="micon ${winOpen ? "open" : ""}" title="${winOpen ? t("Fenster offen") : t("Fenster geschlossen")}"><ha-icon icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></span>` : ""}
+            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire-plus"></ha-icon></button>` : ""}
+          </div>
+        </div>
+        <div class="mstatus">
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
+          ${a.dehumidifier_active ? `<span class="micon dehum" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
+          ${a.battery && a.battery.low ? `<span class="micon warn" title="${esc(t("Batterie {p} %", { p: a.battery.level }))}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon></span>` : ""}
+          ${boostOn ? `<span class="chip" style="--tone:var(--rk-heat)"><ha-icon icon="mdi:fire-plus"></ha-icon>${t("Boost")} ${a.boost_open ? "∞" : t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : ""}
+        </div>
+        ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
+        ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
+        <div class="mmain">
+          <div class="mnow">${fmt(a.current_temperature)}<small>°C</small></div>
+          <div class="mtarget">${targetText}</div>
+          ${mon ? "" : `<div class="mctrl">
+            <button class="round" data-step="-0.5" ${isOff ? "disabled" : ""} aria-label="${t("kälter")}"><ha-icon icon="mdi:minus"></ha-icon></button>
+            <button class="round" data-power aria-label="${t("an/aus")}" style="${isOff ? "" : "color:var(--tone)"}"><ha-icon icon="mdi:power"></ha-icon></button>
+            <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="${t("wärmer")}"><ha-icon icon="mdi:plus"></ha-icon></button>
+          </div>`}
+        </div>
+        ${meta ? `<div class="mmeta">${meta}</div>` : ""}
+      </ha-card>`;
+    this._bind(isOff);
+  }
+
   _renderInner() {
     if (!this._hass || !this._config) return;
     const st = this._hass.states[this._config.entity];
@@ -269,6 +322,11 @@ export class RaumklimaCard extends HTMLElement {
     this._emptySince = a.occupied === false && a.empty_since ? Date.parse(a.empty_since) : null;
     this._roomEco = !!a.room_eco;
     this._recMin = a.recommended_minutes || 5;
+
+    if (this._config.variant === "medium") {
+      this._renderMedium({ a, sib, mon, status, target, isOff, name, accent, winOpen });
+      return;
+    }
 
     let banner = "";
     if (vent && a.ventilation !== "ok" && !a.night_airing) {
@@ -403,6 +461,10 @@ export class RaumklimaCard extends HTMLElement {
         </div>
       </ha-card>`;
 
+    this._bind(isOff);
+  }
+
+  _bind(isOff) {
     this.shadowRoot.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => this._step(parseFloat(b.dataset.step))));
     const p = this.shadowRoot.querySelector("[data-power]");
     if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
@@ -425,5 +487,11 @@ export class RaumklimaCard extends HTMLElement {
     this.shadowRoot.querySelectorAll("[data-bsclose]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boostOpen = false; this._render(); }));
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));
     this._tick();
+  }
+}
+
+export class RaumklimaMediumCard extends RaumklimaCard {
+  setConfig(config) {
+    super.setConfig({ ...config, variant: "medium" });
   }
 }

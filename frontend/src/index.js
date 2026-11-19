@@ -5,7 +5,7 @@
  * Quelltext: frontend/src – gebaut mit `npm run build`.
  */
 import { RK_VERSION, setLang, t } from "./shared.js";
-import { RaumklimaCard } from "./cards/room.js";
+import { RaumklimaCard, RaumklimaMediumCard } from "./cards/room.js";
 import { RaumklimaOverviewCard } from "./cards/overview.js";
 import { RaumklimaHistoryCard } from "./cards/history.js";
 import { RaumklimaSettingsCard } from "./cards/settings.js";
@@ -17,6 +17,7 @@ import { RaumklimaDemoCard } from "./cards/demo.js";
 import { RaumklimaDashboardStrategy } from "./cards/strategy.js";
 
 if (!customElements.get("raumklima-card")) customElements.define("raumklima-card", RaumklimaCard);
+if (!customElements.get("raumklima-medium-card")) customElements.define("raumklima-medium-card", RaumklimaMediumCard);
 if (!customElements.get("raumklima-overview-card")) customElements.define("raumklima-overview-card", RaumklimaOverviewCard);
 // Sprache für die Kartenauswahl schon vor dem ersten „hass“ (HA speichert sie im Browser)
 let storedLang = null;
@@ -27,6 +28,7 @@ window.customCards = window.customCards || [];
 if (!window.customCards.find((c) => c.type === "raumklima-card")) {
   window.customCards.push(
     { type: "raumklima-card", name: t("Raumklima – Raum"), description: t("Thermostat, Lüften und Klima eines Raums"), preview: true },
+    { type: "raumklima-medium-card", name: t("Raumklima – Raum kompakt"), description: t("Kompakte Raumkarte mit Ist, Ziel und schneller Regelung"), preview: true },
     { type: "raumklima-overview-card", name: t("Raumklima – Übersicht"), description: t("Alle Räume und Außenklima auf einen Blick"), preview: true },
     { type: "raumklima-settings-card", name: t("Raumklima – Einstellungen"), description: t("Was eingestellt ist, wer welche Hinweise bekommt – mit Reglern"), preview: false },
     { type: "raumklima-history-card", name: t("Raumklima – Verlauf"), description: t("Temperatur, Luftfeuchte oder Zeitleiste aller Räume"), preview: false },

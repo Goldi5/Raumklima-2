@@ -55,7 +55,7 @@ export const LayoutMethods = {
       const col = (L.color || {})[r.id] || "";
       const arrow = (dir, glyph, on) =>
         `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} aria-label="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
-      const sizes = [["big", t("große Karte")], ["tile", t("Kachel")], ["off", t("aus")]]
+      const sizes = [["big", t("große Karte")], ["medium", t("mittlere Karte")], ["tile", t("Kachel")], ["off", t("aus")]]
         .map(([k, lab]) => `<button class="chip2 ${size === k ? "" : "off"}" data-lsize="${r.id}" data-v="${k}">${lab}</button>`)
         .join("");
       const dots = RK_LAYOUT_COLORS.map(
@@ -66,7 +66,7 @@ export const LayoutMethods = {
         <div class="lbot"><span class="llab">${t("Farbe")}</span><div class="dots">${dots}</div></div>
       </div>`;
     }).join("");
-    const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
+    const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; „große Karte“ zeigt die volle Raumseite, „mittlere Karte“ die kompakte Raumkarte, „Kachel“ nur die Übersicht, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
     const look = this._row(t("Dunkler Look"), this._segs("hub", "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Räume und Karten dieser Wohnung"));
     return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);

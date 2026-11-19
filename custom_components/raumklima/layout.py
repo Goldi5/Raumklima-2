@@ -22,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 STORAGE_KEY = f"{DOMAIN}_layout"
 STORAGE_VERSION = 1
 
-SIZES = ("big", "tile", "off")
+SIZES = ("big", "medium", "tile", "off")
 
 
 def _empty() -> dict[str, Any]:

@@ -1,3 +1,13 @@
+## 2.0.1b1 – 2026-11-19
+
+### Neu
+- **Mittlere Raumkarte:** In „Darstellung“ gibt es pro Raum jetzt „große Karte“, „mittlere Karte“, „Kachel“ und „aus“. Die mittlere Karte zeigt Name, Status, Ist-Temperatur, Ziel/Grund, +/−, Ein/Aus, Boost sowie Feuchte, Ventil und Außentemperatur – ohne Drehregler, Statistikraster und Boost-Auswahl. Ein Boost startet dort mit der eingestellten Standarddauer; die Dauer ändern lässt sie sich weiterhin in der großen Karte.
+- **Kompakte Karte direkt wählbar:** `custom:raumklima-medium-card` steht als eigene Kartenvariante bereit. Die Dashboard-Strategie nutzt sie automatisch für Räume mit „mittlere Karte“ und behält dabei die Reihenfolge bei.
+
+### Tests
+- Frontend: 124 Tests grün, inklusive mittlerer Karte und Karten-Alias.
+- Backend: Layout-Tests auf Home Assistant 2026.2.3 und 2026.10.4 grün (je 4/4).
+
 ## 2.0.0 – 2026-11-18
 
 **Stabile Version:** bündelt alle Änderungen seit 1.3.2 – von Entfeuchter und Anwesenheit über das Energie-Dashboard bis zu Boost und Fußbodenheizung.

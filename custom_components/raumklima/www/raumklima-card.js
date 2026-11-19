@@ -1,4 +1,4 @@
-/* Raumklima 2.0.0 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b1 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -426,6 +426,7 @@
     "Fenster": "Windows",
     "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß": "A bedroom window opened during this time counts as sleeping with the window open – no airing notices, a greeting in the morning",
     "Fenster offen": "Window open",
+    "Fenster geschlossen": "Window closed",
     "Fenster offen, niemand da": "Window open, nobody home",
     "Fenster schließen": "Close the window",
     "Fensterkontakt offen": "Window contact open",
@@ -539,6 +540,8 @@
     "Raumklima – Heizbericht": "Raumklima – Heating report",
     "Raumklima – Protokoll": "Raumklima – Log",
     "Raumklima – Raum": "Raumklima – Room",
+    "Raumklima – Raum kompakt": "Raumklima – Compact room",
+    "Kompakte Raumkarte mit Ist, Ziel und schneller Regelung": "Compact room card with current temperature, target and quick control",
     "Raumklima – Verlauf": "Raumklima – History",
     "Raumklima – Übersicht": "Raumklima – Overview",
     "Raumtemperatur": "Room temperature",
@@ -886,8 +889,9 @@
     "Reihenfolge": "Order",
     "Speichern": "Save",
     "große Karte": "Large card",
+    "mittlere Karte": "Medium card",
     "lädt …": "loading …",
-    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "The order applies to the generated dashboard and the overview; “Tile” hides the large room page, “off” hides the room entirely. The colour tints the card’s edge and accents.",
+    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; „große Karte“ zeigt die volle Raumseite, „mittlere Karte“ die kompakte Raumkarte, „Kachel“ nur die Übersicht, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "The order applies to the generated dashboard and the overview; “Large card” shows the full room page, “Medium card” the compact room card, “Tile” only the overview, “off” hides the room entirely. The colour tints the card’s edge and accents.",
     "Farbe": "Colour",
     "Aufheizrate": "Heat-up rate",
     "Gerade gilt": "Currently applies",
@@ -2129,6 +2133,7 @@
     "Fenster": "Fenêtres",
     "Fenster in Schlafräumen, das in dieser Zeit aufgeht, gilt als Schlafen bei offenem Fenster – keine Lüft-Hinweise, morgens ein Gruß": "Une fenêtre de chambre ouverte pendant cette période compte comme sommeil fenêtre ouverte – pas de rappels d’aération, un bonjour le matin",
     "Fenster offen": "Fenêtre ouverte",
+    "Fenster geschlossen": "Fenêtre fermée",
     "Fenster offen, niemand da": "Fenêtre ouverte, personne à la maison",
     "Fenster schließen": "Fermer la fenêtre",
     "Fensterkontakt offen": "Contact de fenêtre ouvert",
@@ -2242,6 +2247,8 @@
     "Raumklima – Heizbericht": "Raumklima – Rapport de chauffage",
     "Raumklima – Protokoll": "Raumklima – Journal",
     "Raumklima – Raum": "Raumklima – Pièce",
+    "Raumklima – Raum kompakt": "Raumklima – Pièce compacte",
+    "Kompakte Raumkarte mit Ist, Ziel und schneller Regelung": "Carte compacte avec température actuelle, cible et réglage rapide",
     "Raumklima – Verlauf": "Raumklima – Historique",
     "Raumklima – Übersicht": "Raumklima – Aperçu",
     "Raumtemperatur": "Température de la pièce",
@@ -2589,8 +2596,9 @@
     "Reihenfolge": "Ordre",
     "Speichern": "Enregistrer",
     "große Karte": "Grande carte",
+    "mittlere Karte": "Carte moyenne",
     "lädt …": "chargement …",
-    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "L’ordre s’applique au tableau de bord généré et à l’aperçu ; « Tuile » masque la grande page de la pièce, « aus » masque complètement la pièce. La couleur colore le bord et les accents de la carte.",
+    "Reihenfolge gilt im generierten Dashboard und in der Übersicht; „große Karte“ zeigt die volle Raumseite, „mittlere Karte“ die kompakte Raumkarte, „Kachel“ nur die Übersicht, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.": "L’ordre s’applique au tableau de bord généré et à l’aperçu ; « Grande carte » affiche la page complète de la pièce, « Carte moyenne » la carte compacte, « Tuile » uniquement l’aperçu, « désactivé » masque complètement la pièce. La couleur colore le bord et les accents de la carte.",
     "Farbe": "Couleur",
     "Aufheizrate": "Vitesse de montée",
     "Gerade gilt": "S'applique actuellement",
@@ -3447,7 +3455,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.0";
+  var RK_VERSION = "2.0.1b1";
 
   // src/styles.js
   var STYLES = `
@@ -3541,6 +3549,36 @@
   .sync { margin-left:auto; display:inline-flex; align-items:center; gap:4px; font-size:.75rem; color:var(--secondary-text-color); }
   .sync ha-icon { --mdc-icon-size:14px; }
   .sync.pending { color: var(--rk-warn); } .sync.failed { color: var(--rk-cold); }
+  .rcard.medium { padding:14px 16px; border-radius:22px; }
+  .rcard.medium::before { opacity:.12; }
+  .mtop { display:flex; align-items:center; gap:8px; min-width:0; }
+  .mname { flex:1 1 auto; min-width:0; font-size:1.05rem; font-weight:600; letter-spacing:-.01em; cursor:pointer;
+    color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mflags { display:flex; align-items:center; gap:4px; flex:none; }
+  .micon { display:inline-flex; align-items:center; gap:3px; color:var(--secondary-text-color); font-size:.75rem; font-weight:600; font-variant-numeric:tabular-nums; }
+  .micon ha-icon { --mdc-icon-size:18px; }
+  .micon.open, .micon.dehum { color:var(--rk-air); }
+  .micon.warn { color:var(--rk-warn); }
+  .mboost { all:unset; cursor:pointer; width:32px; height:32px; border-radius:50%; display:grid; place-items:center;
+    color:var(--rk-heat); background:color-mix(in srgb, var(--rk-heat) 14%, transparent); }
+  .mboost:hover { background:color-mix(in srgb, var(--rk-heat) 24%, transparent); }
+  .mboost ha-icon { --mdc-icon-size:18px; }
+  .mstatus { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; min-width:0; }
+  .mstatus:empty { display:none; }
+  .mstatus .chip { padding:4px 9px; font-size:.76rem; white-space:normal; }
+  .mmain { display:flex; align-items:flex-end; gap:10px; margin-top:10px; min-width:0; }
+  .mnow { flex:none; font-size:2.1rem; font-weight:300; letter-spacing:-.04em; line-height:1; color:var(--primary-text-color); font-variant-numeric:tabular-nums; }
+  .mnow small { font-size:.42em; vertical-align:super; margin-left:2px; color:var(--secondary-text-color); }
+  .mtarget { flex:1 1 auto; min-width:0; font-size:.82rem; line-height:1.3; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+  .mtarget b { color:var(--primary-text-color); font-weight:600; }
+  .mctrl { display:flex; align-items:center; gap:5px; flex:none; }
+  .mctrl button.round { width:34px; height:34px; }
+  .mctrl button.round ha-icon { --mdc-icon-size:18px; }
+  .mmeta { display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:10px; font-size:.76rem; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .mmeta:empty { display:none; }
+  .mmeta span { display:inline-flex; align-items:center; gap:4px; min-width:0; }
+  .mmeta ha-icon { --mdc-icon-size:15px; }
+  .mmeta .heat { color:var(--rk-heat); }
   .err { padding:16px; color: var(--rk-cold); }
 `;
   var ISSUE_STYLES = `
@@ -4640,7 +4678,7 @@
     }
     setConfig(config) {
       if (!config.entity) throw new Error(t("Bitte ein Raumklima-Thermostat (entity) angeben"));
-      this._config = config;
+      this._config = { ...config, variant: config.variant === "medium" ? "medium" : "full" };
       this._pending = null;
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     }
@@ -4651,7 +4689,7 @@
       clearInterval(this._timer);
     }
     getCardSize() {
-      return 6;
+      return this._config && this._config.variant === "medium" ? 3 : 6;
     }
     getGridOptions() {
       return { columns: 6, min_columns: 4, rows: "auto" };
@@ -4836,6 +4874,50 @@
         this._html = `<style>${STYLES}</style><ha-card class="rcard"><div class="err">${esc(t("Karte konnte nicht gezeichnet werden"))}: ${esc(String(e && e.message || e))}</div></ha-card>`;
       }
     }
+    _renderMedium({ a, sib, mon, status, target, isOff, name, accent, winOpen }) {
+      const cfgS = a.settings || {};
+      const boostMin = boostMinutes(a);
+      const boostOn = !!(a.boost_until || a.boost_open);
+      const calOff = a.offset != null ? a.offset : a.offset_auto;
+      const trvNote = !mon && a.trv_target != null && a.temperature != null && Math.abs(a.trv_target - a.temperature) >= 0.3 ? calOff != null && Math.abs(calOff) >= 0.1 ? t("Thermostat {v}° (Abgleich {o}°)", { v: fmt(a.trv_target), o: (calOff > 0 ? "+" : "") + fmt(calOff) }) : t("Thermostat {v}°", { v: fmt(a.trv_target) }) : "";
+      const targetText = mon ? a.humidity_sensor ? `${fmt(a.current_humidity, 0)} %` : t("nur Messen") : this._pending != null ? t("Ziel <b>{v} °C</b>", { v: fmt(target) }) : planText(a, isOff, true);
+      const meta = [
+        a.humidity_sensor && !mon ? `<span><ha-icon icon="mdi:water-percent"></ha-icon>${fmt(a.current_humidity, 0)} %</span>` : "",
+        a.valve_position != null ? `<span class="${a.hvac_action === "heating" ? "heat" : ""}"><ha-icon icon="mdi:valve"></ha-icon>${t("Ventil")} ${fmt(a.valve_position, 0)} %</span>` : "",
+        a.outdoor_temperature != null ? `<span><ha-icon icon="mdi:weather-partly-cloudy"></ha-icon>${t("außen")} ${fmt(a.outdoor_temperature)}°</span>` : ""
+      ].join("");
+      const look = rkLook(this._config);
+      const dark = look !== "classic" && rkDark(this._hass, this._config, cfgS);
+      this._html = `<style>${STYLES}${rkLookStyles(look)}</style>
+      <ha-card class="rcard medium ${look === "classic" ? "" : look}${dark ? " dark" : ""}" style="--tone:${toneVar(status.tone)}; --accent:${accent || "transparent"}">
+        <div class="mtop">
+          <div class="mname" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
+          <div class="mflags">
+            ${a.window_open !== void 0 ? `<span class="micon ${winOpen ? "open" : ""}" title="${winOpen ? t("Fenster offen") : t("Fenster geschlossen")}"><ha-icon icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></span>` : ""}
+            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire-plus"></ha-icon></button>` : ""}
+          </div>
+        </div>
+        <div class="mstatus">
+          <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
+          ${a.dehumidifier_active ? `<span class="micon dehum" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
+          ${a.battery && a.battery.low ? `<span class="micon warn" title="${esc(t("Batterie {p} %", { p: a.battery.level }))}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon></span>` : ""}
+          ${boostOn ? `<span class="chip" style="--tone:var(--rk-heat)"><ha-icon icon="mdi:fire-plus"></ha-icon>${t("Boost")} ${a.boost_open ? "∞" : t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : ""}
+        </div>
+        ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
+        ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
+        <div class="mmain">
+          <div class="mnow">${fmt(a.current_temperature)}<small>°C</small></div>
+          <div class="mtarget">${targetText}</div>
+          ${mon ? "" : `<div class="mctrl">
+            <button class="round" data-step="-0.5" ${isOff ? "disabled" : ""} aria-label="${t("kälter")}"><ha-icon icon="mdi:minus"></ha-icon></button>
+            <button class="round" data-power aria-label="${t("an/aus")}" style="${isOff ? "" : "color:var(--tone)"}"><ha-icon icon="mdi:power"></ha-icon></button>
+            <button class="round" data-step="0.5" ${isOff ? "disabled" : ""} aria-label="${t("wärmer")}"><ha-icon icon="mdi:plus"></ha-icon></button>
+          </div>`}
+        </div>
+        ${meta ? `<div class="mmeta">${meta}</div>` : ""}
+      </ha-card>`;
+      this._bind(isOff);
+    }
     _renderInner() {
       if (!this._hass || !this._config) return;
       const st = this._hass.states[this._config.entity];
@@ -4867,6 +4949,10 @@
       this._emptySince = a.occupied === false && a.empty_since ? Date.parse(a.empty_since) : null;
       this._roomEco = !!a.room_eco;
       this._recMin = a.recommended_minutes || 5;
+      if (this._config.variant === "medium") {
+        this._renderMedium({ a, sib, mon, status, target, isOff, name, accent, winOpen });
+        return;
+      }
       let banner = "";
       if (vent && a.ventilation !== "ok" && !a.night_airing) {
         const showBar = winOpen && this._openSince && ["airing", "please_close", "done"].includes(a.ventilation);
@@ -4970,6 +5056,9 @@
           ${mon ? "" : `<span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>`}
         </div>
       </ha-card>`;
+      this._bind(isOff);
+    }
+    _bind(isOff) {
       this.shadowRoot.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => this._step(parseFloat(b.dataset.step))));
       const p = this.shadowRoot.querySelector("[data-power]");
       if (p) p.addEventListener("click", () => this._call("climate", isOff ? "turn_on" : "turn_off", { entity_id: this._config.entity }));
@@ -4981,8 +5070,8 @@
       });
       this.shadowRoot.querySelectorAll("[data-boostmain]").forEach((b) => b.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        const st2 = this._hass.states[this._config.entity];
-        const attrs = st2 && st2.attributes;
+        const st = this._hass.states[this._config.entity];
+        const attrs = st && st.attributes;
         if (attrs && (attrs.boost_until || attrs.boost_open)) {
           this._boostOpen = true;
           this._render();
@@ -5006,6 +5095,11 @@
       }));
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));
       this._tick();
+    }
+  };
+  var RaumklimaMediumCard = class extends RaumklimaCard {
+    setConfig(config) {
+      super.setConfig({ ...config, variant: "medium" });
     }
   };
 
@@ -7827,7 +7921,7 @@
         const size = (L.size || {})[r.id] || "big";
         const col = (L.color || {})[r.id] || "";
         const arrow = (dir, glyph, on) => `<button class="mini" data-lmove="${r.id}" data-dir="${dir}" ${on ? "" : "disabled"} aria-label="${dir < 0 ? t("nach oben") : t("nach unten")}">${glyph}</button>`;
-        const sizes = [["big", t("große Karte")], ["tile", t("Kachel")], ["off", t("aus")]].map(([k, lab]) => `<button class="chip2 ${size === k ? "" : "off"}" data-lsize="${r.id}" data-v="${k}">${lab}</button>`).join("");
+        const sizes = [["big", t("große Karte")], ["medium", t("mittlere Karte")], ["tile", t("Kachel")], ["off", t("aus")]].map(([k, lab]) => `<button class="chip2 ${size === k ? "" : "off"}" data-lsize="${r.id}" data-v="${k}">${lab}</button>`).join("");
         const dots = RK_LAYOUT_COLORS.map(
           (c) => `<button class="dotbtn ${col === c ? "on" : ""}" style="--c:${c}" data-lcolor="${r.id}" data-v="${c}" aria-label="${c}" title="${c}"></button>`
         ).join("");
@@ -7836,7 +7930,7 @@
         <div class="lbot"><span class="llab">${t("Farbe")}</span><div class="dots">${dots}</div></div>
       </div>`;
       }).join("");
-      const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; Größe „Kachel“ blendet die große Raumseite aus, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
+      const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; „große Karte“ zeigt die volle Raumseite, „mittlere Karte“ die kompakte Raumkarte, „Kachel“ nur die Übersicht, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
       const look = this._row(t("Dunkler Look"), this._segs("hub", "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Räume und Karten dieser Wohnung"));
       return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);
@@ -12622,7 +12716,10 @@
           // sie erscheinen nur als Kachel in der Übersicht.
           // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
           // blendet Bedienung und Sollwert selbst aus und zeigt nur Messwerte und Hinweise.
-          ...shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile").map((r) => ({ type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, grid_options: { columns: "full" } }] }))
+          ...shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile").map((r) => {
+            const size = rkLayoutSize(layout, r.id);
+            return { type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, variant: size === "medium" ? "medium" : "full", grid_options: { columns: "full" } }] };
+          })
         ]
       };
       const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });
@@ -12670,6 +12767,7 @@
 
   // src/index.js
   if (!customElements.get("raumklima-card")) customElements.define("raumklima-card", RaumklimaCard);
+  if (!customElements.get("raumklima-medium-card")) customElements.define("raumklima-medium-card", RaumklimaMediumCard);
   if (!customElements.get("raumklima-overview-card")) customElements.define("raumklima-overview-card", RaumklimaOverviewCard);
   var storedLang = null;
   try {
@@ -12682,6 +12780,7 @@
   if (!window.customCards.find((c) => c.type === "raumklima-card")) {
     window.customCards.push(
       { type: "raumklima-card", name: t("Raumklima – Raum"), description: t("Thermostat, Lüften und Klima eines Raums"), preview: true },
+      { type: "raumklima-medium-card", name: t("Raumklima – Raum kompakt"), description: t("Kompakte Raumkarte mit Ist, Ziel und schneller Regelung"), preview: true },
       { type: "raumklima-overview-card", name: t("Raumklima – Übersicht"), description: t("Alle Räume und Außenklima auf einen Blick"), preview: true },
       { type: "raumklima-settings-card", name: t("Raumklima – Einstellungen"), description: t("Was eingestellt ist, wer welche Hinweise bekommt – mit Reglern"), preview: false },
       { type: "raumklima-history-card", name: t("Raumklima – Verlauf"), description: t("Temperatur, Luftfeuchte oder Zeitleiste aller Räume"), preview: false },
