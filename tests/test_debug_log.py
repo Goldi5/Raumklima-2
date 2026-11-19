@@ -52,3 +52,15 @@ def test_alte_zeilen_fallen_raus() -> None:
 
     assert debug_log.tail(max_age_hours=6) == []
     assert [line["message"] for line in debug_log.tail(max_age_hours=24)] == ["von gestern"]
+
+
+def test_debug_level_follows_option() -> None:
+    logger = logging.getLogger("custom_components.raumklima")
+    old = logger.level
+    try:
+        debug_log.install(False)
+        assert logger.level == logging.WARNING
+        debug_log.install(True)
+        assert logger.level == logging.DEBUG
+    finally:
+        logger.setLevel(old)

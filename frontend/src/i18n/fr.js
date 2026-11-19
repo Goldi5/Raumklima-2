@@ -978,6 +978,8 @@ export const FR = {
   "feste Reihenfolge": "ordre fixe",
   "wächst mit Messungen": "augmente avec les mesures",
   "Diagnose": "Diagnostic",
+  "Debug-Protokoll": "Journal de débogage",
+  "DEBUG-Zeilen für die Diagnose mitschreiben; auf eMMC kann das Log groß werden": "Écrire les lignes DEBUG dans le diagnostic ; sur eMMC, le journal peut devenir volumineux",
   "Diagnose wird erstellt …": "Création du diagnostic …",
   "Diagnose heruntergeladen": "Diagnostic téléchargé",
   "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "Toutes les valeurs, entités et les dernières lignes de journal dans un fichier",

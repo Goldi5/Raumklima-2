@@ -161,6 +161,7 @@ CONF_BUILDING: Final = "building_type"  # unrenovated / renovated / new
 CONF_SEASON_MODE: Final = "season_mode"
 # Optik: „auto" folgt dem Theme des Nutzers (hass.themes.darkMode), sonst erzwingt der Wert.
 CONF_LOOK_DARK: Final = "look_dark"
+CONF_DEBUG_LOG: Final = "debug_log"
 LOOK_DARK_MODES: Final = ["auto", "on", "off"]  # auto / always / pause
 CONF_SEASON_START: Final = "season_start"  # "10-01"
 CONF_SEASON_END: Final = "season_end"  # "04-30"
@@ -345,6 +346,7 @@ HUB_DEFAULTS: Final = {
     CONF_FROST_FLOOR: 16.0,
     CONF_VALVE_CARE: True,
     CONF_LOOK_DARK: "auto",
+    CONF_DEBUG_LOG: True,
     CONF_NIGHT_START: "20:00:00",
     CONF_NIGHT_END: "03:00:00",
     CONF_NIGHT_ALARM: 12.0,

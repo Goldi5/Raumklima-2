@@ -26,6 +26,7 @@ from .const import (
     CONF_AC_COP,
     CONF_BUILDING,
     CONF_CALENDAR,
+    CONF_DEBUG_LOG,
     CONF_ELECTRIC_PRICE,
     CONF_ENERGY_CHEAP_PRICE,
     CONF_ENERGY_EXTRA_FEE,
@@ -128,6 +129,7 @@ OPTION_LABELS: dict[str, str] = {
     "windows": "Fensterkontakte",
     "schedules": "Zeitplan",
     "room_type": "Raumtyp",
+    "debug_log": "Debug-Protokoll",
 }
 
 
@@ -452,6 +454,9 @@ class RaumklimaHub(PresenceMixin, SleepMixin, SeasonMixin, StormMixin, NotifyMix
         """Einstellungen geändert: neu laden, ohne die Räume neu zu starten."""
         old = dict(self.config)
         self.load_config()
+        from . import debug_log
+
+        debug_log.install(bool(self.config.get(CONF_DEBUG_LOG, True)))
         changed = sorted(k for k in set(old) | set(self.config) if old.get(k) != self.config.get(k))
         if changed:
             self.log.add(

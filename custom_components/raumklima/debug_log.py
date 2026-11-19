@@ -44,21 +44,28 @@ class RingBufferHandler(logging.Handler):
                 _WARNINGS.append(line)
 
 
-def install() -> None:
-    """Handler einmalig an den Integrations-Logger hängen."""
+def install(enabled: bool = True) -> None:
+    """Handler einmalig an den Integrations-Logger hängen und Level setzen.
+
+    ``enabled`` kommt aus der Option „Debug-Protokoll“. Ist sie aus, bleibt das HA-Log
+    beim eingestellten Level (bzw. WARNING), der Ringpuffer sammelt weiter Warnungen.
+    """
     global _INSTALLED
-    if _INSTALLED:
-        return
     logger = logging.getLogger("custom_components.raumklima")
-    if any(isinstance(handler, RingBufferHandler) for handler in logger.handlers):
-        _INSTALLED = True
-        return
-    handler = RingBufferHandler(level=logging.DEBUG)
-    logger.addHandler(handler)
-    # Nur dieser Logger wird gesprächiger – andere Integrationen und der HA-Kern nicht.
-    if logger.level == logging.NOTSET or logger.level > logging.DEBUG:
-        logger.setLevel(logging.DEBUG)
-    _INSTALLED = True
+    if not _INSTALLED:
+        if any(isinstance(handler, RingBufferHandler) for handler in logger.handlers):
+            _INSTALLED = True
+        else:
+            handler = RingBufferHandler(level=logging.DEBUG)
+            logger.addHandler(handler)
+            _INSTALLED = True
+    if enabled:
+        # Nur dieser Logger wird gesprächiger – andere Integrationen und der HA-Kern nicht.
+        if logger.level == logging.NOTSET or logger.level > logging.DEBUG:
+            logger.setLevel(logging.DEBUG)
+    elif logger.level == logging.NOTSET or logger.level <= logging.DEBUG:
+        # Aus: nicht den DEBUG-Level weiter ins HA-Log schreiben lassen.
+        logger.setLevel(logging.WARNING)
 
 
 def tail(limit: int = MAX_LINES, max_age_hours: float | None = MAX_AGE_HOURS) -> list[dict[str, Any]]:

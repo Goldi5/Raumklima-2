@@ -28,6 +28,7 @@ export const SystemSectionMethods = {
       this._row("Offene Hinweise", this._v(String(((c.hub && c.hub.state && c.hub.state.issues) || []).length), false), t("Gesundheit der Heizung")),
       this._row("Karte", this._v(RK_VERSION, false), t("Version der Karte im Browser")),
       this._row("Datenquelle", this._v("WebSocket", false), t("Live-Verbindung zur Integration")),
+      this._row("Debug-Protokoll", this._optToggle("hub", "debug_log", this._hubOpt("debug_log") ?? true), t("DEBUG-Zeilen für die Diagnose mitschreiben; auf eMMC kann das Log groß werden")),
       this._row("Werkzeuge", `<div class="chips"><button class="btn" data-selftest style="--c:var(--rk-ok)"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button><button class="btn" data-bug style="--c:var(--rk-warn)"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button></div>`, t("Selbsttest, Diagnose-Datei oder Fehlerbericht öffnen")),
     ];
     return this._grp("advanced", "System & Diagnose", "mdi:cog-outline", "off", rows.join(""), "span");

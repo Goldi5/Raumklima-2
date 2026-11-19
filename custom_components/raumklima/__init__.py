@@ -17,6 +17,7 @@ from homeassistant.helpers.typing import ConfigType
 from .areas import assign_room_area
 from .const import (
     CARD_URL,
+    CONF_DEBUG_LOG,
     CONF_ENTRY_TYPE,
     CONF_NOTIFY,
     CONF_NOTIFY_TARGETS,
@@ -190,7 +191,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: RaumklimaConfigEntry) ->
     from .shared import domain_data
 
     if is_hub_entry(entry):
+        from . import debug_log
         hub = RaumklimaHub(hass, entry)
+        debug_log.install(bool(hub.config.get(CONF_DEBUG_LOG, True)))
         entry.runtime_data = hub
         data = domain_data(hass)
         data["hubs"][entry.entry_id] = hub

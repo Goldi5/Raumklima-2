@@ -978,6 +978,8 @@ export const EN = {
   "feste Reihenfolge": "fixed order",
   "wächst mit Messungen": "grows with measurements",
   "Diagnose": "Diagnostics",
+  "Debug-Protokoll": "Debug log",
+  "DEBUG-Zeilen für die Diagnose mitschreiben; auf eMMC kann das Log groß werden": "Write DEBUG lines to the diagnostics; on eMMC the log can grow large",
   "Diagnose wird erstellt …": "Creating diagnostics …",
   "Diagnose heruntergeladen": "Diagnostics downloaded",
   "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "All values, entities and the latest log lines in one file",

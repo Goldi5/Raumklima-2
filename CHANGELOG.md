@@ -1,3 +1,13 @@
+## 2.0.1b5 – 2026-11-19
+
+### Neu
+- **Debug-Protokoll abschaltbar (#66):** In *System & Diagnose* gibt es jetzt den Schalter „Debug-Protokoll“, standardmäßig an. Aus: Raumklima setzt den Logger nicht auf DEBUG, das HA-Log bleibt beim eingestellten Level; der Ringpuffer sammelt weiterhin Warnungen und Fehler für die Diagnose.
+
+### Tests
+- Regressionstest für den Logger-Level je Schalterstellung.
+- Backend: 737 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 736 grün, ein bekannter Test zum Automatik-Modus bleibt offen.
+- Frontend: 125 Tests grün.
+
 ## 2.0.1b4 – 2026-11-19
 
 ### Behoben

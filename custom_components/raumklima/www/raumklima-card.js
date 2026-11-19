@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b4 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b5 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -977,6 +977,8 @@
     "feste Reihenfolge": "fixed order",
     "wächst mit Messungen": "grows with measurements",
     "Diagnose": "Diagnostics",
+    "Debug-Protokoll": "Debug log",
+    "DEBUG-Zeilen für die Diagnose mitschreiben; auf eMMC kann das Log groß werden": "Write DEBUG lines to the diagnostics; on eMMC the log can grow large",
     "Diagnose wird erstellt …": "Creating diagnostics …",
     "Diagnose heruntergeladen": "Diagnostics downloaded",
     "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "All values, entities and the latest log lines in one file",
@@ -2685,6 +2687,8 @@
     "feste Reihenfolge": "ordre fixe",
     "wächst mit Messungen": "augmente avec les mesures",
     "Diagnose": "Diagnostic",
+    "Debug-Protokoll": "Journal de débogage",
+    "DEBUG-Zeilen für die Diagnose mitschreiben; auf eMMC kann das Log groß werden": "Écrire les lignes DEBUG dans le diagnostic ; sur eMMC, le journal peut devenir volumineux",
     "Diagnose wird erstellt …": "Création du diagnostic …",
     "Diagnose heruntergeladen": "Diagnostic téléchargé",
     "Alle Werte, Entitäten und die letzten Log-Zeilen als Datei": "Toutes les valeurs, entités et les dernières lignes de journal dans un fichier",
@@ -3457,7 +3461,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b4";
+  var RK_VERSION = "2.0.1b5";
 
   // src/styles.js
   var STYLES = `
@@ -7410,6 +7414,7 @@
         this._row("Offene Hinweise", this._v(String((c.hub && c.hub.state && c.hub.state.issues || []).length), false), t("Gesundheit der Heizung")),
         this._row("Karte", this._v(RK_VERSION, false), t("Version der Karte im Browser")),
         this._row("Datenquelle", this._v("WebSocket", false), t("Live-Verbindung zur Integration")),
+        this._row("Debug-Protokoll", this._optToggle("hub", "debug_log", this._hubOpt("debug_log") ?? true), t("DEBUG-Zeilen für die Diagnose mitschreiben; auf eMMC kann das Log groß werden")),
         this._row("Werkzeuge", `<div class="chips"><button class="btn" data-selftest style="--c:var(--rk-ok)"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button><button class="btn" data-bug style="--c:var(--rk-warn)"><ha-icon icon="mdi:bug-outline"></ha-icon>${t("Fehler melden")}</button></div>`, t("Selbsttest, Diagnose-Datei oder Fehlerbericht öffnen"))
       ];
       return this._grp("advanced", "System & Diagnose", "mdi:cog-outline", "off", rows.join(""), "span");
