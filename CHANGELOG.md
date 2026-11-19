@@ -1,3 +1,13 @@
+## 2.0.1b2 – 2026-11-19
+
+### Behoben
+- **Anwesenheit ohne Handy-App (#60):** Wer nur über WLAN/Router als `home` gemeldet wird und keine GPS-Koordinaten liefert, gilt jetzt trotzdem als anwesend. Bisher zählte nach der Startphase nur GPS; die Heizung senkte ab, obwohl die Person zu Hause war. Sobald Koordinaten vorliegen, entscheidet weiterhin die GPS-Entfernung.
+- **Abwesenheit bleibt eindeutig:** `not_home` ohne GPS zählt weiterhin als abwesend; „unknown“ oder „unavailable“ wird nicht als anwesend gewertet.
+
+### Tests
+- Person `home` ohne GPS bleibt dauerhaft anwesend; `not_home` ohne GPS bleibt abwesend; direkter Tracker zählt ebenfalls.
+- Backend: 733 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 732 grün, ein bekannter Test zum Automatik-Modus bleibt offen.
+
 ## 2.0.1b1 – 2026-11-19
 
 ### Neu

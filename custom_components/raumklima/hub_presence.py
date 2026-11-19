@@ -64,7 +64,6 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 PREHEAT_HOLD = timedelta(minutes=90)
-PRESENCE_STARTUP_GRACE = timedelta(minutes=10)  # so lange gilt nach dem Start der Zustand der Person-Entität
 CALENDAR_REFRESH = timedelta(seconds=60)
 CALENDAR_OTHER_REFRESH = timedelta(minutes=10)  # weitere Kalender seltener abfragen
 
@@ -152,7 +151,7 @@ class PresenceMixin:
         return (now - since) >= timedelta(minutes=float(self.opt(CONF_WORK_ZONE_MINUTES) or 0))
 
     def _person_status(self, person: str, geo: tuple[float, float, float], now: datetime) -> dict[str, Any]:
-        """Ist eine Person da? Zählt, sobald irgendeins ihrer Handys in der Zone ist."""
+        """Ist eine Person da? GPS-Koordinaten haben Vorrang, sonst zählt der Zustand „home“."""
         state = self.hass.states.get(person)
         name = state.name if state else person
         present = False
@@ -169,7 +168,7 @@ class PresenceMixin:
             lat = to_float(tstate.attributes.get("latitude"))
             lon = to_float(tstate.attributes.get("longitude"))
             if lat is None or lon is None:
-                continue  # Router-/Bluetooth-Tracker ohne Koordinaten ignorieren
+                continue  # ohne Koordinaten keine Entfernung – der Zustand „home“ zählt unten
             when = getattr(tstate, "last_reported", None) or tstate.last_updated
             accuracy = to_float(tstate.attributes.get("gps_accuracy")) or 0.0
             flt = self._filters.setdefault(tracker, TrackerFilter())
@@ -195,16 +194,9 @@ class PresenceMixin:
             if dist * 1000 <= geo[2] + min(fix.accuracy, 100.0):
                 present = True
             distance = dist if distance is None else min(distance, dist)
-        if (
-            not present
-            and distance is None
-            and state is not None
-            and state.state == "home"
-            and (self._presence_since is None or now - self._presence_since < PRESENCE_STARTUP_GRACE)
-        ):
-            # Direkt nach dem Start liefern die Handys oft noch keine Koordinaten. Ohne diese
-            # Zeile gilt dann kurz „niemand zu Hause“: Absenkung, Fenster-Alarm, Nachtlüften weg.
-            # Die Person-Entität kennt ihren letzten Zustand schon – den bis dahin übernehmen.
+        if not present and distance is None and state is not None and state.state == "home":
+            # Ohne GPS (z. B. nur WLAN/Router) ist der Personen-Zustand die einzige Quelle.
+            # Sobald Koordinaten vorliegen, entscheidet oben die echte Entfernung.
             present = True
         hist = self._history.setdefault(person, deque(maxlen=60))
         if distance is not None and (not hist or abs(hist[-1][1] - distance) > 0.05):

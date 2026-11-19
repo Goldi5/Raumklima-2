@@ -50,19 +50,47 @@ async def test_tracker_direkt_als_bewohner(hass: HomeAssistant, trv: FakeTrv, se
     assert live.persons["device_tracker.handy"]["present"] is True
 
 
-async def test_nach_dem_start_zaehlt_der_personen_zustand(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
-    """Direkt nach dem Neustart fehlen oft noch Koordinaten: „home“ der Person zählt, statt kurz „niemand da“."""
+async def test_tracker_direkt_home_ohne_koordinaten(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """Auch ein direkt eingetragener Tracker zählt ohne GPS über seinen Zustand „home“."""
+    _zone(hass)
+    hass.states.async_set("device_tracker.handy", "home")
+    await _setup(hass, {CONF_RESIDENTS: ["device_tracker.handy"], CONF_ZONE: "zone.home"})
+    live = get_hub(hass, None)
+    live._evaluate_presence()
+    assert live.persons["device_tracker.handy"]["present"] is True
+    assert live.persons["device_tracker.handy"]["distance_km"] is None
+
+
+async def test_personen_zustand_home_zaehlt_auch_ohne_ortung(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """Ohne GPS (z. B. nur WLAN/Router) bleibt „home“ der Person dauerhaft anwesend."""
     from datetime import timedelta
 
     _zone(hass)
     hass.states.async_set("person.b", "home", {"device_trackers": ["device_tracker.handy"]})
-    hass.states.async_set("device_tracker.handy", "home")  # noch ohne Koordinaten
+    hass.states.async_set("device_tracker.handy", "home")  # ohne Koordinaten
     await _setup(hass, {CONF_RESIDENTS: ["person.b"], CONF_ZONE: "zone.home"})
     live = get_hub(hass, None)
     live._evaluate_presence()
     assert live.persons["person.b"]["present"] is True
+    assert live.persons["person.b"]["distance_km"] is None
     assert not live.nobody_home
 
-    freezer.tick(timedelta(minutes=11))  # nach der Startphase zählt wieder nur die Ortung
+    freezer.tick(timedelta(minutes=11))
+    live._evaluate_presence()
+    assert live.persons["person.b"]["present"] is True
+
+
+async def test_personen_zustand_not_home_ohne_ortung_bleibt_weg(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """„not_home“ ohne GPS zählt weiterhin als abwesend."""
+    from datetime import timedelta
+
+    _zone(hass)
+    hass.states.async_set("person.b", "not_home", {"device_trackers": ["device_tracker.handy"]})
+    hass.states.async_set("device_tracker.handy", "not_home")  # ohne Koordinaten
+    await _setup(hass, {CONF_RESIDENTS: ["person.b"], CONF_ZONE: "zone.home"})
+    live = get_hub(hass, None)
+    live.last_present = None
+    freezer.tick(timedelta(minutes=16))
     live._evaluate_presence()
     assert live.persons["person.b"]["present"] is False
+    assert live.persons["person.b"]["distance_km"] is None
