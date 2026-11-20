@@ -348,6 +348,14 @@ class ExtraTrv:
         except Exception as err:  # noqa: BLE001 – eine Quelle darf die anderen nicht aufhalten
             _LOGGER.warning("%s: Klimaanlage %s (Kühlen): %s", self.c.name, self.entity_id, err)
 
+    @property
+    def offset(self) -> float:
+        """Fester Zusatz-Sollwert aus den Heizquellen (z. B. +0,5 K für einen trägen TRV)."""
+        for src in self.c.source_cfg:
+            if src.get("entity") == self.entity_id:
+                return float(src.get("offset") or 0.0)
+        return 0.0
+
     def summary(self) -> dict[str, Any]:
         return {
             "entity_id": self.entity_id,
@@ -357,9 +365,10 @@ class ExtraTrv:
             "setpoint": to_float(self.attr(ATTR_TEMPERATURE)),
             "valve": self.valve,
             "sync": self.sync.state,
-            # Was am Gerät stehen müsste – pro Gerät eigener Abgleich, deshalb nicht der Raumwert.
+            "offset": self.offset,
+            # Was am Gerät stehen müsste – pro Gerät eigener Abgleich und Offset.
             "setpoint_expected": (
-                self.setpoint_for(self.c.effective_target) if self.available() else None
+                self.setpoint_for(self.c.effective_target + self.offset) if self.available() else None
             ),
             "calibration_entity": self.cal_entity,
         }

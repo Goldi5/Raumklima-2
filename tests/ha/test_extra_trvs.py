@@ -120,3 +120,20 @@ async def test_source_offset_is_added(hass: HomeAssistant, trv: FakeTrv, trv2: F
     c = room.runtime_data
     await hass.async_block_till_done()
     assert trv2.setpoint == pytest.approx(c.target_temp + 1.0, abs=0.5)
+    assert c.settings_summary()["extra_trvs"][0]["offset"] == 1.0
+
+
+async def test_source_config_appends_missing_extras(hass: HomeAssistant, trv: FakeTrv, trv2: FakeTrv, sensors) -> None:
+    """Konfigurierte Quelle mit Offset – übrige Zusatz-Thermostate bleiben mit Offset 0 erhalten."""
+    from custom_components.raumklima.const import CONF_HEAT_SOURCES
+
+    _hub, room = await _setup(hass, extra_trvs=[TRV2])
+    c = room.runtime_data
+    c.config[CONF_HEAT_SOURCES] = [
+        {"id": "src1", "entity": "climate.other", "name": "Other", "type": "trv", "offset": 1.0}
+    ]
+    c._extra_ids = [TRV2]
+    cfg = c._source_config()
+    assert [s["entity"] for s in cfg] == ["climate.other", TRV2]
+    assert cfg[0]["offset"] == 1.0
+    assert cfg[1]["offset"] == 0.0

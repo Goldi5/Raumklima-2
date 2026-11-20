@@ -1,3 +1,14 @@
+## 2.0.1b6 – 2026-11-20
+
+### Behoben
+- **Offset pro Heizkörper (#67):** Weitere Thermostate, die noch nicht in `heat_sources` stehen, werden beim Anlegen einer Quelle nicht mehr aus der Regelung geworfen. Sie laufen mit Offset 0 weiter. Ein einzelner TRV kann jetzt unter *Heizquellen* einen eigenen Offset bekommen (z. B. +0,5 K), damit ein langsamer Heizkörper früher anläuft. Die Anzeige „Weitere Thermostate“ und die erwartete Solltemperatur berücksichtigen den Offset.
+
+### Tests
+- Regressionstest für `_source_config`: konfigurierte Quelle mit Offset, übrige Zusatz-Thermostate bleiben mit Offset 0 erhalten.
+- Offset im Summary eines weiteren Thermostats.
+- Backend: 738 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 737 grün, ein bekannter Test zum Automatik-Modus bleibt offen.
+- Frontend: 125 Tests grün.
+
 ## 2.0.1b5 – 2026-11-19
 
 ### Neu

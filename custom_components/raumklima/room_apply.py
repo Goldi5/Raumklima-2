@@ -76,16 +76,23 @@ class ApplyMixin:
             self._bosch_manual_pending = False
 
     def _source_config(self) -> list[dict[str, Any]]:
-        """Heizquellen (TRV/AC) mit Metadaten; ohne Konfiguration aus den Zusatz-Thermostaten."""
+        """Heizquellen (TRV/AC) mit Metadaten.
+
+        Konfigurierte Quellen bekommen ihren Offset. Zusatz-Thermostate, die noch nicht
+        in ``heat_sources`` stehen, werden mit Offset 0 ergänzt – sonst würde das
+        Anlegen einer einzigen Quelle die übrigen Thermostate aus der Regelung werfen.
+        """
         raw = self.config.get(CONF_HEAT_SOURCES)
         out: list[dict[str, Any]] = []
-        if isinstance(raw, list) and raw:
+        configured: set[str] = set()
+        if isinstance(raw, list):
             for i, item in enumerate(raw):
                 if not isinstance(item, dict):
                     continue
                 eid = str(item.get("entity") or "").strip()
                 if not eid or eid == self.trv:
                     continue
+                configured.add(eid)
                 out.append({
                     "id": str(item.get("id") or f"src{i + 1}"),
                     "entity": eid,
@@ -95,11 +102,19 @@ class ApplyMixin:
                     "trigger": str(item.get("trigger") or ""),
                     "untouched": bool(item.get("untouched")),
                 })
-            return out
-        return [
-            {"id": f"extra:{e}", "entity": e, "name": e, "type": "trv", "offset": 0.0, "trigger": "", "untouched": False}
-            for e in self._extra_ids
-        ]
+        for e in self._extra_ids:
+            if e in configured or e == self.trv:
+                continue
+            out.append({
+                "id": f"extra:{e}",
+                "entity": e,
+                "name": e,
+                "type": "trv",
+                "offset": 0.0,
+                "trigger": "",
+                "untouched": False,
+            })
+        return out
 
     @property
     def all_sources(self) -> list[dict[str, Any]]:
