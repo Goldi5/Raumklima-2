@@ -547,6 +547,8 @@ export const FR = {
   "Raumklima – Übersicht": "Raumklima – Aperçu",
   "Raumtemperatur": "Température de la pièce",
   "Raumtyp": "Type de pièce",
+  "Gespeicherte Werte": "Valeurs enregistrées",
+  "CO₂-Grenze · Hinweise pro Tag · Meldetakt des Thermostats": "Limite CO₂ · notifications par jour · intervalle de rapport du thermostat",
   "Ruhezeit": "Heures calmes",
   "Ruhezeit gerade aktiv": "Heures calmes actives",
   "Ruhezeit wirksam": "Heures calmes effectives",

@@ -279,8 +279,8 @@ def _devices_schema(
         )
     fields.update(
         {
-            vol.Required(
-                CONF_TEMP_SENSOR, default=defaults.get(CONF_TEMP_SENSOR, vol.UNDEFINED)
+            vol.Optional(
+                CONF_TEMP_SENSOR, description=_suggest(defaults.get(CONF_TEMP_SENSOR))
             ): EntitySelector(EntitySelectorConfig(domain="sensor", device_class="temperature")),
             vol.Optional(
                 CONF_HUMIDITY_SENSOR, description=_suggest(defaults.get(CONF_HUMIDITY_SENSOR))
@@ -601,7 +601,9 @@ class RaumklimaConfigFlow(ConfigFlow, domain=DOMAIN):
         """Schritt 2: Fühler & Fenster – vorgeschlagen aus dem Bereich."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            if user_input[CONF_TEMP_SENSOR] == self._data[CONF_TRV]:
+            temp = user_input.get(CONF_TEMP_SENSOR) or ""
+            user_input[CONF_TEMP_SENSOR] = temp
+            if temp and temp == self._data[CONF_TRV]:
                 errors[CONF_TEMP_SENSOR] = "same_entity"
             elif self._data[CONF_TRV] in (user_input.get(CONF_EXTRA_TRVS) or []):
                 errors[CONF_EXTRA_TRVS] = "extra_is_main"
@@ -735,6 +737,7 @@ class RaumklimaOptionsFlow(OptionsFlowWithReload):
             return await self.async_step_home()
         errors: dict[str, str] = {}
         if user_input is not None:
+            user_input[CONF_TEMP_SENSOR] = user_input.get(CONF_TEMP_SENSOR) or ""
             user_input.setdefault(CONF_HUMIDITY_SENSOR, None)
             user_input.setdefault(CONF_WINDOWS, [])
             user_input.setdefault(CONF_EXTRA_TRVS, [])

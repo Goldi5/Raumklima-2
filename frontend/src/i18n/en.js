@@ -547,6 +547,8 @@ export const EN = {
   "Raumklima – Übersicht": "Raumklima – Overview",
   "Raumtemperatur": "Room temperature",
   "Raumtyp": "Room type",
+  "Gespeicherte Werte": "Saved values",
+  "CO₂-Grenze · Hinweise pro Tag · Meldetakt des Thermostats": "CO₂ limit · notifications per day · thermostat report interval",
   "Ruhezeit": "Quiet hours",
   "Ruhezeit gerade aktiv": "Quiet hours active",
   "Ruhezeit wirksam": "Effective quiet hours",

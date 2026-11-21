@@ -29,6 +29,9 @@ export const RoomMethods = {
     const sbShort = this._roomOpt(r, "setback_short") ?? s.setback_short;
     const sbLong = this._roomOpt(r, "setback_long") ?? s.setback_long;
     const frost = this._roomOpt(r, "frost_temperature") ?? s.frost_temperature ?? 5;
+    const co2 = this._roomOpt(r, "co2_limit") ?? 1000;
+    const notifyCap = this._roomOpt(r, "notify_cap") ?? 3;
+    const trvInterval = this._roomOpt(r, "trv_interval") ?? s.trv_interval ?? 0;
     const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
     const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
     const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
@@ -68,6 +71,7 @@ export const RoomMethods = {
         this._row("Wunschtemperatur", editable ? this._num(scope, "comfort_temperature", comfort) : this._v(`${fmt(comfort)} °C`), "beim Einschalten und als Grundwert", this._srcBadge(r, "comfort_temperature")),
         this._row("Raumtyp", editable ? this._select(scope, "room_type", Object.entries(RK_ROOM_TYPES).map(([k, v]) => ({ id: k, name: v })), roomType) : this._v(RK_ROOM_TYPES[roomType] || "–"),
           t("jederzeit änderbar – Standardwerte des neuen Typs werden übernommen, eigene Werte bleiben")),
+        this._row("Gespeicherte Werte", `<div class="chips"><span class="chip2">CO₂ ${fmt(co2, 0)} ppm</span><span class="chip2">${notifyCap === 0 ? t("unbegrenzt") : t("{n} je Tag", { n: notifyCap })}</span><span class="chip2">${trvInterval === 0 ? t("automatisch") : t("{n} min", { n: trvInterval })}</span></div>`, "CO₂-Grenze · Hinweise pro Tag · Meldetakt des Thermostats"),
         ((this._cfg && this._cfg.homes) || []).length > 1 ? this._row("Wohnung", editable ? this._select(scope, "home", this._cfg.homes.map((h) => ({ id: h.entry_id, name: h.name })), a.home || "") : this._v(esc(a.home_name || "–")), "Raum gehört zu dieser Wohnung (Bewohner, Zone, Empfänger)") : "",
         this._row("Absenkung „kurz weg“", editable ? this._num(scope, "setback_short", sbShort) : this._v(`${fmt(sbShort)} °C`), "wenn alle weg sind", this._srcBadge(r, "setback_short")),
         this._row("Absenkung „länger weg“", editable ? this._num(scope, "setback_long", sbLong) : this._v(`${fmt(sbLong)} °C`), "ab 24 h oder Urlaub – Schimmelschutz hält feuchte Räume wärmer", this._srcBadge(r, "setback_long")),

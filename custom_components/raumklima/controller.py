@@ -169,7 +169,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         # Leeres Thermostat = Überwachungsraum (nur Sensoren, keine Heizung)
         self.trv: str = str(self.config.get(CONF_TRV) or "")
         self.monitor: bool = not self.trv
-        self.temp_sensor: str = self.config[CONF_TEMP_SENSOR]
+        self.temp_sensor: str = str(self.config.get(CONF_TEMP_SENSOR) or "")
         self.humidity_sensor: str | None = self.config.get(CONF_HUMIDITY_SENSOR)
         self.co2_sensor: str | None = self.config.get(CONF_CO2_SENSOR) or None
         self.pm25_sensor: str | None = self.config.get(CONF_PM25_SENSOR) or None

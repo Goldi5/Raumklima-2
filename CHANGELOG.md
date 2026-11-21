@@ -1,3 +1,13 @@
+## 2.0.1b7 – 2026-11-21
+
+### Behoben
+- **Externen Temperaturfühler entfernen (#68):** Das Feld ist in der Gerätekonfiguration jetzt optional. Ohne externen Fühler fällt Raumklima auf den Fühler des Thermostats zurück. Der alte Pflichtwert verhinderte das Entfernen.
+- **Gespeicherte Werte sichtbar (#69):** Die Raum-Einstellungen zeigen jetzt eine kompakte Übersicht „Gespeicherte Werte“ mit CO₂-Grenze, Hinweisen pro Tag und Meldetakt. Damit sind die Werte sofort sichtbar, auch wenn sie in den Untergruppen oder ohne CO₂-Sensor stehen.
+
+### Tests
+- Backend: 738 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 737 grün, ein bekannter Test zum Automatik-Modus bleibt offen.
+- Frontend: 125 Tests grün.
+
 ## 2.0.1b6 – 2026-11-20
 
 ### Behoben
