@@ -1713,4 +1713,9 @@ export const FR = {
   "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement",
   "keine Klimaanlage": "pas de climatisation",
   "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Ajoute la climatisation dans l’onglet « Sources de chaleur » avec « Ajouter une source » – la pièce peut alors refroidir et chauffer avec elle",
+  "Wärmepumpe lädt Warmwasser": "La pompe à chaleur charge l’eau chaude",
+  "Wärmepumpe taut ab": "La pompe à chaleur dégivre",
+  "Sperrzeit des Netzbetreibers": "Période de blocage du gestionnaire de réseau",
+  "Thermostat misst am Heizkörper schon {v} °C": "Le thermostat mesure déjà {v} °C au radiateur",
+  "Ventil ist zu": "La vanne est fermée",
 };

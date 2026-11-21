@@ -1713,4 +1713,9 @@ export const EN = {
   "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "Air conditioning cools when the room is above the cooling limit",
   "keine Klimaanlage": "no air conditioner",
   "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Add the air conditioner in the “Heat sources” tab with “Add source” – then the room can cool and heat with it",
+  "Wärmepumpe lädt Warmwasser": "Heat pump is charging hot water",
+  "Wärmepumpe taut ab": "Heat pump is defrosting",
+  "Sperrzeit des Netzbetreibers": "Grid operator lock period",
+  "Thermostat misst am Heizkörper schon {v} °C": "Thermostat already measures {v} °C at the radiator",
+  "Ventil ist zu": "Valve is closed",
 };

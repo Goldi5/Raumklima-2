@@ -1,4 +1,4 @@
-import { rkDark, rkLook, rkLookStyles, moldBadge, STATUS, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkTime, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkDark, rkLook, rkLookStyles, moldBadge, STATUS, statusFor, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkTime, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 // Boost-Fenster: Zeitstrahl und Auswahl (eigene Styles, damit die Karte unverändert bleibt)
 const BOOST_CSS = `
@@ -300,7 +300,7 @@ export class RaumklimaCard extends HTMLElement {
     const a = st.attributes;
     const sib = this._siblings();
     const mon = a.monitor === true;
-    const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : (STATUS[a.status] || STATUS.idle);
+    const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : statusFor(a);
     let vent = VENT[a.ventilation] || null;
     // Bei Dauerlüftung / gewohntem Lüften nicht „bitte schließen" anzeigen – es wird nicht gemahnt.
     if (vent && a.ventilation === "please_close" && a.airing_phase) {

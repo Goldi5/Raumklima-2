@@ -54,3 +54,19 @@ def test_haengendes_zusatzgeraet_wird_mit_namen_gemeldet() -> None:
     assert issue.code == "setpoint_ignored"
     assert issue.title.startswith("Flur - Thermostat Tür")
     assert "21.0" in issue.message and "19.0" in issue.message
+
+
+async def test_raum_heizt_wenn_ein_zusatzgeraet_heizt(hass: HomeAssistant, trv: FakeTrv, sensors: None) -> None:
+    """Haupt-Thermostat zu, Zusatzgerät offen: der Raum heizt (Rückmeldung aus der Facebook-Gruppe)."""
+    from homeassistant.components.climate import HVACAction
+
+    _hub, room = await _setup(hass)
+    ctrl = hass.data[DOMAIN]["rooms"][room.entry_id]
+    extra = ctrl.extra_trvs[0]
+    hass.states.async_set(EXTRA, "heat", {"temperature": 22.0, "current_temperature": 18.5, "hvac_action": "heating"})
+    assert extra.heating is True
+    hass.states.async_set(EXTRA, "heat", {"temperature": 22.0, "current_temperature": 18.5, "valve_position": 0})
+    assert extra.heating is False
+    hass.states.async_set(EXTRA, "heat", {"temperature": 22.0, "current_temperature": 18.5, "valve_position": 40})
+    if ctrl._main_hvac_action() == HVACAction.IDLE:
+        assert ctrl.hvac_action == HVACAction.HEATING

@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b8 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b9 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1709,7 +1709,12 @@
     "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optional: power use of the whole house in kWh – or choose grid import, PV yield and feed-in and Raumklima calculates it",
     "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "Air conditioning cools when the room is above the cooling limit",
     "keine Klimaanlage": "no air conditioner",
-    "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Add the air conditioner in the “Heat sources” tab with “Add source” – then the room can cool and heat with it"
+    "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Add the air conditioner in the “Heat sources” tab with “Add source” – then the room can cool and heat with it",
+    "Wärmepumpe lädt Warmwasser": "Heat pump is charging hot water",
+    "Wärmepumpe taut ab": "Heat pump is defrosting",
+    "Sperrzeit des Netzbetreibers": "Grid operator lock period",
+    "Thermostat misst am Heizkörper schon {v} °C": "Thermostat already measures {v} °C at the radiator",
+    "Ventil ist zu": "Valve is closed"
   };
 
   // src/i18n/fr.js
@@ -3421,7 +3426,12 @@
     "optional: Stromverbrauch des ganzen Hauses in kWh – oder Netzbezug, PV-Ertrag und Einspeisung wählen, dann rechnet Raumklima ihn aus": "optionnel : consommation de toute la maison en kWh – ou choisis soutirage, production PV et injection, Raumklima la calcule",
     "Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt": "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement",
     "keine Klimaanlage": "pas de climatisation",
-    "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Ajoute la climatisation dans l’onglet « Sources de chaleur » avec « Ajouter une source » – la pièce peut alors refroidir et chauffer avec elle"
+    "Klimaanlage im Reiter „Heizquellen“ mit „Quelle hinzufügen“ eintragen – dann kann der Raum kühlen und mit der Klimaanlage heizen": "Ajoute la climatisation dans l’onglet « Sources de chaleur » avec « Ajouter une source » – la pièce peut alors refroidir et chauffer avec elle",
+    "Wärmepumpe lädt Warmwasser": "La pompe à chaleur charge l’eau chaude",
+    "Wärmepumpe taut ab": "La pompe à chaleur dégivre",
+    "Sperrzeit des Netzbetreibers": "Période de blocage du gestionnaire de réseau",
+    "Thermostat misst am Heizkörper schon {v} °C": "Le thermostat mesure déjà {v} °C au radiateur",
+    "Ventil ist zu": "La vanne est fermée"
   };
 
   // src/i18n.js
@@ -3465,7 +3475,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b8";
+  var RK_VERSION = "2.0.1b9";
 
   // src/styles.js
   var STYLES = `
@@ -4194,6 +4204,20 @@
     setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
     night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" }
   });
+  function waitReasonText(r) {
+    if (!r || !r.kind) return "";
+    if (r.kind === "dhw") return t("Wärmepumpe lädt Warmwasser");
+    if (r.kind === "defrost") return t("Wärmepumpe taut ab");
+    if (r.kind === "lock") return t("Sperrzeit des Netzbetreibers");
+    if (r.kind === "trv_satisfied") return t("Thermostat misst am Heizkörper schon {v} °C", { v: fmt(r.value) });
+    if (r.kind === "valve_closed") return t("Ventil ist zu");
+    return "";
+  }
+  function statusFor(a) {
+    const s = STATUS[a.status] || STATUS.idle;
+    const why = a.status === "waiting" ? waitReasonText(a.wait_reason) : "";
+    return why ? { ...s, label: `${s.label} – ${why}`, reason: why } : s;
+  }
   var PRESENCE = tmap({
     home: { label: "Jemand da", icon: "mdi:home-account", tone: "ok" },
     guests: { label: "Gäste da", icon: "mdi:account-group", tone: "ok" },
@@ -4938,7 +4962,7 @@
       const a = st.attributes;
       const sib = this._siblings();
       const mon = a.monitor === true;
-      const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : STATUS[a.status] || STATUS.idle;
+      const status = mon ? { label: t("Überwachung"), icon: "mdi:eye-outline", tone: "eco" } : statusFor(a);
       let vent = VENT[a.ventilation] || null;
       if (vent && a.ventilation === "please_close" && a.airing_phase) {
         const phases = {
@@ -5242,7 +5266,7 @@
       const row = (r) => {
         const a = r.attributes;
         const mon = a.monitor === true;
-        const s = mon ? { label: t("Überwachung"), tone: "eco", icon: "mdi:eye-outline" } : STATUS[a.status] || STATUS.idle;
+        const s = mon ? { label: t("Überwachung"), tone: "eco", icon: "mdi:eye-outline" } : statusFor(a);
         const v = VENT[a.ventilation];
         const off = r.state === "off";
         const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;

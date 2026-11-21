@@ -37,6 +37,7 @@ from .const import (
     SETPOINT_MATCH_TOLERANCE,
     SETPOINT_SHIFT_LIMIT,
     SLOW_RETRY_INTERVAL,
+    VALVE_HEATING_MIN,
 )
 from .decision_log import CAT_DEVICE, fmt_temp
 from .health import Issue
@@ -143,6 +144,16 @@ class ExtraTrv:
             return None
         st = self.hass.states.get(self.valve_sensor)
         return to_float(st.state) if st else None
+
+    @property
+    def heating(self) -> bool:
+        """Heizt dieses Thermostat gerade? Ventilstellung zuerst, sonst sein eigenes Signal."""
+        valve = self.valve
+        if valve is None:
+            valve = to_float(self.attr("valve_position"))
+        if valve is not None:
+            return valve >= VALVE_HEATING_MIN
+        return self.attr("hvac_action") == "heating" or self.attr("running_state") == "heat"
 
     def tracked(self) -> list[str]:
         return [e for e in (self.entity_id, self.cal_entity) if e]

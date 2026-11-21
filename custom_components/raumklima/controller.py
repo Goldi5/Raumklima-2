@@ -899,6 +899,13 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
     @property
     def hvac_action(self) -> HVACAction:
+        """Heizt der Raum? Mit mehreren Thermostaten reicht es, wenn eines heizt (Facebook/Robert)."""
+        action = self._main_hvac_action()
+        if action == HVACAction.IDLE and any(x.available() and x.heating for x in self.extra_trvs):
+            return HVACAction.HEATING
+        return action
+
+    def _main_hvac_action(self) -> HVACAction:
         # Die gemeldete Ventilstellung ist das direkteste Signal. Manche Geräte (z. B. Bosch über
         # die SHC-Zentrale) melden „heizt“, solange der Modus Heizen ist – auch bei geschlossenem
         # Ventil (Issue #34). Steht das Ventil nachweislich zu, heizt der Raum nicht – das gilt
@@ -972,6 +979,28 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             # Heizung noch in der Nachtabsenkung) – nicht als „Temperatur erreicht“ zeigen.
             return STATUS_WAIT
         return STATUS_IDLE
+
+    @property
+    def wait_reason(self) -> dict[str, Any] | None:
+        """Warum wartet der Raum auf Wärme? Nur gesetzt, wenn der Status „wartet“ ist.
+
+        Reihenfolge: erst die Heizung selbst (Wärmepumpe lädt Warmwasser, taut ab,
+        Sperrzeit), dann das Thermostat (misst am Heizkörper schon genug, Ventil zu).
+        """
+        if self.status != STATUS_WAIT:
+            return None
+        pause = supply_pause(self.hass)
+        if pause:
+            return pause
+        trv_cur, trv_target = to_float(self._trv_attr("current_temperature")), to_float(self._trv_attr("temperature"))
+        if trv_cur is not None and trv_target is not None and trv_cur >= trv_target - 0.1:
+            return {"kind": "trv_satisfied", "value": round(trv_cur, 1)}
+        valve = self.valve_position
+        if valve is None:
+            valve = to_float(self._trv_attr("valve_position"))
+        if valve is not None and valve < VALVE_HEATING_MIN:
+            return {"kind": "valve_closed"}
+        return None
 
 
 
@@ -1421,3 +1450,32 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
 
 
+
+
+# ------------------------------------------------------------------ Wärmeerzeuger
+#: Teile von Entity-IDs, an denen eine Pause des Wärmeerzeugers erkannt wird (binary_sensor, „an“)
+SUPPLY_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("dhw", ("warmwasserbetrieb", "dhw_active", "hot_water_active", "dhw_charging")),
+    ("defrost", ("abtau", "defrost")),
+    ("lock", ("sperrzeit", "evu_lock", "utility_lock")),
+)
+_SUPPLY_CACHE: dict[str, Any] = {"at": None, "ids": None}
+
+
+def supply_pause(hass: HomeAssistant) -> dict[str, Any] | None:
+    """Liefert der Wärmeerzeuger gerade keine Wärme? Erkennt Wärmepumpen-Status-Sensoren am Namen."""
+    now = dt_util.utcnow()
+    if _SUPPLY_CACHE["ids"] is None or _SUPPLY_CACHE["at"] is None or (now - _SUPPLY_CACHE["at"]).total_seconds() > 600:
+        found: list[tuple[str, str]] = []
+        for state in hass.states.async_all("binary_sensor"):
+            entity_id = state.entity_id
+            for kind, parts in SUPPLY_PATTERNS:
+                if any(part in entity_id for part in parts):
+                    found.append((kind, entity_id))
+                    break
+        _SUPPLY_CACHE.update(at=now, ids=found)
+    for kind, entity_id in _SUPPLY_CACHE["ids"] or []:
+        state = hass.states.get(entity_id)
+        if state is not None and state.state == "on":
+            return {"kind": kind, "entity": entity_id}
+    return None

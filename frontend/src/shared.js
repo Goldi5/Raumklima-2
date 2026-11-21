@@ -62,6 +62,23 @@ export const STATUS = tmap({
   night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" },
 });
 
+// „Wartet auf Wärme“ mit Grund – woran es gerade hängt
+export function waitReasonText(r) {
+  if (!r || !r.kind) return "";
+  if (r.kind === "dhw") return t("Wärmepumpe lädt Warmwasser");
+  if (r.kind === "defrost") return t("Wärmepumpe taut ab");
+  if (r.kind === "lock") return t("Sperrzeit des Netzbetreibers");
+  if (r.kind === "trv_satisfied") return t("Thermostat misst am Heizkörper schon {v} °C", { v: fmt(r.value) });
+  if (r.kind === "valve_closed") return t("Ventil ist zu");
+  return "";
+}
+
+export function statusFor(a) {
+  const s = STATUS[a.status] || STATUS.idle;
+  const why = a.status === "waiting" ? waitReasonText(a.wait_reason) : "";
+  return why ? { ...s, label: `${s.label} – ${why}`, reason: why } : s;
+}
+
 export const PRESENCE = tmap({
   home: { label: "Jemand da", icon: "mdi:home-account", tone: "ok" },
   guests: { label: "Gäste da", icon: "mdi:account-group", tone: "ok" },

@@ -122,6 +122,7 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
         c = self.controller
         return {
             "status": c.status,
+            "wait_reason": c.wait_reason,
             "off_source": c.off_source,
             "boost_until": c.boost_until.isoformat() if (c.boost_until and c.boost_active) else None,
             "boost_open": bool(c.boost_open and c.boost_active),

@@ -1,4 +1,4 @@
-import { rkDark, rkLook, rkLookStyles, moldBadge, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkDark, rkLook, rkLookStyles, moldBadge, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, statusFor, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -122,7 +122,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
     const row = (r) => {
       const a = r.attributes;
       const mon = a.monitor === true;
-      const s = mon ? { label: t("Überwachung"), tone: "eco", icon: "mdi:eye-outline" } : (STATUS[a.status] || STATUS.idle);
+      const s = mon ? { label: t("Überwachung"), tone: "eco", icon: "mdi:eye-outline" } : statusFor(a);
       const v = VENT[a.ventilation];
       const off = r.state === "off";
       const tone = v && a.ventilation !== "ok" ? v.tone : s.tone;

@@ -1,3 +1,15 @@
+## 2.0.1b9 – 2026-11-21
+
+### Behoben
+- **Mehrere Thermostate in einem Raum:** Der Raum gilt als „heizt“, sobald irgendeines seiner Thermostate heizt – nicht mehr nur das Haupt-Thermostat. Vorher konnte „Wartet auf Wärme“ erscheinen, obwohl ein weiteres Thermostat im Raum längst offen war.
+
+### Neu
+- **„Wartet auf Wärme“ mit Grund:** Die Raumkarte und die Übersicht sagen, woran es hängt:
+  - Wärmepumpe lädt Warmwasser, taut ab oder steckt in einer Sperrzeit des Netzbetreibers (erkannt an Status-Sensoren wie `…warmwasserbetrieb`, `…abtauung`/`…defrost`, `…sperrzeit`),
+  - das Thermostat misst am Heizkörper schon genug,
+  - das Ventil ist zu.
+  Neues Attribut `wait_reason` an der Raum-Entität.
+
 ## 2.0.1b8 – 2026-11-21
 
 ### Behoben

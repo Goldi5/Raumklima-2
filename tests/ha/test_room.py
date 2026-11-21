@@ -2063,3 +2063,27 @@ async def test_status_wartet_auf_waerme(hass: HomeAssistant, setup, trv: FakeTrv
     with patch.object(type(ctrl), "hvac_action", new_callable=PropertyMock, return_value=HVACAction.IDLE), \
          patch.object(type(ctrl), "current_temperature", new_callable=PropertyMock, return_value=22.3):
         assert ctrl.status == "idle"
+
+
+async def test_wartet_auf_waerme_nennt_den_grund(hass: HomeAssistant, setup, trv: FakeTrv) -> None:
+    """Steht ein Raum still, sagt Raumklima, ob die Wärmepumpe gerade Warmwasser lädt."""
+    from unittest.mock import PropertyMock, patch
+
+    from homeassistant.components.climate import HVACAction
+
+    from custom_components.raumklima import controller as ctl
+    from custom_components.raumklima.shared import domain_data
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctrl.peek_plan = lambda: (True, 22.5, "schedule")
+    hass.states.async_set("binary_sensor.wp_warmwasserbetrieb", "on")
+    ctl._SUPPLY_CACHE.update(at=None, ids=None)
+    with patch.object(type(ctrl), "hvac_action", new_callable=PropertyMock, return_value=HVACAction.IDLE), \
+         patch.object(type(ctrl), "current_temperature", new_callable=PropertyMock, return_value=19.1):
+        assert ctrl.wait_reason == {"kind": "dhw", "entity": "binary_sensor.wp_warmwasserbetrieb"}
+        hass.states.async_set("binary_sensor.wp_warmwasserbetrieb", "off")
+        reason = ctrl.wait_reason
+        assert reason is None or reason["kind"] in ("trv_satisfied", "valve_closed")
+    with patch.object(type(ctrl), "hvac_action", new_callable=PropertyMock, return_value=HVACAction.HEATING):
+        assert ctrl.wait_reason is None
