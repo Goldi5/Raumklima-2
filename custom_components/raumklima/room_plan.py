@@ -14,6 +14,7 @@ from .const import (
     CONF_COOL_SETPOINT,
     CONF_COOLING,
     CONF_FLOOR_LEAD_MIN,
+    CONF_HOME_OFFICE_ENTITY,
     CONF_MOLD_MODE,
     CONF_PREHEAT_LEAD,
     CONF_PREHEAT_MODE,
@@ -328,7 +329,9 @@ class PlanMixin:
     def _rule_home_office(self, ctx: _PlanContext) -> PlanResult:
         """Homeoffice: im eingestellten Fenster gilt der Wunsch, der Zeitplan pausiert."""
         hub = ctx.hub
-        if not hub.vacation and hub.home_office_applies(self.entry.entry_id):
+        if hub.vacation:
+            return None
+        if hub.home_office_applies(self.entry.entry_id) or self.room_home_office_on:
             return True, min(self.target_temp, self.trv_max), REASON_HOME_OFFICE
         return None
 

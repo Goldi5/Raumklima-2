@@ -30,6 +30,7 @@ from .const import (
     CONF_FLOOR_SUPPLY,
     CONF_FOLLOW_TRV,
     CONF_HOME,
+    CONF_HOME_OFFICE_ENTITY,
     CONF_HUMIDITY_SENSOR,
     CONF_LOOK_DARK,
     CONF_MOLD_MODE,
@@ -118,6 +119,7 @@ _MISSING = object()
 STRUCTURE_KEYS = {
     CONF_NAME,
     CONF_HOME,
+    CONF_HOME_OFFICE_ENTITY,
     CONF_ROOM_TYPE,
     CONF_CALIBRATION_MODE,
     CONF_CALIBRATION_ENTITY,
@@ -212,6 +214,7 @@ class SettingsMixin:
             "boost_minutes": cfg.get(CONF_BOOST_MINUTES),
             "presence_sensors": self.sensor_kinds(),
             "presence_kind": self.config.get(CONF_PRESENCE_KIND) or "auto",
+            "home_office_entity": self.config.get(CONF_HOME_OFFICE_ENTITY) or None,
             "room_eco": self.room_eco_mode,
             "room_eco_enabled": self.room_eco_enabled(),
             "room_eco_after": self.room_eco_after,

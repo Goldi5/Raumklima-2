@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b9 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b10 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -262,6 +262,9 @@
     "Zeitfenster": "Time window",
     "Wärmer für kurze Zeit (Boost)": "Warmer for a short while (boost)",
     "Wärmer für kurze Zeit": "Warmer for a short while",
+    "Homeoffice-Entität": "Home office entity",
+    "eigener Schalter für dieses Büro – z. B. eine input_boolean, die nur für diesen Raum Homeoffice meldet": "own switch for this office – e.g. an input_boolean that signals home office only for this room",
+    "Raumklima schreibt den Sollwert 1:1 – nur sinnvoll, wenn Thermostat und Raumfühler sauber übereinstimmen": "Raumklima writes the setpoint 1:1 – only useful when thermostat and room sensor agree",
     "Boost beenden": "End boost",
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} dashboard(s) created for your homes",
     "– keiner –": "– none –",
@@ -760,6 +763,8 @@
     "Leeren Raum absenken": "Lower empty room",
     "Melder": "Sensors",
     "Melder hinzufügen": "Add sensor",
+    "Melder/Gerät hinzufügen": "Add sensor/device",
+    "Melder oder Gerät hinzufügen (z. B. PC/Lampe) – dann kann der Raum bei Anwesenheit wärmer werden": "Add sensor/device (e.g. PC/lamp) – the room can then heat on presence",
     "PIR": "PIR",
     "Präsenzmelder": "Presence sensors",
     "Präsenzmelder zählen": "Presence sensors count",
@@ -1979,6 +1984,9 @@
     "Zeitfenster": "Plage horaire",
     "Wärmer für kurze Zeit (Boost)": "Plus chaud un moment (boost)",
     "Wärmer für kurze Zeit": "Plus chaud un moment",
+    "Homeoffice-Entität": "Entité de télétravail",
+    "eigener Schalter für dieses Büro – z. B. eine input_boolean, die nur für diesen Raum Homeoffice meldet": "interrupteur propre à ce bureau – p. ex. une input_boolean qui signale le télétravail uniquement pour cette pièce",
+    "Raumklima schreibt den Sollwert 1:1 – nur sinnvoll, wenn Thermostat und Raumfühler sauber übereinstimmen": "Raumklima écrit la consigne 1:1 – utile seulement si le thermostat et la sonde de pièce concordent",
     "Boost beenden": "Terminer le boost",
     "{n} Dashboard(s) für deine Wohnungen angelegt": "{n} tableau(x) de bord créé(s) pour tes logements",
     "– keiner –": "– aucun –",
@@ -2477,6 +2485,8 @@
     "Leeren Raum absenken": "Abaisser la pièce vide",
     "Melder": "Détecteurs",
     "Melder hinzufügen": "Ajouter un détecteur",
+    "Melder/Gerät hinzufügen": "Ajouter un capteur/appareil",
+    "Melder oder Gerät hinzufügen (z. B. PC/Lampe) – dann kann der Raum bei Anwesenheit wärmer werden": "Ajouter un capteur/appareil (p. ex. PC/lampe) – la pièce peut alors chauffer en cas de présence",
     "PIR": "PIR",
     "Präsenzmelder": "Détecteurs de présence",
     "Präsenzmelder zählen": "Détecteurs de présence pris en compte",
@@ -3475,7 +3485,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b9";
+  var RK_VERSION = "2.0.1b10";
 
   // src/styles.js
   var STYLES = `
@@ -8346,7 +8356,6 @@
         const open = !!(st && rkWindowOpen(this._hass, w));
         return `<span class="chip2" style="--c:${open ? "var(--rk-air)" : "var(--rk-off)"}"><i></i>${esc(this._name(w).replace(/^.*?(fenster|window)/i, (m, x) => x))} · ${open ? t("offen") : t("zu")}</span>`;
       }).join("") || `<span class="v mute">${t("keine")}</span>`;
-      const offTxt = a.offset !== void 0 && a.offset !== null ? t("aktuell {v} °C", { v: (a.offset > 0 ? "+" : "") + fmt(a.offset, 1) }) : "";
       const comfort = this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature;
       const roomType = this._roomOpt(r, "room_type") ?? s.room_type;
       const sbShort = this._roomOpt(r, "setback_short") ?? s.setback_short;
@@ -8355,6 +8364,11 @@
       const co2 = this._roomOpt(r, "co2_limit") ?? 1e3;
       const notifyCap = this._roomOpt(r, "notify_cap") ?? 3;
       const trvInterval = this._roomOpt(r, "trv_interval") ?? s.trv_interval ?? 0;
+      const calHelp = {
+        target: t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat"),
+        none: t("Raumklima schreibt den Sollwert 1:1 – nur sinnvoll, wenn Thermostat und Raumfühler sauber übereinstimmen"),
+        hysteresis: t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung")
+      };
       const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
       const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
       const nightMode = this._roomOpt(r, "night_airing") ?? s.night_airing ?? "auto";
@@ -8763,7 +8777,7 @@
           mon ? "" : this._row(
             "Kalibrierung",
             editable ? this._segs(scope, "calibration_mode", s.calibration_entity ? RK_CAL : { target: RK_CAL.target, none: RK_CAL.none, hysteresis: RK_CAL.hysteresis }, s.calibration_mode || "target") : this._v(RK_CAL[s.calibration_mode] || "–"),
-            s.calibration_mode === "target" ? t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat") : s.calibration_mode === "hysteresis" ? t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung") : offTxt
+            calHelp[s.calibration_mode || "target"] || calHelp.target
           ),
           !mon && s.calibration_mode === "hysteresis" ? this._row(
             "Hysterese",
@@ -8862,9 +8876,14 @@
     _presenceGroup(r, id, editable) {
       const a = r.attrs, s = a.settings || {};
       const scope = `room:${id}`;
+      const homeOfficeChoices = this._cfg && this._cfg.choices && this._cfg.choices.home_office || [];
+      const homeOfficeEntity = this._roomOpt(r, "home_office_entity") ?? s.home_office_entity ?? "";
       const kinds = s.presence_sensors || {};
       const list = this._roomOpt(r, "presence_sensors") ?? Object.keys(kinds);
-      const all = this._cfg && this._cfg.choices && this._cfg.choices.presence || [];
+      const all = [...new Map([
+        ...this._cfg && this._cfg.choices && this._cfg.choices.presence || [],
+        ...this._cfg && this._cfg.choices && this._cfg.choices.presence_devices || []
+      ].map((x) => [x.id, x])).values()];
       const info = Object.fromEntries(all.map((x) => [x.id, x]));
       const pk = this._roomOpt(r, "presence_kind") ?? s.presence_kind ?? "auto";
       const kindOf = (e) => pk === "mmwave" || pk === "pir" ? pk : kinds[e] || info[e] && info[e].kind || "pir";
@@ -8874,11 +8893,17 @@
         return `<span class="chip2" style="--c:${on ? "var(--rk-ok)" : "var(--rk-off)"}"><i></i>${esc(info[e] && info[e].name || this._name(e))} ${badge(kindOf(e))}${editable ? ` <button class="mini x" data-presrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`;
       }).join("");
       const avail = all.filter((x) => !list.includes(x.id));
-      const addRow = editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder hinzufügen")}</button></div>` : "";
+      const addRow = editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder/Gerät hinzufügen")}</button></div>` : "";
+      const homeOfficeRow = this._row(
+        "Homeoffice-Entität",
+        editable ? this._select(scope, "home_office_entity", homeOfficeChoices, homeOfficeEntity, "– keiner –") : this._v(homeOfficeEntity ? esc(this._name(homeOfficeEntity)) : t("keiner"), !homeOfficeEntity),
+        "eigener Schalter für dieses Büro – z. B. eine input_boolean, die nur für diesen Raum Homeoffice meldet"
+      );
       if (!list.length) {
         return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
-          this._row("Melder", this._v("keine", true), "Melder hinzufügen – dann kann der Raum bei Anwesenheit wärmer werden"),
-          addRow
+          this._row("Melder", this._v("keine", true), "Melder oder Gerät hinzufügen (z. B. PC/Lampe) – dann kann der Raum bei Anwesenheit wärmer werden"),
+          addRow,
+          homeOfficeRow
         ].join(""));
       }
       const eco = this._roomOpt(r, "room_eco") ?? s.room_eco ?? "auto";
@@ -8919,6 +8944,7 @@
         ...warn.map((w) => `<div class="hint warn">${w}</div>`),
         this._row("Melder", `<div class="chips">${chips}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
         addRow,
+        homeOfficeRow,
         this._row(
           "Bei Anwesenheit",
           ptCtl,
@@ -8945,7 +8971,7 @@
         eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
         eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
       ];
-      rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_lights", "presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
+      rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_lights", "presence_kind", "presence_pir", "home_office_entity", "room_eco", "room_eco_after", "room_eco_drop"]));
       return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
     },
     _lightGroup(r, id, editable) {

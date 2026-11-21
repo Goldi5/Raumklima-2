@@ -1,3 +1,14 @@
+## 2.0.1b10 – 2026-11-21
+
+### Neu
+- **Alternativen zum Präsenzmelder (#70):** Neben PIR/mmWave können jetzt auch **Geräte und Schalter** als Präsenzquelle gewählt werden (z. B. PC an/aus, Lampe). Für Verbrauchsschwellen wie „< 3 W“ kann ein Template-Binary-Sensor verwendet werden.
+- **Homeoffice pro Raum (#72):** Jeder Raum kann eine eigene **Homeoffice-Entität** bekommen (z. B. `input_boolean` pro Büro). Damit lassen sich mehrere Räume unabhängig steuern, auch wenn die globale Homeoffice-Zeit weiter gilt.
+- **Klarere Kalibrierungs-Hilfe (#71):** Für „Sollwert-Ausgleich“, „Ohne Abgleich“ und „Hysterese“ gibt es jetzt einen passenden Hilfetext; „Ohne Abgleich“ erklärt den 1:1-Modus.
+
+### Tests
+- Backend: 738 Tests auf Home Assistant 2026.2.3 grün; auf 2026.10.4 737 grün, ein bekannter Test zum Automatik-Modus bleibt offen.
+- Frontend: 125 Tests grün.
+
 ## 2.0.1b9 – 2026-11-21
 
 ### Behoben

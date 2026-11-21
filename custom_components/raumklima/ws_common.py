@@ -432,6 +432,7 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_PRESENCE_DELAY): num_schema("presence_delay_min"),
         vol.Optional(CONF_PRESENCE_RELEASE): num_schema("presence_release_min"),
         vol.Optional(CONF_PRESENCE_PIR): bool,
+        vol.Optional(CONF_HOME_OFFICE_ENTITY): vol.Any(None, cv.entity_id),
         vol.Optional(CONF_PRESENCE_LEARN): bool,
         vol.Optional(CONF_PRESENCE_LIGHTS): vol.All(cv.ensure_list, [cv.entity_id], vol.Length(max=12)),
         vol.Optional(CONF_HEAT_SOURCES): vol.All(
@@ -617,6 +618,20 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
             ),
             key=lambda x: x["name"].lower(),
         ),
+        "presence_devices": sorted(
+            [
+                *(
+                    {"id": s.entity_id, "name": s.name, "kind": sensor_kind(s.attributes.get("device_class"))}
+                    for s in hass.states.async_all("binary_sensor")
+                ),
+                *(
+                    {"id": s.entity_id, "name": s.name, "kind": "pir"}
+                    for s in list(hass.states.async_all("input_boolean")) + list(hass.states.async_all("switch"))
+                ),
+            ],
+            key=lambda x: x["name"].lower(),
+        ),
+        "home_office": ents("input_boolean") + ents("switch"),
         "outdoor": sorted(
             (
                 {"id": s.entity_id, "name": s.name}
