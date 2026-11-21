@@ -1,3 +1,8 @@
+## 2.0.1b8 – 2026-11-21
+
+### Behoben
+- **Karte neu gebaut:** gleicher Stand wie 2.0.1b7, aber mit aktualisierter `raumklima-card.js` (die erste b7 hatte die neue Karte noch nicht im Tag).
+
 ## 2.0.1b7 – 2026-11-21
 
 ### Behoben
