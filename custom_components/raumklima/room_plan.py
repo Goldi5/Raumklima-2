@@ -330,7 +330,10 @@ class PlanMixin:
         hub = ctx.hub
         if hub.vacation:
             return None
-        if hub.home_office_applies(self.entry.entry_id) or self.room_home_office_on:
+        # Eigener Homeoffice-Schalter des Raums hat Vorrang: dann folgt das Büro nur ihm und
+        # nicht mehr dem allgemeinen Homeoffice – sonst heizen zwei Büros immer gemeinsam (#72).
+        on = self.room_home_office_on if self.room_home_office_entity else hub.home_office_applies(self.entry.entry_id)
+        if on:
             return True, min(self.target_temp, self.trv_max), REASON_HOME_OFFICE
         return None
 
@@ -606,7 +609,7 @@ class PlanMixin:
                         tr("ja") if self.monitor or self.trv_available() else tr("nicht erreichbar (Funk, Batterie, Zigbee2MQTT)")),
             self._check(self.sync_state != "failed", tr("Befehle bestätigt"),
                         {"ok": tr("ja"), "pending": tr("wartet auf Bestätigung"), "failed": tr("nicht bestätigt – Gerät übernimmt den Sollwert nicht")}.get(self.sync_state, self.sync_state)),
-            self._check(self.sensor_ok, tr("Raumfühler"), fmt_temp(cur) if self.sensor_ok else tr("liefert keine Werte – Notbetrieb mit Thermostat-Fühler")),
+            self._check(self.sensor_ok, tr("Raumfühler"), (fmt_temp(cur) if self.has_room_sensor else tr("{t} – keiner eingetragen, es zählt der Thermostat-Fühler", t=fmt_temp(cur))) if self.sensor_ok else tr("liefert keine Werte – Notbetrieb mit Thermostat-Fühler")),
         ]
         heating = self.hvac_action == "heating"
         if not on or not self.hvac_on or self.paused:

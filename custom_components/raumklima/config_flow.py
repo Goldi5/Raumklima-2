@@ -353,19 +353,20 @@ def _room_schema(defaults: dict[str, Any], presets: list[str], monitor: bool = F
         vol.Optional(
             CONF_WALL, description=_suggest(defaults.get(CONF_WALL) or "auto")
         ): _select(WALL_OPTIONS, CONF_WALL),
+        # Auswahl mit Text-Werten: Zahlen-Auswahlen (vol.In mit int) zeigt das HA-Frontend beim
+        # erneuten Öffnen leer an, obwohl der Wert gespeichert ist (#69). Gespeichert wird weiter
+        # als Zahl (siehe _int_choices).
         vol.Optional(
-            CONF_CO2_LIMIT, default=defaults.get(CONF_CO2_LIMIT) or CO2_LIMIT_DEFAULT
-        ): vol.In(CO2_LIMIT_OPTIONS),
+            CONF_CO2_LIMIT, default=_choice(defaults.get(CONF_CO2_LIMIT), CO2_LIMIT_OPTIONS, CO2_LIMIT_DEFAULT)
+        ): _select([str(v) for v in CO2_LIMIT_OPTIONS], CONF_CO2_LIMIT),
         vol.Optional(
-            CONF_NOTIFY_CAP, default=defaults.get(CONF_NOTIFY_CAP)
-            if defaults.get(CONF_NOTIFY_CAP) is not None
-            else NOTIFY_CAP_DEFAULT
-        ): vol.In(NOTIFY_CAP_OPTIONS),
+            CONF_NOTIFY_CAP, default=_choice(defaults.get(CONF_NOTIFY_CAP), NOTIFY_CAP_OPTIONS, NOTIFY_CAP_DEFAULT)
+        ): _select([str(v) for v in NOTIFY_CAP_OPTIONS], CONF_NOTIFY_CAP),
     }
     if not monitor:
         fields[vol.Optional(
-            CONF_TRV_INTERVAL, default=defaults.get(CONF_TRV_INTERVAL) or 0
-        )] = vol.In(TRV_INTERVAL_OPTIONS)
+            CONF_TRV_INTERVAL, default=_choice(defaults.get(CONF_TRV_INTERVAL), TRV_INTERVAL_OPTIONS, 0)
+        )] = _select([str(v) for v in TRV_INTERVAL_OPTIONS], CONF_TRV_INTERVAL)
         fields[vol.Optional(
             CONF_COMFORT_TEMP, description=_suggest(defaults.get(CONF_COMFORT_TEMP))
         )] = _number(12, 26, 0.5, "°C")
@@ -405,9 +406,28 @@ def _validate_calibration(data: dict[str, Any]) -> dict[str, str]:
     return {}
 
 
+def _choice(value: Any, options: list[int], fallback: int) -> str:
+    """Gespeicherte Zahl als Auswahlwert; Unbekanntes fällt auf den Standard."""
+    try:
+        number = int(float(value))
+    except (TypeError, ValueError):
+        return str(fallback)
+    return str(number) if number in options else str(fallback)
+
+
+def _int_choices(data: dict[str, Any]) -> None:
+    for key in (CONF_CO2_LIMIT, CONF_NOTIFY_CAP, CONF_TRV_INTERVAL):
+        if key in data and data[key] is not None:
+            try:
+                data[key] = int(float(data[key]))
+            except (TypeError, ValueError):
+                data.pop(key)
+
+
 def _flatten_room(user_input: dict[str, Any]) -> dict[str, Any]:
     data = dict(user_input)
     data.update(data.pop(ADVANCED, {}) or {})
+    _int_choices(data)
     return data
 
 

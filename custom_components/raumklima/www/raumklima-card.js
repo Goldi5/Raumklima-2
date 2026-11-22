@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b10 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b11 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -3485,7 +3485,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b10";
+  var RK_VERSION = "2.0.1b11";
 
   // src/styles.js
   var STYLES = `
@@ -5518,13 +5518,24 @@
       if (n) out.push([bucket + step / 2, sum / n]);
       return out;
     }
+    // Monotone Kurve (Fritsch–Carlson): glatt, aber ohne Über- und Unterschwinger. Die frühere
+    // Catmull-Rom-Kurve schoss bei Fühlern mit 0,5-K-Stufen (FRITZ!DECT) über die Messwerte hinaus
+    // und ließ Linien benachbarter Räume scheinbar kreuzen (#73).
     _smooth(pts) {
-      if (pts.length < 2) return pts.length ? `M${pts[0][0]},${pts[0][1]}` : "";
+      const n = pts.length;
+      if (n < 2) return n ? `M${pts[0][0]},${pts[0][1]}` : "";
+      const dx = [], m = [];
+      for (let i = 0; i < n - 1; i++) {
+        dx.push(pts[i + 1][0] - pts[i][0]);
+        m.push(dx[i] ? (pts[i + 1][1] - pts[i][1]) / dx[i] : 0);
+      }
+      const tan = [m[0]];
+      for (let i = 1; i < n - 1; i++) tan.push(m[i - 1] * m[i] <= 0 ? 0 : 3 * (dx[i - 1] + dx[i]) / ((2 * dx[i] + dx[i - 1]) / m[i - 1] + (dx[i] + 2 * dx[i - 1]) / m[i]));
+      tan.push(m[n - 2]);
       let d = `M${pts[0][0]},${pts[0][1]}`;
-      for (let i = 0; i < pts.length - 1; i++) {
-        const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
-        const k = 0.18;
-        d += ` C${p1[0] + (p2[0] - p0[0]) * k},${p1[1] + (p2[1] - p0[1]) * k} ${p2[0] - (p3[0] - p1[0]) * k},${p2[1] - (p3[1] - p1[1]) * k} ${p2[0]},${p2[1]}`;
+      for (let i = 0; i < n - 1; i++) {
+        const h = dx[i] / 3;
+        d += ` C${pts[i][0] + h},${pts[i][1] + tan[i] * h} ${pts[i + 1][0] - h},${pts[i + 1][1] - tan[i + 1] * h} ${pts[i + 1][0]},${pts[i + 1][1]}`;
       }
       return d;
     }

@@ -211,3 +211,19 @@ async def test_ueberwachungsraum_ueber_den_assistenten(hass: HomeAssistant, setu
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"room_type": "living"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["result"].data[CONF_TRV] == ""
+
+
+def test_gespeicherte_auswahlwerte_werden_vorbelegt() -> None:
+    """CO₂-Grenze, Hinweise pro Tag und Meldetakt erscheinen beim erneuten Öffnen (#69)."""
+    from custom_components.raumklima.config_flow import _flatten_room, _room_schema
+
+    schema = _room_schema({"co2_limit": 1200, "notify_cap": 0, "trv_interval": 0}, [])
+    defaults = {str(key): key.default() for key in schema.schema if callable(getattr(key, "default", None))}
+    assert defaults["co2_limit"] == "1200"
+    assert defaults["notify_cap"] == "0"
+    assert defaults["trv_interval"] == "0"
+    # Unbekannte Werte fallen auf den Standard
+    assert {str(k): k.default() for k in _room_schema({"co2_limit": 999}, []).schema if str(k) == "co2_limit"}["co2_limit"] == "1000"
+    # Gespeichert wird als Zahl
+    flat = _flatten_room({"co2_limit": "1500", "notify_cap": "0", "advanced": {"trv_interval": "15"}})
+    assert (flat["co2_limit"], flat["notify_cap"], flat["trv_interval"]) == (1500, 0, 15)

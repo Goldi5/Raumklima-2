@@ -192,7 +192,7 @@ class ExtraTrv:
 
     def setpoint_for(self, target: float) -> float:
         """Sollwert für dieses Thermostat (Sollwert-Ausgleich nach seiner eigenen Temperatur)."""
-        if self.c.cal_mode == CAL_TARGET and self.c.sensor_ok:
+        if self.c.cal_mode == CAL_TARGET and self.c.ext_sensor_ok:
             raw = calc_target_setpoint(
                 target,
                 self.c._ext_value,
@@ -281,7 +281,7 @@ class ExtraTrv:
 
     async def calibrate(self, force: bool = False) -> None:
         """Offset nach der eigenen Temperatur (wie beim Haupt-Thermostat)."""
-        if self.c.cal_mode != CAL_OFFSET or not self.cal_entity or not self.c.sensor_ok or not self.available():
+        if self.c.cal_mode != CAL_OFFSET or not self.cal_entity or not self.c.ext_sensor_ok or not self.available():
             return
         if self.c.paused and not force:
             return

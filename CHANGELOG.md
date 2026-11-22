@@ -1,3 +1,24 @@
+## 2.0.1b11 – 2026-11-22
+
+Enthält alles aus 2.0.1b10 (wurde nicht einzeln veröffentlicht).
+
+### Behoben
+- **Ohne externen Fühler kein „Fühler ausgefallen“ mehr (#68):** Ist kein Raumfühler
+  eingetragen, regelt Raumklima auf den Fühler des Thermostats – das ist jetzt ein gültiger
+  Zustand statt eines Ausfalls. Abgleich (Offset/Sollwert-Ausgleich) bleibt in diesem Fall
+  aus, weil es nichts abzugleichen gibt. Die Diagnose sagt „keiner eingetragen, es zählt der
+  Thermostat-Fühler“.
+- **Gerät konfigurieren zeigt gespeicherte Werte (#69):** CO₂-Grenze, Hinweise pro Tag und
+  Meldetakt erschienen beim erneuten Öffnen leer, obwohl sie gespeichert waren. Die Felder sind
+  jetzt echte Auswahllisten mit Beschriftung („unbegrenzt“, „automatisch lernen“, „1000 ppm
+  (Standard)“); gespeichert wird weiter als Zahl.
+- **Homeoffice pro Raum wirklich getrennt (#72):** Hat ein Raum einen eigenen
+  Homeoffice-Schalter, folgt er nur diesem – das allgemeine Homeoffice schaltet ihn nicht mehr
+  mit ein. Umschalten wirkt sofort, nicht erst beim nächsten Takt.
+- **Verlaufskurven ohne Überschwinger (#73):** Temperatur- und Feuchtekurven werden monoton
+  geglättet. Bei Fühlern mit 0,5-K-Stufen schossen die Linien vorher über die Messwerte hinaus
+  und schienen sich zu kreuzen.
+
 ## 2.0.1b10 – 2026-11-21
 
 ### Neu

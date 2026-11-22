@@ -626,7 +626,24 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self._save()
 
     @property
+    def has_room_sensor(self) -> bool:
+        """Ist ein eigener Raumfühler eingetragen? (seit 2.0.1b7 optional, #68)"""
+        return bool(self.temp_sensor)
+
+    @property
     def sensor_ok(self) -> bool:
+        """Liefert der Raum eine brauchbare Temperatur?
+
+        Mit eigenem Raumfühler entscheidet dieser (``ext_sensor_ok``). Ohne Raumfühler regelt
+        Raumklima auf den Fühler des Thermostats – das ist dann kein Ausfall, sondern so
+        eingestellt (#68: FRITZ!DECT ohne externen Fühler meldete „Fühler ausgefallen“).
+        """
+        if not self.has_room_sensor:
+            return not self.monitor and self.trv_temperature is not None
+        return self.ext_sensor_ok
+
+    @property
+    def ext_sensor_ok(self) -> bool:
         """Externer Fühler liefert einen brauchbaren Wert.
 
         Das Alter allein zählt nicht: batteriebetriebene Fühler (Homematic, Danfoss) senden nur bei
@@ -634,6 +651,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         meldete der Raum „Fühler ausgefallen", obwohl das Gerät erreichbar war (Issue #11).
         Ein echter Ausfall zeigt sich am Entitätszustand (unavailable/unknown/kein Wert).
         """
+        if not self.has_room_sensor:
+            return False
         state = self.hass.states.get(self.temp_sensor)
         if state is None or not is_valid(state.state):
             return False
@@ -664,8 +683,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
     @property
     def current_temperature(self) -> float | None:
-        """Raumtemperatur: externer Fühler, im Notfall das TRV."""
-        if self.sensor_ok:
+        """Raumtemperatur: externer Fühler, ohne Fühler oder im Notfall das TRV."""
+        if self.ext_sensor_ok:
             if self._ext_value is not None:
                 return self._ext_value
             state = self.hass.states.get(self.temp_sensor)

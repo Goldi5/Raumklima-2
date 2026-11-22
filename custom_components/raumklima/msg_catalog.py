@@ -185,6 +185,7 @@ _ROWS: list[tuple[str, str, str]] = [
     ('bis {t}', 'until {t}', 'jusqu’à {t}'),
     ('ja', 'yes', 'oui'),
     ('liefert keine Werte – Notbetrieb mit Thermostat-Fühler', 'no readings – fallback to the thermostat sensor', 'aucune valeur – mode secours avec le capteur du thermostat'),
+    ('{t} – keiner eingetragen, es zählt der Thermostat-Fühler', '{t} – none set, the thermostat sensor is used', '{t} – aucune sonde, le capteur du thermostat est utilisé'),
     ('nicht bestätigt – Gerät übernimmt den Sollwert nicht', 'not confirmed – the device does not take the setpoint', 'non confirmé – l’appareil ne reprend pas la consigne'),
     ('nicht erreichbar (Funk, Batterie, Zigbee2MQTT)', 'not reachable (radio, battery, Zigbee2MQTT)', 'injoignable (radio, pile, Zigbee2MQTT)'),
     ('nur Messen', 'measuring only', 'mesure uniquement'),

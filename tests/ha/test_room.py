@@ -2087,3 +2087,45 @@ async def test_wartet_auf_waerme_nennt_den_grund(hass: HomeAssistant, setup, trv
         assert reason is None or reason["kind"] in ("trv_satisfied", "valve_closed")
     with patch.object(type(ctrl), "hvac_action", new_callable=PropertyMock, return_value=HVACAction.HEATING):
         assert ctrl.wait_reason is None
+
+
+async def test_ohne_raumfuehler_zaehlt_der_thermostat_fuehler(hass: HomeAssistant, trv: FakeTrv, sensors: None) -> None:
+    """Kein externer Fühler eingetragen: kein „Fühler ausgefallen“, es gilt die TRV-Temperatur (#68)."""
+    from custom_components.raumklima.const import CONF_TEMP_SENSOR
+    from custom_components.raumklima.shared import domain_data
+
+    hub = hub_entry()
+    hub.add_to_hass(hass)
+    room = room_entry(**{CONF_TEMP_SENSOR: ""})
+    room.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(hub.entry_id)
+    await hass.async_block_till_done()
+
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    assert not ctrl.has_room_sensor
+    assert ctrl.sensor_ok
+    assert not ctrl.ext_sensor_ok
+    assert ctrl.current_temperature == ctrl.trv_temperature
+    state = hass.states.get("climate.bad")
+    assert state is not None and state.attributes.get("status") != "sensor_unavailable"
+
+
+async def test_eigener_homeoffice_schalter_ersetzt_das_allgemeine(hass: HomeAssistant, setup, trv: FakeTrv, monkeypatch) -> None:
+    """Zwei Büros: jedes folgt nur seinem eigenen Schalter, nicht dem allgemeinen Homeoffice (#72)."""
+    from custom_components.raumklima.room_plan import _PlanContext
+    from custom_components.raumklima.shared import domain_data
+
+    hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    ctx = _PlanContext(now=dt_util.utcnow(), local_now=dt_util.now(), hub=ctrl.hub)
+    monkeypatch.setattr(ctrl.hub, "vacation", False)
+    monkeypatch.setattr(ctrl.hub, "home_office_applies", lambda _entry_id: True)
+
+    # ohne eigenen Schalter: allgemeines Homeoffice gilt
+    assert ctrl._rule_home_office(ctx) is not None
+
+    ctrl.config["home_office_entity"] = "input_boolean.buero_anna"
+    hass.states.async_set("input_boolean.buero_anna", "off")
+    assert ctrl._rule_home_office(ctx) is None, "allgemeines Homeoffice darf das eigene Büro nicht einschalten"
+    hass.states.async_set("input_boolean.buero_anna", "on")
+    assert ctrl._rule_home_office(ctx) is not None

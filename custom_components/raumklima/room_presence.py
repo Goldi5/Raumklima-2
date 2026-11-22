@@ -59,9 +59,15 @@ class PresenceMixin:
 
     # ------------------------------------------------------------ Einstellungen
     @property
-    def room_home_office_on(self) -> bool:
-        """Room-level home office switch (independent of the hub-wide switch)."""
+    def room_home_office_entity(self) -> str | None:
+        """Eigener Homeoffice-Schalter dieses Raums (ersetzt das allgemeine Homeoffice, #72)."""
         entity_id = self.config.get(CONF_HOME_OFFICE_ENTITY)
+        return entity_id if isinstance(entity_id, str) and entity_id else None
+
+    @property
+    def room_home_office_on(self) -> bool:
+        """Eigener Homeoffice-Schalter des Raums an?"""
+        entity_id = self.room_home_office_entity
         if not entity_id:
             return False
         state = self.hass.states.get(entity_id)
@@ -247,10 +253,22 @@ class PresenceMixin:
         if self._presence_unsub:
             self._presence_unsub()
             self._presence_unsub = None
-        if self.presence_inputs:
+        watched = [*self.presence_inputs]
+        if self.room_home_office_entity:
+            watched.append(self.room_home_office_entity)
+        if watched:
             self._presence_unsub = async_track_state_change_event(
-                self.hass, self.presence_inputs, callback(lambda _event: self.update_presence())
+                self.hass, watched, callback(self._on_presence_input)
             )
+
+    @callback
+    def _on_presence_input(self, event: Any) -> None:
+        if event.data.get("entity_id") == self.room_home_office_entity:
+            # Homeoffice dieses Büros umgeschaltet: sofort neu planen, nicht erst beim nächsten Takt
+            self._notify()
+            self.hass.async_create_task(self._apply())
+            return
+        self.update_presence()
 
     def stop_presence(self) -> None:
         if self._presence_unsub:

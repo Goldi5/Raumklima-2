@@ -382,6 +382,32 @@
         "on": "Immer dunkel",
         "off": "Immer hell"
       }
+    },
+    "co2_limit": {
+      "options": {
+        "800": "800 ppm (streng)",
+        "1000": "1000 ppm (Standard)",
+        "1200": "1200 ppm",
+        "1500": "1500 ppm"
+      }
+    },
+    "notify_cap": {
+      "options": {
+        "0": "unbegrenzt",
+        "2": "2 pro Tag",
+        "3": "3 pro Tag (Standard)",
+        "5": "5 pro Tag",
+        "10": "10 pro Tag"
+      }
+    },
+    "trv_interval": {
+      "options": {
+        "0": "automatisch lernen",
+        "1": "1 min",
+        "5": "5 min",
+        "15": "15 min",
+        "30": "30 min"
+      }
     }
   },
   "entity": {

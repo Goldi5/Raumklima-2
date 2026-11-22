@@ -630,8 +630,8 @@ class TrvMixin:
             return
         if self.paused and not force:
             return  # Zugluft verfälscht den Fühler
-        if not self.sensor_ok or not self.trv_available():
-            return
+        if not self.ext_sensor_ok or not self.trv_available():
+            return  # ohne eigenen Raumfühler gibt es nichts abzugleichen
         cal_state = self.hass.states.get(self.cal_entity)
         if cal_state is None or cal_state.state == "unavailable":
             return
