@@ -258,7 +258,7 @@ class PresenceMixin:
             watched.append(self.room_home_office_entity)
         if watched:
             self._presence_unsub = async_track_state_change_event(
-                self.hass, watched, callback(self._on_presence_input)
+                self.hass, watched, self._on_presence_input
             )
 
     @callback
