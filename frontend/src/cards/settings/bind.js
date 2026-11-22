@@ -637,6 +637,11 @@ export const BindMethods = {
       }
       this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b.dataset.mailsec === p[2]));
     });
+    on("click", "[data-mailauth]", (el) => () => {
+      // Anmeldung an/aus (#76): ohne Anmeldung werden Benutzer/Passwort ausgeblendet und beim Speichern gelöscht
+      this._mailForm = { ...(this._mailForm || {}), mail_auth: el.dataset.mailauth === "true" };
+      this._sig = null; this._render();
+    });
     on("click", "[data-mailsec]", (el) => () => {
       this._mailForm = { ...(this._mailForm || {}), mail_security: el.dataset.mailsec };
       this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b === el));
@@ -644,9 +649,9 @@ export const BindMethods = {
     const mailSettings = () => {
       const f = { ...(this._mailForm || {}) };
       const out = {};
-      for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+      for (const k of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
         if (f[k] === undefined) continue;
-        out[k] = k === "mail_port" ? (f[k] === "" ? null : parseInt(f[k], 10)) : String(f[k]).trim();
+        out[k] = k === "mail_auth" ? f[k] !== false : k === "mail_port" ? (f[k] === "" ? null : parseInt(f[k], 10)) : String(f[k]).trim();
       }
       return out;
     };
@@ -673,9 +678,9 @@ export const BindMethods = {
       this._mailSteps = null;
       const f = { ...(this._mailForm || {}) };
       const changes = { report_email: "raumklima" };
-      for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+      for (const k of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
         if (f[k] === undefined) continue;
-        changes[k] = k === "mail_port" ? (f[k] === "" ? null : parseInt(f[k], 10)) : String(f[k]).trim();
+        changes[k] = k === "mail_auth" ? f[k] !== false : k === "mail_port" ? (f[k] === "" ? null : parseInt(f[k], 10)) : String(f[k]).trim();
       }
       el.disabled = true;
       this._mailMsg = ["", t("Sende Test-Mail …")]; this._sig = null; this._render();

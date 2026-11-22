@@ -21,6 +21,7 @@ from .const import (
     CONF_LONG_AWAY_HOURS,
     CONF_PREHEAT_KM,
     CONF_PRESENCE_OFF,
+    CONF_PRESENCE_SOURCE,
     CONF_ROOM_PERSONS,
     CONF_SCHOOL_CALENDAR,
     CONF_SCHOOL_SHIFT,
@@ -29,6 +30,10 @@ from .const import (
     CONF_WORK_ZONE_MINUTES,
     CONF_WORK_ZONES,
     KIND_PRESENCE,
+    PRESENCE_SOURCE_BOTH,
+    PRESENCE_SOURCE_GPS,
+    PRESENCE_SOURCE_WIFI,
+    PRESENCE_SOURCES,
 )
 from .decision_log import (
     CAT_PRESENCE,
@@ -150,12 +155,22 @@ class PresenceMixin:
         since = self._work_since.setdefault(person, now)
         return (now - since) >= timedelta(minutes=float(self.opt(CONF_WORK_ZONE_MINUTES) or 0))
 
-    def _person_status(self, person: str, geo: tuple[float, float, float], now: datetime) -> dict[str, Any]:
-        """Ist eine Person da? GPS-Koordinaten haben Vorrang, sonst zählt der Zustand „home“."""
+    @property
+    def presence_source(self) -> str:
+        """Woher kommt „zu Hause“: GPS, WLAN/Router oder beides (#79)."""
+        source = self.opt(CONF_PRESENCE_SOURCE) or PRESENCE_SOURCE_BOTH
+        return source if source in PRESENCE_SOURCES else PRESENCE_SOURCE_BOTH
+
+    def _person_status(self, person: str, geo: tuple[float, float, float] | None, now: datetime) -> dict[str, Any]:
+        """Ist eine Person da? Je nach Quelle über GPS-Entfernung und/oder WLAN-/Router-Tracker."""
         state = self.hass.states.get(person)
         name = state.name if state else person
         present = False
         distance: float | None = None
+        source = self.presence_source
+        use_gps = source != PRESENCE_SOURCE_WIFI and geo is not None
+        use_wifi = source != PRESENCE_SOURCE_GPS
+        via: str | None = None
         if state is not None and not person.startswith("person."):
             # Kein person.*, sondern ein Gerätetracker direkt: als einzige Quelle nehmen
             trackers = [person]
@@ -168,7 +183,13 @@ class PresenceMixin:
             lat = to_float(tstate.attributes.get("latitude"))
             lon = to_float(tstate.attributes.get("longitude"))
             if lat is None or lon is None:
-                continue  # ohne Koordinaten keine Entfernung – der Zustand „home“ zählt unten
+                # WLAN-/Router-/Bluetooth-Tracker: keine Position, aber „im Netz“ = zu Hause
+                if use_wifi and tstate.state == "home":
+                    present = True
+                    via = via or "wifi"
+                continue
+            if not use_gps:
+                continue
             when = getattr(tstate, "last_reported", None) or tstate.last_updated
             accuracy = to_float(tstate.attributes.get("gps_accuracy")) or 0.0
             flt = self._filters.setdefault(tracker, TrackerFilter())
@@ -193,8 +214,9 @@ class PresenceMixin:
             dist = haversine_km(fix.lat, fix.lon, geo[0], geo[1])
             if dist * 1000 <= geo[2] + min(fix.accuracy, 100.0):
                 present = True
+                via = "gps"
             distance = dist if distance is None else min(distance, dist)
-        if not present and distance is None and state is not None and state.state == "home":
+        if use_wifi and not present and distance is None and state is not None and state.state == "home":
             # Ohne GPS (z. B. nur WLAN/Router) ist der Personen-Zustand die einzige Quelle.
             # Sobald Koordinaten vorliegen, entscheidet oben die echte Entfernung.
             present = True
@@ -210,6 +232,8 @@ class PresenceMixin:
             "approaching": approaching(list(hist), now) if distance is not None else False,
             "eta_min": eta_minutes(list(hist), now) if distance is not None and not present else None,
             "place": self._person_place(state),
+            "source": via or ("state" if present else None),
+            "trackers": trackers,
         }
 
     def _person_place(self, state: Any) -> str:
@@ -238,7 +262,8 @@ class PresenceMixin:
         geo = self._zone_geo()
         self._work_bypass = False
         # Harter Schalter: keine Auswertung, keine Absenkung, kein Vorheizen (Issue #10)
-        if self.opt(CONF_PRESENCE_OFF) or not self.presence_configured or geo is None:
+        # Ohne Koordinaten der Heimzone geht nur „nur WLAN“ (#79)
+        if self.opt(CONF_PRESENCE_OFF) or not self.presence_configured or (geo is None and self.presence_source != PRESENCE_SOURCE_WIFI):
             self.persons = {}
             self.sensed = []
             new = STAGE_HOME
@@ -296,7 +321,7 @@ class PresenceMixin:
             if self._presence_since is None:
                 self._presence_since = now
             started = now - self._presence_since > timedelta(minutes=15)
-            if started and not anyone and not self.sensed and self.persons:
+            if started and not anyone and not self.sensed and self.persons and self.presence_source != PRESENCE_SOURCE_WIFI:
                 blind = [p for p in self.persons.values() if p["distance_km"] is None]
                 stale = self._blind_logged is None or now - self._blind_logged > timedelta(hours=6)
                 if len(blind) == len(self.persons) and stale:

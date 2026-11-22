@@ -163,6 +163,7 @@ export const GeneralMethods = {
     const open = this._mailOpen ?? (active && !ok);
     const dis = this._admin ? "" : "disabled";
     const sec = o("mail_security") || "starttls";
+    const auth = o("mail_auth") === "" ? true : o("mail_auth") !== false;
     const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
     const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
       <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
@@ -171,14 +172,16 @@ export const GeneralMethods = {
       <div class="mailform">
         <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
           <div class="segs mailprov">${Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<button class="${p[0] === o("mail_server") ? "on" : ""}" data-mailprov="${k}" ${dis}>${esc(p[3])}</button>`).join("")}<button data-mailprov="other" ${dis}>${t("Anderer Anbieter")}</button></div></label>
-        ${field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse")}
-        ${field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort")}
+        <label class="mf"><span>${t("Anmeldung am Server")}<small>${t("„ohne“ nur für Mailserver im eigenen Netz, die ohne Anmeldung annehmen (z. B. Spamfilter auf Port 25)")}</small></span><div class="segs">${[[true, t("mit Benutzer/Passwort")], [false, t("ohne")]].map(([v, l]) => `<button class="${v === auth ? "on" : ""}" data-mailauth="${v}" ${dis}>${l}</button>`).join("")}</div></label>
+        ${auth ? field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse") : ""}
+        ${auth ? field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort") : ""}
+        ${auth ? "" : field("mail_from", "Absender", "email", "raumklima@example.de", "nötig ohne Anmeldung – viele Server lehnen Mails ohne Absender ab")}
         ${field("mail_to", "Empfänger", "text", "ich@example.de, partner@example.de", "mehrere mit Komma")}
         <details class="adv"><summary>${t("Server-Einstellungen")}</summary>
           ${field("mail_server", "Server", "text", "smtp.example.de")}
           ${field("mail_port", "Port", "number", "587")}
           <label class="mf"><span>${t("Verschlüsselung")}</span><div class="segs">${["starttls", "ssl", "none"].map((v) => `<button class="${v === sec ? "on" : ""}" data-mailsec="${v}" ${dis}>${{ starttls: "STARTTLS", ssl: "SSL/TLS", none: t("keine") }[v]}</button>`).join("")}</div></label>
-          ${field("mail_from", "Absender", "email", "", "leer = Benutzer")}
+          ${auth ? field("mail_from", "Absender", "email", "", "leer = Benutzer") : ""}
         </details>
         <div class="mailact"><button class="btn" data-mailcheck ${dis}><ha-icon icon="mdi:shield-check-outline"></ha-icon>${t("Zugang prüfen")}</button><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
         ${this._mailSteps ? `<div class="msteps">${this._mailSteps.map((s) => `<div class="mstep ${s.ok ? "ok" : "bad"}"><b>${s.ok ? "✓" : "✕"}</b><span><b>${esc(t({ connect: "Server erreichbar", tls: "Verschlüsselung", login: "Anmeldung", recipients: "Empfänger" }[s.step] || s.step))}</b> – ${esc(s.msg)}</span></div>`).join("")}</div>` : ""}

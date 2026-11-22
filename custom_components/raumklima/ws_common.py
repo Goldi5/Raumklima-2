@@ -138,6 +138,7 @@ from .const import (
     CONF_PRESENCE_LIGHTS,
     CONF_PRESENCE_PIR,
     CONF_PRESENCE_RELEASE,
+    CONF_PRESENCE_SOURCE,
     CONF_PRESENCE_TARGET,
     CONF_PV_ENTITY,
     CONF_PV_SELF_USE,
@@ -201,6 +202,7 @@ from .const import (
     NOTIFY_CAP_OPTIONS,
     PREHEAT_MODES,
     PRESENCE_KINDS,
+    PRESENCE_SOURCES,
     QUIET_MODES,
     REPORT_METRICS,
     ROOM_ECO_MODES,
@@ -312,6 +314,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional(CONF_RESIDENTS): [str],
         vol.Optional(CONF_ZONE): vol.Any(None, str),
         vol.Optional(CONF_AWAY_DELAY): num_schema("away_delay"),
+        vol.Optional(CONF_PRESENCE_SOURCE): vol.In(PRESENCE_SOURCES),
         vol.Optional(CONF_WORK_ZONES): vol.All([cv.entity_id], vol.Length(max=10)),
         vol.Optional(CONF_WORK_ZONE_MINUTES): num_schema("work_zone_minutes"),
         vol.Optional(CONF_LONG_AWAY_HOURS): num_schema("long_away_hours"),
@@ -386,6 +389,7 @@ HUB_CHANGES = vol.Schema(
         vol.Optional("mail_server"): vol.All(str, vol.Length(max=200)),
         vol.Optional("mail_port"): vol.Any(None, vol.All(vol.Coerce(int), vol.Range(1, 65535))),
         vol.Optional("mail_security"): vol.In(MAIL_SECURITY),
+        vol.Optional("mail_auth"): bool,
         vol.Optional("mail_user"): vol.All(str, vol.Length(max=200)),
         vol.Optional("mail_password"): vol.All(str, vol.Length(max=300)),
         vol.Optional("mail_from"): vol.All(str, vol.Length(max=200)),
@@ -609,6 +613,8 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
         "lights": ents("light"),
+        # Anwesenheit im Raum: Lampen und Steckdosen/Schalter (z. B. PC-Steckdose, #72)
+        "presence_lights": ents("light") + ents("switch"),
         "mail": _mail_services(hass),
         "presence": sorted(
             (

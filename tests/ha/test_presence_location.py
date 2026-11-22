@@ -94,3 +94,45 @@ async def test_personen_zustand_not_home_ohne_ortung_bleibt_weg(hass: HomeAssist
     live._evaluate_presence()
     assert live.persons["person.b"]["present"] is False
     assert live.persons["person.b"]["distance_km"] is None
+
+
+async def test_quelle_wlan_und_gps(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#79: Router-Tracker „home“ zählt, auch wenn ein zweites Handy eine alte, ferne GPS-Position hat."""
+
+    _zone(hass)
+    hass.states.async_set("person.b", "not_home", {"device_trackers": ["device_tracker.router_b", "device_tracker.app_b"]})
+    hass.states.async_set("device_tracker.router_b", "home", {"source_type": "router"})
+    hass.states.async_set("device_tracker.app_b", "not_home", {"latitude": 51.0, "longitude": 9.5, "gps_accuracy": 20})
+    await _setup(hass, {CONF_RESIDENTS: ["person.b"], CONF_ZONE: "zone.home"})
+    live = get_hub(hass, None)
+    live._evaluate_presence()
+    assert live.persons["person.b"]["present"] is True
+    assert live.persons["person.b"]["source"] == "wifi"
+
+
+
+async def test_quelle_nur_gps_ignoriert_router(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#79: „nur GPS“ – ein Router-Tracker allein macht niemanden anwesend."""
+    from custom_components.raumklima.const import CONF_PRESENCE_SOURCE
+
+    _zone(hass)
+    hass.states.async_set("person.b", "home", {"device_trackers": ["device_tracker.router_b"]})
+    hass.states.async_set("device_tracker.router_b", "home", {"source_type": "router"})
+    await _setup(hass, {CONF_RESIDENTS: ["person.b"], CONF_ZONE: "zone.home", CONF_PRESENCE_SOURCE: "gps"})
+    live = get_hub(hass, None)
+    live._evaluate_presence()
+    assert live.persons["person.b"]["present"] is False
+
+
+async def test_quelle_nur_wlan_ohne_zonen_koordinaten(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#79: „nur WLAN“ braucht keine Zone mit Koordinaten."""
+    from custom_components.raumklima.const import CONF_PRESENCE_SOURCE
+
+    hass.states.async_set("zone.home", "0", {"friendly_name": "Zuhause"})  # ohne Koordinaten
+    hass.states.async_set("person.b", "home", {"device_trackers": ["device_tracker.router_b"]})
+    hass.states.async_set("device_tracker.router_b", "home", {"source_type": "router"})
+    await _setup(hass, {CONF_RESIDENTS: ["person.b"], CONF_ZONE: "zone.home", CONF_PRESENCE_SOURCE: "wifi"})
+    live = get_hub(hass, None)
+    live._evaluate_presence()
+    assert live.persons["person.b"]["present"] is True
+    assert live.persons["person.b"]["distance_km"] is None

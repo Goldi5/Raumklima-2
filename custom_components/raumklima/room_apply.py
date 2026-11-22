@@ -216,7 +216,7 @@ class ApplyMixin:
                     # Sollwert weiter normal setzen: Das Thermostat bleibt so die obere Grenze, und
                     # sein Sollwert steht nicht auf einem alten (Abschalt-)Wert, bei dem es zumacht.
                     await self._send_setpoint(from_measurement, reason)
-                    opening = shadow_opening(_target, self.current_temperature, heating=True)
+                    opening = shadow_opening(_target, self.current_temperature, heating=True, **self.valve_terms(_target))
                     if opening is not None:
                         await self._send_valve(opening)
                 await self._apply_extras(want_on, method, _target, boosting)

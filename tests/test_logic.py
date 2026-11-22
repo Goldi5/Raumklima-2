@@ -196,3 +196,41 @@ def test_airing_window_empty_or_broken() -> None:
     assert in_airing_window(None, datetime(2026, 11, 2, 5, 0)) is False
     assert in_airing_window([], datetime(2026, 11, 2, 5, 0)) is False
     assert in_airing_window([{"start": "kaputt", "end": "06:30"}], datetime(2026, 11, 2, 5, 0)) is False
+
+
+def test_ventilmodell_lernt_grundlast_am_ziel() -> None:
+    """#28: Hält ein Raum sein Ziel und heizt dabei ~7 % der Zeit, rechnet die Schattenrechnung das auch."""
+    from rk.logic import ValveModel, shadow_opening
+
+    model = ValveModel()
+    # 3 Tage: Raum steht auf 16 °C, draußen 5 °C, Gerät heizt 4 von 60 min (≈ 1,6 h am Tag)
+    for minute in range(3 * 24 * 60):
+        heating = (minute % 60) < 4
+        model.update(dt_s=60, heating_plan=True, device_heating=heating, target=16.0, current=16.0, outdoor=5.0)
+    base = model.base(16.0, 5.0)
+    assert 4.0 < base < 10.0
+    # am Ziel: Grundlast statt 0 % (unter dem Mindesthub ab der Hälfte aufgerundet)
+    assert shadow_opening(16.0, 16.0, base=base) == 8.0
+    # bei mildem Wetter weniger Grundlast
+    assert model.base(16.0, 12.0) < base
+    # ohne Modell bleibt alles wie bisher
+    assert shadow_opening(16.0, 16.0) == 0.0
+
+
+def test_ventilmodell_nachlauf_baut_sich_auf_und_ab() -> None:
+    from rk.logic import ValveModel
+
+    model = ValveModel()
+    for _ in range(120):  # 2 h 0,5 K unter dem Ziel
+        model.update(dt_s=60, heating_plan=True, device_heating=True, target=20.0, current=19.5, outdoor=None)
+    assert model.integral == pytest.approx(4.0, abs=0.1)
+    for _ in range(120):  # 2 h 0,5 K drüber
+        model.update(dt_s=60, heating_plan=True, device_heating=False, target=20.0, current=20.5, outdoor=None)
+    assert model.integral == 0.0
+
+
+def test_zu_warm_baut_grundlast_ab() -> None:
+    from rk.logic import shadow_opening
+
+    assert shadow_opening(20.0, 20.5, base=20.0) == 0.0  # 0,35 K über Totzone · 50 %/K = −17,5 → 2,5 % < ½ Mindesthub
+    assert shadow_opening(20.0, 20.2, base=20.0) == 17.5

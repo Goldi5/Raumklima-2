@@ -18,7 +18,18 @@ from typing import Any
 
 from .msg import tr
 
-MAIL_KEYS = ("mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to")
+MAIL_KEYS = ("mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to")
+
+
+def login_user(opts: dict[str, Any]) -> str:
+    """Benutzer für die SMTP-Anmeldung – leer, wenn ohne Anmeldung versendet wird (#76).
+
+    ``mail_auth`` = False schaltet die Anmeldung ab, auch wenn noch ein Benutzer gespeichert ist
+    (z. B. offener Mailserver/Spamfilter im eigenen Netz auf Port 25).
+    """
+    if opts.get("mail_auth") is False:
+        return ""
+    return str(opts.get("mail_user") or "")
 SECURITY = ["starttls", "ssl", "none"]
 
 
@@ -30,7 +41,7 @@ def insecure_login(opts: dict[str, Any]) -> bool:
     eigenen Netz (ohne Anmeldung) bleiben erlaubt.
     """
     security = opts.get("mail_security") or "starttls"
-    return bool(opts.get("mail_user")) and security == "none"
+    return bool(login_user(opts)) and security == "none"
 BUILTIN = "raumklima"  # Wert für report_email: eingebauter Versand
 
 # Häufige Anbieter: Server, Port, Verschlüsselung
@@ -60,11 +71,16 @@ def recipients(value: Any) -> list[str]:
 
 
 def configured(opts: dict[str, Any]) -> bool:
-    return bool(opts.get("mail_server") and recipients(opts.get("mail_to")) and (opts.get("mail_from") or opts.get("mail_user")))
+    return bool(opts.get("mail_server") and recipients(opts.get("mail_to")) and sender_address(opts))
+
+
+def sender_address(opts: dict[str, Any]) -> str:
+    """Absender: eingetragen, sonst der Anmelde-Benutzer (ohne Anmeldung Pflicht)."""
+    return str(opts.get("mail_from") or login_user(opts) or "")
 
 
 def build_message(opts: dict[str, Any], subject: str, body: str, attachments: list[str] | None = None) -> EmailMessage:
-    sender = str(opts.get("mail_from") or opts.get("mail_user") or "")
+    sender = sender_address(opts)
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = formataddr(("Raumklima", sender))
@@ -101,8 +117,8 @@ def send(opts: dict[str, Any], subject: str, body: str, attachments: list[str] |
         with smtp:
             if security == "starttls":
                 smtp.starttls(context=context)
-            if opts.get("mail_user"):
-                smtp.login(str(opts["mail_user"]), str(opts.get("mail_password") or ""))
+            if login_user(opts):
+                smtp.login(login_user(opts), str(opts.get("mail_password") or ""))
             smtp.send_message(msg)
     except smtplib.SMTPAuthenticationError as err:
         raise MailError(
@@ -200,7 +216,7 @@ def verify(opts: dict[str, Any], timeout: float = 15.0) -> list[dict[str, Any]]:
         except (smtplib.SMTPException, ssl.SSLError, OSError) as err:
             add("tls", False, tr("Verschlüsselung fehlgeschlagen ({err}) – „SSL/TLS“ mit Port 465 oder „STARTTLS“ mit Port 587 versuchen.", err=err))
             return steps
-        user = str(opts.get("mail_user") or "")
+        user = login_user(opts)
         if user:
             try:
                 smtp.login(user, str(opts.get("mail_password") or ""))

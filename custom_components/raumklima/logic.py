@@ -153,6 +153,8 @@ def shadow_opening(
     span: float = 2.0,
     min_pct: float = 8.0,
     max_pct: float = 100.0,
+    base: float = 0.0,
+    integral: float = 0.0,
 ) -> float | None:
     """Berechneter Ventil-Öffnungsgrad (%), nur zum Vergleichen – wird nie geschrieben.
 
@@ -166,10 +168,72 @@ def shadow_opening(
     if not heating or target is None or current is None:
         return None
     dev = float(target) - float(current)
-    if dev <= dead_zone:
-        return 0.0
-    pct = min_pct + (dev - dead_zone) / max(span, 0.1) * (max_pct - min_pct)
+    hold = max(0.0, base) + max(0.0, integral)
+    if dev > dead_zone:
+        pct = hold + min_pct + (dev - dead_zone) / max(span, 0.1) * (max_pct - min_pct)
+    elif dev < -dead_zone:
+        # zu warm: Grundlast abbauen, je weiter drüber, desto mehr
+        pct = hold - (-dev - dead_zone) / max(span, 0.1) * max_pct
+    else:
+        pct = hold  # am Ziel: nur so viel, wie der Raum zum Halten braucht (#28)
+    if pct < min_pct:
+        # unterhalb des Mindesthubs fördert der Heizkörper nicht – ab der Hälfte aufrunden
+        pct = min_pct if pct >= min_pct / 2 else 0.0
     return round(max(0.0, min(max_pct, pct)), 1)
+
+
+class ValveModel:
+    """Grundlast und Nachlauf für die berechnete Ventilöffnung (#28).
+
+    Eine reine P-Regelung rechnet am Ziel 0 % – um einen Raum zu *halten*, braucht er aber
+    laufend Wärme, proportional zur Differenz innen/außen. Gelernt wird deshalb, wie viel
+    der Zeit das Thermostat heizt, während der Raum am Ziel steht, je Kelvin Differenz zur
+    Außentemperatur (``k``, %/K). Dazu ein langsamer Nachlauf (``integral``), wenn der Raum
+    länger unter dem Ziel bleibt; er baut sich über dem Ziel wieder ab.
+    """
+
+    TAU_H = 24.0  # Lernzeit der Grundlast (ein Tag – glättet den Tagesgang)
+    NEAR_K = 0.3  # „am Ziel“
+    KI = 4.0  # Nachlauf: % je K und Stunde
+    I_MAX = 30.0
+
+    def __init__(self, k: float | None = None) -> None:
+        self.k: float | None = k
+        self.integral = 0.0
+        self.samples = 0
+
+    def base(self, target: float | None, outdoor: float | None) -> float:
+        if self.k is None or target is None or outdoor is None:
+            return 0.0
+        return max(0.0, min(100.0, self.k * max(0.0, float(target) - float(outdoor))))
+
+    def update(
+        self,
+        *,
+        dt_s: float,
+        heating_plan: bool,
+        device_heating: bool,
+        target: float | None,
+        current: float | None,
+        outdoor: float | None,
+        learn_base: bool = True,
+    ) -> None:
+        if not heating_plan or target is None or current is None or dt_s <= 0:
+            self.integral = max(0.0, self.integral - self.KI * (dt_s / 3600.0))
+            return
+        dev = float(target) - float(current)
+        hours = dt_s / 3600.0
+        self.integral = max(0.0, min(self.I_MAX, self.integral + self.KI * dev * hours))
+        if not learn_base or outdoor is None or abs(dev) > self.NEAR_K:
+            return
+        delta = float(target) - float(outdoor)
+        if delta < 2.0:
+            return  # kaum Heizbedarf – nichts Verlässliches zu lernen
+        sample = (100.0 if device_heating else 0.0) / delta
+        # anfangs echter Mittelwert (sonst bestimmt die erste Minute alles), danach gleitend
+        self.samples += 1
+        alpha = max(1.0 / self.samples, 1.0 - math.exp(-hours / self.TAU_H))
+        self.k = sample if self.k is None else self.k + alpha * (sample - self.k)
 
 
 def window_open_state(entity_id: str, state: Any) -> str | None:

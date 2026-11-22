@@ -432,10 +432,10 @@ export const HELP = {
     "Raumklima remembers when the room is occupied (per weekday and quarter hour, only the last four weeks). If it was occupied at the same time on 3 of the last 4 same weekdays, that counts as usual – then it warms up to “When occupied” early enough to be warm at the start. If nobody comes within 30 minutes of the usual start, the previous value applies again. Not during vacation and not when everyone is away.",
     "Raumklima retient quand la pièce est occupée (par jour de semaine et quart d’heure, seulement les quatre dernières semaines). Si elle était occupée à la même heure 3 des 4 derniers mêmes jours de semaine, c’est considéré comme habituel – elle préchauffe alors à « En présence » assez tôt pour qu’il fasse chaud au début. Si personne ne vient dans les 30 minutes, la valeur d’avant s’applique de nouveau. Pas en vacances ni quand tout le monde est absent.",
   ],
-  "Lampen zählen als Anwesenheit": [
-    "Eine eingeschaltete Lampe zählt wie ein Melder: jemand ist im Raum. Gut für Räume ohne mmWave-Melder oder als Ergänzung (Schreibtischlampe im Arbeitszimmer). Ist die Lampe aus, gilt der Raum nach 2 Minuten als leer – außer ein Melder sieht noch jemanden. Lampen zählen nur für diesen Raum, nie für „jemand zu Hause“.",
-    "A lamp that is on counts like a sensor: someone is in the room. Good for rooms without an mmWave sensor or as an addition (desk lamp in the office). Once the lamp is off, the room counts as empty after 2 minutes – unless a sensor still sees someone. Lamps only count for this room, never for “someone home”.",
-    "Une lampe allumée compte comme un capteur : quelqu’un est dans la pièce. Utile pour les pièces sans capteur mmWave ou en complément (lampe de bureau). Une fois la lampe éteinte, la pièce est vide après 2 minutes – sauf si un capteur voit encore quelqu’un. Les lampes ne comptent que pour cette pièce, jamais pour « quelqu’un à la maison ».",
+  "Lampen und Steckdosen zählen als Anwesenheit": [
+    "Eine eingeschaltete Lampe oder Steckdose (z. B. PC) zählt wie ein Melder: jemand ist im Raum. Gut für Räume ohne mmWave-Melder oder als Ergänzung (Schreibtischlampe im Arbeitszimmer). Ist die Lampe aus, gilt der Raum nach 2 Minuten als leer – außer ein Melder sieht noch jemanden. Lampen zählen nur für diesen Raum, nie für „jemand zu Hause“.",
+    "A lamp or socket (e.g. PC) that is on counts like a sensor: someone is in the room. Good for rooms without an mmWave sensor or as an addition (desk lamp in the office). Once the lamp is off, the room counts as empty after 2 minutes – unless a sensor still sees someone. Lamps only count for this room, never for “someone home”.",
+    "Une lampe ou une prise (p. ex. PC) allumée compte comme un capteur : quelqu’un est dans la pièce. Utile pour les pièces sans capteur mmWave ou en complément (lampe de bureau). Une fois la lampe éteinte, la pièce est vide après 2 minutes – sauf si un capteur voit encore quelqu’un. Les lampes ne comptent que pour cette pièce, jamais pour « quelqu’un à la maison ».",
   ],
   "… wenn belegt seit": [
     "So viele Minuten muss der Melder jemanden im Raum sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Standard 5 min – wer nur kurz durchgeht, löst nichts aus.",
@@ -683,9 +683,9 @@ export const HELP = {
     "Facultatif : à partir de 1000 ppm arrive « Merci d’aérer », « Air renouvelé » seulement sous 800 ppm.",
   ],
   "Kalibrierung": [
-    "Wie das Thermostat dazu gebracht wird, die Raumtemperatur zu „sehen“: Offset (Korrekturwert am Thermostat), Sollwert-Ausgleich (Ziel am Thermostat anpassen) oder keine.",
-    "How the thermostat is made to “see” the room temperature: offset (correction value on the thermostat), setpoint compensation (adjust the thermostat target) or none.",
-    "Comment le thermostat est amené à « voir » la température de la pièce : décalage (valeur de correction au thermostat), compensation de consigne (adapter la cible au thermostat) ou aucune.",
+    "Wie das Thermostat die Raumtemperatur berücksichtigt. Sollwert-Ausgleich (Standard): Ziel am Thermostat um die Abweichung verschieben – genau, das Ventil bewegt sich öfter. Hysterese: Ventil nach dem Raumfühler ganz auf/ganz zu – weniger Bewegung und Batterie, etwas mehr Schwankung. Ohne Abgleich: Sollwert 1:1, für Räume ohne Raumfühler. „Offset am Thermostat“ erscheint nur bei Geräten mit Kalibrier-Entität.",
+    "How the thermostat takes the room temperature into account. Setpoint compensation (default): shift the thermostat target by the difference – accurate, the valve moves more often. Hysteresis: valve fully open/closed based on the room sensor – fewer movements and less battery, slightly more fluctuation. No compensation: setpoint 1:1, for rooms without a room sensor. “Offset on thermostat” only appears for devices with a calibration entity.",
+    "Comment le thermostat tient compte de la température de la pièce. Compensation de consigne (par défaut) : décaler la cible du thermostat de l'écart – précis, la vanne bouge plus souvent. Hystérésis : vanne entièrement ouverte/fermée selon la sonde de pièce – moins de mouvements et de batterie, un peu plus de variation. Sans compensation : consigne 1:1, pour les pièces sans sonde. « Offset sur le thermostat » n'apparaît que pour les appareils avec entité de calibrage.",
   ],
   "Einschalten mit": [
     "Mit welcher Betriebsart das Thermostat heizt. Automatisch meidet Modi, bei denen manche Thermostate das Ventil einfach ganz öffnen.",

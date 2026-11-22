@@ -231,6 +231,11 @@ CONF_ROOM_ECO: Final = "room_eco"  # leeren Raum absenken: auto / on / off
 CONF_ROOM_ECO_AFTER: Final = "room_eco_after"  # min leer, bevor abgesenkt wird
 CONF_ROOM_ECO_DROP: Final = "room_eco_drop"  # °C weniger
 CONF_HOME_SENSORS: Final = "home_sensors"
+CONF_PRESENCE_SOURCE: Final = "presence_source"  # Zentrale: „zu Hause“ über GPS, WLAN/Router oder beides (#79)
+PRESENCE_SOURCE_BOTH: Final = "both"
+PRESENCE_SOURCE_GPS: Final = "gps"
+PRESENCE_SOURCE_WIFI: Final = "wifi"
+PRESENCE_SOURCES: Final = [PRESENCE_SOURCE_BOTH, PRESENCE_SOURCE_GPS, PRESENCE_SOURCE_WIFI]
 CONF_PRESENCE_OFF: Final = "presence_off"  # Zentrale: welche Melder zählen für „jemand da“ (mmwave / all / off)
 PRESENCE_KINDS: Final = ["auto", "mmwave", "pir"]
 ROOM_ECO_MODES: Final = ["auto", "on", "off"]
@@ -322,6 +327,7 @@ HUB_DEFAULTS: Final = {
     "name": "",
     "dashboard": "",
     "presence_off": False,
+    CONF_PRESENCE_SOURCE: PRESENCE_SOURCE_BOTH,
     "holiday_state": "",
     "sleep_signals": [],
     "repeat_minutes": 5,

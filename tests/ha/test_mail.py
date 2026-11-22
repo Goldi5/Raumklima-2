@@ -206,3 +206,27 @@ async def test_send_via_ha_smtp_aufruf_wie_home_assistant_ihn_erwartet(hass: Hom
         "media_content_type": "application/pdf",
     }
     assert att["filename"] == "Raumklima-Monat-2026-10.pdf"
+
+
+def test_ohne_anmeldung_trotz_gespeichertem_benutzer() -> None:
+    """#76: „Anmeldung am Server: ohne“ meldet sich nie an – auch wenn noch ein Benutzer gespeichert ist."""
+    opts = {**MAIL, "mail_auth": False, "mail_from": "raumklima@example.de", "mail_security": "none", "mail_port": 25}
+    assert mailer.login_user(opts) == ""
+    assert mailer.insecure_login(opts) is False
+    assert mailer.configured(opts)
+    smtp = MagicMock()
+    with patch.object(smtplib, "SMTP", return_value=smtp):
+        mailer.send(opts, "Betreff", "Text")
+    smtp.login.assert_not_called()
+    smtp.send_message.assert_called_once()
+    # ohne Anmeldung und ohne Absender gilt der Versand als nicht eingerichtet
+    assert not mailer.configured({**opts, "mail_from": ""})
+
+
+async def test_ohne_anmeldung_loescht_zugangsdaten(hass: HomeAssistant, trv: FakeTrv, sensors, tmp_path, hass_ws_client: WebSocketGenerator) -> None:
+    hub, _room = await _ready(hass, tmp_path, MAIL)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "raumklima/hub/update", "changes": {"mail_auth": False, "mail_from": "raumklima@example.de"}})
+    assert (await client.receive_json())["success"]
+    assert hub.options["mail_user"] == "" and hub.options["mail_password"] == ""
+    assert hub.options["mail_auth"] is False

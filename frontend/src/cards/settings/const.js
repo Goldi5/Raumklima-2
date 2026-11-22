@@ -28,7 +28,7 @@ export const RK_IMPLICIT = {
   home_office_from: "08:00", home_office_to: "17:00", home_office_check: true, home_sensors: "mmwave", work_zone_minutes: 5,
   vacation_km: 0, vacation_hours: 12, night_level: "long", report_metric: "auto", storm_gust_kmh: 70, storm_rain_mm: 8,
   presence_delay_min: 5, presence_release_min: 5, presence_pir: false, presence_kind: "auto", room_eco: "auto",
-  solar_gain: false, presence_off: false, learn_shift: false, frost_night: false,
+  solar_gain: false, presence_off: false, presence_source: "both", learn_shift: false, frost_night: false,
 };
 export const RK_LAYOUT_COLORS = ["#1eb6a6", "#34a86e", "#e8982e", "#e2643c", "#7c6adc", "#3c8cdc", "#c94f8a", "#7a8288"];
 export const RK_GROUP_ORDER = ["home", "room", "heating", "health", "air", "shade", "presence", "night", "notify", "reports", "learn", "layout", "advanced"];

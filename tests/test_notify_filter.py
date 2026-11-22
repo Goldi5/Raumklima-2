@@ -40,3 +40,14 @@ def test_ausgeschaltet_bleibt_alles() -> None:
 
 def test_ohne_personendaten_keine_filterung() -> None:
     assert keep_present(["notify.a"], {}, True) == ["notify.a"]
+
+
+def test_handy_ueber_geraete_tracker_zuordnen() -> None:
+    """#78: notify.mobile_app_felix_iphone gehört über device_tracker.felix_iphone zu person.felix."""
+    persons = {
+        "person.felix": {"name": "Felix", "present": False, "trackers": ["device_tracker.felix_iphone"]},
+        "person.anna": {"name": "Anna", "present": True, "trackers": ["device_tracker.pixel_8"]},
+    }
+    assert person_for("notify.mobile_app_felix_iphone", persons) == "person.felix"
+    assert person_for("notify.mobile_app_pixel_8", persons) == "person.anna"
+    assert keep_present(["notify.mobile_app_felix_iphone", "notify.mobile_app_pixel_8"], persons, True) == ["notify.mobile_app_pixel_8"]

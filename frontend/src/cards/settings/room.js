@@ -31,10 +31,12 @@ export const RoomMethods = {
     const co2 = this._roomOpt(r, "co2_limit") ?? 1000;
     const notifyCap = this._roomOpt(r, "notify_cap") ?? 3;
     const trvInterval = this._roomOpt(r, "trv_interval") ?? s.trv_interval ?? 0;
+    // Hilfetexte je Modus – mit dem Vergleich, wann man welchen nimmt (#71)
     const calHelp = {
-      target: t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat"),
-      none: t("Raumklima schreibt den Sollwert 1:1 – nur sinnvoll, wenn Thermostat und Raumfühler sauber übereinstimmen"),
-      hysteresis: t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung"),
+      offset: t("Raumklima schreibt die Abweichung zwischen Raumfühler und Thermostat als Korrekturwert ins Gerät – nur bei Geräten mit Kalibrier-Entität. Regelt am genauesten, der Sollwert bleibt unverändert"),
+      target: t("Raumklima verschiebt den Sollwert am Thermostat um die Abweichung zwischen Raumfühler und Thermostat-Fühler – für Geräte ohne Korrekturwert (z. B. FRITZ!DECT). Regelt genau, das Ventil bewegt sich dafür öfter. Einen Korrekturwert am Gerät selbst auf 0 lassen"),
+      none: t("Raumklima schreibt den Sollwert 1:1 – richtig ohne Raumfühler oder wenn Thermostat und Raumfühler sauber übereinstimmen. Mit Raumfühler am Heizkörper-Thermostat meist zu kalt, weil das Thermostat am warmen Heizkörper misst"),
+      hysteresis: t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – nach dem Raumfühler, nicht nach dem Thermostat. Wählen, wenn ein Thermostat trotz Ausgleich zu früh schließt oder dauernd nachregelt: weniger Ventilbewegungen und Batterie, dafür etwas mehr Schwankung. Braucht einen Raumfühler"),
     };
     const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
     const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
@@ -364,7 +366,7 @@ export const RoomMethods = {
               ? RK_CAL
               : { target: RK_CAL.target, none: RK_CAL.none, hysteresis: RK_CAL.hysteresis }, s.calibration_mode || "target")
           : this._v(RK_CAL[s.calibration_mode] || "–"),
-        calHelp[s.calibration_mode || "target"] || calHelp.target),
+        (calHelp[s.calibration_mode || "target"] || calHelp.target) + (s.calibration_entity ? "" : " · " + t("„Offset am Thermostat“ erscheint nur bei Geräten mit Kalibrier-Entität"))),
         !mon && s.calibration_mode === "hysteresis" ? this._row("Hysterese",
           editable ? this._num(scope, "hysteresis_k", this._roomOpt(r, "hysteresis_k") ?? s.hysteresis_k ?? 0.5) : this._v(`${fmt(this._roomOpt(r, "hysteresis_k") ?? s.hysteresis_k ?? 0.5, 1)} K`),
           t("Breite des Schaltbereichs – 0,5 K heißt: auf bei Ziel −0,25 K, zu bei Ziel +0,25 K")) : "",
@@ -474,17 +476,26 @@ export const RoomMethods = {
     const chips = list.map((e) => { const on = this._st(e) && this._st(e).state === "on"; return `<span class="chip2" style="--c:${on ? "var(--rk-ok)" : "var(--rk-off)"}"><i></i>${esc((info[e] && info[e].name) || this._name(e))} ${badge(kindOf(e))}${editable ? ` <button class="mini x" data-presrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`; }).join("");
     const avail = all.filter((x) => !list.includes(x.id));
     const addRow = editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder/Gerät hinzufügen")}</button></div>` : "";
+    const lights = this._roomOpt(r, "presence_lights") ?? [];
+    const allLights = (this._cfg && this._cfg.choices && (this._cfg.choices.presence_lights || this._cfg.choices.lights)) || [];
+    const lightName = (e) => (allLights.find((x) => x.id === e) || {}).name || this._name(e);
+    const lightChips = lights.map((e) => { const on = this._st(e) && this._st(e).state === "on"; return `<span class="chip2" style="--c:${on ? "var(--rk-warn)" : "var(--rk-off)"}"><i></i>${esc(lightName(e))}${editable ? ` <button class="mini x" data-plightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`; }).join("");
+    const lightAvail = allLights.filter((x) => !lights.includes(x.id));
+    const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe/Steckdose hinzufügen")}</button></div>` : "";
+    const lightRow = this._row("Lampen und Steckdosen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eingeschaltet heißt: jemand ist im Raum (z. B. Schreibtischlampe, PC-Steckdose) – zählt nur für diesen Raum, nie für „jemand zu Hause“");
     const homeOfficeRow = this._row(
       "Homeoffice-Entität",
       editable
         ? this._select(scope, "home_office_entity", homeOfficeChoices, homeOfficeEntity, "– keiner –")
         : this._v(homeOfficeEntity ? esc(this._name(homeOfficeEntity)) : t("keiner"), !homeOfficeEntity),
-      "eigener Schalter für dieses Büro – z. B. eine input_boolean, die nur für diesen Raum Homeoffice meldet"
+      "eigener Schalter für dieses Büro (z. B. input_boolean je Büro) – dann folgt der Raum nur diesem Schalter, nicht mehr dem allgemeinen Homeoffice"
     );
     if (!list.length) {
       return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
         this._row("Melder", this._v("keine", true), "Melder oder Gerät hinzufügen (z. B. PC/Lampe) – dann kann der Raum bei Anwesenheit wärmer werden"),
         addRow,
+        lightRow,
+        lightAdd,
         homeOfficeRow,
       ].join(""));
     }
@@ -496,13 +507,7 @@ export const RoomMethods = {
     const pr = Number(this._roomOpt(r, "presence_release_min") ?? 5);
     const pir = !!this._roomOpt(r, "presence_pir");
     const wish = Number(this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature ?? 20);
-    const lights = this._roomOpt(r, "presence_lights") ?? [];
     const learn = this._roomOpt(r, "presence_learn") ?? true;
-    const allLights = (this._cfg && this._cfg.choices && this._cfg.choices.lights) || [];
-    const lightName = (e) => (allLights.find((x) => x.id === e) || {}).name || this._name(e);
-    const lightChips = lights.map((e) => { const on = this._st(e) && this._st(e).state === "on"; return `<span class="chip2" style="--c:${on ? "var(--rk-warn)" : "var(--rk-off)"}"><i></i>${esc(lightName(e))}${editable ? ` <button class="mini x" data-plightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`; }).join("");
-    const lightAvail = allLights.filter((x) => !lights.includes(x.id));
-    const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe hinzufügen")}</button></div>` : "";
     const counting = [...list.filter((e) => kindOf(e) === "mmwave" || pir), ...lights];
     const hasPir = list.some((e) => kindOf(e) === "pir");
 
@@ -530,6 +535,9 @@ export const RoomMethods = {
       ...warn.map((w) => `<div class="hint warn">${w}</div>`),
       this._row("Melder", `<div class="chips">${chips}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
       addRow,
+      // Lampen/Steckdosen gut sichtbar direkt unter den Meldern (#72) – vorher unter „Weitere Einstellungen“
+      lightRow,
+      lightAdd,
       homeOfficeRow,
       this._row("Bei Anwesenheit", ptCtl,
         pt ? t("so warm, solange jemand im Raum ist – danach wieder die Temperatur von vorher") : t("aus – der Raum heizt nach Wunsch und Zeitplan")),
@@ -540,8 +548,6 @@ export const RoomMethods = {
           : t("lernt noch: ein Zeitraum gilt als typisch, wenn der Raum an 3 der letzten 4 gleichen Wochentage belegt war")) : "",
     ];
     const more = [
-      this._row("Lampen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eine eingeschaltete Lampe (z. B. Schreibtischlampe) heißt: jemand ist im Raum – zählt nur für diesen Raum, nie für „jemand zu Hause“"),
-      lightAdd,
       this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung"),
       pt && hasPir ? this._row("… auch Bewegungsmelder", editable ? this._optToggle(scope, "presence_pir", pir) : this._v(pir ? t("ja") : t("nein")), t("PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min")) : "",
       this._row("Leeren Raum absenken", editable ? this._segs(scope, "room_eco", RK_NIGHT, eco) : this._v(RK_NIGHT[eco]),
@@ -549,7 +555,7 @@ export const RoomMethods = {
       eco === "on" || (eco === "auto" && s.room_eco_enabled) ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
       eco === "on" || (eco === "auto" && s.room_eco_enabled) ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : "",
     ];
-    rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_lights", "presence_kind", "presence_pir", "home_office_entity", "room_eco", "room_eco_after", "room_eco_drop"]));
+    rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
     return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
   },
 

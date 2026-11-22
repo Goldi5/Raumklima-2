@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b11 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b12 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1719,7 +1719,28 @@
     "Wärmepumpe taut ab": "Heat pump is defrosting",
     "Sperrzeit des Netzbetreibers": "Grid operator lock period",
     "Thermostat misst am Heizkörper schon {v} °C": "Thermostat already measures {v} °C at the radiator",
-    "Ventil ist zu": "Valve is closed"
+    "Ventil ist zu": "Valve is closed",
+    "Raumklima schreibt die Abweichung zwischen Raumfühler und Thermostat als Korrekturwert ins Gerät – nur bei Geräten mit Kalibrier-Entität. Regelt am genauesten, der Sollwert bleibt unverändert": "Raumklima writes the difference between room sensor and thermostat into the device as a correction value – only for devices with a calibration entity. Most accurate, the setpoint stays unchanged",
+    "Raumklima verschiebt den Sollwert am Thermostat um die Abweichung zwischen Raumfühler und Thermostat-Fühler – für Geräte ohne Korrekturwert (z. B. FRITZ!DECT). Regelt genau, das Ventil bewegt sich dafür öfter. Einen Korrekturwert am Gerät selbst auf 0 lassen": "Raumklima shifts the thermostat setpoint by the difference between room sensor and thermostat sensor – for devices without a correction value (e.g. FRITZ!DECT). Accurate, but the valve moves more often. Keep any correction value on the device itself at 0",
+    "Raumklima schreibt den Sollwert 1:1 – richtig ohne Raumfühler oder wenn Thermostat und Raumfühler sauber übereinstimmen. Mit Raumfühler am Heizkörper-Thermostat meist zu kalt, weil das Thermostat am warmen Heizkörper misst": "Raumklima writes the setpoint 1:1 – right without a room sensor or when thermostat and room sensor agree. With a room sensor usually too cold, because the thermostat measures at the warm radiator",
+    "Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – nach dem Raumfühler, nicht nach dem Thermostat. Wählen, wenn ein Thermostat trotz Ausgleich zu früh schließt oder dauernd nachregelt: weniger Ventilbewegungen und Batterie, dafür etwas mehr Schwankung. Braucht einen Raumfühler": "Raumklima opens the valve fully below target − ½ hysteresis and closes it fully above target + ½ – based on the room sensor, not the thermostat. Choose it when a thermostat closes too early or keeps readjusting despite compensation: fewer valve movements and less battery, slightly more fluctuation. Needs a room sensor",
+    "„Offset am Thermostat“ erscheint nur bei Geräten mit Kalibrier-Entität": "“Offset on thermostat” only appears for devices with a calibration entity",
+    "Lampe/Steckdose hinzufügen": "Add lamp/socket",
+    "Lampen und Steckdosen zählen als Anwesenheit": "Lamps and sockets count as presence",
+    "eingeschaltet heißt: jemand ist im Raum (z. B. Schreibtischlampe, PC-Steckdose) – zählt nur für diesen Raum, nie für „jemand zu Hause“": "switched on means: someone is in the room (e.g. desk lamp, PC socket) – counts only for this room, never for “someone at home”",
+    "eigener Schalter für dieses Büro (z. B. input_boolean je Büro) – dann folgt der Raum nur diesem Schalter, nicht mehr dem allgemeinen Homeoffice": "own switch for this office (e.g. one input_boolean per office) – the room then follows only this switch, no longer the general home office",
+    "Anmeldung am Server": "Login to server",
+    "„ohne“ nur für Mailserver im eigenen Netz, die ohne Anmeldung annehmen (z. B. Spamfilter auf Port 25)": "“without” only for mail servers in your own network that accept mail without login (e.g. spam filter on port 25)",
+    "mit Benutzer/Passwort": "with user/password",
+    "ohne": "without",
+    "nötig ohne Anmeldung – viele Server lehnen Mails ohne Absender ab": "required without login – many servers reject mail without a sender",
+    "Anwesenheit erkennen über": "Detect presence via",
+    "GPS und WLAN": "GPS and Wi-Fi",
+    "nur GPS": "GPS only",
+    "nur WLAN": "Wi-Fi only",
+    "WLAN/Router kennt nur „zu Hause“ oder „weg“ – Entfernung und Vorheizen auf der Heimfahrt gehen nur mit GPS": "Wi-Fi/router only knows “home” or “away” – distance and preheating on the way home need GPS",
+    "da (WLAN)": "home (Wi-Fi)",
+    "da (GPS)": "home (GPS)"
   };
 
   // src/i18n/fr.js
@@ -3441,7 +3462,28 @@
     "Wärmepumpe taut ab": "La pompe à chaleur dégivre",
     "Sperrzeit des Netzbetreibers": "Période de blocage du gestionnaire de réseau",
     "Thermostat misst am Heizkörper schon {v} °C": "Le thermostat mesure déjà {v} °C au radiateur",
-    "Ventil ist zu": "La vanne est fermée"
+    "Ventil ist zu": "La vanne est fermée",
+    "Raumklima schreibt die Abweichung zwischen Raumfühler und Thermostat als Korrekturwert ins Gerät – nur bei Geräten mit Kalibrier-Entität. Regelt am genauesten, der Sollwert bleibt unverändert": "Raumklima écrit l'écart entre la sonde de pièce et le thermostat comme valeur de correction dans l'appareil – seulement pour les appareils avec entité de calibrage. Le plus précis, la consigne reste inchangée",
+    "Raumklima verschiebt den Sollwert am Thermostat um die Abweichung zwischen Raumfühler und Thermostat-Fühler – für Geräte ohne Korrekturwert (z. B. FRITZ!DECT). Regelt genau, das Ventil bewegt sich dafür öfter. Einen Korrekturwert am Gerät selbst auf 0 lassen": "Raumklima décale la consigne du thermostat de l'écart entre la sonde de pièce et le capteur du thermostat – pour les appareils sans valeur de correction (p. ex. FRITZ!DECT). Précis, mais la vanne bouge plus souvent. Laisser une correction sur l'appareil lui-même à 0",
+    "Raumklima schreibt den Sollwert 1:1 – richtig ohne Raumfühler oder wenn Thermostat und Raumfühler sauber übereinstimmen. Mit Raumfühler am Heizkörper-Thermostat meist zu kalt, weil das Thermostat am warmen Heizkörper misst": "Raumklima écrit la consigne 1:1 – correct sans sonde de pièce ou si thermostat et sonde concordent. Avec sonde de pièce souvent trop froid, car le thermostat mesure près du radiateur chaud",
+    "Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – nach dem Raumfühler, nicht nach dem Thermostat. Wählen, wenn ein Thermostat trotz Ausgleich zu früh schließt oder dauernd nachregelt: weniger Ventilbewegungen und Batterie, dafür etwas mehr Schwankung. Braucht einen Raumfühler": "Raumklima ouvre la vanne entièrement sous la cible − ½ hystérésis et la ferme au-dessus de la cible + ½ – d'après la sonde de pièce, pas le thermostat. À choisir si un thermostat ferme trop tôt ou réajuste sans cesse malgré la compensation : moins de mouvements et de batterie, un peu plus de variation. Nécessite une sonde de pièce",
+    "„Offset am Thermostat“ erscheint nur bei Geräten mit Kalibrier-Entität": "« Offset sur le thermostat » n'apparaît que pour les appareils avec entité de calibrage",
+    "Lampe/Steckdose hinzufügen": "Ajouter lampe/prise",
+    "Lampen und Steckdosen zählen als Anwesenheit": "Lampes et prises comptent comme présence",
+    "eingeschaltet heißt: jemand ist im Raum (z. B. Schreibtischlampe, PC-Steckdose) – zählt nur für diesen Raum, nie für „jemand zu Hause“": "allumé signifie : quelqu'un est dans la pièce (p. ex. lampe de bureau, prise du PC) – compte seulement pour cette pièce, jamais pour « quelqu'un à la maison »",
+    "eigener Schalter für dieses Büro (z. B. input_boolean je Büro) – dann folgt der Raum nur diesem Schalter, nicht mehr dem allgemeinen Homeoffice": "interrupteur propre à ce bureau (p. ex. un input_boolean par bureau) – la pièce ne suit alors que cet interrupteur, plus le télétravail général",
+    "Anmeldung am Server": "Connexion au serveur",
+    "„ohne“ nur für Mailserver im eigenen Netz, die ohne Anmeldung annehmen (z. B. Spamfilter auf Port 25)": "« sans » seulement pour les serveurs de messagerie du réseau local qui acceptent sans connexion (p. ex. filtre anti-spam sur le port 25)",
+    "mit Benutzer/Passwort": "avec utilisateur/mot de passe",
+    "ohne": "sans",
+    "nötig ohne Anmeldung – viele Server lehnen Mails ohne Absender ab": "nécessaire sans connexion – beaucoup de serveurs refusent les mails sans expéditeur",
+    "Anwesenheit erkennen über": "Détecter la présence via",
+    "GPS und WLAN": "GPS et Wi-Fi",
+    "nur GPS": "GPS seulement",
+    "nur WLAN": "Wi-Fi seulement",
+    "WLAN/Router kennt nur „zu Hause“ oder „weg“ – Entfernung und Vorheizen auf der Heimfahrt gehen nur mit GPS": "Le Wi-Fi/routeur ne connaît que « à la maison » ou « absent » – distance et préchauffage sur le trajet nécessitent le GPS",
+    "da (WLAN)": "là (Wi-Fi)",
+    "da (GPS)": "là (GPS)"
   };
 
   // src/i18n.js
@@ -3485,7 +3527,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b11";
+  var RK_VERSION = "2.0.1b12";
 
   // src/styles.js
   var STYLES = `
@@ -6148,10 +6190,10 @@
       "Raumklima remembers when the room is occupied (per weekday and quarter hour, only the last four weeks). If it was occupied at the same time on 3 of the last 4 same weekdays, that counts as usual – then it warms up to “When occupied” early enough to be warm at the start. If nobody comes within 30 minutes of the usual start, the previous value applies again. Not during vacation and not when everyone is away.",
       "Raumklima retient quand la pièce est occupée (par jour de semaine et quart d’heure, seulement les quatre dernières semaines). Si elle était occupée à la même heure 3 des 4 derniers mêmes jours de semaine, c’est considéré comme habituel – elle préchauffe alors à « En présence » assez tôt pour qu’il fasse chaud au début. Si personne ne vient dans les 30 minutes, la valeur d’avant s’applique de nouveau. Pas en vacances ni quand tout le monde est absent."
     ],
-    "Lampen zählen als Anwesenheit": [
-      "Eine eingeschaltete Lampe zählt wie ein Melder: jemand ist im Raum. Gut für Räume ohne mmWave-Melder oder als Ergänzung (Schreibtischlampe im Arbeitszimmer). Ist die Lampe aus, gilt der Raum nach 2 Minuten als leer – außer ein Melder sieht noch jemanden. Lampen zählen nur für diesen Raum, nie für „jemand zu Hause“.",
-      "A lamp that is on counts like a sensor: someone is in the room. Good for rooms without an mmWave sensor or as an addition (desk lamp in the office). Once the lamp is off, the room counts as empty after 2 minutes – unless a sensor still sees someone. Lamps only count for this room, never for “someone home”.",
-      "Une lampe allumée compte comme un capteur : quelqu’un est dans la pièce. Utile pour les pièces sans capteur mmWave ou en complément (lampe de bureau). Une fois la lampe éteinte, la pièce est vide après 2 minutes – sauf si un capteur voit encore quelqu’un. Les lampes ne comptent que pour cette pièce, jamais pour « quelqu’un à la maison »."
+    "Lampen und Steckdosen zählen als Anwesenheit": [
+      "Eine eingeschaltete Lampe oder Steckdose (z. B. PC) zählt wie ein Melder: jemand ist im Raum. Gut für Räume ohne mmWave-Melder oder als Ergänzung (Schreibtischlampe im Arbeitszimmer). Ist die Lampe aus, gilt der Raum nach 2 Minuten als leer – außer ein Melder sieht noch jemanden. Lampen zählen nur für diesen Raum, nie für „jemand zu Hause“.",
+      "A lamp or socket (e.g. PC) that is on counts like a sensor: someone is in the room. Good for rooms without an mmWave sensor or as an addition (desk lamp in the office). Once the lamp is off, the room counts as empty after 2 minutes – unless a sensor still sees someone. Lamps only count for this room, never for “someone home”.",
+      "Une lampe ou une prise (p. ex. PC) allumée compte comme un capteur : quelqu’un est dans la pièce. Utile pour les pièces sans capteur mmWave ou en complément (lampe de bureau). Une fois la lampe éteinte, la pièce est vide après 2 minutes – sauf si un capteur voit encore quelqu’un. Les lampes ne comptent que pour cette pièce, jamais pour « quelqu’un à la maison »."
     ],
     "… wenn belegt seit": [
       "So viele Minuten muss der Melder jemanden im Raum sehen, bevor die Anwesenheits-Temperatur gilt. 0 = sofort. Standard 5 min – wer nur kurz durchgeht, löst nichts aus.",
@@ -6399,9 +6441,9 @@
       "Facultatif : à partir de 1000 ppm arrive « Merci d’aérer », « Air renouvelé » seulement sous 800 ppm."
     ],
     "Kalibrierung": [
-      "Wie das Thermostat dazu gebracht wird, die Raumtemperatur zu „sehen“: Offset (Korrekturwert am Thermostat), Sollwert-Ausgleich (Ziel am Thermostat anpassen) oder keine.",
-      "How the thermostat is made to “see” the room temperature: offset (correction value on the thermostat), setpoint compensation (adjust the thermostat target) or none.",
-      "Comment le thermostat est amené à « voir » la température de la pièce : décalage (valeur de correction au thermostat), compensation de consigne (adapter la cible au thermostat) ou aucune."
+      "Wie das Thermostat die Raumtemperatur berücksichtigt. Sollwert-Ausgleich (Standard): Ziel am Thermostat um die Abweichung verschieben – genau, das Ventil bewegt sich öfter. Hysterese: Ventil nach dem Raumfühler ganz auf/ganz zu – weniger Bewegung und Batterie, etwas mehr Schwankung. Ohne Abgleich: Sollwert 1:1, für Räume ohne Raumfühler. „Offset am Thermostat“ erscheint nur bei Geräten mit Kalibrier-Entität.",
+      "How the thermostat takes the room temperature into account. Setpoint compensation (default): shift the thermostat target by the difference – accurate, the valve moves more often. Hysteresis: valve fully open/closed based on the room sensor – fewer movements and less battery, slightly more fluctuation. No compensation: setpoint 1:1, for rooms without a room sensor. “Offset on thermostat” only appears for devices with a calibration entity.",
+      "Comment le thermostat tient compte de la température de la pièce. Compensation de consigne (par défaut) : décaler la cible du thermostat de l'écart – précis, la vanne bouge plus souvent. Hystérésis : vanne entièrement ouverte/fermée selon la sonde de pièce – moins de mouvements et de batterie, un peu plus de variation. Sans compensation : consigne 1:1, pour les pièces sans sonde. « Offset sur le thermostat » n'apparaît que pour les appareils avec entité de calibrage."
     ],
     "Einschalten mit": [
       "Mit welcher Betriebsart das Thermostat heizt. Automatisch meidet Modi, bei denen manche Thermostate das Ventil einfach ganz öffnen.",
@@ -6651,6 +6693,7 @@
     room_eco: "auto",
     solar_gain: false,
     presence_off: false,
+    presence_source: "both",
     learn_shift: false,
     frost_night: false
   };
@@ -6842,13 +6885,18 @@
       const personChips = (ch.persons || []).map((p) => {
         const on = residents.includes(p.id);
         const info = persons[p.id];
-        const where = info ? info.present ? t("da") : info.distance_km != null ? `${fmt(info.distance_km, info.distance_km < 10 ? 1 : 0)} km` : t("unbekannt") : "";
+        const where = info ? info.present ? info.source === "wifi" ? t("da (WLAN)") : info.source === "gps" ? t("da (GPS)") : t("da") : info.distance_km != null ? `${fmt(info.distance_km, info.distance_km < 10 ? 1 : 0)} km` : t("unbekannt") : "";
         return `<button class="chip2 ${on ? "" : "off"}" data-person="${p.id}" style="--c:${on ? info && info.present ? "var(--rk-ok)" : "var(--rk-eco)" : "var(--rk-off)"}" ${this._admin ? "" : "disabled"}><i></i>${esc(p.name)}${on && where ? ` · ${where}` : ""}</button>`;
       }).join("");
       const presRows = [
         `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
         this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
         this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
+        this._row(
+          "Anwesenheit erkennen über",
+          this._segs(H, "presence_source", { both: t("GPS und WLAN"), gps: t("nur GPS"), wifi: t("nur WLAN") }, this._hubOpt("presence_source") || "both"),
+          "WLAN/Router kennt nur „zu Hause“ oder „weg“ – Entfernung und Vorheizen auf der Heimfahrt gehen nur mit GPS"
+        ),
         this._row("Absenken nach", this._num(H, "away_delay", this._hubOpt("away_delay")), "damit kurze Wege nichts auslösen"),
         this._row("Urlaub", this._toggle(hubIds.vacation), "endet automatisch bei Ankunft"),
         this._row("Gäste da", this._toggle(hubIds.guests), "nicht absenken, auch wenn alle Bewohner weg sind"),
@@ -7910,6 +7958,7 @@
       const open = this._mailOpen ?? (active && !ok);
       const dis = this._admin ? "" : "disabled";
       const sec = o("mail_security") || "starttls";
+      const auth = o("mail_auth") === "" ? true : o("mail_auth") !== false;
       const provs = Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<option value="${k}" ${p[0] === o("mail_server") ? "selected" : ""}>${esc(p[3])}</option>`).join("");
       const field = (key, label, type = "text", ph = "", hint = "") => `<label class="mf"><span>${t(label)}${hint ? `<small>${t(hint)}</small>` : ""}</span>
       <input class="inp" data-mail="${key}" type="${type}" value="${type === "password" ? "" : esc(String(o(key)))}" placeholder="${esc(ph)}" autocomplete="${type === "password" ? "new-password" : "off"}" ${dis}></label>`;
@@ -7918,14 +7967,16 @@
       <div class="mailform">
         <label class="mf"><span>${t("Anbieter")}<small>${t("füllt Server, Port und Verschlüsselung aus")}</small></span>
           <div class="segs mailprov">${Object.entries(RK_MAIL_PROVIDERS).map(([k, p]) => `<button class="${p[0] === o("mail_server") ? "on" : ""}" data-mailprov="${k}" ${dis}>${esc(p[3])}</button>`).join("")}<button data-mailprov="other" ${dis}>${t("Anderer Anbieter")}</button></div></label>
-        ${field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse")}
-        ${field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort")}
+        <label class="mf"><span>${t("Anmeldung am Server")}<small>${t("„ohne“ nur für Mailserver im eigenen Netz, die ohne Anmeldung annehmen (z. B. Spamfilter auf Port 25)")}</small></span><div class="segs">${[[true, t("mit Benutzer/Passwort")], [false, t("ohne")]].map(([v, l]) => `<button class="${v === auth ? "on" : ""}" data-mailauth="${v}" ${dis}>${l}</button>`).join("")}</div></label>
+        ${auth ? field("mail_user", "Benutzer", "email", "name@gmx.de", "meist deine E-Mail-Adresse") : ""}
+        ${auth ? field("mail_password", "Passwort", "password", this._hubOpt("mail_password_set") ? t("gespeichert – leer lassen zum Behalten") : "", "bei Gmail, iCloud, Outlook: App-Passwort") : ""}
+        ${auth ? "" : field("mail_from", "Absender", "email", "raumklima@example.de", "nötig ohne Anmeldung – viele Server lehnen Mails ohne Absender ab")}
         ${field("mail_to", "Empfänger", "text", "ich@example.de, partner@example.de", "mehrere mit Komma")}
         <details class="adv"><summary>${t("Server-Einstellungen")}</summary>
           ${field("mail_server", "Server", "text", "smtp.example.de")}
           ${field("mail_port", "Port", "number", "587")}
           <label class="mf"><span>${t("Verschlüsselung")}</span><div class="segs">${["starttls", "ssl", "none"].map((v) => `<button class="${v === sec ? "on" : ""}" data-mailsec="${v}" ${dis}>${{ starttls: "STARTTLS", ssl: "SSL/TLS", none: t("keine") }[v]}</button>`).join("")}</div></label>
-          ${field("mail_from", "Absender", "email", "", "leer = Benutzer")}
+          ${auth ? field("mail_from", "Absender", "email", "", "leer = Benutzer") : ""}
         </details>
         <div class="mailact"><button class="btn" data-mailcheck ${dis}><ha-icon icon="mdi:shield-check-outline"></ha-icon>${t("Zugang prüfen")}</button><button class="btn primary" data-mailsave ${dis}><ha-icon icon="mdi:email-check-outline"></ha-icon>${t("Speichern & Test-Mail senden")}</button></div>
         ${this._mailSteps ? `<div class="msteps">${this._mailSteps.map((s) => `<div class="mstep ${s.ok ? "ok" : "bad"}"><b>${s.ok ? "✓" : "✕"}</b><span><b>${esc(t({ connect: "Server erreichbar", tls: "Verschlüsselung", login: "Anmeldung", recipients: "Empfänger" }[s.step] || s.step))}</b> – ${esc(s.msg)}</span></div>`).join("")}</div>` : ""}
@@ -8376,9 +8427,10 @@
       const notifyCap = this._roomOpt(r, "notify_cap") ?? 3;
       const trvInterval = this._roomOpt(r, "trv_interval") ?? s.trv_interval ?? 0;
       const calHelp = {
-        target: t("auch „Abgleich“ genannt: das Gerät kennt keinen Offset – Raumklima verschiebt stattdessen den Sollwert um die Abweichung zwischen Fühler und Thermostat"),
-        none: t("Raumklima schreibt den Sollwert 1:1 – nur sinnvoll, wenn Thermostat und Raumfühler sauber übereinstimmen"),
-        hysteresis: t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – weniger Ventilbewegungen, etwas mehr Schwankung")
+        offset: t("Raumklima schreibt die Abweichung zwischen Raumfühler und Thermostat als Korrekturwert ins Gerät – nur bei Geräten mit Kalibrier-Entität. Regelt am genauesten, der Sollwert bleibt unverändert"),
+        target: t("Raumklima verschiebt den Sollwert am Thermostat um die Abweichung zwischen Raumfühler und Thermostat-Fühler – für Geräte ohne Korrekturwert (z. B. FRITZ!DECT). Regelt genau, das Ventil bewegt sich dafür öfter. Einen Korrekturwert am Gerät selbst auf 0 lassen"),
+        none: t("Raumklima schreibt den Sollwert 1:1 – richtig ohne Raumfühler oder wenn Thermostat und Raumfühler sauber übereinstimmen. Mit Raumfühler am Heizkörper-Thermostat meist zu kalt, weil das Thermostat am warmen Heizkörper misst"),
+        hysteresis: t("Raumklima öffnet das Ventil ganz unter Ziel − ½ Hysterese und schließt es ganz über Ziel + ½ – nach dem Raumfühler, nicht nach dem Thermostat. Wählen, wenn ein Thermostat trotz Ausgleich zu früh schließt oder dauernd nachregelt: weniger Ventilbewegungen und Batterie, dafür etwas mehr Schwankung. Braucht einen Raumfühler")
       };
       const wOpen = this._roomOpt(r, "window_open_delay") ?? s.window_open_delay;
       const wClose = this._roomOpt(r, "window_close_delay") ?? s.window_close_delay;
@@ -8788,7 +8840,7 @@
           mon ? "" : this._row(
             "Kalibrierung",
             editable ? this._segs(scope, "calibration_mode", s.calibration_entity ? RK_CAL : { target: RK_CAL.target, none: RK_CAL.none, hysteresis: RK_CAL.hysteresis }, s.calibration_mode || "target") : this._v(RK_CAL[s.calibration_mode] || "–"),
-            calHelp[s.calibration_mode || "target"] || calHelp.target
+            (calHelp[s.calibration_mode || "target"] || calHelp.target) + (s.calibration_entity ? "" : " · " + t("„Offset am Thermostat“ erscheint nur bei Geräten mit Kalibrier-Entität"))
           ),
           !mon && s.calibration_mode === "hysteresis" ? this._row(
             "Hysterese",
@@ -8905,15 +8957,27 @@
       }).join("");
       const avail = all.filter((x) => !list.includes(x.id));
       const addRow = editable && avail.length ? `<div class="addrow"><select class="sel" id="addPres-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)} (${x.kind === "mmwave" ? "mmWave" : "PIR"})</option>`).join("")}</select><button class="btn" data-presadd="${id}" style="--c:var(--rk-ok)"><ha-icon icon="mdi:plus"></ha-icon>${t("Melder/Gerät hinzufügen")}</button></div>` : "";
+      const lights = this._roomOpt(r, "presence_lights") ?? [];
+      const allLights = this._cfg && this._cfg.choices && (this._cfg.choices.presence_lights || this._cfg.choices.lights) || [];
+      const lightName = (e) => (allLights.find((x) => x.id === e) || {}).name || this._name(e);
+      const lightChips = lights.map((e) => {
+        const on = this._st(e) && this._st(e).state === "on";
+        return `<span class="chip2" style="--c:${on ? "var(--rk-warn)" : "var(--rk-off)"}"><i></i>${esc(lightName(e))}${editable ? ` <button class="mini x" data-plightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`;
+      }).join("");
+      const lightAvail = allLights.filter((x) => !lights.includes(x.id));
+      const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe/Steckdose hinzufügen")}</button></div>` : "";
+      const lightRow = this._row("Lampen und Steckdosen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eingeschaltet heißt: jemand ist im Raum (z. B. Schreibtischlampe, PC-Steckdose) – zählt nur für diesen Raum, nie für „jemand zu Hause“");
       const homeOfficeRow = this._row(
         "Homeoffice-Entität",
         editable ? this._select(scope, "home_office_entity", homeOfficeChoices, homeOfficeEntity, "– keiner –") : this._v(homeOfficeEntity ? esc(this._name(homeOfficeEntity)) : t("keiner"), !homeOfficeEntity),
-        "eigener Schalter für dieses Büro – z. B. eine input_boolean, die nur für diesen Raum Homeoffice meldet"
+        "eigener Schalter für dieses Büro (z. B. input_boolean je Büro) – dann folgt der Raum nur diesem Schalter, nicht mehr dem allgemeinen Homeoffice"
       );
       if (!list.length) {
         return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
           this._row("Melder", this._v("keine", true), "Melder oder Gerät hinzufügen (z. B. PC/Lampe) – dann kann der Raum bei Anwesenheit wärmer werden"),
           addRow,
+          lightRow,
+          lightAdd,
           homeOfficeRow
         ].join(""));
       }
@@ -8925,16 +8989,7 @@
       const pr = Number(this._roomOpt(r, "presence_release_min") ?? 5);
       const pir = !!this._roomOpt(r, "presence_pir");
       const wish = Number(this._roomOpt(r, "comfort_temperature") ?? a.comfort_temperature ?? 20);
-      const lights = this._roomOpt(r, "presence_lights") ?? [];
       const learn = this._roomOpt(r, "presence_learn") ?? true;
-      const allLights = this._cfg && this._cfg.choices && this._cfg.choices.lights || [];
-      const lightName = (e) => (allLights.find((x) => x.id === e) || {}).name || this._name(e);
-      const lightChips = lights.map((e) => {
-        const on = this._st(e) && this._st(e).state === "on";
-        return `<span class="chip2" style="--c:${on ? "var(--rk-warn)" : "var(--rk-off)"}"><i></i>${esc(lightName(e))}${editable ? ` <button class="mini x" data-plightrm="${esc(e)}" data-entry="${id}" title="${t("entfernen")}">✕</button>` : ""}</span>`;
-      }).join("");
-      const lightAvail = allLights.filter((x) => !lights.includes(x.id));
-      const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe hinzufügen")}</button></div>` : "";
       const counting = [...list.filter((e) => kindOf(e) === "mmwave" || pir), ...lights];
       const hasPir = list.some((e) => kindOf(e) === "pir");
       const since = a.presence_since ? Math.max(0, Math.floor((Date.now() - Date.parse(a.presence_since)) / 6e4)) : null;
@@ -8955,6 +9010,9 @@
         ...warn.map((w) => `<div class="hint warn">${w}</div>`),
         this._row("Melder", `<div class="chips">${chips}</div>`, "mmWave (Radar) sieht auch Stillsitzende · PIR nur Bewegung"),
         addRow,
+        // Lampen/Steckdosen gut sichtbar direkt unter den Meldern (#72) – vorher unter „Weitere Einstellungen“
+        lightRow,
+        lightAdd,
         homeOfficeRow,
         this._row(
           "Bei Anwesenheit",
@@ -8970,8 +9028,6 @@
         ) : ""
       ];
       const more = [
-        this._row("Lampen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eine eingeschaltete Lampe (z. B. Schreibtischlampe) heißt: jemand ist im Raum – zählt nur für diesen Raum, nie für „jemand zu Hause“"),
-        lightAdd,
         this._row("Art", editable ? this._segs(scope, "presence_kind", RK_PKIND, pk) : this._v(RK_PKIND[pk]), "Automatisch: Bewegung = PIR, Anwesenheit/Belegung = mmWave. Für „Raum leer“: 3 min (mmWave) bzw. 20 min (PIR) ohne Meldung"),
         pt && hasPir ? this._row("… auch Bewegungsmelder", editable ? this._optToggle(scope, "presence_pir", pir) : this._v(pir ? t("ja") : t("nein")), t("PIR sieht auch Haustiere und nach ein paar Minuten Stillsitzen niemanden mehr – dann „zurück nach“ eher 20 min")) : "",
         this._row(
@@ -8982,7 +9038,7 @@
         eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… wenn leer seit", editable ? this._num(scope, "room_eco_after", after) : this._v(`${after} min`)) : "",
         eco === "on" || eco === "auto" && s.room_eco_enabled ? this._row("… um", editable ? this._num(scope, "room_eco_drop", drop) : this._v(`${fmt(drop)} °C`), "nie unter „kurz weg“ und den Schimmelschutz; kommt jemand rein, sofort zurück") : ""
       ];
-      rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_lights", "presence_kind", "presence_pir", "home_office_entity", "room_eco", "room_eco_after", "room_eco_drop"]));
+      rows.push(this._more("pres-more", "Weitere Einstellungen", more.join(""), r, ["presence_kind", "presence_pir", "room_eco", "room_eco_after", "room_eco_drop"]));
       return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", rows.join(""));
     },
     _lightGroup(r, id, editable) {
@@ -9966,6 +10022,11 @@
         }
         this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b.dataset.mailsec === p[2]));
       });
+      on("click", "[data-mailauth]", (el) => () => {
+        this._mailForm = { ...this._mailForm || {}, mail_auth: el.dataset.mailauth === "true" };
+        this._sig = null;
+        this._render();
+      });
       on("click", "[data-mailsec]", (el) => () => {
         this._mailForm = { ...this._mailForm || {}, mail_security: el.dataset.mailsec };
         this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b === el));
@@ -9973,9 +10034,9 @@
       const mailSettings = () => {
         const f = { ...this._mailForm || {} };
         const out = {};
-        for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+        for (const k of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
           if (f[k] === void 0) continue;
-          out[k] = k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
+          out[k] = k === "mail_auth" ? f[k] !== false : k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
         }
         return out;
       };
@@ -10013,9 +10074,9 @@
         this._mailSteps = null;
         const f = { ...this._mailForm || {} };
         const changes = { report_email: "raumklima" };
-        for (const k of ["mail_server", "mail_port", "mail_security", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+        for (const k of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
           if (f[k] === void 0) continue;
-          changes[k] = k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
+          changes[k] = k === "mail_auth" ? f[k] !== false : k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
         }
         el.disabled = true;
         this._mailMsg = ["", t("Sende Test-Mail …")];

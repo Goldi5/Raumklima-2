@@ -1,3 +1,35 @@
+## 2.0.1b12 – 2026-11-22
+
+### Neu
+- **Anwesenheit über WLAN/Router wählbar (#79):** *Zentrale → Anwesenheit → „Anwesenheit
+  erkennen über“*: GPS und WLAN (Standard) / nur GPS / nur WLAN. Router-Tracker ohne
+  Koordinaten zählen mit „home“, auch wenn ein anderes Handy eine alte, ferne GPS-Position
+  meldet. „Nur WLAN“ braucht keine Zone mit Koordinaten. Die Personen-Chips zeigen
+  „da (WLAN)“ bzw. „da (GPS)“.
+- **Einstellungs-Check im Selbsttest (#75):** benennt widersprüchliche Einstellungen samt
+  Abhilfe – z. B. Raumfühler vorhanden, aber „Ohne Abgleich“; mehrere Thermostate ohne
+  Raumfühler; „Hysterese“ ohne Raumfühler.
+- **Schattenrechnung mit Grundlast (#28):** Die berechnete Ventilöffnung lernt, wie viel der
+  Raum zum *Halten* des Ziels braucht (je Kelvin Differenz zur Außentemperatur), und hat einen
+  langsamen Nachlauf, wenn der Raum länger unter dem Ziel bleibt. Vorher rechnete sie am Ziel
+  0 %, obwohl das Thermostat zum Halten heizen muss. Die Diagnose zeigt `base_pct`,
+  `integral_pct` und `base_per_k`. Bei direkter Ventilsteuerung wirkt nur der Nachlauf; die
+  Grundlast wird nach einem Neustart neu gelernt.
+- **Mail ohne Anmeldung (#76):** Schalter „Anmeldung am Server: mit Benutzer/Passwort / ohne“.
+  Ohne Anmeldung werden Benutzer und Passwort ausgeblendet und gelöscht, und der Absender wird
+  direkt abgefragt. Vorher nutzte der Test einen gespeicherten Benutzer weiter.
+- **Lampen und Steckdosen als Anwesenheit (#72):** Auch Schalter/Steckdosen (z. B. PC) zählen
+  als „jemand im Raum“; die Einstellung steht jetzt direkt unter den Meldern statt unter
+  „Weitere Einstellungen“ – auch in Räumen ohne Melder.
+
+### Behoben
+- **Selbsttest ohne Raumfühler (#68):** Räume ohne eigenen Fühler sind kein Fehler mehr, sondern
+  ein Hinweis „es zählt der Thermostat-Fühler“.
+- **„Nur an anwesende Personen“ greift bei Handy-Apps (#78):** `notify.mobile_app_<gerät>` wird
+  über den Geräte-Tracker der Person zugeordnet, nicht nur bei gleichem Namen.
+- **Hilfetexte Kalibrierung (#71):** Jeder Modus erklärt, wann man ihn wählt (Hysterese gegen
+  Sollwert-Ausgleich); „Offset am Thermostat“ erscheint nur bei Geräten mit Kalibrier-Entität.
+
 ## 2.0.1b11 – 2026-11-22
 
 Enthält alles aus 2.0.1b10 (wurde nicht einzeln veröffentlicht).

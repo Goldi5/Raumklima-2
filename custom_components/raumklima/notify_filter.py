@@ -34,6 +34,11 @@ def person_for(target: str, persons: dict[str, dict[str, Any]]) -> str | None:
             return entity_id
         if info.get("name") and slug(info["name"]) == key_slug:
             return entity_id
+    # Handy-App: notify.mobile_app_<gerät> gehört zum device_tracker.<gerät> der Person (#78)
+    for entity_id, info in persons.items():
+        for tracker in info.get("trackers") or ():
+            if slug(str(tracker).split(".", 1)[-1]) == key_slug:
+                return entity_id
     return None
 
 

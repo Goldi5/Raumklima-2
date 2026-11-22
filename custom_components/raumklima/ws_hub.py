@@ -11,10 +11,13 @@ from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
 from .const import (
+    CAL_HYSTERESIS,
+    CAL_NONE,
     CONF_CO2_SENSOR,
     CONF_ENERGY_OIL_PRICE,
     CONF_ENERGY_OIL_PRICE_HISTORY,
     CONF_ENTRY_TYPE,
+    CONF_EXTRA_TRVS,
     CONF_HUMIDITY_SENSOR,
     CONF_PM25_SENSOR,
     CONF_RECIPIENTS,
@@ -127,7 +130,11 @@ def ws_hub_update(hass: HomeAssistant, connection: websocket_api.ActiveConnectio
     except vol.Invalid as err:
         connection.send_error(msg["id"], "invalid", str(err))
         return
-    if not changes.get("mail_password"):
+    if changes.get("mail_auth") is False:
+        # Ohne Anmeldung: gespeicherte Zugangsdaten wirklich löschen (#76)
+        changes["mail_user"] = ""
+        changes["mail_password"] = ""
+    elif not changes.get("mail_password"):
         changes.pop("mail_password", None)  # leer = altes Passwort behalten (wird nie an die Karte geschickt)
     entry = hub.entry
     if CONF_ENERGY_OIL_PRICE in changes:
@@ -279,8 +286,18 @@ def ws_self_test(hass: HomeAssistant, connection: websocket_api.ActiveConnection
     missing_trv = [r.entry.title for r in rooms if not getattr(r, "monitor", False) and not (getattr(r, "config", {}) or {}).get(CONF_TRV)]
     add(not missing_trv, "Thermostat je Raum", "Alle Räume haben ein Thermostat." if not missing_trv else "Ohne Thermostat: " + ", ".join(missing_trv))
 
-    missing_temp = [r.entry.title for r in rooms if not (getattr(r, "config", {}) or {}).get(CONF_TEMP_SENSOR)]
-    add(not missing_temp, "Temperaturfühler", "Alle Räume haben einen Temperaturfühler." if not missing_temp else "Ohne Fühler: " + ", ".join(missing_temp))
+    # Ohne eigenen Raumfühler regelt der Raum auf den Thermostat-Fühler – das ist erlaubt (#68),
+    # nur Überwachungsräume brauchen zwingend einen Fühler.
+    missing_temp = [r.entry.title for r in rooms if getattr(r, "monitor", False) and not (getattr(r, "config", {}) or {}).get(CONF_TEMP_SENSOR)]
+    trv_only = [r.entry.title for r in rooms if not getattr(r, "monitor", False) and not (getattr(r, "config", {}) or {}).get(CONF_TEMP_SENSOR)]
+    if missing_temp:
+        add(False, "Temperaturfühler", "Überwachungsraum ohne Fühler: " + ", ".join(missing_temp))
+    else:
+        add(True, "Temperaturfühler", "Alle Räume haben einen Temperaturfühler." if not trv_only else "Ohne eigenen Raumfühler, es zählt der Thermostat-Fühler: " + ", ".join(trv_only))
+
+    # Einstellungs-Check: Widersprüche, die die Regelung verschlechtern (#75)
+    hints = settings_hints(rooms)
+    add(not hints, "Einstellungen stimmig", "Keine widersprüchlichen Einstellungen gefunden." if not hints else " · ".join(hints[:8]))
 
     unavailable: list[str] = []
     for room in rooms:
@@ -299,6 +316,26 @@ def ws_self_test(hass: HomeAssistant, connection: websocket_api.ActiveConnection
     add(True, "Zeitplan", "Jeder Raum hat mindestens ein Zeitfenster." if not without_schedule else "Ohne Zeitfenster (nur Wunschtemperatur, optional): " + ", ".join(without_schedule))
 
     connection.send_result(msg["id"], {"ok": all(c["ok"] for c in checks), "checks": checks})
+
+
+def settings_hints(rooms: list[Any]) -> list[str]:
+    """Widersprüchliche Raum-Einstellungen in Klartext – mit dem, was zu ändern ist."""
+    hints: list[str] = []
+    for room in rooms:
+        if getattr(room, "monitor", False):
+            continue
+        cfg = getattr(room, "config", {}) or {}
+        name = room.entry.title
+        mode = getattr(room, "cal_mode", None)
+        has_sensor = bool(cfg.get(CONF_TEMP_SENSOR))
+        extra = [t for t in (cfg.get(CONF_EXTRA_TRVS) or []) if t]
+        if has_sensor and mode == CAL_NONE:
+            hints.append(f"{name}: Raumfühler vorhanden, aber „Ohne Abgleich“ – „Sollwert-Ausgleich“ wählen, sonst schließt das Thermostat nach seinem eigenen, wärmeren Fühler")
+        if not has_sensor and extra:
+            hints.append(f"{name}: {len(extra) + 1} Thermostate ohne Raumfühler – ein Fühler in der Raummitte gleicht die Thermostate aneinander an")
+        if not has_sensor and mode == CAL_HYSTERESIS:
+            hints.append(f"{name}: „Hysterese“ braucht einen Raumfühler – ohne Fühler „Ohne Abgleich“ wählen")
+    return hints
 
 
 def _room_template_values(room: Any) -> dict[str, Any]:

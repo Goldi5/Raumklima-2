@@ -44,6 +44,7 @@ from .health import (
     check_window_flapping,
 )
 from .logic import (
+    ValveModel,
     is_valid,
     shadow_opening,
     to_float,
@@ -112,7 +113,15 @@ class HealthMixin:
         on, target, _reason = self.peek_plan()
         if not on or not self.hvac_on or self.paused:
             return 0.0
-        return shadow_opening(target, self.current_temperature, heating=True)
+        return shadow_opening(target, self.current_temperature, heating=True, **self.valve_terms(target))
+
+    def valve_terms(self, target: float | None) -> dict[str, float]:
+        """Grundlast und Nachlauf aus dem gelernten Ventilmodell (#28)."""
+        model = getattr(self, "_valve_model", None)
+        if model is None:
+            return {}
+        outdoor = self.hub.outdoor_temp() if self.hub else None
+        return {"base": round(model.base(target, outdoor), 1), "integral": round(model.integral, 1)}
 
     def valve_summary(self) -> dict[str, Any]:
         """Zustand der Ventilsteuerung für Karte und Diagnose."""
@@ -290,7 +299,8 @@ class HealthMixin:
         """
         on, target, reason = self.peek_plan()
         heating = bool(on and self.hvac_on and not self.paused)
-        calc = shadow_opening(target, self.current_temperature, heating=heating)
+        terms = self.valve_terms(target)
+        calc = shadow_opening(target, self.current_temperature, heating=heating, **terms)
         device = self.valve_position
         return {
             "calc_pct": calc,
@@ -303,11 +313,15 @@ class HealthMixin:
             "reason": reason,
             "valve_sources": self.valve_sources,
             "valve_own": self.valve_own,
+            "base_pct": terms.get("base"),
+            "integral_pct": terms.get("integral"),
+            "base_per_k": None if getattr(self, "_valve_model", None) is None or self._valve_model.k is None else round(self._valve_model.k, 2),
         }
 
     def stats_sample(self) -> RoomSample:
         on, target, reason = self.plan()
         outdoor = self.hub.outdoor_temp() if self.hub else None
+        self._learn_valve(bool(on and self.hvac_on and not self.paused), target, outdoor)
         rate = self.heatup.rate(outdoor)
         cool_rate = self.heatup.cool_rate(outdoor)
         predicted = self.current_temperature
@@ -337,6 +351,27 @@ class HealthMixin:
             sync_failed=self.sync.state == "failed",
             trv_down=self.status == STATUS_TRV,
             hour=dt_util.now().hour,
+        )
+
+    def _learn_valve(self, heating_plan: bool, target: float | None, outdoor: float | None) -> None:
+        """Ventilmodell einmal pro Statistik-Takt nachführen (#28)."""
+        now = dt_util.utcnow()
+        last = getattr(self, "_valve_learn_at", None)
+        self._valve_learn_at = now
+        if getattr(self, "_valve_model", None) is None:
+            self._valve_model = ValveModel()
+        if last is None:
+            return
+        self._valve_model.update(
+            dt_s=max(0.0, min(180.0, (now - last).total_seconds())),
+            heating_plan=heating_plan,
+            device_heating=self.status == STATUS_HEATING,
+            target=target,
+            current=self.current_temperature,
+            outdoor=outdoor,
+            # Bei direkter Ventilsteuerung heizt das Gerät nach unserer eigenen Öffnung –
+            # daraus die Grundlast zu lernen, wäre ein Zirkelschluss. Dann nur der Nachlauf.
+            learn_base=not self.valve_direct,
         )
 
     def heatup_needed(self) -> int | None:
