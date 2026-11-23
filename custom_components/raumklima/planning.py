@@ -194,9 +194,17 @@ class MoldGuard:
         rel_humidity: float | None,
         outdoor_temp: float | None,
         frsi: float = 0.70,
+        vapour_cap: float | None = None,
     ) -> float | None:
-        """Feuchte-Mindesttemperatur (auf 0,5 aufgerundet, steigt sofort, sinkt mit Hysterese)."""
+        """Feuchte-Mindesttemperatur (auf 0,5 aufgerundet, steigt sofort, sinkt mit Hysterese).
+
+        ``vapour_cap`` begrenzt den Dampfdruck, solange der Schutz selbst heizt (#85): Zieht der
+        Feuchtefühler beim Aufheizen nicht nach (träge, ungünstig platziert), steigt der
+        berechnete Dampfdruck mit der Raumtemperatur – und damit der Boden, der weiter heizt.
+        """
         vapour = self.vapour(now, temp, rel_humidity)
+        if vapour is not None and vapour_cap is not None:
+            vapour = min(vapour, vapour_cap)
         raw = None if vapour is None or outdoor_temp is None else floor_from_vapour(vapour, outdoor_temp, frsi)
         if raw is None:
             self._floor = None

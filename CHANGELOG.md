@@ -1,3 +1,20 @@
+## 2.0.1b16 – 2026-11-23
+
+### Behoben
+- **Schimmelschutz schaukelt sich nicht mehr hoch (#85):** Zieht der Feuchtefühler beim
+  Aufheizen nicht nach (träge oder ungünstig platziert), stieg der berechnete Wasserdampf mit
+  der Raumtemperatur – und damit die Mindesttemperatur, die weiter heizte (beobachtet: in
+  0,5er-Schritten von 19 auf 21 °C bei konstant 57 % Feuchte). Solange der Schutz selbst heizt,
+  bleibt der Dampfdruck jetzt auf dem Wert beim Einsetzen; kältere Außenluft darf den Boden
+  weiter anheben. Nach 12 h wird neu bewertet.
+- **Feuchte 0 % ist ein Fühlerfehler (#85):** Werte ≤ 0 % oder > 100 % werden verworfen statt
+  als Messwert genutzt (dann zählt die Feuchte des Thermostats, falls vorhanden).
+- **Präsenzstatus zeigt die Schalter aus „Gilt für Personen“ (#85):** z. B. „nicht belegt –
+  ‚Gast 2 belegt‘ ist aus, Raum wird abgesenkt“. Ganz ohne Melder und Schalter steht
+  „keine Melder eingetragen“ statt „unbekannt“.
+- **Raumnamen auf schmalen Karten lesbar (#86):** Bei vielen Karten nebeneinander zeigt der
+  Boost-Knopf nur das Symbol, und der Name rutscht notfalls in eine eigene Zeile.
+
 ## 2.0.1b15 – 2026-11-23
 
 ### Behoben

@@ -702,9 +702,10 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         """
         state = self.hass.states.get(self.humidity_sensor) if self.humidity_sensor else None
         value = to_float(state.state) if state is not None else None
-        if value is not None:
-            return value
-        return self.trv_humidity
+        if value is not None and 0 < value <= 100:
+            return value  # 0 % oder > 100 % ist ein Fühlerfehler, kein Messwert (#85)
+        trv = self.trv_humidity
+        return trv if trv is not None and 0 < trv <= 100 else None
 
     @property
     def trv_humidity(self) -> float | None:

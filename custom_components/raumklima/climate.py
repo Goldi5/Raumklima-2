@@ -16,6 +16,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
 from . import RaumklimaConfigEntry
+from .const import CONF_ROOM_PERSONS
 from .entity import RaumklimaEntity
 
 
@@ -162,6 +163,12 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
                 else None
             ),
             "mold_min": c.mold_min(hub) if (hub := c.hub) is not None else None,
+            # „Gilt für Personen“-Schalter/Sensoren für den Präsenzstatus (#85)
+            "room_switches": [
+                {"id": e, "name": (s.name if (s := self.hass.states.get(e)) is not None else e), "on": c.hub.room_person_present(e)}
+                for e in (c.config.get(CONF_ROOM_PERSONS) or [])
+                if not str(e).startswith("person.") and c.hub is not None
+            ],
             "mold_capped": c.mold_capped,
             "mold_risk_hours": c.mold_risk_hours,
             "mold_rh": c.mold_rh,

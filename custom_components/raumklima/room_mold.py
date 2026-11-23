@@ -4,7 +4,7 @@ Teil von ``RaumklimaController`` (als Mixin, damit controller.py überschaubar b
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 from homeassistant.util import dt as dt_util
@@ -42,6 +42,8 @@ from .room_const import (
     REASON_MOLD,
 )
 
+MOLD_HOLD_MAX = timedelta(hours=12)
+
 _LOGGER = logging.getLogger(f"{__package__}.controller")  # gleicher Logger-Name wie bisher
 
 
@@ -62,6 +64,7 @@ class MoldMixin:
         if mode == MOLD_OFF or not on or reason in MOLD_EXEMPT or not self.humidity_capable or window_open:
             self._mold_raw = None  # Schutz greift nicht: Hysterese zurücksetzen
             self._mold_capped = False
+            self._mold_hold(False)
             return on, target, reason
         hub = self.hub
         if self.dehumidifier_suppresses_mold:
@@ -94,7 +97,9 @@ class MoldMixin:
         mold = min(mold, limit)
         self._mold_capped = capped
         if target >= mold - 0.05:
+            self._mold_hold(False)
             return on, target, reason
+        self._mold_hold(True)
         return True, min(mold, self.trv_max), REASON_MOLD
 
     @property
@@ -154,9 +159,28 @@ class MoldMixin:
 
     def mold_min(self, hub: RaumklimaHub) -> float | None:
         """Feuchte-Mindesttemperatur aus dem 24-h-Mittel (siehe ``MoldGuard``)."""
+        now = dt_util.utcnow()
+        hold = getattr(self, "_mold_vapour_hold", None)
+        if hold is not None and now - hold[0] > MOLD_HOLD_MAX:
+            hold = self._mold_vapour_hold = None  # nach einem halben Tag neu bewerten
         return self.mold_guard.floor(
-            dt_util.utcnow(), self.current_temperature, self.current_humidity, hub.outdoor_temp(), self.room_frsi
+            now, self.current_temperature, self.current_humidity, hub.outdoor_temp(), self.room_frsi,
+            vapour_cap=hold[1] if hold is not None else None,
         )
+
+    def _mold_hold(self, active: bool) -> None:
+        """Dampfdruck beim Einsetzen des Schutzes festhalten – gegen das Hochschaukeln (#85).
+
+        Solange der Schutz heizt, darf der Boden noch mit der Außentemperatur steigen, aber nicht
+        mehr, weil der (selbst aufgeheizte) Raum rechnerisch mehr Wasserdampf enthält.
+        """
+        if not active:
+            self._mold_vapour_hold = None
+            return
+        if getattr(self, "_mold_vapour_hold", None) is None:
+            vapour = self.mold_guard.vapour(dt_util.utcnow(), self.current_temperature, self.current_humidity)
+            if vapour is not None:
+                self._mold_vapour_hold = (dt_util.utcnow(), vapour)
 
     @property
     def mold_rh(self) -> float | None:

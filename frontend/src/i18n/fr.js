@@ -1750,4 +1750,8 @@ export const FR = {
   "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "regroupe la vue d'ensemble et les cartes par étages de Home Assistant (Paramètres → Pièces → Étages) – les pièces sans étage sont sous « Autres pièces ». Désactiver rétablit la vue précédente.",
   "Eigener Homeoffice-Schalter": "Interrupteur télétravail propre",
   "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Interrupteur ou entrée (p. ex. input_boolean « Bureau Anna ») – allumé, cette pièce chauffe comme en télétravail. La pièce ne suit alors plus le télétravail général. Pour « quelqu'un est dans la pièce » (p. ex. « chambre d'amis occupée ») utilisez plutôt « Ajouter capteur/appareil » ci-dessus.",
+  "belegt – „{n}“ ist an": "occupée – « {n} » est allumé",
+  "nicht belegt – „{n}“ ist aus, Raum wird abgesenkt": "non occupée – « {n} » est éteint, pièce abaissée",
+  "keine Melder eingetragen": "aucun capteur configuré",
+  "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "à partir des capteurs, lampes et interrupteurs sous « S'applique aux personnes »",
 };

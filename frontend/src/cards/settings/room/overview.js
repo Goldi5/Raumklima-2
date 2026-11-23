@@ -60,8 +60,16 @@ export const RoomOverviewMethods = {
         `<div class="chips">${quick.map(([min, label, key]) => `<button class="chip2 ${a.boost_open && key === "party" ? "on" : ""}" data-roomboost="${key}" data-entry="${id}" data-min="${min}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${t(label)}</button>`).join("")}</div>`,
         a.boost_open ? t("läuft ohne Zeitlimit") : a.boost_until ? t("aktiv bis {t}", { t: new Date(a.boost_until).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }) : t("wärmt kurzzeitig über den Zeitplan hinaus")
       ),
-      this._row(t("Präsenzstatus"), this._v(a.occupied === true ? t("belegt") : a.occupied === false ? (a.room_eco ? t("leer – abgesenkt") : t("leer")) : t("unbekannt"),
-        a.occupied !== true), t("aus Meldern und Lampen; Anwesenheits-Temperatur gilt, solange jemand im Raum ist")),
+      (() => {
+        // Präsenzstatus: Melder/Lampen – und die Schalter aus „Gilt für Personen“ (#85)
+        const sw = a.room_switches || [];
+        const swOn = sw.filter((x) => x.on);
+        const swTxt = sw.length ? (swOn.length ? t("belegt – „{n}“ ist an", { n: swOn.map((x) => x.name).join("“, „") }) : t("nicht belegt – „{n}“ ist aus, Raum wird abgesenkt", { n: sw.map((x) => x.name).join("“, „") })) : "";
+        const melder = a.occupied === true ? t("belegt") : a.occupied === false ? (a.room_eco ? t("leer – abgesenkt") : t("leer")) : "";
+        const text = melder && swTxt ? `${melder} · ${swTxt}` : melder || swTxt || t("keine Melder eingetragen");
+        const busy = a.occupied === true || swOn.length > 0;
+        return this._row(t("Präsenzstatus"), this._v(text, !busy), t("aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“"));
+      })(),
       this._row(
         t("Schnellzugriff"),
         `<div class="chips">${[

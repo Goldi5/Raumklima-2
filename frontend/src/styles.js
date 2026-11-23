@@ -29,6 +29,16 @@ export const STYLES = `
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
     color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .top > .wins, .top > .boostwrap { flex:none; }
+  /* Schmale Raumkarten (viele nebeneinander, #86): Boost nur als Symbol, Name notfalls eigene Zeile */
+  ha-card.rcard { container-type: inline-size; }
+  @container (max-width: 320px) {
+    .top .boostbtn > span { display:none; }
+    .top .boostbtn { padding:5px 4px 5px 9px; }
+  }
+  @container (max-width: 250px) {
+    .top { flex-wrap:wrap; row-gap:6px; }
+    .top > .name { flex:1 0 100%; white-space:normal; overflow-wrap:anywhere; }
+  }
   .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.82rem; font-weight:600;
     color:var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); white-space:nowrap;
     flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }

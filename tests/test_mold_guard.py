@@ -88,3 +88,30 @@ def test_stundenbudget_verteilt_luecken_nicht() -> None:
         g.add(now, 18.0, 50, 60.0)
         now += timedelta(minutes=5)
     assert 0.9 <= g.surface_rh_hours(now) <= 1.2
+
+
+def test_kein_hochschaukeln_beim_eigenen_heizen() -> None:
+    """#85: Heizt der Schutz und der Feuchtefühler bleibt bei 57 %, darf der Boden nicht mitsteigen."""
+    from datetime import UTC, datetime, timedelta
+
+    from rk.planning import MoldGuard
+
+    guard = MoldGuard()
+    start = datetime(2026, 11, 23, 12, 0, tzinfo=UTC)
+    temp = 18.0
+    for i in range(30 * 12):  # 30 h, alle 5 min
+        guard.add(start + timedelta(minutes=5 * i), temp, 57.0)
+    now = start + timedelta(hours=30)
+    base = guard.vapour(now, temp, 57.0)
+    first = guard.floor(now, temp, 57.0, -1.0, 0.62, vapour_cap=base)
+    # Raum heizt auf 21 °C, Fühler zeigt weiter 57 % → rechnerisch mehr Dampf
+    for i in range(6 * 12):
+        temp = min(21.0, 18.0 + i * 0.05)
+        guard.add(now + timedelta(minutes=5 * (i + 1)), temp, 57.0)
+    later = now + timedelta(hours=6, minutes=5)
+    assert guard.floor(later, temp, 57.0, -1.0, 0.62) > first  # ohne Deckel: schaukelt hoch
+    guard._floor = None
+    assert guard.floor(later, temp, 57.0, -1.0, 0.62, vapour_cap=base) == first  # mit Deckel: bleibt
+    # kälter draußen darf den Boden weiter anheben
+    guard._floor = None
+    assert guard.floor(later, temp, 57.0, -5.0, 0.62, vapour_cap=base) > first

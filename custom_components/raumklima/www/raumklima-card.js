@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b15 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b16 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1746,7 +1746,11 @@
     "nach Stockwerk gruppieren": "group by floor",
     "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "groups the overview and room cards by the floors from Home Assistant (Settings → Areas → Floors) – rooms without a floor appear under “Other rooms”. Turning it off restores the previous view.",
     "Eigener Homeoffice-Schalter": "Own home office switch",
-    "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Switch or helper (e.g. input_boolean “Office Anna”) – when on, this room heats like during home office. The room then no longer follows the general home office. For “someone is in the room” (e.g. “guest room occupied”) use “Add sensor/device” above."
+    "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Switch or helper (e.g. input_boolean “Office Anna”) – when on, this room heats like during home office. The room then no longer follows the general home office. For “someone is in the room” (e.g. “guest room occupied”) use “Add sensor/device” above.",
+    "belegt – „{n}“ ist an": "occupied – “{n}” is on",
+    "nicht belegt – „{n}“ ist aus, Raum wird abgesenkt": "not occupied – “{n}” is off, room is set back",
+    "keine Melder eingetragen": "no sensors set up",
+    "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "from sensors, lamps and the switches under “Applies to people”"
   };
 
   // src/i18n/fr.js
@@ -3495,7 +3499,11 @@
     "nach Stockwerk gruppieren": "grouper par étage",
     "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "regroupe la vue d'ensemble et les cartes par étages de Home Assistant (Paramètres → Pièces → Étages) – les pièces sans étage sont sous « Autres pièces ». Désactiver rétablit la vue précédente.",
     "Eigener Homeoffice-Schalter": "Interrupteur télétravail propre",
-    "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Interrupteur ou entrée (p. ex. input_boolean « Bureau Anna ») – allumé, cette pièce chauffe comme en télétravail. La pièce ne suit alors plus le télétravail général. Pour « quelqu'un est dans la pièce » (p. ex. « chambre d'amis occupée ») utilisez plutôt « Ajouter capteur/appareil » ci-dessus."
+    "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Interrupteur ou entrée (p. ex. input_boolean « Bureau Anna ») – allumé, cette pièce chauffe comme en télétravail. La pièce ne suit alors plus le télétravail général. Pour « quelqu'un est dans la pièce » (p. ex. « chambre d'amis occupée ») utilisez plutôt « Ajouter capteur/appareil » ci-dessus.",
+    "belegt – „{n}“ ist an": "occupée – « {n} » est allumé",
+    "nicht belegt – „{n}“ ist aus, Raum wird abgesenkt": "non occupée – « {n} » est éteint, pièce abaissée",
+    "keine Melder eingetragen": "aucun capteur configuré",
+    "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "à partir des capteurs, lampes et interrupteurs sous « S'applique aux personnes »"
   };
 
   // src/i18n.js
@@ -3539,7 +3547,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b15";
+  var RK_VERSION = "2.0.1b16";
 
   // src/styles.js
   var STYLES = `
@@ -3571,6 +3579,16 @@
   .name { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; cursor:pointer; flex:1 1 auto; min-width:0;
     color:var(--primary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .top > .wins, .top > .boostwrap { flex:none; }
+  /* Schmale Raumkarten (viele nebeneinander, #86): Boost nur als Symbol, Name notfalls eigene Zeile */
+  ha-card.rcard { container-type: inline-size; }
+  @container (max-width: 320px) {
+    .top .boostbtn > span { display:none; }
+    .top .boostbtn { padding:5px 4px 5px 9px; }
+  }
+  @container (max-width: 250px) {
+    .top { flex-wrap:wrap; row-gap:6px; }
+    .top > .name { flex:1 0 100%; white-space:normal; overflow-wrap:anywhere; }
+  }
   .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.82rem; font-weight:600;
     color:var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); white-space:nowrap;
     flex:0 1 auto; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
@@ -7612,10 +7630,15 @@
           `<div class="chips">${quick.map(([min, label, key]) => `<button class="chip2 ${a.boost_open && key === "party" ? "on" : ""}" data-roomboost="${key}" data-entry="${id}" data-min="${min}" style="--c:var(--rk-heat)" ${this._admin ? "" : "disabled"}><i></i>${t(label)}</button>`).join("")}</div>`,
           a.boost_open ? t("läuft ohne Zeitlimit") : a.boost_until ? t("aktiv bis {t}", { t: new Date(a.boost_until).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }) : t("wärmt kurzzeitig über den Zeitplan hinaus")
         ),
-        this._row(t("Präsenzstatus"), this._v(
-          a.occupied === true ? t("belegt") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : t("unbekannt"),
-          a.occupied !== true
-        ), t("aus Meldern und Lampen; Anwesenheits-Temperatur gilt, solange jemand im Raum ist")),
+        (() => {
+          const sw = a.room_switches || [];
+          const swOn = sw.filter((x) => x.on);
+          const swTxt = sw.length ? swOn.length ? t("belegt – „{n}“ ist an", { n: swOn.map((x) => x.name).join("“, „") }) : t("nicht belegt – „{n}“ ist aus, Raum wird abgesenkt", { n: sw.map((x) => x.name).join("“, „") }) : "";
+          const melder = a.occupied === true ? t("belegt") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : "";
+          const text = melder && swTxt ? `${melder} · ${swTxt}` : melder || swTxt || t("keine Melder eingetragen");
+          const busy = a.occupied === true || swOn.length > 0;
+          return this._row(t("Präsenzstatus"), this._v(text, !busy), t("aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“"));
+        })(),
         this._row(
           t("Schnellzugriff"),
           `<div class="chips">${[
