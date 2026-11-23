@@ -1,4 +1,4 @@
-import { rkFloorGroups, rkDark, rkLook, rkLookStyles, moldBadge, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, statusFor, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkFloorGroups, rkOccupancy, rkDark, rkLook, rkLookStyles, moldBadge, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, statusFor, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -160,7 +160,12 @@ export class RaumklimaOverviewCard extends HTMLElement {
               : t("Ziel {v}°", { v: fmt(applied) });
       return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
-          ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
+          ${(() => {
+            // Person: belegt (Melder oder Schalter); durchgestrichen nur bei Schalter-Steuerung (#85)
+            const o = rkOccupancy(a);
+            if (!o || (!o.in && !o.switch)) return "";
+            return `<ha-icon class="occ${o.in ? "" : " off"}" icon="${o.in ? "mdi:account" : "mdi:account-off-outline"}" title="${esc(o.why)}"></ha-icon>`;
+          })()}
           ${a.dehumidifier_active ? `<span class="dehum${a.dehumidifier_maxed ? " maxed" : ""}" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => { const s = rkOpenSince(this._hass, a); return s ? `<span title="${t("offen seit {c}", { c: rkClock(s) })}">${rkDuration(Date.now() - s)}</span>` : ""; })()}</span>` : ""}</div>
         <div class="rn">${name}</div>
@@ -200,6 +205,7 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .dot ha-icon { --mdc-icon-size:20px; }
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
       .occ { color: var(--rk-ok); --mdc-icon-size:18px; margin-left:auto; margin-right:6px; }
+      .occ.off { color: var(--secondary-text-color); opacity:.8; }
       .dehum { display:inline-flex; align-items:center; gap:3px; margin-left:auto; margin-right:6px; padding:1px 6px 1px 4px; border-radius:999px; background:color-mix(in srgb, var(--rk-air) 16%, transparent); color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
       .dehum ha-icon { --mdc-icon-size:16px; animation: rkdehum 2.4s ease-in-out infinite; }
       .dehum.maxed { color:var(--rk-warn); background:color-mix(in srgb, var(--rk-warn) 16%, transparent); }

@@ -206,7 +206,20 @@ class PresenceMixin:
         now = dt_util.utcnow()
         readings = self.presence_readings()
         was = self._occupied
+        before = self._empty_since
         self._occupied, self._empty_since = occupancy(readings, now)
+        restored = getattr(self, "_restored_empty", None)
+        if restored is not None:
+            usable = [r for r in readings if r.on is not None]
+            if any(r.on for r in usable):
+                self._restored_empty = None  # inzwischen jemand da gewesen: verwerfen
+            elif usable and restored <= now and (self._empty_since is None or restored < self._empty_since):
+                # Nach dem Neustart melden die Melder „aus“ mit neuer Uhrzeit – sonst gälte der Raum
+                # für die Nachlaufzeit als belegt und „leer seit“ finge bei null an. Der Raum war aber
+                # schon vorher leer: den gespeicherten, früheren Zeitpunkt nehmen (#87).
+                self._occupied, self._empty_since = False, restored
+        if self._empty_since != before:
+            self._save()
         if self._occupied and was is not True:
             self._occupied_since = now
         elif not self._occupied:

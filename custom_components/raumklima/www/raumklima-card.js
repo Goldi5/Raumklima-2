@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b16 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b17 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1750,7 +1750,10 @@
     "belegt – „{n}“ ist an": "occupied – “{n}” is on",
     "nicht belegt – „{n}“ ist aus, Raum wird abgesenkt": "not occupied – “{n}” is off, room is set back",
     "keine Melder eingetragen": "no sensors set up",
-    "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "from sensors, lamps and the switches under “Applies to people”"
+    "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "from sensors, lamps and the switches under “Applies to people”",
+    "„{n}“ ist an": "“{n}” is on",
+    "„{n}“ ist aus – Raum wird abgesenkt": "“{n}” is off – room is set back",
+    "Raum leer": "Room empty"
   };
 
   // src/i18n/fr.js
@@ -3503,7 +3506,10 @@
     "belegt – „{n}“ ist an": "occupée – « {n} » est allumé",
     "nicht belegt – „{n}“ ist aus, Raum wird abgesenkt": "non occupée – « {n} » est éteint, pièce abaissée",
     "keine Melder eingetragen": "aucun capteur configuré",
-    "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "à partir des capteurs, lampes et interrupteurs sous « S'applique aux personnes »"
+    "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "à partir des capteurs, lampes et interrupteurs sous « S'applique aux personnes »",
+    "„{n}“ ist an": "« {n} » est allumé",
+    "„{n}“ ist aus – Raum wird abgesenkt": "« {n} » est éteint – pièce abaissée",
+    "Raum leer": "Pièce vide"
   };
 
   // src/i18n.js
@@ -3547,7 +3553,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b16";
+  var RK_VERSION = "2.0.1b17";
 
   // src/styles.js
   var STYLES = `
@@ -4628,6 +4634,43 @@
     }
     return i < 0 ? order.length : i;
   }
+  function rkEnhanceSelects(html, { admin = true, min = 8 } = {}) {
+    const coll = new Intl.Collator(loc(), { sensitivity: "base", numeric: true });
+    const re = /<select class="sel"([^>]*)>([\s\S]*?)<\/select>/g;
+    let out = "";
+    let last = 0;
+    let m;
+    while (m = re.exec(html)) {
+      const [whole, attrs, inner] = m;
+      const opts = inner.match(/<option\b[^>]*>[\s\S]*?<\/option>/g) || [];
+      let repl = whole;
+      if (opts.length > min && !/<optgroup/.test(inner)) {
+        const text = (o) => o.replace(/<[^>]+>/g, "").trim();
+        const empty = opts.filter((o) => /value=""/.test(o));
+        const rest = opts.filter((o) => !/value=""/.test(o));
+        const sorted = /data-nosort/.test(attrs) ? rest : [...rest].sort((a, b) => coll.compare(text(a), text(b)));
+        repl = `<select class="sel"${attrs}>${[...empty, ...sorted].join("")}</select>`;
+        const before = html.slice(Math.max(0, m.index - 400), m.index);
+        const wrapped = before.lastIndexOf("data-selsearch") > before.lastIndexOf("</select>");
+        if (!wrapped) {
+          const dis = /\sdisabled\b/.test(attrs) || !admin ? "disabled" : "";
+          repl = `<div class="selwrap" data-selwrap><input class="inp selsearch" type="search" placeholder="${esc(t("Suchen …"))}" aria-label="${esc(t("Suchen …"))}" data-selsearch autocomplete="off" ${dis}>${repl}</div>`;
+        }
+      }
+      out += html.slice(last, m.index) + repl;
+      last = m.index + whole.length;
+    }
+    return out + html.slice(last);
+  }
+  function rkOccupancy(a) {
+    const sw = a && a.room_switches || [];
+    const on = sw.filter((x) => x.on).map((x) => x.name);
+    if (a && a.occupied === true) return { in: true, why: t("Jemand im Raum") };
+    if (on.length) return { in: true, why: t("„{n}“ ist an", { n: on.join("“, „") }) };
+    if (sw.length) return { in: false, switch: true, why: t("„{n}“ ist aus – Raum wird abgesenkt", { n: sw.map((x) => x.name).join("“, „") }) };
+    if (a && a.occupied === false) return { in: false, switch: false, why: t("Raum leer") };
+    return null;
+  }
   function rkFloorOf(hass, entityId) {
     const ent = (hass && hass.entities || {})[entityId] || {};
     const dev = ent.device_id ? (hass && hass.devices || {})[ent.device_id] || {} : {};
@@ -5028,14 +5071,14 @@
           <div class="mname" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           <div class="mflags">
             ${a.window_open !== void 0 ? `<span class="micon ${winOpen ? "open" : ""}" title="${winOpen ? t("Fenster offen") : t("Fenster geschlossen")}"><ha-icon icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></span>` : ""}
-            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire-plus"></ha-icon></button>` : ""}
+            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire"></ha-icon></button>` : ""}
           </div>
         </div>
         <div class="mstatus">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
           ${a.dehumidifier_active ? `<span class="micon dehum" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="micon warn" title="${esc(t("Batterie {p} %", { p: a.battery.level }))}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon></span>` : ""}
-          ${boostOn ? `<span class="chip" style="--tone:var(--rk-heat)"><ha-icon icon="mdi:fire-plus"></ha-icon>${t("Boost")} ${a.boost_open ? "∞" : t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : ""}
+          ${boostOn ? `<span class="chip" style="--tone:var(--rk-heat)"><ha-icon icon="mdi:fire"></ha-icon>${t("Boost")} ${a.boost_open ? "∞" : t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : ""}
         </div>
         ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
@@ -5153,7 +5196,7 @@
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== void 0 ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           ${!mon && sib.boost ? `<span class="boostwrap ${boostOn ? "on" : ""}">
-            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
+            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
             <button class="boostmore" data-boostopen title="${t("Dauer des Boosts")}" aria-label="${t("Dauer des Boosts")}"><ha-icon icon="mdi:chevron-down"></ha-icon></button>
           </span>` : ""}
         </div>
@@ -5164,7 +5207,12 @@
           ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
         </div>
         ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
-        ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
+        ${(() => {
+        const o = rkOccupancy(a);
+        if (!o) return "";
+        const text = o.in ? o.why : o.switch ? o.why : "";
+        return `<div class="since occ ${o.in ? "in" : ""}" title="${esc(o.why)}"><ha-icon icon="${o.in ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${!o.in && !o.switch ? "data-empty" : ""}>${esc(text)}</span></div>`;
+      })()}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
           ${mon ? "" : this._arc(a.current_temperature, target, isOff)}
@@ -5381,7 +5429,11 @@
         const targetText = mon ? "" : off ? t("aus") : a.plan_reason === "season" ? t("Pause") : tag ? wishDiffers ? t("{tag} {v}° · Wunsch {w}°", { tag, v: fmt(applied), w: fmt(wish) }) : t("{tag} {v}°", { tag, v: fmt(applied) }) : wishDiffers ? applied < wish ? t("↓ {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}° · Wunsch {w}°", { v: fmt(applied), w: fmt(wish) }) : t("Ziel {v}°", { v: fmt(applied) });
         return `<div class="room${mon ? " static" : ""}" ${mon ? "" : `data-more="${r.entity_id}"`} style="--tone:${toneVar(tone)}">
         <div class="rtop"><div class="dot"><ha-icon icon="${v && a.ventilation !== "ok" ? v.icon : s.icon}"></ha-icon></div>
-          ${a.occupied === true ? `<ha-icon class="occ" icon="mdi:account" title="${t("Jemand im Raum")}"></ha-icon>` : ""}
+          ${(() => {
+          const o = rkOccupancy(a);
+          if (!o || !o.in && !o.switch) return "";
+          return `<ha-icon class="occ${o.in ? "" : " off"}" icon="${o.in ? "mdi:account" : "mdi:account-off-outline"}" title="${esc(o.why)}"></ha-icon>`;
+        })()}
           ${a.dehumidifier_active ? `<span class="dehum${a.dehumidifier_maxed ? " maxed" : ""}" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
           ${a.window_open ? `<span class="wopen"><ha-icon class="win" icon="mdi:window-open-variant"></ha-icon>${(() => {
           const s2 = rkOpenSince(this._hass, a);
@@ -5423,6 +5475,7 @@
       .dot ha-icon { --mdc-icon-size:20px; }
       .win { color: var(--rk-air); --mdc-icon-size:20px; }
       .occ { color: var(--rk-ok); --mdc-icon-size:18px; margin-left:auto; margin-right:6px; }
+      .occ.off { color: var(--secondary-text-color); opacity:.8; }
       .dehum { display:inline-flex; align-items:center; gap:3px; margin-left:auto; margin-right:6px; padding:1px 6px 1px 4px; border-radius:999px; background:color-mix(in srgb, var(--rk-air) 16%, transparent); color:var(--rk-air); font-size:.78rem; font-weight:600; font-variant-numeric:tabular-nums; }
       .dehum ha-icon { --mdc-icon-size:16px; animation: rkdehum 2.4s ease-in-out infinite; }
       .dehum.maxed { color:var(--rk-warn); background:color-mix(in srgb, var(--rk-warn) 16%, transparent); }
@@ -11053,7 +11106,7 @@
       const me = homes.find((h) => h.entry_id === this._homeId());
       this._ctxHome = me ? me.name : this._config && this._config.home || t("Wohnung");
       const homeBar = homes.length > 1 && !this._config.home ? `<div class="tabs homes">${homes.map((h) => `<button class="tab ${h.entry_id === this._homeId() ? "on" : ""}" data-home="${h.entry_id}"><ha-icon icon="mdi:home-outline"></ha-icon>${esc(h.name)}</button>`).join("")}</div>` : "";
-      rkPaint(this, `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
+      rkPaint(this, rkEnhanceSelects(`<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}</style>
       <ha-card class="settings" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:tune-variant"></ha-icon>${esc(this._config.title || t("Einstellungen"))}</div><a class="btn" href="${rkManualUrl()}" target="_blank" rel="noopener" style="--c:var(--rk-heat)" title="${t("Anleitung, Funktionen und häufige Fragen")}"><ha-icon icon="mdi:book-open-variant"></ha-icon>${t("Handbuch (PDF)")}</a><button class="btn" data-onboard style="--c:var(--rk-heat)" title="${t("Führt Schritt für Schritt durch die Einrichtung")}"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Einrichtungsassistent")}</button><button class="btn" data-selftest style="--c:var(--rk-ok)" title="${t("Prüft Wohnung, Räume, Thermostate, Fühler und Erreichbarkeit")}"><ha-icon icon="mdi:clipboard-check-outline"></ha-icon>${t("Selbsttest")}</button><button class="btn" data-diag style="--c:var(--rk-eco)" title="${t("Alle Werte, Entitäten und die letzten Log-Zeilen als Datei")}"><ha-icon icon="mdi:file-download-outline"></ha-icon>${t("Diagnose")}</button>
           <button class="btn" data-backup style="--c:var(--rk-eco)" title="${t("Alle Einstellungen als Datei sichern – ohne Passwörter")}"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Sichern")}</button>
@@ -11073,7 +11126,7 @@
         ${this._sheetHtml()}
         ${this._toast ? `<div class="toast">${esc(this._toast)}</div>` : ""}
         ${this._timePop()}
-      </ha-card>`);
+      </ha-card>`, { admin: this._admin }));
       this._bind();
       this._reopenTime();
       this._filter();

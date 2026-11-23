@@ -1,4 +1,4 @@
-import { rkDark, rkLook, rkLookStyles, moldBadge, STATUS, statusFor, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkTime, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkOccupancy, rkDark, rkLook, rkLookStyles, moldBadge, STATUS, statusFor, STYLES, VENT, esc, fmt, humTone, loc, planText, rkClock, rkTime, rkDuration, rkOpenSince, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 // Boost-Fenster: Zeitstrahl und Auswahl (eigene Styles, damit die Karte unverändert bleibt)
 const BOOST_CSS = `
@@ -265,14 +265,14 @@ export class RaumklimaCard extends HTMLElement {
           <div class="mname" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           <div class="mflags">
             ${a.window_open !== undefined ? `<span class="micon ${winOpen ? "open" : ""}" title="${winOpen ? t("Fenster offen") : t("Fenster geschlossen")}"><ha-icon icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></span>` : ""}
-            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire-plus"></ha-icon></button>` : ""}
+            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire"></ha-icon></button>` : ""}
           </div>
         </div>
         <div class="mstatus">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
           ${a.dehumidifier_active ? `<span class="micon dehum" title="${esc(a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft"))}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_since ? `<span>${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}</span>` : ""}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="micon warn" title="${esc(t("Batterie {p} %", { p: a.battery.level }))}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon></span>` : ""}
-          ${boostOn ? `<span class="chip" style="--tone:var(--rk-heat)"><ha-icon icon="mdi:fire-plus"></ha-icon>${t("Boost")} ${a.boost_open ? "∞" : t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : ""}
+          ${boostOn ? `<span class="chip" style="--tone:var(--rk-heat)"><ha-icon icon="mdi:fire"></ha-icon>${t("Boost")} ${a.boost_open ? "∞" : t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : ""}
         </div>
         ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
@@ -420,7 +420,7 @@ export class RaumklimaCard extends HTMLElement {
           <div class="name" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           ${a.window_open !== undefined ? `<div class="wins"><ha-icon class="${winOpen ? "open" : ""}" icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></div>` : ""}
           ${!mon && sib.boost ? `<span class="boostwrap ${boostOn ? "on" : ""}">
-            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire-plus"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
+            <button class="boostbtn ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${boostLabel}`}"><ha-icon icon="mdi:fire"></ha-icon>${a.boost_open ? `<span>∞</span>` : a.boost_until ? `<span>${t("bis {t}", { t: rkClock(Date.parse(a.boost_until)) })}</span>` : `<span>${t("Boost")} ${boostLabel}</span>`}</button>
             <button class="boostmore" data-boostopen title="${t("Dauer des Boosts")}" aria-label="${t("Dauer des Boosts")}"><ha-icon icon="mdi:chevron-down"></ha-icon></button>
           </span>` : ""}
         </div>
@@ -431,7 +431,13 @@ export class RaumklimaCard extends HTMLElement {
           ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
         </div>
         ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
-        ${a.occupied === true || a.occupied === false ? `<div class="since occ ${a.occupied ? "in" : ""}"><ha-icon icon="${a.occupied ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${a.occupied ? "" : "data-empty"}>${a.occupied ? t("Jemand im Raum") : ""}</span></div>` : ""}
+        ${(() => {
+          const o = rkOccupancy(a);
+          if (!o) return "";
+          // Melder „leer“: Zähler „leer seit …“ wie bisher; Schalter: Grund als Text (#85)
+          const text = o.in ? o.why : o.switch ? o.why : "";
+          return `<div class="since occ ${o.in ? "in" : ""}" title="${esc(o.why)}"><ha-icon icon="${o.in ? "mdi:account" : "mdi:account-off-outline"}"></ha-icon><span ${!o.in && !o.switch ? "data-empty" : ""}>${esc(text)}</span></div>`;
+        })()}
         ${winOpen && this._winSince ? `<div class="since"><ha-icon icon="mdi:window-open-variant"></ha-icon><span data-since></span></div>` : ""}
         <div class="dial">
           ${mon ? "" : this._arc(a.current_temperature, target, isOff)}

@@ -481,6 +481,56 @@ function rkOrderPos(order, r) {
  * Für die Einstellungen: dort muss auch ein auf „aus" gestellter Raum anklickbar bleiben,
  * sonst käme man nie wieder an seine Einstellungen (Issue #30).
  */
+/**
+ * Auswahllisten einheitlich (#84): jede <select class="sel"> mit mehr als 8 Einträgen wird
+ * alphabetisch sortiert (Leer-/Platzhalter-Eintrag bleibt oben) und – wenn sie noch keins hat –
+ * mit einem Suchfeld versehen. Arbeitet auf dem HTML-Text, damit rkPaint stabil vergleichen kann.
+ * Auswahlen mit ``data-nosort`` behalten ihre Reihenfolge (z. B. Zeiten, Stufen).
+ */
+export function rkEnhanceSelects(html, { admin = true, min = 8 } = {}) {
+  const coll = new Intl.Collator(loc(), { sensitivity: "base", numeric: true });
+  const re = /<select class="sel"([^>]*)>([\s\S]*?)<\/select>/g;
+  let out = "";
+  let last = 0;
+  let m;
+  while ((m = re.exec(html))) {
+    const [whole, attrs, inner] = m;
+    const opts = inner.match(/<option\b[^>]*>[\s\S]*?<\/option>/g) || [];
+    let repl = whole;
+    if (opts.length > min && !/<optgroup/.test(inner)) {
+      const text = (o) => o.replace(/<[^>]+>/g, "").trim();
+      const empty = opts.filter((o) => /value=""/.test(o));
+      const rest = opts.filter((o) => !/value=""/.test(o));
+      const sorted = /data-nosort/.test(attrs) ? rest : [...rest].sort((a, b) => coll.compare(text(a), text(b)));
+      repl = `<select class="sel"${attrs}>${[...empty, ...sorted].join("")}</select>`;
+      const before = html.slice(Math.max(0, m.index - 400), m.index);
+      const wrapped = before.lastIndexOf("data-selsearch") > before.lastIndexOf("</select>");
+      if (!wrapped) {
+        const dis = /\sdisabled\b/.test(attrs) || !admin ? "disabled" : "";
+        repl = `<div class="selwrap" data-selwrap><input class="inp selsearch" type="search" placeholder="${esc(t("Suchen …"))}" aria-label="${esc(t("Suchen …"))}" data-selsearch autocomplete="off" ${dis}>${repl}</div>`;
+      }
+    }
+    out += html.slice(last, m.index) + repl;
+    last = m.index + whole.length;
+  }
+  return out + html.slice(last);
+}
+
+/**
+ * Belegt-Zustand eines Raums für Kachel und Raumkarte (#85): Melder/Lampen und die Schalter
+ * aus „Gilt für Personen“. ``off`` nur, wenn ein Schalter steuert (dann wird wirklich abgesenkt)
+ * oder Melder „leer“ melden. Ohne beides: null (kein Symbol).
+ */
+export function rkOccupancy(a) {
+  const sw = (a && a.room_switches) || [];
+  const on = sw.filter((x) => x.on).map((x) => x.name);
+  if (a && a.occupied === true) return { in: true, why: t("Jemand im Raum") };
+  if (on.length) return { in: true, why: t("„{n}“ ist an", { n: on.join("“, „") }) };
+  if (sw.length) return { in: false, switch: true, why: t("„{n}“ ist aus – Raum wird abgesenkt", { n: sw.map((x) => x.name).join("“, „") }) };
+  if (a && a.occupied === false) return { in: false, switch: false, why: t("Raum leer") };
+  return null;
+}
+
 /** Stockwerk eines Raums aus HA: Entität → (Gerät →) Bereich → Stockwerk (#80). */
 export function rkFloorOf(hass, entityId) {
   const ent = ((hass && hass.entities) || {})[entityId] || {};

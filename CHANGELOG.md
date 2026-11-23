@@ -1,3 +1,22 @@
+## 2.0.1b17 – 2026-11-23
+
+### Behoben
+- **„Leer seit“ übersteht einen Neustart (#87):** Nach einem Neustart melden viele Melder ihren
+  Zustand mit neuer Uhrzeit – „Raum leer seit 27 s“, und die Wartezeit fürs Absenken begann neu
+  (der Raum galt sogar für die Nachlaufzeit als belegt). Raumklima merkt sich „leer seit“ jetzt
+  und übernimmt den Wert, solange seitdem kein Melder angeschlagen hat.
+- **Flamme am Boost-Knopf (#86):** Der Knopf nutzte ein Symbol, das es in Home Assistant nicht
+  gibt – auf schmalen Karten blieb ein leerer grauer Kasten. Jetzt mit Flamme.
+
+### Verbessert
+- **Belegt-Symbol auch bei Schaltern (#85):** Die Person auf Kachel und Raumkarte erscheint jetzt
+  auch, wenn ein Schalter unter „Gilt für Personen“ an ist; ist er aus, zeigt sie die
+  durchgestrichene Person (Raum wird abgesenkt), mit dem Grund im Tooltip. Räume mit Meldern
+  sehen aus wie bisher.
+- **Alle Auswahllisten sortiert und durchsuchbar (#84):** Listen aus mehreren Quellen (Lampen +
+  Steckdosen, Melder + Geräte, Personen + Schalter …) sind jetzt insgesamt alphabetisch sortiert,
+  und jede Auswahl mit mehr als 8 Einträgen hat ein Suchfeld.
+
 ## 2.0.1b16 – 2026-11-23
 
 ### Behoben

@@ -1754,4 +1754,7 @@ export const EN = {
   "nicht belegt – „{n}“ ist aus, Raum wird abgesenkt": "not occupied – “{n}” is off, room is set back",
   "keine Melder eingetragen": "no sensors set up",
   "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "from sensors, lamps and the switches under “Applies to people”",
+  "„{n}“ ist an": "“{n}” is on",
+  "„{n}“ ist aus – Raum wird abgesenkt": "“{n}” is off – room is set back",
+  "Raum leer": "Room empty",
 };

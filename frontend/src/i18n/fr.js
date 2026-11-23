@@ -1754,4 +1754,7 @@ export const FR = {
   "nicht belegt – „{n}“ ist aus, Raum wird abgesenkt": "non occupée – « {n} » est éteint, pièce abaissée",
   "keine Melder eingetragen": "aucun capteur configuré",
   "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "à partir des capteurs, lampes et interrupteurs sous « S'applique aux personnes »",
+  "„{n}“ ist an": "« {n} » est allumé",
+  "„{n}“ ist aus – Raum wird abgesenkt": "« {n} » est éteint – pièce abaissée",
+  "Raum leer": "Pièce vide",
 };

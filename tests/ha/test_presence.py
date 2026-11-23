@@ -334,3 +334,22 @@ async def test_anwesenheit_pir_nur_wenn_gewaehlt(hass: HomeAssistant, trv: FakeT
     c.apply_live_options({"presence_pir": True})
     await hass.async_block_till_done()
     assert c.plan()[1:] == (21.0, "presence")
+
+
+async def test_leer_seit_ueberlebt_neustart(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """#87: nach dem Neustart gilt der gespeicherte „leer seit“-Zeitpunkt, solange niemand kam."""
+    _radar(hass, False)
+    _hub, room = await _setup(hass, room_type="living", presence_sensors=[RADAR])
+    c = room.runtime_data
+    vorher = dt_util.utcnow() - timedelta(hours=2)
+    c._restored_empty = vorher  # wie aus dem Speicher geladen
+    c.update_presence()
+    assert c.occupied is False
+    assert c._empty_since == vorher
+    assert c.room_eco_applies() is True  # Wartezeit (30 min) längst vorbei – sofort absenken
+    assert c._stored_data()["empty_since"] == vorher.isoformat()
+
+    _radar(hass, True)  # jemand kommt: gespeicherter Wert ist verbraucht
+    await hass.async_block_till_done()
+    assert c._restored_empty is None
+    assert c.occupied is True
