@@ -1,3 +1,12 @@
+## 2.0.1b14 – 2026-11-23
+
+### Behoben
+- **„Hysterese“ auch beim Einrichten wählbar (#59):** Im HA-Dialog (*Gerät hinzufügen /
+  konfigurieren → Erweitert (Technik) → Kalibrierart*) fehlte „Hysterese“; sie war nur in der
+  Raumklima-Karte einstellbar. Die Auswahl heißt jetzt wie in der Karte (Sollwert-Ausgleich,
+  Offset am Thermostat, Hysterese, Ohne Abgleich), und der Hilfetext erklärt, wann man welchen
+  Modus nimmt. Das alte „Offset (empfohlen)“ ist weg – empfohlen ist der Sollwert-Ausgleich.
+
 ## 2.0.1b13 – 2026-11-23
 
 ### Neu (Beta-Schalter)

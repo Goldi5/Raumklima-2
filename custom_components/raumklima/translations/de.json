@@ -68,7 +68,7 @@
               "follow_trv_changes": "Änderungen direkt am TRV übernehmen"
             },
             "data_description": {
-              "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
+              "calibration_mode": "Sollwert-Ausgleich: Ziel am Thermostat um die Abweichung zum Raumfühler verschieben – genau, für fast alle Geräte. Offset: Korrekturwert ins Gerät schreiben – nur mit Kalibrier-Entität. Hysterese: nach dem Raumfühler ganz auf unter dem Ziel, ganz zu darüber – wie eine Ein/Aus-Regelung, braucht einen Raumfühler (Bandbreite später in der Raumklima-Karte). Ohne Abgleich: Sollwert 1:1, für Räume ohne Raumfühler.",
               "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
               "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
               "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen.",
@@ -202,7 +202,7 @@
               "follow_trv_changes": "Änderungen direkt am TRV übernehmen"
             },
             "data_description": {
-              "calibration_mode": "Offset: Das TRV bekommt laufend einen Korrekturwert, damit es die Raumtemperatur „sieht“ (empfohlen). Sollwert: Der Sollwert am TRV wird angepasst – für TRVs ohne Offset.",
+              "calibration_mode": "Sollwert-Ausgleich: Ziel am Thermostat um die Abweichung zum Raumfühler verschieben – genau, für fast alle Geräte. Offset: Korrekturwert ins Gerät schreiben – nur mit Kalibrier-Entität. Hysterese: nach dem Raumfühler ganz auf unter dem Ziel, ganz zu darüber – wie eine Ein/Aus-Regelung, braucht einen Raumfühler (Bandbreite später in der Raumklima-Karte). Ohne Abgleich: Sollwert 1:1, für Räume ohne Raumfühler.",
               "calibration_entity": "Meist „…local_temperature_calibration“. Automatisch gefunden: {found}",
               "off_method": "Automatisch erkennt das passende Verfahren. Tuya-TRVs: meist „Preset off“.",
               "on_preset": "In diesem Preset muss das TRV auf den gesendeten Sollwert regeln. Automatisch wählt z. B. „eco“ und meidet „on“ – beim TRV602Z bedeutet „on“: Ventil dauerhaft offen.",
@@ -315,9 +315,10 @@
   "selector": {
     "calibration_mode": {
       "options": {
-        "offset": "Offset (empfohlen)",
-        "target": "Sollwert anpassen",
-        "none": "Keine Kalibrierung"
+        "offset": "Offset am Thermostat",
+        "target": "Sollwert-Ausgleich (Standard)",
+        "none": "Ohne Abgleich",
+        "hysteresis": "Hysterese (ganz auf / ganz zu)"
       }
     },
     "room_type": {

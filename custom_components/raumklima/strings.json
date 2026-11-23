@@ -68,7 +68,7 @@
               "follow_trv_changes": "Adopt changes made on the TRV"
             },
             "data_description": {
-              "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
+              "calibration_mode": "Setpoint compensation: shift the thermostat target by the difference to the room sensor – accurate, for almost all devices. Offset: write a correction value into the device – only with a calibration entity. Hysteresis: fully open below target, fully closed above, based on the room sensor – like on/off control, needs a room sensor (band later in the Raumklima card). No compensation: setpoint 1:1, for rooms without a room sensor.",
               "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
               "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
               "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open.",
@@ -202,7 +202,7 @@
               "follow_trv_changes": "Adopt changes made on the TRV"
             },
             "data_description": {
-              "calibration_mode": "Offset: the TRV continuously gets a correction value so it 'sees' the room temperature (recommended). Setpoint: the TRV setpoint is adjusted – for TRVs without offset.",
+              "calibration_mode": "Setpoint compensation: shift the thermostat target by the difference to the room sensor – accurate, for almost all devices. Offset: write a correction value into the device – only with a calibration entity. Hysteresis: fully open below target, fully closed above, based on the room sensor – like on/off control, needs a room sensor (band later in the Raumklima card). No compensation: setpoint 1:1, for rooms without a room sensor.",
               "calibration_entity": "Usually '…local_temperature_calibration'. Auto-detected: {found}",
               "off_method": "Auto picks the right method. Tuya TRVs: usually 'preset off'.",
               "on_preset": "The TRV must regulate to the sent setpoint in this preset. Auto picks e.g. 'eco' and avoids 'on' – on the TRV602Z 'on' means valve permanently open.",
@@ -315,9 +315,10 @@
   "selector": {
     "calibration_mode": {
       "options": {
-        "offset": "Offset (recommended)",
-        "target": "Adjust setpoint",
-        "none": "No calibration"
+        "offset": "Offset on thermostat",
+        "target": "Setpoint compensation (default)",
+        "none": "No compensation",
+        "hysteresis": "Hysteresis (fully open / closed)"
       }
     },
     "room_type": {

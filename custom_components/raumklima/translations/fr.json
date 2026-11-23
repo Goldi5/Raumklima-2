@@ -68,7 +68,7 @@
               "follow_trv_changes": "Reprendre les réglages faits sur le TRV"
             },
             "data_description": {
-              "calibration_mode": "Décalage : le TRV reçoit en continu une valeur de correction pour « voir » la température de la pièce (recommandé). Consigne : la consigne du TRV est ajustée – pour les TRV sans décalage.",
+              "calibration_mode": "Compensation de consigne : décaler la cible du thermostat de l'écart à la sonde – précis, pour presque tous les appareils. Offset : écrire une correction dans l'appareil – seulement avec entité de calibrage. Hystérésis : ouvert sous la cible, fermé au-dessus, d'après la sonde de pièce – comme une régulation marche/arrêt, nécessite une sonde (bande ensuite dans la carte Raumklima). Sans compensation : consigne 1:1, pour les pièces sans sonde.",
               "calibration_entity": "En général « …local_temperature_calibration ». Détecté automatiquement : {found}",
               "off_method": "Automatique choisit la bonne méthode. TRV Tuya : en général « préréglage arrêt ».",
               "on_preset": "Dans ce préréglage, le TRV doit réguler sur la consigne envoyée. Automatique choisit p. ex. « eco » et évite « on » – sur le TRV602Z, « on » signifie vanne ouverte en permanence.",
@@ -202,7 +202,7 @@
               "follow_trv_changes": "Reprendre les réglages faits sur le TRV"
             },
             "data_description": {
-              "calibration_mode": "Décalage : le TRV reçoit en continu une valeur de correction pour « voir » la température de la pièce (recommandé). Consigne : la consigne du TRV est ajustée – pour les TRV sans décalage.",
+              "calibration_mode": "Compensation de consigne : décaler la cible du thermostat de l'écart à la sonde – précis, pour presque tous les appareils. Offset : écrire une correction dans l'appareil – seulement avec entité de calibrage. Hystérésis : ouvert sous la cible, fermé au-dessus, d'après la sonde de pièce – comme une régulation marche/arrêt, nécessite une sonde (bande ensuite dans la carte Raumklima). Sans compensation : consigne 1:1, pour les pièces sans sonde.",
               "calibration_entity": "En général « …local_temperature_calibration ». Détecté automatiquement : {found}",
               "off_method": "Automatique choisit la bonne méthode. TRV Tuya : en général « préréglage arrêt ».",
               "on_preset": "Dans ce préréglage, le TRV doit réguler sur la consigne envoyée. Automatique choisit p. ex. « eco » et évite « on » – sur le TRV602Z, « on » signifie vanne ouverte en permanence.",
@@ -315,9 +315,10 @@
   "selector": {
     "calibration_mode": {
       "options": {
-        "offset": "Décalage (recommandé)",
-        "target": "Ajuster la consigne",
-        "none": "Pas de calibrage"
+        "offset": "Offset sur le thermostat",
+        "target": "Compensation de consigne (par défaut)",
+        "none": "Sans compensation",
+        "hysteresis": "Hystérésis (ouvert / fermé)"
       }
     },
     "room_type": {

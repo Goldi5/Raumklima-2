@@ -41,7 +41,7 @@ from .const import (
     BUILDING_TYPES,
     CAL_OFFSET,
     CAL_TARGET,
-    CALIBRATION_MODES,
+    CALIBRATION_MODES_ALL,
     CO2_LIMIT_DEFAULT,
     CO2_LIMIT_OPTIONS,
     CONF_AWAY_DELAY,
@@ -323,7 +323,7 @@ def _advanced_fields(defaults: dict[str, Any], presets: list[str]) -> dict[Any, 
     return {
         vol.Required(CONF_CALIBRATION_MODE, default=d(CONF_CALIBRATION_MODE)): SelectSelector(
             SelectSelectorConfig(
-                options=CALIBRATION_MODES, translation_key=CONF_CALIBRATION_MODE, mode=SelectSelectorMode.LIST
+                options=CALIBRATION_MODES_ALL, translation_key=CONF_CALIBRATION_MODE, mode=SelectSelectorMode.LIST
             )
         ),
         vol.Optional(
