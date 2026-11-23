@@ -190,9 +190,11 @@ class DecisionLog:
         entry_id: str | None = None,
         categories: list[str] | None = None,
         since: datetime | None = None,
+        entry_ids: list[str] | None = None,
     ) -> list[dict[str, Any]]:
-        """Neueste zuerst."""
+        """Neueste zuerst. ``entry_ids`` filtert auf mehrere Räume zugleich (#81)."""
         out: list[dict[str, Any]] = []
+        rooms = set(entry_ids or ([entry_id] if entry_id else []))
         since_iso = since.isoformat() if since else None
         for entry in reversed(self.entries):
             if before is not None and entry["id"] >= before:
@@ -201,9 +203,9 @@ class DecisionLog:
                 break
             if since_iso and entry["t"] < since_iso:
                 break
-            if entry_id and entry.get("eid") not in (entry_id, None):
+            if rooms and entry.get("eid") is not None and entry.get("eid") not in rooms:
                 continue
-            if entry_id and entry.get("eid") is None and entry["cat"] not in (CAT_PRESENCE, CAT_SEASON):
+            if rooms and entry.get("eid") is None and entry["cat"] not in (CAT_PRESENCE, CAT_SEASON):
                 continue
             if categories and entry["cat"] not in categories:
                 continue

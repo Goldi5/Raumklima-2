@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b14 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b15 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1744,7 +1744,9 @@
     "Weitere Räume": "Other rooms",
     "Neue Übersicht testen (Beta)": "Try new overview (beta)",
     "nach Stockwerk gruppieren": "group by floor",
-    "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "groups the overview and room cards by the floors from Home Assistant (Settings → Areas → Floors) – rooms without a floor appear under “Other rooms”. Turning it off restores the previous view."
+    "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "groups the overview and room cards by the floors from Home Assistant (Settings → Areas → Floors) – rooms without a floor appear under “Other rooms”. Turning it off restores the previous view.",
+    "Eigener Homeoffice-Schalter": "Own home office switch",
+    "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Switch or helper (e.g. input_boolean “Office Anna”) – when on, this room heats like during home office. The room then no longer follows the general home office. For “someone is in the room” (e.g. “guest room occupied”) use “Add sensor/device” above."
   };
 
   // src/i18n/fr.js
@@ -3491,7 +3493,9 @@
     "Weitere Räume": "Autres pièces",
     "Neue Übersicht testen (Beta)": "Tester la nouvelle vue (bêta)",
     "nach Stockwerk gruppieren": "grouper par étage",
-    "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "regroupe la vue d'ensemble et les cartes par étages de Home Assistant (Paramètres → Pièces → Étages) – les pièces sans étage sont sous « Autres pièces ». Désactiver rétablit la vue précédente."
+    "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "regroupe la vue d'ensemble et les cartes par étages de Home Assistant (Paramètres → Pièces → Étages) – les pièces sans étage sont sous « Autres pièces ». Désactiver rétablit la vue précédente.",
+    "Eigener Homeoffice-Schalter": "Interrupteur télétravail propre",
+    "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Interrupteur ou entrée (p. ex. input_boolean « Bureau Anna ») – allumé, cette pièce chauffe comme en télétravail. La pièce ne suit alors plus le télétravail général. Pour « quelqu'un est dans la pièce » (p. ex. « chambre d'amis occupée ») utilisez plutôt « Ajouter capteur/appareil » ci-dessus."
   };
 
   // src/i18n.js
@@ -3535,7 +3539,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b14";
+  var RK_VERSION = "2.0.1b15";
 
   // src/styles.js
   var STYLES = `
@@ -7511,7 +7515,7 @@
           ),
           this._row("Erinnern alle", this._num(H, "repeat_minutes", this._hubOpt("repeat_minutes")), "solange das Problem besteht"),
           this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
-          this._row("SMTP-Bericht", this._select("hub", "smtp_notify", this._cfg.choices.notify || [], this._hubOpt("smtp_notify") || "", "– HA-SMTP wählen –"), t("versendet den PDF-Bericht über Home Assistants SMTP-Integration statt über den eigenen Mail-Client"))
+          this._row("SMTP-Bericht", this._select("hub", "smtp_notify", this._cfg.choices.smtp_entities || (this._cfg.choices.notify || []).map((n) => ({ id: n, name: rkPretty(n) })), this._hubOpt("smtp_notify") || "", "– HA-SMTP wählen –"), t("versendet den PDF-Bericht über Home Assistants SMTP-Integration statt über den eigenen Mail-Client"))
         ].join(""), "hub", ["storm_gust_kmh", "storm_rain_mm", "repeat_minutes", "notify_on_failure", "smtp_notify"])
       ].join("");
       return this._grp("notify", "Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows);
@@ -9007,9 +9011,9 @@
       const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe/Steckdose hinzufügen")}</button></div>` : "";
       const lightRow = this._row("Lampen und Steckdosen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eingeschaltet heißt: jemand ist im Raum (z. B. Schreibtischlampe, PC-Steckdose) – zählt nur für diesen Raum, nie für „jemand zu Hause“");
       const homeOfficeRow = this._row(
-        "Homeoffice-Entität",
+        "Eigener Homeoffice-Schalter",
         editable ? this._select(scope, "home_office_entity", homeOfficeChoices, homeOfficeEntity, "– keiner –") : this._v(homeOfficeEntity ? esc(this._name(homeOfficeEntity)) : t("keiner"), !homeOfficeEntity),
-        "eigener Schalter für dieses Büro (z. B. input_boolean je Büro) – dann folgt der Raum nur diesem Schalter, nicht mehr dem allgemeinen Homeoffice"
+        "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben."
       );
       if (!list.length) {
         return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [
@@ -11675,7 +11679,7 @@
       } catch (e) {
         saved = {};
       }
-      this._room = this._room ?? saved.room ?? "";
+      this._roomSel = this._roomSel ?? new Set(Array.isArray(saved.rooms) ? saved.rooms : saved.room ? [saved.room] : []);
       this._cats = this._cats || new Set(saved.cats || Object.keys(RK_LOG_CATS).filter((c) => c !== "device"));
       this._q = this._q || "";
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
@@ -11749,7 +11753,7 @@
         });
         if (this._config.entity) {
           const r = this._rooms.find((x) => x.id === this._config.entity);
-          if (r) this._room = (r.attrs.settings || {}).entry_id || "";
+          if (r && (r.attrs.settings || {}).entry_id) this._roomSel = /* @__PURE__ */ new Set([(r.attrs.settings || {}).entry_id]);
         }
         this._load();
         this._subscribe();
@@ -11758,7 +11762,7 @@
     }
     _save() {
       try {
-        localStorage.setItem("raumklima-log-filter", JSON.stringify({ room: this._room, cats: [...this._cats] }));
+        localStorage.setItem("raumklima-log-filter", JSON.stringify({ rooms: [...this._roomSel], cats: [...this._cats] }));
       } catch (e) {
       }
     }
@@ -11766,7 +11770,7 @@
       try {
         const msg = { type: "raumklima/log", limit: 300, ...this._config.home ? { home: this._config.home } : {} };
         if (this._cats.size < Object.keys(RK_LOG_CATS).length) msg.categories = [...this._cats];
-        if (this._room) msg.entry_id = this._room;
+        if (this._roomSel.size) msg.entry_ids = [...this._roomSel];
         if (older && this._entries.length) msg.before = Math.min(...this._entries.map((e) => e.id || Infinity));
         const res = await this._hass.callWS(msg);
         this._entries = older ? [...this._entries, ...res.entries] : res.entries;
@@ -11801,8 +11805,8 @@
       const q = this._q.trim().toLowerCase();
       return (src || this._entries).filter((e) => {
         if (!this._cats.has(e.cat) && RK_LOG_CATS[e.cat]) return false;
-        if (this._room && e.eid && e.eid !== this._room) return false;
-        if (this._room && !e.eid && !["presence", "season"].includes(e.cat)) return false;
+        if (this._roomSel.size && e.eid && !this._roomSel.has(e.eid)) return false;
+        if (this._roomSel.size && !e.eid && !["presence", "season"].includes(e.cat)) return false;
         if (q && !`${e.msg} ${e.why || ""} ${e.room || ""}`.toLowerCase().includes(q)) return false;
         return true;
       });
@@ -11836,9 +11840,9 @@
       }
       if (cur !== null) html += `</div>`;
       this._fresh = null;
-      const roomChips = [`<button class="chip2 ${this._room ? "off" : ""}" data-room="" style="--c:var(--rk-off)"><i></i>${t("Alle Räume")}</button>`].concat(this._rooms.map((r) => {
+      const roomChips = [`<button class="chip2 ${this._roomSel.size ? "off" : ""}" data-room="" style="--c:var(--rk-off)"><i></i>${t("Alle Räume")}</button>`].concat(this._rooms.map((r) => {
         const id = (r.attrs.settings || {}).entry_id;
-        return `<button class="chip2 ${this._room === id ? "" : "off"}" data-room="${id}" style="--c:${r.color}"><i></i>${esc(r.name)}</button>`;
+        return `<button class="chip2 ${this._roomSel.has(id) ? "" : "off"}" data-room="${id}" style="--c:${r.color}"><i></i>${esc(r.name)}</button>`;
       })).join("");
       const catChips = Object.entries(RK_LOG_CATS).map(([k, m]) => `<button class="chip2 ${this._cats.has(k) ? "" : "off"}" data-cat="${k}" style="--c:${toneVar(m[2])}"><ha-icon icon="${m[1]}"></ha-icon>${m[0]}</button>`).join("");
       const empty = this._err ? `<div class="err">${t("Protokoll nicht verfügbar: {e}", { e: esc(this._err) })}</div>` : !this._entries.length ? `<div class="empty">${t("Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.")}</div>` : !list.length ? `<div class="empty">${t("Keine Einträge für diese Auswahl.")}</div>` : "";
@@ -11859,7 +11863,10 @@
       </ha-card>`;
       const $ = (s2) => this.shadowRoot.querySelectorAll(s2);
       $("[data-room]").forEach((b) => b.addEventListener("click", () => {
-        this._room = b.dataset.room;
+        const id = b.dataset.room;
+        if (!id) this._roomSel = /* @__PURE__ */ new Set();
+        else if (this._roomSel.has(id)) this._roomSel.delete(id);
+        else this._roomSel.add(id);
         this._save();
         this._render();
         this._load();
@@ -11874,7 +11881,7 @@
       $("[data-more]").forEach((b) => b.addEventListener("click", () => this._load(true)));
       $("[data-showall]").forEach((b) => b.addEventListener("click", () => {
         this._cats = new Set(Object.keys(RK_LOG_CATS));
-        this._room = "";
+        this._roomSel = /* @__PURE__ */ new Set();
         this._hiddenNew = 0;
         this._save();
         this._load();

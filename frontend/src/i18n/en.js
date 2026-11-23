@@ -1748,4 +1748,6 @@ export const EN = {
   "Neue Übersicht testen (Beta)": "Try new overview (beta)",
   "nach Stockwerk gruppieren": "group by floor",
   "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "groups the overview and room cards by the floors from Home Assistant (Settings → Areas → Floors) – rooms without a floor appear under “Other rooms”. Turning it off restores the previous view.",
+  "Eigener Homeoffice-Schalter": "Own home office switch",
+  "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben.": "Switch or helper (e.g. input_boolean “Office Anna”) – when on, this room heats like during home office. The room then no longer follows the general home office. For “someone is in the room” (e.g. “guest room occupied”) use “Add sensor/device” above.",
 };

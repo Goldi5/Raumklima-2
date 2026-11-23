@@ -484,11 +484,11 @@ export const RoomMethods = {
     const lightAdd = editable && lightAvail.length ? `<div class="addrow"><select class="sel" id="addPLight-${id}">${lightAvail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-plightadd="${id}" style="--c:var(--rk-warn)"><ha-icon icon="mdi:lightbulb-on-outline"></ha-icon>${t("Lampe/Steckdose hinzufügen")}</button></div>` : "";
     const lightRow = this._row("Lampen und Steckdosen zählen als Anwesenheit", lights.length ? `<div class="chips">${lightChips}</div>` : this._v("keine", true), "eingeschaltet heißt: jemand ist im Raum (z. B. Schreibtischlampe, PC-Steckdose) – zählt nur für diesen Raum, nie für „jemand zu Hause“");
     const homeOfficeRow = this._row(
-      "Homeoffice-Entität",
+      "Eigener Homeoffice-Schalter",
       editable
         ? this._select(scope, "home_office_entity", homeOfficeChoices, homeOfficeEntity, "– keiner –")
         : this._v(homeOfficeEntity ? esc(this._name(homeOfficeEntity)) : t("keiner"), !homeOfficeEntity),
-      "eigener Schalter für dieses Büro (z. B. input_boolean je Büro) – dann folgt der Raum nur diesem Schalter, nicht mehr dem allgemeinen Homeoffice"
+      "Schalter oder Helfer (z. B. input_boolean „Büro Anna“) – ist er an, heizt dieser Raum wie im Homeoffice. Der Raum folgt dann nicht mehr dem allgemeinen Homeoffice. Für „jemand ist im Raum“ (z. B. „Gast belegt“) passt besser „Melder/Gerät hinzufügen“ oben."
     );
     if (!list.length) {
       return this._grp("presence", "Präsenzmelder", "mdi:motion-sensor", "ok", [

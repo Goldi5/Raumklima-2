@@ -58,7 +58,8 @@ export class RaumklimaLogCard extends HTMLElement {
     this._entries = this._entries || [];
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem("raumklima-log-filter") || "{}"); } catch (e) { saved = {}; }
-    this._room = this._room ?? saved.room ?? "";
+    // Mehrere Räume gleichzeitig (#81) – alte Einzelauswahl wird übernommen
+    this._roomSel = this._roomSel ?? new Set(Array.isArray(saved.rooms) ? saved.rooms : saved.room ? [saved.room] : []);
     this._cats = this._cats || new Set(saved.cats || Object.keys(RK_LOG_CATS).filter((c) => c !== "device"));
     this._q = this._q || "";
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
@@ -116,20 +117,20 @@ export class RaumklimaLogCard extends HTMLElement {
       });
       if (this._config.entity) {
         const r = this._rooms.find((x) => x.id === this._config.entity);
-        if (r) this._room = (r.attrs.settings || {}).entry_id || "";
+        if (r && (r.attrs.settings || {}).entry_id) this._roomSel = new Set([(r.attrs.settings || {}).entry_id]);
       }
       this._load();
       this._subscribe();
       this._render();
     }
   }
-  _save() { try { localStorage.setItem("raumklima-log-filter", JSON.stringify({ room: this._room, cats: [...this._cats] })); } catch (e) { /* privat */ } }
+  _save() { try { localStorage.setItem("raumklima-log-filter", JSON.stringify({ rooms: [...this._roomSel], cats: [...this._cats] })); } catch (e) { /* privat */ } }
   async _load(older) {
     try {
       const msg = { type: "raumklima/log", limit: 300, ...(this._config.home ? { home: this._config.home } : {}) };
       // Filter schon im Server anwenden – sonst lädt „Ältere laden“ nur ausgeblendete Einträge
       if (this._cats.size < Object.keys(RK_LOG_CATS).length) msg.categories = [...this._cats];
-      if (this._room) msg.entry_id = this._room;
+      if (this._roomSel.size) msg.entry_ids = [...this._roomSel];
       if (older && this._entries.length) msg.before = Math.min(...this._entries.map((e) => e.id || Infinity));
       const res = await this._hass.callWS(msg);
       this._entries = older ? [...this._entries, ...res.entries] : res.entries;
@@ -157,8 +158,8 @@ export class RaumklimaLogCard extends HTMLElement {
     const q = this._q.trim().toLowerCase();
     return (src || this._entries).filter((e) => {
       if (!this._cats.has(e.cat) && RK_LOG_CATS[e.cat]) return false;
-      if (this._room && e.eid && e.eid !== this._room) return false;
-      if (this._room && !e.eid && !["presence", "season"].includes(e.cat)) return false;
+      if (this._roomSel.size && e.eid && !this._roomSel.has(e.eid)) return false;
+      if (this._roomSel.size && !e.eid && !["presence", "season"].includes(e.cat)) return false;
       if (q && !`${e.msg} ${e.why || ""} ${e.room || ""}`.toLowerCase().includes(q)) return false;
       return true;
     });
@@ -188,8 +189,8 @@ export class RaumklimaLogCard extends HTMLElement {
     }
     if (cur !== null) html += `</div>`;
     this._fresh = null; // Aufblitzen nur beim ersten Anzeigen
-    const roomChips = [`<button class="chip2 ${this._room ? "off" : ""}" data-room="" style="--c:var(--rk-off)"><i></i>${t("Alle Räume")}</button>`]
-      .concat(this._rooms.map((r) => { const id = (r.attrs.settings || {}).entry_id; return `<button class="chip2 ${this._room === id ? "" : "off"}" data-room="${id}" style="--c:${r.color}"><i></i>${esc(r.name)}</button>`; })).join("");
+    const roomChips = [`<button class="chip2 ${this._roomSel.size ? "off" : ""}" data-room="" style="--c:var(--rk-off)"><i></i>${t("Alle Räume")}</button>`]
+      .concat(this._rooms.map((r) => { const id = (r.attrs.settings || {}).entry_id; return `<button class="chip2 ${this._roomSel.has(id) ? "" : "off"}" data-room="${id}" style="--c:${r.color}"><i></i>${esc(r.name)}</button>`; })).join("");
     const catChips = Object.entries(RK_LOG_CATS).map(([k, m]) => `<button class="chip2 ${this._cats.has(k) ? "" : "off"}" data-cat="${k}" style="--c:${toneVar(m[2])}"><ha-icon icon="${m[1]}"></ha-icon>${m[0]}</button>`).join("");
     const empty = this._err ? `<div class="err">${t("Protokoll nicht verfügbar: {e}", { e: esc(this._err) })}</div>`
       : !this._entries.length ? `<div class="empty">${t("Noch keine Einträge. Ab jetzt steht hier jede Entscheidung mit Begründung.")}</div>`
@@ -210,10 +211,17 @@ export class RaumklimaLogCard extends HTMLElement {
         ${this._entries.length && !this._end ? `<div class="more"><button class="btn" data-more><ha-icon icon="mdi:history"></ha-icon>${t("Ältere laden")}</button></div>` : ""}
       </ha-card>`;
     const $ = (s) => this.shadowRoot.querySelectorAll(s);
-    $("[data-room]").forEach((b) => b.addEventListener("click", () => { this._room = b.dataset.room; this._save(); this._render(); this._load(); }));
+    // Antippen schaltet einen Raum dazu/weg; „Alle Räume“ hebt die Auswahl auf (#81)
+    $("[data-room]").forEach((b) => b.addEventListener("click", () => {
+      const id = b.dataset.room;
+      if (!id) this._roomSel = new Set();
+      else if (this._roomSel.has(id)) this._roomSel.delete(id);
+      else this._roomSel.add(id);
+      this._save(); this._render(); this._load();
+    }));
     $("[data-cat]").forEach((b) => b.addEventListener("click", () => { const c = b.dataset.cat; this._cats.has(c) ? this._cats.delete(c) : this._cats.add(c); this._save(); this._render(); this._load(); }));
     $("[data-more]").forEach((b) => b.addEventListener("click", () => this._load(true)));
-    $("[data-showall]").forEach((b) => b.addEventListener("click", () => { this._cats = new Set(Object.keys(RK_LOG_CATS)); this._room = ""; this._hiddenNew = 0; this._save(); this._load(); }));
+    $("[data-showall]").forEach((b) => b.addEventListener("click", () => { this._cats = new Set(Object.keys(RK_LOG_CATS)); this._roomSel = new Set(); this._hiddenNew = 0; this._save(); this._load(); }));
     const s = this.shadowRoot.querySelector(".srch");
     s.addEventListener("input", () => { this._q = s.value; clearTimeout(this._qt); this._qt = setTimeout(() => this._render(), 250); });
     if (focus) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); }

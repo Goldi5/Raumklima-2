@@ -230,3 +230,23 @@ async def test_ohne_anmeldung_loescht_zugangsdaten(hass: HomeAssistant, trv: Fak
     assert (await client.receive_json())["success"]
     assert hub.options["mail_user"] == "" and hub.options["mail_password"] == ""
     assert hub.options["mail_auth"] is False
+
+
+async def test_smtp_auswahl_zeigt_smtp_entitaeten(hass: HomeAssistant) -> None:
+    """#82: die neue SMTP-Integration liefert notify-Entitäten – die Auswahl zeigt sie mit Namen."""
+    from homeassistant.helpers import entity_registry as er
+
+    from custom_components.raumklima.ws_common import _smtp_entities
+
+    reg = er.async_get(hass)
+    smtp = reg.async_get_or_create("notify", "smtp", "mail_versand_it", suggested_object_id="mail_versand")
+    hass.states.async_set(smtp.entity_id, "unknown", {"friendly_name": "Mail-Versand"})
+    hass.states.async_set("notify.handy", "unknown", {"friendly_name": "Handy"})
+    assert _smtp_entities(hass) == [{"id": smtp.entity_id, "name": "Mail-Versand"}]
+
+
+async def test_smtp_auswahl_ohne_smtp_zeigt_alle(hass: HomeAssistant) -> None:
+    from custom_components.raumklima.ws_common import _smtp_entities
+
+    hass.states.async_set("notify.handy", "unknown", {"friendly_name": "Handy"})
+    assert _smtp_entities(hass) == [{"id": "notify.handy", "name": "Handy"}]

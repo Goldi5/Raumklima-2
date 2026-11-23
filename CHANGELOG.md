@@ -1,3 +1,19 @@
+## 2.0.1b15 – 2026-11-23
+
+### Behoben
+- **„SMTP-Bericht“ zeigt die SMTP-Integration (#82):** Die Auswahl unter *Benachrichtigungen*
+  klappte auf, zeigte aber nur leere Zeilen, und beim Auswählen wurde nichts Brauchbares
+  gespeichert. Jetzt stehen die notify-Entitäten der (per Oberfläche eingerichteten)
+  SMTP-Integration mit Namen darin; gibt es keine, alle notify-Entitäten. Ein früher
+  gespeichertes „undefined“ wird ignoriert.
+- **Beschriftung Homeoffice-Schalter (#84):** heißt jetzt „Eigener Homeoffice-Schalter“; der
+  Hilfetext erklärt in eigenen Sätzen, dass der Raum dann nicht mehr dem allgemeinen
+  Homeoffice folgt, und verweist für „Raum belegt“ auf die Melder.
+
+### Neu
+- **Protokoll: mehrere Räume zugleich (#81):** Raum-Filter lassen sich jetzt kombinieren –
+  antippen schaltet einen Raum dazu oder weg, „Alle Räume“ hebt die Auswahl auf.
+
 ## 2.0.1b14 – 2026-11-23
 
 ### Behoben

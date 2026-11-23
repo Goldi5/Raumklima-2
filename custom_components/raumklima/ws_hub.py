@@ -166,6 +166,8 @@ async def ws_mail_test(hass: HomeAssistant, connection: websocket_api.ActiveConn
     given = {k: v for k, v in msg["settings"].items() if k in MAIL_KEYS and v not in (None, "")}
     opts = {**hub.entry.options, **given}
     smtp_notify = opts.get(CONF_SMTP_NOTIFY)
+    if not str(smtp_notify or "").startswith("notify."):
+        smtp_notify = None  # Altlast „undefined“ aus der leeren Auswahl (#82)
     if not msg["send"]:
         if smtp_notify:
             ok = hass.services.has_service("smtp", "send_message") and hass.states.get(smtp_notify) is not None

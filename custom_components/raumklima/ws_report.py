@@ -122,6 +122,7 @@ async def ws_pdf_create(hass: HomeAssistant, connection: websocket_api.ActiveCon
         vol.Optional("before"): vol.Coerce(int),
         vol.Optional("after"): vol.Coerce(int),
         vol.Optional("entry_id"): str,
+        vol.Optional("entry_ids"): [str],
         vol.Optional("categories"): [vol.In(CATEGORIES)],
     }
 )
@@ -133,7 +134,7 @@ def ws_log(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg:
         return
     entries = hub.log.query(
         limit=msg["limit"], before=msg.get("before"), after=msg.get("after"), entry_id=msg.get("entry_id"),
-        categories=msg.get("categories")
+        categories=msg.get("categories"), entry_ids=msg.get("entry_ids"),
     )
     connection.send_result(msg["id"], {"entries": entries, "categories": CATEGORIES})
 

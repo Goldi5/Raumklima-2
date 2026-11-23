@@ -297,7 +297,8 @@ HUB_CHANGES = vol.Schema(
         vol.Optional("name"): str,
         vol.Optional("dashboard"): str,
         vol.Optional(CONF_REPORT_METRIC): vol.In(REPORT_METRICS),
-        vol.Optional(CONF_SMTP_NOTIFY): vol.Any(None, str),
+        # nur notify.<entität> oder leer – ein früher gespeichertes „undefined“ (#82) wird so abgewiesen
+        vol.Optional(CONF_SMTP_NOTIFY): vol.Any(None, "", vol.Match(r"^notify\.\w+$")),
         vol.Optional("holiday_state"): vol.Any(None, vol.In(["", *STATES])),
         vol.Optional("sleep_signals"): [str],
         vol.Optional("repeat_minutes"): vol.All(vol.Coerce(float), vol.Range(1, 120)),
@@ -555,6 +556,24 @@ def _mail_services(hass: HomeAssistant) -> list[str]:
     return sorted(set(out))
 
 
+def _smtp_entities(hass: HomeAssistant) -> list[dict[str, str]]:
+    """notify-Entitäten der (neuen, per Oberfläche eingerichteten) SMTP-Integration (#82).
+
+    Die SMTP-Integration legt seit 2026 je Empfänger eine notify-*Entität* an und versendet
+    über ``smtp.send_message``. Bevorzugt werden Entitäten der Mail-Plattformen; gibt es keine,
+    stehen alle notify-Entitäten zur Wahl, damit man nie vor einer leeren Liste sitzt.
+    """
+    registry = er.async_get(hass)
+    items: list[dict[str, str]] = []
+    others: list[dict[str, str]] = []
+    for state in hass.states.async_all("notify"):
+        entry = registry.async_get(state.entity_id)
+        item = {"id": state.entity_id, "name": state.name or state.entity_id}
+        (items if entry is not None and entry.platform in MAIL_PLATFORMS else others).append(item)
+    chosen = items or others
+    return sorted(chosen, key=lambda x: x["name"].lower())
+
+
 def _known_dashboards(hass: HomeAssistant) -> list[str]:
     """Alle Dashboards, die Home Assistant kennt (auch ohne Seitenleiste).
 
@@ -616,6 +635,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         # Anwesenheit im Raum: Lampen und Steckdosen/Schalter (z. B. PC-Steckdose, #72)
         "presence_lights": ents("light") + ents("switch"),
         "mail": _mail_services(hass),
+        "smtp_entities": _smtp_entities(hass),
         "presence": sorted(
             (
                 {"id": s.entity_id, "name": s.name, "kind": sensor_kind(s.attributes.get("device_class"))}

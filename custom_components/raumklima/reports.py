@@ -224,6 +224,8 @@ class PdfReports:
         await self.hub.async_notify(KIND_REPORT, title, message, push_data, speak=False)
         email = self.hub.opt(CONF_REPORT_EMAIL)
         smtp_notify = self.hub.opt(CONF_SMTP_NOTIFY)
+        if not str(smtp_notify or "").startswith("notify."):
+            smtp_notify = None  # Altlast „undefined“ aus der leeren Auswahl (#82)
         if smtp_notify:
             path = str(report_dir(self.hass) / entry["file"])
             try:

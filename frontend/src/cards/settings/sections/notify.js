@@ -84,7 +84,7 @@ export const NotifySectionMethods = {
       ),
       this._row("Erinnern alle", this._num(H, "repeat_minutes", this._hubOpt("repeat_minutes")), "solange das Problem besteht"),
       this._row("Fehler auch in der HA-Glocke", this._optToggle(H, "notify_on_failure", !!this._hubOpt("notify_on_failure"))),
-      this._row("SMTP-Bericht", this._select("hub", "smtp_notify", (this._cfg.choices.notify || []), this._hubOpt("smtp_notify") || "", "– HA-SMTP wählen –"), t("versendet den PDF-Bericht über Home Assistants SMTP-Integration statt über den eigenen Mail-Client")),
+      this._row("SMTP-Bericht", this._select("hub", "smtp_notify", this._cfg.choices.smtp_entities || (this._cfg.choices.notify || []).map((n) => ({ id: n, name: rkPretty(n) })), this._hubOpt("smtp_notify") || "", "– HA-SMTP wählen –"), t("versendet den PDF-Bericht über Home Assistants SMTP-Integration statt über den eigenen Mail-Client")),
       ].join(""), "hub", ["storm_gust_kmh", "storm_rain_mm", "repeat_minutes", "notify_on_failure", "smtp_notify"]),
     ].join("");
     return this._grp("notify", "Benachrichtigungen allgemein", "mdi:bell-cog-outline", "warn", notiRows);
