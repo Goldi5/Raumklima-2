@@ -143,6 +143,12 @@ export const BindMethods = {
       this._render();
     });
     on("click", "[data-lsave]", (el) => () => this._layoutSave());
+    on("click", "[data-lfloors]", (el) => () => {
+      this._layout = { ...this._layout, beta_floors: el.dataset.lfloors === "true" };
+      this._layoutSave();
+      this._sig = null;
+      this._render();
+    });
     on("click", "[data-resetroom]", (el) => () => {
       if (!window.confirm(t("Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten."))) return;
       ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom })

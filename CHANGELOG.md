@@ -1,3 +1,20 @@
+## 2.0.1b13 – 2026-11-23
+
+### Neu (Beta-Schalter)
+- **Übersicht nach Stockwerken (#80) – zum Ausprobieren:** *Einstellungen → Darstellung →
+  „Neue Übersicht testen (Beta)“*. Eingeschaltet liest Raumklima Bereich und Stockwerk der Räume
+  aus Home Assistant und gruppiert die Übersicht und die Raumkarten im generierten Dashboard je
+  Stockwerk mit einer Überschrift (Ebene aufsteigend, Räume ohne Stockwerk unter „Weitere
+  Räume“). Gleich benannte Räume brauchen so kein „EG/OG“ mehr im Namen. **Standard ist aus** –
+  wer nichts einschaltet, sieht alles wie bisher. Nach dem Umschalten das Dashboard einmal neu
+  laden.
+
+### Behoben
+- **Protokoll: Filter-Knöpfe springen nicht mehr (#81):** Der Hinweis „+n neue Einträge sind
+  durch die Filter ausgeblendet“ stand über den Filtern und verschwand erst nach dem Laden –
+  die Knöpfe rutschten weg, der nächste Klick traf den falschen. Er steht jetzt unter dem
+  Suchfeld in einer festen Zeile.
+
 ## 2.0.1b12 – 2026-11-22
 
 ### Neu

@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b12 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b13 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1740,7 +1740,11 @@
     "nur WLAN": "Wi-Fi only",
     "WLAN/Router kennt nur „zu Hause“ oder „weg“ – Entfernung und Vorheizen auf der Heimfahrt gehen nur mit GPS": "Wi-Fi/router only knows “home” or “away” – distance and preheating on the way home need GPS",
     "da (WLAN)": "home (Wi-Fi)",
-    "da (GPS)": "home (GPS)"
+    "da (GPS)": "home (GPS)",
+    "Weitere Räume": "Other rooms",
+    "Neue Übersicht testen (Beta)": "Try new overview (beta)",
+    "nach Stockwerk gruppieren": "group by floor",
+    "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "groups the overview and room cards by the floors from Home Assistant (Settings → Areas → Floors) – rooms without a floor appear under “Other rooms”. Turning it off restores the previous view."
   };
 
   // src/i18n/fr.js
@@ -3483,7 +3487,11 @@
     "nur WLAN": "Wi-Fi seulement",
     "WLAN/Router kennt nur „zu Hause“ oder „weg“ – Entfernung und Vorheizen auf der Heimfahrt gehen nur mit GPS": "Le Wi-Fi/routeur ne connaît que « à la maison » ou « absent » – distance et préchauffage sur le trajet nécessitent le GPS",
     "da (WLAN)": "là (Wi-Fi)",
-    "da (GPS)": "là (GPS)"
+    "da (GPS)": "là (GPS)",
+    "Weitere Räume": "Autres pièces",
+    "Neue Übersicht testen (Beta)": "Tester la nouvelle vue (bêta)",
+    "nach Stockwerk gruppieren": "grouper par étage",
+    "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "regroupe la vue d'ensemble et les cartes par étages de Home Assistant (Paramètres → Pièces → Étages) – les pièces sans étage sont sous « Autres pièces ». Désactiver rétablit la vue précédente."
   };
 
   // src/i18n.js
@@ -3527,7 +3535,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b12";
+  var RK_VERSION = "2.0.1b13";
 
   // src/styles.js
   var STYLES = `
@@ -4563,7 +4571,7 @@
     sensor_unavailable: { c: "var(--rk-warn)", l: "Fühler fehlt" },
     trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" }
   });
-  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
+  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false };
   var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
   function rkLayout(hass, home) {
     const key = String(home || "");
@@ -4597,6 +4605,24 @@
       if (name) i = order.indexOf(name);
     }
     return i < 0 ? order.length : i;
+  }
+  function rkFloorOf(hass, entityId) {
+    const ent = (hass && hass.entities || {})[entityId] || {};
+    const dev = ent.device_id ? (hass && hass.devices || {})[ent.device_id] || {} : {};
+    const area = (hass && hass.areas || {})[ent.area_id || dev.area_id] || null;
+    return area && area.floor_id ? (hass && hass.floors || {})[area.floor_id] || null : null;
+  }
+  function rkFloorGroups(hass, rooms) {
+    const groups = /* @__PURE__ */ new Map();
+    for (const r of rooms || []) {
+      const fl = rkFloorOf(hass, r.id || r.entity_id);
+      const key = fl ? fl.floor_id || fl.name : "";
+      if (!groups.has(key)) groups.set(key, { floor: fl, rooms: [] });
+      groups.get(key).rooms.push(r);
+    }
+    if (![...groups.values()].some((g) => g.floor)) return [];
+    const lvl = (g) => g.floor ? g.floor.level ?? 0 : Number.MAX_SAFE_INTEGER;
+    return [...groups.values()].sort((a, b) => lvl(a) - lvl(b) || String(a.floor ? a.floor.name : "").localeCompare(String(b.floor ? b.floor.name : ""))).map((g) => ({ ...g, name: g.floor ? g.floor.name : t("Weitere Räume"), icon: g.floor && g.floor.icon || (g.floor ? "mdi:home-floor-" + Math.max(0, Math.min(3, g.floor.level ?? 0)) : "mdi:home-outline") }));
   }
   function rkRoomsOrdered(rooms, layout) {
     const order = (layout || RK_LAYOUT_EMPTY).order || [];
@@ -5361,6 +5387,10 @@
       .out span { display:block; font-size:.78rem; color:var(--secondary-text-color); }
       .kpis { display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap; }
       .rooms { display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+      .floor + .floor { margin-top:22px; }
+      .fhead { display:flex; align-items:center; gap:8px; margin:6px 2px 10px; font-weight:650; font-size:.95rem; color:var(--primary-text-color); }
+      .fhead ha-icon { --mdc-icon-size:20px; color:var(--secondary-text-color); }
+      .fhead span { font-weight:500; font-size:.8rem; color:var(--secondary-text-color); }
       .room.static { cursor:default; }
       .room { display:flex; flex-direction:column; gap:2px; padding:14px; border-radius:20px; cursor:pointer; min-height:130px;
         background: color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
@@ -5419,7 +5449,11 @@
         ${hoActive ? `<span class="chip" data-more="${hubIds.home_office}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-city"></ha-icon>${t("Homeoffice")}</span>` : ""}
       </div>
       ${calLine}
-      <div class="rooms">${rows.map(row).join("")}</div>
+      ${(() => {
+        const groups = this._layout && this._layout.beta_floors ? rkFloorGroups(this._hass, rows) : [];
+        if (!groups.length) return `<div class="rooms">${rows.map(row).join("")}</div>`;
+        return groups.map((g) => `<div class="floor"><div class="fhead"><ha-icon icon="${esc(g.icon)}"></ha-icon>${esc(g.name)}<span>${g.rooms.length}</span></div><div class="rooms">${g.rooms.map(row).join("")}</div></div>`).join("");
+      })()}
     </ha-card>`;
       this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
       this.shadowRoot.querySelectorAll("[data-nav]").forEach((el) => el.addEventListener("click", () => {
@@ -8039,7 +8073,12 @@
       const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; „große Karte“ zeigt die volle Raumseite, „mittlere Karte“ die kompakte Raumkarte, „Kachel“ nur die Übersicht, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
       const look = this._row(t("Dunkler Look"), this._segs("hub", "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Räume und Karten dieser Wohnung"));
-      return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);
+      const floors = this._row(
+        t("Neue Übersicht testen (Beta)"),
+        `<div class="segs">${[[false, t("aus")], [true, t("nach Stockwerk gruppieren")]].map(([v, l]) => `<button class="${!!L.beta_floors === v ? "on" : ""}" data-lfloors="${v}">${l}</button>`).join("")}</div>`,
+        t("ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.")
+      );
+      return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + floors + rows + foot);
     }
   };
 
@@ -9449,6 +9488,12 @@
         this._render();
       });
       on("click", "[data-lsave]", (el) => () => this._layoutSave());
+      on("click", "[data-lfloors]", (el) => () => {
+        this._layout = { ...this._layout, beta_floors: el.dataset.lfloors === "true" };
+        this._layoutSave();
+        this._sig = null;
+        this._render();
+      });
       on("click", "[data-resetroom]", (el) => () => {
         if (!window.confirm(t("Alle Einstellungen dieses Raums auf Standard zurücksetzen? Geräte und Wohnung bleiben erhalten."))) return;
         ws({ type: "raumklima/room/reset", entry_id: el.dataset.resetroom }).then(() => this._flash(t("Auf Standard zurückgesetzt"))).catch(() => {
@@ -11585,6 +11630,7 @@
   @keyframes rkpulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rk-ok) 55%, transparent); } 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
   .filters { display:grid; gap:10px; margin:16px 0 6px; }
   .filters .chips { justify-content:flex-start; }
+  .filters .newhint { min-height:1.6em; margin:0; }
   .chip2 ha-icon { --mdc-icon-size:15px; color: var(--c); }
   .srch { font: inherit; font-size:.95rem; padding:10px 14px; border-radius:14px; border:1px solid color-mix(in srgb, var(--primary-text-color) 14%, transparent);
     background: var(--ha-card-background, var(--card-background-color)); color: var(--primary-text-color); width:100%; box-sizing:border-box; }
@@ -11801,11 +11847,12 @@
       <ha-card class="log" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:text-box-search-outline"></ha-icon><div>${esc(this._config.title || t("Protokoll"))}<div class="rsub">${t("Was wann warum entschieden wurde · 14 Tage")}</div></div></div>
           <span class="live ${this._liveOff ? "off" : ""}" title="${t("neue Einträge kommen sofort, zusätzlich wird alle 5 s nachgesehen")}"><i></i>${this._liveOff ? t("alle 5 s") : "live"}<span class="ts">${this._stamp ? ` · ${rkTime(this._stamp)}` : ""}</span></span></div>
-        ${this._hiddenNew ? `<div class="hint" style="margin-top:8px">${t("+{n} neue Einträge sind durch die Filter ausgeblendet (z. B. Thermostat-Befehle).", { n: this._hiddenNew })} <button class="mini" data-showall>${t("Alle zeigen")}</button></div>` : ""}
         <div class="filters">
           <div class="chips">${roomChips}</div>
           <div class="chips">${catChips}</div>
           <input class="srch" placeholder="${t("Suchen … (z. B. Offset, Heizpause)")}" value="${esc(this._q)}">
+          <!-- Hinweis unter den Filtern, damit die Knöpfe beim Ein-/Ausblenden nicht springen (#81) -->
+          <div class="hint newhint">${this._hiddenNew ? `${t("+{n} neue Einträge sind durch die Filter ausgeblendet (z. B. Thermostat-Befehle).", { n: this._hiddenNew })} <button class="mini" data-showall>${t("Alle zeigen")}</button>` : ""}</div>
         </div>
         ${empty}${html}
         ${this._entries.length && !this._end ? `<div class="more"><button class="btn" data-more><ha-icon icon="mdi:history"></ha-icon>${t("Ältere laden")}</button></div>` : ""}
@@ -12839,6 +12886,19 @@
           { type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-energy-card", ...H, days: config.energy_days || 30, grid_options: { columns: "full" } }] }
         ]
       };
+      const roomCard = (r) => {
+        const size = rkLayoutSize(layout, r.id);
+        return { type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, variant: size === "medium" ? "medium" : "full", grid_options: { columns: "full" } }] };
+      };
+      const big = shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile");
+      const roomSections = () => {
+        const groups = layout && layout.beta_floors ? rkFloorGroups(hass, big) : [];
+        if (!groups.length) return big.map(roomCard);
+        return groups.flatMap((g) => [
+          { type: "grid", column_span: 3, cards: [{ type: "heading", heading: g.name, icon: g.icon, heading_style: "title" }] },
+          ...g.rooms.map(roomCard)
+        ]);
+      };
       const roomsView = {
         title: t("Räume"),
         path: "raeume",
@@ -12851,10 +12911,7 @@
           // sie erscheinen nur als Kachel in der Übersicht.
           // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
           // blendet Bedienung und Sollwert selbst aus und zeigt nur Messwerte und Hinweise.
-          ...shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile").map((r) => {
-            const size = rkLayoutSize(layout, r.id);
-            return { type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, variant: size === "medium" ? "medium" : "full", grid_options: { columns: "full" } }] };
-          })
+          ...roomSections()
         ]
       };
       const hist = (mode) => ({ type: "custom:raumklima-history-card", ...H, mode, hours: 24, strip_prefix: prefix, grid_options: { columns: "full" } });

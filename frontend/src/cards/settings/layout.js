@@ -69,6 +69,10 @@ export const LayoutMethods = {
     const foot = `<div class="hint">${t("Reihenfolge gilt im generierten Dashboard und in der Übersicht; „große Karte“ zeigt die volle Raumseite, „mittlere Karte“ die kompakte Raumkarte, „Kachel“ nur die Übersicht, „aus“ versteckt den Raum ganz. Farbe färbt Rand und Akzente der Karte.")}</div>
       <div class="addrow"><button class="btn" data-lsave style="--c:var(--rk-heat)"><ha-icon icon="mdi:content-save-outline"></ha-icon>${t("Speichern")}</button></div>`;
     const look = this._row(t("Dunkler Look"), this._segs("hub", "look_dark", { auto: t("Automatisch"), on: t("Immer dunkel"), off: t("Immer hell") }, this._hubOpt("look_dark") || "auto"), t("gilt für alle Räume und Karten dieser Wohnung"));
-    return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + rows + foot);
+    // Beta (#80): neue Anordnung nach Stockwerken erst ausprobieren, Bestand bleibt unverändert
+    const floors = this._row(t("Neue Übersicht testen (Beta)"),
+      `<div class="segs">${[[false, t("aus")], [true, t("nach Stockwerk gruppieren")]].map(([v, l]) => `<button class="${!!L.beta_floors === v ? "on" : ""}" data-lfloors="${v}">${l}</button>`).join("")}</div>`,
+      t("ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her."));
+    return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + floors + rows + foot);
   },
 };

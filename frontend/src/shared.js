@@ -429,7 +429,7 @@ export const SEG = tmap({
 });
 
 // ---------------------------------------------------------------- Darstellung je Wohnung (A3)
-const RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {} };
+const RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false };
 const RK_LAYOUT_CACHE = new Map();
 
 export function rkLayout(hass, home) {
@@ -481,6 +481,34 @@ function rkOrderPos(order, r) {
  * Für die Einstellungen: dort muss auch ein auf „aus" gestellter Raum anklickbar bleiben,
  * sonst käme man nie wieder an seine Einstellungen (Issue #30).
  */
+/** Stockwerk eines Raums aus HA: Entität → (Gerät →) Bereich → Stockwerk (#80). */
+export function rkFloorOf(hass, entityId) {
+  const ent = ((hass && hass.entities) || {})[entityId] || {};
+  const dev = ent.device_id ? ((hass && hass.devices) || {})[ent.device_id] || {} : {};
+  const area = ((hass && hass.areas) || {})[ent.area_id || dev.area_id] || null;
+  return area && area.floor_id ? ((hass && hass.floors) || {})[area.floor_id] || null : null;
+}
+
+/**
+ * Räume nach Stockwerk gruppieren, die Reihenfolge innerhalb bleibt wie übergeben.
+ * Stockwerke nach Ebene (level), Räume ohne Stockwerk zuletzt unter „Weitere Räume“.
+ * Gibt [] zurück, wenn kein Raum einem Stockwerk zugeordnet ist – dann bleibt alles wie bisher.
+ */
+export function rkFloorGroups(hass, rooms) {
+  const groups = new Map();
+  for (const r of rooms || []) {
+    const fl = rkFloorOf(hass, r.id || r.entity_id);
+    const key = fl ? fl.floor_id || fl.name : "";
+    if (!groups.has(key)) groups.set(key, { floor: fl, rooms: [] });
+    groups.get(key).rooms.push(r);
+  }
+  if (![...groups.values()].some((g) => g.floor)) return [];
+  const lvl = (g) => (g.floor ? (g.floor.level ?? 0) : Number.MAX_SAFE_INTEGER);
+  return [...groups.values()]
+    .sort((a, b) => lvl(a) - lvl(b) || String(a.floor ? a.floor.name : "").localeCompare(String(b.floor ? b.floor.name : "")))
+    .map((g) => ({ ...g, name: g.floor ? g.floor.name : t("Weitere Räume"), icon: (g.floor && g.floor.icon) || (g.floor ? "mdi:home-floor-" + Math.max(0, Math.min(3, g.floor.level ?? 0)) : "mdi:home-outline") }));
+}
+
 export function rkRoomsOrdered(rooms, layout) {
   const order = ((layout || RK_LAYOUT_EMPTY).order || []);
   return [...(rooms || [])].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));

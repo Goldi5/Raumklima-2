@@ -1744,4 +1744,8 @@ export const FR = {
   "WLAN/Router kennt nur „zu Hause“ oder „weg“ – Entfernung und Vorheizen auf der Heimfahrt gehen nur mit GPS": "Le Wi-Fi/routeur ne connaît que « à la maison » ou « absent » – distance et préchauffage sur le trajet nécessitent le GPS",
   "da (WLAN)": "là (Wi-Fi)",
   "da (GPS)": "là (GPS)",
+  "Weitere Räume": "Autres pièces",
+  "Neue Übersicht testen (Beta)": "Tester la nouvelle vue (bêta)",
+  "nach Stockwerk gruppieren": "grouper par étage",
+  "ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.": "regroupe la vue d'ensemble et les cartes par étages de Home Assistant (Paramètres → Pièces → Étages) – les pièces sans étage sont sous « Autres pièces ». Désactiver rétablit la vue précédente.",
 };

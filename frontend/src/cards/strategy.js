@@ -1,4 +1,4 @@
-import { ROOM_COLORS, escRe, rkHomeId, rkHomes, rkLayout, rkLayoutApply, rkLayoutColor, rkLayoutSize, setLang, t } from "../shared.js";
+import { ROOM_COLORS, escRe, rkFloorGroups, rkHomeId, rkHomes, rkLayout, rkLayoutApply, rkLayoutColor, rkLayoutSize, setLang, t } from "../shared.js";
 
 
 // Reihenfolge der Räume: Stockwerk → Bereich → Name.
@@ -82,6 +82,20 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
       ],
     };
 
+    const roomCard = (r) => {
+      const size = rkLayoutSize(layout, r.id);
+      return { type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, variant: size === "medium" ? "medium" : "full", grid_options: { columns: "full" } }] };
+    };
+    const big = shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile");
+    // Beta (#80): Raumkarten je Stockwerk mit Überschrift – nur wenn in „Darstellung“ eingeschaltet
+    const roomSections = () => {
+      const groups = layout && layout.beta_floors ? rkFloorGroups(hass, big) : [];
+      if (!groups.length) return big.map(roomCard);
+      return groups.flatMap((g) => [
+        { type: "grid", column_span: 3, cards: [{ type: "heading", heading: g.name, icon: g.icon, heading_style: "title" }] },
+        ...g.rooms.map(roomCard),
+      ]);
+    };
     const roomsView = {
       title: t("Räume"), path: "raeume", icon: "mdi:home-thermometer", type: "sections", max_columns: 3,
       sections: [
@@ -90,10 +104,7 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
         // sie erscheinen nur als Kachel in der Übersicht.
         // Auch Überwachungsräume (ohne Thermostat) bekommen eine große Karte – die Karte
         // blendet Bedienung und Sollwert selbst aus und zeigt nur Messwerte und Hinweise.
-        ...shown.filter((r) => rkLayoutSize(layout, r.id) !== "tile").map((r) => {
-          const size = rkLayoutSize(layout, r.id);
-          return { type: "grid", cards: [{ type: "custom:raumklima-card", entity: r.id, name: r.name, accent: r.color, variant: size === "medium" ? "medium" : "full", grid_options: { columns: "full" } }] };
-        }),
+        ...roomSections(),
       ],
     };
 

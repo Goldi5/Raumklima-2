@@ -26,7 +26,7 @@ SIZES = ("big", "medium", "tile", "off")
 
 
 def _empty() -> dict[str, Any]:
-    return {"order": [], "hidden": [], "size": {}, "color": {}}
+    return {"order": [], "hidden": [], "size": {}, "color": {}, "beta_floors": False}
 
 
 def sanitize(raw: Any) -> dict[str, Any]:
@@ -46,6 +46,8 @@ def sanitize(raw: Any) -> dict[str, Any]:
     color = raw.get("color")
     if isinstance(color, dict):
         out["color"] = {str(k): str(v) for k, v in color.items() if isinstance(v, str) and v.startswith("#")}
+    # Beta (#80): Übersicht nach HA-Stockwerken gruppieren – nur wer es einschaltet, sieht es
+    out["beta_floors"] = raw.get("beta_floors") is True
     return out
 
 

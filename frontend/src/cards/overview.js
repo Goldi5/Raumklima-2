@@ -1,4 +1,4 @@
-import { rkDark, rkLook, rkLookStyles, moldBadge, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, statusFor, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
+import { rkFloorGroups, rkDark, rkLook, rkLookStyles, moldBadge, RK_VERSION, rkLayout, rkLayoutApply, rkLayoutColor, rkOnLayoutChanged, PRESENCE, SEASON, STATUS, statusFor, STYLES, VENT, esc, escRe, fmt, humTone, rkClock, rkDuration, rkHomeId, rkHomes, rkHub, rkOpenSince, planTag, rkVersionMismatch, setLang, t, toneVar, rkPaint, rkChanged, rkScrolling, rkLater } from "../shared.js";
 
 export class RaumklimaOverviewCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
@@ -186,6 +186,10 @@ export class RaumklimaOverviewCard extends HTMLElement {
       .out span { display:block; font-size:.78rem; color:var(--secondary-text-color); }
       .kpis { display:flex; gap:8px; margin:16px 0 8px; flex-wrap:wrap; }
       .rooms { display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+      .floor + .floor { margin-top:22px; }
+      .fhead { display:flex; align-items:center; gap:8px; margin:6px 2px 10px; font-weight:650; font-size:.95rem; color:var(--primary-text-color); }
+      .fhead ha-icon { --mdc-icon-size:20px; color:var(--secondary-text-color); }
+      .fhead span { font-weight:500; font-size:.8rem; color:var(--secondary-text-color); }
       .room.static { cursor:default; }
       .room { display:flex; flex-direction:column; gap:2px; padding:14px; border-radius:20px; cursor:pointer; min-height:130px;
         background: color-mix(in srgb, var(--tone) 7%, color-mix(in srgb, var(--primary-text-color) 3%, transparent));
@@ -246,7 +250,12 @@ export class RaumklimaOverviewCard extends HTMLElement {
         ${hoActive ? `<span class="chip" data-more="${hubIds.home_office}" style="--tone:${toneVar("heat")};cursor:pointer"><ha-icon icon="mdi:home-city"></ha-icon>${t("Homeoffice")}</span>` : ""}
       </div>
       ${calLine}
-      <div class="rooms">${rows.map(row).join("")}</div>
+      ${(() => {
+        // Beta (#80): nach Stockwerk gruppieren, nur wenn in „Darstellung“ eingeschaltet
+        const groups = this._layout && this._layout.beta_floors ? rkFloorGroups(this._hass, rows) : [];
+        if (!groups.length) return `<div class="rooms">${rows.map(row).join("")}</div>`;
+        return groups.map((g) => `<div class="floor"><div class="fhead"><ha-icon icon="${esc(g.icon)}"></ha-icon>${esc(g.name)}<span>${g.rooms.length}</span></div><div class="rooms">${g.rooms.map(row).join("")}</div></div>`).join("");
+      })()}
     </ha-card>`;
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) =>
       b.addEventListener("click", () => this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: b.dataset.more }, bubbles: true, composed: true }))));
