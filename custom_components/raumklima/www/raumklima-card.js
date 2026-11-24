@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b17 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b18 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1753,7 +1753,13 @@
     "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "from sensors, lamps and the switches under “Applies to people”",
     "„{n}“ ist an": "“{n}” is on",
     "„{n}“ ist aus – Raum wird abgesenkt": "“{n}” is off – room is set back",
-    "Raum leer": "Room empty"
+    "Raum leer": "Room empty",
+    "Fremdwärme (Kamin/Holzofen)": "External heat (fireplace/stove)",
+    "Schalter, Helfer oder Binärsensor „Ofen brennt“ – solange er an ist, bleiben die Thermostate in diesem Raum zu, Raumklima meldet nichts zu „zu warm“ und lernt nicht": "Switch, helper or binary sensor “stove burning” – while it is on, the thermostats in this room stay closed, Raumklima reports no “too warm” and does not learn",
+    "… Nachlauf": "… after-run",
+    "so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach": "the stove still counts this long after it goes out – it keeps radiating heat",
+    "Kamin/Holzofen heizt": "Fireplace/stove heating",
+    "Kamin/Holzofen": "Fireplace/stove"
   };
 
   // src/i18n/fr.js
@@ -3509,7 +3515,13 @@
     "aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“": "à partir des capteurs, lampes et interrupteurs sous « S'applique aux personnes »",
     "„{n}“ ist an": "« {n} » est allumé",
     "„{n}“ ist aus – Raum wird abgesenkt": "« {n} » est éteint – pièce abaissée",
-    "Raum leer": "Pièce vide"
+    "Raum leer": "Pièce vide",
+    "Fremdwärme (Kamin/Holzofen)": "Chaleur externe (cheminée/poêle)",
+    "Schalter, Helfer oder Binärsensor „Ofen brennt“ – solange er an ist, bleiben die Thermostate in diesem Raum zu, Raumklima meldet nichts zu „zu warm“ und lernt nicht": "Interrupteur, entrée ou capteur binaire « poêle allumé » – tant qu'il est allumé, les thermostats de cette pièce restent fermés, Raumklima ne signale pas « trop chaud » et n'apprend pas",
+    "… Nachlauf": "… temporisation",
+    "so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach": "le poêle compte encore ce temps après extinction – il continue de chauffer",
+    "Kamin/Holzofen heizt": "Cheminée/poêle chauffe",
+    "Kamin/Holzofen": "Cheminée/poêle"
   };
 
   // src/i18n.js
@@ -3553,7 +3565,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b17";
+  var RK_VERSION = "2.0.1b18";
 
   // src/styles.js
   var STYLES = `
@@ -3667,9 +3679,13 @@
   .micon ha-icon { --mdc-icon-size:18px; }
   .micon.open, .micon.dehum { color:var(--rk-air); }
   .micon.warn { color:var(--rk-warn); }
+  /* Boost-Knopf der mittleren Karte wie bei der großen: grau ohne Boost, rot mit (#88) */
   .mboost { all:unset; cursor:pointer; width:32px; height:32px; border-radius:50%; display:grid; place-items:center;
-    color:var(--rk-heat); background:color-mix(in srgb, var(--rk-heat) 14%, transparent); }
-  .mboost:hover { background:color-mix(in srgb, var(--rk-heat) 24%, transparent); }
+    color:var(--secondary-text-color); background:color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .mboost.on { color:#fff; background:var(--rk-heat); }
+  @media (hover: hover) {
+    .mboost:not(.on):hover { color:var(--rk-heat); background:color-mix(in srgb, var(--rk-heat) 14%, transparent); }
+  }
   .mboost ha-icon { --mdc-icon-size:18px; }
   .mstatus { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; min-width:0; }
   .mstatus:empty { display:none; }
@@ -4289,6 +4305,7 @@
     sensor_unavailable: { label: "Fühler ausgefallen", icon: "mdi:thermometer-alert", tone: "warn" },
     trv_unavailable: { label: "Thermostat nicht erreichbar", icon: "mdi:lan-disconnect", tone: "warn" },
     season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
+    external_heat: { label: "Kamin/Holzofen heizt", icon: "mdi:fireplace", tone: "heat" },
     setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
     night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" }
   });
@@ -4417,7 +4434,8 @@
       solar: "Sonne",
       frost: "Frost",
       valve_care: "Ventilpflege",
-      season: "Heizpause"
+      season: "Heizpause",
+      external_heat: "Kamin/Holzofen"
     };
     return map[r] ? t(map[r]) : "";
   }
@@ -4589,6 +4607,7 @@
   var RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
   var SEG = tmap({
     season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
+    external_heat: { c: "color-mix(in srgb, var(--rk-heat) 45%, transparent)", l: "Kamin/Holzofen" },
     setback: { c: "var(--rk-eco)", l: "Abgesenkt" },
     heating: { c: "var(--rk-heat)", l: "Heizt" },
     idle: { c: "var(--rk-ok)", l: "Erreicht" },
@@ -5071,7 +5090,7 @@
           <div class="mname" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           <div class="mflags">
             ${a.window_open !== void 0 ? `<span class="micon ${winOpen ? "open" : ""}" title="${winOpen ? t("Fenster offen") : t("Fenster geschlossen")}"><ha-icon icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></span>` : ""}
-            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire"></ha-icon></button>` : ""}
+            ${!mon && sib.boost ? `<button class="mboost ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}`}"><ha-icon icon="mdi:fire"></ha-icon></button>` : ""}
           </div>
         </div>
         <div class="mstatus">
@@ -5870,6 +5889,8 @@
 
   // src/help.js
   var HELP = {
+    "Fremdwärme (Kamin/Holzofen)": ["Schalter, Helfer oder Sensor, der „Ofen brennt“ meldet. Ist er an, bleiben die Thermostate des Raums zu, damit sie nicht gegen den Ofen heizen. Frostschutz gilt weiter.", "Switch, helper or sensor reporting “stove is burning”. While it is on, the room’s thermostats stay closed so they don’t heat against the stove. Frost protection still applies.", "Interrupteur, entrée ou capteur signalant « le poêle brûle ». Tant qu’il est actif, les thermostats de la pièce restent fermés pour ne pas chauffer contre le poêle. La protection antigel reste active."],
+    "… Nachlauf": ["So lange bleiben die Thermostate nach dem Ausschalten noch zu, weil Kamin oder Ofen nachglühen. 0 = sofort wieder normal regeln.", "How long the thermostats stay closed after switching off, because the fireplace or stove keeps glowing. 0 = return to normal control immediately.", "Durée pendant laquelle les thermostats restent fermés après l’arrêt, car la cheminée ou le poêle continue de rayonner. 0 = reprise immédiate de la régulation."],
     "Kühlen": ["Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt.", "Air conditioning cools when the room is above the cooling limit.", "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement."],
     "Klimaanlage zum Heizen": ["Erlaubt der Klimaanlage, den Raum auch zu heizen. Raumklima vergleicht dafür COP und Gaspreis; nur wenn die Klimaanlage günstiger ist, übernimmt sie.", "Allows the AC to heat the room. Raumklima compares COP and gas price; it only takes over when the AC is cheaper.", "Autorise la climatisation à chauffer la pièce. Raumklima compare le COP et le prix du gaz ; elle ne prend le relais que si elle est moins chère."],
     "Sollwert am Gerät": ["Der Sollwert, der tatsächlich am Thermostat oder Stellglied steht – kann durch Handbedienung oder Geräte-Zeitplan abweichen.", "The setpoint actually present on the thermostat or actuator – can differ due to manual control or the device schedule.", "La consigne réellement présente sur le thermostat ou l’actionneur – peut différer en cas de commande manuelle ou de programme de l’appareil."],
@@ -6746,6 +6767,7 @@
     presence_delay_min: { unit: " min", step: 1, min: 0, max: 30, dec: 0 },
     presence_release_min: { unit: " min", step: 1, min: 1, max: 30, dec: 0 },
     room_eco_after: { unit: " min", step: 5, min: 5, max: 240, dec: 0 },
+    external_heat_after: { unit: " min", step: 5, min: 0, max: 180, dec: 0 },
     room_eco_drop: { unit: " °C", step: 0.5, min: 0.5, max: 4, dec: 1 }
   };
 
@@ -9050,6 +9072,14 @@
         ));
       });
       if (!list.length) rows.push(this._row("Weitere Quellen", this._v(t("keine"), true), t("Thermostate oder Klimaanlagen, die mit dem Raum laufen")));
+      const extItems = this._cfg && this._cfg.choices && this._cfg.choices.external_heat || [];
+      const extCur = this._roomOpt(r, "external_heat_entity") ?? s.external_heat_entity ?? "";
+      rows.push(this._row(
+        "Fremdwärme (Kamin/Holzofen)",
+        editable ? this._select(scope, "external_heat_entity", extItems, extCur, t("– keine –")) : this._v(extCur ? this._name(extCur) : t("keine"), !extCur),
+        t("Schalter, Helfer oder Binärsensor „Ofen brennt“ – solange er an ist, bleiben die Thermostate in diesem Raum zu, Raumklima meldet nichts zu „zu warm“ und lernt nicht")
+      ));
+      if (extCur) rows.push(this._row("… Nachlauf", this._num(scope, "external_heat_after", this._roomOpt(r, "external_heat_after") ?? s.external_heat_after ?? 30), t("so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach")));
       if (editable && avail.length) {
         rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><select class="sel" id="addSrc-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-srcadd="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Quelle hinzufügen")}</button></div></div>`);
       }

@@ -25,6 +25,8 @@ from .const import (
     CONF_DEHUMIDIFIER_OFF,
     CONF_DEHUMIDIFIER_ON,
     CONF_DEHUMIDIFIER_POWER,
+    CONF_EXT_HEAT,
+    CONF_EXT_HEAT_AFTER,
     CONF_FAST_POLL,
     CONF_FLOOR_BAND,
     CONF_FLOOR_CYCLE_MIN,
@@ -134,6 +136,7 @@ REASON_SCHEDULE_FALLBACK = "schedule_fallback"
 REASON_HOME_OFFICE = "home_office"
 REASON_PRESENCE = "presence"
 REASON_DEVICE_AUTO = "device_auto"
+REASON_EXT_HEAT = "external_heat"  # Kamin/Holzofen heizt den Raum (#83)
 # Schimmelschutz-Stufen (Raum-Einstellung)
 MOLD_STRICT = "strict"
 MOLD_WISH = "wish"
@@ -156,6 +159,7 @@ PLAN_RULES: tuple[str, ...] = (
     "_rule_no_hub",
     "_rule_season",
     "_rule_boost",
+    "_rule_external_heat",
     "_rule_presence",
     "_rule_home_office",
     "_rule_away",
@@ -178,6 +182,7 @@ RULE_LABELS: dict[str, str] = {
     "_rule_no_hub": N_("Ohne Wohnung"),
     "_rule_season": N_("Heizsaison / Frostschutz"),
     "_rule_boost": N_("Boost"),
+    "_rule_external_heat": N_("Fremdwärme (Kamin/Holzofen)"),
     "_rule_presence": N_("Jemand im Raum (Präsenzmelder)"),
     "_rule_home_office": N_("Homeoffice"),
     "_rule_away": N_("Niemand zu Hause (Absenkung)"),
@@ -209,7 +214,7 @@ class _PlanContext:
 
 
 MOLD_EXEMPT = frozenset(
-    {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD, REASON_COOL}
+    {REASON_VALVE_CARE, REASON_FROST, REASON_SEASON, REASON_BOOST, REASON_MONITOR, REASON_MOLD, REASON_COOL, REASON_EXT_HEAT}
 )
 # Diese Einstellungen wirken sofort, ohne den Raum neu zu laden
 LIVE_OPTIONS = frozenset(
@@ -242,6 +247,8 @@ LIVE_OPTIONS = frozenset(
         CONF_LIGHT_SIGNALS,
         CONF_PRESENCE,
         CONF_PRESENCE_KIND,
+        CONF_EXT_HEAT,
+        CONF_EXT_HEAT_AFTER,
         CONF_ROOM_ECO,
         CONF_ROOM_ECO_AFTER,
         CONF_ROOM_ECO_DROP,

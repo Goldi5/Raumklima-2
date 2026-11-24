@@ -82,6 +82,8 @@ from .const import (
     CONF_ENERGY_VAT,
     CONF_ENERGY_WW_HEAT,
     CONF_ENERGY_WW_METER,
+    CONF_EXT_HEAT,
+    CONF_EXT_HEAT_AFTER,
     CONF_FAST_POLL,
     CONF_FLOOR_BAND,
     CONF_FLOOR_CYCLE_MIN,
@@ -485,10 +487,13 @@ ROOM_CHANGES = vol.Schema(
         vol.Optional(CONF_FLOOR_FLOW_MIN): num_schema("floor_flow_min"),
         vol.Optional(CONF_LIGHTS): vol.All([vol.Match(r"^light\.")], vol.Length(max=10)),
         vol.Optional(CONF_LIGHT_SIGNALS): [vol.In(LIGHT_SIGNALS)],
-        vol.Optional(CONF_PRESENCE): vol.All([vol.Match(r"^binary_sensor\.")], vol.Length(max=6)),
+        # Melder: Binärsensoren, Helfer und Schalter (#70) – Helfer/Schalter zählen wie ein PIR
+        vol.Optional(CONF_PRESENCE): vol.All([vol.Match(r"^(binary_sensor|input_boolean|switch)\.")], vol.Length(max=6)),
         vol.Optional(CONF_PRESENCE_KIND): vol.In(PRESENCE_KINDS),
         vol.Optional(CONF_ROOM_ECO): vol.In(ROOM_ECO_MODES),
         vol.Optional(CONF_ROOM_ECO_AFTER): num_schema("room_eco_after"),
+        vol.Optional(CONF_EXT_HEAT): vol.Any(None, "", vol.Match(r"^(binary_sensor|input_boolean|switch)\.")),
+        vol.Optional(CONF_EXT_HEAT_AFTER): num_schema("external_heat_after"),
         vol.Optional(CONF_ROOM_ECO_DROP): num_schema("room_eco_drop"),
         # Zeitpläne: {days: [0..6], start: "HH:MM", end: "HH:MM", temperature: °C}
         vol.Optional(CONF_SCHEDULES): vol.Any(
@@ -658,6 +663,7 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
             key=lambda x: x["name"].lower(),
         ),
         "home_office": ents("input_boolean") + ents("switch"),
+        "external_heat": sorted(ents("input_boolean") + ents("switch") + ents("binary_sensor"), key=lambda x: x["name"].lower()),
         "outdoor": sorted(
             (
                 {"id": s.entity_id, "name": s.name}

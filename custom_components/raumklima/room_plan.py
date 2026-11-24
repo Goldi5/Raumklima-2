@@ -13,6 +13,8 @@ from homeassistant.util import dt as dt_util
 from .const import (
     CONF_COOL_SETPOINT,
     CONF_COOLING,
+    CONF_EXT_HEAT,
+    CONF_EXT_HEAT_AFTER,
     CONF_FLOOR_LEAD_MIN,
     CONF_MOLD_MODE,
     CONF_PREHEAT_LEAD,
@@ -26,6 +28,7 @@ from .const import (
     CONF_SCHEDULE_FALLBACK,
     CONF_SOLAR,
     CONF_SOLAR_FACADE,
+    EXT_HEAT_AFTER,
     PREHEAT_MARGIN_MINUTES,
     PRESENCE_PREHEAT_DEFAULT,
     PRESENCE_PREHEAT_GRACE,
@@ -36,6 +39,7 @@ from .decision_log import (
 )
 from .hub import RaumklimaHub
 from .logic import (
+    to_float,
     values_match,
 )
 from .msg import tr
@@ -59,6 +63,7 @@ from .room_const import (
     REASON_COOL,
     REASON_DEVICE_AUTO,
     REASON_EMPTY,
+    REASON_EXT_HEAT,
     REASON_FROST,
     REASON_HOME_OFFICE,
     REASON_MANUAL,
@@ -305,6 +310,35 @@ class PlanMixin:
         if self._frost_active:
             return True, min(floor + 1, self.trv_max), REASON_FROST
         return False, self.target_temp, REASON_SEASON
+
+    @property
+    def external_heat_entity(self) -> str | None:
+        entity_id = self.config.get(CONF_EXT_HEAT)
+        return entity_id if isinstance(entity_id, str) and entity_id else None
+
+    @property
+    def external_heat_active(self) -> bool:
+        """Heizt gerade ein Kamin/Holzofen den Raum (Auslöser an, oder aus seit < Nachlauf)?"""
+        entity_id = self.external_heat_entity
+        if not entity_id:
+            return False
+        state = self.hass.states.get(entity_id)
+        if state is None or state.state in ("unavailable", "unknown"):
+            return False
+        if state.state == "on":
+            return True
+        if state.state != "off":
+            return False
+        after = to_float(self.config.get(CONF_EXT_HEAT_AFTER))
+        after = EXT_HEAT_AFTER if after is None else max(0.0, after)
+        # Nachlauf: der Ofen wärmt nach – erst danach übernimmt die Regelung wieder
+        return dt_util.utcnow() - state.last_changed < timedelta(minutes=after)
+
+    def _rule_external_heat(self, ctx: _PlanContext) -> PlanResult:
+        """Fremdwärme (#83): brennt der Kamin/Holzofen, bleiben die Thermostate zu."""
+        if self.external_heat_active:
+            return False, self.target_temp, REASON_EXT_HEAT
+        return None
 
     def _rule_boost(self, ctx: _PlanContext) -> PlanResult:
         """Boost: bewusste Nutzeraktion – schlägt die Absenkung bei Abwesenheit."""
@@ -688,6 +722,7 @@ class PlanMixin:
             REASON_DEVICE_AUTO: tr("Gerät im Auto-Modus – fährt sein eigenes Programm"),
             REASON_SOLAR: tr("Sonne erwartet – {d} weniger, sie heizt mit (Wunsch {t})", d=fmt_temp(SOLAR_REDUCTION), t=fmt_temp(self.target_temp)),
             REASON_COOL: tr("Kühlen – {t}", t=fmt_temp(target)),
+            REASON_EXT_HEAT: tr("Kamin/Holzofen heizt – Thermostate bleiben zu"),
             REASON_SLEEP: tr("Ruhezeit – Schlafraum abgesenkt auf {t}", t=fmt_temp(self.setback_long)),
             REASON_SCHEDULE_FALLBACK: tr(
                 "außerhalb der Zeitfenster – {t}", t=fmt_temp(target)

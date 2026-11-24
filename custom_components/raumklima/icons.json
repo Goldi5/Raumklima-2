@@ -11,6 +11,7 @@
           "sensor_unavailable": "mdi:thermometer-alert",
           "trv_unavailable": "mdi:lan-disconnect",
           "season_off": "mdi:weather-sunny",
+          "external_heat": "mdi:fireplace",
           "setback": "mdi:home-export-outline",
           "waiting": "mdi:timer-sand"
         }

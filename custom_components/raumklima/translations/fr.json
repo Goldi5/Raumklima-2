@@ -428,6 +428,7 @@
           "sensor_unavailable": "Sonde indisponible",
           "trv_unavailable": "Thermostat indisponible",
           "season_off": "Pause de chauffage",
+          "external_heat": "Cheminée/poêle chauffe",
           "setback": "Abaissé – personne à la maison",
           "night_airing": "Aération nocturne – fenêtre ouverte",
           "waiting": "En attente de chaleur",

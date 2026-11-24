@@ -1,3 +1,19 @@
+## 2.0.1b18 – 2026-11-24
+
+### Neu
+- **Fremdwärme: Kamin/Holzofen (#83, #77):** Unter *Raum → Heizquellen* lässt sich ein Schalter,
+  Helfer oder Binärsensor als „Kamin/Holzofen heizt“ hinterlegen. Ist er an, bleiben die
+  Thermostate des Raums zu (Status „Kamin/Holzofen heizt“), damit sie nicht gegen den Ofen
+  arbeiten. Nach dem Ausschalten wartet Raumklima einen einstellbaren Nachlauf (Standard 30 min)
+  ab, weil der Ofen nachglüht. Frostschutz und Fenster-Logik bleiben unberührt.
+
+### Behoben
+- **Helfer und Schalter als Präsenzmelder (#70):** Ein `input_boolean` oder `switch` ließ sich
+  zwar auswählen, wurde beim Speichern aber verworfen. Jetzt werden sie wie Melder gespeichert.
+- **Boost-Knopf auf der mittleren Karte (#88):** Der Knopf war immer rot hinterlegt und blieb auf
+  iPhone/iPad nach dem Antippen „gedrückt“ aussehen. Jetzt grau, rot nur während der Boost läuft;
+  dann beendet ein Tipp den Boost.
+
 ## 2.0.1b17 – 2026-11-23
 
 ### Behoben

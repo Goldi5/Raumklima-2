@@ -111,9 +111,13 @@ export const STYLES = `
   .micon ha-icon { --mdc-icon-size:18px; }
   .micon.open, .micon.dehum { color:var(--rk-air); }
   .micon.warn { color:var(--rk-warn); }
+  /* Boost-Knopf der mittleren Karte wie bei der großen: grau ohne Boost, rot mit (#88) */
   .mboost { all:unset; cursor:pointer; width:32px; height:32px; border-radius:50%; display:grid; place-items:center;
-    color:var(--rk-heat); background:color-mix(in srgb, var(--rk-heat) 14%, transparent); }
-  .mboost:hover { background:color-mix(in srgb, var(--rk-heat) 24%, transparent); }
+    color:var(--secondary-text-color); background:color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
+  .mboost.on { color:#fff; background:var(--rk-heat); }
+  @media (hover: hover) {
+    .mboost:not(.on):hover { color:var(--rk-heat); background:color-mix(in srgb, var(--rk-heat) 14%, transparent); }
+  }
   .mboost ha-icon { --mdc-icon-size:18px; }
   .mstatus { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; min-width:0; }
   .mstatus:empty { display:none; }

@@ -26,6 +26,8 @@ from .const import (
     CONF_COOL_SETPOINT,
     CONF_COOLING,
     CONF_DEHUMIDIFIER,
+    CONF_EXT_HEAT,
+    CONF_EXT_HEAT_AFTER,
     CONF_FLOOR_RETURN,
     CONF_FLOOR_SUPPLY,
     CONF_FOLLOW_TRV,
@@ -215,6 +217,9 @@ class SettingsMixin:
             "presence_sensors": self.sensor_kinds(),
             "presence_kind": self.config.get(CONF_PRESENCE_KIND) or "auto",
             "home_office_entity": self.config.get(CONF_HOME_OFFICE_ENTITY) or None,
+            "external_heat_entity": self.config.get(CONF_EXT_HEAT) or None,
+            "external_heat_after": self.config.get(CONF_EXT_HEAT_AFTER) if self.config.get(CONF_EXT_HEAT_AFTER) is not None else 30,
+            "external_heat_active": self.external_heat_active,
             "room_eco": self.room_eco_mode,
             "room_eco_enabled": self.room_eco_enabled(),
             "room_eco_after": self.room_eco_after,
@@ -308,6 +313,7 @@ class SettingsMixin:
             CONF_PRESENCE, CONF_PRESENCE_KIND, CONF_ROOM_ECO, CONF_ROOM_ECO_AFTER, CONF_ROOM_ECO_DROP,
             CONF_PRESENCE_LIGHTS, CONF_PRESENCE_LEARN,
             CONF_PRESENCE_TARGET, CONF_PRESENCE_DELAY, CONF_PRESENCE_RELEASE, CONF_PRESENCE_PIR,
+            CONF_EXT_HEAT, CONF_EXT_HEAT_AFTER,
         }:
             self.track_presence()
             self.update_presence()

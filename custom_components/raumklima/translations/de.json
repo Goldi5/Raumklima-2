@@ -428,6 +428,7 @@
           "sensor_unavailable": "Fühler ausgefallen",
           "trv_unavailable": "Thermostat nicht erreichbar",
           "season_off": "Heizpause",
+          "external_heat": "Kamin/Holzofen heizt",
           "setback": "Abgesenkt – niemand da",
           "night_airing": "Nachtlüften – Fenster offen",
           "waiting": "Wartet auf Wärme",

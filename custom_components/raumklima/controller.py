@@ -83,6 +83,7 @@ from .const import (
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
     SLOW_RETRY_INTERVAL,
+    STATUS_EXT_HEAT,
     STATUS_HEATING,
     STATUS_IDLE,
     STATUS_MONITOR,
@@ -128,6 +129,7 @@ from .planning import (
 )
 from .room_apply import ApplyMixin
 from .room_const import (
+    REASON_EXT_HEAT,
     REASON_SEASON,
     STORAGE_VERSION,
     VALVE_CARE,
@@ -981,6 +983,8 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         on, _target, reason = self.peek_plan()
         if not on and reason == REASON_SEASON:
             return STATUS_SEASON
+        if not on and reason == REASON_EXT_HEAT:
+            return STATUS_EXT_HEAT
         if not self.sensor_ok:
             return STATUS_SENSOR
         if reason in AWAY_STAGES:

@@ -58,6 +58,7 @@ export const STATUS = tmap({
   sensor_unavailable: { label: "Fühler ausgefallen", icon: "mdi:thermometer-alert", tone: "warn" },
   trv_unavailable: { label: "Thermostat nicht erreichbar", icon: "mdi:lan-disconnect", tone: "warn" },
   season_off: { label: "Heizpause", icon: "mdi:weather-sunny", tone: "off" },
+  external_heat: { label: "Kamin/Holzofen heizt", icon: "mdi:fireplace", tone: "heat" },
   setback: { label: "Abgesenkt – niemand da", icon: "mdi:home-export-outline", tone: "eco" },
   night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" },
 });
@@ -220,6 +221,7 @@ export function planTag(a) {
     frost: "Frost",
     valve_care: "Ventilpflege",
     season: "Heizpause",
+    external_heat: "Kamin/Holzofen",
   };
   return map[r] ? t(map[r]) : "";
 }
@@ -417,6 +419,7 @@ export function schedSummary(w) {
 export const RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 export const SEG = tmap({
   season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
+  external_heat: { c: "color-mix(in srgb, var(--rk-heat) 45%, transparent)", l: "Kamin/Holzofen" },
   setback: { c: "var(--rk-eco)", l: "Abgesenkt" },
   heating: { c: "var(--rk-heat)", l: "Heizt" },
   idle: { c: "var(--rk-ok)", l: "Erreicht" },

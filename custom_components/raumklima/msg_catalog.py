@@ -692,6 +692,8 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Vorlage nicht gefunden", "Template not found", "Modèle introuvable"),
     ("Wohnung nicht gefunden", "Home not found", "Logement introuvable"),
     ("Wunschtemperatur übernommen", "Target temperature applied", "Température de consigne appliquée"),
+    ("Fremdwärme (Kamin/Holzofen)", "External heat (fireplace/wood stove)", "Chaleur externe (cheminée/poêle à bois)"),
+    ("Kamin/Holzofen heizt – Thermostate bleiben zu", "Fireplace/wood stove is heating – thermostats stay closed", "La cheminée/le poêle chauffe – les thermostats restent fermés"),
     ("neuer Sollwert {t} aus den Einstellungen", "new setpoint {t} from the settings", "nouvelle consigne {t} depuis les réglages"),
     (
         "Diese Datei ist keine Raumklima-Sicherung",

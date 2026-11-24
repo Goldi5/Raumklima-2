@@ -1757,4 +1757,10 @@ export const EN = {
   "„{n}“ ist an": "“{n}” is on",
   "„{n}“ ist aus – Raum wird abgesenkt": "“{n}” is off – room is set back",
   "Raum leer": "Room empty",
+  "Fremdwärme (Kamin/Holzofen)": "External heat (fireplace/stove)",
+  "Schalter, Helfer oder Binärsensor „Ofen brennt“ – solange er an ist, bleiben die Thermostate in diesem Raum zu, Raumklima meldet nichts zu „zu warm“ und lernt nicht": "Switch, helper or binary sensor “stove burning” – while it is on, the thermostats in this room stay closed, Raumklima reports no “too warm” and does not learn",
+  "… Nachlauf": "… after-run",
+  "so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach": "the stove still counts this long after it goes out – it keeps radiating heat",
+  "Kamin/Holzofen heizt": "Fireplace/stove heating",
+  "Kamin/Holzofen": "Fireplace/stove",
 };

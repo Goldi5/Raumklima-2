@@ -353,3 +353,43 @@ async def test_leer_seit_ueberlebt_neustart(hass: HomeAssistant, trv: FakeTrv, s
     await hass.async_block_till_done()
     assert c._restored_empty is None
     assert c.occupied is True
+
+
+async def test_helfer_als_melder_wird_gespeichert(hass: HomeAssistant, trv: FakeTrv, sensors, hass_ws_client: WebSocketGenerator) -> None:
+    """#70: ein Helfer/Schalter unter „Melder“ wird gespeichert und zählt wie ein PIR."""
+    hass.states.async_set("input_boolean.gast_belegt", "on")
+    _hub, room = await _setup(hass, room_type="living")
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id(
+        {"type": "raumklima/room/update", "entry_id": room.entry_id, "changes": {"presence_sensors": ["input_boolean.gast_belegt", "switch.pc"]}}
+    )
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    c = room.runtime_data
+    assert c.presence_sensors == ["input_boolean.gast_belegt", "switch.pc"]
+    assert c.sensor_kinds()["input_boolean.gast_belegt"] == "pir"
+    assert c.occupied is True
+    # Fremdes bleibt draußen
+    await client.send_json_auto_id(
+        {"type": "raumklima/room/update", "entry_id": room.entry_id, "changes": {"presence_sensors": ["light.flur"]}}
+    )
+    assert not (await client.receive_json())["success"]
+
+
+async def test_fremdwaerme_kamin(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+    """#83: brennt der Ofen, bleibt das Thermostat zu – mit Nachlauf, dann regelt Raumklima wieder."""
+    hass.states.async_set("input_boolean.ofen", "on")
+    _hub, room = await _setup(hass, room_type="living", external_heat_entity="input_boolean.ofen", external_heat_after=30)
+    c = room.runtime_data
+    on, _target, reason = c.plan()
+    assert (on, reason) == (False, "external_heat")
+    assert c.status == "external_heat"
+    assert c.settings_summary()["external_heat_active"] is True
+
+    hass.states.async_set("input_boolean.ofen", "off")
+    await hass.async_block_till_done()
+    await _later(hass, freezer, 10)
+    assert c.plan()[2] == "external_heat"  # Nachlauf läuft noch
+    await _later(hass, freezer, 25)
+    assert c.plan()[2] != "external_heat"
+    assert c.plan()[0] is True

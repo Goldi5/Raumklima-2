@@ -452,6 +452,13 @@ export const RoomMethods = {
         t("fest für diese Quelle – z. B. +0,5 K, damit sie früher anläuft")));
     });
     if (!list.length) rows.push(this._row("Weitere Quellen", this._v(t("keine"), true), t("Thermostate oder Klimaanlagen, die mit dem Raum laufen")));
+    // Fremdwärme (#83): Kamin/Holzofen – Thermostate bleiben zu, solange er brennt
+    const extItems = (this._cfg && this._cfg.choices && this._cfg.choices.external_heat) || [];
+    const extCur = this._roomOpt(r, "external_heat_entity") ?? s.external_heat_entity ?? "";
+    rows.push(this._row("Fremdwärme (Kamin/Holzofen)",
+      editable ? this._select(scope, "external_heat_entity", extItems, extCur, t("– keine –")) : this._v(extCur ? this._name(extCur) : t("keine"), !extCur),
+      t("Schalter, Helfer oder Binärsensor „Ofen brennt“ – solange er an ist, bleiben die Thermostate in diesem Raum zu, Raumklima meldet nichts zu „zu warm“ und lernt nicht")));
+    if (extCur) rows.push(this._row("… Nachlauf", this._num(scope, "external_heat_after", this._roomOpt(r, "external_heat_after") ?? s.external_heat_after ?? 30), t("so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach")));
     if (editable && avail.length) {
       rows.push(`<div class="row"><div class="l"><span class="lbl"></span></div><div class="addrow"><select class="sel" id="addSrc-${id}">${avail.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select><button class="btn" data-srcadd="${id}" style="--c:var(--rk-eco)"><ha-icon icon="mdi:plus"></ha-icon>${t("Quelle hinzufügen")}</button></div></div>`);
     }

@@ -269,6 +269,9 @@ class PresenceMixin:
         watched = [*self.presence_inputs]
         if self.room_home_office_entity:
             watched.append(self.room_home_office_entity)
+        ext = getattr(self, "external_heat_entity", None)
+        if ext:
+            watched.append(ext)  # Kamin/Holzofen an/aus (#83): sofort neu planen
         if watched:
             self._presence_unsub = async_track_state_change_event(
                 self.hass, watched, self._on_presence_input
@@ -276,7 +279,7 @@ class PresenceMixin:
 
     @callback
     def _on_presence_input(self, event: Any) -> None:
-        if event.data.get("entity_id") == self.room_home_office_entity:
+        if event.data.get("entity_id") in (self.room_home_office_entity, getattr(self, "external_heat_entity", None)):
             # Homeoffice dieses Büros umgeschaltet: sofort neu planen, nicht erst beim nächsten Takt
             self._notify()
             self.hass.async_create_task(self._apply())

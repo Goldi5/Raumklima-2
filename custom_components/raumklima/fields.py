@@ -94,6 +94,7 @@ NUM: dict[str, NumField] = {
     "presence_delay_min": NumField(" min", 1, 0, 30, 0, 'float', 0, 120),
     "presence_release_min": NumField(" min", 1, 1, 30, 0, 'float', 1, 120),
     "room_eco_after": NumField(" min", 5, 5, 240, 0, 'float', 5, 240),
+    "external_heat_after": NumField(" min", 5, 0, 180, 0, 'float', 0, 240),
     "room_eco_drop": NumField(" °C", 0.5, 0.5, 4, 1, 'float', 0.5, 4),
 }
 

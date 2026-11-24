@@ -228,6 +228,9 @@ DEFAULT_LIGHT_SIGNALS: Final = ["open", "close"]
 CONF_PRESENCE: Final = "presence_sensors"  # pro Raum: Präsenz-/Bewegungsmelder
 CONF_PRESENCE_KIND: Final = "presence_kind"  # auto / mmwave / pir
 CONF_ROOM_ECO: Final = "room_eco"  # leeren Raum absenken: auto / on / off
+CONF_EXT_HEAT: Final = "external_heat_entity"  # pro Raum: Kamin/Holzofen brennt (Schalter/Helfer, #83)
+CONF_EXT_HEAT_AFTER: Final = "external_heat_after"  # min Nachlauf, nachdem der Ofen aus ist
+EXT_HEAT_AFTER: Final = 30.0
 CONF_ROOM_ECO_AFTER: Final = "room_eco_after"  # min leer, bevor abgesenkt wird
 CONF_ROOM_ECO_DROP: Final = "room_eco_drop"  # °C weniger
 CONF_HOME_SENSORS: Final = "home_sensors"
@@ -626,6 +629,7 @@ HEAT_FLOW_MAX: Final = 55.0  # °C Obergrenze der Anforderung
 HEAT_FLOW_PER_K: Final = 5.0  # °C Vorlauf je K summarischer Raumlücke
 HEAT_DEMAND_MIN: Final = 0.2  # K, ab wann ein Raum als fordernd zählt
 STATUS_SEASON: Final = "season_off"
+STATUS_EXT_HEAT: Final = "external_heat"  # Kamin/Holzofen heizt (#83)
 STATUS_SETBACK: Final = "setback"
 STATUS_NIGHT: Final = "night_airing"
 STATUSES: Final = [
@@ -638,6 +642,7 @@ STATUSES: Final = [
     STATUS_SENSOR,
     STATUS_TRV,
     STATUS_SEASON,
+    STATUS_EXT_HEAT,
     STATUS_SETBACK,
     STATUS_NIGHT,
     STATUS_MONITOR,

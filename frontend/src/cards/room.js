@@ -265,7 +265,7 @@ export class RaumklimaCard extends HTMLElement {
           <div class="mname" data-more="${this._config.entity}" title="${esc(name)}">${name}</div>
           <div class="mflags">
             ${a.window_open !== undefined ? `<span class="micon ${winOpen ? "open" : ""}" title="${winOpen ? t("Fenster offen") : t("Fenster geschlossen")}"><ha-icon icon="${winOpen ? "mdi:window-open-variant" : "mdi:window-closed-variant"}"></ha-icon></span>` : ""}
-            ${!mon && sib.boost && !boostOn ? `<button class="mboost" data-boostmain title="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}" aria-label="${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}"><ha-icon icon="mdi:fire"></ha-icon></button>` : ""}
+            ${!mon && sib.boost ? `<button class="mboost ${boostOn ? "on" : ""}" data-boostmain title="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}`}" aria-label="${boostOn ? t("Boost beenden") : `${t("Dauer des Boosts")}: ${t("{n} min", { n: boostMin })}`}"><ha-icon icon="mdi:fire"></ha-icon></button>` : ""}
           </div>
         </div>
         <div class="mstatus">

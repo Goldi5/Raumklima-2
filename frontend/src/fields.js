@@ -71,5 +71,6 @@ export const RK_NUM = {
   presence_delay_min: { unit: " min", step: 1, min: 0, max: 30, dec: 0 },
   presence_release_min: { unit: " min", step: 1, min: 1, max: 30, dec: 0 },
   room_eco_after: { unit: " min", step: 5, min: 5, max: 240, dec: 0 },
+  external_heat_after: { unit: " min", step: 5, min: 0, max: 180, dec: 0 },
   room_eco_drop: { unit: " °C", step: 0.5, min: 0.5, max: 4, dec: 1 },
 };

@@ -1757,4 +1757,10 @@ export const FR = {
   "„{n}“ ist an": "« {n} » est allumé",
   "„{n}“ ist aus – Raum wird abgesenkt": "« {n} » est éteint – pièce abaissée",
   "Raum leer": "Pièce vide",
+  "Fremdwärme (Kamin/Holzofen)": "Chaleur externe (cheminée/poêle)",
+  "Schalter, Helfer oder Binärsensor „Ofen brennt“ – solange er an ist, bleiben die Thermostate in diesem Raum zu, Raumklima meldet nichts zu „zu warm“ und lernt nicht": "Interrupteur, entrée ou capteur binaire « poêle allumé » – tant qu'il est allumé, les thermostats de cette pièce restent fermés, Raumklima ne signale pas « trop chaud » et n'apprend pas",
+  "… Nachlauf": "… temporisation",
+  "so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach": "le poêle compte encore ce temps après extinction – il continue de chauffer",
+  "Kamin/Holzofen heizt": "Cheminée/poêle chauffe",
+  "Kamin/Holzofen": "Cheminée/poêle",
 };
