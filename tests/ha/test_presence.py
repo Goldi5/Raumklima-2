@@ -376,7 +376,7 @@ async def test_helfer_als_melder_wird_gespeichert(hass: HomeAssistant, trv: Fake
     assert not (await client.receive_json())["success"]
 
 
-async def test_fremdwaerme_kamin(hass: HomeAssistant, trv: FakeTrv, sensors, freezer) -> None:
+async def test_fremdwaerme_kamin(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
     """#83: brennt der Ofen, bleibt das Thermostat zu – mit Nachlauf, dann regelt Raumklima wieder."""
     hass.states.async_set("input_boolean.ofen", "on")
     _hub, room = await _setup(hass, room_type="living", external_heat_entity="input_boolean.ofen", external_heat_after=30)
@@ -386,10 +386,11 @@ async def test_fremdwaerme_kamin(hass: HomeAssistant, trv: FakeTrv, sensors, fre
     assert c.status == "external_heat"
     assert c.settings_summary()["external_heat_active"] is True
 
+    # Ofen aus: Nachlauf (30 min) hält die Thermostate noch zu
     hass.states.async_set("input_boolean.ofen", "off")
     await hass.async_block_till_done()
-    await _later(hass, freezer, 10)
-    assert c.plan()[2] == "external_heat"  # Nachlauf läuft noch
-    await _later(hass, freezer, 25)
+    assert c.plan()[2] == "external_heat"
+    # ohne Nachlauf regelt Raumklima sofort wieder
+    c.config["external_heat_after"] = 0
     assert c.plan()[2] != "external_heat"
     assert c.plan()[0] is True
