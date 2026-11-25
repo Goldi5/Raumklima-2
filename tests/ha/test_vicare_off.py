@@ -9,18 +9,26 @@ from __future__ import annotations
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
+from custom_components.raumklima.controller import RaumklimaController
+
 from .conftest import TRV, FakeTrv
 from .test_features import _setup
 
 
-def _as_vicare(hass: HomeAssistant) -> None:
+async def test_plattform_aus_der_registry(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    _hub, room = await _setup(hass, room_type="living")
+    c = room.runtime_data
+    assert c._trv_platform() is None  # kein Registry-Eintrag
+    c._trv_platform_cache = None
     reg = er.async_get(hass)
-    entry = reg.async_get_or_create("climate", "vicare", "kessel-hk1", suggested_object_id=TRV.split(".", 1)[1])
-    assert entry.entity_id == TRV
+    entry = reg.async_get_or_create("climate", "vicare", "kessel-hk1")
+    c.trv = entry.entity_id
+    assert c._trv_platform() == "vicare"
+    c.trv = TRV
 
 
-async def test_vicare_schaltet_ueber_minimaltemperatur_aus(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
-    _as_vicare(hass)
+async def test_vicare_schaltet_ueber_minimaltemperatur_aus(hass: HomeAssistant, trv: FakeTrv, sensors, monkeypatch) -> None:
+    monkeypatch.setattr(RaumklimaController, "_trv_platform", lambda self: "vicare")
     trv.attrs["preset_modes"] = ["comfort", "eco"]
     trv.attrs["preset_mode"] = "comfort"
     trv.state = "off"  # noch Standby vom früheren „Modus aus“
