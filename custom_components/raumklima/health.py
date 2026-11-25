@@ -103,8 +103,12 @@ def check_trv_mode(
     *,
     device_preset: bool = False,
     derived_preset: bool = False,
+    planned_off: bool = False,
 ) -> Issue | None:
     """Thermostat arbeitet seinen eigenen Zeitplan ab (Issue #13).
+
+    ``planned_off``: Raumklima hat das Gerät selbst ausgeschaltet (Kamin, Sommerpause) – dann ist
+    ein „aus“-Preset gewollt und kein Dauerbetrieb (#83).
 
     Viele Geräte (Tuya, Bosch, Homematic) führen im Modus „Auto“ einen eingebauten Wochenplan.
     Der überschreibt den Sollwert, den Raumklima schreibt – der Raum heizt dann gegen den Plan.
@@ -135,7 +139,7 @@ def check_trv_mode(
                 "oder „heat“)."
             ),
         )
-    if preset in TRV_FIXED_PRESETS:
+    if preset in TRV_FIXED_PRESETS and not planned_off:
         return Issue(
             "trv_mode",
             SEV_WARN,

@@ -1,3 +1,16 @@
+## 2.0.1b19 – 2026-11-25
+
+### Behoben
+- **Kamin/Holzofen: kein Nachlauf nach Neustart (#83):** War der Ofen-Sensor beim Start von Home
+  Assistant kurz „unbekannt“ und dann „aus“, zählte das als „Ofen gerade ausgegangen“ – die
+  Thermostate blieben eine halbe Stunde grundlos zu. Der Nachlauf startet jetzt nur nach einem
+  echten Wechsel von „an“ auf „aus“. Ist der Nachlauf vorbei, regelt Raumklima sofort wieder
+  (nicht erst beim nächsten 10-Minuten-Abgleich).
+- **Kein Fehlalarm, wenn Raumklima selbst ausschaltet (#83):** Während der Kamin heizt (oder in der
+  Sommerpause) meldete die Prüfung „Thermostat steht auf Dauerbetrieb“ und „übernimmt den Sollwert
+  nicht“. Hat Raumklima den Raum bewusst ausgeschaltet, schweigen diese beiden Hinweise jetzt;
+  schaltet sich ein Thermostat von selbst ab, wird es weiter gemeldet.
+
 ## 2.0.1b18 – 2026-11-24
 
 ### Neu

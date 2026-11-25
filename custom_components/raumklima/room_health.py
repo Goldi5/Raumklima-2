@@ -482,6 +482,7 @@ class HealthMixin:
                 else (trv_state.attributes or {}).get("preset_mode"),
                 device_preset=self.target_via == "comfort_temperature",
                 derived_preset=self._preset_is_derived(),
+                planned_off=self._planned_off(),
             )
             if not self.paused and not self.hvac_auto
             else None,
@@ -546,16 +547,23 @@ class HealthMixin:
             since = self._setpoint_off_since[key] = now
         return int((now - since).total_seconds() // 60)
 
+    def _planned_off(self) -> bool:
+        """Hat Raumklima den Raum bewusst ausgeschaltet (Kamin, Sommerpause …)?
+
+        Dann ist „aus“ am Gerät gewollt und der dort stehende Sollwert egal (#83).
+        """
+        return not self.peek_plan()[0]
+
     def _setpoint_off_minutes(self, now: datetime) -> int | None:
         """Minuten, die das Haupt-Thermostat auf einem anderen Sollwert steht als erwartet."""
-        if not self._regulating() or self.target_via != "setpoint":
+        if not self._regulating() or self.target_via != "setpoint" or self._planned_off():
             self._setpoint_off_since.pop("", None)
             return None
         return self._mismatch_minutes(now, "", self.trv_target, self.trv_expected_target)
 
     def _extra_off_minutes(self, extra: Any, now: datetime) -> int | None:
         """Dasselbe für ein Zusatz-Thermostat – mit seinem eigenen Abgleich."""
-        if not self._regulating():
+        if not self._regulating() or self._planned_off():
             self._setpoint_off_since.pop(extra.entity_id, None)
             return None
         expected = (extra.summary() or {}).get("setpoint_expected")

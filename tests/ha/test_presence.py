@@ -385,6 +385,9 @@ async def test_fremdwaerme_kamin(hass: HomeAssistant, trv: FakeTrv, sensors) -> 
     assert (on, reason) == (False, "external_heat")
     assert c.status == "external_heat"
     assert c.settings_summary()["external_heat_active"] is True
+    # bewusst ausgeschaltet: kein „Dauerbetrieb“, kein „Sollwert nicht übernommen“
+    assert c._planned_off() is True
+    assert c._setpoint_off_minutes(dt_util.utcnow()) is None
 
     # Ofen aus: Nachlauf (30 min) hält die Thermostate noch zu
     hass.states.async_set("input_boolean.ofen", "off")
@@ -392,5 +395,19 @@ async def test_fremdwaerme_kamin(hass: HomeAssistant, trv: FakeTrv, sensors) -> 
     assert c.plan()[2] == "external_heat"
     # ohne Nachlauf regelt Raumklima sofort wieder
     c.config["external_heat_after"] = 0
+    assert c.plan()[2] != "external_heat"
+    assert c.plan()[0] is True
+    assert c._planned_off() is False
+    assert await hass.config_entries.async_unload(room.entry_id)
+
+
+async def test_fremdwaerme_neustart_ohne_nachlauf(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#83: „unbekannt → aus“ beim Neustart ist kein Ausgehen des Ofens – kein Nachlauf."""
+    hass.states.async_set("binary_sensor.ofen", "unknown")
+    _hub, room = await _setup(hass, room_type="living", external_heat_entity="binary_sensor.ofen", external_heat_after=30)
+    c = room.runtime_data
+    assert c.plan()[2] != "external_heat"
+    hass.states.async_set("binary_sensor.ofen", "off")
+    await hass.async_block_till_done()
     assert c.plan()[2] != "external_heat"
     assert c.plan()[0] is True

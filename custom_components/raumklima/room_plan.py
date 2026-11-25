@@ -327,12 +327,17 @@ class PlanMixin:
             return False
         if state.state == "on":
             return True
-        if state.state != "off":
+        # Nachlauf: der Ofen wärmt nach – erst danach übernimmt die Regelung wieder. Gezählt wird
+        # nur ein selbst beobachtetes „an → aus“ (#83); ein Neustart startet keinen Nachlauf.
+        off_at = getattr(self, "_ext_heat_off_at", None)
+        if state.state != "off" or off_at is None:
             return False
+        return dt_util.utcnow() - off_at < timedelta(minutes=self.external_heat_after_minutes)
+
+    @property
+    def external_heat_after_minutes(self) -> float:
         after = to_float(self.config.get(CONF_EXT_HEAT_AFTER))
-        after = EXT_HEAT_AFTER if after is None else max(0.0, after)
-        # Nachlauf: der Ofen wärmt nach – erst danach übernimmt die Regelung wieder
-        return dt_util.utcnow() - state.last_changed < timedelta(minutes=after)
+        return EXT_HEAT_AFTER if after is None else max(0.0, after)
 
     def _rule_external_heat(self, ctx: _PlanContext) -> PlanResult:
         """Fremdwärme (#83): brennt der Kamin/Holzofen, bleiben die Thermostate zu."""

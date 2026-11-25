@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.core import callback
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -47,6 +47,9 @@ class PresenceMixin:
     """Präsenz-Teil des Raum-Controllers."""
 
     _presence_timer: Callable[[], None] | None = None
+    _ext_heat_timer: Callable[[], None] | None = None
+    _ext_heat_off_at: datetime | None = None
+    _ext_heat_tracked: str | None = None
     _presence_unsub: Callable[[], None] | None = None
     _occupied: bool | None = None
     _occupied_since: datetime | None = None
@@ -270,6 +273,11 @@ class PresenceMixin:
         if self.room_home_office_entity:
             watched.append(self.room_home_office_entity)
         ext = getattr(self, "external_heat_entity", None)
+        if ext != getattr(self, "_ext_heat_tracked", None):
+            # anderer Ofen-Schalter: ein laufender Nachlauf gehörte zum alten
+            self._ext_heat_tracked = ext
+            self._ext_heat_off_at = None
+            self._cancel_ext_heat_timer()
         if ext:
             watched.append(ext)  # Kamin/Holzofen an/aus (#83): sofort neu planen
         if watched:
@@ -279,17 +287,62 @@ class PresenceMixin:
 
     @callback
     def _on_presence_input(self, event: Any) -> None:
-        if event.data.get("entity_id") in (self.room_home_office_entity, getattr(self, "external_heat_entity", None)):
+        entity_id = event.data.get("entity_id")
+        ext = getattr(self, "external_heat_entity", None)
+        if ext and entity_id == ext:
+            self._on_external_heat(event)
+            return
+        if entity_id == self.room_home_office_entity:
             # Homeoffice dieses Büros umgeschaltet: sofort neu planen, nicht erst beim nächsten Takt
             self._notify()
             self.hass.async_create_task(self._apply())
             return
         self.update_presence()
 
+    @callback
+    def _on_external_heat(self, event: Any) -> None:
+        """Kamin/Holzofen (#83): Nachlauf nur nach echtem „an → aus“.
+
+        Ein Neustart oder ein kurzes „unbekannt“ des Sensors ist kein Ausgehen des Ofens – sonst
+        blieben die Thermostate nach jedem Neustart grundlos eine halbe Stunde zu.
+        """
+        old = event.data.get("old_state")
+        new = event.data.get("new_state")
+        old_on = old is not None and old.state == "on"
+        new_state = new.state if new is not None else None
+        self._cancel_ext_heat_timer()
+        if new_state == "on":
+            self._ext_heat_off_at = None
+        elif old_on and new_state == "off":
+            self._ext_heat_off_at = dt_util.utcnow()
+            after = self.external_heat_after_minutes
+            if after > 0:
+                self._ext_heat_timer = async_call_later(
+                    self.hass, timedelta(minutes=after, seconds=5), self._external_heat_done
+                )
+        elif new_state != "off":
+            self._ext_heat_off_at = None  # unbekannt/nicht verfügbar: kein Nachlauf
+        self._notify()
+        self.hass.async_create_task(self._apply())
+
+    @callback
+    def _external_heat_done(self, _now: Any) -> None:
+        """Nachlauf vorbei: sofort neu planen, nicht erst beim nächsten Abgleich."""
+        self._ext_heat_timer = None
+        self._notify()
+        self.hass.async_create_task(self._apply())
+
+    def _cancel_ext_heat_timer(self) -> None:
+        timer = getattr(self, "_ext_heat_timer", None)
+        if timer:
+            timer()
+        self._ext_heat_timer = None
+
     def stop_presence(self) -> None:
         if self._presence_unsub:
             self._presence_unsub()
             self._presence_unsub = None
+        self._cancel_ext_heat_timer()
         if self._presence_timer:
             self._presence_timer()
             self._presence_timer = None
