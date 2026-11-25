@@ -33,15 +33,9 @@ from homeassistant.util import dt as dt_util
 
 from .airing_profile import AiringProfile
 from .const import (
-    BOOST_MINUTES_MAX,
-    BOOST_MINUTES_MIN,
-    BOOST_TEMP_MAX,
-    BOOST_TEMP_MIN,
     CAL_OFFSET,
     CAL_TARGET,
     CALIBRATION_INTERVAL,
-    CONF_BOOST_MINUTES,
-    CONF_BOOST_TEMP,
     CONF_CALIBRATION_ENTITY,
     CONF_CALIBRATION_MODE,
     CONF_CO2_SENSOR,
@@ -56,12 +50,7 @@ from .const import (
     CONF_NAME,
     CONF_OVERRIDE_MINUTES,
     CONF_PM25_SENSOR,
-    CONF_ROOM_PERSONS,
     CONF_ROOM_TYPE,
-    CONF_SCHEDULE_BY_PLAN,
-    CONF_SCHEDULE_ENTITY,
-    CONF_SCHEDULE_FROM,
-    CONF_SCHEDULES,
     CONF_SETBACK_LONG,
     CONF_SETBACK_SHORT,
     CONF_SHADING_COVERS,
@@ -76,34 +65,13 @@ from .const import (
     EVENT_RAUMKLIMA,
     MAX_SENSOR_JUMP,
     OFF_SOURCE_TRV,
-    OFF_SOURCE_USER,
-    PLAN_ALWAYS,
-    PLAN_NEVER,
-    PLAN_OWN,
     RECONCILE_INTERVAL,
     SENSOR_JUMP_WINDOW,
     SLOW_RETRY_INTERVAL,
-    STATUS_EXT_HEAT,
-    STATUS_HEATING,
-    STATUS_IDLE,
-    STATUS_MONITOR,
-    STATUS_NIGHT,
-    STATUS_OFF,
-    STATUS_OFF_TRV,
-    STATUS_SEASON,
-    STATUS_SENSOR,
-    STATUS_SETBACK,
-    STATUS_TRV,
-    STATUS_WAIT,
-    STATUS_WINDOW,
-    VALVE_HEATING_MIN,
-    WAIT_GAP,
 )
 from .decision_log import (
     CAT_DEVICE,
-    CAT_MANUAL,
     CAT_NOTIFY,
-    fmt_temp,
 )
 from .health import (
     HistoryPoint,
@@ -112,8 +80,6 @@ from .heatup import HeatupTracker
 from .hub import RaumklimaHub
 from .logic import (
     any_open,
-    clamp,
-    heating_demand,
     is_valid,
     plausible_reading,
     to_float,
@@ -121,19 +87,15 @@ from .logic import (
 )
 from .msg import tr
 from .planning import (
-    AWAY_STAGES,
     MoldGuard,
-    next_schedule_window,
     setback_defaults,
-    shift_school_schedules,
 )
 from .room_apply import ApplyMixin
 from .room_const import (
-    REASON_EXT_HEAT,
-    REASON_SEASON,
     STORAGE_VERSION,
     VALVE_CARE,
 )
+from .room_control import ControlMixin
 from .room_dehumidify import DehumidifierManager
 from .room_extra_trvs import AcSource, ExtraTrv
 from .room_floor import FloorMixin
@@ -143,24 +105,26 @@ from .room_mold import MoldMixin
 from .room_plan import PlanMixin
 from .room_presence import PresenceMixin
 from .room_radio import RadioMixin
+from .room_readings import ReadingsMixin
+from .room_schedule import ScheduleMixin
 from .room_settings import SettingsMixin
 from .room_shading import ShadingMixin
+from .room_status import StatusMixin
 from .room_store import StoreMixin
-from .room_trv import MANUAL_OVERRIDE, TrvMixin
+from .room_trv import TrvMixin
 from .room_windows import WindowMixin
 from .series import RoomSeries
 from .shared import domain_data, get_hub
 from .sync import SyncManager
 from .usage_profile import UsageProfile
 from .vent_manager import VentilationManager
-from .ventilation import MIN_USEFUL_TARGET, comfort_temperature
 
 _LOGGER = logging.getLogger(__name__)
 
 
 
 
-class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMixin, SettingsMixin, ShadingMixin, FloorMixin, WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
+class RaumklimaController(ReadingsMixin, ScheduleMixin, StatusMixin, ControlMixin, StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMixin, SettingsMixin, ShadingMixin, FloorMixin, WindowMixin, TrvMixin, HealthMixin, PresenceMixin):
     """Steuert genau einen Raum."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -627,233 +591,7 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
         self.shift = new
         self._save()
 
-    @property
-    def has_room_sensor(self) -> bool:
-        """Ist ein eigener Raumfühler eingetragen? (seit 2.0.1b7 optional, #68)"""
-        return bool(self.temp_sensor)
 
-    @property
-    def sensor_ok(self) -> bool:
-        """Liefert der Raum eine brauchbare Temperatur?
-
-        Mit eigenem Raumfühler entscheidet dieser (``ext_sensor_ok``). Ohne Raumfühler regelt
-        Raumklima auf den Fühler des Thermostats – das ist dann kein Ausfall, sondern so
-        eingestellt (#68: FRITZ!DECT ohne externen Fühler meldete „Fühler ausgefallen“).
-        """
-        if not self.has_room_sensor:
-            return not self.monitor and self.trv_temperature is not None
-        return self.ext_sensor_ok
-
-    @property
-    def ext_sensor_ok(self) -> bool:
-        """Externer Fühler liefert einen brauchbaren Wert.
-
-        Das Alter allein zählt nicht: batteriebetriebene Fühler (Homematic, Danfoss) senden nur bei
-        Änderung. Ein drei Stunden alter Wert ist bei stabiler Temperatur weiterhin gültig – vorher
-        meldete der Raum „Fühler ausgefallen", obwohl das Gerät erreichbar war (Issue #11).
-        Ein echter Ausfall zeigt sich am Entitätszustand (unavailable/unknown/kein Wert).
-        """
-        if not self.has_room_sensor:
-            return False
-        state = self.hass.states.get(self.temp_sensor)
-        if state is None or not is_valid(state.state):
-            return False
-        # Ein gültiger Zustand genügt: der gemerkte Wert kann fehlen, wenn der Fühler beim Start
-        # der Zentrale noch nicht bereit war (Tuya ZTH01 meldet erst Minuten später) – Issue #10.
-        return self._ext_value is not None or to_float(state.state) is not None
-
-    @property
-    def sensor_age_minutes(self) -> float | None:
-        """Minuten seit der letzten Meldung des Fühlers (nur für Diagnose/Protokoll)."""
-        state = self.hass.states.get(self.temp_sensor)
-        if state is None:
-            return None
-        last = getattr(state, "last_reported", None) or state.last_updated
-        return (dt_util.utcnow() - last).total_seconds() / 60
-
-
-
-
-
-    def log(self, cat: str, msg: str, why: str | None = None, level: str = "info", **data: Any) -> None:
-        """Ins Entscheidungsprotokoll schreiben (falls die Zentrale läuft)."""
-        hub = self.hub
-        if hub is not None:
-            hub.log.add(cat, msg, why, room=self.name, entry_id=self.entry.entry_id, level=level, **data)
-
-
-
-    @property
-    def current_temperature(self) -> float | None:
-        """Raumtemperatur: externer Fühler, ohne Fühler oder im Notfall das TRV."""
-        if self.ext_sensor_ok:
-            if self._ext_value is not None:
-                return self._ext_value
-            state = self.hass.states.get(self.temp_sensor)
-            return to_float(state.state) if state is not None else None
-        return self.trv_temperature
-
-    @property
-    def current_humidity(self) -> float | None:
-        """Raumfeuchte: eigener Fühler, sonst das, was das Thermostat selbst misst.
-
-        Viele Thermostate haben einen Feuchtefühler (Livisi, Bosch, FRITZ!DECT, Tuya) – bei
-        einigen steht der Wert nur als Attribut an der `climate`-Entität und lässt sich im
-        Dialog nicht auswählen. Ohne Rückfall blieben Lüftungshinweise und Schimmelschutz dort
-        stumm, obwohl die Zahl vorhanden ist.
-        """
-        state = self.hass.states.get(self.humidity_sensor) if self.humidity_sensor else None
-        value = to_float(state.state) if state is not None else None
-        if value is not None and 0 < value <= 100:
-            return value  # 0 % oder > 100 % ist ein Fühlerfehler, kein Messwert (#85)
-        trv = self.trv_humidity
-        return trv if trv is not None and 0 < trv <= 100 else None
-
-    @property
-    def trv_humidity(self) -> float | None:
-        """Feuchte, die das Raumthermostat selbst meldet (`current_humidity`)."""
-        if not self.trv:
-            return None
-        state = self.hass.states.get(self.trv)
-        return to_float((state.attributes or {}).get("current_humidity")) if state is not None else None
-
-    @property
-    def humidity_capable(self) -> bool:
-        """Kann dieser Raum überhaupt eine Feuchte auswerten?
-
-        Eigener Fühler oder der Feuchtefühler im Thermostat. Bewusst nicht „Wert ist gerade da":
-        ein Gerät, das nur sporadisch meldet, soll die Entitäten trotzdem einmal bekommen.
-        """
-        if self.humidity_sensor:
-            return True
-        if self.trv_humidity is not None:
-            return True
-        state = self.hass.states.get(self.trv) if self.trv else None
-        return state is not None and "current_humidity" in (state.attributes or {})
-
-    @property
-    def humidity_source(self) -> str | None:
-        """Woher die Feuchte kommt – „sensor", „trv" oder nichts (für Diagnose und Karte)."""
-        if self.current_humidity is None:
-            return None
-        if self.humidity_sensor:
-            state = self.hass.states.get(self.humidity_sensor)
-            if state is not None and to_float(state.state) is not None:
-                return "sensor"
-        return "trv"
-
-    @property
-    def current_pm25(self) -> float | None:
-        if not self.pm25_sensor:
-            return None
-        state = self.hass.states.get(self.pm25_sensor)
-        return to_float(state.state) if state else None
-
-    @property
-    def current_co2(self) -> float | None:
-        if not self.co2_sensor:
-            return None
-        state = self.hass.states.get(self.co2_sensor)
-        return to_float(state.state) if state else None
-
-    @property
-    def schedules(self) -> list[dict[str, Any]]:
-        """Zeitplan dieses Raums – oder der eines anderen Raums (geteilt).
-
-        Geteilt wird nur eine Ebene: der Zielraum nutzt dessen eigenen Zeitplan, damit
-        keine Ketten oder Ringe entstehen können.
-        """
-        source = str(self.config.get(CONF_SCHEDULE_FROM) or "").strip()
-        if source and source != self.entry.entry_id and self.hub is not None:
-            other = (getattr(self.hub, "rooms", {}) or {}).get(source)
-            if other is not None and other is not self:
-                return list((other.config or {}).get(CONF_SCHEDULES) or [])
-        return list(self.config.get(CONF_SCHEDULES) or [])
-
-    @property
-    def plan_schedules(self) -> list[dict[str, Any]]:
-        """Zeitplan für die Regelung – an Schulferien morgens nach hinten verschoben."""
-        hub = self.hub
-        shift = hub.school_holiday_shift if hub is not None else 0
-        return shift_school_schedules(self.schedules, shift)
-
-    # ------------------------------------------------------------ Zeitplan-Helfer (Issue #52)
-    @property
-    def schedule_entity(self) -> str | None:
-        """Zeitplan-Quelle statt der eigenen Zeitfenster: ``schedule.*``, ``always`` oder ``never``.
-
-        Mit Plan-Umschalter (Issue #52) gilt, was für den aktuellen Plan eingetragen ist;
-        ``own`` heißt: die eigenen Zeitfenster des Raums.
-        """
-        hub = self.hub
-        plan = hub.plan_now() if hub is not None else None
-        by_plan = self.config.get(CONF_SCHEDULE_BY_PLAN) or {}
-        if plan is not None and plan in by_plan:
-            choice = by_plan[plan]
-            return None if choice == PLAN_OWN else choice
-        return self.config.get(CONF_SCHEDULE_ENTITY) or None
-
-    def helper_window(self) -> tuple[bool, float | None, datetime | None] | None:
-        """(läuft gerade?, Temperatur aus dem Helfer-Block, nächster Wechsel) – None ohne Helfer."""
-        entity = self.schedule_entity
-        if entity == PLAN_ALWAYS:
-            return True, None, None
-        if entity == PLAN_NEVER:
-            return False, None, None
-        state = self.hass.states.get(entity) if entity else None
-        if state is None or state.state not in ("on", "off"):
-            return None
-        attrs = state.attributes
-        temp = to_float(attrs.get("temperature", attrs.get("target_temperature")))
-        nxt = attrs.get("next_event")
-        if isinstance(nxt, str):
-            nxt = dt_util.parse_datetime(nxt)
-        if isinstance(nxt, datetime):
-            nxt = dt_util.as_local(nxt)
-        else:
-            nxt = None
-        return state.state == "on", temp, nxt
-
-    @callback
-    def track_aux(self) -> None:
-        """Zeitplan-Helfer und Personen-Schalter beobachten – bei Änderung neu planen."""
-        if getattr(self, "_aux_unsub", None):
-            self._aux_unsub()
-            self._aux_unsub = None
-        watch = [e for e in (self.config.get(CONF_ROOM_PERSONS) or []) if not str(e).startswith("person.")]
-        helpers = {self.config.get(CONF_SCHEDULE_ENTITY), *(self.config.get(CONF_SCHEDULE_BY_PLAN) or {}).values()}
-        watch += sorted(h for h in helpers if h and str(h).startswith("schedule."))
-        # Entfeuchter: Ein- und Ausschalten von außen (App, Taster, Automation) sofort auf der Karte zeigen
-        dehum = self.dehumidifier.entity_id
-        if dehum:
-            watch.append(dehum)
-        if not watch:
-            return
-
-        @callback
-        def _changed(event: Any) -> None:
-            if dehum and event.data.get("entity_id") == dehum:
-                self.dehumidifier.update()
-                self._notify()
-                return
-            self._notify()
-            self.hass.async_create_task(self._apply())
-
-        self._aux_unsub = async_track_state_change_event(self.hass, watch, _changed)
-
-    def next_plan_window(self, local_now: datetime) -> tuple[datetime, tuple[int, int, int] | None] | None:
-        """Nächstes Zeitfenster mit der Verschiebung seines eigenen Tages."""
-        if self.schedule_entity:
-            helper = self.helper_window()
-            if helper is None or helper[0] or helper[2] is None or helper[2] <= local_now:
-                return None
-            return helper[2], self.target_temp
-        nxt = next_schedule_window(self.schedules, local_now)
-        if nxt is None:
-            return None
-        hub = self.hub
-        shift = hub.school_shift_on(nxt[0].date()) if hub is not None else 0
-        return (nxt[0] + timedelta(minutes=shift), nxt[1]) if shift else nxt
 
     @property
     def offset(self) -> float | None:
@@ -919,339 +657,12 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
 
         self._valve_care_cancel = self._schedule(VALVE_CARE.total_seconds() + 1, _done)
 
-    @property
-    def hvac_action(self) -> HVACAction:
-        """Heizt der Raum? Mit mehreren Thermostaten reicht es, wenn eines heizt (Facebook/Robert)."""
-        action = self._main_hvac_action()
-        if action == HVACAction.IDLE and any(x.available() and x.heating for x in self.extra_trvs):
-            return HVACAction.HEATING
-        return action
-
-    def _main_hvac_action(self) -> HVACAction:
-        # Die gemeldete Ventilstellung ist das direkteste Signal. Manche Geräte (z. B. Bosch über
-        # die SHC-Zentrale) melden „heizt“, solange der Modus Heizen ist – auch bei geschlossenem
-        # Ventil (Issue #34). Steht das Ventil nachweislich zu, heizt der Raum nicht – das gilt
-        # auch, wenn das Thermostat sein eigenes Programm fährt („Auto“).
-        valve = self.valve_position
-        if valve is None:
-            valve = self._trv_attr("valve_position")
-        try:
-            closed = valve is not None and float(valve) < VALVE_HEATING_MIN
-        except (TypeError, ValueError):
-            closed = False
-        if self.hvac_auto:
-            action = self._trv_attr("hvac_action")
-            if closed:
-                return HVACAction.IDLE
-            return action if action in (HVACAction.HEATING, HVACAction.IDLE) else HVACAction.IDLE
-        if not self.hvac_on or self.paused or not self.peek_plan()[0]:
-            return HVACAction.OFF
-        action = self._trv_attr("hvac_action")
-        if closed:
-            return HVACAction.IDLE
-        if action == HVACAction.HEATING or self._trv_attr("running_state") == "heat":
-            return HVACAction.HEATING
-        # Manche Geräte (z. B. Homematic IP) lassen hvac_action auf "idle", obwohl das Ventil regelt.
-        # Dann entscheidet die Ventilstellung – zusammen mit Soll/Ist, damit "offen, aber Ziel erreicht"
-        # nicht als Heizen gilt.
-        try:
-            valve_open = valve is not None and float(valve) >= VALVE_HEATING_MIN
-        except (TypeError, ValueError):
-            valve_open = False
-        if valve is None and action is None and self._trv_attr("running_state") is None:
-            # Geräte ohne jeden Heiz-Signalwert (Aqara E1, HmIP-WTH): aus der Nachfrage ableiten.
-            return HVACAction.HEATING if heating_demand(self.current_temperature, self.effective_target) else HVACAction.IDLE
-        if valve_open:
-            current, target = self._trv_attr("current_temperature"), self._trv_attr("temperature")
-            try:
-                if current is None or target is None or float(current) < float(target) + 0.3:
-                    return HVACAction.HEATING
-            except (TypeError, ValueError):
-                return HVACAction.HEATING
-        return HVACAction.IDLE
-
-    @property
-    def status(self) -> str:
-        if self.monitor:
-            return STATUS_MONITOR
-        if not self.trv_available():
-            return STATUS_TRV
-        if not self.hvac_on:
-            return STATUS_OFF_TRV if self.off_source == OFF_SOURCE_TRV else STATUS_OFF
-        if self.paused:
-            return STATUS_NIGHT if self.night_airing else STATUS_WINDOW
-        on, _target, reason = self.peek_plan()
-        if not on and reason == REASON_SEASON:
-            return STATUS_SEASON
-        if not on and reason == REASON_EXT_HEAT:
-            return STATUS_EXT_HEAT
-        if not self.sensor_ok:
-            return STATUS_SENSOR
-        if reason in AWAY_STAGES:
-            return STATUS_SETBACK
-        heating = self.hvac_action == HVACAction.HEATING
-        under = getattr(self, "_mold_under", None)
-        if not heating and under and under.get("reason") in AWAY_STAGES:
-            # Schimmelschutz hebt die Absenkung an, der Raum heizt aber nicht: die Absenkung
-            # ist weiterhin der eigentliche Zustand (Schild-Symbol zeigt den Boden).
-            return STATUS_SETBACK
-        if heating:
-            return STATUS_HEATING
-        cur = self.current_temperature
-        if on and cur is not None and _target is not None and float(_target) - cur >= WAIT_GAP:
-            # Deutlich unter dem Ziel, das Thermostat meldet aber „heizt nicht“ (tado-Cloud,
-            # Heizung noch in der Nachtabsenkung) – nicht als „Temperatur erreicht“ zeigen.
-            return STATUS_WAIT
-        return STATUS_IDLE
-
-    @property
-    def wait_reason(self) -> dict[str, Any] | None:
-        """Warum wartet der Raum auf Wärme? Nur gesetzt, wenn der Status „wartet“ ist.
-
-        Reihenfolge: erst die Heizung selbst (Wärmepumpe lädt Warmwasser, taut ab,
-        Sperrzeit), dann das Thermostat (misst am Heizkörper schon genug, Ventil zu).
-        """
-        if self.status != STATUS_WAIT:
-            return None
-        pause = supply_pause(self.hass)
-        if pause:
-            return pause
-        trv_cur, trv_target = to_float(self._trv_attr("current_temperature")), to_float(self._trv_attr("temperature"))
-        if trv_cur is not None and trv_target is not None and trv_cur >= trv_target - 0.1:
-            return {"kind": "trv_satisfied", "value": round(trv_cur, 1)}
-        valve = self.valve_position
-        if valve is None:
-            valve = to_float(self._trv_attr("valve_position"))
-        if valve is not None and valve < VALVE_HEATING_MIN:
-            return {"kind": "valve_closed"}
-        return None
 
 
 
 
 
 
-    # ================================================================ Bedienung
-    async def async_resume_manual(self, by: str | None = None) -> None:
-        """Handverstellung beenden: auf die in den Einstellungen hinterlegte Wunschtemperatur."""
-        if self._manual_until is not None or self.target_temp != self.comfort_temp:
-            # Mitschreiben – sonst sieht man später nicht, warum eine Handverstellung endete
-            self.log(
-                CAT_MANUAL,
-                tr("Handverstellung beendet – Automatik fortgesetzt"),
-                tr("„Fortsetzen“ getippt") + (tr(" von {who}", who=by) if by else ""),
-            )
-        self.target_temp = self.comfort_temp
-        self._manual_until = None
-        self._manual_candidate = None
-        self._save()
-        self._notify()
-        await self._apply()
-
-    @property
-    def setpoint_history(self) -> list[dict[str, Any]]:
-        """Letzte Sollwerte für die Diagnose (max. 24 h, newest last)."""
-        return list(self._setpoint_history)
-
-    def record_setpoint(
-        self,
-        setpoint: float,
-        expected: float | None,
-        *,
-        blocked: bool = False,
-    ) -> None:
-        """Sollwert-Wechsel mit Plan-Ziel protokollieren (Diagnose, #64)."""
-        now = dt_util.utcnow()
-        try:
-            _, target, reason = self.peek_plan()
-        except Exception:  # noqa: BLE001 – Diagnose darf nie selbst abstürzen
-            target, reason = self.effective_target, None
-        self._setpoint_history.append(
-            {
-                "t": now.isoformat(),
-                "setpoint": round(float(setpoint), 1),
-                "target": round(float(target), 1),
-                "expected": round(float(expected), 1) if expected is not None else None,
-                "reason": reason,
-                "blocked": blocked,
-            }
-        )
-        cutoff = now - timedelta(hours=24)
-        self._setpoint_history = [
-            entry
-            for entry in self._setpoint_history
-            if datetime.fromisoformat(str(entry.get("t"))) >= cutoff
-        ][-500:]
-
-    async def async_set_target(self, temperature: float, by: str | None = None) -> None:
-        new = clamp(float(temperature), self.trv_min, self.trv_max)
-        on, current, reason = self.plan()
-        override = reason in AWAY_STAGES and new > current
-        now = dt_util.utcnow()
-        changed = new != self.target_temp
-        if changed:
-            if override:
-                # Jemand will es trotz Abwesenheit wärmer → Absenkung für 3 h aussetzen
-                self._manual_until = now + MANUAL_OVERRIDE
-            elif self.override_minutes > 0:
-                # Auch ohne Zeitplan: Die Handverstellung bekommt ein Zeitfenster, damit die
-                # Karte „Zeitplan fortsetzen“ bzw. „Wunschtemperatur fortsetzen“ zeigen kann.
-                self._manual_until = now + timedelta(minutes=self.override_minutes)
-        if changed:
-            self.log(
-                CAT_MANUAL,
-                tr("Wunschtemperatur {old} → {new}", old=fmt_temp(self.target_temp), new=fmt_temp(new)),
-                tr("in Home Assistant geändert")
-                + (tr(" von {who}", who=by) if by else "")
-                + (tr("; Absenkung für 3 h ausgesetzt") if override else ""),
-            )
-        self.target_temp = new
-        self._save()
-        self._notify()
-        await self._apply()
-
-    @property
-    def comfort_temp(self) -> float:
-        """Wunschtemperatur (eingestellt oder Standard des Raumtyps)."""
-        return comfort_temperature(
-            self.config.get(CONF_COMFORT_TEMP), self.config.get(CONF_ROOM_TYPE)
-        )
-
-    async def async_set_hvac_mode(self, mode: str) -> None:
-        """Heat / Auto / Off aus der Karte.
-
-        ``auto`` heißt: Raumklima pausiert für diesen Raum und das Gerät fährt sein
-        eigenes Wochenprogramm — es wird kein Sollwert mehr geschrieben.
-        """
-        mode = str(mode or "").lower()
-        if mode == "auto":
-            if not self.hvac_auto:
-                self.log(
-                    CAT_MANUAL,
-                    tr("Automatik am Gerät"),
-                    tr("Raumklima pausiert – das Thermostat fährt sein eigenes Programm"),
-                )
-            self.hvac_auto = True
-            self.hvac_on = True
-            self.off_source = None
-            self._save()
-            self._notify()
-            await self._hand_over_to_device()
-            return
-        if self.hvac_auto:
-            self.hvac_auto = False
-            self.log(CAT_MANUAL, tr("Automatik beendet"), tr("Raumklima übernimmt wieder"))
-            self._save()
-            self._notify()
-        await self.async_set_hvac_on(mode != "off")
-
-    async def _hand_over_to_device(self) -> None:
-        """Gerät auf sein eigenes Programm stellen (Preset „auto“/„schedule“)."""
-        presets = [str(p).lower() for p in (self._trv_attr("preset_modes") or [])]
-        target = next((p for p in ("auto", "schedule", "program", "programme", "timer", "timed") if p in presets), None)
-        if target is None:
-            return
-        try:
-            await self._call_climate("set_preset_mode", preset_mode=target)
-            _LOGGER.info("%s: Gerät auf eigenes Programm gestellt (%s)", self.name, target)
-        except Exception as exc:  # noqa: BLE001
-            _LOGGER.debug("%s: Preset %s nicht setzbar: %s", self.name, target, exc)
-
-    async def async_set_hvac_on(self, on: bool) -> None:
-        if on and self.hvac_auto:
-            # „Ein“ heißt: Raumklima übernimmt wieder
-            self.hvac_auto = False
-            self.log(CAT_MANUAL, tr("Automatik beendet"), tr("Raumklima übernimmt wieder"))
-        if on and not self.hvac_on and self.target_temp < MIN_USEFUL_TARGET:
-            # Raum war aus (Sollwert-Rest wie 5 °C) → mit Wunschtemperatur starten
-            self.target_temp = self.comfort_temp
-        if on != self.hvac_on:
-            self.log(CAT_MANUAL, tr("Raum eingeschaltet") if on else tr("Raum ausgeschaltet"), tr("in Home Assistant"))
-        self.hvac_on = on
-        self.off_source = None if on else OFF_SOURCE_USER
-        self._save()
-        self._notify()
-        await self._apply()
-
-    async def async_set_boost(self, minutes: int | None = None, temperature: float | None = None) -> None:
-        """Zeitlich begrenzt wärmer heizen („30 min wärmer"), danach gilt wieder der Rest."""
-        if temperature is not None:
-            offset = max(BOOST_TEMP_MIN, min(BOOST_TEMP_MAX, float(temperature)))
-            self.boost_temperature = min(self.comfort_temp + offset, self.trv_max)
-        await self._set_boost(
-            minutes if minutes is not None else int(self.config.get(CONF_BOOST_MINUTES) or 30)
-        )
-
-    async def async_boost(self, mode: str = "minutes", minutes: int | None = None) -> None:
-        """Boost mit Ziel: ``minutes`` | ``next`` (bis zum nächsten Zeitfenster) | ``unlimited`` | ``off``."""
-        if mode == "off":
-            await self.async_clear_boost()
-            return
-        if mode == "unlimited":
-            await self._set_boost(None, open_ended=True)
-            return
-        if mode == "next":
-            local_now = dt_util.now()
-            nxt = self.next_plan_window(local_now)
-            if nxt is None:
-                await self._set_boost(120)
-                return
-            start, _want = nxt
-            delta = (start - local_now).total_seconds() / 60
-            await self._set_boost(max(5, min(480, int(delta))))
-            return
-        await self._set_boost(minutes if minutes is not None else int(self.config.get(CONF_BOOST_MINUTES) or 30))
-
-    async def _set_boost(self, minutes: int | None, open_ended: bool = False) -> None:
-        """Boost setzen – ``open_ended`` heißt: bis zum Ausschalten."""
-        offset = float(self.config.get(CONF_BOOST_TEMP) or 2.0)
-        offset = max(BOOST_TEMP_MIN, min(BOOST_TEMP_MAX, offset))
-        self.boost_temperature = min(self.comfort_temp + offset, self.trv_max)
-        if open_ended:
-            self.boost_open = True
-            self.boost_until = None
-            self.log(
-                CAT_MANUAL,
-                tr("Boost {t} ohne Zeitlimit", t=fmt_temp(self.boost_temperature)),
-                tr("läuft, bis du den Boost beendest"),
-            )
-        else:
-            duration = max(BOOST_MINUTES_MIN, min(BOOST_MINUTES_MAX, int(minutes or 30)))
-            self.boost_open = False
-            self.boost_until = dt_util.utcnow() + timedelta(minutes=duration)
-            self.log(
-                CAT_MANUAL,
-                tr("Boost {t} für {m} min", t=fmt_temp(self.boost_temperature), m=duration),
-                tr("in Home Assistant"),
-            )
-        if not self.hvac_on:
-            self.hvac_on = True
-            self.off_source = None
-        self._save()
-        self._notify()
-        await self._apply()
-
-    async def async_clear_boost(self) -> None:
-        """Laufenden Boost vorzeitig beenden."""
-        if self.boost_until is None and not self.boost_open:
-            return
-        self.boost_open = False
-        self.boost_until = None
-        self.boost_temperature = None
-        self.log(CAT_MANUAL, tr("Boost beendet"), tr("in Home Assistant"))
-        self._save()
-        self._notify()
-        await self._apply()
-
-    @property
-    def boost_active(self) -> bool:
-        return self.boost_open or (self.boost_until is not None and dt_util.utcnow() < self.boost_until)
-
-    async def async_set_window_logic(self, enabled: bool) -> None:
-        self.window_logic = enabled
-        self._save()
-        self._notify()
-        await self._apply()
 
     # ================================================================ Ereignisse
     @callback
@@ -1468,38 +879,3 @@ class RaumklimaController(StoreMixin, RadioMixin, PlanMixin, MoldMixin, ApplyMix
             self.hass.async_create_task(self._apply(from_measurement=True))
             return
         self.hass.async_create_task(self.async_calibrate())
-
-
-
-
-
-
-
-
-# ------------------------------------------------------------------ Wärmeerzeuger
-#: Teile von Entity-IDs, an denen eine Pause des Wärmeerzeugers erkannt wird (binary_sensor, „an“)
-SUPPLY_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("dhw", ("warmwasserbetrieb", "dhw_active", "hot_water_active", "dhw_charging")),
-    ("defrost", ("abtau", "defrost")),
-    ("lock", ("sperrzeit", "evu_lock", "utility_lock")),
-)
-_SUPPLY_CACHE: dict[str, Any] = {"at": None, "ids": None}
-
-
-def supply_pause(hass: HomeAssistant) -> dict[str, Any] | None:
-    """Liefert der Wärmeerzeuger gerade keine Wärme? Erkennt Wärmepumpen-Status-Sensoren am Namen."""
-    now = dt_util.utcnow()
-    if _SUPPLY_CACHE["ids"] is None or _SUPPLY_CACHE["at"] is None or (now - _SUPPLY_CACHE["at"]).total_seconds() > 600:
-        found: list[tuple[str, str]] = []
-        for state in hass.states.async_all("binary_sensor"):
-            entity_id = state.entity_id
-            for kind, parts in SUPPLY_PATTERNS:
-                if any(part in entity_id for part in parts):
-                    found.append((kind, entity_id))
-                    break
-        _SUPPLY_CACHE.update(at=now, ids=found)
-    for kind, entity_id in _SUPPLY_CACHE["ids"] or []:
-        state = hass.states.get(entity_id)
-        if state is not None and state.state == "on":
-            return {"kind": kind, "entity": entity_id}
-    return None

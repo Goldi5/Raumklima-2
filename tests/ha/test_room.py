@@ -2071,7 +2071,7 @@ async def test_wartet_auf_waerme_nennt_den_grund(hass: HomeAssistant, setup, trv
 
     from homeassistant.components.climate import HVACAction
 
-    from custom_components.raumklima import controller as ctl
+    from custom_components.raumklima import room_status as ctl
     from custom_components.raumklima.shared import domain_data
 
     _hub, room = setup
