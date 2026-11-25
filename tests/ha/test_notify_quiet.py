@@ -14,7 +14,7 @@ from homeassistant.util import dt as dt_util
 
 from custom_components.raumklima.const import CO2_LIMIT_DEFAULT, NOTIFY_CAP_DEFAULT
 from custom_components.raumklima.shared import domain_data
-from custom_components.raumklima.vent_manager import TOO_COLD_LOUD
+from custom_components.raumklima.vent_const import TOO_COLD_LOUD
 from custom_components.raumklima.ventilation import (
     VENT_PLEASE_CLOSE,
     VENT_PLEASE_OPEN,

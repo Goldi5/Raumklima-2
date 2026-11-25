@@ -218,7 +218,7 @@ def test_open_hint_only_for_occupied_rooms() -> None:
 def test_feinstaub_meldung_nennt_feinstaub_nicht_feuchte() -> None:
     """Die Meldung muss den Grund nennen – vorher stand dort die Luftfeuchte."""
     from custom_components.raumklima.msg import tr
-    from custom_components.raumklima.vent_manager import MESSAGE_PM25
+    from custom_components.raumklima.vent_const import MESSAGE_PM25
 
     title, body = MESSAGE_PM25
     text = tr(body, room="Wohnzimmer", pm="46", dur=10)
