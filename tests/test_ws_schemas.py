@@ -79,7 +79,8 @@ def test_zeitplan_grenze_passt_zur_karte() -> None:
     match = re.search(r"^SCHEDULE_MAX: Final = (\d+)", src, re.M)
     assert match, "SCHEDULE_MAX nicht gefunden – Muster geändert?"
     assert int(match.group(1)) >= 20, "Zeitplan-Grenze zu klein für die Karte"
-    bind = (FRONTEND / "cards" / "settings" / "bind.js").read_text(encoding="utf-8")
+    # Ereignisse liegen seit 2.0.1b21 in mehreren Dateien (bind*.js)
+    bind = "".join(p.read_text(encoding="utf-8") for p in sorted((FRONTEND / "cards" / "settings").glob("bind*.js")))
     block = bind[bind.index("[data-schedadd]"):][:400]
     assert "length >=" not in block, "Karte begrenzt Zeitfenster wieder – Schema-Grenze anpassen"
 
