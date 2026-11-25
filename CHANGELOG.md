@@ -1,3 +1,16 @@
+## 2.0.1b21 – 2026-11-25
+
+### Intern
+- **Weitere große Dateien aufgeteilt, ohne Verhaltensänderung:** `planning.py` nach Themen
+  (`plan_const`, `plan_mold`, `plan_presence`, `plan_season`, `plan_schedule`, `plan_detect`,
+  `plan_weather`), `report_pdf.py` (Texte, Bausteine, Seiten, Zusammensetzen) – beide bleiben als
+  Fassade importierbar; Definitionen per Syntaxbaum-Vergleich unverändert.
+- **Karte:** Die Ereignis-Verdrahtung der Einstellungen (`bind.js`, 850 Zeilen) in vier Bereiche
+  geteilt – dieselben 124 Handler in derselben Reihenfolge. `shared.js` in `rooms.js`
+  (Räume, Stockwerke, Layout), `labels.js` (Auswahltabellen) und `util.js` geteilt; alle 91
+  Exporte bleiben gleich.
+- Für Nutzer ändert sich nichts.
+
 ## 2.0.1b20 – 2026-11-25
 
 ### Intern

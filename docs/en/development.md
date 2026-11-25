@@ -10,7 +10,7 @@
 | `tests/` | tests without Home Assistant (logic) |
 | `tests/ha/` | integration tests with Home Assistant (simulated thermostat) |
 
-The integration is split into **logic without Home Assistant** (`logic.py`, `planning.py`, `ventilation.py`, `health.py`, `stats.py`, `sleep.py`, `heatup.py`, `sync.py` – quick to test) and the parts that talk to Home Assistant:
+The integration is split into **logic without Home Assistant** (`logic.py`, `planning.py` (facade for `plan_*.py`: mould, presence, season, schedules, detection, weather), `ventilation.py`, `health.py`, `stats.py`, `sleep.py`, `heatup.py`, `sync.py` – quick to test) and the parts that talk to Home Assistant:
 
 - Room: `controller.py` (flow, events) with mixins: `room_control.py` (controls: target, on/off, boost), `room_status.py` (status, wait reason), `room_schedule.py` (schedules, helper entities), `room_readings.py` (readings, sensor state), `room_plan.py` (rule chain, check page `explain()`), `room_mold.py` (mould protection), `room_apply.py` (send the plan to the device, heat sources), `room_settings.py` (settings for the card), `room_store.py` (save/load state), `room_radio.py` (radio commands, battery forecast), `room_windows.py` (window logic), `room_trv.py` (thermostat control, offset, loop protection), `room_health.py` (health check) and `room_presence.py` (sensors, lamps, presence temperature); constants and `PLAN_RULES` in `room_const.py`
 - Card interface: `websocket_api.py` only registers; commands in `ws_hub.py`, `ws_room.py`, `ws_report.py`, validation in `ws_common.py`. Numeric limits live in `fields.py` – `python scripts/gen_fields.py` generates `frontend/src/fields.js` from it (a test checks it is current)
@@ -19,7 +19,7 @@ The integration is split into **logic without Home Assistant** (`logic.py`, `pla
 - Settings card: numeric settings (unit, step, limits) come from `fields.py` and are drawn with `this._num(scope, key, value)`; rarely used rows go into a fold with `this._more(id, title, rows, scope, keys)`; `this._grp(group, title, …)` names the rail position explicitly.
 - Hub: `hub.py` with `hub_presence.py` (presence), `hub_calendar.py` (calendar, school holidays), `hub_sleep.py` (sleep times), `hub_season.py` (heating season, forecast) and `hub_notify.py` (notifications)
 - `websocket_api.py` (card API), `device_trigger.py` (device triggers), `insights.py` (report, health) with `insights_energy.py` (tariffs, meters, costs, tank); ventilation: `vent_manager.py` with `vent_notify.py` (notifications) and `vent_const.py`
-- PDF report: `report_data.py` (periods, comparisons, findings – no HA), `report_pdf.py` (drawing with fpdf2), `reports.py` (storage, schedule, push/email, download view)
+- PDF report: `report_data.py` (periods, comparisons, findings – no HA), `report_pdf.py` (drawing with fpdf2; facade for `report_pdf_text/base/pages/render.py`), `reports.py` (storage, schedule, push/email, download view)
 - Presence sensors: `occupancy.py` (logic) and `room_presence.py`; light signal `room_lights.py`; lock screen countdown `live_activity.py`
 
 ## Tests

@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b20 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b21 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -3546,7 +3546,7 @@
     return d.toLocaleTimeString(locale, timeOpts(opts));
   }
   var getLang = () => lang;
-  var loc2 = () => locale;
+  var loc = () => locale;
   function t(de, vars) {
     let s = lang === "de" ? de : TABLES[lang][de] ?? EN[de] ?? de;
     if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m);
@@ -3565,7 +3565,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b20";
+  var RK_VERSION = "2.0.1b21";
 
   // src/styles.js
   var STYLES = `
@@ -4736,7 +4736,7 @@
   function rkClock(ms) {
     const d = new Date(ms);
     const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
-    return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc2(), { weekday: "short" })} ${time}` : time;
+    return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
   }
   function rkPaint(host, html) {
     const root = host.shadowRoot;
@@ -4790,7 +4790,7 @@
     const a = host.shadowRoot && host.shadowRoot.activeElement;
     return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
   }
-  var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc2(), { minimumFractionDigits: d, maximumFractionDigits: d });
+  var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
   var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
   var DAY_LOCALE = { de: "de-DE", en: "en-GB", fr: "fr-FR" };
   function schedDayName(index) {
@@ -4953,7 +4953,7 @@
         const days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 864e5);
         if (days === 0) return time;
         if (days === 1) return t("morgen {t}", { t: time });
-        return `${d.toLocaleDateString(loc2(), { weekday: "short" })} ${time}`;
+        return `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}`;
       };
       let text;
       if (st.active) {
@@ -4973,7 +4973,7 @@
       const width = mins == null ? 100 : Math.min(100, mins / span * 100);
       const ticks = [0, 1, 2, 3, 4, 5, 6].map((h) => {
         const d = new Date(Date.now() + h * 36e5);
-        return `<span style="left:${h / 6 * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc2(), { hour: "2-digit" })}</span>`;
+        return `<span style="left:${h / 6 * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc(), { hour: "2-digit" })}</span>`;
       }).join("");
       const chip = (mode, min, label) => `<button class="bschip" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
       const def = boostMinutes(a);
@@ -5229,7 +5229,7 @@
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
           ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}${a.dehumidifier_since ? ` · ${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}` : ""}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="chip" style="--tone:var(--rk-warn)" title="${esc(a.battery.name)}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon>${t("Batterie {p} %", { p: a.battery.level })}</span>` : ""}
-          ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc2(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
+          ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
         </div>
         ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
         ${(() => {
@@ -5717,7 +5717,7 @@
     }
     _fmtTime(ts) {
       const d = new Date(ts);
-      return this._hours > 48 ? d.toLocaleDateString(loc2(), { weekday: "short", day: "numeric" }) : rkTime(d, { hour: "2-digit", minute: "2-digit" });
+      return this._hours > 48 ? d.toLocaleDateString(loc(), { weekday: "short", day: "numeric" }) : rkTime(d, { hour: "2-digit", minute: "2-digit" });
     }
     _shell(body) {
       const m = this._config.mode;
@@ -5827,7 +5827,7 @@
           const p = near(s.pts, ts);
           return `<div class="r" style="--c:${s.r.color}"><span><i></i>${esc(s.r.name)}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`;
         }).join("");
-        tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc2(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
+        tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
         tip.style.display = "";
         const left = ev.clientX - chart.getBoundingClientRect().left;
         tip.style.left = `${left > chart.clientWidth / 2 ? left - tip.offsetWidth - 14 : left + 14}px`;
@@ -9415,7 +9415,7 @@
     _decRow(e) {
       const d = new Date(e.t);
       const sameDay = !isNaN(d.getTime()) && d.toDateString() === (/* @__PURE__ */ new Date()).toDateString();
-      const when = isNaN(d.getTime()) ? "" : sameDay ? d.toLocaleTimeString(loc2(), { hour: "2-digit", minute: "2-digit" }) : d.toLocaleString(loc2(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      const when = isNaN(d.getTime()) ? "" : sameDay ? d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) : d.toLocaleString(loc(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
       const many = e.n > 1 ? ` ×${e.n}` : "";
       const why = e.why ? `<small>${esc(e.why)}</small>` : "";
       const extra = [e.room ? esc(e.room) : "", e.data ? esc(Object.entries(e.data).map(([k, v]) => `${k}: ${v}`).join(" · ")) : ""].filter(Boolean).join(" · ");
@@ -11593,7 +11593,7 @@
           body = `<div class="err">${t("Bericht konnte nicht gezeichnet werden: {e}", { e: esc(msg) })}</div>`;
         }
       }
-      const since = d && d.since ? (/* @__PURE__ */ new Date(d.since + "T00:00:00")).toLocaleDateString(loc2(), { day: "numeric", month: "long" }) : null;
+      const since = d && d.since ? (/* @__PURE__ */ new Date(d.since + "T00:00:00")).toLocaleDateString(loc(), { day: "numeric", month: "long" }) : null;
       this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
       <ha-card class="report" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:chart-box-outline"></ha-icon><div>${esc(this._config.title || t("Heizbericht"))}${since ? `<div class="rsub">${t("Daten seit {d}", { d: since })}</div>` : ""}</div></div>
@@ -11613,7 +11613,7 @@
     _pdfSection() {
       const kinds = { week: t("Woche"), month: t("Monat"), season: t("Heizsaison") };
       const list = (this._pdfs || []).slice(0, 8);
-      const day = (s) => (/* @__PURE__ */ new Date(s + "T00:00:00")).toLocaleDateString(loc2(), { day: "2-digit", month: "2-digit", year: "numeric" });
+      const day = (s) => (/* @__PURE__ */ new Date(s + "T00:00:00")).toLocaleDateString(loc(), { day: "2-digit", month: "2-digit", year: "numeric" });
       const rows = list.map((r) => `<div class="pdfrow"><ha-icon icon="mdi:file-pdf-box"></ha-icon>
         <div class="pdfi"><b>${kinds[r.kind] || r.kind}${r.current ? ` <span class="no">${t("bis heute")}</span>` : ""}</b><small>${day(r.start)} – ${day(r.end)} · ${Math.max(1, Math.round(r.size / 1024))} KB</small></div>
         <button class="btn" data-pdf="${esc(r.url)}" data-file="${esc(r.file)}"><ha-icon icon="mdi:download"></ha-icon>${t("Herunterladen")}</button></div>`).join("");
@@ -11963,7 +11963,7 @@
     _render() {
       if (!this._hass) return;
       const list = this._visible();
-      const dayKey = (d) => d.toLocaleDateString(loc2(), { weekday: "short", day: "numeric", month: "short" });
+      const dayKey = (d) => d.toLocaleDateString(loc(), { weekday: "short", day: "numeric", month: "short" });
       const today = dayKey(/* @__PURE__ */ new Date()), yest = dayKey(new Date(Date.now() - 864e5));
       let html = "", cur = null;
       for (const e of list) {
@@ -12324,10 +12324,10 @@
     }
     _dayLabel(iso, long = false) {
       const d = /* @__PURE__ */ new Date(`${iso}T12:00:00`);
-      return d.toLocaleDateString(loc2(), long ? { weekday: "short", day: "numeric", month: "numeric" } : { day: "numeric", month: "numeric" });
+      return d.toLocaleDateString(loc(), long ? { weekday: "short", day: "numeric", month: "numeric" } : { day: "numeric", month: "numeric" });
     }
     _month(key) {
-      return (/* @__PURE__ */ new Date(`${key}-15T12:00:00`)).toLocaleDateString(loc2(), { month: "short", year: "2-digit" });
+      return (/* @__PURE__ */ new Date(`${key}-15T12:00:00`)).toLocaleDateString(loc(), { month: "short", year: "2-digit" });
     }
     // Preiskurve mit Achse in ct, „jetzt“-Strich, Farben nach Vierteln
     _priceChart(points) {
@@ -12357,7 +12357,7 @@
       const step = Math.max(1, Math.ceil(points.length / 4));
       for (let i = step; i < points.length; i += step) {
         const d = new Date(points[i].t);
-        bottom.push({ x: (i + 0.5) / points.length * 100, t: d.toLocaleString(loc2(), { weekday: "short", hour: "2-digit", minute: "2-digit" }) });
+        bottom.push({ x: (i + 0.5) / points.length * 100, t: d.toLocaleString(loc(), { weekday: "short", hour: "2-digit", minute: "2-digit" }) });
       }
       const per = points.length > 1 ? Math.max(1, Math.round(36e5 / (new Date(points[1].t) - new Date(points[0].t)))) : 1;
       const win = 3 * per;
@@ -12366,7 +12366,7 @@
         const avg = points.slice(i, i + win).reduce((a, b) => a + b.p, 0) / win;
         if (!best || avg < best.avg) best = { i, avg };
       }
-      const hm = (d) => d.toLocaleString(loc2(), { weekday: "short", hour: "2-digit", minute: "2-digit" });
+      const hm = (d) => d.toLocaleString(loc(), { weekday: "short", hour: "2-digit", minute: "2-digit" });
       const cur = nowIdx >= 0 ? points[nowIdx] : null;
       const rows = [
         cur ? this._kv(t("Jetzt"), `${fmt(cur.p * 100, 1)} ct/kWh`) : "",
@@ -12382,7 +12382,7 @@
       const all = week.kwh.flat().filter((v) => v != null);
       if (!all.length) return "";
       const max = Math.max(...all, 0.01);
-      const days = [0, 1, 2, 3, 4, 5, 6].map((i) => new Date(2026, 10, 2 + i).toLocaleDateString(loc2(), { weekday: "short" }));
+      const days = [0, 1, 2, 3, 4, 5, 6].map((i) => new Date(2026, 10, 2 + i).toLocaleDateString(loc(), { weekday: "short" }));
       const pr = (week.price || []).filter((v) => v != null);
       const ps = [...pr].sort((a, b) => a - b);
       const plo = ps[Math.floor(ps.length * 0.25)], phi = ps[Math.floor(ps.length * 0.75)];

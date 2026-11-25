@@ -10,7 +10,7 @@
 | `tests/` | Tests ohne Home Assistant (Logik) |
 | `tests/ha/` | Integrationstests mit Home Assistant (simuliertes Thermostat) |
 
-Die Integration ist aufgeteilt in **Logik ohne Home Assistant** (`logic.py`, `planning.py`, `ventilation.py`, `health.py`, `stats.py`, `sleep.py`, `heatup.py`, `sync.py` – schnell testbar) und die Teile, die mit Home Assistant sprechen:
+Die Integration ist aufgeteilt in **Logik ohne Home Assistant** (`logic.py`, `planning.py` (Fassade für `plan_*.py`: Schimmel, Anwesenheit, Saison, Zeitpläne, Erkennung, Wetter), `ventilation.py`, `health.py`, `stats.py`, `sleep.py`, `heatup.py`, `sync.py` – schnell testbar) und die Teile, die mit Home Assistant sprechen:
 
 - Raum: `controller.py` (Ablauf, Ereignisse) mit Mixins: `room_control.py` (Bedienung: Wunsch, Ein/Aus, Boost), `room_status.py` (Status, Wartegrund), `room_schedule.py` (Zeitpläne, Hilfs-Entitäten), `room_readings.py` (Messwerte, Fühlerzustand), `room_plan.py` (Regelkette, Prüfseite `explain()`), `room_mold.py` (Schimmelschutz), `room_apply.py` (Plan ans Gerät senden, Heizquellen), `room_settings.py` (Einstellungen für die Karte), `room_store.py` (Zustand speichern/laden), `room_radio.py` (Funkbefehle, Batterie-Prognose), `room_windows.py` (Fensterlogik), `room_trv.py` (Thermostat ansteuern, Offset, Schutz gegen Endlosschleifen), `room_health.py` (Gesundheitscheck) und `room_presence.py` (Melder, Lampen, Anwesenheits-Temperatur); feste Werte und `PLAN_RULES` in `room_const.py`
 - Karten-Schnittstelle: `websocket_api.py` meldet nur an; Befehle in `ws_hub.py`, `ws_room.py`, `ws_report.py`, Prüfregeln in `ws_common.py`. Zahl-Grenzen stehen in `fields.py` – daraus erzeugt `python scripts/gen_fields.py` die Datei `frontend/src/fields.js` (ein Test prüft, dass sie aktuell ist)
@@ -19,7 +19,7 @@ Die Integration ist aufgeteilt in **Logik ohne Home Assistant** (`logic.py`, `pl
 - Einstellungen-Karte: Zahl-Einstellungen (Einheit, Schritt, Grenzen) kommen aus `fields.py` und werden mit `this._num(scope, key, wert)` gezeichnet; selten Gebrauchtes kommt mit `this._more(id, titel, zeilen, scope, schlüssel)` in einen Aufklapper; `this._grp(gruppe, titel, …)` nennt den Platz in der Leiste ausdrücklich.
 - Zentrale: `hub.py` mit `hub_presence.py` (Anwesenheit), `hub_calendar.py` (Kalender, Schulferien), `hub_sleep.py` (Schlafenszeiten), `hub_season.py` (Heizsaison, Vorhersage) und `hub_notify.py` (Benachrichtigungen)
 - `websocket_api.py` (Schnittstelle der Karten), `device_trigger.py` (Geräte-Auslöser), `insights.py` (Bericht, Gesundheit) mit `insights_energy.py` (Tarife, Zähler, Kosten, Tank); Lüften: `vent_manager.py` mit `vent_notify.py` (Benachrichtigungen) und `vent_const.py`
-- PDF-Bericht: `report_data.py` (Zeiträume, Vergleiche, Auffälligkeiten – ohne HA), `report_pdf.py` (Zeichnen mit fpdf2), `reports.py` (Ablage, Zeitplan, Push/E-Mail, Download)
+- PDF-Bericht: `report_data.py` (Zeiträume, Vergleiche, Auffälligkeiten – ohne HA), `report_pdf.py` (Zeichnen mit fpdf2; Fassade für `report_pdf_text/base/pages/render.py`), `reports.py` (Ablage, Zeitplan, Push/E-Mail, Download)
 - Präsenzmelder: `occupancy.py` (Logik) und `room_presence.py`; Lichtsignal `room_lights.py`; Sperrbildschirm-Countdown `live_activity.py`
 
 ## Tests
