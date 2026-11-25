@@ -9454,39 +9454,10 @@
     }
   };
 
-  // src/cards/settings/bind.js
-  var BindMethods = {
-    // Ein Listener je Ereignistyp an der Schatten-Wurzel. Er läuft vom Ziel nach außen (wie das
-    // normale Aufsteigen eines Ereignisses) und ruft jeden passenden Handler; stopPropagation() im
-    // Handler beendet den Lauf wie gewohnt. Neu gezeichnete Teile brauchen so kein neues Anbinden.
-    _delegate() {
-      if (this._delegating) return;
-      this._delegating = true;
-      for (const type of ["click", "change", "input", "keydown"]) {
-        this.shadowRoot.addEventListener(type, (ev) => {
-          for (let node = ev.target; node && node !== this.shadowRoot; node = node.parentNode) {
-            if (node.nodeType !== 1) continue;
-            for (const h of this._handlers || []) {
-              if (h.type === type && node.matches(h.sel)) h.make(node)(ev);
-            }
-            if (ev.cancelBubble) break;
-          }
-        });
-      }
-    },
-    // Auswahl neben einem Hinzufügen-Knopf: relativ suchen (nicht über eine ID) und den
-    // Fokus lösen, damit _renderSoon das Neuzeichnen nicht bis zum Verlassen des Feldes zurückhält.
-    _addSelect(el) {
-      const sel = (el.closest(".addrow") || el.parentElement || el).querySelector("select");
-      if (sel) sel.blur();
-      return sel;
-    },
-    _bind() {
-      this._handlers = [];
-      const on = (type, sel, make) => this._handlers.push({ type, sel, make });
-      this._delegate();
-      const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
-      const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+  // src/cards/settings/bind_general.js
+  var BindGeneralMethods = {
+    _bindGeneral(k) {
+      const { on, $, ws, apply, sp, roomList, mailSettings, roomLights, roomPres } = k;
       on("click", "[data-tab]", (el) => () => {
         this._tab = el.dataset.tab;
         this._search = "";
@@ -9655,10 +9626,6 @@
         if (!isNaN(max)) v = Math.min(max, v);
         this._hass.callService("number", "set_value", { entity_id: el.dataset.num, value: v });
       });
-      const apply = (scope, changes) => {
-        if (scope === "hub") this._setHub(changes);
-        else this._setRoom(scope.slice(5), changes);
-      };
       on("click", "[data-opt]", (el) => () => {
         const step = parseFloat(el.dataset.step), min = parseFloat(el.dataset.min), max = parseFloat(el.dataset.max);
         const cur = parseFloat(el.dataset.val);
@@ -9722,7 +9689,13 @@
           }
         });
       });
-      const sp = (v) => String(v).split("|");
+    }
+  };
+
+  // src/cards/settings/bind_schedule.js
+  var BindScheduleMethods = {
+    _bindSchedule(k) {
+      const { on, $, ws, apply, sp, roomList, mailSettings, roomLights, roomPres } = k;
       on("click", "[data-roomperson]", (el) => () => {
         const entry = el.dataset.entry;
         const cur = roomList(entry, "room_persons", []);
@@ -9961,6 +9934,13 @@
         const [mm, dd] = el.value.includes(".") ? [m[2], m[1]] : [m[1], m[2]];
         this._setHub({ [el.dataset.md]: `${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` }, 200);
       });
+    }
+  };
+
+  // src/cards/settings/bind_hub.js
+  var BindHubMethods = {
+    _bindHub(k) {
+      const { on, $, ws, apply, sp, roomList, mailSettings, roomLights, roomPres } = k;
       on("click", "[data-ltab]", (el) => () => {
         if (this._tab === "general") this._ltabHub = el.dataset.ltab;
         else this._ltabRoom = el.dataset.ltab;
@@ -10154,11 +10134,13 @@
           this._flash(t("Fehler: {e}", { e: e.message || e }));
         }
       });
-      const roomList = (entry, key, fallback) => {
-        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
-        const s = room && room.attrs.settings || {};
-        return [...(room && this._roomOpt(room, key)) ?? s[key] ?? fallback];
-      };
+    }
+  };
+
+  // src/cards/settings/bind_notify.js
+  var BindNotifyMethods = {
+    _bindNotify(k) {
+      const { on, $, ws, apply, sp, roomList, mailSettings, roomLights, roomPres } = k;
       const mailbox = this.shadowRoot.querySelector("[data-mailbox]");
       if (mailbox) mailbox.addEventListener("toggle", () => {
         this._mailOpen = mailbox.open;
@@ -10171,8 +10153,8 @@
         this.shadowRoot.querySelectorAll("[data-mailprov]").forEach((b) => b.classList.toggle("on", b === el));
         if (!p) return;
         this._mailForm = { ...this._mailForm || {}, mail_server: p[0], mail_port: String(p[1]), mail_security: p[2] };
-        for (const [k, v] of Object.entries({ mail_server: p[0], mail_port: p[1] })) {
-          const inp = this.shadowRoot.querySelector(`[data-mail="${k}"]`);
+        for (const [k2, v] of Object.entries({ mail_server: p[0], mail_port: p[1] })) {
+          const inp = this.shadowRoot.querySelector(`[data-mail="${k2}"]`);
           if (inp) inp.value = v;
         }
         this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b.dataset.mailsec === p[2]));
@@ -10186,15 +10168,6 @@
         this._mailForm = { ...this._mailForm || {}, mail_security: el.dataset.mailsec };
         this.shadowRoot.querySelectorAll("[data-mailsec]").forEach((b) => b.classList.toggle("on", b === el));
       });
-      const mailSettings = () => {
-        const f = { ...this._mailForm || {} };
-        const out = {};
-        for (const k of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
-          if (f[k] === void 0) continue;
-          out[k] = k === "mail_auth" ? f[k] !== false : k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
-        }
-        return out;
-      };
       on("click", "[data-mailtoggle]", (el) => () => {
         if (this._hubOpt("report_email")) {
           this._setHub({ report_email: null }, 200);
@@ -10229,9 +10202,9 @@
         this._mailSteps = null;
         const f = { ...this._mailForm || {} };
         const changes = { report_email: "raumklima" };
-        for (const k of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
-          if (f[k] === void 0) continue;
-          changes[k] = k === "mail_auth" ? f[k] !== false : k === "mail_port" ? f[k] === "" ? null : parseInt(f[k], 10) : String(f[k]).trim();
+        for (const k2 of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+          if (f[k2] === void 0) continue;
+          changes[k2] = k2 === "mail_auth" ? f[k2] !== false : k2 === "mail_port" ? f[k2] === "" ? null : parseInt(f[k2], 10) : String(f[k2]).trim();
         }
         el.disabled = true;
         this._mailMsg = ["", t("Sende Test-Mail …")];
@@ -10250,9 +10223,9 @@
       });
       on("click", "[data-help]", (el) => (ev) => {
         ev.stopPropagation();
-        const k = el.dataset.help;
-        if (this._helpOpen.has(k)) this._helpOpen.delete(k);
-        else this._helpOpen.add(k);
+        const k2 = el.dataset.help;
+        if (this._helpOpen.has(k2)) this._helpOpen.delete(k2);
+        else this._helpOpen.add(k2);
         this._sig = null;
         this._render();
       });
@@ -10276,11 +10249,6 @@
         const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.presadd, { presence_sensors: [...roomPres(el.dataset.presadd), sel.value] }, 200);
       });
-      const roomLights = (entry) => {
-        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
-        const local = room ? this._roomOpt(room, "presence_lights") : null;
-        return [...local || []];
-      };
       on("click", "[data-plightadd]", (el) => () => {
         const sel = this._addSelect(el);
         if (sel && sel.value) this._setRoom(el.dataset.plightadd, { presence_lights: [...roomLights(el.dataset.plightadd), sel.value] }, 200);
@@ -10288,11 +10256,6 @@
       on("click", "[data-plightrm]", (el) => () => {
         this._setRoom(el.dataset.entry, { presence_lights: roomLights(el.dataset.entry).filter((e) => e !== el.dataset.plightrm) }, 200);
       });
-      const roomPres = (entry) => {
-        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
-        const local = room && this._roomOpt(room, "presence_sensors");
-        return [...local ?? Object.keys((room && room.attrs.settings || {}).presence_sensors || {})];
-      };
       on("click", "[data-lightrm]", (el) => () => {
         this._setRoom(el.dataset.entry, { signal_lights: roomList(el.dataset.entry, "signal_lights", []).filter((x) => x !== el.dataset.lightrm) }, 200);
       });
@@ -10412,6 +10375,76 @@
         history.pushState(null, "", el.dataset.nav);
         window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
       });
+    }
+  };
+
+  // src/cards/settings/bind.js
+  var BindMethods = {
+    // Ein Listener je Ereignistyp an der Schatten-Wurzel. Er läuft vom Ziel nach außen (wie das
+    // normale Aufsteigen eines Ereignisses) und ruft jeden passenden Handler; stopPropagation() im
+    // Handler beendet den Lauf wie gewohnt. Neu gezeichnete Teile brauchen so kein neues Anbinden.
+    _delegate() {
+      if (this._delegating) return;
+      this._delegating = true;
+      for (const type of ["click", "change", "input", "keydown"]) {
+        this.shadowRoot.addEventListener(type, (ev) => {
+          for (let node = ev.target; node && node !== this.shadowRoot; node = node.parentNode) {
+            if (node.nodeType !== 1) continue;
+            for (const h of this._handlers || []) {
+              if (h.type === type && node.matches(h.sel)) h.make(node)(ev);
+            }
+            if (ev.cancelBubble) break;
+          }
+        });
+      }
+    },
+    // Auswahl neben einem Hinzufügen-Knopf: relativ suchen (nicht über eine ID) und den
+    // Fokus lösen, damit _renderSoon das Neuzeichnen nicht bis zum Verlassen des Feldes zurückhält.
+    _addSelect(el) {
+      const sel = (el.closest(".addrow") || el.parentElement || el).querySelector("select");
+      if (sel) sel.blur();
+      return sel;
+    },
+    _bind() {
+      this._handlers = [];
+      const on = (type, sel, make) => this._handlers.push({ type, sel, make });
+      this._delegate();
+      const $ = (sel) => this.shadowRoot.querySelectorAll(sel);
+      const ws = (msg) => this._hass.callWS(msg).catch((e) => this._flash(t("Fehler: {e}", { e: e.message || e })));
+      const apply = (scope, changes) => {
+        if (scope === "hub") this._setHub(changes);
+        else this._setRoom(scope.slice(5), changes);
+      };
+      const sp = (v) => String(v).split("|");
+      const roomList = (entry, key, fallback) => {
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+        const s = room && room.attrs.settings || {};
+        return [...(room && this._roomOpt(room, key)) ?? s[key] ?? fallback];
+      };
+      const mailSettings = () => {
+        const f = { ...this._mailForm || {} };
+        const out = {};
+        for (const k2 of ["mail_server", "mail_port", "mail_security", "mail_auth", "mail_user", "mail_password", "mail_from", "mail_to"]) {
+          if (f[k2] === void 0) continue;
+          out[k2] = k2 === "mail_auth" ? f[k2] !== false : k2 === "mail_port" ? f[k2] === "" ? null : parseInt(f[k2], 10) : String(f[k2]).trim();
+        }
+        return out;
+      };
+      const roomLights = (entry) => {
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+        const local = room ? this._roomOpt(room, "presence_lights") : null;
+        return [...local || []];
+      };
+      const roomPres = (entry) => {
+        const room = (this._rooms || []).find((x) => (x.attrs.settings || {}).entry_id === entry);
+        const local = room && this._roomOpt(room, "presence_sensors");
+        return [...local ?? Object.keys((room && room.attrs.settings || {}).presence_sensors || {})];
+      };
+      const k = { on, $, ws, apply, sp, roomList, mailSettings, roomLights, roomPres };
+      BindGeneralMethods._bindGeneral.call(this, k);
+      BindScheduleMethods._bindSchedule.call(this, k);
+      BindHubMethods._bindHub.call(this, k);
+      BindNotifyMethods._bindNotify.call(this, k);
     }
   };
 
