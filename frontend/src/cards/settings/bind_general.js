@@ -10,6 +10,7 @@ export const BindGeneralMethods = {
   _bindGeneral(k) {
     const { on, $, ws, apply, sp, roomList, mailSettings, roomLights, roomPres } = k;
     on("click", "[data-tab]", (el) => () => {
+      this._onboardLeave();
       this._tab = el.dataset.tab;
       this._search = "";
       if (this._nav2) { this._section = "rooms"; this._group = null; }
@@ -17,6 +18,7 @@ export const BindGeneralMethods = {
       this._render();
     });
     on("click", "[data-section]", (el) => () => {
+      this._onboardLeave();
       this._section = el.dataset.section;
       this._search = "";
       if (this._section === "rooms") this._tab = "general";
@@ -26,6 +28,7 @@ export const BindGeneralMethods = {
       this._render();
     });
     on("click", "[data-nav2]", () => {
+      this._onboardLeave();
       this._nav2 = !this._nav2;
       this._group = null;
       try { localStorage.setItem("raumklima-settings-nav-v2", this._nav2 ? "1" : "0"); } catch (e) { /* ignorieren */ }
@@ -33,6 +36,7 @@ export const BindGeneralMethods = {
       this._render();
     });
     on("click", "[data-roomtab]", (el) => () => {
+      this._onboardLeave();
       this._roomTab = el.dataset.roomtab;
       this._sig = null;
       this._render();

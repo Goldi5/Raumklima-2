@@ -415,6 +415,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
 
   // Deep-Link aus Checkliste, „Warum?“ oder Meldung.
   _goto(target) {
+    this._onboardLeave();
     const [kind, a, b] = String(target || "").split(":");
     this._search = "";
     this._group = null;

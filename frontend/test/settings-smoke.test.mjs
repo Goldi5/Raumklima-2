@@ -578,3 +578,38 @@ test("Raum-Vorlage: Liste und Speichern-Knopf im Dialog", () => {
   assert.match(html, /data-template-apply="Grundlage"/);
   assert.match(html, /data-template-save="[^"]+"/);
 });
+
+test("#90: Reiter im offenen Einrichtungsassistenten schließt ihn", () => {
+  let rendered = 0;
+  const card = {
+    shadowRoot: { querySelectorAll: () => [], querySelector: () => null, getElementById: () => null, addEventListener() {} },
+    _handlers: [],
+    _delegate() {},
+    _hass: { callWS: async () => ({}) },
+    _onboardOpen: true,
+    _onboard: { step: 0, roomOnly: true, data: {} },
+    _onboardLeave: RaumklimaSettingsCard.prototype._onboardLeave,
+    _render() { rendered += 1; },
+  };
+  BindMethods._bind.call(card);
+  for (const [sel, ds] of [["[data-tab]", { tab: "general" }], ["[data-section]", { section: "system" }], ["[data-roomtab]", { roomtab: "overview" }]]) {
+    card._onboardOpen = true;
+    card._onboard = { step: 0, roomOnly: true, data: {} };
+    const h = card._handlers.find((x) => x.type === "click" && x.sel === sel);
+    h.make({ dataset: ds })();
+    assert.equal(card._onboardOpen, false, `${sel} muss den Assistenten schließen`);
+    assert.equal(card._onboard, null);
+  }
+  assert.ok(rendered >= 3);
+});
+
+test("#90: Einrichtungsassistent hat oben ein ×", () => {
+  const html = RaumklimaSettingsCard.prototype._onboardHtml.call({
+    _onboardOpen: true,
+    _onboard: { step: 0, roomOnly: true, data: {} },
+    _onboardVisible: RaumklimaSettingsCard.prototype._onboardVisible,
+    _onboardField: () => "",
+    _rooms: [{}],
+  });
+  assert.match(html, /class="onbx" data-onbclose/);
+});

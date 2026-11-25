@@ -125,6 +125,13 @@ export const OnboardingMethods = {
     this._render();
   },
 
+  /** Wer im offenen Assistenten einen Reiter antippt, will dorthin – Assistent schließen (#90). */
+  _onboardLeave() {
+    if (!this._onboardOpen) return;
+    this._onboardOpen = false;
+    this._onboard = null;
+  },
+
   _onboardVisible() {
     const d = (this._onboard && this._onboard.data) || {};
     return STEPS.filter((s) => {
@@ -234,7 +241,7 @@ export const OnboardingMethods = {
     const body = fields.map((f) => `<label class="mf"><span>${t(f.label)}</span>${this._onboardField(f)}</label>`).join("");
     const last = this._onboard.step >= steps.length - 1;
     return `<div class="sheet onb" role="dialog" aria-modal="false">
-        <div class="stitle"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Einrichtungsassistent")} · ${t(step.title)}</div>
+        <div class="stitle"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon><span>${t("Einrichtungsassistent")} · ${t(step.title)}</span><button class="onbx" data-onbclose title="${t("Assistent schließen")}" aria-label="${t("Assistent schließen")}">×</button></div>
         <div class="sintro">${t(this._onboard.roomOnly ? "Neuer Raum – die Wohnung bleibt unverändert." : (step.intro || "Schritt {n} von {m}"), { n: this._onboard.step + 1, m: steps.length })}</div>
         ${body || `<div class="hint">${t("Keine weiteren Fragen – bereit zum Abschließen.")}</div>`}
         <div class="sbtns">

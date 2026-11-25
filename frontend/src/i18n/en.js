@@ -1766,4 +1766,5 @@ export const EN = {
   "Boost läuft ohne Zeitlimit": "Boost running without time limit",
   "Boost läuft noch {m} min": "Boost running, {m} min left",
   "Noch nicht gestartet – Dauer wählen": "Not started yet – choose a duration",
+  "Assistent schließen": "Close assistant",
 };

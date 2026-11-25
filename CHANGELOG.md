@@ -1,3 +1,12 @@
+## 2.0.1b25 – 2026-11-25
+
+### Behoben
+- **Einstellungen „verschwunden“ (#90):** War der Einrichtungsassistent offen, ersetzte er den ganzen
+  Inhalt der Einstellungskarte – die Reiter oben (Allgemein, Räume, Bereiche) ließen sich antippen,
+  änderten aber nichts, und „Abbrechen“ stand weit unten rechts. Jetzt schließt ein Tipp auf einen
+  Reiter, Bereich oder die Ansicht den Assistenten und öffnet das Gewünschte. Zusätzlich hat der
+  Assistent oben ein **×** zum Schließen.
+
 ## 2.0.1b24 – 2026-11-25
 
 ### Verbessert

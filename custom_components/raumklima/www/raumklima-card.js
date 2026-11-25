@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b24 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b25 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1762,7 +1762,8 @@
     "Kamin/Holzofen": "Fireplace/stove",
     "Boost läuft ohne Zeitlimit": "Boost running without time limit",
     "Boost läuft noch {m} min": "Boost running, {m} min left",
-    "Noch nicht gestartet – Dauer wählen": "Not started yet – choose a duration"
+    "Noch nicht gestartet – Dauer wählen": "Not started yet – choose a duration",
+    "Assistent schließen": "Close assistant"
   };
 
   // src/i18n/fr.js
@@ -3527,7 +3528,8 @@
     "Kamin/Holzofen": "Cheminée/poêle",
     "Boost läuft ohne Zeitlimit": "Boost actif sans limite",
     "Boost läuft noch {m} min": "Boost actif, encore {m} min",
-    "Noch nicht gestartet – Dauer wählen": "Pas encore démarré – choisir une durée"
+    "Noch nicht gestartet – Dauer wählen": "Pas encore démarré – choisir une durée",
+    "Assistent schließen": "Fermer l’assistant"
   };
 
   // src/i18n.js
@@ -3571,7 +3573,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b24";
+  var RK_VERSION = "2.0.1b25";
 
   // src/styles.js
   var STYLES = `
@@ -3795,6 +3797,9 @@
     padding: 16px; border-radius: 18px; background: var(--card-background-color, #fff);
     box-shadow: 0 24px 70px rgba(0, 0, 0, .45); }
   .stitle { font-weight: 700; font-size: 1.05rem; }
+  .sheet.onb .stitle { display: flex; align-items: center; gap: 8px; }
+  .onbx { margin-left: auto; border: 0; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; color: var(--secondary-text-color, #777); padding: 2px 8px; border-radius: 8px; }
+  .onbx:focus-visible { outline: 2px solid var(--rk-heat); }
   .sintro { font-size: .85rem; line-height: 1.35; color: var(--secondary-text-color); }
   .sheet .mf .sel { width:100%; }
   .stext { flex: 1 1 auto; min-height: 160px; width: 100%; resize: vertical; padding: 10px; border-radius: 10px;
@@ -9476,6 +9481,7 @@
     _bindGeneral(k) {
       const { on, $, ws, apply, sp, roomList, mailSettings, roomLights, roomPres } = k;
       on("click", "[data-tab]", (el) => () => {
+        this._onboardLeave();
         this._tab = el.dataset.tab;
         this._search = "";
         if (this._nav2) {
@@ -9486,6 +9492,7 @@
         this._render();
       });
       on("click", "[data-section]", (el) => () => {
+        this._onboardLeave();
         this._section = el.dataset.section;
         this._search = "";
         if (this._section === "rooms") this._tab = "general";
@@ -9498,6 +9505,7 @@
         this._render();
       });
       on("click", "[data-nav2]", () => {
+        this._onboardLeave();
         this._nav2 = !this._nav2;
         this._group = null;
         try {
@@ -9508,6 +9516,7 @@
         this._render();
       });
       on("click", "[data-roomtab]", (el) => () => {
+        this._onboardLeave();
         this._roomTab = el.dataset.roomtab;
         this._sig = null;
         this._render();
@@ -10619,6 +10628,12 @@
       this._onboard = null;
       this._render();
     },
+    /** Wer im offenen Assistenten einen Reiter antippt, will dorthin – Assistent schließen (#90). */
+    _onboardLeave() {
+      if (!this._onboardOpen) return;
+      this._onboardOpen = false;
+      this._onboard = null;
+    },
     _onboardVisible() {
       const d = this._onboard && this._onboard.data || {};
       return STEPS.filter((s) => {
@@ -10722,7 +10737,7 @@
       const body = fields.map((f) => `<label class="mf"><span>${t(f.label)}</span>${this._onboardField(f)}</label>`).join("");
       const last = this._onboard.step >= steps.length - 1;
       return `<div class="sheet onb" role="dialog" aria-modal="false">
-        <div class="stitle"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Einrichtungsassistent")} · ${t(step.title)}</div>
+        <div class="stitle"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon><span>${t("Einrichtungsassistent")} · ${t(step.title)}</span><button class="onbx" data-onbclose title="${t("Assistent schließen")}" aria-label="${t("Assistent schließen")}">×</button></div>
         <div class="sintro">${t(this._onboard.roomOnly ? "Neuer Raum – die Wohnung bleibt unverändert." : step.intro || "Schritt {n} von {m}", { n: this._onboard.step + 1, m: steps.length })}</div>
         ${body || `<div class="hint">${t("Keine weiteren Fragen – bereit zum Abschließen.")}</div>`}
         <div class="sbtns">
@@ -11225,6 +11240,7 @@
     }
     // Deep-Link aus Checkliste, „Warum?“ oder Meldung.
     _goto(target) {
+      this._onboardLeave();
       const [kind, a, b] = String(target || "").split(":");
       this._search = "";
       this._group = null;

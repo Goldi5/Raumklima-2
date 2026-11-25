@@ -224,6 +224,9 @@ export const SETTINGS_STYLES = `
     padding: 16px; border-radius: 18px; background: var(--card-background-color, #fff);
     box-shadow: 0 24px 70px rgba(0, 0, 0, .45); }
   .stitle { font-weight: 700; font-size: 1.05rem; }
+  .sheet.onb .stitle { display: flex; align-items: center; gap: 8px; }
+  .onbx { margin-left: auto; border: 0; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; color: var(--secondary-text-color, #777); padding: 2px 8px; border-radius: 8px; }
+  .onbx:focus-visible { outline: 2px solid var(--rk-heat); }
   .sintro { font-size: .85rem; line-height: 1.35; color: var(--secondary-text-color); }
   .sheet .mf .sel { width:100%; }
   .stext { flex: 1 1 auto; min-height: 160px; width: 100%; resize: vertical; padding: 10px; border-radius: 10px;

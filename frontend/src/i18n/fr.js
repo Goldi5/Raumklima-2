@@ -1766,4 +1766,5 @@ export const FR = {
   "Boost läuft ohne Zeitlimit": "Boost actif sans limite",
   "Boost läuft noch {m} min": "Boost actif, encore {m} min",
   "Noch nicht gestartet – Dauer wählen": "Pas encore démarré – choisir une durée",
+  "Assistent schließen": "Fermer l’assistant",
 };
