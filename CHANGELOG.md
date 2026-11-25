@@ -1,3 +1,15 @@
+## 2.0.1b20 – 2026-11-25
+
+### Intern
+- **Große Dateien aufgeteilt, ohne Verhaltensänderung:** `controller.py` (1.505 → 880 Zeilen:
+  Bedienung, Status, Zeitpläne und Messwerte als eigene Module), `insights.py` (Energieteil nach
+  `insights_energy.py`), `hub_presence.py` (Kalender nach `hub_calendar.py`), `vent_manager.py`
+  (Benachrichtigungen nach `vent_notify.py`, Konstanten nach `vent_const.py`). Die verschobenen
+  Methoden sind unverändert (per Syntaxbaum geprüft).
+- **Auswahllisten der Karte** (`ws_common._choices`, 197 Zeilen) über kleine Filter-Helfer
+  zusammengefasst – gleiche Ausgabe, mit Zufallsdaten gegen die alte Fassung verglichen.
+- Wer nur Nutzer ist: Für dich ändert sich nichts. Fällt dir nach dem Update etwas auf, bitte melden.
+
 ## 2.0.1b19 – 2026-11-25
 
 ### Behoben

@@ -12,9 +12,9 @@
 
 L’intégration se divise en une partie **logique sans Home Assistant** (`logic.py`, `planning.py`, `ventilation.py`, `health.py`, `stats.py`, `sleep.py`, `heatup.py`, `sync.py` – rapides à tester) et les parties qui dialoguent avec Home Assistant :
 
-- Pièce : `controller.py` (flux, régulation) avec `room_windows.py` (logique des fenêtres), `room_trv.py` (pilotage du thermostat, décalage, protection contre les boucles) et `room_health.py` (contrôle de santé, diagnostics)
-- Hub : `hub.py` avec `hub_presence.py` (présence, calendrier), `hub_sleep.py` (heures de sommeil), `hub_season.py` (saison de chauffage, prévision) et `hub_notify.py` (notifications)
-- `websocket_api.py` (API des cartes), `device_trigger.py` (déclencheurs d’appareil), `insights.py` (rapport, santé)
+- Pièce : `controller.py` (flux, régulation) avec `room_control.py` (commandes : consigne, marche/arrêt, boost), `room_status.py` (état), `room_schedule.py` (programmes), `room_readings.py` (mesures), `room_windows.py` (logique des fenêtres), `room_trv.py` (pilotage du thermostat, décalage, protection contre les boucles) et `room_health.py` (contrôle de santé, diagnostics)
+- Hub : `hub.py` avec `hub_presence.py` (présence), `hub_calendar.py` (calendrier, vacances scolaires), `hub_sleep.py` (heures de sommeil), `hub_season.py` (saison de chauffage, prévision) et `hub_notify.py` (notifications)
+- `websocket_api.py` (API des cartes), `device_trigger.py` (déclencheurs d’appareil), `insights.py` (rapport, santé) avec `insights_energy.py` (tarifs, compteurs, coûts, cuve) ; aération : `vent_manager.py` avec `vent_notify.py` (notifications) et `vent_const.py`
 - Rapport PDF : `report_data.py` (périodes, comparaisons, constats – sans HA), `report_pdf.py` (dessin avec fpdf2), `reports.py` (stockage, planification, push/e-mail, vue de téléchargement)
 - Sondes de présence : `occupancy.py` (logique) et `room_presence.py` ; signal lumineux `room_lights.py` ; compte à rebours sur l’écran verrouillé `live_activity.py`
 
