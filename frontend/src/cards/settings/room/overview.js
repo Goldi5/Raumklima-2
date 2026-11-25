@@ -1,4 +1,4 @@
-import { fmt, planText, rkWindowOpen, t } from "../../../shared.js";
+import { esc, fmt, planText, rkWindowOpen, t } from "../../../shared.js";
 
 // Phase 3: Die Raum-Übersicht bündelt Status und Schnellzugriffe, statt alle
 // Einstellgruppen untereinander zu zeigen. Die Gruppen selbst bleiben unverändert.
@@ -68,7 +68,7 @@ export const RoomOverviewMethods = {
         const melder = a.occupied === true ? t("belegt") : a.occupied === false ? (a.room_eco ? t("leer – abgesenkt") : t("leer")) : "";
         const text = melder && swTxt ? `${melder} · ${swTxt}` : melder || swTxt || t("keine Melder eingetragen");
         const busy = a.occupied === true || swOn.length > 0;
-        return this._row(t("Präsenzstatus"), this._v(text, !busy), t("aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“"));
+        return this._row(t("Präsenzstatus"), this._v(esc(text), !busy), t("aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“"));
       })(),
       this._row(
         t("Schnellzugriff"),

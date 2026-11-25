@@ -29,7 +29,7 @@ export const GeneralMethods = {
         changed ? `<span class="rchg" title="${t("{n} Einstellungen vom Standard abweichend", { n: changed })}">${changed}</span>` : "",
       ].join("");
       return `<button class="rtile" data-tab="${r.id}" style="--c:${r.color}">
-        <span class="rtop"><span class="rname">${r.name}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
+        <span class="rtop"><span class="rname">${esc(r.name)}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
         <span class="rbig">${fmt(r.attrs.comfort_temperature)}<i>°</i></span>
         ${plan ? `<span class="rsub">${plan}</span>` : ""}
         <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C · ${t("Frost")} ${fmt(s.frost_temperature ?? 5)} °C</span>

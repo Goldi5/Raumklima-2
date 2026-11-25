@@ -10,6 +10,10 @@
   Sommerpause) meldete die Prüfung „Thermostat steht auf Dauerbetrieb“ und „übernimmt den Sollwert
   nicht“. Hat Raumklima den Raum bewusst ausgeschaltet, schweigen diese beiden Hinweise jetzt;
   schaltet sich ein Thermostat von selbst ab, wird es weiter gemeldet.
+- **Kamin/Holzofen bei Funkaussetzer:** „an → nicht verfügbar → aus“ zählt als Ausgehen des
+  Ofens, der Nachlauf gilt. Eine reine Attribut-Änderung des Sensors beendet ihn nicht mehr.
+- **Raumnamen mit Sonderzeichen:** In Übersicht, Einstellungen und Verlauf wurden Raum- und
+  Schalternamen nicht maskiert – ein Name mit „<“ oder „&“ konnte die Karte verschieben.
 
 ## 2.0.1b18 – 2026-11-24
 

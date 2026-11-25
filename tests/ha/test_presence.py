@@ -411,3 +411,20 @@ async def test_fremdwaerme_neustart_ohne_nachlauf(hass: HomeAssistant, trv: Fake
     await hass.async_block_till_done()
     assert c.plan()[2] != "external_heat"
     assert c.plan()[0] is True
+
+
+async def test_fremdwaerme_funkaussetzer_behaelt_nachlauf(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#83: an → nicht verfügbar → aus ist ein echtes Ausgehen – der Nachlauf gilt."""
+    hass.states.async_set("binary_sensor.ofen", "on")
+    _hub, room = await _setup(hass, room_type="living", external_heat_entity="binary_sensor.ofen", external_heat_after=30)
+    c = room.runtime_data
+    hass.states.async_set("binary_sensor.ofen", "unavailable")
+    await hass.async_block_till_done()
+    assert c.plan()[2] != "external_heat"  # unklar: Raumklima regelt normal
+    hass.states.async_set("binary_sensor.ofen", "off")
+    await hass.async_block_till_done()
+    assert c.plan()[2] == "external_heat"
+    hass.states.async_set("binary_sensor.ofen", "off", {"x": 1})  # nur Attribut
+    await hass.async_block_till_done()
+    assert c._ext_heat_timer is not None
+    assert await hass.config_entries.async_unload(room.entry_id)

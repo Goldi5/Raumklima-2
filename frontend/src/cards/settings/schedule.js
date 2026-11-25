@@ -110,7 +110,7 @@ export const ScheduleMethods = {
       "Zeitplan von",
       editable
         ? this._select(scope, "schedule_from", [{ id: "", name: t("eigener Zeitplan") }, ...others], fromId)
-        : this._v(shared ? others.find((o) => o.id === fromId).name : t("eigener Zeitplan")),
+        : this._v(shared ? esc(others.find((o) => o.id === fromId).name) : t("eigener Zeitplan")),
       shared
         ? t("Die Zeitfenster werden im gewählten Raum gepflegt – Änderungen gelten hier automatisch mit")
         : t("Zeitfenster einmal pflegen und für mehrere Räume nutzen")

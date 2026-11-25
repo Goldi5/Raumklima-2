@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, SEG, STYLES, fmt, loc, rkHomeId, rkLayout, rkRooms, rkRoomsOrdered, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
+import { HISTORY_STYLES, SEG, STYLES, esc, fmt, loc, rkHomeId, rkLayout, rkRooms, rkRoomsOrdered, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
 export class RaumklimaHistoryCard extends HTMLElement {
@@ -176,7 +176,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
     const legend = rooms.map((r) => {
       const st = this._hass.states[r.attrs[key]];
       const v = st ? parseFloat(st.state) : NaN;
-      return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${r.name}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
+      return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${esc(r.name)}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
     }).join("");
     if (!this._data) {
       this._html = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
@@ -223,7 +223,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
       if (px < padL || px > W - padR) { hl.style.display = "none"; tip.style.display = "none"; return; }
       const ts = t0 + ((px - padL) / (W - padL - padR)) * (t1 - t0);
       hl.setAttribute("x1", px); hl.setAttribute("x2", px); hl.style.display = "";
-      const rows = series.map((s) => { const p = near(s.pts, ts); return `<div class="r" style="--c:${s.r.color}"><span><i></i>${s.r.name}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`; }).join("");
+      const rows = series.map((s) => { const p = near(s.pts, ts); return `<div class="r" style="--c:${s.r.color}"><span><i></i>${esc(s.r.name)}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`; }).join("");
       tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
       tip.style.display = "";
       const left = ev.clientX - chart.getBoundingClientRect().left;
@@ -280,7 +280,7 @@ export class RaumklimaHistoryCard extends HTMLElement {
         return seg ? `<i style="left:${pct(a)}%;width:${Math.max(0.3, pct(b) - pct(a))}%;background:${seg.c}" title="${seg.l}"></i>` : "";
       }, true) : "";
       const wins = (r.attrs.window_entities || []).map((w) => spans(w, (a, b, s) => (s === "on" ? `<em style="left:${pct(a)}%;width:${Math.max(0.4, pct(b) - pct(a))}%" title="${t("Fenster offen")}"></em>` : ""))).join("");
-      return `<div class="n">${r.name}</div><div class="bar">${status}${wins}</div>`;
+      return `<div class="n">${esc(r.name)}</div><div class="bar">${status}${wins}</div>`;
     }).join("");
     const ticks = this._hours > 48 ? 7 : 6;
     const xl = Array.from({ length: ticks + 1 }, (_, i) => `<span>${i === ticks ? t("jetzt") : this._fmtTime(t0 + ((t1 - t0) * i) / ticks)}</span>`).join("");

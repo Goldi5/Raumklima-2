@@ -50,6 +50,7 @@ class PresenceMixin:
     _ext_heat_timer: Callable[[], None] | None = None
     _ext_heat_off_at: datetime | None = None
     _ext_heat_tracked: str | None = None
+    _ext_heat_was_on: bool = False
     _presence_unsub: Callable[[], None] | None = None
     _occupied: bool | None = None
     _occupied_since: datetime | None = None
@@ -277,6 +278,7 @@ class PresenceMixin:
             # anderer Ofen-Schalter: ein laufender Nachlauf gehörte zum alten
             self._ext_heat_tracked = ext
             self._ext_heat_off_at = None
+            self._ext_heat_was_on = False
             self._cancel_ext_heat_timer()
         if ext:
             watched.append(ext)  # Kamin/Holzofen an/aus (#83): sofort neu planen
@@ -308,20 +310,28 @@ class PresenceMixin:
         """
         old = event.data.get("old_state")
         new = event.data.get("new_state")
-        old_on = old is not None and old.state == "on"
         new_state = new.state if new is not None else None
+        if old is not None and new is not None and old.state == new_state:
+            return  # nur Attribute geändert – ein laufender Nachlauf bleibt
+        # „an“ merken, auch über ein kurzes „nicht verfügbar“ hinweg (Funkaussetzer: an → ? → aus)
+        was_on = (old is not None and old.state == "on") or bool(getattr(self, "_ext_heat_was_on", False))
         self._cancel_ext_heat_timer()
         if new_state == "on":
             self._ext_heat_off_at = None
-        elif old_on and new_state == "off":
+            self._ext_heat_was_on = True
+        elif new_state in ("unavailable", "unknown", None):
+            self._ext_heat_was_on = was_on
+            self._ext_heat_off_at = None  # Zustand unklar: kein Nachlauf
+        elif was_on and new_state == "off":
+            self._ext_heat_was_on = False
             self._ext_heat_off_at = dt_util.utcnow()
             after = self.external_heat_after_minutes
             if after > 0:
                 self._ext_heat_timer = async_call_later(
                     self.hass, timedelta(minutes=after, seconds=5), self._external_heat_done
                 )
-        elif new_state != "off":
-            self._ext_heat_off_at = None  # unbekannt/nicht verfügbar: kein Nachlauf
+        else:
+            self._ext_heat_was_on = False
         self._notify()
         self.hass.async_create_task(self._apply())
 

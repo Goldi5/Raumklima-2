@@ -5458,7 +5458,7 @@
           const s2 = rkOpenSince(this._hass, a);
           return s2 ? `<span title="${t("offen seit {c}", { c: rkClock(s2) })}">${rkDuration(Date.now() - s2)}</span>` : "";
         })()}</span>` : ""}</div>
-        <div class="rn">${name}</div>
+        <div class="rn">${esc(name)}</div>
         <div class="rs">${label}${mon ? "" : moldBadge(a)}${trvNote}</div>
         <div class="rbottom">
           <div class="rt">${fmt(a.current_temperature)}°</div>
@@ -5755,7 +5755,7 @@
       const legend = rooms.map((r) => {
         const st = this._hass.states[r.attrs[key]];
         const v = st ? parseFloat(st.state) : NaN;
-        return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${r.name}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
+        return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${esc(r.name)}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
       }).join("");
       if (!this._data) {
         this._html = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
@@ -5819,7 +5819,7 @@
         hl.style.display = "";
         const rows = series.map((s) => {
           const p = near(s.pts, ts);
-          return `<div class="r" style="--c:${s.r.color}"><span><i></i>${s.r.name}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`;
+          return `<div class="r" style="--c:${s.r.color}"><span><i></i>${esc(s.r.name)}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`;
         }).join("");
         tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
         tip.style.display = "";
@@ -5877,7 +5877,7 @@
           return seg ? `<i style="left:${pct(a)}%;width:${Math.max(0.3, pct(b) - pct(a))}%;background:${seg.c}" title="${seg.l}"></i>` : "";
         }, true) : "";
         const wins = (r.attrs.window_entities || []).map((w) => spans(w, (a, b, s) => s === "on" ? `<em style="left:${pct(a)}%;width:${Math.max(0.4, pct(b) - pct(a))}%" title="${t("Fenster offen")}"></em>` : "")).join("");
-        return `<div class="n">${r.name}</div><div class="bar">${status}${wins}</div>`;
+        return `<div class="n">${esc(r.name)}</div><div class="bar">${status}${wins}</div>`;
       }).join("");
       const ticks = this._hours > 48 ? 7 : 6;
       const xl = Array.from({ length: ticks + 1 }, (_, i) => `<span>${i === ticks ? t("jetzt") : this._fmtTime(t0 + (t1 - t0) * i / ticks)}</span>`).join("");
@@ -7712,7 +7712,7 @@
           const melder = a.occupied === true ? t("belegt") : a.occupied === false ? a.room_eco ? t("leer – abgesenkt") : t("leer") : "";
           const text = melder && swTxt ? `${melder} · ${swTxt}` : melder || swTxt || t("keine Melder eingetragen");
           const busy = a.occupied === true || swOn.length > 0;
-          return this._row(t("Präsenzstatus"), this._v(text, !busy), t("aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“"));
+          return this._row(t("Präsenzstatus"), this._v(esc(text), !busy), t("aus Meldern, Lampen und den Schaltern unter „Gilt für Personen“"));
         })(),
         this._row(
           t("Schnellzugriff"),
@@ -7971,7 +7971,7 @@
           changed ? `<span class="rchg" title="${t("{n} Einstellungen vom Standard abweichend", { n: changed })}">${changed}</span>` : ""
         ].join("");
         return `<button class="rtile" data-tab="${r.id}" style="--c:${r.color}">
-        <span class="rtop"><span class="rname">${r.name}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
+        <span class="rtop"><span class="rname">${esc(r.name)}</span><span class="rtyp">${RK_ROOM_TYPES[s.room_type] || s.room_type || "–"}</span></span>
         <span class="rbig">${fmt(r.attrs.comfort_temperature)}<i>°</i></span>
         ${plan ? `<span class="rsub">${plan}</span>` : ""}
         <span class="rsub">${t("Absenkung")} ${fmt(s.setback_short)} / ${fmt(s.setback_long)} °C · ${t("Frost")} ${fmt(s.frost_temperature ?? 5)} °C</span>
@@ -8273,7 +8273,7 @@
       const shared = !!fromId && others.some((o) => o.id === fromId);
       const shareRow = this._row(
         "Zeitplan von",
-        editable ? this._select(scope, "schedule_from", [{ id: "", name: t("eigener Zeitplan") }, ...others], fromId) : this._v(shared ? others.find((o) => o.id === fromId).name : t("eigener Zeitplan")),
+        editable ? this._select(scope, "schedule_from", [{ id: "", name: t("eigener Zeitplan") }, ...others], fromId) : this._v(shared ? esc(others.find((o) => o.id === fromId).name) : t("eigener Zeitplan")),
         shared ? t("Die Zeitfenster werden im gewählten Raum gepflegt – Änderungen gelten hier automatisch mit") : t("Zeitfenster einmal pflegen und für mehrere Räume nutzen")
       );
       const fallback = this._roomOpt(r, "schedule_fallback") ?? s.schedule_fallback ?? "wish";
@@ -11126,7 +11126,7 @@
       const body = this._bodyHtml();
       const tabs = `<button class="tab ${this._tab === "general" ? "on" : ""}" data-tab="general"><ha-icon icon="mdi:home-cog-outline"></ha-icon>${t("Allgemein")}</button>` + rooms.map((r) => {
         const sick = (this._cfg && this._cfg.hub && this._cfg.hub.state && this._cfg.hub.state.issues || []).some((i) => i.entry_id === (r.attrs.settings || {}).entry_id && i.severity !== "info");
-        return `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${r.name}${sick ? ` <ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)"></ha-icon>` : ""}</button>`;
+        return `<button class="tab ${this._tab === r.id ? "on" : ""}" data-tab="${r.id}" style="--c:${r.color}"><span class="dot"></span>${esc(r.name)}${sick ? ` <ha-icon icon="mdi:alert-circle" style="color:var(--rk-warn)"></ha-icon>` : ""}</button>`;
       }).join("");
       const sectionBar = nav2 ? `<div class="rail sects">${SETTINGS_SECTIONS.map((x) => `<button class="railbtn ${section.id === x.id ? "on" : ""}" data-section="${x.id}"><ha-icon icon="${x.icon}"></ha-icon>${t(x.label)}</button>`).join("")}</div>` : `<div class="tabs">${tabs}</div>`;
       const railGroups = nav2 ? this._allowedGroups || [] : RK_GROUP_ORDER;
