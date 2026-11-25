@@ -3546,7 +3546,7 @@
     return d.toLocaleTimeString(locale, timeOpts(opts));
   }
   var getLang = () => lang;
-  var loc = () => locale;
+  var loc2 = () => locale;
   function t(de, vars) {
     let s = lang === "de" ? de : TABLES[lang][de] ?? EN[de] ?? de;
     if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m);
@@ -4264,6 +4264,208 @@
   .glass.dark .rooms { background: color-mix(in srgb, #fff 6%, transparent); }
 `;
 
+  // src/util.js
+  var esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  function toneVar(tone) {
+    return `var(--rk-${tone || "off"})`;
+  }
+
+  // src/rooms.js
+  var RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
+  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false };
+  var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
+  function rkLayout(hass, home) {
+    const key = String(home || "");
+    if (!RK_LAYOUT_CACHE.has(key)) {
+      RK_LAYOUT_CACHE.set(
+        key,
+        hass.callWS({ type: "raumklima/layout/get", home: home || null }).then((r) => ({ ...RK_LAYOUT_EMPTY, ...r && r.layout || {} })).catch(() => ({ ...RK_LAYOUT_EMPTY }))
+      );
+    }
+    return RK_LAYOUT_CACHE.get(key);
+  }
+  function rkLayoutRemember(layout, home) {
+    if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
+  }
+  function rkLayoutChanged(home) {
+    try {
+      window.dispatchEvent(new CustomEvent("raumklima-layout", { detail: { home: String(home || "") } }));
+    } catch (e) {
+    }
+  }
+  function rkOnLayoutChanged(handler) {
+    const fn = (e) => handler(e && e.detail && e.detail.home || "");
+    window.addEventListener("raumklima-layout", fn);
+    return () => window.removeEventListener("raumklima-layout", fn);
+  }
+  function rkOrderPos(order, r) {
+    const key = r && (r.id || r.entity_id) || "";
+    let i = order.indexOf(key);
+    if (i < 0) {
+      const name = r && (r.name || r.attributes && r.attributes.friendly_name) || "";
+      if (name) i = order.indexOf(name);
+    }
+    return i < 0 ? order.length : i;
+  }
+  function rkEnhanceSelects(html, { admin = true, min = 8 } = {}) {
+    const coll = new Intl.Collator(loc(), { sensitivity: "base", numeric: true });
+    const re = /<select class="sel"([^>]*)>([\s\S]*?)<\/select>/g;
+    let out = "";
+    let last = 0;
+    let m;
+    while (m = re.exec(html)) {
+      const [whole, attrs, inner] = m;
+      const opts = inner.match(/<option\b[^>]*>[\s\S]*?<\/option>/g) || [];
+      let repl = whole;
+      if (opts.length > min && !/<optgroup/.test(inner)) {
+        const text = (o) => o.replace(/<[^>]+>/g, "").trim();
+        const empty = opts.filter((o) => /value=""/.test(o));
+        const rest = opts.filter((o) => !/value=""/.test(o));
+        const sorted = /data-nosort/.test(attrs) ? rest : [...rest].sort((a, b) => coll.compare(text(a), text(b)));
+        repl = `<select class="sel"${attrs}>${[...empty, ...sorted].join("")}</select>`;
+        const before = html.slice(Math.max(0, m.index - 400), m.index);
+        const wrapped = before.lastIndexOf("data-selsearch") > before.lastIndexOf("</select>");
+        if (!wrapped) {
+          const dis = /\sdisabled\b/.test(attrs) || !admin ? "disabled" : "";
+          repl = `<div class="selwrap" data-selwrap><input class="inp selsearch" type="search" placeholder="${esc(t("Suchen …"))}" aria-label="${esc(t("Suchen …"))}" data-selsearch autocomplete="off" ${dis}>${repl}</div>`;
+        }
+      }
+      out += html.slice(last, m.index) + repl;
+      last = m.index + whole.length;
+    }
+    return out + html.slice(last);
+  }
+  function rkOccupancy(a) {
+    const sw = a && a.room_switches || [];
+    const on = sw.filter((x) => x.on).map((x) => x.name);
+    if (a && a.occupied === true) return { in: true, why: t("Jemand im Raum") };
+    if (on.length) return { in: true, why: t("„{n}“ ist an", { n: on.join("“, „") }) };
+    if (sw.length) return { in: false, switch: true, why: t("„{n}“ ist aus – Raum wird abgesenkt", { n: sw.map((x) => x.name).join("“, „") }) };
+    if (a && a.occupied === false) return { in: false, switch: false, why: t("Raum leer") };
+    return null;
+  }
+  function rkFloorOf(hass, entityId) {
+    const ent = (hass && hass.entities || {})[entityId] || {};
+    const dev = ent.device_id ? (hass && hass.devices || {})[ent.device_id] || {} : {};
+    const area = (hass && hass.areas || {})[ent.area_id || dev.area_id] || null;
+    return area && area.floor_id ? (hass && hass.floors || {})[area.floor_id] || null : null;
+  }
+  function rkFloorGroups(hass, rooms) {
+    const groups = /* @__PURE__ */ new Map();
+    for (const r of rooms || []) {
+      const fl = rkFloorOf(hass, r.id || r.entity_id);
+      const key = fl ? fl.floor_id || fl.name : "";
+      if (!groups.has(key)) groups.set(key, { floor: fl, rooms: [] });
+      groups.get(key).rooms.push(r);
+    }
+    if (![...groups.values()].some((g) => g.floor)) return [];
+    const lvl = (g) => g.floor ? g.floor.level ?? 0 : Number.MAX_SAFE_INTEGER;
+    return [...groups.values()].sort((a, b) => lvl(a) - lvl(b) || String(a.floor ? a.floor.name : "").localeCompare(String(b.floor ? b.floor.name : ""))).map((g) => ({ ...g, name: g.floor ? g.floor.name : t("Weitere Räume"), icon: g.floor && g.floor.icon || (g.floor ? "mdi:home-floor-" + Math.max(0, Math.min(3, g.floor.level ?? 0)) : "mdi:home-outline") }));
+  }
+  function rkRoomsOrdered(rooms, layout) {
+    const order = (layout || RK_LAYOUT_EMPTY).order || [];
+    return [...rooms || []].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
+  }
+  function rkLayoutApply(rooms, layout) {
+    const L = layout || RK_LAYOUT_EMPTY;
+    const hidden = new Set(L.hidden || []);
+    const order = L.order || [];
+    const keyOf = (r) => r && (r.id || r.entity_id) || "";
+    return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
+  }
+  function rkLayoutSize(layout, id) {
+    return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
+  }
+  function rkLayoutColor(layout, id) {
+    return ((layout || RK_LAYOUT_EMPTY).color || {})[id] || null;
+  }
+  function rkRooms(hass, prefix, home) {
+    const reg = Object.values(hass.entities || {});
+    const rooms = reg.filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => {
+      const st = hass.states[e.entity_id];
+      const sib = {};
+      reg.forEach((x) => {
+        if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id;
+      });
+      const full = st && st.attributes.friendly_name || e.entity_id;
+      return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + escRe(prefix) + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+    const mine = home ? rooms.filter((r) => !r.attrs.home || r.attrs.home === home) : rooms;
+    mine.forEach((r, i) => {
+      r.color = RK_COLORS[i % RK_COLORS.length];
+    });
+    return mine;
+  }
+
+  // src/labels.js
+  var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
+  var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich", hysteresis: "Hysterese (auf/zu)" });
+  var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
+  var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
+  var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
+  var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
+  var RK_WALL = tmap({
+    auto: "wie die Wohnung",
+    corner: "Außenecke",
+    wall: "Außenwand",
+    interior: "innenliegend"
+  });
+  var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
+  var RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
+  var RK_PREHEAT = tmap({ auto: "Automatisch", clock: "Frühestens ab", lead: "Frühestens vorher", off: "Erst zum Zeitplan" });
+  var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
+  var RK_MAIL_PROVIDERS = {
+    gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
+    gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
+    webde: ["smtp.web.de", 587, "starttls", "WEB.DE"],
+    outlook: ["smtp-mail.outlook.com", 587, "starttls", "Outlook / Hotmail"],
+    tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
+    icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
+    posteo: ["posteo.de", 587, "starttls", "Posteo"],
+    einsundeins: ["smtp.1und1.de", 587, "starttls", "1&1"],
+    ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"]
+  };
+  var RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
+  var RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
+  var RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
+  var RK_KINDS = tmap({
+    vent_open: ["💧", "Bitte lüften"],
+    vent_close: ["🪟", "Fenster schließen"],
+    too_cold: ["🥶", "Raum kühlt aus"],
+    vent_done: ["✅", "Luft ausgetauscht"],
+    window_away: ["🚪", "Fenster offen, niemand da"],
+    presence: ["🏠", "Abwesenheit & Vorheizen"],
+    season: ["🍂", "Heizsaison Start/Ende"],
+    trv_failure: ["⚠️", "Thermostat reagiert nicht"],
+    health: ["🩺", "Gesundheit der Heizung"],
+    report: ["📊", "Wochenbericht"],
+    storm: ["🌪", "Sturm & Starkregen"],
+    moisture: ["🧺", "Feuchtequelle im Raum"],
+    live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"]
+  });
+  var RK_LIGHT_SIGNALS = tmap({
+    open: ["#005aff", "Bitte lüften"],
+    close: ["#ff6e00", "Bitte schließen"],
+    done: ["#00c83c", "Luft ausgetauscht"],
+    problem: ["#ff0000", "Problem mit der Heizung"]
+  });
+  var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report", "moisture"];
+  var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
+  function rkIssueList(issues, withRoom, prefix) {
+    if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
+    const order = { alert: 0, warn: 1, info: 2 };
+    return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
+      const sv = RK_SEV[i.severity] || RK_SEV.info;
+      const jump = i.entry_id ? ` data-goto-room="${esc(i.entry_id)}" role="button" tabindex="0" title="${t("zum Raum springen")}"` : "";
+      return `<div class="issue"${jump} style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
+    }).join("")}</div>`;
+  }
+  function rkPretty(target) {
+    const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
+    return s.split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || target;
+  }
+
   // src/shared.js
   var rkManualUrl = () => `https://github.com/Goldi5/Raumklima-2/releases/latest/download/${getLang() === "de" ? "Raumklima-Handbuch.pdf" : "Raumklima-Manual.pdf"}`;
   function rkBugReportUrl({ version, haVersion, language, rooms, homeCount, thermostats, parts = false }) {
@@ -4294,7 +4496,6 @@
     const url = `https://github.com/Goldi5/Raumklima-2/issues/new?${query}`;
     return parts ? { url, body } : url;
   }
-  var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   var STATUS = tmap({
     heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
     idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
@@ -4535,7 +4736,7 @@
   function rkClock(ms) {
     const d = new Date(ms);
     const time = rkTime(d, { hour: "2-digit", minute: "2-digit" });
-    return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}` : time;
+    return Date.now() - ms > 20 * 3600 * 1e3 ? `${d.toLocaleDateString(loc2(), { weekday: "short" })} ${time}` : time;
   }
   function rkPaint(host, html) {
     const root = host.shadowRoot;
@@ -4589,11 +4790,8 @@
     const a = host.shadowRoot && host.shadowRoot.activeElement;
     return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
   }
-  var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
+  var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc2(), { minimumFractionDigits: d, maximumFractionDigits: d });
   var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
-  function toneVar(tone) {
-    return `var(--rk-${tone || "off"})`;
-  }
   var DAY_LOCALE = { de: "de-DE", en: "en-GB", fr: "fr-FR" };
   function schedDayName(index) {
     const d = new Date(2026, 10, 2 + Number(index));
@@ -4604,7 +4802,6 @@
     if (!list.length || list.length === 7) return t("täglich");
     return list.map(schedDayName).join(" ");
   }
-  var RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
   var SEG = tmap({
     season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
     external_heat: { c: "color-mix(in srgb, var(--rk-heat) 45%, transparent)", l: "Kamin/Holzofen" },
@@ -4618,197 +4815,6 @@
     sensor_unavailable: { c: "var(--rk-warn)", l: "Fühler fehlt" },
     trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" }
   });
-  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false };
-  var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
-  function rkLayout(hass, home) {
-    const key = String(home || "");
-    if (!RK_LAYOUT_CACHE.has(key)) {
-      RK_LAYOUT_CACHE.set(
-        key,
-        hass.callWS({ type: "raumklima/layout/get", home: home || null }).then((r) => ({ ...RK_LAYOUT_EMPTY, ...r && r.layout || {} })).catch(() => ({ ...RK_LAYOUT_EMPTY }))
-      );
-    }
-    return RK_LAYOUT_CACHE.get(key);
-  }
-  function rkLayoutRemember(layout, home) {
-    if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
-  }
-  function rkLayoutChanged(home) {
-    try {
-      window.dispatchEvent(new CustomEvent("raumklima-layout", { detail: { home: String(home || "") } }));
-    } catch (e) {
-    }
-  }
-  function rkOnLayoutChanged(handler) {
-    const fn = (e) => handler(e && e.detail && e.detail.home || "");
-    window.addEventListener("raumklima-layout", fn);
-    return () => window.removeEventListener("raumklima-layout", fn);
-  }
-  function rkOrderPos(order, r) {
-    const key = r && (r.id || r.entity_id) || "";
-    let i = order.indexOf(key);
-    if (i < 0) {
-      const name = r && (r.name || r.attributes && r.attributes.friendly_name) || "";
-      if (name) i = order.indexOf(name);
-    }
-    return i < 0 ? order.length : i;
-  }
-  function rkEnhanceSelects(html, { admin = true, min = 8 } = {}) {
-    const coll = new Intl.Collator(loc(), { sensitivity: "base", numeric: true });
-    const re = /<select class="sel"([^>]*)>([\s\S]*?)<\/select>/g;
-    let out = "";
-    let last = 0;
-    let m;
-    while (m = re.exec(html)) {
-      const [whole, attrs, inner] = m;
-      const opts = inner.match(/<option\b[^>]*>[\s\S]*?<\/option>/g) || [];
-      let repl = whole;
-      if (opts.length > min && !/<optgroup/.test(inner)) {
-        const text = (o) => o.replace(/<[^>]+>/g, "").trim();
-        const empty = opts.filter((o) => /value=""/.test(o));
-        const rest = opts.filter((o) => !/value=""/.test(o));
-        const sorted = /data-nosort/.test(attrs) ? rest : [...rest].sort((a, b) => coll.compare(text(a), text(b)));
-        repl = `<select class="sel"${attrs}>${[...empty, ...sorted].join("")}</select>`;
-        const before = html.slice(Math.max(0, m.index - 400), m.index);
-        const wrapped = before.lastIndexOf("data-selsearch") > before.lastIndexOf("</select>");
-        if (!wrapped) {
-          const dis = /\sdisabled\b/.test(attrs) || !admin ? "disabled" : "";
-          repl = `<div class="selwrap" data-selwrap><input class="inp selsearch" type="search" placeholder="${esc(t("Suchen …"))}" aria-label="${esc(t("Suchen …"))}" data-selsearch autocomplete="off" ${dis}>${repl}</div>`;
-        }
-      }
-      out += html.slice(last, m.index) + repl;
-      last = m.index + whole.length;
-    }
-    return out + html.slice(last);
-  }
-  function rkOccupancy(a) {
-    const sw = a && a.room_switches || [];
-    const on = sw.filter((x) => x.on).map((x) => x.name);
-    if (a && a.occupied === true) return { in: true, why: t("Jemand im Raum") };
-    if (on.length) return { in: true, why: t("„{n}“ ist an", { n: on.join("“, „") }) };
-    if (sw.length) return { in: false, switch: true, why: t("„{n}“ ist aus – Raum wird abgesenkt", { n: sw.map((x) => x.name).join("“, „") }) };
-    if (a && a.occupied === false) return { in: false, switch: false, why: t("Raum leer") };
-    return null;
-  }
-  function rkFloorOf(hass, entityId) {
-    const ent = (hass && hass.entities || {})[entityId] || {};
-    const dev = ent.device_id ? (hass && hass.devices || {})[ent.device_id] || {} : {};
-    const area = (hass && hass.areas || {})[ent.area_id || dev.area_id] || null;
-    return area && area.floor_id ? (hass && hass.floors || {})[area.floor_id] || null : null;
-  }
-  function rkFloorGroups(hass, rooms) {
-    const groups = /* @__PURE__ */ new Map();
-    for (const r of rooms || []) {
-      const fl = rkFloorOf(hass, r.id || r.entity_id);
-      const key = fl ? fl.floor_id || fl.name : "";
-      if (!groups.has(key)) groups.set(key, { floor: fl, rooms: [] });
-      groups.get(key).rooms.push(r);
-    }
-    if (![...groups.values()].some((g) => g.floor)) return [];
-    const lvl = (g) => g.floor ? g.floor.level ?? 0 : Number.MAX_SAFE_INTEGER;
-    return [...groups.values()].sort((a, b) => lvl(a) - lvl(b) || String(a.floor ? a.floor.name : "").localeCompare(String(b.floor ? b.floor.name : ""))).map((g) => ({ ...g, name: g.floor ? g.floor.name : t("Weitere Räume"), icon: g.floor && g.floor.icon || (g.floor ? "mdi:home-floor-" + Math.max(0, Math.min(3, g.floor.level ?? 0)) : "mdi:home-outline") }));
-  }
-  function rkRoomsOrdered(rooms, layout) {
-    const order = (layout || RK_LAYOUT_EMPTY).order || [];
-    return [...rooms || []].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
-  }
-  function rkLayoutApply(rooms, layout) {
-    const L = layout || RK_LAYOUT_EMPTY;
-    const hidden = new Set(L.hidden || []);
-    const order = L.order || [];
-    const keyOf = (r) => r && (r.id || r.entity_id) || "";
-    return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
-  }
-  function rkLayoutSize(layout, id) {
-    return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
-  }
-  function rkLayoutColor(layout, id) {
-    return ((layout || RK_LAYOUT_EMPTY).color || {})[id] || null;
-  }
-  function rkRooms(hass, prefix, home) {
-    const reg = Object.values(hass.entities || {});
-    const rooms = reg.filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate.")).map((e) => {
-      const st = hass.states[e.entity_id];
-      const sib = {};
-      reg.forEach((x) => {
-        if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id;
-      });
-      const full = st && st.attributes.friendly_name || e.entity_id;
-      return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + escRe(prefix) + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
-    }).sort((a, b) => a.name.localeCompare(b.name));
-    const mine = home ? rooms.filter((r) => !r.attrs.home || r.attrs.home === home) : rooms;
-    mine.forEach((r, i) => {
-      r.color = RK_COLORS[i % RK_COLORS.length];
-    });
-    return mine;
-  }
-  var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
-  var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich", hysteresis: "Hysterese (auf/zu)" });
-  var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
-  var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
-  var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
-  var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
-  var RK_WALL = tmap({
-    auto: "wie die Wohnung",
-    corner: "Außenecke",
-    wall: "Außenwand",
-    interior: "innenliegend"
-  });
-  var RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
-  var RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
-  var RK_PREHEAT = tmap({ auto: "Automatisch", clock: "Frühestens ab", lead: "Frühestens vorher", off: "Erst zum Zeitplan" });
-  var RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
-  var RK_MAIL_PROVIDERS = {
-    gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
-    gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
-    webde: ["smtp.web.de", 587, "starttls", "WEB.DE"],
-    outlook: ["smtp-mail.outlook.com", 587, "starttls", "Outlook / Hotmail"],
-    tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
-    icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
-    posteo: ["posteo.de", 587, "starttls", "Posteo"],
-    einsundeins: ["smtp.1und1.de", 587, "starttls", "1&1"],
-    ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"]
-  };
-  var RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
-  var RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
-  var RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
-  var RK_KINDS = tmap({
-    vent_open: ["💧", "Bitte lüften"],
-    vent_close: ["🪟", "Fenster schließen"],
-    too_cold: ["🥶", "Raum kühlt aus"],
-    vent_done: ["✅", "Luft ausgetauscht"],
-    window_away: ["🚪", "Fenster offen, niemand da"],
-    presence: ["🏠", "Abwesenheit & Vorheizen"],
-    season: ["🍂", "Heizsaison Start/Ende"],
-    trv_failure: ["⚠️", "Thermostat reagiert nicht"],
-    health: ["🩺", "Gesundheit der Heizung"],
-    report: ["📊", "Wochenbericht"],
-    storm: ["🌪", "Sturm & Starkregen"],
-    moisture: ["🧺", "Feuchtequelle im Raum"],
-    live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"]
-  });
-  var RK_LIGHT_SIGNALS = tmap({
-    open: ["#005aff", "Bitte lüften"],
-    close: ["#ff6e00", "Bitte schließen"],
-    done: ["#00c83c", "Luft ausgetauscht"],
-    problem: ["#ff0000", "Problem mit der Heizung"]
-  });
-  var RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report", "moisture"];
-  var RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
-  function rkIssueList(issues, withRoom, prefix) {
-    if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
-    const order = { alert: 0, warn: 1, info: 2 };
-    return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
-      const sv = RK_SEV[i.severity] || RK_SEV.info;
-      const jump = i.entry_id ? ` data-goto-room="${esc(i.entry_id)}" role="button" tabindex="0" title="${t("zum Raum springen")}"` : "";
-      return `<div class="issue"${jump} style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
-    }).join("")}</div>`;
-  }
-  function rkPretty(target) {
-    const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
-    return s.split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || target;
-  }
-  var esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   var ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
   function rkVersionMismatch(cfg, own) {
     const server = cfg && cfg.version;
@@ -4947,7 +4953,7 @@
         const days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 864e5);
         if (days === 0) return time;
         if (days === 1) return t("morgen {t}", { t: time });
-        return `${d.toLocaleDateString(loc(), { weekday: "short" })} ${time}`;
+        return `${d.toLocaleDateString(loc2(), { weekday: "short" })} ${time}`;
       };
       let text;
       if (st.active) {
@@ -4967,7 +4973,7 @@
       const width = mins == null ? 100 : Math.min(100, mins / span * 100);
       const ticks = [0, 1, 2, 3, 4, 5, 6].map((h) => {
         const d = new Date(Date.now() + h * 36e5);
-        return `<span style="left:${h / 6 * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc(), { hour: "2-digit" })}</span>`;
+        return `<span style="left:${h / 6 * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc2(), { hour: "2-digit" })}</span>`;
       }).join("");
       const chip = (mode, min, label) => `<button class="bschip" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
       const def = boostMinutes(a);
@@ -5223,7 +5229,7 @@
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
           ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}${a.dehumidifier_since ? ` · ${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}` : ""}</span>` : ""}
           ${a.battery && a.battery.low ? `<span class="chip" style="--tone:var(--rk-warn)" title="${esc(a.battery.name)}"><ha-icon icon="mdi:battery-alert-variant-outline"></ha-icon>${t("Batterie {p} %", { p: a.battery.level })}</span>` : ""}
-          ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
+          ${a.notify_paused_until ? `<span class="chip" style="--tone:var(--rk-warn)" title="${t("Hinweise für diesen Raum pausiert")}"><ha-icon icon="mdi:bell-off-outline"></ha-icon>${t("Pause bis {time}", { time: new Date(a.notify_paused_until).toLocaleTimeString(loc2(), { hour: "2-digit", minute: "2-digit" }) })}</span>` : ""}
         </div>
         ${trvNote ? `<div class="trvnote" title="${esc(trvNote)}"><ha-icon icon="mdi:thermometer-lines"></ha-icon><span>${trvNote}</span></div>` : ""}
         ${(() => {
@@ -5711,7 +5717,7 @@
     }
     _fmtTime(ts) {
       const d = new Date(ts);
-      return this._hours > 48 ? d.toLocaleDateString(loc(), { weekday: "short", day: "numeric" }) : rkTime(d, { hour: "2-digit", minute: "2-digit" });
+      return this._hours > 48 ? d.toLocaleDateString(loc2(), { weekday: "short", day: "numeric" }) : rkTime(d, { hour: "2-digit", minute: "2-digit" });
     }
     _shell(body) {
       const m = this._config.mode;
@@ -5821,7 +5827,7 @@
           const p = near(s.pts, ts);
           return `<div class="r" style="--c:${s.r.color}"><span><i></i>${esc(s.r.name)}</span><b>${fmt(p[1], m === "temperature" ? 1 : 0)}${unit}</b></div>`;
         }).join("");
-        tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
+        tip.innerHTML = `<div class="t">${new Date(ts).toLocaleDateString(loc2(), { weekday: "short" })} ${rkTime(new Date(ts), { hour: "2-digit", minute: "2-digit" })}</div>${rows}`;
         tip.style.display = "";
         const left = ev.clientX - chart.getBoundingClientRect().left;
         tip.style.left = `${left > chart.clientWidth / 2 ? left - tip.offsetWidth - 14 : left + 14}px`;
@@ -9409,7 +9415,7 @@
     _decRow(e) {
       const d = new Date(e.t);
       const sameDay = !isNaN(d.getTime()) && d.toDateString() === (/* @__PURE__ */ new Date()).toDateString();
-      const when = isNaN(d.getTime()) ? "" : sameDay ? d.toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit" }) : d.toLocaleString(loc(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      const when = isNaN(d.getTime()) ? "" : sameDay ? d.toLocaleTimeString(loc2(), { hour: "2-digit", minute: "2-digit" }) : d.toLocaleString(loc2(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
       const many = e.n > 1 ? ` ×${e.n}` : "";
       const why = e.why ? `<small>${esc(e.why)}</small>` : "";
       const extra = [e.room ? esc(e.room) : "", e.data ? esc(Object.entries(e.data).map(([k, v]) => `${k}: ${v}`).join(" · ")) : ""].filter(Boolean).join(" · ");
@@ -11587,7 +11593,7 @@
           body = `<div class="err">${t("Bericht konnte nicht gezeichnet werden: {e}", { e: esc(msg) })}</div>`;
         }
       }
-      const since = d && d.since ? (/* @__PURE__ */ new Date(d.since + "T00:00:00")).toLocaleDateString(loc(), { day: "numeric", month: "long" }) : null;
+      const since = d && d.since ? (/* @__PURE__ */ new Date(d.since + "T00:00:00")).toLocaleDateString(loc2(), { day: "numeric", month: "long" }) : null;
       this._html = `<style>${STYLES}${HISTORY_STYLES}${SETTINGS_STYLES}${ISSUE_STYLES}${REPORT_STYLES}</style>
       <ha-card class="report" style="--tone:${toneVar("off")}">
         <div class="hhead"><div class="htitle"><ha-icon icon="mdi:chart-box-outline"></ha-icon><div>${esc(this._config.title || t("Heizbericht"))}${since ? `<div class="rsub">${t("Daten seit {d}", { d: since })}</div>` : ""}</div></div>
@@ -11607,7 +11613,7 @@
     _pdfSection() {
       const kinds = { week: t("Woche"), month: t("Monat"), season: t("Heizsaison") };
       const list = (this._pdfs || []).slice(0, 8);
-      const day = (s) => (/* @__PURE__ */ new Date(s + "T00:00:00")).toLocaleDateString(loc(), { day: "2-digit", month: "2-digit", year: "numeric" });
+      const day = (s) => (/* @__PURE__ */ new Date(s + "T00:00:00")).toLocaleDateString(loc2(), { day: "2-digit", month: "2-digit", year: "numeric" });
       const rows = list.map((r) => `<div class="pdfrow"><ha-icon icon="mdi:file-pdf-box"></ha-icon>
         <div class="pdfi"><b>${kinds[r.kind] || r.kind}${r.current ? ` <span class="no">${t("bis heute")}</span>` : ""}</b><small>${day(r.start)} – ${day(r.end)} · ${Math.max(1, Math.round(r.size / 1024))} KB</small></div>
         <button class="btn" data-pdf="${esc(r.url)}" data-file="${esc(r.file)}"><ha-icon icon="mdi:download"></ha-icon>${t("Herunterladen")}</button></div>`).join("");
@@ -11957,7 +11963,7 @@
     _render() {
       if (!this._hass) return;
       const list = this._visible();
-      const dayKey = (d) => d.toLocaleDateString(loc(), { weekday: "short", day: "numeric", month: "short" });
+      const dayKey = (d) => d.toLocaleDateString(loc2(), { weekday: "short", day: "numeric", month: "short" });
       const today = dayKey(/* @__PURE__ */ new Date()), yest = dayKey(new Date(Date.now() - 864e5));
       let html = "", cur = null;
       for (const e of list) {
@@ -12318,10 +12324,10 @@
     }
     _dayLabel(iso, long = false) {
       const d = /* @__PURE__ */ new Date(`${iso}T12:00:00`);
-      return d.toLocaleDateString(loc(), long ? { weekday: "short", day: "numeric", month: "numeric" } : { day: "numeric", month: "numeric" });
+      return d.toLocaleDateString(loc2(), long ? { weekday: "short", day: "numeric", month: "numeric" } : { day: "numeric", month: "numeric" });
     }
     _month(key) {
-      return (/* @__PURE__ */ new Date(`${key}-15T12:00:00`)).toLocaleDateString(loc(), { month: "short", year: "2-digit" });
+      return (/* @__PURE__ */ new Date(`${key}-15T12:00:00`)).toLocaleDateString(loc2(), { month: "short", year: "2-digit" });
     }
     // Preiskurve mit Achse in ct, „jetzt“-Strich, Farben nach Vierteln
     _priceChart(points) {
@@ -12351,7 +12357,7 @@
       const step = Math.max(1, Math.ceil(points.length / 4));
       for (let i = step; i < points.length; i += step) {
         const d = new Date(points[i].t);
-        bottom.push({ x: (i + 0.5) / points.length * 100, t: d.toLocaleString(loc(), { weekday: "short", hour: "2-digit", minute: "2-digit" }) });
+        bottom.push({ x: (i + 0.5) / points.length * 100, t: d.toLocaleString(loc2(), { weekday: "short", hour: "2-digit", minute: "2-digit" }) });
       }
       const per = points.length > 1 ? Math.max(1, Math.round(36e5 / (new Date(points[1].t) - new Date(points[0].t)))) : 1;
       const win = 3 * per;
@@ -12360,7 +12366,7 @@
         const avg = points.slice(i, i + win).reduce((a, b) => a + b.p, 0) / win;
         if (!best || avg < best.avg) best = { i, avg };
       }
-      const hm = (d) => d.toLocaleString(loc(), { weekday: "short", hour: "2-digit", minute: "2-digit" });
+      const hm = (d) => d.toLocaleString(loc2(), { weekday: "short", hour: "2-digit", minute: "2-digit" });
       const cur = nowIdx >= 0 ? points[nowIdx] : null;
       const rows = [
         cur ? this._kv(t("Jetzt"), `${fmt(cur.p * 100, 1)} ct/kWh`) : "",
@@ -12376,7 +12382,7 @@
       const all = week.kwh.flat().filter((v) => v != null);
       if (!all.length) return "";
       const max = Math.max(...all, 0.01);
-      const days = [0, 1, 2, 3, 4, 5, 6].map((i) => new Date(2026, 10, 2 + i).toLocaleDateString(loc(), { weekday: "short" }));
+      const days = [0, 1, 2, 3, 4, 5, 6].map((i) => new Date(2026, 10, 2 + i).toLocaleDateString(loc2(), { weekday: "short" }));
       const pr = (week.price || []).filter((v) => v != null);
       const ps = [...pr].sort((a, b) => a - b);
       const plo = ps[Math.floor(ps.length * 0.25)], phi = ps[Math.floor(ps.length * 0.75)];

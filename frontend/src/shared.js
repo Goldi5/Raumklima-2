@@ -5,6 +5,10 @@ import { MODERN_STYLES, GLASS_STYLES } from "./styles.js";
 export * from "./styles.js";
 
 export { RK_VERSION, loc, rkTime, setLang, t, time12, timeOpts, tmap };
+export { esc, escRe, toneVar } from "./util.js";
+import { esc, escRe, toneVar } from "./util.js";
+export { RK_COLORS, rkLayout, rkLayoutRemember, rkLayoutChanged, rkOnLayoutChanged, rkEnhanceSelects, rkOccupancy, rkFloorOf, rkFloorGroups, rkRoomsOrdered, rkLayoutApply, rkLayoutSize, rkLayoutColor, rkRooms } from "./rooms.js";
+export { RK_ROOM_TYPES, RK_CAL, RK_OFF, RK_SYNC, RK_BUILDING, RK_NIGHT, RK_WALL, RK_MOLD, RK_QUIET, RK_PREHEAT, RK_SCHED_FALLBACK, RK_MAIL_PROVIDERS, RK_PKIND, RK_HOMESENS, RK_MODES, RK_KINDS, RK_LIGHT_SIGNALS, RK_DEFAULT_PUSH, RK_SEV, rkIssueList, rkPretty } from "./labels.js";
 
 // Text für einen regulären Ausdruck entschärfen (Raumnamen wie „Bad (OG)“)
 // Handbuch als PDF (am neuesten GitHub-Release angehängt), in der Sprache der Karte
@@ -46,7 +50,6 @@ export function rkBugReportUrl({ version, haVersion, language, rooms, homeCount,
   return parts ? { url, body } : url;
 }
 
-export const escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const STATUS = tmap({
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
@@ -398,7 +401,6 @@ export const fmt = (v, d = 1) =>
 
 export const humTone = (h) => (h === null || h === undefined ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold");
 
-export function toneVar(tone) { return `var(--rk-${tone || "off"})`; }
 
 // ---------------------------------------------------------------- Zeitpläne
 const DAY_LOCALE = { de: "de-DE", en: "en-GB", fr: "fr-FR" };
@@ -416,7 +418,6 @@ export function schedSummary(w) {
   return `${schedDaysLabel(w.days)} · ${w.start || "–"}–${w.end || "–"} · ${fmt(w.temperature)} °C`;
 }
 
-export const RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 export const SEG = tmap({
   season_off: { c: "color-mix(in srgb, var(--rk-off) 25%, transparent)", l: "Heizpause" },
   external_heat: { c: "color-mix(in srgb, var(--rk-heat) 45%, transparent)", l: "Kamin/Holzofen" },
@@ -431,250 +432,6 @@ export const SEG = tmap({
   trv_unavailable: { c: "var(--rk-cold)", l: "TRV weg" },
 });
 
-// ---------------------------------------------------------------- Darstellung je Wohnung (A3)
-const RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false };
-const RK_LAYOUT_CACHE = new Map();
-
-export function rkLayout(hass, home) {
-  const key = String(home || "");
-  if (!RK_LAYOUT_CACHE.has(key)) {
-    RK_LAYOUT_CACHE.set(
-      key,
-      hass.callWS({ type: "raumklima/layout/get", home: home || null })
-        .then((r) => ({ ...RK_LAYOUT_EMPTY, ...((r && r.layout) || {}) }))
-        .catch(() => ({ ...RK_LAYOUT_EMPTY })),
-    );
-  }
-  return RK_LAYOUT_CACHE.get(key);
-}
-
-export function rkLayoutRemember(layout, home) {
-  if (layout) RK_LAYOUT_CACHE.set(String(home || ""), Promise.resolve({ ...RK_LAYOUT_EMPTY, ...layout }));
-}
-
-/** Alle Karten dieser Seite über eine Layout-Änderung informieren. */
-export function rkLayoutChanged(home) {
-  try {
-    window.dispatchEvent(new CustomEvent("raumklima-layout", { detail: { home: String(home || "") } }));
-  } catch (e) {
-    /* egal */
-  }
-}
-
-export function rkOnLayoutChanged(handler) {
-  const fn = (e) => handler((e && e.detail && e.detail.home) || "");
-  window.addEventListener("raumklima-layout", fn);
-  return () => window.removeEventListener("raumklima-layout", fn);
-}
-
-/** Ausblenden und Reihenfolge anwenden. Räume ohne Eintrag behalten ihre alte Reihenfolge. */
-/** Position eines Raums in der gepflegten Reihenfolge (unbekannt = ans Ende). */
-function rkOrderPos(order, r) {
-  const key = (r && (r.id || r.entity_id)) || "";
-  let i = order.indexOf(key);
-  if (i < 0) {
-    const name = (r && (r.name || (r.attributes && r.attributes.friendly_name))) || "";
-    if (name) i = order.indexOf(name);
-  }
-  return i < 0 ? order.length : i;
-}
-
-/**
- * Nur die Reihenfolge anwenden – ohne Räume auszublenden.
- * Für die Einstellungen: dort muss auch ein auf „aus" gestellter Raum anklickbar bleiben,
- * sonst käme man nie wieder an seine Einstellungen (Issue #30).
- */
-/**
- * Auswahllisten einheitlich (#84): jede <select class="sel"> mit mehr als 8 Einträgen wird
- * alphabetisch sortiert (Leer-/Platzhalter-Eintrag bleibt oben) und – wenn sie noch keins hat –
- * mit einem Suchfeld versehen. Arbeitet auf dem HTML-Text, damit rkPaint stabil vergleichen kann.
- * Auswahlen mit ``data-nosort`` behalten ihre Reihenfolge (z. B. Zeiten, Stufen).
- */
-export function rkEnhanceSelects(html, { admin = true, min = 8 } = {}) {
-  const coll = new Intl.Collator(loc(), { sensitivity: "base", numeric: true });
-  const re = /<select class="sel"([^>]*)>([\s\S]*?)<\/select>/g;
-  let out = "";
-  let last = 0;
-  let m;
-  while ((m = re.exec(html))) {
-    const [whole, attrs, inner] = m;
-    const opts = inner.match(/<option\b[^>]*>[\s\S]*?<\/option>/g) || [];
-    let repl = whole;
-    if (opts.length > min && !/<optgroup/.test(inner)) {
-      const text = (o) => o.replace(/<[^>]+>/g, "").trim();
-      const empty = opts.filter((o) => /value=""/.test(o));
-      const rest = opts.filter((o) => !/value=""/.test(o));
-      const sorted = /data-nosort/.test(attrs) ? rest : [...rest].sort((a, b) => coll.compare(text(a), text(b)));
-      repl = `<select class="sel"${attrs}>${[...empty, ...sorted].join("")}</select>`;
-      const before = html.slice(Math.max(0, m.index - 400), m.index);
-      const wrapped = before.lastIndexOf("data-selsearch") > before.lastIndexOf("</select>");
-      if (!wrapped) {
-        const dis = /\sdisabled\b/.test(attrs) || !admin ? "disabled" : "";
-        repl = `<div class="selwrap" data-selwrap><input class="inp selsearch" type="search" placeholder="${esc(t("Suchen …"))}" aria-label="${esc(t("Suchen …"))}" data-selsearch autocomplete="off" ${dis}>${repl}</div>`;
-      }
-    }
-    out += html.slice(last, m.index) + repl;
-    last = m.index + whole.length;
-  }
-  return out + html.slice(last);
-}
-
-/**
- * Belegt-Zustand eines Raums für Kachel und Raumkarte (#85): Melder/Lampen und die Schalter
- * aus „Gilt für Personen“. ``off`` nur, wenn ein Schalter steuert (dann wird wirklich abgesenkt)
- * oder Melder „leer“ melden. Ohne beides: null (kein Symbol).
- */
-export function rkOccupancy(a) {
-  const sw = (a && a.room_switches) || [];
-  const on = sw.filter((x) => x.on).map((x) => x.name);
-  if (a && a.occupied === true) return { in: true, why: t("Jemand im Raum") };
-  if (on.length) return { in: true, why: t("„{n}“ ist an", { n: on.join("“, „") }) };
-  if (sw.length) return { in: false, switch: true, why: t("„{n}“ ist aus – Raum wird abgesenkt", { n: sw.map((x) => x.name).join("“, „") }) };
-  if (a && a.occupied === false) return { in: false, switch: false, why: t("Raum leer") };
-  return null;
-}
-
-/** Stockwerk eines Raums aus HA: Entität → (Gerät →) Bereich → Stockwerk (#80). */
-export function rkFloorOf(hass, entityId) {
-  const ent = ((hass && hass.entities) || {})[entityId] || {};
-  const dev = ent.device_id ? ((hass && hass.devices) || {})[ent.device_id] || {} : {};
-  const area = ((hass && hass.areas) || {})[ent.area_id || dev.area_id] || null;
-  return area && area.floor_id ? ((hass && hass.floors) || {})[area.floor_id] || null : null;
-}
-
-/**
- * Räume nach Stockwerk gruppieren, die Reihenfolge innerhalb bleibt wie übergeben.
- * Stockwerke nach Ebene (level), Räume ohne Stockwerk zuletzt unter „Weitere Räume“.
- * Gibt [] zurück, wenn kein Raum einem Stockwerk zugeordnet ist – dann bleibt alles wie bisher.
- */
-export function rkFloorGroups(hass, rooms) {
-  const groups = new Map();
-  for (const r of rooms || []) {
-    const fl = rkFloorOf(hass, r.id || r.entity_id);
-    const key = fl ? fl.floor_id || fl.name : "";
-    if (!groups.has(key)) groups.set(key, { floor: fl, rooms: [] });
-    groups.get(key).rooms.push(r);
-  }
-  if (![...groups.values()].some((g) => g.floor)) return [];
-  const lvl = (g) => (g.floor ? (g.floor.level ?? 0) : Number.MAX_SAFE_INTEGER);
-  return [...groups.values()]
-    .sort((a, b) => lvl(a) - lvl(b) || String(a.floor ? a.floor.name : "").localeCompare(String(b.floor ? b.floor.name : "")))
-    .map((g) => ({ ...g, name: g.floor ? g.floor.name : t("Weitere Räume"), icon: (g.floor && g.floor.icon) || (g.floor ? "mdi:home-floor-" + Math.max(0, Math.min(3, g.floor.level ?? 0)) : "mdi:home-outline") }));
-}
-
-export function rkRoomsOrdered(rooms, layout) {
-  const order = ((layout || RK_LAYOUT_EMPTY).order || []);
-  return [...(rooms || [])].sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
-}
-
-export function rkLayoutApply(rooms, layout) {
-  const L = layout || RK_LAYOUT_EMPTY;
-  const hidden = new Set(L.hidden || []);
-  const order = L.order || [];
-  // Räume kommen je nach Karte als Objekt mit `id` (rkRooms) oder als HA-Zustand mit
-  // `entity_id` (Übersichtskarte) – beide Formen müssen die Reihenfolge verstehen.
-  const keyOf = (r) => (r && (r.id || r.entity_id)) || "";
-  // Ältere Layouts haben Raumnamen statt Entitäts-IDs gespeichert – beides akzeptiert
-  // rkOrderPos, damit eine gepflegte Reihenfolge nicht stillschweigend verloren geht.
-  return rooms.filter((r) => !hidden.has(keyOf(r))).sort((a, b) => rkOrderPos(order, a) - rkOrderPos(order, b));
-}
-
-export function rkLayoutSize(layout, id) {
-  return ((layout || RK_LAYOUT_EMPTY).size || {})[id] || null;
-}
-
-export function rkLayoutColor(layout, id) {
-  return ((layout || RK_LAYOUT_EMPTY).color || {})[id] || null;
-}
-
-export function rkRooms(hass, prefix, home) {
-  const reg = Object.values(hass.entities || {});
-  const rooms = reg
-    .filter((e) => e.platform === "raumklima" && e.entity_id.startsWith("climate."))
-    .map((e) => {
-      const st = hass.states[e.entity_id];
-      const sib = {};
-      reg.forEach((x) => { if (x.device_id === e.device_id && x.platform === "raumklima" && x.translation_key) sib[x.translation_key] = x.entity_id; });
-      const full = (st && st.attributes.friendly_name) || e.entity_id;
-      return { id: e.entity_id, name: prefix ? full.replace(new RegExp("^" + escRe(prefix) + "\\s*"), "") : full, attrs: st ? st.attributes : {}, sib };
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
-  const mine = home ? rooms.filter((r) => !r.attrs.home || r.attrs.home === home) : rooms;
-  mine.forEach((r, i) => { r.color = RK_COLORS[i % RK_COLORS.length]; });
-  return mine;
-}
-
-export const RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
-export const RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich", hysteresis: "Hysterese (auf/zu)" });
-export const RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
-export const RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
-export const RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
-export const RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
-// Schimmelschutz-Stufen je Raum
-export const RK_WALL = tmap({
-  auto: "wie die Wohnung",
-  corner: "Außenecke",
-  wall: "Außenwand",
-  interior: "innenliegend",
-});
-export const RK_MOLD = tmap({ strict: "Streng nach DIN", wish: "Nur bis Wunsch", off: "Aus" });
-export const RK_QUIET = tmap({ auto: "Automatisch", on: "Immer", off: "Nie" });
-export const RK_PREHEAT = tmap({ auto: "Automatisch", clock: "Frühestens ab", lead: "Frühestens vorher", off: "Erst zum Zeitplan" });
-// Zeitplan: was außerhalb der Fenster gilt
-export const RK_SCHED_FALLBACK = tmap({ wish: "Wunschtemperatur", short: "Kurz weg", long: "Länger weg", frost: "Sicherung" });
-// Anbieter für den Mail-Versand: Server, Port, Verschlüsselung, Name
-export const RK_MAIL_PROVIDERS = {
-  gmail: ["smtp.gmail.com", 587, "starttls", "Gmail"],
-  gmx: ["mail.gmx.net", 587, "starttls", "GMX"],
-  webde: ["smtp.web.de", 587, "starttls", "WEB.DE"],
-  outlook: ["smtp-mail.outlook.com", 587, "starttls", "Outlook / Hotmail"],
-  tonline: ["securesmtp.t-online.de", 465, "ssl", "T-Online"],
-  icloud: ["smtp.mail.me.com", 587, "starttls", "iCloud"],
-  posteo: ["posteo.de", 587, "starttls", "Posteo"],
-  einsundeins: ["smtp.1und1.de", 587, "starttls", "1&1"],
-  ionos: ["smtp.ionos.de", 587, "starttls", "IONOS"],
-};
-export const RK_PKIND = tmap({ auto: "Automatisch", mmwave: "mmWave", pir: "PIR" });
-export const RK_HOMESENS = tmap({ mmwave: "nur mmWave", all: "mmWave + PIR", off: "keine" });
-export const RK_MODES = tmap({ auto: "Automatisch", always: "Immer heizen", pause: "Heizpause" });
-export const RK_KINDS = tmap({
-  vent_open: ["💧", "Bitte lüften"],
-  vent_close: ["🪟", "Fenster schließen"],
-  too_cold: ["🥶", "Raum kühlt aus"],
-  vent_done: ["✅", "Luft ausgetauscht"],
-  window_away: ["🚪", "Fenster offen, niemand da"],
-  presence: ["🏠", "Abwesenheit & Vorheizen"],
-  season: ["🍂", "Heizsaison Start/Ende"],
-  trv_failure: ["⚠️", "Thermostat reagiert nicht"],
-  health: ["🩺", "Gesundheit der Heizung"],
-  report: ["📊", "Wochenbericht"],
-  storm: ["🌪", "Sturm & Starkregen"],
-  moisture: ["🧺", "Feuchtequelle im Raum"],
-  live: ["📱", "Lüft-Countdown auf dem Sperrbildschirm"],
-});
-export const RK_LIGHT_SIGNALS = tmap({
-  open: ["#005aff", "Bitte lüften"],
-  close: ["#ff6e00", "Bitte schließen"],
-  done: ["#00c83c", "Luft ausgetauscht"],
-  problem: ["#ff0000", "Problem mit der Heizung"],
-});
-export const RK_DEFAULT_PUSH = ["vent_open", "vent_close", "too_cold", "vent_done", "window_away", "season", "trv_failure", "health", "report", "moisture"];
-export const RK_SEV = tmap({ alert: ["cold", "mdi:alert-octagon-outline", "Dringend"], warn: ["warn", "mdi:alert-outline", "Warnung"], info: ["air", "mdi:information-outline", "Hinweis"] });
-export function rkIssueList(issues, withRoom, prefix) {
-  if (!issues || !issues.length) return `<div class="hok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${t("Alles in Ordnung – Thermostate, Fühler, Batterien und Funk unauffällig.")}</div>`;
-  const order = { alert: 0, warn: 1, info: 2 };
-  return `<div class="issues">${[...issues].sort((a, b) => order[a.severity] - order[b.severity]).map((i) => {
-    const sv = RK_SEV[i.severity] || RK_SEV.info;
-    const jump = i.entry_id ? ` data-goto-room="${esc(i.entry_id)}" role="button" tabindex="0" title="${t("zum Raum springen")}"` : "";
-    return `<div class="issue"${jump} style="--c:${toneVar(sv[0])}"><ha-icon icon="${sv[1]}"></ha-icon><div><b>${withRoom && i.room ? esc(prefix ? (i.room.startsWith(prefix) ? i.room.slice(prefix.length).trimStart() : i.room) : i.room) + ": " : ""}${esc(i.title)}</b><small>${esc(i.message)}</small></div><span class="tag">${sv[2]}</span></div>`;
-  }).join("")}</div>`;
-}
-
-export function rkPretty(target) {
-  const s = String(target || "").replace(/^(notify|tts|media_player)\./, "").replace(/^mobile_app_/, "");
-  return s.split("_").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ") || target;
-}
-export const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 export const ROOM_COLORS = ["#ff7a45", "#4f9dff", "#2ec4a6", "#a78bfa", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 
