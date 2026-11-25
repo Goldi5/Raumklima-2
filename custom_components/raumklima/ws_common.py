@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from typing import Any
 
 from homeassistant.components import websocket_api
@@ -604,36 +605,71 @@ def _virtual_climates(hass: HomeAssistant) -> set[str]:
     }
 
 
+_TOTAL = ("total", "total_increasing")
+_PV_TERMS = ("pv", "solar", "erzeug", "einspeis", "produktion", "production", "lifetime", "lebensdauer", "yield")
+
+
+def _unit(state: Any, euro: bool = False) -> str:
+    """Einheit klein; Mengen mit ³ → 3, Preise mit € → eur."""
+    unit = str(state.attributes.get("unit_of_measurement") or "").strip().lower()
+    return unit.replace("€", "eur") if euro else unit.replace("³", "3")
+
+
+def _raw_unit(state: Any) -> str:
+    return str(state.attributes.get("unit_of_measurement") or "").lower()
+
+
+def _dc(state: Any) -> Any:
+    return state.attributes.get("device_class")
+
+
+def _total(state: Any) -> bool:
+    return state.attributes.get("state_class") in _TOTAL
+
+
+def _by_name(items: Iterable[dict[str, str]]) -> list[dict[str, str]]:
+    return sorted(items, key=lambda x: x["name"].lower())
+
+
+def _pick(
+    hass: HomeAssistant,
+    domains: str | tuple[str, ...],
+    keep: Callable[[Any], bool] | None = None,
+    kind: Callable[[Any], str] | None = None,
+) -> list[dict[str, str]]:
+    """Entitäten der Domänen (gefiltert), nach Name sortiert – für die Auswahllisten der Karte."""
+    out = []
+    for domain in (domains,) if isinstance(domains, str) else domains:
+        for s in hass.states.async_all(domain):
+            if keep is None or keep(s):
+                item = {"id": s.entity_id, "name": s.name}
+                if kind is not None:
+                    item["kind"] = kind(s)
+                out.append(item)
+    return _by_name(out)
+
+
 def _choices(hass: HomeAssistant) -> dict[str, Any]:
+    """Auswahllisten für die Einstellungskarte (Entitäten je Zweck)."""
     notify = notify_choices(hass)
     virtual_climates = _virtual_climates(hass)
 
     def ents(domain: str) -> list[dict[str, str]]:
-        return sorted(
-            ({"id": s.entity_id, "name": s.name} for s in hass.states.async_all(domain)),
-            key=lambda x: x["name"].lower(),
-        )
+        return _pick(hass, domain)
 
-    def climates() -> list[dict[str, str]]:
-        return [item for item in ents("climate") if item["id"] not in virtual_climates]
+    def kind_of(s: Any) -> str:
+        return sensor_kind(_dc(s))
 
     return {
         "notify": notify,
         "persons": ents("person"),
         # „Gilt für Personen“ auch mit Schaltern und Präsenz-Sensoren (Issue #53)
-        "room_switches": ents("input_boolean") + sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("binary_sensor")
-                if s.attributes.get("device_class") in ("presence", "occupancy")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
+        "room_switches": ents("input_boolean") + _pick(hass, "binary_sensor", lambda s: _dc(s) in ("presence", "occupancy")),
         "schedules": ents("schedule"),
         "plan_selectors": ents("input_select") + ents("select") + ents("input_boolean"),
         "zones": ents("zone"),
         "weather": ents("weather"),
-        "climate": climates(),
+        "climate": [item for item in ents("climate") if item["id"] not in virtual_climates],
         "calendars": ents("calendar"),
         "signals": ents("light") + ents("switch") + ents("input_boolean"),
         "lights": ents("light"),
@@ -641,164 +677,42 @@ def _choices(hass: HomeAssistant) -> dict[str, Any]:
         "presence_lights": ents("light") + ents("switch"),
         "mail": _mail_services(hass),
         "smtp_entities": _smtp_entities(hass),
-        "presence": sorted(
-            (
-                {"id": s.entity_id, "name": s.name, "kind": sensor_kind(s.attributes.get("device_class"))}
-                for s in hass.states.async_all("binary_sensor")
-                if s.attributes.get("device_class") in ("motion", "occupancy", "presence")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "presence_devices": sorted(
-            [
-                *(
-                    {"id": s.entity_id, "name": s.name, "kind": sensor_kind(s.attributes.get("device_class"))}
-                    for s in hass.states.async_all("binary_sensor")
-                ),
-                *(
-                    {"id": s.entity_id, "name": s.name, "kind": "pir"}
-                    for s in list(hass.states.async_all("input_boolean")) + list(hass.states.async_all("switch"))
-                ),
-            ],
-            key=lambda x: x["name"].lower(),
+        "presence": _pick(hass, "binary_sensor", lambda s: _dc(s) in ("motion", "occupancy", "presence"), kind_of),
+        "presence_devices": _by_name(
+            _pick(hass, "binary_sensor", kind=kind_of)
+            + _pick(hass, ("input_boolean", "switch"), kind=lambda _s: "pir")
         ),
         "home_office": ents("input_boolean") + ents("switch"),
-        "external_heat": sorted(ents("input_boolean") + ents("switch") + ents("binary_sensor"), key=lambda x: x["name"].lower()),
-        "outdoor": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if s.attributes.get("device_class") == "temperature"
-            ),
-            key=lambda x: x["name"].lower(),
+        "external_heat": _pick(hass, ("input_boolean", "switch", "binary_sensor")),
+        "outdoor": _pick(hass, "sensor", lambda s: _dc(s) == "temperature"),
+        "tank": _pick(hass, "sensor", lambda s: _unit(s) in ("l", "liter", "liters", "%", "m3", "m^3")),
+        "oil_market": _pick(
+            hass, "sensor", lambda s: _unit(s, euro=True) in ("eur/l", "eur/liter", "ct/l", "ct/liter", "eur/m3", "eur/m^3")
         ),
-        "tank": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("³", "3")
-                in ("l", "liter", "liters", "%", "m3", "m^3")
-            ),
-            key=lambda x: x["name"].lower(),
+        "dehumidifier": _pick(hass, ("switch", "fan", "humidifier", "input_boolean")),
+        "dehumidifier_power": _pick(hass, "sensor", lambda s: _dc(s) == "power" or _raw_unit(s) in ("w", "kw")),
+        "dehumidifier_energy": _pick(hass, "sensor", lambda s: _dc(s) == "energy" or _raw_unit(s) in ("kwh", "wh")),
+        "humidity": _pick(hass, "sensor", lambda s: _dc(s) == "humidity"),
+        "windows": _by_name(
+            _pick(hass, "binary_sensor", lambda s: _dc(s) in ("window", "door", "opening")) + _pick(hass, "cover")
         ),
-        "oil_market": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("€", "eur")
-                in ("eur/l", "eur/liter", "ct/l", "ct/liter", "eur/m3", "eur/m^3")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "dehumidifier": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in (
-                    *hass.states.async_all("switch"),
-                    *hass.states.async_all("fan"),
-                    *hass.states.async_all("humidifier"),
-                    *hass.states.async_all("input_boolean"),
-                )
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "dehumidifier_power": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if s.attributes.get("device_class") == "power"
-                or str(s.attributes.get("unit_of_measurement") or "").lower() in ("w", "kw")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "dehumidifier_energy": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if s.attributes.get("device_class") == "energy"
-                or str(s.attributes.get("unit_of_measurement") or "").lower() in ("kwh", "wh")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "humidity": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if s.attributes.get("device_class") == "humidity"
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "windows": sorted(
-            [
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("binary_sensor")
-                if s.attributes.get("device_class") in ("window", "door", "opening")
-            ] + [
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("cover")
-            ],
-            key=lambda x: x["name"].lower(),
-        ),
-        "covers": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("cover")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
+        "covers": _pick(hass, "cover"),
         "states": [{"id": k, "name": v} for k, v in STATES.items()],
-        "energy": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if s.attributes.get("device_class") in ("energy", "gas")
-                and s.attributes.get("state_class") in ("total", "total_increasing")
-            ),
-            key=lambda x: x["name"].lower(),
+        "energy": _pick(hass, "sensor", lambda s: _dc(s) in ("energy", "gas") and _total(s)),
+        "oil": _pick(hass, "sensor", lambda s: _unit(s) in ("l", "liter", "liters", "m3", "m^3") and _total(s)),
+        "heat": _pick(hass, "sensor", lambda s: _dc(s) == "energy" and _total(s)),
+        "pv": _pick(
+            hass,
+            "sensor",
+            lambda s: _dc(s) == "energy"
+            and _total(s)
+            and any(term in s.entity_id.lower() or term in str(s.name).lower() for term in _PV_TERMS),
         ),
-        "oil": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("³", "3")
-                in ("l", "liter", "liters", "m3", "m^3")
-                and s.attributes.get("state_class") in ("total", "total_increasing")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "heat": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if s.attributes.get("device_class") == "energy"
-                and s.attributes.get("state_class") in ("total", "total_increasing")
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "pv": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if s.attributes.get("device_class") == "energy"
-                and s.attributes.get("state_class") in ("total", "total_increasing")
-                and any(
-                    term in s.entity_id.lower() or term in str(s.name).lower()
-                    for term in ("pv", "solar", "erzeug", "einspeis", "produktion", "production", "lifetime", "lebensdauer", "yield")
-                )
-            ),
-            key=lambda x: x["name"].lower(),
-        ),
-        "tariff": sorted(
-            (
-                {"id": s.entity_id, "name": s.name}
-                for s in hass.states.async_all("sensor")
-                if "tariff" in s.entity_id.lower()
-                or "price" in s.entity_id.lower()
-                or "preis" in s.entity_id.lower()
-                or str(s.attributes.get("unit_of_measurement") or "").strip().lower().replace("€", "eur")
-                in ("eur/kwh", "ct/kwh", "eur/m3", "eur/m^3", "eur/l", "ct/l")
-            ),
-            key=lambda x: x["name"].lower(),
+        "tariff": _pick(
+            hass,
+            "sensor",
+            lambda s: any(word in s.entity_id.lower() for word in ("tariff", "price", "preis"))
+            or _unit(s, euro=True) in ("eur/kwh", "ct/kwh", "eur/m3", "eur/m^3", "eur/l", "ct/l"),
         ),
     }
 
