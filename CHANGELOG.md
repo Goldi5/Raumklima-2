@@ -1,3 +1,14 @@
+## 2.0.1b22 – 2026-11-25
+
+### Intern
+- **`config_flow.py` aufgeteilt:** Formulare, Vorschläge und Prüfungen der Einrichtung liegen in
+  `config_schemas.py`, der Ablauf bleibt in `config_flow.py` – Definitionen unverändert.
+- **Mehr Tests:** WebSocket-Befehle des Raums (Boost in allen Arten, Ändern mit Prüfung,
+  Raumtyp-Wechsel, Darstellung speichern/lesen, Fortsetzen, „Warum“, Zurücksetzen, Löschen,
+  unbekannte Räume) und für Protokoll-Abo, Spur und Diagnose. Abdeckung `ws_room` 62 → 91 %,
+  `ws_report` 54 → 67 %; 776 Tests.
+- Für Nutzer ändert sich nichts.
+
 ## 2.0.1b21 – 2026-11-25
 
 ### Intern
