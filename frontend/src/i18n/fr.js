@@ -1763,4 +1763,7 @@ export const FR = {
   "so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach": "le poêle compte encore ce temps après extinction – il continue de chauffer",
   "Kamin/Holzofen heizt": "Cheminée/poêle chauffe",
   "Kamin/Holzofen": "Cheminée/poêle",
+  "Boost läuft ohne Zeitlimit": "Boost actif sans limite",
+  "Boost läuft noch {m} min": "Boost actif, encore {m} min",
+  "Noch nicht gestartet – Dauer wählen": "Pas encore démarré – choisir une durée",
 };

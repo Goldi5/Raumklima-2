@@ -15,7 +15,9 @@ const BOOST_CSS = `
 .bslabel{font-size:12px;color:var(--secondary-text-color,#777);margin:2px 0 8px}
 .bschips{display:flex;flex-wrap:wrap;gap:6px}
 .bschip{border:1px solid rgba(120,120,120,.35);background:transparent;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:inherit}
-.bschip:hover{border-color:var(--rk-heat,#e8590c)}
+@media (hover: hover){.bschip:hover{border-color:var(--rk-heat,#e8590c)}}
+.bschip.def{border-color:var(--rk-heat,#e8590c);font-weight:600}
+.bslabel.on{color:var(--rk-heat,#e8590c);font-weight:600}
 `;
 
 function boostMinutes(a) {
@@ -134,8 +136,10 @@ export class RaumklimaCard extends HTMLElement {
       const d = new Date(Date.now() + h * 3600000);
       return `<span style="left:${(h / 6) * 100}%">${h === 6 ? "" : d.toLocaleTimeString(loc(), { hour: "2-digit" })}</span>`;
     }).join("");
-    const chip = (mode, min, label) => `<button class="bschip" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
-    const def = boostMinutes(a);
+    const chip = (mode, min, label, isDef = false) => `<button class="bschip${isDef ? " def" : ""}" data-bs="${mode}"${min ? ` data-min="${min}"` : ""}>${label}</button>`;
+    const def = Number(boostMinutes(a));
+    // feste Dauern; ist die Standarddauer eine davon, wird sie dort markiert statt doppelt gezeigt (#88)
+    const fixed = [[15, t("15 min")], [30, t("30 min")], [60, t("1 h")], [120, t("2 h")]];
     return `<style>${BOOST_CSS}</style>
       <div class="bsheet">
         <div class="bshead"><ha-icon icon="mdi:fire"></ha-icon><span>${t("Wärmer für kurze Zeit")}</span><button class="bsx" data-bsclose aria-label="${t("schließen")}">×</button></div>
@@ -143,10 +147,10 @@ export class RaumklimaCard extends HTMLElement {
           <div class="btlbar"><i class="btlfill" style="width:${width}%"></i></div>
           <div class="btlticks">${ticks}</div>
         </div>
-        <div class="bslabel">${active ? (mins == null ? t("läuft ohne Zeitlimit") : t("läuft noch {m} min", { m: mins })) : t("Wie lange soll es wärmer sein?")}</div>
+        <div class="bslabel ${active ? "on" : ""}">${active ? (mins == null ? t("Boost läuft ohne Zeitlimit") : t("Boost läuft noch {m} min", { m: mins })) : t("Noch nicht gestartet – Dauer wählen")}</div>
         <div class="bschips">
-          ${chip("minutes", null, `${t("Dauer des Boosts")}: ${t("{n} min", { n: def })}`)}
-          ${chip("minutes", 15, t("15 min"))}${chip("minutes", 30, t("30 min"))}${chip("minutes", 60, t("1 h"))}${chip("minutes", 120, t("2 h"))}
+          ${fixed.some(([m]) => m === def) ? "" : chip("minutes", null, `${t("{n} min", { n: def })} (${t("Standard")})`, true)}
+          ${fixed.map(([m, label]) => chip("minutes", m, m === def ? `${label} (${t("Standard")})` : label, m === def)).join("")}
           ${chip("next", null, t("Bis Zeitfenster"))}${chip("unlimited", null, t("Ohne Limit"))}
           ${active ? chip("off", null, t("Beenden")) : ""}
         </div>
@@ -424,6 +428,7 @@ export class RaumklimaCard extends HTMLElement {
             <button class="boostmore" data-boostopen title="${t("Dauer des Boosts")}" aria-label="${t("Dauer des Boosts")}"><ha-icon icon="mdi:chevron-down"></ha-icon></button>
           </span>` : ""}
         </div>
+        ${this._boostOpen ? this._boostSheet(a) : ""}
         <div class="chips">
           <span class="chip"><ha-icon icon="${status.icon}"></ha-icon>${status.label}${mon ? "" : moldBadge(a)}</span>
           ${a.dehumidifier_active ? `<span class="chip" style="--tone:${a.dehumidifier_maxed ? "var(--rk-warn)" : "var(--rk-air)"}" title="${esc(a.dehumidifier_entity || "")}"><ha-icon icon="mdi:air-humidifier"></ha-icon>${a.dehumidifier_maxed ? t("Entfeuchter läuft ohne Besserung") : t("Entfeuchter läuft")}${a.dehumidifier_since ? ` · ${rkDuration(Date.now() - Date.parse(a.dehumidifier_since))}` : ""}</span>` : ""}
@@ -458,7 +463,6 @@ export class RaumklimaCard extends HTMLElement {
         ${mon || isOff ? "" : this._schedLine(a)}
         <div class="stats">${stats}</div>
         ${devLine}
-        ${this._boostOpen ? this._boostSheet(a) : ""}
         <div class="actions">
           ${!mon && a.override_until && Date.parse(a.override_until) > Date.now() ? `<button class="pill" data-resume style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-check-outline"></ha-icon>${((a.settings && a.settings.schedules) || []).length ? t("Zeitplan fortsetzen") : t("Wunschtemperatur fortsetzen")}</button>` : ""}
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
@@ -487,7 +491,14 @@ export class RaumklimaCard extends HTMLElement {
         this._boost("minutes");
       }
     }));
-    this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boostOpen = !this._boostOpen; this._render(); }));
+    this.shadowRoot.querySelectorAll("[data-boostopen]").forEach((b) => b.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      this._boostOpen = !this._boostOpen;
+      this._render();
+      // direkt unter dem Knopf geöffnet; ragt es trotzdem aus dem Bild, sanft hineinscrollen (#88)
+      const sheet = this._boostOpen && this.shadowRoot.querySelector(".bsheet");
+      if (sheet && sheet.scrollIntoView) sheet.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }));
     this.shadowRoot.querySelectorAll("[data-bs]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boost(b.dataset.bs, b.dataset.min); }));
     this.shadowRoot.querySelectorAll("[data-bsclose]").forEach((b) => b.addEventListener("click", (ev) => { ev.stopPropagation(); this._boostOpen = false; this._render(); }));
     this.shadowRoot.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));

@@ -1763,4 +1763,7 @@ export const EN = {
   "so lange nach dem Ausgehen gilt der Ofen noch – er wärmt nach": "the stove still counts this long after it goes out – it keeps radiating heat",
   "Kamin/Holzofen heizt": "Fireplace/stove heating",
   "Kamin/Holzofen": "Fireplace/stove",
+  "Boost läuft ohne Zeitlimit": "Boost running without time limit",
+  "Boost läuft noch {m} min": "Boost running, {m} min left",
+  "Noch nicht gestartet – Dauer wählen": "Not started yet – choose a duration",
 };

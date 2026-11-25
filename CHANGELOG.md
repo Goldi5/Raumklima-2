@@ -1,3 +1,12 @@
+## 2.0.1b24 – 2026-11-25
+
+### Verbessert
+- **Boost-Menü der großen Raumkarte (#88):** Öffnet jetzt direkt unter dem Boost-Knopf statt am
+  Kartenende und scrollt sich bei Bedarf ins Bild – bei hohen Karten oder großen Dashboards musste
+  man vorher suchen. Die Ansage ist eindeutig: „Noch nicht gestartet – Dauer wählen“ bzw. „Boost
+  läuft noch 25 min“. Die Standarddauer ist als „(Standard)“ markiert und erscheint nicht mehr
+  doppelt; der frühere Knopf „Dauer des Boosts: 30 min“ sah aus wie eine Statusanzeige.
+
 ## 2.0.1b23 – 2026-11-25
 
 ### Behoben
