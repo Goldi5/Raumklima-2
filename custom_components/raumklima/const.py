@@ -434,6 +434,9 @@ OFF_AUTO: Final = "auto"
 OFF_PRESET: Final = "preset"
 OFF_HVAC: Final = "hvac"
 OFF_MIN_TEMP: Final = "min_temp"
+# Integrationen, bei denen „Modus aus“ mehr abschaltet als die Heizung (ViCare: Standby = auch kein
+# Warmwasser, #58). „Automatisch“ schaltet dort über die Minimaltemperatur aus.
+KEEP_MODE_PLATFORMS: Final = ("vicare",)
 OFF_METHODS: Final = [OFF_AUTO, OFF_PRESET, OFF_HVAC, OFF_MIN_TEMP]
 
 DEFAULTS: Final = {

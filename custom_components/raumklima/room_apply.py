@@ -15,6 +15,7 @@ from .const import (
     CAL_TARGET,
     CONF_BOOST_SOURCES,
     CONF_HEAT_SOURCES,
+    KEEP_MODE_PLATFORMS,
     OFF_HVAC,
     OFF_MIN_TEMP,
     OFF_PRESET,
@@ -318,12 +319,29 @@ class ApplyMixin:
             # Versuch ohne Schreibbefehl und wird – ohne Versuchsbudget zu kosten –
             # wiederholt, sobald das Gerät antwortet.
             low = to_float(self._trv_attr("min_temp"))
+            if self._trv_platform() in KEEP_MODE_PLATFORMS:
+                # ViCare: aus dem Standby holen, sonst bleibt auch das Warmwasser aus (#58)
+                await self._wake_from_hvac_off()
             await self.sync.request(
                 "mode",
                 tr("Minimaltemperatur {t}", t=fmt_temp(low)) if low is not None else tr("Minimaltemperatur"),
                 self._write_off_setpoint,
                 lambda: self._is_trv_off(self._trv_state(), OFF_MIN_TEMP),
             )
+
+    async def _wake_from_hvac_off(self) -> None:
+        """Steht das Gerät auf HVAC „aus“, obwohl über Preset/Minimaltemperatur geschaltet wird
+        (z. B. noch vom früheren Ausschalten), erst auf „heat“ holen – sonst wirkt kein Sollwert."""
+        state = self._trv_state()
+        modes = self._trv_attr("hvac_modes") or []
+        if state is None or state.state != "off" or "heat" not in modes:
+            return
+        await self.sync.request(
+            "hvac",
+            "HVAC 'heat'",
+            lambda: self._call_climate("set_hvac_mode", hvac_mode="heat"),
+            lambda: self.trv_available() and getattr(self._trv_state(), "state", "off") != "off",
+        )
 
     async def _send_on_mode(self, method: str) -> None:
         """Einschalten, Teil 1: Modus/Preset so stellen, dass das Gerät nach Sollwert regelt."""
@@ -354,6 +372,7 @@ class ApplyMixin:
             )
         else:
             self.sync.cancel("mode")
+            await self._wake_from_hvac_off()
         if method != OFF_HVAC and self._device_own_program(self._trv_state()):
             # Geräte, die über Preset/Mindesttemperatur geschaltet werden, aber auf HVAC „auto“
             # (eigener Wochenplan) stehen: auf „heat“ holen, sonst überschreibt der Plan den Sollwert.

@@ -56,16 +56,33 @@ def device_step(attr: object) -> float:
     return step if step and step > 0 else DEFAULT_STEP
 
 
-def compensated_shift(shift: float, target: float, room: float | None, margin: float = 0.2) -> float:
-    """Abgleich, aber nie bremsend, solange der Raum unter dem Ziel liegt.
+POSITIVE_SHIFT_FADE = 0.3  # K unter dem Ziel, ab denen ein Aufschlag ausgeblendet wird (#89)
+
+
+def compensated_shift(
+    shift: float, target: float, room: float | None, margin: float = 0.2, fade: float = POSITIVE_SHIFT_FADE
+) -> float:
+    """Abgleich, aber nie bremsend, solange der Raum zu kalt ist – und nie treibend, wenn er warm ist.
 
     Ein negativer Abgleich senkt den Sollwert, damit das Gerät früher aufhört — sinnvoll, wenn der
     Raum am Ziel ist oder darüber. Ist er deutlich darunter, verzögert derselbe Abschlag nur das
     Aufheizen: im gemeldeten Fall (Issue #31) stand der Sollwert zwei Stunden lang unter dem
     Wunschwert, weil der Gerätefühler kälter maß als der Raumfühler.
+
+    Spiegelbildlich (#89): Ein positiver Abgleich hebt den Sollwert, weil das Thermostat am heißen
+    Heizkörper wärmer misst. Ist der Raum am Ziel, hält genau dieser Aufschlag das Ventil offen – das
+    Gerät sitzt dann auf seinem eigenen Sollwert und der Raum heizt über. Deshalb wird der Aufschlag
+    auf den letzten ``fade`` Kelvin vor dem Ziel gleitend ausgeblendet und ist am Ziel null.
     """
-    if shift < 0 and room is not None and room < target - margin:
+    if room is None:
+        return shift
+    if shift < 0 and room < target - margin:
         return 0.0
+    if shift > 0:
+        if room >= target:
+            return 0.0
+        if fade > 0 and room > target - fade:
+            return shift * (target - room) / fade
     return shift
 
 

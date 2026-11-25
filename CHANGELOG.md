@@ -1,3 +1,20 @@
+## 2.0.1b23 – 2026-11-25
+
+### Behoben
+- **Thermostat schließt am Ziel nicht (Sollwert-Ausgleich, #89):** Misst das Thermostat am heißen
+  Heizkörper deutlich mehr als der Raumfühler (z. B. +3 K, verstärkt durch Heizkörper-Lüfter),
+  schrieb Raumklima auch am Ziel noch „Ziel + Abgleich“ ans Gerät. Das Gerät stand damit genau auf
+  seinem eigenen Sollwert, schloss nicht und der Raum heizte über. Der Aufschlag wird jetzt auf den
+  letzten 0,3 K vor dem Ziel gleitend ausgeblendet und ist am Ziel null – das Thermostat schließt,
+  fällt der Raum wieder, kommt der Abgleich zurück. Gilt für Haupt- und Zusatz-Thermostate.
+- **Am Thermostat gedreht (Sollwert-Ausgleich):** Die Rückrechnung auf den Raumwunsch nutzt den
+  Abgleich, der wirklich am Gerät stand. Das Protokoll zeigt die Umrechnung
+  („wird neue Wunschtemperatur 19,5 °C (am Gerät steht Wunsch + Abgleich +3 K)“).
+- **Viessmann/ViCare: Warmwasser bleibt an (#58):** „Aus“ heißt bei ViCare Standby – damit war auch
+  das Warmwasser aus, z. B. in der Heizpause. „Ausschalten über: Automatisch“ nimmt bei ViCare jetzt
+  die Minimaltemperatur; der Kessel bleibt im Heizbetrieb und das Warmwasser läuft nach seinem
+  eigenen Zeitprogramm. Steht der Kessel noch im Standby, holt Raumklima ihn zuerst heraus.
+
 ## 2.0.1b22 – 2026-11-25
 
 ### Intern

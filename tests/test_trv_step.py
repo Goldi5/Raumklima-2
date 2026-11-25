@@ -8,6 +8,8 @@ den Wunsch nie bestätigen, der Auftrag blieb dauerhaft „sendet …". Gemessen
 
 from __future__ import annotations
 
+import pytest
+
 from custom_components.raumklima.logic import (
     calc_target_setpoint,
     compensated_shift,
@@ -69,3 +71,14 @@ def test_kein_abschlag_solange_der_raum_zu_kalt_ist() -> None:
     assert compensated_shift(1.0, 21.0, 18.0) == 1.0
     # ohne Raumwert nicht raten
     assert compensated_shift(-1.0, 21.0, None) == -1.0
+
+
+def test_aufschlag_am_ziel_ausgeblendet() -> None:
+    """#89: Misst das Thermostat am heißen Heizkörper wärmer, darf der Aufschlag am Ziel das Ventil
+    nicht offen halten – er wird auf den letzten 0,3 K gleitend ausgeblendet."""
+    assert compensated_shift(3.0, 22.5, 21.5) == 3.0  # deutlich zu kalt: voller Aufschlag
+    assert compensated_shift(3.0, 22.5, 22.5) == 0.0  # am Ziel: kein Aufschlag
+    assert compensated_shift(3.0, 22.5, 23.0) == 0.0  # darüber erst recht nicht
+    assert compensated_shift(3.0, 22.5, 22.35) == pytest.approx(1.5)  # halb im Übergang
+    assert compensated_shift(3.0, 22.5, 22.2) == pytest.approx(3.0)  # Rand des Übergangs
+    assert compensated_shift(3.0, 22.5, None) == 3.0

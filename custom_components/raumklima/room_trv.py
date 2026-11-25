@@ -26,6 +26,7 @@ from .const import (
     CONF_SOLAR_FACADE,
     CONF_TARGET_VIA,
     DOMAIN,
+    KEEP_MODE_PLATFORMS,
     KIND_HEALTH,
     KIND_TRV_FAILURE,
     OFF_AUTO,
@@ -63,7 +64,7 @@ from .logic import (
     to_float,
     values_match,
 )
-from .msg import tr
+from .msg import dec, tr
 from .planning import (
     AWAY_STAGES,
 )
@@ -339,18 +340,26 @@ class TrvMixin:
         """Wert vom Gerät als neuen Wunsch übernehmen."""
         _LOGGER.info("%s: Sollwert am TRV geändert auf %s", self.name, new_t)
         away = self.plan()[2] in AWAY_STAGES
+        wish = new_t
+        shift = 0.0
+        if self.cal_mode == CAL_TARGET:
+            # Am Gerät steht der Wunsch plus der Abgleich, der gerade angewandt war – zurückrechnen.
+            # Am Ziel ist der Aufschlag ausgeblendet (#89): dann gilt der Wert am Gerät direkt.
+            shift = self._shift_for(self.target_temp)
+            wish = clamp(round_device(new_t - shift, self.trv_step), self.trv_min, self.trv_max)
+        why = (
+            tr("wird neue Wunschtemperatur {w} (am Gerät steht Wunsch + Abgleich {s} K)", w=fmt_temp(wish), s=("+" if shift > 0 else "") + dec(shift))
+            if wish != new_t
+            else tr("wird neue Wunschtemperatur")
+        )
         self.log(
             CAT_MANUAL,
             tr("Am Thermostat gedreht: {t}", t=fmt_temp(new_t)),
-            tr("wird neue Wunschtemperatur") + (tr("; Absenkung für 3 h ausgesetzt") if away else ""),
+            why + (tr("; Absenkung für 3 h ausgesetzt") if away else ""),
         )
         if away:
             self._manual_until = dt_util.utcnow() + MANUAL_OVERRIDE
-        if self.cal_mode == CAL_TARGET:
-            # Am Gerät steht der Wunsch plus Abgleich – zurückrechnen.
-            self.target_temp = clamp(round_device(new_t - self.shift, self.trv_step), self.trv_min, self.trv_max)
-        else:
-            self.target_temp = new_t
+        self.target_temp = wish
         self._save()
         self._notify()
         self.hass.async_create_task(self._apply())
@@ -360,11 +369,32 @@ class TrvMixin:
         method = self.config[CONF_OFF_METHOD]
         if method != OFF_AUTO:
             return method
+        if self._trv_platform() in KEEP_MODE_PLATFORMS:
+            # Viessmann/ViCare: „aus“ heißt dort Standby – dann auch kein Warmwasser (#58).
+            # Mit Minimaltemperatur bleibt der Kessel im Heizbetrieb, das Warmwasser läuft weiter.
+            return OFF_MIN_TEMP
         if "off" in (self._trv_attr("preset_modes") or []):
             return OFF_PRESET
         if "off" in (self._trv_attr("hvac_modes") or []):
             return OFF_HVAC
         return OFF_MIN_TEMP
+
+    def _trv_platform(self) -> str | None:
+        """Integration hinter dem Thermostat (aus der Entitäten-Registry, einmal gemerkt)."""
+        cached = getattr(self, "_trv_platform_cache", None)
+        if cached is not None and cached[0] == self.trv:
+            return cached[1]
+        platform = None
+        try:
+            from homeassistant.helpers import entity_registry as er
+
+            entry = er.async_get(self.hass).async_get(self.trv) if self.trv else None
+            platform = entry.platform if entry is not None else None
+        except Exception:  # noqa: BLE001 – ohne Registry (Tests, sehr früh beim Start)
+            platform = None
+        if platform is not None:
+            self._trv_platform_cache = (self.trv, platform)
+        return platform
 
     def _is_trv_off(self, state: State | None, method: str) -> bool:
         if state is None:
