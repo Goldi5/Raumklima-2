@@ -380,3 +380,10 @@ def _clock_minutes(value: Any) -> int | None:
     if not (hour.isdigit() and minute.isdigit()):
         return None
     return int(hour) * 60 + int(minute)
+
+
+def reading_fresh(last: datetime | None, now: datetime | None, max_minutes: float) -> bool:
+    """Ist eine Meldung jünger als ``max_minutes``? Ohne Zeitstempel gilt sie als frisch."""
+    if last is None or now is None:
+        return True
+    return (now - last).total_seconds() <= max_minutes * 60

@@ -199,3 +199,69 @@ async def test_dauerhaft_stumm_fuehrt_doch_zum_fehler() -> None:
     await clock.advance(600 * 40)
     assert events == ["failed"]
     assert sync.jobs["mode"].sent == 0
+
+
+async def test_gleicher_auftrag_setzt_versuche_nicht_zurueck() -> None:
+    """Flur mit Livisi: Der Regeltakt forderte alle paar Minuten denselben Sollwert an.
+
+    Jede Anforderung begann wieder bei Versuch 1 – der Auftrag galt nie als gescheitert,
+    der Status blieb „pending“ und das Gerät bekam 95-mal denselben Befehl.
+    """
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.connected = False  # Gerät übernimmt den Wert nicht
+    for _ in range(10):  # Regeltakt alle 5 min
+        await sync.request("sp", "Sollwert 20,0 °C", dev.sender(20.0), lambda: dev.value == 20.0)
+        await clock.advance(300)
+    assert events == ["failed"]
+    assert sync.state == "failed"
+    # 3 schnelle Versuche, danach nur noch im langsamen Takt (300 s) – nicht je Regeltakt neu
+    assert len(dev.sent) <= 3 + 10
+    assert sync.jobs["sp"].attempts > 3
+
+    dev.connected = True
+    await clock.advance(300)
+    await clock.advance(300)
+    assert sync.state == "ok"
+    assert events == ["failed", "recovered"]
+
+
+async def test_gleicher_auftrag_bestaetigt_sofort_wenn_schon_richtig() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.connected = False
+    await sync.request("sp", "Sollwert 20,0 °C", dev.sender(20.0), lambda: dev.value == 20.0)
+    dev.value = 20.0  # von Hand eingestellt
+    await sync.request("sp", "Sollwert 20,0 °C", dev.sender(20.0), lambda: dev.value == 20.0)
+    assert sync.state == "ok"
+    assert dev.sent == [20.0]
+
+
+async def test_anderer_wert_ersetzt_weiterhin() -> None:
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events)
+    dev.connected = False
+    await sync.request("sp", "Sollwert 20,0 °C", dev.sender(20.0), lambda: dev.value == 20.0)
+    await clock.advance(60)
+    before = len(dev.sent)
+    await sync.request("sp", "Sollwert 18,0 °C", dev.sender(18.0), lambda: dev.value == 18.0)
+    assert sync.jobs["sp"].attempts == 1
+    dev.connected = True
+    await clock.advance(20 + 40)  # Prüfung → erneut senden → Prüfung
+    assert sync.state == "ok"
+    assert dev.value == 18.0
+    assert 20.0 not in dev.sent[before:], "der alte Wert wird nicht mehr wiederholt"
+
+
+async def test_stumm_gescheitert_fragt_weiter_nach() -> None:
+    """Nach „dauerhaft stumm“ läuft die Kette im langsamen Takt weiter."""
+    clock, dev, events = FakeClock(), FakeDevice(), []
+    sync = make(clock, dev, events, available=False)
+    await sync.request("mode", "Minimaltemperatur 5,0 °C", dev.sender(5.0), lambda: dev.value == 5.0)
+    await clock.advance(600 * 40)
+    assert events == ["failed"]
+    sync._available = lambda: True
+    dev.connected = True
+    await clock.advance(600)
+    await clock.advance(600)
+    assert sync.state == "ok"

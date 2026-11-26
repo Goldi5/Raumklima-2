@@ -127,7 +127,15 @@ class TrvMixin:
         return to_float(self._trv_attr("current_temperature"))
 
     def _shift_for(self, target: float) -> float:
-        """Anzuwendender Abgleich – beim Aufheizen nicht bremsen."""
+        """Anzuwendender Abgleich – beim Aufheizen nicht bremsen.
+
+        Ohne brauchbaren Raumfühler (Ausfall, hängender Fühler, keiner eingetragen) regelt der Raum
+        auf den Thermostatfühler selbst. Der Abgleich übersetzt aber gerade Raumfühler → Gerätefühler;
+        im Notbetrieb würde er doppelt wirken: Im gemeldeten Fall stand bei 18 °C Ziel 19,5 °C am
+        Bad-Thermostat (+1,3 K), obwohl das Gerät selbst schon 18,6 °C maß. Deshalb dann kein Abgleich.
+        """
+        if not self.ext_sensor_ok:
+            return 0.0
         return compensated_shift(self.shift, target, self.current_temperature)
 
     @property

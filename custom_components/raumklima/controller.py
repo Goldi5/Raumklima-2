@@ -576,6 +576,10 @@ class RaumklimaController(ReadingsMixin, ScheduleMixin, StatusMixin, ControlMixi
         Früher wurde das nur im Moment einer Messung gerechnet; meldet der Fühler danach lange nicht
         (Batteriegeräte), blieb der unkompensierte Wert stehen.
         """
+        if not self.ext_sensor_ok:
+            # Fühler ausgefallen oder hängend: der gemerkte Wert ist alt. Gegen ihn nachzuführen
+            # würde den Abgleich mit jeder Heizminute weiter aufblähen (Bad: 1,3 → 3,3 K).
+            return
         ext = self._ext_value
         trv = self.trv_temperature
         if ext is None or trv is None:

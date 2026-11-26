@@ -627,6 +627,9 @@ STATUS_TRV: Final = "trv_unavailable"
 STATUS_MONITOR: Final = "monitor"
 # Ab dieser Ventilöffnung gilt der Raum als heizend, auch wenn das Gerät hvac_action: idle meldet (HmIP).
 VALVE_HEATING_MIN: Final = 5.0
+# Ventilstellung gilt als veraltet, wenn ihr Sensor so lange nichts gemeldet hat (Gerät stumm,
+# Batterie leer) – sonst zeigte ein toter Stellantrieb tagelang „heizt mit 25 %“.
+VALVE_STALE_MINUTES: Final = 180.0
 HEAT_FLOW_BASE: Final = 35.0  # °C Vorlauf ohne Anforderung
 HEAT_FLOW_MAX: Final = 55.0  # °C Obergrenze der Anforderung
 HEAT_FLOW_PER_K: Final = 5.0  # °C Vorlauf je K summarischer Raumlücke

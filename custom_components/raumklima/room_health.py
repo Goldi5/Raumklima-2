@@ -18,6 +18,7 @@ from .const import (
     CONF_VALVE_CONTROL,
     STATUS_HEATING,
     STATUS_TRV,
+    VALVE_STALE_MINUTES,
 )
 from .decision_log import (
     CAT_DEVICE,
@@ -46,6 +47,7 @@ from .health import (
 from .logic import (
     ValveModel,
     is_valid,
+    reading_fresh,
     shadow_opening,
     to_float,
 )
@@ -185,6 +187,12 @@ class HealthMixin:
         if self.valve_sensor:
             state = self.hass.states.get(self.valve_sensor)
             sensor_value = to_float(state.state) if state is not None else None
+            if sensor_value is not None and not reading_fresh(
+                getattr(state, "last_reported", None) or getattr(state, "last_updated", None),
+                dt_util.utcnow(),
+                VALVE_STALE_MINUTES,
+            ):
+                sensor_value = None  # Gerät meldet sich nicht mehr – alter Wert ist keine Öffnung
             if sensor_value is not None:
                 found[self._valve_device(self.valve_sensor)] = (False, sensor_value)
         for trv in getattr(self, "extra_trvs", []):

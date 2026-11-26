@@ -38,6 +38,7 @@ from .const import (
     SETPOINT_SHIFT_LIMIT,
     SLOW_RETRY_INTERVAL,
     VALVE_HEATING_MIN,
+    VALVE_STALE_MINUTES,
 )
 from .decision_log import CAT_DEVICE, fmt_temp
 from .health import Issue
@@ -49,6 +50,7 @@ from .logic import (
     compensated_shift,
     device_step,
     is_valid,
+    reading_fresh,
     round_device,
     setpoint_tolerance,
     to_float,
@@ -143,7 +145,12 @@ class ExtraTrv:
         if not self.valve_sensor:
             return None
         st = self.hass.states.get(self.valve_sensor)
-        return to_float(st.state) if st else None
+        if st is None:
+            return None
+        last = getattr(st, "last_reported", None) or getattr(st, "last_updated", None)
+        if not reading_fresh(last, dt_util.utcnow(), VALVE_STALE_MINUTES):
+            return None  # stummes Gerät: alte Öffnung nicht als „heizt“ werten
+        return to_float(st.state)
 
     @property
     def heating(self) -> bool:

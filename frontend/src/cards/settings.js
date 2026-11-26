@@ -472,15 +472,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
   // Räume-Liste (Phase 1): Einstieg in die Raum-Detailseite.
   _roomList() {
     const rooms = this._orderedRooms();
-    const choices = (this._cfg && this._cfg.choices) || {};
-    const climates = choices.climate || [];
-    const temps = choices.outdoor || [];
+    // Neuer Raum nur noch über den Assistenten (#92): eigener Dialog, den das Neuzeichnen nicht leert
     const addRow = this._admin ? `<div class="addrow">
-      <input class="inp" id="newRoomName" data-draft="newRoomName" placeholder="${t("Name des neuen Raums")}" maxlength="40">
-      <select class="sel" id="newRoomTrv" data-draft="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
-      <select class="sel" id="newRoomTemp" data-draft="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
-      <button class="btn" data-addroom style="--c:var(--rk-heat)"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
-      <button class="btn" data-onboard style="--c:var(--rk-eco)"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Assistent")}</button>
+      <button class="btn" data-onboard style="--c:var(--rk-heat)" title="${t("Führt Schritt für Schritt durch das Anlegen eines Raums")}"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
     </div>` : "";
     return `<div class="roomlist" style="--g:var(--rk-heat)">
       <div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div>

@@ -1,3 +1,28 @@
+## 2.0.1b27 – 2026-11-26
+
+### Behoben
+- **Abgleich im Notbetrieb:** Fällt der Raumfühler aus (oder hängt er), regelt Raumklima auf den
+  Thermostatfühler – rechnete aber weiter den gelernten Abgleich auf den Sollwert. Im gemeldeten Fall
+  standen bei 18 °C Ziel 19,5 °C am Bad-Thermostat, obwohl es selbst schon 18,6 °C maß. Zusätzlich
+  wurde der Abgleich gegen den alten, gemerkten Raumwert weiter nachgeführt und stieg von 1,3 auf
+  3,3 K. Im Notbetrieb gilt jetzt: kein Abgleich auf den Sollwert, und der gelernte Wert bleibt
+  eingefroren, bis der Fühler wieder meldet.
+- **Endlos derselbe Sollwert:** Übernahm ein Thermostat einen Sollwert nicht, forderte der Regeltakt
+  ihn alle paar Minuten neu an – jedes Mal wieder als „Versuch 1“. Der Auftrag galt dadurch nie als
+  gescheitert, der Status blieb „pending“, und das Gerät bekam denselben Befehl immer wieder (Livisi im
+  Flur: 95 Sendungen in zwei Tagen, ohne Meldung). Derselbe Sollwert setzt die laufende Wiederholung
+  jetzt nicht mehr zurück: nach den eingestellten Versuchen gilt er als nicht bestätigt (Problem-Sensor,
+  Reparaturmeldung) und wird nur noch im langsamen Takt nachgefragt. Ein neuer Wert ersetzt den alten
+  wie bisher.
+- **Ventilstellung eines stummen Geräts:** Meldete sich ein Thermostat oder Stellantrieb nicht mehr
+  (Batterie, Funk), blieb seine letzte Öffnung stehen – der Raum zeigte tagelang „heizt mit 25 %“.
+  Hat der Ventilsensor seit 3 h nichts gemeldet, zählt sein Wert jetzt nicht mehr als Öffnung.
+
+### Geändert
+- **Raum hinzufügen nur noch über den Assistenten (#92):** Die Eingabefelder für einen neuen Raum in
+  der Räume-Liste sind weg. „Raum hinzufügen“ startet den Assistenten im Raum-Modus – ein eigener
+  Dialog, den das Neuzeichnen der Karte nicht leert. Ein Fehltipp löscht dort keine Eingaben mehr.
+
 ## 2.0.1b26 – 2026-11-26
 
 ### Behoben

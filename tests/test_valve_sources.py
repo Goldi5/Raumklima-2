@@ -75,3 +75,21 @@ def test_zwei_echte_geraete_ergeben_mittelwert() -> None:
     assert SOURCES.fget(obj) == 2
     assert OWN.fget(obj) == 25.0
     assert POSITION.fget(obj) == 32.5
+
+
+def test_stummer_ventilsensor_zaehlt_nicht() -> None:
+    """Flur: Das Tür-Thermostat meldete sich seit Tagen nicht – „heizt mit 25 %“ blieb stehen."""
+    from datetime import timedelta
+
+    from homeassistant.util import dt as dt_util
+
+    old = dt_util.utcnow() - timedelta(hours=5)
+    stale = SimpleNamespace(state="25", last_reported=old, last_updated=old)
+    hass = SimpleNamespace(states=SimpleNamespace(get=lambda eid: stale))
+    obj = SimpleNamespace(hass=hass, valve_sensor="sensor.tuer_position", extra_trvs=[], trv="climate.livisi")
+    obj._valve_device = lambda entity_id: entity_id or ""
+    assert READINGS.fget(obj) == [], "alter Wert eines stummen Geräts ist keine Öffnung"
+
+    fresh = SimpleNamespace(state="25", last_reported=dt_util.utcnow(), last_updated=old)
+    obj.hass = SimpleNamespace(states=SimpleNamespace(get=lambda eid: fresh))
+    assert READINGS.fget(obj) == [(False, 25.0)]

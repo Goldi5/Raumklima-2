@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b26 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b27 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1055,6 +1055,7 @@
     "Assistent": "Assistant",
     "Einrichtungsassistent": "Setup assistant",
     "Führt Schritt für Schritt durch die Einrichtung": "Guides you through setup step by step",
+    "Führt Schritt für Schritt durch das Anlegen eines Raums": "Guides you through adding a room step by step",
     "Keine weiteren Fragen – bereit zum Abschließen.": "No more questions – ready to finish.",
     "Neuer Raum": "New room",
     "Weiter": "Next",
@@ -2821,6 +2822,7 @@
     "Assistent": "Assistant",
     "Einrichtungsassistent": "Assistant de configuration",
     "Führt Schritt für Schritt durch die Einrichtung": "Guide pas à pas dans la configuration",
+    "Führt Schritt für Schritt durch das Anlegen eines Raums": "Guide pas à pas pour ajouter une pièce",
     "Keine weiteren Fragen – bereit zum Abschließen.": "Plus de questions – prêt à terminer.",
     "Neuer Raum": "Nouvelle pièce",
     "Weiter": "Suivant",
@@ -3573,7 +3575,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b26";
+  var RK_VERSION = "2.0.1b27";
 
   // src/styles.js
   var STYLES = `
@@ -10129,30 +10131,6 @@
           this._render();
         }
       });
-      on("click", "[data-addroom]", () => async () => {
-        const name = (this.shadowRoot.getElementById("newRoomName") || {}).value?.trim() || "";
-        const trv = (this.shadowRoot.getElementById("newRoomTrv") || {}).value || "";
-        const temp = (this.shadowRoot.getElementById("newRoomTemp") || {}).value || "";
-        if (!name || !temp) {
-          this._flash(t("Name und Temperaturfühler wählen"));
-          return;
-        }
-        try {
-          const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp, ...this._homeMsg() });
-          this._tab = "general";
-          this._section = "rooms";
-          this._roomTab = "overview";
-          for (const id of ["newRoomName", "newRoomTrv"]) {
-            const f = this.shadowRoot.getElementById(id);
-            if (f) f.value = "";
-          }
-          this._flash(t("Raum „{n}“ angelegt", { n: name }));
-          await this._load();
-          if (r && r.entry_id) this._gotoRoomByEntry(r.entry_id);
-        } catch (e) {
-          this._flash(t("Fehler: {e}", { e: e.message || e }));
-        }
-      });
       on("click", "[data-deleteroom]", (el) => () => this._deleteRoom(el.dataset.deleteroom));
       on("change", '[data-onb="trv"]', () => () => {
         this._onboardCollect();
@@ -11335,15 +11313,8 @@
     // Räume-Liste (Phase 1): Einstieg in die Raum-Detailseite.
     _roomList() {
       const rooms = this._orderedRooms();
-      const choices = this._cfg && this._cfg.choices || {};
-      const climates = choices.climate || [];
-      const temps = choices.outdoor || [];
       const addRow = this._admin ? `<div class="addrow">
-      <input class="inp" id="newRoomName" data-draft="newRoomName" placeholder="${t("Name des neuen Raums")}" maxlength="40">
-      <select class="sel" id="newRoomTrv" data-draft="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
-      <select class="sel" id="newRoomTemp" data-draft="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
-      <button class="btn" data-addroom style="--c:var(--rk-heat)"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
-      <button class="btn" data-onboard style="--c:var(--rk-eco)"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Assistent")}</button>
+      <button class="btn" data-onboard style="--c:var(--rk-heat)" title="${t("Führt Schritt für Schritt durch das Anlegen eines Raums")}"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
     </div>` : "";
       return `<div class="roomlist" style="--g:var(--rk-heat)">
       <div class="gh"><div class="ic"><ha-icon icon="mdi:door-open"></ha-icon></div><b>${t("Räume")}</b></div>

@@ -102,7 +102,23 @@ class SyncManager:
         check: Callable[[], bool],
         why: str | None = None,
     ) -> None:
-        """Neuen Soll-Zustand anfordern (ersetzt älteren mit gleichem key)."""
+        """Neuen Soll-Zustand anfordern (ersetzt älteren mit gleichem key).
+
+        Derselbe Soll-Zustand noch einmal (gleiche Beschreibung, z. B. „Sollwert 20,0 °C“) ersetzt
+        den laufenden Auftrag **nicht**: Sonst begann der Regeltakt alle paar Minuten wieder bei
+        Versuch 1, der Auftrag galt nie als gescheitert und das Gerät bekam endlos denselben Befehl
+        (Flur mit Livisi: 95 Sendungen in zwei Tagen, Status blieb „pending“). So läuft die normale
+        Wiederholkette weiter, nach ``max_retries`` gilt der Auftrag als gescheitert und es wird nur
+        noch im langsamen Takt nachgefragt.
+        """
+        existing = self.jobs.get(key)
+        if existing is not None and existing.description == description:
+            existing.send = send
+            existing.check = check
+            existing.why = why
+            if check():
+                self._done(existing)
+            return
         self._drop(key)
         if check():
             # Steht schon so – nichts zu tun
@@ -159,7 +175,12 @@ class SyncManager:
             job.waits += 1
             _LOGGER.debug("%s: Gerät nicht erreichbar, warte (%s)", job.description, job.waits)
             if job.waits > self.max_retries * 5:
-                self._fail(job)
+                if job.waits == self.max_retries * 5 + 1:
+                    self._fail(job)  # nur einmal melden, nicht bei jeder langsamen Runde
+                # Kette nicht abreißen lassen: ein gleicher neuer Auftrag ersetzt diesen nicht mehr,
+                # also selbst im langsamen Takt weiter nachsehen, ob das Gerät wieder da ist.
+                job.cancel = self._schedule(self.slow_interval, lambda: self._verify(job))
+                self._changed()
                 return
             delay = retry_delay(job.attempts or 1, self._base_delay(), self.max_retries, self.slow_interval)
             job.cancel = self._schedule(delay, lambda: self._verify(job))

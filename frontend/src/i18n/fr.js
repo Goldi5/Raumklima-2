@@ -1056,6 +1056,7 @@ export const FR = {
   "Assistent": "Assistant",
   "Einrichtungsassistent": "Assistant de configuration",
   "Führt Schritt für Schritt durch die Einrichtung": "Guide pas à pas dans la configuration",
+  "Führt Schritt für Schritt durch das Anlegen eines Raums": "Guide pas à pas pour ajouter une pièce",
   "Keine weiteren Fragen – bereit zum Abschließen.": "Plus de questions – prêt à terminer.",
   "Neuer Raum": "Nouvelle pièce",
   "Weiter": "Suivant",

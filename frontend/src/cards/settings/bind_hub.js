@@ -98,21 +98,6 @@ export const BindHubMethods = {
       this._flash(made ? t("Dashboard „{d}“ angelegt", { d: made }) : t("Anlegen nicht möglich – bitte in den Einstellungen unter Dashboards prüfen"));
       if (made) { await this._load(); } else { this._render(); }
     });
-    on("click", "[data-addroom]", () => async () => {
-      const name = (this.shadowRoot.getElementById("newRoomName") || {}).value?.trim() || "";
-      const trv = (this.shadowRoot.getElementById("newRoomTrv") || {}).value || "";
-      const temp = (this.shadowRoot.getElementById("newRoomTemp") || {}).value || "";
-      if (!name || !temp) { this._flash(t("Name und Temperaturfühler wählen")); return; }
-      try {
-        const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp, ...this._homeMsg() });
-        this._tab = "general"; this._section = "rooms"; this._roomTab = "overview";
-        // angelegt: Entwurf leeren, sonst stellt das Neuzeichnen ihn wieder her
-        for (const id of ["newRoomName", "newRoomTrv"]) { const f = this.shadowRoot.getElementById(id); if (f) f.value = ""; }
-        this._flash(t("Raum „{n}“ angelegt", { n: name }));
-        await this._load();
-        if (r && r.entry_id) this._gotoRoomByEntry(r.entry_id);
-      } catch (e) { this._flash(t("Fehler: {e}", { e: e.message || e })); }
-    });
     on("click", "[data-deleteroom]", (el) => () => this._deleteRoom(el.dataset.deleteroom));
     on("change", '[data-onb="trv"]', () => () => { this._onboardCollect(); this._render(); });
     on("change", '[data-onb="heat_type"]', () => () => { this._onboardCollect(); if (this._onboard && this._onboard.data.heat_type === "monitor") this._onboard.data.extra_trvs = []; this._render(); });

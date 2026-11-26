@@ -11,6 +11,7 @@ from rk.logic import (
     heating_demand,
     in_airing_window,
     plausible_reading,
+    reading_fresh,
     retry_delay,
     to_float,
     values_match,
@@ -234,3 +235,10 @@ def test_zu_warm_baut_grundlast_ab() -> None:
 
     assert shadow_opening(20.0, 20.5, base=20.0) == 0.0  # 0,35 K über Totzone · 50 %/K = −17,5 → 2,5 % < ½ Mindesthub
     assert shadow_opening(20.0, 20.2, base=20.0) == 17.5
+
+
+def test_reading_fresh() -> None:
+    now = datetime(2026, 11, 26, 12, 0)
+    assert reading_fresh(datetime(2026, 11, 26, 10, 0), now, 180)
+    assert not reading_fresh(datetime(2026, 11, 26, 8, 0), now, 180)
+    assert reading_fresh(None, now, 180), "ohne Zeitstempel nicht verwerfen"

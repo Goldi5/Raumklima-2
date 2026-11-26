@@ -1056,6 +1056,7 @@ export const EN = {
   "Assistent": "Assistant",
   "Einrichtungsassistent": "Setup assistant",
   "Führt Schritt für Schritt durch die Einrichtung": "Guides you through setup step by step",
+  "Führt Schritt für Schritt durch das Anlegen eines Raums": "Guides you through adding a room step by step",
   "Keine weiteren Fragen – bereit zum Abschließen.": "No more questions – ready to finish.",
   "Neuer Raum": "New room",
   "Weiter": "Next",
