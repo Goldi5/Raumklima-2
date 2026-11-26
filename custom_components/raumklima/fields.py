@@ -46,6 +46,8 @@ NUM: dict[str, NumField] = {
     "long_airing_remind": NumField(" min", 15, 0, 240, 0, 'float', 0, 240),
     "comfort_temperature": NumField(" °C", 0.5, 12, 26, 1, 'float', 12, 26, nullable=True),
     "frost_temperature": NumField(" °C", 0.5, 5, 15, 1, 'float', 5, 15),
+    "off_temperature": NumField(" °C", 0.5, 5, 25, 1, 'float', 3, 30),
+    "sensor_offset": NumField(" K", 0.1, -5, 5, 1, 'float', -5, 5),
     "setback_short": NumField(" °C", 0.5, 10, 24, 1, 'float', 10, 24),
     "setback_long": NumField(" °C", 0.5, 8, 22, 1, 'float', 8, 22),
     "preheat_lead_min": NumField(" min", 15, 15, 360, 0, 'int', 0, 360),

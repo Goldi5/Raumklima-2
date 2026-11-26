@@ -374,7 +374,8 @@
         "auto": "Automatique",
         "preset": "Préréglage « arrêt »",
         "hvac": "Mode HVAC « arrêt »",
-        "min_temp": "Température minimale"
+        "min_temp": "Température minimale",
+        "setpoint": "Consigne fixe"
       }
     },
     "look_dark": {

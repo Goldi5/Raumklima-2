@@ -34,12 +34,14 @@ from .const import (
     CONF_HOME,
     CONF_HOME_OFFICE_ENTITY,
     CONF_HUMIDITY_SENSOR,
+    CONF_KEEP_MODE,
     CONF_LOOK_DARK,
     CONF_MOLD_MODE,
     CONF_NAME,
     CONF_NIGHT_AIRING,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
+    CONF_OFF_TEMP,
     CONF_ON_PRESET,
     CONF_PM25_SENSOR,
     CONF_PRESENCE,
@@ -59,6 +61,7 @@ from .const import (
     CONF_SCHEDULE_ENTITY,
     CONF_SCHEDULE_FALLBACK,
     CONF_SCHEDULE_FROM,
+    CONF_SENSOR_OFFSET,
     CONF_SENSOR_STALE_MINUTES,
     CONF_SHADING_COVERS,
     CONF_SHADING_MANUAL_MINUTES,
@@ -270,6 +273,10 @@ class SettingsMixin:
             "calibration_entity": cfg.get(CONF_CALIBRATION_ENTITY),
             "on_preset": cfg.get(CONF_ON_PRESET),
             "off_method": cfg.get(CONF_OFF_METHOD),
+            "off_method_active": self._off_method(),
+            "off_temperature": cfg.get(CONF_OFF_TEMP),
+            "keep_mode": bool(cfg.get(CONF_KEEP_MODE)),
+            "sensor_offset": cfg.get(CONF_SENSOR_OFFSET) or 0.0,
             "follow_trv": cfg.get(CONF_FOLLOW_TRV),
             "notify_on_failure": cfg.get(CONF_NOTIFY),
             "sensor_stale_minutes": cfg.get(CONF_SENSOR_STALE_MINUTES),
@@ -319,6 +326,10 @@ class SettingsMixin:
             self.update_presence()
         if changed.keys() & {CONF_ROOM_PERSONS, CONF_SCHEDULE_ENTITY, CONF_SCHEDULE_BY_PLAN, CONF_DEHUMIDIFIER}:
             self.track_aux()
+        if CONF_SENSOR_OFFSET in changed:
+            # Korrektur sofort wirksam: den gemerkten Messwert neu mit Korrektur einlesen (#98)
+            self._ext_value = None
+            self._ingest_sensor(self.hass.states.get(self.temp_sensor) if self.temp_sensor else None)
         if self.virtual_open_at is not None and not self.virtual_enabled():
             self._close_virtual("off")
         if changed.keys() & {

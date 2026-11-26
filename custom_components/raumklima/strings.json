@@ -374,7 +374,8 @@
         "auto": "Automatic",
         "preset": "Preset 'off'",
         "hvac": "HVAC mode 'off'",
-        "min_temp": "Minimum temperature"
+        "min_temp": "Minimum temperature",
+        "setpoint": "Fixed setpoint"
       }
     },
     "look_dark": {

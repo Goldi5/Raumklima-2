@@ -19,6 +19,7 @@ from .const import (
     OFF_HVAC,
     OFF_MIN_TEMP,
     OFF_PRESET,
+    OFF_SETPOINT,
 )
 from .decision_log import (
     CAT_DEVICE,
@@ -318,10 +319,19 @@ class ApplyMixin:
             # und nie bestätigt (Issue #37). Ist der Wert noch nicht da, scheitert der
             # Versuch ohne Schreibbefehl und wird – ohne Versuchsbudget zu kosten –
             # wiederholt, sobald das Gerät antwortet.
-            low = to_float(self._trv_attr("min_temp"))
             if self._trv_platform() in KEEP_MODE_PLATFORMS:
                 # ViCare: aus dem Standby holen, sonst bleibt auch das Warmwasser aus (#58)
                 await self._wake_from_hvac_off()
+            if method == OFF_SETPOINT:
+                low = self.off_temperature
+                await self.sync.request(
+                    "mode",
+                    tr("Aus-Sollwert {t}", t=fmt_temp(low)),
+                    lambda: self._write_setpoint(self.off_temperature),
+                    lambda: self._is_trv_off(self._trv_state(), OFF_SETPOINT),
+                )
+                return
+            low = to_float(self._trv_attr("min_temp"))
             await self.sync.request(
                 "mode",
                 tr("Minimaltemperatur {t}", t=fmt_temp(low)) if low is not None else tr("Minimaltemperatur"),
@@ -332,6 +342,8 @@ class ApplyMixin:
     async def _wake_from_hvac_off(self) -> None:
         """Steht das Gerät auf HVAC „aus“, obwohl über Preset/Minimaltemperatur geschaltet wird
         (z. B. noch vom früheren Ausschalten), erst auf „heat“ holen – sonst wirkt kein Sollwert."""
+        if self.keep_mode:
+            return  # Betriebsart nie umschalten (#99)
         state = self._trv_state()
         modes = self._trv_attr("hvac_modes") or []
         if state is None or state.state != "off" or "heat" not in modes:
@@ -373,7 +385,7 @@ class ApplyMixin:
         else:
             self.sync.cancel("mode")
             await self._wake_from_hvac_off()
-        if method != OFF_HVAC and self._device_own_program(self._trv_state()):
+        if method != OFF_HVAC and not self.keep_mode and self._device_own_program(self._trv_state()):
             # Geräte, die über Preset/Mindesttemperatur geschaltet werden, aber auf HVAC „auto“
             # (eigener Wochenplan) stehen: auf „heat“ holen, sonst überschreibt der Plan den Sollwert.
             await self.sync.request(

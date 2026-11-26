@@ -373,7 +373,10 @@ export class RaumklimaCard extends HTMLElement {
       a.dew_point !== undefined && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
       // Keine gemeldete Öffnung (Livisi, RWE VRCC) → Kachel weglassen statt „–" anzeigen.
       a.valve_position === null || a.valve_position === undefined
-        ? ""
+        ? (a.valve_estimate != null && !mon
+          // Gerät meldet keine Stellung (z. B. Sonoff TRVZB): Schätzung zeigen, klar als solche (#83)
+          ? stat("mdi:valve", t("Ventil ≈"), `${fmt(a.valve_estimate, 0)} %<small>${t("geschätzt")}</small>`, a.valve_estimate > 0 ? "heat" : null, null)
+          : "")
         : stat("mdi:valve", (a.valve_sources || 0) > 1 ? t("Ventil Ø") : t("Ventil"), `${fmt(a.valve_position, 0)} %`, valveTone, a.valve_sensor),
       a.outdoor_temperature !== undefined && a.outdoor_temperature !== null
         ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null, cfgS.weather_entity) : "",

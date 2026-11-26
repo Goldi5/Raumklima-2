@@ -18,8 +18,10 @@ from .const import (
     CAL_TARGET,
     CONF_FOLLOW_TRV,
     CONF_HYSTERESIS_K,
+    CONF_KEEP_MODE,
     CONF_NOTIFY,
     CONF_OFF_METHOD,
+    CONF_OFF_TEMP,
     CONF_OFFSET_MIN_INTERVAL,
     CONF_OFFSET_THRESHOLD,
     CONF_ON_PRESET,
@@ -33,7 +35,9 @@ from .const import (
     OFF_HVAC,
     OFF_MIN_TEMP,
     OFF_PRESET,
+    OFF_SETPOINT,
     OFF_SOURCE_TRV,
+    OFF_TEMP_DEFAULT,
     OFFSET_MATCH_TOLERANCE,
     OFFSET_MAX,
     OFFSET_MIN,
@@ -375,8 +379,12 @@ class TrvMixin:
     # ================================================================ TRV steuern
     def _off_method(self) -> str:
         method = self.config[CONF_OFF_METHOD]
+        if self.keep_mode and method in (OFF_PRESET, OFF_HVAC):
+            method = OFF_AUTO  # Betriebsart nie umschalten (#99): nur Sollwerte
         if method != OFF_AUTO:
             return method
+        if self.keep_mode:
+            return OFF_MIN_TEMP
         if self._trv_platform() in KEEP_MODE_PLATFORMS:
             # Viessmann/ViCare: „aus“ heißt dort Standby – dann auch kein Warmwasser (#58).
             # Mit Minimaltemperatur bleibt der Kessel im Heizbetrieb, das Warmwasser läuft weiter.
@@ -411,9 +419,23 @@ class TrvMixin:
             return state.attributes.get("preset_mode") == "off"
         if method == OFF_HVAC:
             return state.state == "off"
+        if method == OFF_SETPOINT:
+            return values_match(state.attributes.get(ATTR_TEMPERATURE), self.off_temperature, SETPOINT_MATCH_TOLERANCE)
         return values_match(
             state.attributes.get(ATTR_TEMPERATURE), self.trv_min, SETPOINT_MATCH_TOLERANCE
         )
+
+    @property
+    def keep_mode(self) -> bool:
+        """Betriebsart des Geräts nie umschalten (#99) – z. B. eine ViCare-Anlage für das ganze Haus."""
+        return bool(self.config.get(CONF_KEEP_MODE))
+
+    @property
+    def off_temperature(self) -> float:
+        """Fester „Aus“-Sollwert (#99), in den Gerätegrenzen."""
+        value = to_float(self.config.get(CONF_OFF_TEMP))
+        value = OFF_TEMP_DEFAULT if value is None else value
+        return clamp(round_device(value, self.trv_step), self.trv_min, self.trv_max)
 
     def _handle_preset_fight(self, new_p: str | None) -> bool:
         """Springt das Thermostat immer wieder selbst auf ein Preset? Dann nicht endlos dagegenhalten."""

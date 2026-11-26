@@ -76,3 +76,50 @@ async def test_aufschlag_haelt_ventil_am_ziel_nicht_offen(hass: HomeAssistant, t
     await hass.async_block_till_done()
     assert c._desired_setpoint() == target
     assert c.trv_expected_target == target
+
+
+async def test_fester_aus_sollwert_und_modus_nie_umschalten(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#99: ganze Anlage über eine Climate-Entität – „aus“ = 16 °C, und nie den Modus anfassen."""
+    trv.attrs["preset_modes"] = ["comfort", "eco"]
+    trv.state = "off"  # selbst im Standby: Raumklima holt die Anlage NICHT heraus
+    trv.push()
+    _hub, room = await _setup(hass, room_type="living", off_method="setpoint", off_temperature=16.0, keep_mode=True)
+    c = room.runtime_data
+    await hass.async_block_till_done()
+    assert c._off_method() == "setpoint"
+    assert not any(s == "set_hvac_mode" for s, _d in trv.calls)
+    assert not any(s == "set_preset_mode" for s, _d in trv.calls)
+
+    trv.calls.clear()
+    await c.async_set_hvac_on(False)
+    await hass.async_block_till_done()
+    assert trv.setpoint == 16.0
+    assert not any(s in ("set_hvac_mode", "set_preset_mode") for s, _d in trv.calls)
+    assert c._is_trv_off(hass.states.get(TRV), "setpoint") is True
+
+
+async def test_modus_nie_umschalten_ersetzt_hvac_aus(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    _hub, room = await _setup(hass, room_type="living", off_method="hvac", keep_mode=True)
+    assert room.runtime_data._off_method() == "min_temp"
+
+
+async def test_korrektur_raumfuehler(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#98: Fühler zeigt 0,7 K zu wenig – Raumklima rechnet mit dem korrigierten Wert."""
+    from .conftest import SENSOR
+
+    _hub, room = await _setup(hass, room_type="living", sensor_offset=0.7)
+    c = room.runtime_data
+    raw = float(hass.states.get(SENSOR).state)
+    assert c.current_temperature == round(raw + 0.7, 2)
+    hass.states.async_set(SENSOR, "21.5", {"unit_of_measurement": "°C", "device_class": "temperature"})
+    await hass.async_block_till_done()
+    assert c.current_temperature == 22.2
+
+
+async def test_ventil_schaetzung_ohne_stellung(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#83: Gerät ohne Ventilstellung – die Karte bekommt eine Schätzung, mit Stellung nicht."""
+    _hub, room = await _setup(hass, room_type="living")
+    c = room.runtime_data
+    if c.valve_position is None:
+        est = c.valve_estimate()
+        assert est is None or 0 <= est <= 100

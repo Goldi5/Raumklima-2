@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b28 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b29 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1768,7 +1768,17 @@
     "Tippen: nur dieser Raum · lang drücken: dazu/weg": "Tap: only this room · long press: add/remove",
     "Alle": "All",
     "Handverstellt · zurück auf {t} °C": "Adjusted by hand · back to {t} °C",
-    "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "The target differs from the base value in the settings (e.g. turned at the thermostat)."
+    "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "The target differs from the base value in the settings (e.g. turned at the thermostat).",
+    "Korrektur Raumfühler": "Room sensor correction",
+    "Zeigt der Fühler zu wenig oder zu viel an, hier ausgleichen: zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K. Raumklima rechnet überall mit dem korrigierten Wert.": "If the sensor reads too low or too high, correct it here: it shows 21.5 °C but it is 22.2 °C → +0.7 K. Raumklima uses the corrected value everywhere.",
+    "Fester Sollwert": "Fixed setpoint",
+    "gerade: {m}": "currently: {m}",
+    "Aus-Sollwert": "Off setpoint",
+    "Dieser Sollwert gilt, wenn der Raum aus ist – z. B. 16 °C für eine ganze Heizanlage statt der Gerätegrenze": "This setpoint applies while the room is off – e.g. 16 °C for a whole heating system instead of the device limit",
+    "Betriebsart nie umschalten": "Never change the operating mode",
+    "Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.": "Raumklima only writes setpoints and never changes mode or preset – for a system heating the whole house (e.g. ViCare). Switching off then uses the minimum temperature or a fixed setpoint.",
+    "Ventil ≈": "Valve ≈",
+    "geschätzt": "estimated"
   };
 
   // src/i18n/fr.js
@@ -3539,7 +3549,17 @@
     "Tippen: nur dieser Raum · lang drücken: dazu/weg": "Toucher : seulement cette pièce · appui long : ajouter/retirer",
     "Alle": "Toutes",
     "Handverstellt · zurück auf {t} °C": "Réglé à la main · revenir à {t} °C",
-    "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "La consigne diffère de la valeur de base des réglages (p. ex. tournée sur le thermostat)."
+    "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "La consigne diffère de la valeur de base des réglages (p. ex. tournée sur le thermostat).",
+    "Korrektur Raumfühler": "Correction de la sonde",
+    "Zeigt der Fühler zu wenig oder zu viel an, hier ausgleichen: zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K. Raumklima rechnet überall mit dem korrigierten Wert.": "Si la sonde affiche trop peu ou trop, corrigez ici : elle indique 21,5 °C mais il fait 22,2 °C → +0,7 K. Raumklima utilise partout la valeur corrigée.",
+    "Fester Sollwert": "Consigne fixe",
+    "gerade: {m}": "actuellement : {m}",
+    "Aus-Sollwert": "Consigne d’arrêt",
+    "Dieser Sollwert gilt, wenn der Raum aus ist – z. B. 16 °C für eine ganze Heizanlage statt der Gerätegrenze": "Cette consigne s’applique quand la pièce est arrêtée – p. ex. 16 °C pour toute une installation au lieu de la limite de l’appareil",
+    "Betriebsart nie umschalten": "Ne jamais changer le mode",
+    "Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.": "Raumklima n’écrit que des consignes et ne change jamais de mode ni de préréglage – pour une installation qui chauffe toute la maison (p. ex. ViCare). L’arrêt passe alors par la température minimale ou une consigne fixe.",
+    "Ventil ≈": "Vanne ≈",
+    "geschätzt": "estimé"
   };
 
   // src/i18n.js
@@ -3583,7 +3603,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b28";
+  var RK_VERSION = "2.0.1b29";
 
   // src/styles.js
   var STYLES = `
@@ -4424,7 +4444,7 @@
   // src/labels.js
   var RK_ROOM_TYPES = tmap({ living: "Wohnraum", kitchen: "Küche", bedroom: "Schlafzimmer", bathroom: "Bad", children: "Kinderzimmer", office: "Arbeitszimmer", guest: "Gästezimmer", hallway: "Flur", gym: "Sportzimmer", rarely_used: "Selten genutzt" });
   var RK_CAL = tmap({ offset: "Offset am Thermostat", target: "Sollwert-Ausgleich", none: "Ohne Abgleich", hysteresis: "Hysterese (auf/zu)" });
-  var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur" });
+  var RK_OFF = tmap({ auto: "Automatisch", preset: "Preset „aus“", hvac: "Modus „aus“", min_temp: "Minimaltemperatur", setpoint: "Fester Sollwert" });
   var RK_SYNC = tmap({ ok: ["Synchron", "ok"], pending: ["Wird übertragen", "warn"], failed: ["Fehlgeschlagen", "cold"] });
   var RK_BUILDING = tmap({ unrenovated: "Altbau unsaniert", renovated: "Altbau saniert", new: "Neubau / gedämmt" });
   var RK_NIGHT = tmap({ auto: "Automatisch", on: "Ja", off: "Nein" });
@@ -5240,7 +5260,7 @@
         a.pm25 != null ? stat("mdi:molecule", t("Feinstaub"), `${fmt(a.pm25, 0)}<small>µg/m³</small>`, a.pm25 >= 50 ? "cold" : a.pm25 >= 35 ? "warn" : "ok", cfgS.pm25_sensor) : "",
         a.dew_point !== void 0 && a.dew_point !== null ? stat("mdi:water-thermometer", t("Taupunkt"), `${fmt(a.dew_point)}°`, null, sib.dew_point) : "",
         // Keine gemeldete Öffnung (Livisi, RWE VRCC) → Kachel weglassen statt „–" anzeigen.
-        a.valve_position === null || a.valve_position === void 0 ? "" : stat("mdi:valve", (a.valve_sources || 0) > 1 ? t("Ventil Ø") : t("Ventil"), `${fmt(a.valve_position, 0)} %`, valveTone, a.valve_sensor),
+        a.valve_position === null || a.valve_position === void 0 ? a.valve_estimate != null && !mon ? stat("mdi:valve", t("Ventil ≈"), `${fmt(a.valve_estimate, 0)} %<small>${t("geschätzt")}</small>`, a.valve_estimate > 0 ? "heat" : null, null) : "" : stat("mdi:valve", (a.valve_sources || 0) > 1 ? t("Ventil Ø") : t("Ventil"), `${fmt(a.valve_position, 0)} %`, valveTone, a.valve_sensor),
         a.outdoor_temperature !== void 0 && a.outdoor_temperature !== null ? stat("mdi:weather-partly-cloudy", t("Außen"), `${fmt(a.outdoor_temperature)}°<small>${fmt(a.outdoor_humidity, 0)} %</small>`, null, cfgS.weather_entity) : "",
         mon ? "" : stat("mdi:radiator", t("Heizkörper"), `${fmt(a.trv_temperature)}°`, null, cfgS.trv),
         // „Offset" gibt es nur, wenn das Gerät eine Offset-Entität hat. Sonst regelt
@@ -6003,6 +6023,9 @@
 
   // src/help.js
   var HELP = {
+    "Korrektur Raumfühler": ["Gleicht einen Fühler aus, der dauerhaft zu viel oder zu wenig misst. Zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K eintragen. Raumklima rechnet überall mit dem korrigierten Wert.", "Corrects a sensor that reads consistently too high or too low. If it shows 21.5 °C but it is 22.2 °C, enter +0.7 K. Raumklima uses the corrected value everywhere.", "Corrige une sonde qui mesure toujours trop ou trop peu. Si elle affiche 21,5 °C alors qu’il fait 22,2 °C, saisissez +0,7 K. Raumklima utilise partout la valeur corrigée."],
+    "Aus-Sollwert": ["Bei „Ausschalten über: fester Sollwert“ stellt Raumklima das Gerät auf diesen Wert statt auf seine Mindesttemperatur – sinnvoll, wenn eine einzige Anlage das ganze Haus heizt.", "With “switch off via: fixed setpoint”, Raumklima sets the device to this value instead of its minimum – useful when one system heats the whole house.", "Avec « arrêt par : consigne fixe », Raumklima règle l’appareil sur cette valeur au lieu de son minimum – utile quand une seule installation chauffe toute la maison."],
+    "Betriebsart nie umschalten": ["Raumklima schreibt nur Sollwerte und stellt nie Modus oder Preset um. Für Anlagen, bei denen ein Moduswechsel mehr betrifft als den Raum, z. B. Viessmann/ViCare (Heizen = Dauerbetrieb, Aus = auch kein Warmwasser).", "Raumklima only writes setpoints and never changes mode or preset. For systems where a mode change affects more than the room, e.g. Viessmann/ViCare (heat = permanent operation, off = no hot water either).", "Raumklima n’écrit que des consignes et ne change jamais de mode ni de préréglage. Pour les installations où un changement de mode concerne plus que la pièce, p. ex. Viessmann/ViCare."],
     "Fremdwärme (Kamin/Holzofen)": ["Schalter, Helfer oder Sensor, der „Ofen brennt“ meldet. Ist er an, bleiben die Thermostate des Raums zu, damit sie nicht gegen den Ofen heizen. Frostschutz gilt weiter.", "Switch, helper or sensor reporting “stove is burning”. While it is on, the room’s thermostats stay closed so they don’t heat against the stove. Frost protection still applies.", "Interrupteur, entrée ou capteur signalant « le poêle brûle ». Tant qu’il est actif, les thermostats de la pièce restent fermés pour ne pas chauffer contre le poêle. La protection antigel reste active."],
     "… Nachlauf": ["So lange bleiben die Thermostate nach dem Ausschalten noch zu, weil Kamin oder Ofen nachglühen. 0 = sofort wieder normal regeln.", "How long the thermostats stay closed after switching off, because the fireplace or stove keeps glowing. 0 = return to normal control immediately.", "Durée pendant laquelle les thermostats restent fermés après l’arrêt, car la cheminée ou le poêle continue de rayonner. 0 = reprise immédiate de la régulation."],
     "Kühlen": ["Klimaanlage kühlt, wenn der Raum über der Kühlgrenze liegt.", "Air conditioning cools when the room is above the cooling limit.", "La climatisation refroidit lorsque la pièce dépasse la limite de refroidissement."],
@@ -6833,6 +6856,8 @@
     long_airing_remind: { unit: " min", step: 15, min: 0, max: 240, dec: 0 },
     comfort_temperature: { unit: " °C", step: 0.5, min: 12, max: 26, dec: 1 },
     frost_temperature: { unit: " °C", step: 0.5, min: 5, max: 15, dec: 1 },
+    off_temperature: { unit: " °C", step: 0.5, min: 5, max: 25, dec: 1 },
+    sensor_offset: { unit: " K", step: 0.1, min: -5, max: 5, dec: 1 },
     setback_short: { unit: " °C", step: 0.5, min: 10, max: 24, dec: 1 },
     setback_long: { unit: " °C", step: 0.5, min: 8, max: 22, dec: 1 },
     preheat_lead_min: { unit: " min", step: 15, min: 15, max: 360, dec: 0 },
@@ -9055,6 +9080,11 @@
         mon ? "" : this._row("Thermostat", this._v(esc(this._name(s.trv))), [(s.extra_trvs || []).length ? "Haupt-Thermostat" : "", s.valve_reported === false ? t("meldet keine Ventilöffnung") : ""].filter(Boolean).join(" · ")),
         !mon && (s.extra_trvs || []).length ? this._row("Weitere Thermostate", `<div class="chips">${s.extra_trvs.map((x) => `<span class="chip2" style="--c:${!x.available ? "var(--rk-cold)" : x.sync === "ok" ? "var(--rk-ok)" : "var(--rk-warn)"}" title="${esc(x.entity_id)}${x.setpoint_expected != null ? ` · ${t("erwartet {v}°", { v: fmt(x.setpoint_expected) })}` : ""}"><i></i>${esc(x.name)} · ${x.available ? `${fmt(x.temperature)}° → ${fmt(x.setpoint)}°${x.valve != null ? ` · ${fmt(x.valve, 0)} %` : ""}` : t("nicht erreichbar")}</span>`).join("")}</div>`, "bekommen dieselben Befehle, jedes mit eigener Prüfung und eigenem Korrekturwert – Offset für einen einzelnen Heizkörper unter „Heizquellen“ setzen") : "",
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
+        a.temperature_sensor ? this._row(
+          "Korrektur Raumfühler",
+          editable ? this._num(scope, "sensor_offset", this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0) : this._v(`${fmt(this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0, 1)} K`),
+          t("Zeigt der Fühler zu wenig oder zu viel an, hier ausgleichen: zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K. Raumklima rechnet überall mit dem korrigierten Wert.")
+        ) : "",
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
@@ -9103,7 +9133,21 @@
             t("Breite des Schaltbereichs – 0,5 K heißt: auf bei Ziel −0,25 K, zu bei Ziel +0,25 K")
           ) : "",
           mon ? "" : this._row("Einschalten mit", this._v(s.on_preset === "auto_detect" || !s.on_preset ? t("Automatisch") : t("Preset „{p}“", { p: esc(s.on_preset) }))),
-          mon ? "" : this._row("Ausschalten über", this._v(RK_OFF[s.off_method] || s.off_method || "–")),
+          mon ? "" : this._row(
+            "Ausschalten über",
+            editable ? this._select(scope, "off_method", Object.entries(RK_OFF).map(([k, v]) => ({ id: k, name: v })), s.off_method || "auto") : this._v(RK_OFF[s.off_method] || s.off_method || "–"),
+            s.off_method === "auto" && s.off_method_active ? t("gerade: {m}", { m: RK_OFF[s.off_method_active] || s.off_method_active }) : ""
+          ),
+          !mon && (s.off_method === "setpoint" || s.off_method_active === "setpoint") ? this._row(
+            "Aus-Sollwert",
+            editable ? this._num(scope, "off_temperature", this._roomOpt(r, "off_temperature") ?? s.off_temperature ?? 16) : this._v(`${fmt(s.off_temperature ?? 16)} °C`),
+            t("Dieser Sollwert gilt, wenn der Raum aus ist – z. B. 16 °C für eine ganze Heizanlage statt der Gerätegrenze")
+          ) : "",
+          mon ? "" : this._row(
+            "Betriebsart nie umschalten",
+            editable ? this._optToggle(scope, "keep_mode", !!(this._roomOpt(r, "keep_mode") ?? s.keep_mode)) : this._v(s.keep_mode ? t("ja") : t("nein")),
+            t("Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.")
+          ),
           mon ? "" : this._row("Drehen am Thermostat übernehmen", this._v(s.follow_trv ? t("ja") : t("nein")))
         ].join(""), r, ["fast_poll", "trv_interval"])
       ].join(""), `span cols`))}

@@ -300,6 +300,17 @@ class HealthMixin:
         cutoff = dt_util.utcnow() - timedelta(hours=24)
         return sum(1 for t in getattr(self, "_window_flips", ()) if t >= cutoff)
 
+    def valve_estimate(self) -> float | None:
+        """Geschätzte Öffnung für die Anzeige, wenn das Gerät keine meldet (#83). Ein Richtwert:
+        wie weit das Thermostat wirklich öffnet, entscheidet es selbst."""
+        try:
+            on, target, _reason = self.peek_plan()
+            heating = bool(on and self.hvac_on and not self.paused)
+            value = shadow_opening(target, self.current_temperature, heating=heating, **self.valve_terms(target))
+        except Exception:  # noqa: BLE001 – Anzeige darf nie stören
+            return None
+        return None if value is None else round(value)
+
     def valve_shadow(self) -> dict[str, Any]:
         """Schattenmodus: berechneter Öffnungsgrad neben dem, den das Gerät meldet.
 

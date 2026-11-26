@@ -719,6 +719,7 @@ class RaumklimaController(ReadingsMixin, ScheduleMixin, StatusMixin, ControlMixi
         value = to_float(state.state)
         if value is None:
             return False  # unavailable/unknown: letzten Wert behalten
+        value = round(value + self.sensor_offset, 2)  # Korrektur des Raumfühlers (#98)
         now = dt_util.utcnow()
         since = (now - self._ext_time).total_seconds() if self._ext_time else None
         if not plausible_reading(

@@ -6,7 +6,7 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_SENSOR_STALE_MINUTES
+from .const import CONF_SENSOR_OFFSET, CONF_SENSOR_STALE_MINUTES
 from .decision_log import CAT_DEVICE
 from .logic import (
     is_valid,
@@ -113,10 +113,17 @@ class ReadingsMixin:
         """Raumtemperatur: externer Fühler, ohne Fühler oder im Notfall das TRV."""
         if self.ext_sensor_ok:
             if self._ext_value is not None:
-                return self._ext_value
+                return self._ext_value  # schon mit Korrektur übernommen (_ingest_sensor, #98)
             state = self.hass.states.get(self.temp_sensor)
-            return to_float(state.state) if state is not None else None
+            value = to_float(state.state) if state is not None else None
+            return None if value is None else round(value + self.sensor_offset, 2)
         return self.trv_temperature
+
+    @property
+    def sensor_offset(self) -> float:
+        """Korrektur des Raumfühlers in K (#98): zeigt er 21,5, sind es aber 22,2, dann +0,7."""
+        value = to_float(self.config.get(CONF_SENSOR_OFFSET))
+        return 0.0 if value is None else max(-5.0, min(5.0, value))
 
     @property
     def current_humidity(self) -> float | None:

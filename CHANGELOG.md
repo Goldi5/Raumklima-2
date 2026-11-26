@@ -1,3 +1,19 @@
+## 2.0.1b29 – 2026-11-27
+
+### Neu
+- **Korrektur Raumfühler (#98):** Je Raum unter *Thermostat & Fühler*: misst der Fühler dauerhaft zu
+  wenig oder zu viel (zeigt 21,5 °C, real 22,2 °C → +0,7 K), rechnet Raumklima überall mit dem
+  korrigierten Wert – Regelung, Abgleich, Schimmelschutz, Anzeige.
+- **Ausschalten über „Fester Sollwert“ (#99):** Statt der Gerätegrenze (bei ViCare 3 °C) stellt
+  Raumklima das Gerät im Aus-Zustand auf einen eigenen Wert, z. B. 16 °C. „Ausschalten über“ lässt sich
+  jetzt direkt in der Einstellungskarte ändern.
+- **„Betriebsart nie umschalten“ (#99):** Raumklima schreibt nur noch Sollwerte und stellt nie Modus
+  oder Preset um – für eine Anlage, die das ganze Haus heizt (ViCare: „Heizen“ = Dauerbetrieb, „Aus“ =
+  auch kein Warmwasser). Ausschalten dann über Minimaltemperatur oder festen Sollwert.
+- **Ventil ≈ geschätzt (#83):** Meldet ein Thermostat keine Ventilstellung (z. B. Sonoff TRVZB), zeigt
+  die Raumkarte die von Raumklima geschätzte Öffnung, klar als „geschätzt“ markiert. Ein Richtwert –
+  wie weit das Gerät wirklich öffnet, entscheidet es selbst.
+
 ## 2.0.1b28 – 2026-11-26
 
 ### Verbessert

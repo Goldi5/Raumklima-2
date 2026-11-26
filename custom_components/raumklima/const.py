@@ -60,6 +60,12 @@ CONF_WINDOW_CLOSE_DELAY: Final = "window_close_delay"
 CONF_OFFSET_THRESHOLD: Final = "offset_threshold"
 CONF_OFFSET_MIN_INTERVAL: Final = "offset_min_interval"
 CONF_SENSOR_STALE_MINUTES: Final = "sensor_stale_minutes"
+# Korrektur des Raumfühlers in K (#98): Raumklima rechnet mit Messwert + Korrektur
+CONF_SENSOR_OFFSET: Final = "sensor_offset"
+# „Aus“ als fester Sollwert (#99) und: Betriebsart des Geräts nie umschalten (ganze Anlage)
+CONF_OFF_TEMP: Final = "off_temperature"
+CONF_KEEP_MODE: Final = "keep_mode"
+OFF_TEMP_DEFAULT: Final = 16.0
 # Wie der Sollwert ans Thermostat geht: über den Sollwert selbst oder über eine
 # Zahl-Entität (Tuya TRV602Z: preset "comfort" + comfort_temperature).
 CONF_TARGET_VIA: Final = "target_via"
@@ -434,10 +440,11 @@ OFF_AUTO: Final = "auto"
 OFF_PRESET: Final = "preset"
 OFF_HVAC: Final = "hvac"
 OFF_MIN_TEMP: Final = "min_temp"
+OFF_SETPOINT: Final = "setpoint"  # fester Sollwert statt Gerätegrenze (#99)
 # Integrationen, bei denen „Modus aus“ mehr abschaltet als die Heizung (ViCare: Standby = auch kein
 # Warmwasser, #58). „Automatisch“ schaltet dort über die Minimaltemperatur aus.
 KEEP_MODE_PLATFORMS: Final = ("vicare",)
-OFF_METHODS: Final = [OFF_AUTO, OFF_PRESET, OFF_HVAC, OFF_MIN_TEMP]
+OFF_METHODS: Final = [OFF_AUTO, OFF_PRESET, OFF_HVAC, OFF_MIN_TEMP, OFF_SETPOINT]
 
 DEFAULTS: Final = {
     CONF_CALIBRATION_MODE: CAL_OFFSET,
@@ -449,6 +456,9 @@ DEFAULTS: Final = {
     CONF_OFFSET_THRESHOLD: 0.3,
     CONF_OFFSET_MIN_INTERVAL: 5,
     CONF_SENSOR_STALE_MINUTES: 60,
+    CONF_SENSOR_OFFSET: 0.0,
+    CONF_OFF_TEMP: OFF_TEMP_DEFAULT,
+    CONF_KEEP_MODE: False,
     CONF_SYNC_VERIFY_DELAY: 20,
     CONF_SYNC_MAX_RETRIES: 5,
     CONF_FOLLOW_TRV: True,

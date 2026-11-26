@@ -145,6 +145,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
             "offset": c.offset,
             "sync": c.sync_state,
             "valve_position": c.valve_position,
+            # Ohne gemeldete Stellung (z. B. Sonoff TRVZB): Schätzung zur Anzeige, nie geschrieben (#83)
+            "valve_estimate": None if c.valve_position is not None or c.monitor else c.valve_estimate(),
             "valve_own": c.valve_own,
             "pm25": c.current_pm25,
             "offset_auto": round(c.shift, 2),
