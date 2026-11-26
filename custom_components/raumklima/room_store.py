@@ -43,6 +43,8 @@ class StoreMixin:
             "shading_closed": sorted(self._shading_closed),
             "shading_manual_until": iso(self._shading_manual_until),
             "dehumidifier": self.dehumidifier.dump() if hasattr(self, "dehumidifier") else None,
+            # Takt-Schutz der Klimaanlagen übersteht einen Neustart (#95)
+            "ac_last_change": {s.entity_id: iso(s._last_change) for s in getattr(self, "ac_sources", []) if s._last_change},
         }
 
     def _load_stored(self, stored: dict[str, Any]) -> None:
@@ -59,6 +61,12 @@ class StoreMixin:
         self._restored_night = parse_dt(stored.get("night_since"))
         # „leer seit“ überlebt einen Neustart (#87) – übernommen nur, wenn der Raum leer blieb
         self._restored_empty = parse_dt(stored.get("empty_since"))
+        ac_last = stored.get("ac_last_change") or {}
+        if isinstance(ac_last, dict):
+            for src in getattr(self, "ac_sources", []):
+                when = parse_dt(ac_last.get(src.entity_id))
+                if when is not None and src._last_change is None:
+                    src._last_change = when
         self.trv_on_preset = stored.get("trv_on_preset")
         self.preset_learned = stored.get("preset_learned")
         if stored.get("shift") is not None:

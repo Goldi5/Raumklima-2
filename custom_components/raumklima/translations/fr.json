@@ -222,7 +222,7 @@
         },
         "data_description": {
           "sync_verify_delay": "On vérifie alors si le TRV a appliqué la commande ; sinon elle est répétée à intervalles croissants. Utile en cas de courtes coupures de connexion.",
-          "sensor_stale_minutes": "Ensuite, le TRV utilise sa propre sonde et l’état affiche un avertissement."
+          "sensor_stale_minutes": "Seulement si la sonde n’envoie rien pendant cette durée (au moins 2 h) alors que le thermostat varie d’au moins 2,5 K – la pièce est alors régulée avec la sonde du thermostat. Une valeur stable d’une sonde qui n’envoie qu’en cas de changement reste valable."
         }
       },
       "notifications": {

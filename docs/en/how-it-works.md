@@ -169,9 +169,12 @@ brakes therefore apply:
    humidity that is already outside.
 2. **Hourly budget.** The setpoint is only raised when the wall surface was above 80 % for at
    least **2 hours** within the last 24. One hour after a shower is no mould risk.
-3. **Cap.** At most **wish + 2.5 K**, at night only **+1.5 K** (nobody can air then). When the cap
+3. **Cap.** At most **wish + 1.5 K**, at night only **+0.5 K** (nobody can air then). When the cap
    applies, the room says: "Humidity too high for this wall · 63 % (24 h average), 4.1 h
    critical – please air". The uplift is configurable per room (0–6 K, 0 = off).
+4. **Airing beats heating.** If outdoor air is clearly drier (at least 2 g/m³) and humidity is
+   below 65 % without a mould warning, the protection does not heat at all – airing dries in
+   minutes, heating would take hours. Without outdoor values the protection stays active.
 
 In addition, "room is not warming up" is no longer reported while the cap applies – the room
 cannot reach a target that comes from humidity, not from a faulty radiator.

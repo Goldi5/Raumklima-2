@@ -41,16 +41,23 @@ export class RaumklimaHistoryCard extends HTMLElement {
     const first = !this._hass;
     this._hass = hass;
     setLang(hass);
-    if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
+    // Raumliste jedes Mal frisch: kam die Karte zu früh (nach Neustart) oder kam ein Raum dazu,
+    // fehlten sonst Räume bis zum Neuladen der Seite – und die Werte in der Legende blieben stehen (#93).
+    const fresh = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
+    this._rooms = this._layout ? rkRoomsOrdered(fresh, this._layout) : fresh;
+    const roomKey = fresh.map((r) => r.id).sort().join("|");
+    const changed = roomKey !== this._roomKey;
+    this._roomKey = roomKey;
     // Gepflegte Reihenfolge aus „Darstellung": die Legende soll wie die Übersicht sortieren.
-    if (!this._layout) {
+    if (!this._layout && !this._layoutLoading) {
+      this._layoutLoading = true;
       rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
         this._layout = L;
         this._rooms = rkRoomsOrdered(this._rooms || [], L);
         this._draw();
       });
     }
-    if (first) this._load(); else this._draw(true);
+    if (first || changed) this._load(); else this._draw(true);
   }
 
   _entities() {

@@ -228,8 +228,8 @@ export const RoomMethods = {
           ? this._row(
               "Höchstens anheben um",
               editable
-                ? this._num(scope, "mold_cap", this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)
-                : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)} K`),
+                ? this._num(scope, "mold_cap", this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 1.5)
+                : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 1.5)} K`),
               t("Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)"), this._srcBadge(r, "mold_cap"),
             )
           : "",

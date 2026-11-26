@@ -222,7 +222,7 @@
         },
         "data_description": {
           "sync_verify_delay": "Then it is checked whether the TRV applied the command; otherwise it is repeated with growing intervals. Helps with short connection drops.",
-          "sensor_stale_minutes": "Afterwards the TRV uses its own sensor and the status shows a warning."
+          "sensor_stale_minutes": "Only if the sensor sends nothing at all for this long (at least 2 h) while the thermostat moves by 2.5 K or more – then the room is controlled with the thermostat sensor. A steady value from a sensor that only reports changes stays valid."
         }
       },
       "notifications": {

@@ -1,3 +1,29 @@
+## 2.0.1b26 – 2026-11-26
+
+### Behoben
+- **Schimmelschutz heizt nicht mehr gegen trockene Winterluft an (#89):** Bei −4 °C draußen und
+  56 % Feuchte verlangte die DIN-Rechnung für eine sanierte Außenwand rund 24 °C – Raumklima hob
+  das Wohnzimmer nachts auf 23,5 °C, obwohl die Lüftungslogik gleichzeitig „kein Schimmelrisiko,
+  Lüften trocknet sehr gut“ meldete. Jetzt gilt: Ist die Außenluft deutlich trockener (≥ 2 g/m³)
+  und liegt die Feuchte unter 65 % ohne Schimmelwarnung, wird **nicht angeheizt** – Lüften wirkt in
+  Minuten. Ohne Außenwerte bleibt der Schutz wie bisher.
+- **Schimmelschutz-Deckel kleiner:** höchstens Wunsch **+1,5 K** (bisher 2,5 K), nachts **+0,5 K**
+  (bisher 1,5 K). Wer einen eigenen Wert eingestellt hat, behält ihn.
+- **Hängender Raumfühler (#94):** `sensor_stale_minutes` hatte keine Wirkung. Sendet der Fühler so
+  lange (mindestens 2 h) gar nichts, bleibt sein Wert stehen und bewegt sich das Thermostat dabei um
+  2,5 K oder mehr, regelt Raumklima mit dem Thermostatfühler (Notbetrieb, im Protokoll vermerkt).
+  Ein ruhiger, gültiger Wert eines Fühlers, der nur bei Änderung sendet, bleibt gültig (#14).
+- **Raum hinzufügen / Einrichtungsassistent (#92):** Halb ausgefüllte Felder wurden beim Neuzeichnen
+  der Karte geleert, und ein Klick auf „Weiter“ oder „Raum hinzufügen“ ging verloren, wenn genau in
+  dem Moment neu gezeichnet wurde. Solange eine Taste oder ein Finger gedrückt ist, zeichnet die Karte
+  jetzt nicht neu; Eingaben im Feld „neuer Raum“ und im Assistenten bleiben erhalten.
+- **Verlauf-Karte (#93):** Merkte sich die Räume nur beim ersten Laden – kam sie nach einem Neustart
+  zu früh, blieb sie leer, ein neuer Raum fehlte bis zum Neuladen der Seite, und die Werte in der
+  Legende blieben stehen. Die Raumliste wird jetzt laufend übernommen.
+- **Klimaanlage als Heizquelle (#95):** Der Sollwert wird nur noch geschrieben, wenn er sich ändert
+  (bisher in jedem Regelzyklus – mit Bestätigungston hörbar). Der Takt-Schutz (Mindestlaufzeit/
+  -pause) übersteht einen Neustart.
+
 ## 2.0.1b25 – 2026-11-25
 
 ### Behoben

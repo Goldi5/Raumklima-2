@@ -32,6 +32,8 @@ from .room_const import (
     MOISTURE_COOLDOWN,
     MOISTURE_RH_RISE,
     MOISTURE_RISE,
+    MOLD_AIRING_MARGIN,
+    MOLD_AIRING_RH,
     MOLD_CAP_DEFAULT,
     MOLD_CAP_NIGHT,
     MOLD_EXEMPT,
@@ -57,7 +59,8 @@ class MoldMixin:
 
         * offenes Fenster: kein Boden (Heizen gegen ein offenes Fenster ist Verschwendung)
         * Stundenbudget: nur wenn die Wandfläche über längere Zeit über 80 % lag
-        * Deckel: höchstens Wunsch + 2,5 K (nachts 1,5 K), weil Heizen kein Feuchteproblem löst
+        * Deckel: höchstens Wunsch + 1,5 K (nachts 0,5 K), weil Heizen kein Feuchteproblem löst
+        * Lüften trocknet deutlich und keine Schimmelwarnung: gar nicht anheizen (#89)
         """
         mode = self.config.get(CONF_MOLD_MODE) or MOLD_STRICT
         window_open = bool(self.paused or self.window_paused)
@@ -73,6 +76,12 @@ class MoldMixin:
             self._mold_capped = False
             return on, target, reason
         if hub is None:
+            return on, target, reason
+        if self._mold_airing_better():
+            # Lüften trocknet hier viel wirksamer als Heizen – nicht gegen die Feuchte anheizen (#89)
+            self._mold_raw = None
+            self._mold_capped = False
+            self._mold_hold(False)
             return on, target, reason
         mold = self.mold_min(hub)
         if mold is None:
@@ -101,6 +110,27 @@ class MoldMixin:
             return on, target, reason
         self._mold_hold(True)
         return True, min(mold, self.trv_max), REASON_MOLD
+
+    def _mold_airing_better(self) -> bool:
+        """Trocknet Lüften deutlich, ohne dass die Lüftungslogik ein Schimmelrisiko sieht?
+
+        Dann heizt der Schimmelschutz nicht: bei 56 % Feuchte und −4 °C draußen verlangte die
+        DIN-Rechnung 24 °C im Wohnzimmer, während Lüften die Luft in Minuten trocknet (#89).
+        Ohne Außenwerte bleibt es beim Schutz – dann wissen wir nicht, ob Lüften hilft.
+        """
+        vent = getattr(self, "vent", None)
+        if vent is None:
+            return False
+        try:
+            if vent.mold_risk:
+                return False
+            indoor, outdoor = vent.abs_humidity, vent.outdoor_abs_humidity
+        except Exception:  # noqa: BLE001 – Lüftung noch nicht bereit
+            return False
+        rh = self.current_humidity
+        if indoor is None or outdoor is None or rh is None or rh >= MOLD_AIRING_RH:
+            return False
+        return outdoor + MOLD_AIRING_MARGIN <= indoor
 
     @property
     def dehumidifier_suppresses_mold(self) -> bool:

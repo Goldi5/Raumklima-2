@@ -125,3 +125,42 @@ async def test_aussenwand_ist_kritischer_als_innenwand(hass: HomeAssistant, setu
     assert ctrl.room_frsi < 0.8
     ctrl.config[CONF_WALL] = "interior"
     assert ctrl.room_frsi > 0.8
+
+
+# ---------------------------------------------------------------- F) Lüften schlägt Heizen (#89)
+async def test_trockene_aussenluft_heizt_nicht_gegen_56_prozent(hass: HomeAssistant, setup, monkeypatch) -> None:
+    """−4 °C draußen, 56 % drinnen: DIN verlangt rechnerisch ~24 °C – Lüften trocknet viel besser."""
+    from custom_components.raumklima.vent_manager import VentilationManager
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    ctrl.config["mold_mode"] = "strict"
+    ctrl.target_temp = 22.0
+    _wire(hass, ctrl, hub, temp=21.5, humidity=56.0, outside=-4.3)
+    _feed(ctrl.mold_guard, 8, 56.0, 85.0)
+    monkeypatch.setattr(VentilationManager, "outdoor_abs_humidity", property(lambda self: 3.2))
+    _on, target, reason = ctrl.plan()
+    assert reason != "mold", "bei trockener Außenluft nicht gegen 56 % anheizen"
+    assert target == 22.0
+
+    # ohne Außenwerte (unbekannt) bleibt der Schutz wie bisher
+    monkeypatch.setattr(VentilationManager, "outdoor_abs_humidity", property(lambda self: None))
+    assert ctrl._mold_airing_better() is False
+
+
+async def test_hohe_feuchte_schuetzt_trotz_trockener_aussenluft(hass: HomeAssistant, setup, monkeypatch) -> None:
+    """Ab 65 % bleibt der Boden, auch wenn Lüften trocknen würde – dann ist es ernst."""
+    from custom_components.raumklima.vent_manager import VentilationManager
+
+    _hub, room = setup
+    ctrl = domain_data(hass)["rooms"][room.entry_id]
+    hub = get_hub(hass, None)
+    ctrl.config["mold_mode"] = "strict"
+    ctrl.config[CONF_WALL] = "corner"
+    ctrl.target_temp = 19.0
+    _wire(hass, ctrl, hub, temp=19.0, humidity=70.0, outside=-2.0)
+    _feed(ctrl.mold_guard, 8, 70.0, 92.0)
+    monkeypatch.setattr(VentilationManager, "outdoor_abs_humidity", property(lambda self: 2.0))
+    assert ctrl._mold_airing_better() is False
+    assert ctrl.plan()[2] == "mold"

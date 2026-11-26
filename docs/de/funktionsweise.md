@@ -176,9 +176,12 @@ Deshalb greifen drei Bremsen:
    Feuchte geheizt, die längst draußen ist.
 2. **Stundenbudget.** Angehoben wird erst, wenn die Wandfläche in den letzten 24 Stunden
    mindestens **2 Stunden** über 80 % lag. Eine Stunde nach dem Duschen ist kein Schimmelrisiko.
-3. **Deckel.** Höchstens **Wunsch + 2,5 K**, nachts nur **+1,5 K** (dann kann niemand lüften).
+3. **Deckel.** Höchstens **Wunsch + 1,5 K**, nachts nur **+0,5 K** (dann kann niemand lüften).
    Greift der Deckel, steht am Raum: „Feuchte zu hoch für die Wand · 63 % im Tagesmittel,
    4,1 h kritisch – bitte lüften". Der Zuschlag ist je Raum einstellbar (0–6 K, 0 = aus).
+4. **Lüften schlägt Heizen.** Ist die Außenluft deutlich trockener (mindestens 2 g/m³) und liegt
+   die Feuchte unter 65 % ohne Schimmelwarnung, heizt der Schutz gar nicht – Lüften trocknet dann in
+   Minuten, Heizen bräuchte Stunden. Ohne Außenwerte bleibt der Schutz wie gewohnt aktiv.
 
 Zusätzlich wird beim Überschreiten des Deckels **kein** „Raum wird nicht warm" mehr gemeldet –
 der Raum kann das Ziel nicht halten, weil es aus der Feuchte kommt, nicht aus einem defekten

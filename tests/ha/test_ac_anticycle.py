@@ -86,3 +86,37 @@ async def test_summary_has_anti_cycling_values(hass: HomeAssistant, trv, sensors
     assert summary["min_on"] == 15
     assert summary["min_off"] == 20
     assert "last_change" in summary and "on_since" in summary
+
+
+async def test_sollwert_nur_bei_aenderung(hass: HomeAssistant, trv, sensors) -> None:
+    """#95: kein set_temperature je Regelzyklus, wenn der Sollwert schon stimmt (Piepton an der Anlage)."""
+    _room, ctrl = await _setup_room(hass)
+    hass.states.async_set(
+        AC, "heat",
+        {"hvac_modes": ["heat", "cool", "off"], "min_temp": 16, "max_temp": 30, "target_temp_step": 1.0, "temperature": 22.0},
+    )
+    ac = AcSource(ctrl, {"entity": AC, "name": "AC"})
+    calls = []
+
+    async def call(domain, service, data, blocking=False):
+        calls.append(service)
+
+    with patch("homeassistant.core.ServiceRegistry.async_call", new=AsyncMock(side_effect=call)):
+        await ac.apply(True, 22.0)
+        assert "set_temperature" not in calls
+        await ac.apply(True, 24.0)
+        assert calls.count("set_temperature") == 1
+
+
+async def test_takt_schutz_uebersteht_neustart(hass: HomeAssistant, trv, sensors) -> None:
+    _room, ctrl = await _setup_room(hass, **{CONF_AC_MIN_ON: 60, CONF_AC_MIN_OFF: 60})
+    ac = _ac(hass, ctrl)
+    ctrl.ac_sources = [ac]
+    ac._last_change = dt_util.utcnow() - timedelta(minutes=10)
+    data = ctrl._stored_data()
+    assert AC in data["ac_last_change"]
+    fresh = AcSource(ctrl, {"entity": AC, "name": "AC"})
+    ctrl.ac_sources = [fresh]
+    ctrl._load_stored(data)
+    assert fresh._last_change is not None
+    assert fresh._blocked(dt_util.utcnow(), True) is True  # Mindestpause läuft noch

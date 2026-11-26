@@ -6,10 +6,14 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
+from .const import CONF_SENSOR_STALE_MINUTES
+from .decision_log import CAT_DEVICE
 from .logic import (
     is_valid,
     to_float,
 )
+from .msg import dec, tr
+from .room_const import FROZEN_FALLBACK_DELTA, FROZEN_MIN_MINUTES
 
 
 class ReadingsMixin:
@@ -46,13 +50,46 @@ class ReadingsMixin:
         state = self.hass.states.get(self.temp_sensor)
         if state is None or not is_valid(state.state):
             return False
+        if self.ext_sensor_frozen:
+            return False  # hängt nachweislich – Notbetrieb mit dem Thermostatfühler (#94)
         # Ein gültiger Zustand genügt: der gemerkte Wert kann fehlen, wenn der Fühler beim Start
         # der Zentrale noch nicht bereit war (Tuya ZTH01 meldet erst Minuten später) – Issue #10.
         return self._ext_value is not None or to_float(state.state) is not None
 
     @property
+    def ext_sensor_frozen(self) -> bool:
+        """Hängt der Raumfühler (#94)? Nur wenn drei Dinge zusammenkommen:
+
+        * seit ``sensor_stale_minutes`` (mind. 2 h) keine einzige Meldung des Fühlers,
+        * sein Wert seit dieser Zeit unverändert,
+        * und das Thermostat hat sich in der Zeit um mindestens 2,5 K bewegt.
+
+        Ein ruhiger, gültiger Wert bleibt damit gültig (#11/#14: batteriebetriebene Fühler senden nur
+        bei Änderung) – ein ausgefallener Fühler, der nur seinen letzten Wert stehen lässt, nicht.
+        """
+        changed = getattr(self, "_ext_changed_at", None)
+        trv_then = getattr(self, "_trv_at_ext_change", None)
+        trv_now = self.trv_temperature
+        age = self.sensor_age_minutes
+        frozen = False
+        if changed is not None and trv_then is not None and trv_now is not None and age is not None:
+            limit = max(float(self.config.get(CONF_SENSOR_STALE_MINUTES) or 60), FROZEN_MIN_MINUTES)
+            unchanged = (dt_util.utcnow() - changed).total_seconds() / 60
+            frozen = age >= limit and unchanged >= limit and abs(trv_now - trv_then) >= FROZEN_FALLBACK_DELTA
+        if frozen != getattr(self, "_ext_frozen_logged", False):
+            self._ext_frozen_logged = frozen
+            self.log(
+                CAT_DEVICE,
+                tr("Raumfühler hängt – geregelt wird mit dem Thermostatfühler") if frozen else tr("Raumfühler meldet sich wieder"),
+                tr("Seit {m} min keine Meldung, das Thermostat hat sich um {d} K bewegt", m=f"{age:.0f}", d=dec(abs(trv_now - trv_then)))
+                if frozen else None,
+                level="warning" if frozen else "info",
+            )
+        return frozen
+
+    @property
     def sensor_age_minutes(self) -> float | None:
-        """Minuten seit der letzten Meldung des Fühlers (nur für Diagnose/Protokoll)."""
+        """Minuten seit der letzten Meldung des Fühlers (auch für ``ext_sensor_frozen``)."""
         state = self.hass.states.get(self.temp_sensor)
         if state is None:
             return None

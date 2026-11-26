@@ -1,4 +1,4 @@
-import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_VERSION, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_PREHEAT, RK_QUIET, RK_SCHED_FALLBACK, RK_OFF, RK_PKIND, RK_WALL, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkEnhanceSelects, rkPaint, rkPretty, rkRooms, rkRoomsOrdered, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
+import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_VERSION, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_PREHEAT, RK_QUIET, RK_SCHED_FALLBACK, RK_OFF, RK_PKIND, RK_WALL, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkEnhanceSelects, rkPaint, rkPointerHeld, rkPretty, rkTrackPointer, rkRooms, rkRoomsOrdered, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../shared.js";
 import { HELP } from "../help.js";
 import { RK_NUM } from "../fields.js";
 import { getLang } from "../i18n.js";
@@ -73,6 +73,7 @@ export class RaumklimaSettingsCard extends HTMLElement {
     // Punkt 3 von außen: Ein Neuzeichnen während des Tippens verschluckt den Tipp.
     // Solange der Dialog offen ist, bleibt das DOM stehen; Statuszeile wird direkt gesetzt.
     if (this._sheet) return;
+    if (rkPointerHeld(this, () => this._render())) return;
     if (rkScrolling()) { rkLater(this, () => this._render()); return; }
     this._render();
   }
@@ -81,7 +82,11 @@ export class RaumklimaSettingsCard extends HTMLElement {
     if (rkBusy(this)) {
       if (!this._waiting) {
         this._waiting = true;
-        this.shadowRoot.addEventListener("focusout", () => { this._waiting = false; setTimeout(() => this._render(), 50); }, { once: true });
+        this.shadowRoot.addEventListener("focusout", () => {
+          this._waiting = false;
+          // Fokus geht oft durch den Druck auf einen Knopf verloren: erst nach dem Loslassen zeichnen (#92)
+          if (!rkPointerHeld(this, () => this._render())) setTimeout(() => this._render(), 50);
+        }, { once: true });
       }
       return true;
     }
@@ -335,6 +340,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
   // ---------------------------------------------------------------- Rendern
   _render() {
     if (!this._hass || !this._rooms) return;
+    rkTrackPointer(this);
+    // Eingaben im Assistenten vor dem Neuzeichnen übernehmen, sonst sind sie weg (#92)
+    if (this._onboardOpen && this._onboardCollect) this._onboardCollect();
     if (this._pro === undefined) {
       try { this._pro = localStorage.getItem("raumklima-settings-pro") === "1"; } catch (e) { this._pro = false; }
     }
@@ -468,9 +476,9 @@ export class RaumklimaSettingsCard extends HTMLElement {
     const climates = choices.climate || [];
     const temps = choices.outdoor || [];
     const addRow = this._admin ? `<div class="addrow">
-      <input class="inp" id="newRoomName" placeholder="${t("Name des neuen Raums")}" maxlength="40">
-      <select class="sel" id="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
-      <select class="sel" id="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
+      <input class="inp" id="newRoomName" data-draft="newRoomName" placeholder="${t("Name des neuen Raums")}" maxlength="40">
+      <select class="sel" id="newRoomTrv" data-draft="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
+      <select class="sel" id="newRoomTemp" data-draft="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
       <button class="btn" data-addroom style="--c:var(--rk-heat)"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
       <button class="btn" data-onboard style="--c:var(--rk-eco)"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Assistent")}</button>
     </div>` : "";

@@ -222,7 +222,7 @@
         },
         "data_description": {
           "sync_verify_delay": "Danach wird geprüft, ob das TRV den Befehl übernommen hat. Sonst wird wiederholt (Abstand wächst mit jedem Versuch). Hilft bei kurzen Verbindungsabbrüchen.",
-          "sensor_stale_minutes": "Danach regelt das TRV mit eigenem Sensor weiter und der Status zeigt eine Warnung."
+          "sensor_stale_minutes": "Nur wenn der Fühler so lange (mindestens 2 h) gar nichts sendet und sich das Thermostat in der Zeit um 2,5 K oder mehr bewegt – dann regelt Raumklima mit dem Thermostatfühler. Ein ruhiger Wert eines Fühlers, der nur bei Änderung sendet, bleibt gültig."
         }
       },
       "notifications": {

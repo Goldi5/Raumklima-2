@@ -22,7 +22,7 @@ export const RK_GROUP_META = {
 };
 // Standardwerte, die das Backend nicht als Option führt (leer = dieser Wert)
 export const RK_IMPLICIT = {
-  preheat_mode: "auto", quiet_mode: "auto", mold_cap: 2.5, wall: "auto", night_airing: "auto", virtual_window: "auto",
+  preheat_mode: "auto", quiet_mode: "auto", mold_cap: 1.5, wall: "auto", night_airing: "auto", virtual_window: "auto",
   co2_limit: 1000, trv_interval: 0, fast_poll: false, schedule_fallback: "wish", override_minutes: 120, boost_sources: "selected",
   airing_min_minutes: 0, long_airing_minutes: 20, long_airing_remind: 90, airing_occupied_only: true,
   home_office_from: "08:00", home_office_to: "17:00", home_office_check: true, home_sensors: "mmwave", work_zone_minutes: 5,

@@ -115,8 +115,15 @@ MESSAGE_MOISTURE_DAMP = (
 # Ab wie vielen Stunden kritischer Wandfeuchte (in 24 h) der Schutz anhebt
 MOLD_MIN_HOURS = 2.0
 # Deckel über dem Wunsch: tagsüber 2,5 K, nachts 1,5 K (dann lüftet niemand)
-MOLD_CAP_DEFAULT = 2.5
-MOLD_CAP_NIGHT = 1.5
+MOLD_CAP_DEFAULT = 1.5  # höchstens Wunsch + 1,5 K (bis 2.0.1b25: 2,5 K, #89)
+MOLD_CAP_NIGHT = 0.5  # nachts höchstens + 0,5 K (bis 2.0.1b25: 1,5 K)
+# Lüften schlägt Heizen (#89): trocknet die Außenluft deutlich (≥ 2 g/m³ trockener) und liegt die
+# Feuchte unter dieser Grenze ohne Schimmelwarnung, heizt der Schimmelschutz nicht gegen die Feuchte.
+MOLD_AIRING_MARGIN = 2.0
+MOLD_AIRING_RH = 65.0
+# Hängender Raumfühler (#94): Notbetrieb erst nach mind. 2 h ohne Meldung und 2,5 K Bewegung am TRV
+FROZEN_MIN_MINUTES = 120.0
+FROZEN_FALLBACK_DELTA = 2.5
 MOISTURE_RISE = 1.2
 MOISTURE_RH_RISE = 3  # und die relative Feuchte muss sichtbar steigen (Prozentpunkte)
 MOISTURE_COOLDOWN = timedelta(hours=12)
@@ -305,7 +312,7 @@ IMPLICIT_DEFAULTS: dict[str, Any] = {
     CONF_SOLAR: False,
     CONF_SOLAR_FACADE: "",
     CONF_LIGHT_SIGNALS: list(DEFAULT_LIGHT_SIGNALS),
-    CONF_MOLD_CAP: 2.5,
+    CONF_MOLD_CAP: MOLD_CAP_DEFAULT,
     CONF_WALL: "auto",
     CONF_CO2_LIMIT: 1000,
     CONF_NOTIFY_CAP: 3,

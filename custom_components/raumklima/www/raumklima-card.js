@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b25 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b26 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -3573,7 +3573,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b25";
+  var RK_VERSION = "2.0.1b26";
 
   // src/styles.js
   var STYLES = `
@@ -4764,7 +4764,18 @@
     if (root.querySelectorAll) root.querySelectorAll("details").forEach((d) => {
       if (!own(d)) opened.set(keyOf(d), d.open);
     });
+    const drafts = /* @__PURE__ */ new Map();
+    if (root.querySelectorAll) root.querySelectorAll("[data-draft]").forEach((el) => {
+      if (el.value) drafts.set(el.dataset.draft, el.value);
+    });
     root.innerHTML = html;
+    if (drafts.size) {
+      root.querySelectorAll("[data-draft]").forEach((el) => {
+        const v = drafts.get(el.dataset.draft);
+        if (v !== void 0 && !el.value) el.value = v;
+        else if (v !== void 0 && el.tagName === "SELECT") el.value = v;
+      });
+    }
     if (opened.size) {
       root.querySelectorAll("details").forEach((d) => {
         if (own(d)) return;
@@ -4800,6 +4811,27 @@
   function rkBusy(host) {
     const a = host.shadowRoot && host.shadowRoot.activeElement;
     return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
+  }
+  function rkTrackPointer(host) {
+    if (host._rkPtrTracked || !host.shadowRoot || !host.shadowRoot.addEventListener) return;
+    host._rkPtrTracked = true;
+    host.shadowRoot.addEventListener("pointerdown", () => {
+      host._rkPtr = true;
+    }, true);
+    const up = () => {
+      if (!host._rkPtr) return;
+      host._rkPtr = false;
+      const after = host._rkAfterPtr;
+      host._rkAfterPtr = null;
+      if (after) setTimeout(after, 60);
+    };
+    window.addEventListener("pointerup", up, true);
+    window.addEventListener("pointercancel", up, true);
+  }
+  function rkPointerHeld(host, after) {
+    if (!host._rkPtr) return false;
+    host._rkAfterPtr = after;
+    return true;
   }
   var fmt = (v, d = 1) => v === null || v === void 0 || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
   var humTone = (h) => h === null || h === void 0 ? "off" : h < 40 ? "warn" : h <= 60 ? "ok" : h < 70 ? "warn" : "cold";
@@ -5637,15 +5669,20 @@
       const first = !this._hass;
       this._hass = hass;
       setLang(hass);
-      if (first || !this._rooms) this._rooms = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
-      if (!this._layout) {
+      const fresh = rkRooms(hass, this._config.strip_prefix || "", rkHomeId(hass, this._config));
+      this._rooms = this._layout ? rkRoomsOrdered(fresh, this._layout) : fresh;
+      const roomKey = fresh.map((r) => r.id).sort().join("|");
+      const changed = roomKey !== this._roomKey;
+      this._roomKey = roomKey;
+      if (!this._layout && !this._layoutLoading) {
+        this._layoutLoading = true;
         rkLayout(hass, rkHomeId(hass, this._config)).then((L) => {
           this._layout = L;
           this._rooms = rkRoomsOrdered(this._rooms || [], L);
           this._draw();
         });
       }
-      if (first) this._load();
+      if (first || changed) this._load();
       else this._draw(true);
     }
     _entities() {
@@ -6814,7 +6851,7 @@
   var RK_IMPLICIT = {
     preheat_mode: "auto",
     quiet_mode: "auto",
-    mold_cap: 2.5,
+    mold_cap: 1.5,
     wall: "auto",
     night_airing: "auto",
     virtual_window: "auto",
@@ -8829,7 +8866,7 @@
         this._more("mold-more", "Weitere Einstellungen", [
           moldMode !== "off" ? this._row(
             "Höchstens anheben um",
-            editable ? this._num(scope, "mold_cap", this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5) : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 2.5)} K`),
+            editable ? this._num(scope, "mold_cap", this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 1.5) : this._v(`${fmt(this._roomOpt(r, "mold_cap") ?? s.mold_cap ?? 1.5)} K`),
             t("Heizen löst kein Feuchteproblem: über diesem Zuschlag wird nicht weiter geheizt, sondern zum Lüften geraten (nachts 1,5 K)"),
             this._srcBadge(r, "mold_cap")
           ) : "",
@@ -10105,6 +10142,10 @@
           this._tab = "general";
           this._section = "rooms";
           this._roomTab = "overview";
+          for (const id of ["newRoomName", "newRoomTrv"]) {
+            const f = this.shadowRoot.getElementById(id);
+            if (f) f.value = "";
+          }
           this._flash(t("Raum „{n}“ angelegt", { n: name }));
           await this._load();
           if (r && r.entry_id) this._gotoRoomByEntry(r.entry_id);
@@ -10882,6 +10923,7 @@
       if (sig === this._sig) return;
       this._sig = sig;
       if (this._sheet) return;
+      if (rkPointerHeld(this, () => this._render())) return;
       if (rkScrolling()) {
         rkLater(this, () => this._render());
         return;
@@ -10894,7 +10936,7 @@
           this._waiting = true;
           this.shadowRoot.addEventListener("focusout", () => {
             this._waiting = false;
-            setTimeout(() => this._render(), 50);
+            if (!rkPointerHeld(this, () => this._render())) setTimeout(() => this._render(), 50);
           }, { once: true });
         }
         return true;
@@ -11164,6 +11206,8 @@
     // ---------------------------------------------------------------- Rendern
     _render() {
       if (!this._hass || !this._rooms) return;
+      rkTrackPointer(this);
+      if (this._onboardOpen && this._onboardCollect) this._onboardCollect();
       if (this._pro === void 0) {
         try {
           this._pro = localStorage.getItem("raumklima-settings-pro") === "1";
@@ -11295,9 +11339,9 @@
       const climates = choices.climate || [];
       const temps = choices.outdoor || [];
       const addRow = this._admin ? `<div class="addrow">
-      <input class="inp" id="newRoomName" placeholder="${t("Name des neuen Raums")}" maxlength="40">
-      <select class="sel" id="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
-      <select class="sel" id="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
+      <input class="inp" id="newRoomName" data-draft="newRoomName" placeholder="${t("Name des neuen Raums")}" maxlength="40">
+      <select class="sel" id="newRoomTrv" data-draft="newRoomTrv"><option value="">${t("Nur messen")}</option>${climates.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
+      <select class="sel" id="newRoomTemp" data-draft="newRoomTemp">${temps.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
       <button class="btn" data-addroom style="--c:var(--rk-heat)"><ha-icon icon="mdi:plus"></ha-icon>${t("Raum hinzufügen")}</button>
       <button class="btn" data-onboard style="--c:var(--rk-eco)"><ha-icon icon="mdi:rocket-launch-outline"></ha-icon>${t("Assistent")}</button>
     </div>` : "";

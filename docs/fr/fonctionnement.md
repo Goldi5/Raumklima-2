@@ -169,8 +169,11 @@ l'humidité.** Trois freins s'appliquent :
    d'humidité ne s'applique – et le temps d'aération n'entre pas dans la moyenne sur 24 h.
 2. **Budget horaire.** La consigne n'est relevée que si la paroi est restée au-dessus de 80 %
    pendant au moins **2 heures** sur les 24 dernières.
-3. **Plafond.** Au maximum **consigne + 2,5 K**, la nuit seulement **+1,5 K**. Quand le plafond
+3. **Plafond.** Au maximum **consigne + 1,5 K**, la nuit seulement **+0,5 K**. Quand le plafond
    s'applique, la pièce affiche : « Humidité trop élevée pour ce mur · 63 % (moyenne 24 h),
    4,1 h critiques – aérez ». La hausse est réglable par pièce (0–6 K, 0 = désactivé).
+4. **Aérer plutôt que chauffer.** Si l’air extérieur est nettement plus sec (au moins 2 g/m³) et
+   l’humidité sous 65 % sans alerte moisissure, la protection ne chauffe pas : aérer sèche en
+   quelques minutes. Sans valeurs extérieures, la protection reste active.
 
 De plus, « la pièce ne chauffe pas » n'est plus signalé lorsque le plafond s'applique.

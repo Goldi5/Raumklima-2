@@ -360,7 +360,17 @@ export function rkPaint(host, html) {
     || `${d.className}|${((d.querySelector("summary") || {}).textContent || "").trim().slice(0, 80)}`;
   const opened = new Map();
   if (root.querySelectorAll) root.querySelectorAll("details").forEach((d) => { if (!own(d)) opened.set(keyOf(d), d.open); });
+  // Halb ausgefüllte Felder (data-draft) überleben das Neuzeichnen (#92)
+  const drafts = new Map();
+  if (root.querySelectorAll) root.querySelectorAll("[data-draft]").forEach((el) => { if (el.value) drafts.set(el.dataset.draft, el.value); });
   root.innerHTML = html;
+  if (drafts.size) {
+    root.querySelectorAll("[data-draft]").forEach((el) => {
+      const v = drafts.get(el.dataset.draft);
+      if (v !== undefined && !el.value) el.value = v;
+      else if (v !== undefined && el.tagName === "SELECT") el.value = v;
+    });
+  }
   if (opened.size) {
     root.querySelectorAll("details").forEach((d) => {
       if (own(d)) return;
@@ -395,6 +405,27 @@ export function rkChanged(host, hass, ids) {
 export function rkBusy(host) {
   const a = host.shadowRoot && host.shadowRoot.activeElement;
   return !!a && ["INPUT", "SELECT", "TEXTAREA"].includes(a.tagName);
+}
+// Ist gerade eine Maustaste/ein Finger auf der Karte gedrückt? Dann nicht neu zeichnen – sonst landet
+// der Klick auf einem Knopf, den es nicht mehr gibt (#92). ``after`` läuft nach dem Loslassen.
+export function rkTrackPointer(host) {
+  if (host._rkPtrTracked || !host.shadowRoot || !host.shadowRoot.addEventListener) return;
+  host._rkPtrTracked = true;
+  host.shadowRoot.addEventListener("pointerdown", () => { host._rkPtr = true; }, true);
+  const up = () => {
+    if (!host._rkPtr) return;
+    host._rkPtr = false;
+    const after = host._rkAfterPtr;
+    host._rkAfterPtr = null;
+    if (after) setTimeout(after, 60); // erst den Klick ankommen lassen
+  };
+  window.addEventListener("pointerup", up, true);
+  window.addEventListener("pointercancel", up, true);
+}
+export function rkPointerHeld(host, after) {
+  if (!host._rkPtr) return false;
+  host._rkAfterPtr = after;
+  return true;
 }
 export const fmt = (v, d = 1) =>
   v === null || v === undefined || isNaN(v) ? "–" : Number(v).toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });

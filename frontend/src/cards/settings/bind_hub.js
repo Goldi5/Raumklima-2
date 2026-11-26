@@ -106,6 +106,8 @@ export const BindHubMethods = {
       try {
         const r = await this._hass.callWS({ type: "raumklima/room/create", name, trv, temperature_sensor: temp, ...this._homeMsg() });
         this._tab = "general"; this._section = "rooms"; this._roomTab = "overview";
+        // angelegt: Entwurf leeren, sonst stellt das Neuzeichnen ihn wieder her
+        for (const id of ["newRoomName", "newRoomTrv"]) { const f = this.shadowRoot.getElementById(id); if (f) f.value = ""; }
         this._flash(t("Raum „{n}“ angelegt", { n: name }));
         await this._load();
         if (r && r.entry_id) this._gotoRoomByEntry(r.entry_id);

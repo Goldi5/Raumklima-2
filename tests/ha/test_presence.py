@@ -428,3 +428,27 @@ async def test_fremdwaerme_funkaussetzer_behaelt_nachlauf(hass: HomeAssistant, t
     await hass.async_block_till_done()
     assert c._ext_heat_timer is not None
     assert await hass.config_entries.async_unload(room.entry_id)
+
+
+async def test_haengender_fuehler_notbetrieb(hass: HomeAssistant, trv: FakeTrv, sensors) -> None:
+    """#94: Fühler sendet nichts mehr und lässt seinen Wert stehen, das TRV bewegt sich – Notbetrieb."""
+    from datetime import timedelta
+
+    _hub, room = await _setup(hass, room_type="living")
+    c = room.runtime_data
+    assert c.ext_sensor_ok is True
+    # Fühler seit 3 h stumm, Wert seitdem gleich; TRV hat sich um 5 K bewegt
+    past = dt_util.utcnow() - timedelta(hours=3)
+    c._ext_changed_at = past
+    c._trv_at_ext_change = (c.trv_temperature or 20.0) - 5.0
+    state = hass.states.get(c.temp_sensor)
+    hass.states.async_set(c.temp_sensor, state.state, state.attributes, timestamp=past.timestamp())
+    assert c.sensor_age_minutes >= 170
+    assert c.ext_sensor_frozen is True
+    assert c.ext_sensor_ok is False
+    assert c.current_temperature == c.trv_temperature
+
+    # ruhiger Wert, TRV unverändert: bleibt gültig (#14)
+    c._trv_at_ext_change = c.trv_temperature
+    assert c.ext_sensor_frozen is False
+    assert c.ext_sensor_ok is True

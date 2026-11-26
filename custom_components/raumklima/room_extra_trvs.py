@@ -423,14 +423,21 @@ class AcSource:
 
     def _blocked(self, now: datetime, want_on: bool) -> bool:
         """Kurzschluss-Schutz: nicht öfter als die eingestellte Mindestlaufzeit/-pause."""
-        if self._last_change is None:
+        last = self._last_change  # übersteht Neustarts (room_store, #95)
+        if last is None:
             return False
         wait = self._min_on() if self._is_on() else self._min_off()
         if wait <= 0:
             return False
         if want_on == self._is_on():
             return False
-        return (now - self._last_change).total_seconds() < wait * 60
+        return (now - last).total_seconds() < wait * 60
+
+    def _setpoint_needed(self, value: float, step: float) -> bool:
+        """Sollwert nur schreiben, wenn er sich ändert – sonst ein Befehl (und Piepton) je Zyklus (#95)."""
+        st = self.state
+        current = to_float(st.attributes.get("temperature")) if st is not None else None
+        return current is None or abs(current - value) >= max(step, 0.1) / 2
 
     async def apply(self, on: bool, target: float) -> None:
         """AC schalten und Sollwert setzen (komplett, ohne Ventil-Logik)."""
@@ -464,10 +471,11 @@ class AcSource:
                 self._last_change = now
                 if not was_on:
                     self._on_since = now
-            await self.hass.services.async_call(
-                "climate", "set_temperature",
-                {"entity_id": self.entity_id, "temperature": value}, blocking=True,
-            )
+            if self._setpoint_needed(value, step):
+                await self.hass.services.async_call(
+                    "climate", "set_temperature",
+                    {"entity_id": self.entity_id, "temperature": value}, blocking=True,
+                )
         except Exception as err:  # noqa: BLE001 – eine Quelle darf die anderen nicht aufhalten
             _LOGGER.warning("%s: Klimaanlage %s: %s", self.c.name, self.entity_id, err)
 
@@ -494,10 +502,11 @@ class AcSource:
                 )
                 self._last_change = now
                 self._on_since = now
-            await self.hass.services.async_call(
-                "climate", "set_temperature",
-                {"entity_id": self.entity_id, "temperature": value}, blocking=True,
-            )
+            if self._setpoint_needed(value, step):
+                await self.hass.services.async_call(
+                    "climate", "set_temperature",
+                    {"entity_id": self.entity_id, "temperature": value}, blocking=True,
+                )
         except Exception as err:  # noqa: BLE001 – eine Quelle darf die anderen nicht aufhalten
             _LOGGER.warning("%s: Klimaanlage %s (Kühlen): %s", self.c.name, self.entity_id, err)
 
