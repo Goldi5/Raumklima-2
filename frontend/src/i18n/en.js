@@ -1768,4 +1768,8 @@ export const EN = {
   "Boost läuft noch {m} min": "Boost running, {m} min left",
   "Noch nicht gestartet – Dauer wählen": "Not started yet – choose a duration",
   "Assistent schließen": "Close assistant",
+  "Tippen: nur dieser Raum · lang drücken: dazu/weg": "Tap: only this room · long press: add/remove",
+  "Alle": "All",
+  "Handverstellt · zurück auf {t} °C": "Adjusted by hand · back to {t} °C",
+  "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "The target differs from the base value in the settings (e.g. turned at the thermostat).",
 };

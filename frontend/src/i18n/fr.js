@@ -1768,4 +1768,8 @@ export const FR = {
   "Boost läuft noch {m} min": "Boost actif, encore {m} min",
   "Noch nicht gestartet – Dauer wählen": "Pas encore démarré – choisir une durée",
   "Assistent schließen": "Fermer l’assistant",
+  "Tippen: nur dieser Raum · lang drücken: dazu/weg": "Toucher : seulement cette pièce · appui long : ajouter/retirer",
+  "Alle": "Toutes",
+  "Handverstellt · zurück auf {t} °C": "Réglé à la main · revenir à {t} °C",
+  "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "La consigne diffère de la valeur de base des réglages (p. ex. tournée sur le thermostat).",
 };

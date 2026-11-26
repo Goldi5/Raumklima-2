@@ -25,6 +25,17 @@ function boostMinutes(a) {
   return Number.isFinite(n) && n > 0 ? Math.max(5, Math.min(240, n)) : 30;
 }
 
+/** Wunsch weicht ohne Ablaufzeit vom Grundwert ab (#91): z. B. am Thermostat gedreht, kein Zeitplan. */
+export function rkHandAdjusted(a, mon, isOff) {
+  if (mon || isOff || !a) return false;
+  if (((a.settings && a.settings.schedules) || []).length) return false; // Zeitplan setzt den Wunsch selbst
+  if (a.boost_until || a.boost_open) return false;
+  const wish = Number(a.wish);
+  const base = Number(a.comfort_temperature);
+  if (!Number.isFinite(wish) || !Number.isFinite(base)) return false;
+  return Math.abs(wish - base) >= 0.25;
+}
+
 export class RaumklimaCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
   set _html(html) { rkPaint(this, html); }
@@ -464,7 +475,7 @@ export class RaumklimaCard extends HTMLElement {
         <div class="stats">${stats}</div>
         ${devLine}
         <div class="actions">
-          ${!mon && a.override_until && Date.parse(a.override_until) > Date.now() ? `<button class="pill" data-resume style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-check-outline"></ha-icon>${((a.settings && a.settings.schedules) || []).length ? t("Zeitplan fortsetzen") : t("Wunschtemperatur fortsetzen")}</button>` : ""}
+          ${!mon && a.override_until && Date.parse(a.override_until) > Date.now() ? `<button class="pill" data-resume style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-check-outline"></ha-icon>${((a.settings && a.settings.schedules) || []).length ? t("Zeitplan fortsetzen") : t("Wunschtemperatur fortsetzen")}</button>` : rkHandAdjusted(a, mon, isOff) ? `<button class="pill" data-resume style="--c:var(--rk-eco)" title="${t("Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).")}"><ha-icon icon="mdi:hand-back-left-outline"></ha-icon>${t("Handverstellt · zurück auf {t} °C", { t: fmt(Number(a.comfort_temperature), 1) })}</button>` : ""}
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
           ${mon ? "" : `<span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>`}

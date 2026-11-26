@@ -1,3 +1,14 @@
+## 2.0.1b28 – 2026-11-26
+
+### Verbessert
+- **Verlauf: einen Raum mit einem Tipp zeigen (#97):** Ein Tipp auf einen Raum in der Legende zeigt nur
+  noch diesen Raum, ein zweiter Tipp wieder alle – wie bei den Tagen im Zeitplan. Lang drücken (am PC
+  Strg-/Umschalt-Klick) nimmt einen Raum dazu oder weg. Ist nur ein Teil sichtbar, erscheint „Alle“.
+- **„Handverstellt“ auf der Raumkarte (#91):** Weicht der Wunsch ohne Ablaufzeit vom Grundwert aus den
+  Einstellungen ab – typisch nach einem Dreh am Thermostat –, zeigt die Karte „Handverstellt · zurück
+  auf 22,5 °C“. Ein Tipp stellt den Grundwert wieder her. Bisher sah man dann nur ein niedrigeres Ziel,
+  ohne Hinweis warum.
+
 ## 2.0.1b27 – 2026-11-26
 
 ### Behoben

@@ -162,6 +162,8 @@ export const HISTORY_STYLES = `
     background: color-mix(in srgb, var(--c) 12%, transparent); color: var(--primary-text-color); transition: opacity .2s, background .2s; }
   .lchip i { width:10px; height:10px; border-radius:50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
   .lchip b { font-variant-numeric: tabular-nums; color: var(--c); }
+  .lchip.all { padding:6px 12px; border-style:dashed; }
+  .lchip { -webkit-touch-callout:none; user-select:none; }
   .lchip.off { opacity:.4; background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); }
   .chart { position:relative; height: var(--h, 240px); margin-top:6px; }
   .chart svg { width:100%; height:100%; overflow:visible; display:block; }

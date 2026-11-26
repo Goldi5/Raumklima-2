@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b27 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b28 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1764,7 +1764,11 @@
     "Boost läuft ohne Zeitlimit": "Boost running without time limit",
     "Boost läuft noch {m} min": "Boost running, {m} min left",
     "Noch nicht gestartet – Dauer wählen": "Not started yet – choose a duration",
-    "Assistent schließen": "Close assistant"
+    "Assistent schließen": "Close assistant",
+    "Tippen: nur dieser Raum · lang drücken: dazu/weg": "Tap: only this room · long press: add/remove",
+    "Alle": "All",
+    "Handverstellt · zurück auf {t} °C": "Adjusted by hand · back to {t} °C",
+    "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "The target differs from the base value in the settings (e.g. turned at the thermostat)."
   };
 
   // src/i18n/fr.js
@@ -3531,7 +3535,11 @@
     "Boost läuft ohne Zeitlimit": "Boost actif sans limite",
     "Boost läuft noch {m} min": "Boost actif, encore {m} min",
     "Noch nicht gestartet – Dauer wählen": "Pas encore démarré – choisir une durée",
-    "Assistent schließen": "Fermer l’assistant"
+    "Assistent schließen": "Fermer l’assistant",
+    "Tippen: nur dieser Raum · lang drücken: dazu/weg": "Toucher : seulement cette pièce · appui long : ajouter/retirer",
+    "Alle": "Toutes",
+    "Handverstellt · zurück auf {t} °C": "Réglé à la main · revenir à {t} °C",
+    "Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).": "La consigne diffère de la valeur de base des réglages (p. ex. tournée sur le thermostat)."
   };
 
   // src/i18n.js
@@ -3575,7 +3583,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b27";
+  var RK_VERSION = "2.0.1b28";
 
   // src/styles.js
   var STYLES = `
@@ -3738,6 +3746,8 @@
     background: color-mix(in srgb, var(--c) 12%, transparent); color: var(--primary-text-color); transition: opacity .2s, background .2s; }
   .lchip i { width:10px; height:10px; border-radius:50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
   .lchip b { font-variant-numeric: tabular-nums; color: var(--c); }
+  .lchip.all { padding:6px 12px; border-style:dashed; }
+  .lchip { -webkit-touch-callout:none; user-select:none; }
   .lchip.off { opacity:.4; background: color-mix(in srgb, var(--primary-text-color) 5%, transparent); }
   .chart { position:relative; height: var(--h, 240px); margin-top:6px; }
   .chart svg { width:100%; height:100%; overflow:visible; display:block; }
@@ -4907,6 +4917,15 @@
     const n = Number(a && a.settings && a.settings.boost_minutes);
     return Number.isFinite(n) && n > 0 ? Math.max(5, Math.min(240, n)) : 30;
   }
+  function rkHandAdjusted(a, mon, isOff) {
+    if (mon || isOff || !a) return false;
+    if ((a.settings && a.settings.schedules || []).length) return false;
+    if (a.boost_until || a.boost_open) return false;
+    const wish = Number(a.wish);
+    const base = Number(a.comfort_temperature);
+    if (!Number.isFinite(wish) || !Number.isFinite(base)) return false;
+    return Math.abs(wish - base) >= 0.25;
+  }
   var RaumklimaCard = class extends HTMLElement {
     // Neu zeichnen ohne Springen der Seite
     set _html(html) {
@@ -5305,7 +5324,7 @@
         <div class="stats">${stats}</div>
         ${devLine}
         <div class="actions">
-          ${!mon && a.override_until && Date.parse(a.override_until) > Date.now() ? `<button class="pill" data-resume style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-check-outline"></ha-icon>${(a.settings && a.settings.schedules || []).length ? t("Zeitplan fortsetzen") : t("Wunschtemperatur fortsetzen")}</button>` : ""}
+          ${!mon && a.override_until && Date.parse(a.override_until) > Date.now() ? `<button class="pill" data-resume style="--c:var(--rk-eco)"><ha-icon icon="mdi:calendar-check-outline"></ha-icon>${(a.settings && a.settings.schedules || []).length ? t("Zeitplan fortsetzen") : t("Wunschtemperatur fortsetzen")}</button>` : rkHandAdjusted(a, mon, isOff) ? `<button class="pill" data-resume style="--c:var(--rk-eco)" title="${t("Der Wunsch weicht vom Grundwert aus den Einstellungen ab (z. B. am Thermostat gedreht).")}"><ha-icon icon="mdi:hand-back-left-outline"></ha-icon>${t("Handverstellt · zurück auf {t} °C", { t: fmt(Number(a.comfort_temperature), 1) })}</button>` : ""}
           ${wlogic ? `<button class="pill ${wlogic.state === "on" ? "on" : ""}" data-toggle="${sib.window_logic}"><ha-icon icon="mdi:window-shutter-auto"></ha-icon>${t("Fensterlogik")}</button>` : ""}
           ${notif ? `<button class="pill ${notif.state === "on" ? "on" : ""}" data-toggle="${sib.notifications}"><ha-icon icon="${notif.state === "on" ? "mdi:bell-ring-outline" : "mdi:bell-off-outline"}"></ha-icon>${t("Hinweise")}</button>` : ""}
           ${mon ? "" : `<span class="sync ${syncCls}"><ha-icon icon="${a.sync === "ok" ? "mdi:check-circle-outline" : "mdi:sync"}"></ha-icon>${syncLabel}</span>`}
@@ -5614,6 +5633,16 @@
   };
 
   // src/cards/history.js
+  function rkSoloToggle(hidden, allIds, id, additive) {
+    const next = new Set(hidden);
+    if (additive) {
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    }
+    const visible = allIds.filter((x) => !hidden.has(x));
+    if (visible.length === 1 && visible[0] === id) return /* @__PURE__ */ new Set();
+    return new Set(allIds.filter((x) => x !== id));
+  }
   var RaumklimaHistoryCard = class extends HTMLElement {
     // Neu zeichnen ohne Springen der Seite
     set _html(html) {
@@ -5795,11 +5824,35 @@
         this._draw();
         this._load();
       }));
-      this.shadowRoot.querySelectorAll("[data-room]").forEach((b) => b.addEventListener("click", () => {
-        const id = b.dataset.room;
-        this._hidden.has(id) ? this._hidden.delete(id) : this._hidden.add(id);
+      const all = () => [...this.shadowRoot.querySelectorAll("[data-room]")].map((x) => x.dataset.room);
+      this.shadowRoot.querySelectorAll("[data-room]").forEach((b) => {
+        let timer = null;
+        let long = false;
+        b.addEventListener("pointerdown", () => {
+          long = false;
+          timer = setTimeout(() => {
+            long = true;
+          }, 500);
+        });
+        const clear = () => {
+          clearTimeout(timer);
+          timer = null;
+        };
+        b.addEventListener("pointerup", clear);
+        b.addEventListener("pointerleave", clear);
+        b.addEventListener("contextmenu", (ev) => ev.preventDefault());
+        b.addEventListener("click", (ev) => {
+          const additive = long || ev.ctrlKey || ev.metaKey || ev.shiftKey;
+          long = false;
+          this._hidden = rkSoloToggle(this._hidden, all(), b.dataset.room, additive);
+          this._draw();
+        });
+      });
+      const allBtn = this.shadowRoot.querySelector("[data-allrooms]");
+      if (allBtn) allBtn.addEventListener("click", () => {
+        this._hidden = /* @__PURE__ */ new Set();
         this._draw();
-      }));
+      });
     }
     _draw(liveOnly) {
       if (!this._hass || !this._rooms) return;
@@ -5816,8 +5869,8 @@
       const legend = rooms.map((r) => {
         const st = this._hass.states[r.attrs[key]];
         const v = st ? parseFloat(st.state) : NaN;
-        return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${esc(r.name)}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
-      }).join("");
+        return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}" title="${t("Tippen: nur dieser Raum · lang drücken: dazu/weg")}"><i></i>${esc(r.name)}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
+      }).join("") + (rooms.some((r) => this._hidden.has(r.id)) ? `<button class="lchip all" data-allrooms>${t("Alle")}</button>` : "");
       if (!this._data) {
         this._html = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
         return this._bind();

@@ -1,6 +1,18 @@
 import { HISTORY_STYLES, SEG, STYLES, esc, fmt, loc, rkHomeId, rkLayout, rkRooms, rkRoomsOrdered, rkTime, setLang, t, toneVar, rkPaint } from "../shared.js";
 
 
+/** Raumauswahl im Verlauf (#97): Tipp zeigt nur diesen Raum (nochmal: alle), ``additive`` schaltet um. */
+export function rkSoloToggle(hidden, allIds, id, additive) {
+  const next = new Set(hidden);
+  if (additive) {
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  }
+  const visible = allIds.filter((x) => !hidden.has(x));
+  if (visible.length === 1 && visible[0] === id) return new Set();
+  return new Set(allIds.filter((x) => x !== id));
+}
+
 export class RaumklimaHistoryCard extends HTMLElement {
   // Neu zeichnen ohne Springen der Seite
   set _html(html) { rkPaint(this, html); }
@@ -160,11 +172,25 @@ export class RaumklimaHistoryCard extends HTMLElement {
 
   _bind() {
     this.shadowRoot.querySelectorAll("[data-h]").forEach((b) => b.addEventListener("click", () => { this._hours = parseInt(b.dataset.h, 10); this._data = null; this._draw(); this._load(); }));
-    this.shadowRoot.querySelectorAll("[data-room]").forEach((b) => b.addEventListener("click", () => {
-      const id = b.dataset.room;
-      this._hidden.has(id) ? this._hidden.delete(id) : this._hidden.add(id);
-      this._draw();
-    }));
+    const all = () => [...this.shadowRoot.querySelectorAll("[data-room]")].map((x) => x.dataset.room);
+    this.shadowRoot.querySelectorAll("[data-room]").forEach((b) => {
+      // Tipp: nur diesen Raum zeigen (nochmal: alle). Lang drücken / Strg / Umschalt: dazu oder weg (#97)
+      let timer = null;
+      let long = false;
+      b.addEventListener("pointerdown", () => { long = false; timer = setTimeout(() => { long = true; }, 500); });
+      const clear = () => { clearTimeout(timer); timer = null; };
+      b.addEventListener("pointerup", clear);
+      b.addEventListener("pointerleave", clear);
+      b.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      b.addEventListener("click", (ev) => {
+        const additive = long || ev.ctrlKey || ev.metaKey || ev.shiftKey;
+        long = false;
+        this._hidden = rkSoloToggle(this._hidden, all(), b.dataset.room, additive);
+        this._draw();
+      });
+    });
+    const allBtn = this.shadowRoot.querySelector("[data-allrooms]");
+    if (allBtn) allBtn.addEventListener("click", () => { this._hidden = new Set(); this._draw(); });
   }
 
   _draw(liveOnly) {
@@ -183,8 +209,8 @@ export class RaumklimaHistoryCard extends HTMLElement {
     const legend = rooms.map((r) => {
       const st = this._hass.states[r.attrs[key]];
       const v = st ? parseFloat(st.state) : NaN;
-      return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}"><i></i>${esc(r.name)}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
-    }).join("");
+      return `<button class="lchip ${this._hidden.has(r.id) ? "off" : ""}" data-room="${r.id}" style="--c:${r.color}" title="${t("Tippen: nur dieser Raum · lang drücken: dazu/weg")}"><i></i>${esc(r.name)}<b>${isNaN(v) ? "–" : fmt(v, m === "temperature" ? 1 : 0) + unit}</b></button>`;
+    }).join("") + (rooms.some((r) => this._hidden.has(r.id)) ? `<button class="lchip all" data-allrooms>${t("Alle")}</button>` : "");
     if (!this._data) {
       this._html = this._shell(`<div class="legend">${legend}</div><div class="chart"><div class="empty">${t("Lade Verlauf …")}</div></div>`);
       return this._bind();
