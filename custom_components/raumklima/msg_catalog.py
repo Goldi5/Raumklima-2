@@ -692,6 +692,7 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Vorlage nicht gefunden", "Template not found", "Modèle introuvable"),
     ("Wohnung nicht gefunden", "Home not found", "Logement introuvable"),
     ("Wunschtemperatur übernommen", "Target temperature applied", "Température de consigne appliquée"),
+    ("Aus-Sollwert {t}", "Off setpoint {t}", "Consigne d’arrêt {t}"),
     ("Raumfühler hängt – geregelt wird mit dem Thermostatfühler", "Room sensor stuck – controlling with the thermostat sensor", "Capteur de pièce figé – régulation avec le capteur du thermostat"),
     ("Raumfühler meldet sich wieder", "Room sensor is reporting again", "Le capteur de pièce répond à nouveau"),
     ("Seit {m} min keine Meldung, das Thermostat hat sich um {d} K bewegt", "No report for {m} min while the thermostat moved by {d} K", "Aucun signal depuis {m} min, le thermostat a varié de {d} K"),
