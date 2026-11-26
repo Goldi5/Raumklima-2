@@ -1497,7 +1497,7 @@ def test_raum_reset_setzt_auch_ausserhalb_defaults_zurueck() -> None:
         CONF_WINDOWS: ["binary_sensor.fenster"],
         CONF_WINDOW_OPEN_DELAY: 30,
     })
-    assert out[CONF_MOLD_CAP] == 2.5
+    assert out[CONF_MOLD_CAP] == 1.5
     assert out[CONF_WALL] == "auto"
     assert out[CONF_TRV] == "climate.test"
     assert out[CONF_WINDOWS] == ["binary_sensor.fenster"]
@@ -1523,7 +1523,7 @@ def test_raum_reset_deckt_false_null_und_listen_ab() -> None:
         CONF_LIGHT_SIGNALS: ["problem"],
     })
     assert out[CONF_SOLAR] is False
-    assert out[CONF_MOLD_CAP] == 2.5
+    assert out[CONF_MOLD_CAP] == 1.5
     assert out[CONF_TRV_INTERVAL] == 0
     assert out[CONF_SCHEDULES] == []
     assert out[CONF_LIGHT_SIGNALS] == ["open", "close"]
