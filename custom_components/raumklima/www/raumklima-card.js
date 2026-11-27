@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b29 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b30 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1778,7 +1778,8 @@
     "Betriebsart nie umschalten": "Never change the operating mode",
     "Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.": "Raumklima only writes setpoints and never changes mode or preset – for a system heating the whole house (e.g. ViCare). Switching off then uses the minimum temperature or a fixed setpoint.",
     "Ventil ≈": "Valve ≈",
-    "geschätzt": "estimated"
+    "geschätzt": "estimated",
+    "misst gerade {raw} °C → mit Korrektur {cor} °C": "reads {raw} °C right now → {cor} °C with correction"
   };
 
   // src/i18n/fr.js
@@ -3559,7 +3560,8 @@
     "Betriebsart nie umschalten": "Ne jamais changer le mode",
     "Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.": "Raumklima n’écrit que des consignes et ne change jamais de mode ni de préréglage – pour une installation qui chauffe toute la maison (p. ex. ViCare). L’arrêt passe alors par la température minimale ou une consigne fixe.",
     "Ventil ≈": "Vanne ≈",
-    "geschätzt": "estimé"
+    "geschätzt": "estimé",
+    "misst gerade {raw} °C → mit Korrektur {cor} °C": "mesure actuellement {raw} °C → {cor} °C avec la correction"
   };
 
   // src/i18n.js
@@ -3603,7 +3605,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b29";
+  var RK_VERSION = "2.0.1b30";
 
   // src/styles.js
   var STYLES = `
@@ -4310,6 +4312,12 @@
   // src/util.js
   var esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  function rkSensorReading(state, offset) {
+    const raw = parseFloat(state);
+    if (!Number.isFinite(raw)) return null;
+    const off = Number(offset) || 0;
+    return { raw, corrected: Math.round((raw + off) * 10) / 10 };
+  }
   function toneVar(tone) {
     return `var(--rk-${tone || "off"})`;
   }
@@ -9083,7 +9091,10 @@
         a.temperature_sensor ? this._row(
           "Korrektur Raumfühler",
           editable ? this._num(scope, "sensor_offset", this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0) : this._v(`${fmt(this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0, 1)} K`),
-          t("Zeigt der Fühler zu wenig oder zu viel an, hier ausgleichen: zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K. Raumklima rechnet überall mit dem korrigierten Wert.")
+          [(() => {
+            const rd = rkSensorReading(this._st(a.temperature_sensor)?.state, this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0);
+            return rd ? t("misst gerade {raw} °C → mit Korrektur {cor} °C", { raw: fmt(rd.raw, 1), cor: fmt(rd.corrected, 1) }) : "";
+          })(), t("Zeigt der Fühler zu wenig oder zu viel an, hier ausgleichen: zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K. Raumklima rechnet überall mit dem korrigierten Wert.")].filter(Boolean).join(" · ")
         ) : "",
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),

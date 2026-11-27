@@ -1782,4 +1782,5 @@ export const EN = {
   "Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.": "Raumklima only writes setpoints and never changes mode or preset – for a system heating the whole house (e.g. ViCare). Switching off then uses the minimum temperature or a fixed setpoint.",
   "Ventil ≈": "Valve ≈",
   "geschätzt": "estimated",
+  "misst gerade {raw} °C → mit Korrektur {cor} °C": "reads {raw} °C right now → {cor} °C with correction",
 };

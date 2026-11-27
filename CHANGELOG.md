@@ -1,3 +1,10 @@
+## 2.0.1b30 – 2026-11-27
+
+### Verbessert
+- **Korrektur Raumfühler zeigt den Messwert (#98):** Unter der Einstellung steht jetzt, was der Fühler
+  gerade misst und was Raumklima mit der Korrektur daraus macht, z. B. „misst gerade 21,5 °C → mit
+  Korrektur 22,2 °C“. So lässt sich der Wert direkt mit einem Vergleichsthermometer abgleichen.
+
 ## 2.0.1b29 – 2026-11-27
 
 ### Neu

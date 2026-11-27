@@ -2,6 +2,7 @@
 // Methoden der Klasse RaumklimaSettingsCard (angehängt in ../settings.js).
 import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_VERSION, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_PREHEAT, RK_QUIET, RK_SCHED_FALLBACK, RK_OFF, RK_PKIND, RK_WALL, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkRoomsOrdered, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../../shared.js";
 import { HELP } from "../../help.js";
+import { rkSensorReading } from "../../util.js";
 import { RK_NUM } from "../../fields.js";
 import { getLang } from "../../i18n.js";
 import { RK_GROUP_META, RK_IMPLICIT, RK_LAYOUT_COLORS, RK_GROUP_ORDER, RK_FACADES, RK_SHADE, RK_VALVE, rkFacadeName, ROOM_TABS, ROOM_TAB_DEFAULT } from "./const.js";
@@ -330,7 +331,10 @@ export const RoomMethods = {
         this._row("Temperaturfühler", this._v(esc(this._name(a.temperature_sensor)))),
         a.temperature_sensor ? this._row("Korrektur Raumfühler",
           editable ? this._num(scope, "sensor_offset", this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0) : this._v(`${fmt(this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0, 1)} K`),
-          t("Zeigt der Fühler zu wenig oder zu viel an, hier ausgleichen: zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K. Raumklima rechnet überall mit dem korrigierten Wert.")) : "",
+          [(() => {
+            const rd = rkSensorReading(this._st(a.temperature_sensor)?.state, this._roomOpt(r, "sensor_offset") ?? s.sensor_offset ?? 0);
+            return rd ? t("misst gerade {raw} °C → mit Korrektur {cor} °C", { raw: fmt(rd.raw, 1), cor: fmt(rd.corrected, 1) }) : "";
+          })(), t("Zeigt der Fühler zu wenig oder zu viel an, hier ausgleichen: zeigt er 21,5 °C, sind es aber 22,2 °C, dann +0,7 K. Raumklima rechnet überall mit dem korrigierten Wert.")].filter(Boolean).join(" · ")) : "",
         this._row("Feuchtefühler", this._v(a.humidity_entity ? esc(this._name(a.humidity_entity)) : "keiner", !a.humidity_entity)),
         this._row("CO₂-Sensor", this._v(s.co2_sensor ? esc(this._name(s.co2_sensor)) : "keiner", !s.co2_sensor), s.co2_sensor ? t("Grenze unter Lüften & Feuchte") : ""),
         this._row("Feinstaubfühler", this._v(s.pm25_sensor ? esc(this._name(s.pm25_sensor)) : "keiner", !s.pm25_sensor), s.pm25_sensor ? "PM2,5 – ab 35 µg/m³: „Bitte lüften“" : ""),
