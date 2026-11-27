@@ -1,3 +1,15 @@
+## 2.0.1b32 – 2026-11-27
+
+### Verbessert
+- **Einstellungen auf dem Handy (#101):** Breite Bedienelemente – Auswahlknöpfe wie bei „Kalibrierung“,
+  Chips wie bei „Schnell-Override“ und „Weitere Thermostate“, der Schnellzugriff – stehen auf schmalen
+  Bildschirmen jetzt unter der Beschriftung statt daneben. Vorher wurde der Erklärtext zu einer Spalte
+  mit einem Wort pro Zeile. Zahlenfelder, Schalter und kurze Werte bleiben rechts daneben.
+- **Raum-Unterseiten auf dem Handy (#101):** Die Reiter eines Raums (Übersicht, Regelung, Zeitplan …)
+  brechen auf schmalen Bildschirmen in mehrere Zeilen um, statt seitlich zu scrollen.
+- **Schnellzugriff (#101):** In der Raum-Übersicht führt der Schnellzugriff jetzt zu allen Unterseiten
+  des Raums, nicht nur zu vier.
+
 ## 2.0.1b31 – 2026-11-27
 
 ### Verbessert

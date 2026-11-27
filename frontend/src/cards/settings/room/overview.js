@@ -1,4 +1,5 @@
 import { esc, fmt, planText, rkWindowOpen, t } from "../../../shared.js";
+import { ROOM_TABS } from "../const.js";
 
 // Phase 3: Die Raum-Übersicht bündelt Status und Schnellzugriffe, statt alle
 // Einstellgruppen untereinander zu zeigen. Die Gruppen selbst bleiben unverändert.
@@ -72,12 +73,8 @@ export const RoomOverviewMethods = {
       })(),
       this._row(
         t("Schnellzugriff"),
-        `<div class="chips">${[
-          go("control", "Regelung", "mdi:thermometer"),
-          go("schedule", "Zeitplan", "mdi:calendar-clock"),
-          go("windows", "Fenster & Lüften", "mdi:window-open-variant"),
-          go("sources", "Heizquellen", "mdi:radiator"),
-        ].join("")}</div>`
+        // #101: alle Unterseiten des Raums, nicht nur vier
+        `<div class="chips">${ROOM_TABS.filter((x) => x.id !== "overview").map((x) => go(x.id, x.label, x.icon)).join("")}</div>`
       ),
     ];
     return this._grp("room", "Übersicht", "mdi:view-dashboard-outline", "air", rows.filter(Boolean).join(""), "span");

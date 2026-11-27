@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b31 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b32 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -3611,7 +3611,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b31";
+  var RK_VERSION = "2.0.1b32";
 
   // src/styles.js
   var STYLES = `
@@ -3891,6 +3891,8 @@
   .tabs.homes { margin-bottom:0; } .tabs.homes .tab { font-size:1.02rem; }
   .tabs.roomsub { margin:6px -4px 2px; }
   .tabs.roomsub .tab { padding:8px 14px; font-size:.88rem; }
+  /* #101: Auf dem Handy die Raum-Unterseiten umbrechen statt seitlich zu scrollen. */
+  @container (max-width: 560px) { .tabs.roomsub { flex-wrap:wrap; overflow-x:visible; } .tabs.roomsub .tab { padding:7px 11px; } }
   .roomhead { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; margin:12px -4px 0; padding:10px 12px;
     border-radius:14px; border-left:4px solid var(--c, var(--rk-heat));
     background:color-mix(in srgb, var(--card-background-color, #fff) 88%, var(--c, var(--rk-heat)));
@@ -4039,10 +4041,13 @@
   .inp.short { width: 86px; text-align:center; }
   .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap:14px; }
   @container (max-width: 560px) {
-    .row { flex-wrap: wrap; row-gap: 8px; }
-    .row .l { flex: 1 1 100%; }
-    .row > :last-child { margin-left: auto; }
-    .row .chips { justify-content: flex-start; margin-left: 0; }
+    /* #101: Auf dem Handy breite Bedienelemente (Auswahlknöpfe, Chips, Schnellzugriff, Listen) unter
+       die Beschriftung statt daneben – sonst wird der Text zu einer Ein-Wort-Spalte. Zahlenfelder
+       und kurze Werte bleiben rechts daneben. */
+    .row:not(:has(> .stepper)):not(:has(> .v)):not(:has(> .tgl)) { grid-template-columns: minmax(0,1fr); row-gap: 10px; }
+    .row:not(:has(> .stepper)):not(:has(> .v)):not(:has(> .tgl)) > :not(.l) { justify-self: stretch; min-width: 0; }
+    .row { column-gap: 16px; }
+    .row .chips { justify-content: flex-start; margin-left: 0; flex-wrap: wrap; }
     .segs { width: 100%; }
     .segs button { flex: 1; text-align: center; }
     .person { padding: 12px; }
@@ -7870,12 +7875,8 @@
         })(),
         this._row(
           t("Schnellzugriff"),
-          `<div class="chips">${[
-            go("control", "Regelung", "mdi:thermometer"),
-            go("schedule", "Zeitplan", "mdi:calendar-clock"),
-            go("windows", "Fenster & Lüften", "mdi:window-open-variant"),
-            go("sources", "Heizquellen", "mdi:radiator")
-          ].join("")}</div>`
+          // #101: alle Unterseiten des Raums, nicht nur vier
+          `<div class="chips">${ROOM_TABS.filter((x) => x.id !== "overview").map((x) => go(x.id, x.label, x.icon)).join("")}</div>`
         )
       ];
       return this._grp("room", "Übersicht", "mdi:view-dashboard-outline", "air", rows.filter(Boolean).join(""), "span");
