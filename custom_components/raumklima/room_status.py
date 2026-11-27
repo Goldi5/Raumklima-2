@@ -10,6 +10,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     OFF_SOURCE_TRV,
+    OVERHEAT_TRIM_AT,
     STATUS_EXT_HEAT,
     STATUS_HEATING,
     STATUS_IDLE,
@@ -154,6 +155,14 @@ class StatusMixin:
             # Heizung noch in der Nachtabsenkung) – nicht als „Temperatur erreicht“ zeigen.
             return STATUS_WAIT
         return STATUS_IDLE
+
+    @property
+    def heating_warm(self) -> bool:
+        """Gerät heizt, der Raum liegt aber schon deutlich über dem Ziel (tado, Fühler am Heizkörper)."""
+        if self.status != STATUS_HEATING:
+            return False
+        cur, target = self.current_temperature, self.effective_target
+        return cur is not None and target is not None and cur >= float(target) + OVERHEAT_TRIM_AT
 
     @property
     def wait_reason(self) -> dict[str, Any] | None:

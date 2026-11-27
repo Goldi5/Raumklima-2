@@ -432,7 +432,7 @@
           "external_heat": "Cheminée/poêle chauffe",
           "setback": "Abaissé – personne à la maison",
           "night_airing": "Aération nocturne – fenêtre ouverte",
-          "waiting": "En attente de chaleur",
+          "waiting": "Ne chauffe pas encore",
           "monitor": "Surveillance"
         }
       },

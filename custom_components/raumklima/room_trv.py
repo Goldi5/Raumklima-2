@@ -45,10 +45,13 @@ from .const import (
     ON_PRESET_AUTO,
     ON_PRESET_AVOID,
     ON_PRESET_CANDIDATES,
+    OVERHEAT_TRIM_AT,
+    OVERHEAT_TRIM_K,
     PRESET_GRACE_SECONDS,
     SETPOINT_GUARD_K,
     SETPOINT_MATCH_TOLERANCE,
     SLOW_RETRY_INTERVAL,
+    VALVE_HEATING_MIN,
 )
 from .decision_log import (
     CAT_DEVICE,
@@ -176,6 +179,9 @@ class TrvMixin:
             return clamp(self.floor_setpoint(target, commit=False), self.trv_min, self.trv_max)
         if self.cal_mode == CAL_HYSTERESIS:
             return self._hysteresis_setpoint(target, update=False)
+        if self.overheat_trim_active:
+            # Gerät heizt bei warmem Raum: der zurückgenommene Sollwert ist gewollt.
+            target = max(self.trv_min, target - OVERHEAT_TRIM_K)
         if self.cal_mode == CAL_TARGET:
             # Denselben Abgleich benutzen wie der Schreibpfad: solange der Raum unter dem Ziel
             # liegt, wird kein negativer Abschlag angewandt – dann darf er auch nicht erwartet
@@ -517,6 +523,46 @@ class TrvMixin:
         self._prestop_armed = None  # eine Aufheiz-Phase, ein Vor-Stopp
         return amount
 
+    def _device_heating(self) -> bool:
+        """Meldet das Hauptthermostat selbst, dass es heizt (oder steht sein Ventil offen)?"""
+        if self._trv_attr("hvac_action") == "heating" or self._trv_attr("running_state") == "heat":
+            return True
+        valve = self.valve_position
+        if valve is None:
+            valve = to_float(self._trv_attr("valve_position"))
+        return valve is not None and valve >= VALVE_HEATING_MIN
+
+    def _overheat_trim(self, target: float, commit: bool = True) -> float:
+        """Sollwert zurücknehmen, wenn das Gerät heizt, obwohl der Raum schon warm ist.
+
+        tado und ähnliche Geräte regeln nach ihrem eigenen Fühler am Heizkörper. Misst der kälter
+        als der Raumfühler, heizt das Gerät weiter, obwohl der Raum schon über dem Ziel liegt. Dann
+        stellt Raumklima den Sollwert um ``OVERHEAT_TRIM_K`` zurück, bis der Raum wieder am Ziel ist
+        (Hysterese: kein Hin und Her, sobald das Gerät aufhört zu heizen).
+        """
+        latch = getattr(self, "_overheat_latch", None)
+        cur = self.current_temperature
+        if latch is not None:
+            if cur is None or not self.ext_sensor_ok or abs(latch - target) > 0.05 or cur <= target:
+                if commit:
+                    self._overheat_latch = None
+                return 0.0
+            return OVERHEAT_TRIM_K
+        if cur is None or not self.ext_sensor_ok or cur < target + OVERHEAT_TRIM_AT or not self._device_heating():
+            return 0.0
+        if commit:
+            self._overheat_latch = target
+            self.log(
+                CAT_DEVICE,
+                tr("Thermostat heizt, Raum schon {c} – Sollwert {k} K zurück", c=fmt_temp(cur), k=dec(OVERHEAT_TRIM_K)),
+                tr("Das Gerät misst am Heizkörper weniger als der Raumfühler; bis der Raum wieder am Ziel ist"),
+            )
+        return OVERHEAT_TRIM_K
+
+    @property
+    def overheat_trim_active(self) -> bool:
+        return getattr(self, "_overheat_latch", None) is not None
+
     def _desired_setpoint(self) -> float:
         self._update_shift()  # Abgleich vor dem Rechnen auffrischen
         target = self.effective_target
@@ -524,7 +570,7 @@ class TrvMixin:
             return clamp(self.floor_setpoint(target), self.trv_min, self.trv_max)
         if self.cal_mode == CAL_HYSTERESIS:
             return self._hysteresis_setpoint(target)
-        pre_stop = self._prestop_amount(target)
+        pre_stop = self._prestop_amount(target) + self._overheat_trim(target)
         if pre_stop:
             target = max(self.trv_min, target - pre_stop)
         if self.cal_mode == CAL_TARGET:

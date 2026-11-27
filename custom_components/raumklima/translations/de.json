@@ -432,7 +432,7 @@
           "external_heat": "Kamin/Holzofen heizt",
           "setback": "Abgesenkt – niemand da",
           "night_airing": "Nachtlüften – Fenster offen",
-          "waiting": "Wartet auf Wärme",
+          "waiting": "Heizt noch nicht",
           "monitor": "Nur Überwachung"
         }
       },

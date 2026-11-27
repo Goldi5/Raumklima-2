@@ -124,6 +124,8 @@ class RaumklimaClimate(RaumklimaEntity, ClimateEntity):
         return {
             "status": c.status,
             "wait_reason": c.wait_reason,
+            "heating_warm": c.heating_warm,
+            "overheat_trim": c.overheat_trim_active,
             "off_source": c.off_source,
             "boost_until": c.boost_until.isoformat() if (c.boost_until and c.boost_active) else None,
             "boost_open": bool(c.boost_open and c.boost_active),

@@ -1783,4 +1783,7 @@ export const FR = {
   "Ventil ≈": "Vanne ≈",
   "geschätzt": "estimé",
   "misst gerade {raw} °C → mit Korrektur {cor} °C": "mesure actuellement {raw} °C → {cor} °C avec la correction",
+  "Heizt noch nicht": "Ne chauffe pas encore",
+  "Gerät heizt – Raum schon warm": "L’appareil chauffe – pièce déjà chaude",
+  "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima baisse la consigne du thermostat",
 };

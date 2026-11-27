@@ -637,6 +637,11 @@ STATUS_TRV: Final = "trv_unavailable"
 STATUS_MONITOR: Final = "monitor"
 # Ab dieser Ventilöffnung gilt der Raum als heizend, auch wenn das Gerät hvac_action: idle meldet (HmIP).
 VALVE_HEATING_MIN: Final = 5.0
+# Gerät heizt, obwohl der Raum schon warm ist (tado regelt nach dem Fühler am Heizkörper):
+# ab so viel über dem Ziel stellt Raumklima den Sollwert am Gerät um OVERHEAT_TRIM_K zurück,
+# bis der Raum wieder am Ziel ist.
+OVERHEAT_TRIM_AT: Final = 0.5
+OVERHEAT_TRIM_K: Final = 1.0
 # Ventilstellung gilt als veraltet, wenn ihr Sensor so lange nichts gemeldet hat (Gerät stumm,
 # Batterie leer) – sonst zeigte ein toter Stellantrieb tagelang „heizt mit 25 %“.
 VALVE_STALE_MINUTES: Final = 180.0

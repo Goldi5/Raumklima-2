@@ -1783,4 +1783,7 @@ export const EN = {
   "Ventil ≈": "Valve ≈",
   "geschätzt": "estimated",
   "misst gerade {raw} °C → mit Korrektur {cor} °C": "reads {raw} °C right now → {cor} °C with correction",
+  "Heizt noch nicht": "Not heating yet",
+  "Gerät heizt – Raum schon warm": "Device heating – room already warm",
+  "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima is lowering the setpoint on the thermostat",
 };

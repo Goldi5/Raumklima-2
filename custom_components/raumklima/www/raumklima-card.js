@@ -1779,7 +1779,10 @@
     "Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.": "Raumklima only writes setpoints and never changes mode or preset – for a system heating the whole house (e.g. ViCare). Switching off then uses the minimum temperature or a fixed setpoint.",
     "Ventil ≈": "Valve ≈",
     "geschätzt": "estimated",
-    "misst gerade {raw} °C → mit Korrektur {cor} °C": "reads {raw} °C right now → {cor} °C with correction"
+    "misst gerade {raw} °C → mit Korrektur {cor} °C": "reads {raw} °C right now → {cor} °C with correction",
+    "Heizt noch nicht": "Not heating yet",
+    "Gerät heizt – Raum schon warm": "Device heating – room already warm",
+    "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima is lowering the setpoint on the thermostat"
   };
 
   // src/i18n/fr.js
@@ -3561,7 +3564,10 @@
     "Raumklima schreibt nur noch Sollwerte und stellt nie Modus oder Preset um – für eine Anlage, die das ganze Haus heizt (z. B. ViCare). Ausschalten dann über Minimaltemperatur oder festen Sollwert.": "Raumklima n’écrit que des consignes et ne change jamais de mode ni de préréglage – pour une installation qui chauffe toute la maison (p. ex. ViCare). L’arrêt passe alors par la température minimale ou une consigne fixe.",
     "Ventil ≈": "Vanne ≈",
     "geschätzt": "estimé",
-    "misst gerade {raw} °C → mit Korrektur {cor} °C": "mesure actuellement {raw} °C → {cor} °C avec la correction"
+    "misst gerade {raw} °C → mit Korrektur {cor} °C": "mesure actuellement {raw} °C → {cor} °C avec la correction",
+    "Heizt noch nicht": "Ne chauffe pas encore",
+    "Gerät heizt – Raum schon warm": "L’appareil chauffe – pièce déjà chaude",
+    "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima baisse la consigne du thermostat"
   };
 
   // src/i18n.js
@@ -4550,7 +4556,7 @@
   var STATUS = tmap({
     heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
     idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
-    waiting: { label: "Wartet auf Wärme", icon: "mdi:timer-sand", tone: "heat" },
+    waiting: { label: "Heizt noch nicht", icon: "mdi:timer-sand", tone: "heat" },
     window_open: { label: "Pausiert – Fenster offen", icon: "mdi:window-open-variant", tone: "air" },
     off: { label: "Aus", icon: "mdi:power", tone: "off" },
     off_trv: { label: "Aus – am Thermostat abgeschaltet", icon: "mdi:power-plug-off", tone: "off" },
@@ -4572,6 +4578,7 @@
   }
   function statusFor(a) {
     const s = STATUS[a.status] || STATUS.idle;
+    if (a.status === "heating" && a.heating_warm) return { label: t("Gerät heizt – Raum schon warm"), icon: "mdi:fire-alert", tone: "warn", reason: a.overheat_trim ? t("Raumklima nimmt den Sollwert am Thermostat zurück") : "" };
     const why = a.status === "waiting" ? waitReasonText(a.wait_reason) : "";
     return why ? { ...s, label: `${s.label} – ${why}`, reason: why } : s;
   }

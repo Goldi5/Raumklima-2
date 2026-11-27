@@ -432,7 +432,7 @@
           "external_heat": "Fireplace/stove heating",
           "setback": "Lowered – nobody home",
           "night_airing": "Night airing – window open",
-          "waiting": "Waiting for heat",
+          "waiting": "Not heating yet",
           "monitor": "Monitor only"
         }
       },

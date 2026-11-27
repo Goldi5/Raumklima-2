@@ -54,7 +54,7 @@ export function rkBugReportUrl({ version, haVersion, language, rooms, homeCount,
 export const STATUS = tmap({
   heating: { label: "Heizt", icon: "mdi:fire", tone: "heat" },
   idle: { label: "Temperatur erreicht", icon: "mdi:check-circle", tone: "ok" },
-  waiting: { label: "Wartet auf Wärme", icon: "mdi:timer-sand", tone: "heat" },
+  waiting: { label: "Heizt noch nicht", icon: "mdi:timer-sand", tone: "heat" },
   window_open: { label: "Pausiert – Fenster offen", icon: "mdi:window-open-variant", tone: "air" },
   off: { label: "Aus", icon: "mdi:power", tone: "off" },
   off_trv: { label: "Aus – am Thermostat abgeschaltet", icon: "mdi:power-plug-off", tone: "off" },
@@ -66,7 +66,7 @@ export const STATUS = tmap({
   night_airing: { label: "Nachtlüften – Fenster offen", icon: "mdi:weather-night", tone: "air" },
 });
 
-// „Wartet auf Wärme“ mit Grund – woran es gerade hängt
+// „Heizt noch nicht“ (Raum zu kalt, Gerät heizt nicht) mit Grund – woran es gerade hängt
 export function waitReasonText(r) {
   if (!r || !r.kind) return "";
   if (r.kind === "dhw") return t("Wärmepumpe lädt Warmwasser");
@@ -79,6 +79,8 @@ export function waitReasonText(r) {
 
 export function statusFor(a) {
   const s = STATUS[a.status] || STATUS.idle;
+  // #100/tado: Gerät heizt, Raum ist aber schon deutlich über dem Ziel – nicht als normales „Heizt“.
+  if (a.status === "heating" && a.heating_warm) return { label: t("Gerät heizt – Raum schon warm"), icon: "mdi:fire-alert", tone: "warn", reason: a.overheat_trim ? t("Raumklima nimmt den Sollwert am Thermostat zurück") : "" };
   const why = a.status === "waiting" ? waitReasonText(a.wait_reason) : "";
   return why ? { ...s, label: `${s.label} – ${why}`, reason: why } : s;
 }

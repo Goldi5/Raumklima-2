@@ -693,6 +693,8 @@ _ROWS: list[tuple[str, str, str]] = [
     ("Wohnung nicht gefunden", "Home not found", "Logement introuvable"),
     ("Wunschtemperatur übernommen", "Target temperature applied", "Température de consigne appliquée"),
     ("Aus-Sollwert {t}", "Off setpoint {t}", "Consigne d’arrêt {t}"),
+    ("Thermostat heizt, Raum schon {c} – Sollwert {k} K zurück", "Thermostat is heating, room already {c} – setpoint lowered by {k} K", "Le thermostat chauffe, pièce déjà à {c} – consigne baissée de {k} K"),
+    ("Das Gerät misst am Heizkörper weniger als der Raumfühler; bis der Raum wieder am Ziel ist", "The device reads less at the radiator than the room sensor; until the room is back at target", "L’appareil mesure moins au radiateur que le capteur de pièce ; jusqu’au retour à la cible"),
     ("Raumfühler hängt – geregelt wird mit dem Thermostatfühler", "Room sensor stuck – controlling with the thermostat sensor", "Capteur de pièce figé – régulation avec le capteur du thermostat"),
     ("Raumfühler meldet sich wieder", "Room sensor is reporting again", "Le capteur de pièce répond à nouveau"),
     ("Seit {m} min keine Meldung, das Thermostat hat sich um {d} K bewegt", "No report for {m} min while the thermostat moved by {d} K", "Aucun signal depuis {m} min, le thermostat a varié de {d} K"),

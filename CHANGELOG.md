@@ -1,3 +1,19 @@
+## 2.0.1b31 – 2026-11-27
+
+### Verbessert
+- **„Heizt noch nicht“ statt „Wartet auf Wärme“ (#100):** Ist der Raum mindestens 0,5 K zu kalt, das
+  Thermostat heizt aber (noch) nicht, heißt der Status jetzt verständlicher „Heizt noch nicht“ – mit
+  Grund dahinter, wenn Raumklima ihn kennt (z. B. „Thermostat misst am Heizkörper schon 21 °C“ oder
+  „Wärmepumpe lädt Warmwasser“).
+
+### Neu
+- **Gerät heizt, obwohl der Raum schon warm ist:** tado und ähnliche Geräte regeln nach ihrem eigenen
+  Fühler am Heizkörper. Misst der kälter als der Raumfühler, heizen sie weiter, obwohl der Raum schon
+  über dem Ziel liegt. Liegt der Raum mindestens 0,5 K über dem Ziel und das Gerät heizt noch, nimmt
+  Raumklima den Sollwert am Thermostat um 1 K zurück, bis der Raum wieder am Ziel ist (mit Hysterese,
+  im Protokoll vermerkt). Die Karte zeigt dann „Gerät heizt – Raum schon warm“ in Warnfarbe statt des
+  normalen „Heizt“.
+
 ## 2.0.1b30 – 2026-11-27
 
 ### Verbessert
