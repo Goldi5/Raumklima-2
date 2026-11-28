@@ -1,3 +1,13 @@
+## 2.0.1b37 – 2026-11-28
+
+### Neu
+- **Export: berechnete Ventilzeit aufgeteilt (#28):** Neben `ventil_berechnet_h` stehen jetzt
+  `ventil_grundlast_h` (was der Raum am Ziel zum Halten braucht) und `ventil_bedarf_h` (Öffnung
+  darüber, also Aufheizen und Nachregeln). Hintergrund: Das Modell rechnet wie ein stufenlos
+  öffnendes Ventil und bleibt am Ziel auf der Grundlast stehen; ein taktendes Thermostat meldet in
+  dieser Zeit „Leerlauf“. `ventil_bedarf_h` ist daher der Wert, der sich mit `heizt_h` vergleichen
+  lässt. Erfasst ab dieser Version – ältere Tage zählen komplett als Bedarf.
+
 ## 2.0.1b36 – 2026-11-28
 
 ### Verbessert

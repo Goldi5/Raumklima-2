@@ -352,7 +352,8 @@ class HealthMixin:
         return RoomSample(
             heating=self.status == STATUS_HEATING,
             valve=self.valve_position,
-            valve_calc=(self.valve_shadow().get("calc_pct")),
+            valve_calc=(shadow := self.valve_shadow()).get("calc_pct"),
+            valve_base=shadow.get("base_pct"),
             predicted_temp=None if predicted is None else round(predicted, 2),
             reason=reason,
             target=self.target_temp,

@@ -299,6 +299,8 @@ class Insights(EnergyInsightsMixin):
                             "heating_h": r["heating_h"],
                             "valve_h": r["valve_h"],
                             "valve_calc_h": r["valve_calc_h"],
+                            "valve_base_h": r.get("valve_base_h", 0.0),
+                            "valve_demand_h": r.get("valve_demand_h", 0.0),
                             "deficit_kh": r["deficit_kh"],
                             "setback_h": r["setback_h"],
                         }

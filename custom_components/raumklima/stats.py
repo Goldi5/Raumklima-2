@@ -22,6 +22,7 @@ ROOM_FIELDS = (
     "heating_s",  # Status „heizt“
     "valve_pct_s",  # ∫ Ventilöffnung % · s
     "valve_calc_pct_s",  # ∫ berechneter Öffnungsgrad % · s (Schattenmodus)
+    "valve_base_pct_s",  # davon Grundlast (Halten), #28
     "valve_seen_s",  # Zeit, in der das Gerät überhaupt eine Ventilstellung meldet
     "deficit_ks",  # ∫ max(0, Ziel − Ist) K · s – Rückfall ohne Ventilstellung
     "target_s",  # ∫ Ziel · s (Tagesmittel des Ziels)
@@ -88,6 +89,7 @@ class RoomSample:
     trv_down: bool = False
     hour: int | None = None  # Ortszeit, für das Wärmebild
     valve_calc: float | None = None  # Schattenmodus: berechneter Öffnungsgrad %
+    valve_base: float | None = None  # davon Grundlast % (was der Raum zum Halten braucht, #28)
     predicted_temp: float | None = None  # vom Wärmemodell erwartete Temperatur
 
 
@@ -105,7 +107,10 @@ def add_room_sample(day: dict[str, float], s: RoomSample, dt: float) -> None:
     if s.valve is not None:
         day["valve_pct_s"] += max(0.0, min(100.0, s.valve)) * dt
     if s.valve_calc is not None:
-        day["valve_calc_pct_s"] += max(0.0, min(100.0, s.valve_calc)) * dt
+        calc = max(0.0, min(100.0, s.valve_calc))
+        day["valve_calc_pct_s"] += calc * dt
+        # #28: Grundlast (Halten) und Bedarf darüber (Aufheizen) getrennt zählen
+        day["valve_base_pct_s"] += min(calc, max(0.0, s.valve_base or 0.0)) * dt
     if s.valve is not None:
         day["valve_seen_s"] += dt
     # Gradstunden: nur wenn der Raum wirklich regeln soll und zu kalt ist. Absenkung und
@@ -219,6 +224,8 @@ def summarize_room(days: list[dict[str, float]]) -> dict[str, Any]:
         "heating_h": round(_sum(days, "heating_s") / 3600, 1),
         "valve_h": round(_sum(days, "valve_pct_s") / 100 / 3600, 1),
         "valve_calc_h": round(_sum(days, "valve_calc_pct_s") / 100 / 3600, 1),
+        "valve_base_h": round(_sum(days, "valve_base_pct_s") / 100 / 3600, 1),
+        "valve_demand_h": round(max(0.0, _sum(days, "valve_calc_pct_s") - _sum(days, "valve_base_pct_s")) / 100 / 3600, 1),
         # Gradstunden unter Ziel: gemessene Wärmelücke, funktioniert auch ohne Ventilstellung
         "deficit_kh": round(_sum(days, "deficit_ks") / 3600, 1),
         "target_avg": (
@@ -349,6 +356,9 @@ CSV_COLUMNS = (
     ("valve_h", "ventil_voll_offen_h"),
     # Schattenmodus: was Raumklima rechnen würde – Vergleich zur Geräteposition (#28)
     ("valve_calc_h", "ventil_berechnet_h"),
+    # davon Grundlast (Halten am Ziel) und Bedarf darüber (Aufheizen) – #28
+    ("valve_base_h", "ventil_grundlast_h"),
+    ("valve_demand_h", "ventil_bedarf_h"),
     ("deficit_kh", "gradstunden_unter_ziel_Kh"),
     ("target_avg", "ziel_mittel_C"),
     ("setback_h", "abgesenkt_h"),
