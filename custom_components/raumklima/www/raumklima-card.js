@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b34 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b35 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1785,7 +1785,10 @@
     "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima is lowering the setpoint on the thermostat",
     "Volle Breite testen (Beta)": "Try full width (beta)",
     "volle Breite": "full width",
-    "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Settings, report, log and energy use the full screen width – helps on foldables and tablets in portrait, where Home Assistant otherwise shows only one narrow column. Applies to the generated dashboard after reloading the page; switching it off restores the previous view."
+    "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Settings, report, log and energy use the full screen width – helps on foldables and tablets in portrait, where Home Assistant otherwise shows only one narrow column. Applies to the generated dashboard after reloading the page; switching it off restores the previous view.",
+    "+ weitere Personen ({n})": "+ more people ({n})",
+    "nur Bewohner zeigen": "show residents only",
+    "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Tap to select/deselect. Counts as soon as one of their phones is in the zone. People not selected (e.g. admin) are hidden and not offered anywhere else."
   };
 
   // src/i18n/fr.js
@@ -3573,7 +3576,10 @@
     "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima baisse la consigne du thermostat",
     "Volle Breite testen (Beta)": "Tester la pleine largeur (bêta)",
     "volle Breite": "pleine largeur",
-    "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Réglages, rapport, journal et énergie utilisent toute la largeur de l’écran – utile sur les téléphones pliables et tablettes en portrait, où Home Assistant n’affiche sinon qu’une colonne étroite. S’applique au tableau de bord généré après rechargement de la page ; désactiver rétablit l’affichage précédent."
+    "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Réglages, rapport, journal et énergie utilisent toute la largeur de l’écran – utile sur les téléphones pliables et tablettes en portrait, où Home Assistant n’affiche sinon qu’une colonne étroite. S’applique au tableau de bord généré après rechargement de la page ; désactiver rétablit l’affichage précédent.",
+    "+ weitere Personen ({n})": "+ autres personnes ({n})",
+    "nur Bewohner zeigen": "n’afficher que les habitants",
+    "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Touchez pour (dé)sélectionner. Compte dès qu’un de leurs téléphones est dans la zone. Les personnes non sélectionnées (p. ex. admin) sont masquées et ne sont proposées nulle part ailleurs."
   };
 
   // src/i18n.js
@@ -3617,7 +3623,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b34";
+  var RK_VERSION = "2.0.1b35";
 
   // src/styles.js
   var STYLES = `
@@ -4329,6 +4335,12 @@
   // src/util.js
   var esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   var escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  function rkRelevantPersons(all, residents, keep = []) {
+    const list = Array.isArray(all) ? all : [];
+    const res = Array.isArray(residents) ? residents : [];
+    if (!res.length) return list;
+    return list.filter((p) => res.includes(p.id) || keep.includes(p.id));
+  }
   function rkSensorReading(state, offset) {
     const raw = parseFloat(state);
     if (!Number.isFinite(raw)) return null;
@@ -7178,15 +7190,18 @@
   var PresenceSectionMethods = {
     _groupPresence(ctx) {
       const { ch, st, H, hubIds, pres, residents, persons } = ctx;
-      const personChips = (ch.persons || []).map((p) => {
+      const allPersons = ch.persons || [];
+      const shownPersons = this._allPersons ? allPersons : rkRelevantPersons(allPersons, residents);
+      const hiddenCount = allPersons.length - shownPersons.length;
+      const personChips = shownPersons.map((p) => {
         const on = residents.includes(p.id);
         const info = persons[p.id];
         const where = info ? info.present ? info.source === "wifi" ? t("da (WLAN)") : info.source === "gps" ? t("da (GPS)") : t("da") : info.distance_km != null ? `${fmt(info.distance_km, info.distance_km < 10 ? 1 : 0)} km` : t("unbekannt") : "";
         return `<button class="chip2 ${on ? "" : "off"}" data-person="${p.id}" style="--c:${on ? info && info.present ? "var(--rk-ok)" : "var(--rk-eco)" : "var(--rk-off)"}" ${this._admin ? "" : "disabled"}><i></i>${esc(p.name)}${on && where ? ` · ${where}` : ""}</button>`;
-      }).join("");
+      }).join("") + (hiddenCount > 0 ? `<button class="chip2 off" data-allpersons="1" style="--c:var(--rk-off)">${t("+ weitere Personen ({n})", { n: hiddenCount })}</button>` : this._allPersons && residents.length ? `<button class="chip2 off" data-allpersons="0" style="--c:var(--rk-off)">${t("nur Bewohner zeigen")}</button>` : "");
       const presRows = [
         `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
-        this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
+        this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten."),
         this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
         this._row(
           "Anwesenheit erkennen über",
@@ -8872,7 +8887,8 @@
           (() => {
             const ch = this._cfg && this._cfg.choices || {};
             const groups = [
-              [t("Personen"), ch.persons || []],
+              // #103: nur die Bewohner der Wohnung (bereits gewählte bleiben sichtbar)
+              [t("Personen"), rkRelevantPersons(ch.persons || [], this._hubOpt("residents") || [], this._roomOpt(r, "room_persons") ?? s.room_persons ?? [])],
               [t("Schalter"), ch.room_switches || []]
             ].filter(([, items]) => items.length);
             if (!groups.some(([, items]) => items.length)) return "";
@@ -10222,6 +10238,11 @@
         }
         el.value = v;
         this._setHub({ [key]: v + ":00" }, 200);
+      });
+      on("click", "[data-allpersons]", (el) => () => {
+        this._allPersons = el.dataset.allpersons === "1";
+        this._sig = null;
+        this._render();
       });
       on("click", "[data-person]", (el) => () => {
         const list = [...this._hubOpt("residents") || []];

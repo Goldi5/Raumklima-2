@@ -1789,4 +1789,7 @@ export const FR = {
   "Volle Breite testen (Beta)": "Tester la pleine largeur (bêta)",
   "volle Breite": "pleine largeur",
   "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Réglages, rapport, journal et énergie utilisent toute la largeur de l’écran – utile sur les téléphones pliables et tablettes en portrait, où Home Assistant n’affiche sinon qu’une colonne étroite. S’applique au tableau de bord généré après rechargement de la page ; désactiver rétablit l’affichage précédent.",
+  "+ weitere Personen ({n})": "+ autres personnes ({n})",
+  "nur Bewohner zeigen": "n’afficher que les habitants",
+  "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Touchez pour (dé)sélectionner. Compte dès qu’un de leurs téléphones est dans la zone. Les personnes non sélectionnées (p. ex. admin) sont masquées et ne sont proposées nulle part ailleurs.",
 };

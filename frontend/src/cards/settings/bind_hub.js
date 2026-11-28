@@ -66,6 +66,11 @@ export const BindHubMethods = {
       el.value = v;
       this._setHub({ [key]: v + ":00" }, 200);
     });
+    on("click", "[data-allpersons]", (el) => () => {
+      this._allPersons = el.dataset.allpersons === "1";
+      this._sig = null;
+      this._render();
+    });
     on("click", "[data-person]", (el) => () => {
       const list = [...(this._hubOpt("residents") || [])];
       const i = list.indexOf(el.dataset.person);

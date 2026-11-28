@@ -1,18 +1,23 @@
 import { esc, fmt, t, toneVar, RK_HOMESENS } from "../../../shared.js";
+import { rkRelevantPersons } from "../../../util.js";
 
 export const PresenceSectionMethods = {
   _groupPresence(ctx) {
     const { ch, st, H, hubIds, pres, residents, persons } = ctx;
     // --- Anwesenheit
-    const personChips = (ch.persons || []).map((p) => {
+    // #103: nicht gewählte Personen (admin, technische Benutzer) eingeklappt, sobald jemand gewählt ist
+    const allPersons = ch.persons || [];
+    const shownPersons = this._allPersons ? allPersons : rkRelevantPersons(allPersons, residents);
+    const hiddenCount = allPersons.length - shownPersons.length;
+    const personChips = shownPersons.map((p) => {
       const on = residents.includes(p.id);
       const info = persons[p.id];
       const where = info ? (info.present ? (info.source === "wifi" ? t("da (WLAN)") : info.source === "gps" ? t("da (GPS)") : t("da")) : info.distance_km != null ? `${fmt(info.distance_km, info.distance_km < 10 ? 1 : 0)} km` : t("unbekannt")) : "";
       return `<button class="chip2 ${on ? "" : "off"}" data-person="${p.id}" style="--c:${on ? (info && info.present ? "var(--rk-ok)" : "var(--rk-eco)") : "var(--rk-off)"}" ${this._admin ? "" : "disabled"}><i></i>${esc(p.name)}${on && where ? ` · ${where}` : ""}</button>`;
-    }).join("");
+    }).join("") + (hiddenCount > 0 ? `<button class="chip2 off" data-allpersons="1" style="--c:var(--rk-off)">${t("+ weitere Personen ({n})", { n: hiddenCount })}</button>` : this._allPersons && residents.length ? `<button class="chip2 off" data-allpersons="0" style="--c:var(--rk-off)">${t("nur Bewohner zeigen")}</button>` : "");
     const presRows = [
       `<div class="status"><span class="chip" style="--tone:${toneVar(pres.tone)}"><ha-icon icon="${pres.icon}"></ha-icon>${pres.label}${st.stage === "preheat" && st.preheat_by ? ` · ${esc(st.preheat_by)}` : ""}</span>${st.presence_configured || this._hubOpt("presence_off") ? "" : `<span class="chip" style="--tone:var(--rk-warn)"><ha-icon icon="mdi:information-outline"></ha-icon>${t("Bewohner und Zone wählen, dann ist es aktiv")}</span>`}</div>`,
-      this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist."),
+      this._row("Wer wohnt hier?", `<div class="chips">${personChips || this._v("keine Personen in HA", true)}</div>`, "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten."),
       this._row("Wohnung (Zone)", this._select(H, "zone", ch.zones || [], this._hubOpt("zone"), "– wählen –")),
       this._row("Anwesenheit erkennen über", this._segs(H, "presence_source", { both: t("GPS und WLAN"), gps: t("nur GPS"), wifi: t("nur WLAN") }, this._hubOpt("presence_source") || "both"),
         "WLAN/Router kennt nur „zu Hause“ oder „weg“ – Entfernung und Vorheizen auf der Heimfahrt gehen nur mit GPS"),

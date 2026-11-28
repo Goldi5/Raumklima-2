@@ -2,7 +2,7 @@
 // Methoden der Klasse RaumklimaSettingsCard (angehängt in ../settings.js).
 import { HISTORY_STYLES, ISSUE_STYLES, PRESENCE, RK_BUILDING, RK_VERSION, RK_CAL, RK_DEFAULT_PUSH, RK_HOMESENS, RK_KINDS, RK_LIGHT_SIGNALS, RK_MAIL_PROVIDERS, RK_MODES, RK_MOLD, RK_NIGHT, RK_PREHEAT, RK_QUIET, RK_SCHED_FALLBACK, RK_OFF, RK_PKIND, RK_WALL, RK_ROOM_TYPES, RK_SYNC, SEASON, SETTINGS_STYLES, STYLES, esc, fmt, loc, planText, rkBusy, rkHomeId, rkHub, rkIssueList, rkLater, rkLayout, rkLayoutApply, rkLayoutChanged, rkLayoutRemember, rkBugReportUrl, rkManualUrl, rkNeedsDashboard, rkPaint, rkPretty, rkRooms, rkRoomsOrdered, rkSchedSortKey, rkScrolling, rkTimeValue, rkWindowOpen, schedDayName, schedDaysLabel, setLang, t, toneVar } from "../../shared.js";
 import { HELP } from "../../help.js";
-import { rkSensorReading } from "../../util.js";
+import { rkRelevantPersons, rkSensorReading } from "../../util.js";
 import { RK_NUM } from "../../fields.js";
 import { getLang } from "../../i18n.js";
 import { RK_GROUP_META, RK_IMPLICIT, RK_LAYOUT_COLORS, RK_GROUP_ORDER, RK_FACADES, RK_SHADE, RK_VALVE, rkFacadeName, ROOM_TABS, ROOM_TAB_DEFAULT } from "./const.js";
@@ -130,7 +130,8 @@ export const RoomMethods = {
         (() => {
           const ch = (this._cfg && this._cfg.choices) || {};
           const groups = [
-            [t("Personen"), ch.persons || []],
+            // #103: nur die Bewohner der Wohnung (bereits gewählte bleiben sichtbar)
+            [t("Personen"), rkRelevantPersons(ch.persons || [], this._hubOpt("residents") || [], this._roomOpt(r, "room_persons") ?? s.room_persons ?? [])],
             [t("Schalter"), ch.room_switches || []],
           ].filter(([, items]) => items.length);
           if (!groups.some(([, items]) => items.length)) return "";

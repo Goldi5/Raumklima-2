@@ -1,3 +1,12 @@
+## 2.0.1b35 – 2026-11-28
+
+### Verbessert
+- **Nicht relevante Benutzer ausblenden (#103):** Sind unter *Personen & Anwesenheit → „Wer wohnt
+  hier?“* Bewohner gewählt, werden alle anderen Personen aus Home Assistant (z. B. „admin“ oder
+  technische Benutzer für Integrationen) dort eingeklappt – „+ weitere Personen“ zeigt sie bei Bedarf
+  wieder – und auch bei *„Gilt für Personen“* im Raum nicht mehr angeboten. Bereits gewählte Einträge
+  bleiben sichtbar. Ist noch niemand gewählt, bleibt alles wie bisher.
+
 ## 2.0.1b34 – 2026-11-28
 
 ### Neu (Beta, zum Einschalten)
