@@ -426,6 +426,7 @@ export const SETTINGS_STYLES = `
     background: var(--ha-card-background, var(--card-background-color)); color: var(--primary-text-color); max-width: 260px; }
   .selwrap { display:flex; flex-direction:column; gap:5px; min-width:0; max-width:260px; }
   .selwrap .sel, .selwrap .selsearch { max-width:100%; width:100%; }
+  .srclbl { font-size:.82rem; color: var(--secondary-text-color); align-self:center; }
   .selsearch { font-weight:500 !important; }
   .inp.short { width: 86px; text-align:center; }
   .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap:14px; }

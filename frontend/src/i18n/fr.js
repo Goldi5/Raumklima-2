@@ -1792,4 +1792,7 @@ export const FR = {
   "+ weitere Personen ({n})": "+ autres personnes ({n})",
   "nur Bewohner zeigen": "n’afficher que les habitants",
   "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Touchez pour (dé)sélectionner. Compte dès qu’un de leurs téléphones est dans la zone. Les personnes non sélectionnées (p. ex. admin) sont masquées et ne sont proposées nulle part ailleurs.",
+  "– kein Einschalter –": "– aucun interrupteur –",
+  "läuft zusätzlich, wenn an:": "fonctionne aussi si allumé :",
+  "Einschalter: Ist die gewählte Lampe, der Schalter oder Helfer an, heizt diese Quelle mit – auch wenn sie sonst nicht dran wäre. „unangetastet“: Raumklima schickt ihr gar keine Befehle.": "Interrupteur : si la lampe, l’interrupteur ou l’assistant choisi est allumé, cette source chauffe aussi – même si elle ne le ferait pas sinon. « intouché » : Raumklima ne lui envoie aucune commande.",
 };

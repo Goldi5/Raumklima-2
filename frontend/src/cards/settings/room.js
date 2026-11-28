@@ -445,7 +445,8 @@ export const RoomMethods = {
       this._row("Haupt-Thermostat", this._v(esc(this._name(s.trv || "")), true), t("führt den Raum; die anderen Quellen folgen der Auswahl")),
     ];
     list.forEach((src, idx) => {
-      const trigOpts = [{ id: "", name: t("– keiner –") }, ...sigs];
+      // #67: Das zweite Feld war unbeschriftet – es ist ein Einschalter, kein Fühler.
+      const trigOpts = [{ id: "", name: t("– kein Einschalter –") }, ...sigs];
       const off = src.untouched ? "" : " off";
       rows.push(this._row(
         esc(src.name || src.entity),
@@ -454,13 +455,14 @@ export const RoomMethods = {
             <option value="trv"${src.type !== "ac" ? " selected" : ""}>${t("Thermostat")}</option>
             <option value="ac"${src.type === "ac" ? " selected" : ""}>${t("Klimaanlage")}</option>
           </select>
-          <select class="sel" data-srcfield="${id}|${idx}|trigger">
+          <span class="srclbl">${t("läuft zusätzlich, wenn an:")}</span>
+          <select class="sel" data-srcfield="${id}|${idx}|trigger" title="${t("läuft zusätzlich, wenn an:")}">
             ${trigOpts.map((o) => `<option value="${esc(o.id)}"${(src.trigger || "") === o.id ? " selected" : ""}>${esc(o.name)}</option>`).join("")}
           </select>
           <button class="chip2${off}" data-srcuntouched="${id}|${idx}"><i></i>${t("unangetastet")}</button>
           <button class="mini x" data-srcdel="${id}|${idx}" title="${t("entfernen")}">✕</button>
         </div>`,
-        `${esc(src.entity)} · ${t("Offset")} ${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K`
+        `${esc(src.entity)} · ${t("Offset")} ${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K · ${t("Einschalter: Ist die gewählte Lampe, der Schalter oder Helfer an, heizt diese Quelle mit – auch wenn sie sonst nicht dran wäre. „unangetastet“: Raumklima schickt ihr gar keine Befehle.")}`
       ));
       rows.push(this._row("… Offset", editable
         ? `<div class="stepper"><button data-srcstep="${id}|${idx}|-0.5" aria-label="${t("weniger")}">−</button><span class="v">${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K</span><button data-srcstep="${id}|${idx}|0.5" aria-label="${t("mehr")}">+</button></div>`

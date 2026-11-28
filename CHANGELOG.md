@@ -1,3 +1,10 @@
+## 2.0.1b36 – 2026-11-28
+
+### Verbessert
+- **Heizquellen: Einschalter beschriftet (#67):** Das zweite Auswahlfeld bei jeder weiteren Heizquelle
+  hatte keine Beschriftung und wirkte wie ein Fühler-Feld. Es heißt jetzt „läuft zusätzlich, wenn an:“
+  (Standard „– kein Einschalter –“), und die Zeile erklärt, was Einschalter und „unangetastet“ bewirken.
+
 ## 2.0.1b35 – 2026-11-28
 
 ### Verbessert

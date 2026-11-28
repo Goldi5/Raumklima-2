@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b35 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b36 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1788,7 +1788,10 @@
     "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Settings, report, log and energy use the full screen width – helps on foldables and tablets in portrait, where Home Assistant otherwise shows only one narrow column. Applies to the generated dashboard after reloading the page; switching it off restores the previous view.",
     "+ weitere Personen ({n})": "+ more people ({n})",
     "nur Bewohner zeigen": "show residents only",
-    "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Tap to select/deselect. Counts as soon as one of their phones is in the zone. People not selected (e.g. admin) are hidden and not offered anywhere else."
+    "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Tap to select/deselect. Counts as soon as one of their phones is in the zone. People not selected (e.g. admin) are hidden and not offered anywhere else.",
+    "– kein Einschalter –": "– no switch –",
+    "läuft zusätzlich, wenn an:": "also runs when on:",
+    "Einschalter: Ist die gewählte Lampe, der Schalter oder Helfer an, heizt diese Quelle mit – auch wenn sie sonst nicht dran wäre. „unangetastet“: Raumklima schickt ihr gar keine Befehle.": "Switch: if the chosen light, switch or helper is on, this source heats too – even when it otherwise wouldn’t. “untouched”: Raumklima sends it no commands at all."
   };
 
   // src/i18n/fr.js
@@ -3579,7 +3582,10 @@
     "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Réglages, rapport, journal et énergie utilisent toute la largeur de l’écran – utile sur les téléphones pliables et tablettes en portrait, où Home Assistant n’affiche sinon qu’une colonne étroite. S’applique au tableau de bord généré après rechargement de la page ; désactiver rétablit l’affichage précédent.",
     "+ weitere Personen ({n})": "+ autres personnes ({n})",
     "nur Bewohner zeigen": "n’afficher que les habitants",
-    "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Touchez pour (dé)sélectionner. Compte dès qu’un de leurs téléphones est dans la zone. Les personnes non sélectionnées (p. ex. admin) sont masquées et ne sont proposées nulle part ailleurs."
+    "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Touchez pour (dé)sélectionner. Compte dès qu’un de leurs téléphones est dans la zone. Les personnes non sélectionnées (p. ex. admin) sont masquées et ne sont proposées nulle part ailleurs.",
+    "– kein Einschalter –": "– aucun interrupteur –",
+    "läuft zusätzlich, wenn an:": "fonctionne aussi si allumé :",
+    "Einschalter: Ist die gewählte Lampe, der Schalter oder Helfer an, heizt diese Quelle mit – auch wenn sie sonst nicht dran wäre. „unangetastet“: Raumklima schickt ihr gar keine Befehle.": "Interrupteur : si la lampe, l’interrupteur ou l’assistant choisi est allumé, cette source chauffe aussi – même si elle ne le ferait pas sinon. « intouché » : Raumklima ne lui envoie aucune commande."
   };
 
   // src/i18n.js
@@ -3623,7 +3629,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b35";
+  var RK_VERSION = "2.0.1b36";
 
   // src/styles.js
   var STYLES = `
@@ -4049,6 +4055,7 @@
     background: var(--ha-card-background, var(--card-background-color)); color: var(--primary-text-color); max-width: 260px; }
   .selwrap { display:flex; flex-direction:column; gap:5px; min-width:0; max-width:260px; }
   .selwrap .sel, .selwrap .selsearch { max-width:100%; width:100%; }
+  .srclbl { font-size:.82rem; color: var(--secondary-text-color); align-self:center; }
   .selsearch { font-weight:500 !important; }
   .inp.short { width: 86px; text-align:center; }
   .people { display:grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap:14px; }
@@ -9252,7 +9259,7 @@
         this._row("Haupt-Thermostat", this._v(esc(this._name(s.trv || "")), true), t("führt den Raum; die anderen Quellen folgen der Auswahl"))
       ];
       list.forEach((src, idx) => {
-        const trigOpts = [{ id: "", name: t("– keiner –") }, ...sigs];
+        const trigOpts = [{ id: "", name: t("– kein Einschalter –") }, ...sigs];
         const off = src.untouched ? "" : " off";
         rows.push(this._row(
           esc(src.name || src.entity),
@@ -9261,13 +9268,14 @@
             <option value="trv"${src.type !== "ac" ? " selected" : ""}>${t("Thermostat")}</option>
             <option value="ac"${src.type === "ac" ? " selected" : ""}>${t("Klimaanlage")}</option>
           </select>
-          <select class="sel" data-srcfield="${id}|${idx}|trigger">
+          <span class="srclbl">${t("läuft zusätzlich, wenn an:")}</span>
+          <select class="sel" data-srcfield="${id}|${idx}|trigger" title="${t("läuft zusätzlich, wenn an:")}">
             ${trigOpts.map((o) => `<option value="${esc(o.id)}"${(src.trigger || "") === o.id ? " selected" : ""}>${esc(o.name)}</option>`).join("")}
           </select>
           <button class="chip2${off}" data-srcuntouched="${id}|${idx}"><i></i>${t("unangetastet")}</button>
           <button class="mini x" data-srcdel="${id}|${idx}" title="${t("entfernen")}">✕</button>
         </div>`,
-          `${esc(src.entity)} · ${t("Offset")} ${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K`
+          `${esc(src.entity)} · ${t("Offset")} ${src.offset > 0 ? "+" : ""}${fmt(src.offset, 1)} K · ${t("Einschalter: Ist die gewählte Lampe, der Schalter oder Helfer an, heizt diese Quelle mit – auch wenn sie sonst nicht dran wäre. „unangetastet“: Raumklima schickt ihr gar keine Befehle.")}`
         ));
         rows.push(this._row(
           "… Offset",

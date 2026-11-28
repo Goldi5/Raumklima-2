@@ -1792,4 +1792,7 @@ export const EN = {
   "+ weitere Personen ({n})": "+ more people ({n})",
   "nur Bewohner zeigen": "show residents only",
   "Tippen zum Aus-/Abwählen. Zählt, sobald eins ihrer Handys in der Zone ist. Nicht gewählte Personen (z. B. admin) werden ausgeblendet und auch sonst nirgends angeboten.": "Tap to select/deselect. Counts as soon as one of their phones is in the zone. People not selected (e.g. admin) are hidden and not offered anywhere else.",
+  "– kein Einschalter –": "– no switch –",
+  "läuft zusätzlich, wenn an:": "also runs when on:",
+  "Einschalter: Ist die gewählte Lampe, der Schalter oder Helfer an, heizt diese Quelle mit – auch wenn sie sonst nicht dran wäre. „unangetastet“: Raumklima schickt ihr gar keine Befehle.": "Switch: if the chosen light, switch or helper is on, this source heats too – even when it otherwise wouldn’t. “untouched”: Raumklima sends it no commands at all.",
 };
