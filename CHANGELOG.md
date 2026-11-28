@@ -1,3 +1,15 @@
+## 2.0.1b33 – 2026-11-28
+
+### Behoben
+- **„Fenster offen“ blieb dauerhaft hängen (#102):** In einem Raum ohne Fensterkontakt konnte ein
+  geschätztes Fenster (Temperatursturz) nach einem Neuladen oder Neustart nicht mehr enden: Der
+  gespeicherte Öffnungszeitpunkt wurde wie ein echtes offenes Fenster wiederhergestellt, die
+  30-Minuten-Grenze war aber verloren. Jetzt wird ein geschätztes Fenster nie aus dem Speicher
+  wiederhergestellt, und ein hängender Zustand ohne Kontakt löst sich beim nächsten Messwert von selbst.
+- **„Raum zurücksetzen“ verstellte Raumtyp und Kalibrierung (#102):** Der Reset setzte den Raumtyp auf
+  „Wohnraum“ und die Kalibrierart auf „Offset“. Beide bleiben jetzt stehen; Komfort- und
+  Absenktemperaturen bekommen die Standardwerte des Raumtyps (ein Bad also wieder seine eigenen).
+
 ## 2.0.1b32 – 2026-11-27
 
 ### Verbessert

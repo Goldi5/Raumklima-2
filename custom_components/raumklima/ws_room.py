@@ -310,7 +310,7 @@ async def ws_room_reset(hass: HomeAssistant, connection: websocket_api.ActiveCon
     if entry is None or entry.domain != DOMAIN or entry.data.get(CONF_ENTRY_TYPE) == ENTRY_HUB:
         connection.send_error(msg["id"], "not_found", tr("Raum nicht gefunden"))
         return
-    options = reset_room_options(dict(entry.options or {}))
+    options = reset_room_options(dict(entry.options or {}), dict(entry.data or {}))
     hass.config_entries.async_update_entry(entry, options=options)
     await hass.config_entries.async_reload(entry.entry_id)
     connection.send_result(msg["id"], {"ok": True})

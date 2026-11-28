@@ -365,7 +365,11 @@ class RaumklimaController(ReadingsMixin, ScheduleMixin, StatusMixin, ControlMixi
             if state and is_valid(state.state):
                 self._last_valid_windows[entity] = window_open_state(entity, state)
         self._window_raw = any_open(self._last_valid_windows, self.windows)
-        if not self._window_raw and self.vent.restored_open is not None:
+        if not self.windows:
+            # #102: Ohne Fensterkontakt war das gespeicherte „offen“ ein geschätztes Fenster. Das
+            # überlebt keinen Neustart (die 30-min-Grenze wäre verloren) – also verwerfen.
+            self.vent.discard_restored()
+        if not self._window_raw and self.vent.restored_open is not None and self.windows:
             # Der Kontakt war beim Start stumm (Funkloch) – laut Speicher ist das Fenster aber
             # offen. Dann ist das keine neue Öffnung: ohne diese Zeile protokolliert jeder
             # Neustart „Fenster auf“, pausiert erneut und schreibt kurz den Sollwert ans Gerät.

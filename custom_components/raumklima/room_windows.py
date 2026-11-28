@@ -144,6 +144,10 @@ class WindowMixin:
     def _check_virtual_window(self, now: datetime, value: float) -> None:
         if not self._started:
             return
+        if self._window_raw and self.virtual_open_at is None and not self._windows_open() and not self.windows:
+            # #102: Ohne Kontakt kann nur das geschätzte Fenster offen sein. Ist das vorbei (oder nach
+            # einem Neuladen nicht mehr da), darf der Raum nicht als „Fenster offen“ hängen bleiben.
+            self._evaluate_windows()
         if self.virtual_open_at is not None:
             self._virtual_low = min(self._virtual_low, value)
             reason = virtual_window_close_reason(self.virtual_open_at, now, self._virtual_low, value)

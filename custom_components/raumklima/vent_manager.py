@@ -341,6 +341,10 @@ class VentilationManager(VentNotifyMixin):
         """Öffnungszeitpunkt aus dem Speicher, solange er noch nicht übernommen wurde."""
         return self._restored_since
 
+    def discard_restored(self) -> None:
+        """Gespeicherten Öffnungszeitpunkt verwerfen (Raum ohne Fensterkontakt, #102)."""
+        self._restored_since = None
+
     def _take_restored(self) -> datetime | None:
         """Den gespeicherten Öffnungszeitpunkt genau einmal übernehmen (nach einem Neustart)."""
         since, self._restored_since = self._restored_since, None

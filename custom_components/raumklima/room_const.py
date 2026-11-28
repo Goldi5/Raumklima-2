@@ -15,6 +15,8 @@ from .const import (
     CONF_AIRING_WINDOWS,
     CONF_BOOST_MINUTES,
     CONF_BOOST_TEMP,
+    CONF_CALIBRATION_ENTITY,
+    CONF_CALIBRATION_MODE,
     CONF_CO2_LIMIT,
     CONF_COMFORT_TEMP,
     CONF_COOL_SETPOINT,
@@ -68,6 +70,7 @@ from .const import (
     CONF_ROOM_ECO_AFTER,
     CONF_ROOM_ECO_DROP,
     CONF_ROOM_PERSONS,
+    CONF_ROOM_TYPE,
     CONF_SCHEDULE_BY_PLAN,
     CONF_SCHEDULE_ENTITY,
     CONF_SCHEDULE_FALLBACK,
@@ -372,11 +375,28 @@ def _reset_value(key: str) -> Any:
     return None
 
 
-def reset_room_options(options: dict[str, Any]) -> dict[str, Any]:
-    """Einstellungen auf Standard setzen, ohne Struktur (Namen, Geräte, Sensoren) anzutasten."""
+# Bleiben beim Zurücksetzen stehen (#102): Raumtyp und Kalibrierart gehören zur Einrichtung
+# (welcher Raum, welches Gerät), nicht zu den Feineinstellungen.
+RESET_KEEP = frozenset({CONF_ROOM_TYPE, CONF_CALIBRATION_MODE, CONF_CALIBRATION_ENTITY})
+
+
+def reset_room_options(options: dict[str, Any], data: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Einstellungen auf Standard setzen, ohne Struktur (Namen, Geräte, Sensoren) anzutasten.
+
+    Raumtyp und Kalibrierart bleiben; Komfort und Absenkungen bekommen die Standards des Raumtyps
+    (ein Bad behält also seine 24 °C statt der 18 °C eines Wohnraums).
+    """
+    from .plan_const import setback_defaults
+    from .ventilation import COMFORT_BY_ROOM, DEFAULT_ROOM_TYPE
+
     out = dict(options)
-    for key in ROOM_RESET_KEYS:
+    for key in ROOM_RESET_KEYS - RESET_KEEP:
         out.pop(key, None)
-    for key in ROOM_RESET_KEYS:
+    for key in ROOM_RESET_KEYS - RESET_KEEP:
         out[key] = _reset_value(key)
+    room_type = out.get(CONF_ROOM_TYPE) or (data or {}).get(CONF_ROOM_TYPE) or DEFAULT_ROOM_TYPE
+    short, long_ = setback_defaults(room_type)
+    out[CONF_SETBACK_SHORT] = short
+    out[CONF_SETBACK_LONG] = long_
+    out[CONF_COMFORT_TEMP] = COMFORT_BY_ROOM.get(room_type, 20.0)
     return out
