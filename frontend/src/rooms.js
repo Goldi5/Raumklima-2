@@ -5,7 +5,7 @@ import { esc, escRe } from "./util.js";
 export const RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
 
 // ---------------------------------------------------------------- Darstellung je Wohnung (A3)
-const RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false };
+const RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false, beta_panel: false };
 const RK_LAYOUT_CACHE = new Map();
 
 export function rkLayout(hass, home) {

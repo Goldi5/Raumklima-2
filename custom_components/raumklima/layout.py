@@ -26,7 +26,7 @@ SIZES = ("big", "medium", "tile", "off")
 
 
 def _empty() -> dict[str, Any]:
-    return {"order": [], "hidden": [], "size": {}, "color": {}, "beta_floors": False}
+    return {"order": [], "hidden": [], "size": {}, "color": {}, "beta_floors": False, "beta_panel": False}
 
 
 def sanitize(raw: Any) -> dict[str, Any]:
@@ -48,6 +48,8 @@ def sanitize(raw: Any) -> dict[str, Any]:
         out["color"] = {str(k): str(v) for k, v in color.items() if isinstance(v, str) and v.startswith("#")}
     # Beta (#80): Übersicht nach HA-Stockwerken gruppieren – nur wer es einschaltet, sieht es
     out["beta_floors"] = raw.get("beta_floors") is True
+    # Beta (#101): Seiten mit nur einer Karte als Panel – volle Breite auf Fold/Tablet im Hochformat
+    out["beta_panel"] = raw.get("beta_panel") is True
     return out
 
 

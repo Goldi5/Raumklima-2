@@ -1786,4 +1786,7 @@ export const FR = {
   "Heizt noch nicht": "Ne chauffe pas encore",
   "Gerät heizt – Raum schon warm": "L’appareil chauffe – pièce déjà chaude",
   "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima baisse la consigne du thermostat",
+  "Volle Breite testen (Beta)": "Tester la pleine largeur (bêta)",
+  "volle Breite": "pleine largeur",
+  "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Réglages, rapport, journal et énergie utilisent toute la largeur de l’écran – utile sur les téléphones pliables et tablettes en portrait, où Home Assistant n’affiche sinon qu’une colonne étroite. S’applique au tableau de bord généré après rechargement de la page ; désactiver rétablit l’affichage précédent.",
 };

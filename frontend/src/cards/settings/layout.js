@@ -73,6 +73,10 @@ export const LayoutMethods = {
     const floors = this._row(t("Neue Übersicht testen (Beta)"),
       `<div class="segs">${[[false, t("aus")], [true, t("nach Stockwerk gruppieren")]].map(([v, l]) => `<button class="${!!L.beta_floors === v ? "on" : ""}" data-lfloors="${v}">${l}</button>`).join("")}</div>`,
       t("ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her."));
-    return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + floors + rows + foot);
+    // Beta (#101): Einstellungen, Bericht, Protokoll und Energie als Panel-Ansicht (volle Breite)
+    const panel = this._row(t("Volle Breite testen (Beta)"),
+      `<div class="segs">${[[false, t("aus")], [true, t("volle Breite")]].map(([v, l]) => `<button class="${!!L.beta_panel === v ? "on" : ""}" data-lpanel="${v}">${l}</button>`).join("")}</div>`,
+      t("Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her."));
+    return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + floors + panel + rows + foot);
   },
 };

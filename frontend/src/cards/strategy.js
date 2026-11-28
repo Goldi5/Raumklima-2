@@ -138,6 +138,17 @@ export class RaumklimaDashboardStrategy extends HTMLElement {
       sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }],
     };
 
+    // Beta (#101): Seiten mit nur einer Karte als Panel – sonst zeigt HA unter ~700 px Breite nur
+    // eine Spalte von höchstens ~500 px (Fold aufgeklappt, Tablet hochkant). Nur wer es einschaltet.
+    if (layout && layout.beta_panel) {
+      for (const v of [insightsView, reportView, logView, settingsView]) {
+        const card = { ...v.sections[0].cards[0] };
+        delete card.grid_options;
+        delete v.sections; delete v.max_columns;
+        v.type = "panel";
+        v.cards = [card];
+      }
+    }
     // Das ursprüngliche Dashboard beginnt mit „Räume“; „Heute“ ist entfallen.
     return { title: config.title || t("Heizung"), views: [roomsView, insightsView, historyView, reportView, logView, settingsView] };
   }

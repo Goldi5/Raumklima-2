@@ -1786,4 +1786,7 @@ export const EN = {
   "Heizt noch nicht": "Not heating yet",
   "Gerät heizt – Raum schon warm": "Device heating – room already warm",
   "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima is lowering the setpoint on the thermostat",
+  "Volle Breite testen (Beta)": "Try full width (beta)",
+  "volle Breite": "full width",
+  "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Settings, report, log and energy use the full screen width – helps on foldables and tablets in portrait, where Home Assistant otherwise shows only one narrow column. Applies to the generated dashboard after reloading the page; switching it off restores the previous view.",
 };

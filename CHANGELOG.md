@@ -1,3 +1,13 @@
+## 2.0.1b34 – 2026-11-28
+
+### Neu (Beta, zum Einschalten)
+- **Volle Breite testen (#101):** Unter *Einstellungen → Darstellung → „Volle Breite testen (Beta)“*
+  lassen sich Einstellungen, Bericht, Protokoll und Energie im generierten Dashboard als Panel-Ansicht
+  anzeigen. Das hilft auf Klapp-Handys (z. B. Galaxy Z Fold aufgeklappt) und Tablets im Hochformat:
+  Dort zeigt die Abschnitts-Ansicht von Home Assistant unter etwa 700 px Breite nur eine Spalte von
+  höchstens rund 500 px. Standardmäßig aus – wer nichts einschaltet, sieht alles wie bisher. Wirkt
+  nach dem Neuladen der Seite.
+
 ## 2.0.1b33 – 2026-11-28
 
 ### Behoben

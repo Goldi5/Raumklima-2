@@ -1,4 +1,4 @@
-/* Raumklima 2.0.1b33 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
+/* Raumklima 2.0.1b34 – gebaut aus frontend/src (npm run build). Nicht von Hand bearbeiten. */
 (() => {
   // src/i18n/en.js
   var EN = {
@@ -1782,7 +1782,10 @@
     "misst gerade {raw} °C → mit Korrektur {cor} °C": "reads {raw} °C right now → {cor} °C with correction",
     "Heizt noch nicht": "Not heating yet",
     "Gerät heizt – Raum schon warm": "Device heating – room already warm",
-    "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima is lowering the setpoint on the thermostat"
+    "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima is lowering the setpoint on the thermostat",
+    "Volle Breite testen (Beta)": "Try full width (beta)",
+    "volle Breite": "full width",
+    "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Settings, report, log and energy use the full screen width – helps on foldables and tablets in portrait, where Home Assistant otherwise shows only one narrow column. Applies to the generated dashboard after reloading the page; switching it off restores the previous view."
   };
 
   // src/i18n/fr.js
@@ -3567,7 +3570,10 @@
     "misst gerade {raw} °C → mit Korrektur {cor} °C": "mesure actuellement {raw} °C → {cor} °C avec la correction",
     "Heizt noch nicht": "Ne chauffe pas encore",
     "Gerät heizt – Raum schon warm": "L’appareil chauffe – pièce déjà chaude",
-    "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima baisse la consigne du thermostat"
+    "Raumklima nimmt den Sollwert am Thermostat zurück": "Raumklima baisse la consigne du thermostat",
+    "Volle Breite testen (Beta)": "Tester la pleine largeur (bêta)",
+    "volle Breite": "pleine largeur",
+    "Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.": "Réglages, rapport, journal et énergie utilisent toute la largeur de l’écran – utile sur les téléphones pliables et tablettes en portrait, où Home Assistant n’affiche sinon qu’une colonne étroite. S’applique au tableau de bord généré après rechargement de la page ; désactiver rétablit l’affichage précédent."
   };
 
   // src/i18n.js
@@ -3611,7 +3617,7 @@
   }
 
   // src/version.js
-  var RK_VERSION = "2.0.1b33";
+  var RK_VERSION = "2.0.1b34";
 
   // src/styles.js
   var STYLES = `
@@ -4335,7 +4341,7 @@
 
   // src/rooms.js
   var RK_COLORS = ["#ff7a45", "#4f9dff", "#a78bfa", "#2ec4a6", "#ffb020", "#f472b6", "#22d3ee", "#84cc16"];
-  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false };
+  var RK_LAYOUT_EMPTY = { order: [], hidden: [], size: {}, color: {}, beta_floors: false, beta_panel: false };
   var RK_LAYOUT_CACHE = /* @__PURE__ */ new Map();
   function rkLayout(hass, home) {
     const key = String(home || "");
@@ -8335,7 +8341,12 @@
         `<div class="segs">${[[false, t("aus")], [true, t("nach Stockwerk gruppieren")]].map(([v, l]) => `<button class="${!!L.beta_floors === v ? "on" : ""}" data-lfloors="${v}">${l}</button>`).join("")}</div>`,
         t("ordnet Übersicht und Raumkarten nach den Stockwerken aus Home Assistant (Einstellungen → Bereiche → Stockwerke) – Räume ohne Stockwerk stehen unter „Weitere Räume“. Ausschalten stellt die bisherige Ansicht wieder her.")
       );
-      return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + floors + rows + foot);
+      const panel = this._row(
+        t("Volle Breite testen (Beta)"),
+        `<div class="segs">${[[false, t("aus")], [true, t("volle Breite")]].map(([v, l]) => `<button class="${!!L.beta_panel === v ? "on" : ""}" data-lpanel="${v}">${l}</button>`).join("")}</div>`,
+        t("Einstellungen, Bericht, Protokoll und Energie nutzen die ganze Bildschirmbreite – hilft auf Klapp-Handys und Tablets im Hochformat, wo Home Assistant sonst nur eine schmale Spalte zeigt. Gilt im generierten Dashboard nach dem Neuladen der Seite; ausschalten stellt die bisherige Ansicht wieder her.")
+      );
+      return this._grp("layout", "Darstellung", "mdi:view-dashboard-outline", "air", look + floors + panel + rows + foot);
     }
   };
 
@@ -9750,6 +9761,12 @@
         this._render();
       });
       on("click", "[data-lsave]", (el) => () => this._layoutSave());
+      on("click", "[data-lpanel]", (el) => () => {
+        this._layout = { ...this._layout, beta_panel: el.dataset.lpanel === "true" };
+        this._layoutSave();
+        this._sig = null;
+        this._render();
+      });
       on("click", "[data-lfloors]", (el) => () => {
         this._layout = { ...this._layout, beta_floors: el.dataset.lfloors === "true" };
         this._layoutSave();
@@ -13263,6 +13280,16 @@
         max_columns: 3,
         sections: [{ type: "grid", column_span: 3, cards: [{ type: "custom:raumklima-log-card", ...H, strip_prefix: prefix, grid_options: { columns: "full" } }] }]
       };
+      if (layout && layout.beta_panel) {
+        for (const v of [insightsView, reportView, logView, settingsView]) {
+          const card = { ...v.sections[0].cards[0] };
+          delete card.grid_options;
+          delete v.sections;
+          delete v.max_columns;
+          v.type = "panel";
+          v.cards = [card];
+        }
+      }
       return { title: config.title || t("Heizung"), views: [roomsView, insightsView, historyView, reportView, logView, settingsView] };
     }
   };

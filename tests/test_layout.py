@@ -6,7 +6,7 @@ from custom_components.raumklima.layout import sanitize
 
 
 def test_leeres_layout() -> None:
-    leer = {"order": [], "hidden": [], "size": {}, "color": {}, "beta_floors": False}
+    leer = {"order": [], "hidden": [], "size": {}, "color": {}, "beta_floors": False, "beta_panel": False}
     assert sanitize(None) == leer
     assert sanitize("kaputt") == leer
 
@@ -39,3 +39,5 @@ def test_beta_stockwerke_nur_wenn_wirklich_an() -> None:
     assert sanitize({})["beta_floors"] is False
     assert sanitize({"beta_floors": "ja"})["beta_floors"] is False
     assert sanitize({"beta_floors": True})["beta_floors"] is True
+    assert sanitize({"beta_panel": True})["beta_panel"] is True
+    assert sanitize({"beta_panel": 1})["beta_panel"] is False

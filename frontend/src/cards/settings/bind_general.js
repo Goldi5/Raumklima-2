@@ -114,6 +114,12 @@ export const BindGeneralMethods = {
       this._render();
     });
     on("click", "[data-lsave]", (el) => () => this._layoutSave());
+    on("click", "[data-lpanel]", (el) => () => {
+      this._layout = { ...this._layout, beta_panel: el.dataset.lpanel === "true" };
+      this._layoutSave();
+      this._sig = null;
+      this._render();
+    });
     on("click", "[data-lfloors]", (el) => () => {
       this._layout = { ...this._layout, beta_floors: el.dataset.lfloors === "true" };
       this._layoutSave();
